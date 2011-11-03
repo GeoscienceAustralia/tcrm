@@ -52,25 +52,12 @@ from matplotlib.figure import Figure
 class MainFrame ( wx.Frame ):
 
     def __init__( self, parent ):
-        
-        # List of PCCSP partner countries with capital city coordinates
-        self.PCCSP_partner_countries = {'Cook Islands': {'Avarua': [-21.20, 200.23]},
-                                        'East Timor': {'Dili': [-8.57, 125.57]},
-                                        'Federated States of Micronesia': {'Palikir': [6.92, 158.18]},
-                                        'Fiji': {'Suva': [-18.17, 178.45]},
-                                        'Marshall Islands': {'Majuro': [7.12, 171.07]},
-                                        'Niue': {'N/A': [-19.06, 190.13]},
-                                        'Palau': {'Melekeok': [7.35, 134.47]},
-                                        'Papua New Guinea': {'Port Moresby': [-9.50, 147.12]},
-                                        'Samoa': {'Apia': [-13.83, 188.25]},
-                                        'Solomon Islands': {'Honiara': [-9.47, 159.82]},
-                                        'Tonga': {'Nukualofa': [-21.13, 184.80]},
-                                        'Tuvalu': {'Funafuti': [-8.52, 179.22]},
-                                        'Vanuatu': {'Port Vila': [-17.75, 168.30]}}
+        self.stnDict = self.getStations()
+        self.allStations = self.getWestPacificStations()
 
         # Sort country names into alphabetical order (since dictionaries do not preserve order)
-        PCCSP_partner_country_keys = self.PCCSP_partner_countries.keys()
-        PCCSP_partner_country_keys.sort(lambda x, y: cmp(x.lower(),y.lower()))
+        allStations_keys = self.allStations.keys()
+        allStations_keys.sort()
 
         self.columnChoices = {'refName':['', 'num', 'date', 'season', 'index', 'year', 'month', 'day',
                                          'hour', 'minute', 'lat', 'lon', 'pressure', 'rmax', 'tcserialno'],
@@ -78,7 +65,8 @@ class MainFrame ( wx.Frame ):
                                             'Hour', 'Minute', 'Latitude', 'Longitude', 'Central Pressure', 'RMW', 'TC Serial Number'],
                               'unitMapping':['', '', 'DateFormat', '', '', '', '', '',
                                              '', '', '', '', 'PressureUnits', 'LengthUnits', ''],
-                              'PCCSPCountries':[''] + PCCSP_partner_country_keys}
+                              'Countries':allStations_keys,
+                              'Stations':''}
         self.speedUnits = ['mps', 'mph', 'kph', 'kts']
         self.speedUnitsLongname = ['metres / second','miles / hour','kilometres / hour','knots']
         self.pressureUnits = ['hPa', 'kPa', 'Pa', 'inHg', 'mmHg']
@@ -297,12 +285,13 @@ class MainFrame ( wx.Frame ):
         self.tab_input.Layout()
         sizer1.Fit( self.tab_input )
         self.notebook_panel.AddPage( self.tab_input, u"Input", True )
-        self.userhelptext.append(" Please select an input track file by pressing the 'Browse' button located to the \n" + \
-                                 " right of 'Input CSV Track File'. " + \
+        self.userhelptext.append(" Please select an input track file by pressing the 'Browse' button located to \n" + \
+                                 " the right of 'Input CSV Track File'. " + \
                                  "\n\n                                          { Scroll down for further help }      " + \
                                  "\n\n Once selected, sample data will populate the columns above." + \
-                                 "\n Use the drop-down column menus to instruct TCRM what each column represents." + \
-                                 "\n Any columns not required by TCRM can be left with blank assignments.")
+                                 "\n Use the drop-down column menus to instruct TCRM what each column" + \
+                                 "\n represents.  Any columns not required by TCRM can be left with " + \
+                                 "\n blank assignments.")
         #---------------------------------------------------------
 
 
@@ -349,39 +338,70 @@ class MainFrame ( wx.Frame ):
 
         self.label3111n = wx.StaticText( self.tab_domain, wx.ID_ANY, u"Country:   ", wx.DefaultPosition, wx.DefaultSize, 0 )
         self.label3111n.Wrap( -1 )
-        sizer311n.Add( self.label3111n, 3, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+        sizer311n.Add( self.label3111n, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
-        self.choiceBoxn2 = wx.Choice(self.tab_domain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, self.columnChoices['PCCSPCountries'], 0)
-        self.choiceBoxn2.SetSelection(0)
+        self.choiceBoxn2 = wx.Choice(self.tab_domain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, self.columnChoices['Countries'], 0)
+        self.choiceBoxn2.SetSelection(-1)
         self.choiceBoxn2.Enable(True)
-        self.Bind(wx.EVT_CHOICE, self.setHazardDomain, self.choiceBoxn2)
+        self.Bind(wx.EVT_CHOICE, self.setCountry, self.choiceBoxn2)
         sizer311n.Add( self.choiceBoxn2, 2, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         self.label31112n = wx.StaticText( self.tab_domain, wx.ID_ANY, u"   ", wx.DefaultPosition, wx.DefaultSize, 0 )
         self.label31112n.Wrap( -1 )
-        sizer311n.Add( self.label31112n, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+        sizer311n.Add( self.label31112n, 2, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         staticBox31.Add( sizer311n, 1, wx.EXPAND, 5 )
 
+        
+        sizer311n2 = wx.BoxSizer( wx.HORIZONTAL )
+
+        self.label3111n2 = wx.StaticText( self.tab_domain, wx.ID_ANY, u"WMO Station:", wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.label3111n2.Wrap( -1 )
+        sizer311n2.Add( self.label3111n2, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+        self.choiceBoxn2b = wx.Choice(self.tab_domain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, [], 0)
+        self.choiceBoxn2b.SetSelection(0)
+        self.choiceBoxn2b.Enable(False)
+        self.Bind(wx.EVT_CHOICE, self.setStation, self.choiceBoxn2b)
+        sizer311n2.Add( self.choiceBoxn2b, 4, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+        staticBox31.Add( sizer311n2, 1, wx.EXPAND, 5 )
+        
+        
+        sizer311n3 = wx.BoxSizer( wx.HORIZONTAL )
+
+        self.label3111n3 = wx.StaticText( self.tab_domain, wx.ID_ANY, u"                                  Domain Limits (automatically selected):", wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.label3111n3.Enable(False)
+        self.label3111n3.Wrap( -1 )
+        sizer311n3.Add( self.label3111n3, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+        staticBox31.Add( sizer311n3, 1, wx.EXPAND, 5 )
+        
+
         sizer311 = wx.BoxSizer( wx.HORIZONTAL )
 
-        self.label3111 = wx.StaticText( self.tab_domain, wx.ID_ANY, u"Longitude (deg E):", wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.label3111 = wx.StaticText( self.tab_domain, wx.ID_ANY, u"                                  Longitude (deg E):", wx.DefaultPosition, wx.DefaultSize, 1 )
         self.label3111.Wrap( -1 )
+        self.label3111.Enable(False)
         sizer311.Add( self.label3111, 2, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         self.label3112 = wx.StaticText( self.tab_domain, wx.ID_ANY, u"min", wx.DefaultPosition, wx.DefaultSize, 0 )
         self.label3112.Wrap( -1 )
+        self.label3112.Enable(False)
         sizer311.Add( self.label3112, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         self.textCtrl3113 = wx.TextCtrl( self.tab_domain, 3113, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
+        self.textCtrl3113.Enable(False)
         sizer311.Add( self.textCtrl3113, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-        self.pointers.append((self.textCtrl3113, 'Region', 'gridLimit', 'xMin'))
+        self.pointers.append((self.textCtrl3113, 'Region', 'gridLimit', 'xMin'))        
 
         self.label3114 = wx.StaticText( self.tab_domain, wx.ID_ANY, u"max", wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.label3114.Enable(False)
         self.label3114.Wrap( -1 )
         sizer311.Add( self.label3114, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         self.textCtrl3115 = wx.TextCtrl( self.tab_domain, 3115, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
+        self.textCtrl3115.Enable(False)
         sizer311.Add( self.textCtrl3115, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
         self.pointers.append((self.textCtrl3115, 'Region', 'gridLimit', 'xMax'))
 
@@ -389,29 +409,34 @@ class MainFrame ( wx.Frame ):
 
         sizer312 = wx.BoxSizer( wx.HORIZONTAL )
 
-        self.label3121 = wx.StaticText( self.tab_domain, wx.ID_ANY, u"Latitude (deg N):", wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.label3121 = wx.StaticText( self.tab_domain, wx.ID_ANY, u"                                  Latitude (deg N):", wx.DefaultPosition, wx.DefaultSize, 1 )
         self.label3121.Wrap( -1 )
+        self.label3121.Enable(False)
         sizer312.Add( self.label3121, 2, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         self.label3122 = wx.StaticText( self.tab_domain, wx.ID_ANY, u"min", wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.label3122.Enable(False)
         self.label3122.Wrap( -1 )
         sizer312.Add( self.label3122, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         self.textCtrl3123 = wx.TextCtrl( self.tab_domain, 3123, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
+        self.textCtrl3123.Enable(False)
         sizer312.Add( self.textCtrl3123, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
         self.pointers.append((self.textCtrl3123, 'Region', 'gridLimit', 'yMin'))
 
         self.label3124 = wx.StaticText( self.tab_domain, wx.ID_ANY, u"max", wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.label3124.Enable(False)
         self.label3124.Wrap( -1 )
         sizer312.Add( self.label3124, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         self.textCtrl3125 = wx.TextCtrl( self.tab_domain, 3125, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_READONLY )
+        self.textCtrl3125.Enable(False)
         sizer312.Add( self.textCtrl3125, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
         self.pointers.append((self.textCtrl3125, 'Region', 'gridLimit', 'yMax'))
 
         staticBox31.Add( sizer312, 1, wx.EXPAND, 5 )
-
-        sizer3.Add( staticBox31, 3, wx.ALL|wx.EXPAND, 5 )
+        
+        sizer3.Add( staticBox31, 4, wx.ALL|wx.EXPAND, 5 )
 
         #staticBox32 = wx.StaticBoxSizer( wx.StaticBox( self.tab_domain, wx.ID_ANY, u"Track Generator Domain" ), wx.VERTICAL )
 
@@ -479,14 +504,17 @@ class MainFrame ( wx.Frame ):
 
         padder33 = wx.BoxSizer( wx.VERTICAL )
 
-        sizer3.Add( padder33, 3, wx.EXPAND, 5 )
+        sizer3.Add( padder33, 1, wx.EXPAND, 5 )
 
         self.tab_domain.SetSizer( sizer3 )
 
         self.tab_domain.Layout()
         sizer3.Fit( self.tab_domain )
         self.notebook_panel.AddPage( self.tab_domain, u"Domain", False )
-        self.userhelptext.append(" Please select a country/domain for assessing the cyclonic wind hazard.")
+        self.userhelptext.append(" Please select a country and WMO station for assessing the cyclonic wind\n" + \
+                                 " hazard.  The domain limits will then be automatically determined.\n\n" + \
+                                 " Note: Only WMO stations within the latitude bands of 5N-25N and 5S-25S\n" + \
+                                 " are listed.\n")
         #---------------------------------------------------------
 
 
@@ -1037,6 +1065,7 @@ class MainFrame ( wx.Frame ):
         self.setConfigKeyValue('DataProcess', 'Source', self.defaultSourceName, valueDataType='str')
         self.setConfigKeyValue('Region', '; Domain for windfield and hazard calculation', '', valueDataType='str')
         self.setConfigKeyValue('Region', 'gridLimit', str(emptyDomain), valueDataType='domain')
+        self.setConfigKeyValue('Region', 'WMOStnNo', '-9999', valueDataType='int')
         #self.setConfigKeyValue('StatInterface', 'gridLimit', str(emptyDomain), valueDataType='domain')
         self.setConfigKeyValue('StatInterface', 'kdeType', self.KDETypes[0], valueDataType='choicelist', choicelist=self.KDETypes)
         self.setConfigKeyValue('StatInterface', 'kde2DType', self.KDETypes[3], valueDataType='choicelist', choicelist=self.KDETypes)
@@ -1092,23 +1121,86 @@ class MainFrame ( wx.Frame ):
         #self.setConfigKeyValue(self.defaultSourceName, 'SpeedUnits', 'mps', valueDataType='choicelist', choicelist=self.speedUnits)
         self.setConfigKeyValue(self.defaultSourceName, 'PressureUnits', 'hPa', valueDataType='choicelist', choicelist=self.pressureUnits)
         self.setConfigKeyValue(self.defaultSourceName, 'LengthUnits', 'km', valueDataType='choicelist', choicelist=self.lengthUnits)
+        self.choiceBoxn2.SetSelection(-1)
+        self.choiceBoxn2.Clear()
+        for countryName in self.columnChoices['Countries']:
+            self.choiceBoxn2.Append(countryName)
+        self.setCountry(0)
         if self.display_MSLP_tab:
             self.resetMslpMonthList()
 
-    def setHazardDomain(self, event):
-        selection_number = self.choiceBoxn2.GetSelection()
-        if selection_number > 0:
-            country_selection = self.columnChoices['PCCSPCountries'][selection_number]
-            lat, lon = self.PCCSP_partner_countries[country_selection].values()[0]
-            self.textCtrl3113.SetValue(str(math.floor(lon - 5)))
-            self.textCtrl3115.SetValue(str(math.ceil(lon + 5)))
-            self.textCtrl3123.SetValue(str(math.floor(lat - 5)))
-            self.textCtrl3125.SetValue(str(math.ceil(lat + 5)))
-        else:
+    def setCountry(self, event):
+        country_selection_number = self.choiceBoxn2.GetSelection()
+        if country_selection_number >= 0:
+            country_selection = self.columnChoices['Countries'][country_selection_number]
+            self.choiceBoxn2b.Clear()
             self.textCtrl3113.SetValue('')
             self.textCtrl3115.SetValue('')
             self.textCtrl3123.SetValue('')
             self.textCtrl3125.SetValue('')
+            self.label3111.Enable(False)
+            self.label3112.Enable(False)
+            self.label3114.Enable(False)
+            self.label3121.Enable(False)
+            self.label3122.Enable(False)
+            self.label3124.Enable(False)
+            self.label3111n3.Enable(False)
+            self.textCtrl3113.Enable(False)
+            self.textCtrl3115.Enable(False)
+            self.textCtrl3123.Enable(False)
+            self.textCtrl3125.Enable(False)
+            self.columnChoices['Stations'] = self.allStations[country_selection].keys()
+            self.columnChoices['Stations'].sort()
+            self.setConfigKeyValue('Region', 'WMOStnNo', '-9999')
+            for stnName in self.columnChoices['Stations']:
+                self.choiceBoxn2b.Append(stnName)
+            self.choiceBoxn2b.Enable(True)
+        else:
+            self.choiceBoxn2b.Clear()
+            self.choiceBoxn2b.SetSelection(-1)
+            self.columnChoices['Stations'] = ['']
+            self.choiceBoxn2b.Enable(False)
+            self.textCtrl3113.SetValue('')
+            self.textCtrl3115.SetValue('')
+            self.textCtrl3123.SetValue('')
+            self.textCtrl3125.SetValue('')
+            self.label3111.Enable(False)
+            self.label3112.Enable(False)
+            self.label3114.Enable(False)
+            self.label3121.Enable(False)
+            self.label3122.Enable(False)
+            self.label3124.Enable(False)
+            self.label3111n3.Enable(False)
+            self.textCtrl3113.Enable(False)
+            self.textCtrl3115.Enable(False)
+            self.textCtrl3123.Enable(False)
+            self.textCtrl3125.Enable(False)
+            
+
+    def setStation(self, event):
+        country_selection_number = self.choiceBoxn2.GetSelection()
+        station_selection_number = self.choiceBoxn2b.GetSelection()
+        country_selection = self.columnChoices['Countries'][country_selection_number]
+        station_selection = self.columnChoices['Stations'][station_selection_number]
+        if station_selection_number >= 0:
+            self.columnChoices['Stations']
+            stn, lon, lat = self.allStations[country_selection][station_selection]
+            self.setConfigKeyValue('Region', 'WMOStnNo', str(stn))
+            self.textCtrl3113.SetValue(str(math.floor(lon - 5)))
+            self.textCtrl3115.SetValue(str(math.ceil(lon + 5)))
+            self.textCtrl3123.SetValue(str(math.floor(lat - 5)))
+            self.textCtrl3125.SetValue(str(math.ceil(lat + 5)))
+            self.label3111.Enable(True)
+            self.label3112.Enable(True)
+            self.label3114.Enable(True)
+            self.label3121.Enable(True)
+            self.label3122.Enable(True)
+            self.label3124.Enable(True)
+            self.label3111n3.Enable(True)
+            self.textCtrl3113.Enable(True)
+            self.textCtrl3115.Enable(True)
+            self.textCtrl3123.Enable(True)
+            self.textCtrl3125.Enable(True)
 
     def setPlottingUnits(self, event):
         selection_number = self.choiceBoxn822.GetSelection()
@@ -1265,6 +1357,8 @@ class MainFrame ( wx.Frame ):
         self.textCtrl3115.SetValue(self.getConfigKeyValue('Region', 'gridLimit', 'xMax'))
         self.textCtrl3123.SetValue(self.getConfigKeyValue('Region', 'gridLimit', 'yMin'))
         self.textCtrl3125.SetValue(self.getConfigKeyValue('Region', 'gridLimit', 'yMax'))
+        #self.choiceBoxn2.SetSelection(-1)
+        #self.setCountry(0):
         #self.textCtrl3213.SetValue(self.getConfigKeyValue('TrackGenerator', 'gridLimit', 'xMin'))
         #self.textCtrl3215.SetValue(self.getConfigKeyValue('TrackGenerator', 'gridLimit', 'xMax'))
         #self.textCtrl3223.SetValue(self.getConfigKeyValue('TrackGenerator', 'gridLimit', 'yMin'))
@@ -1509,6 +1603,7 @@ class MainFrame ( wx.Frame ):
             else:
                 # Flag to prevent program exit if user cancelled file save
                 vetoExit = True
+
                 dlg.Destroy()
             return vetoExit
 
@@ -1860,7 +1955,15 @@ class MainFrame ( wx.Frame ):
             inputsource = self.getConfigKeyValue('DataProcess', 'Source')
             self.setConfigKeyValue(inputsource, 'Columns', '')
             self.refreshColumns()
-
+        stnNo = int(self.getConfigKeyValue('Region', 'WMOStnNo'))
+        if stnNo in self.stnDict:
+            self.choiceBoxn2.SetStringSelection(self.stnDict[stnNo][3])
+            self.setCountry(0)
+            self.choiceBoxn2b.SetStringSelection(self.stnDict[stnNo][2])
+            self.setStation(0)
+        else:
+            self.setConfigKeyValue('Region', 'WMOStnNo', '-9999')
+            
     def resetMslpMonthList(self):
         monthlist = set(self.convertString2IntList(self.getConfigKeyValue('Input', 'MSLPGrid')))
         allmonths = set(range(1,13))
@@ -2136,8 +2239,6 @@ class MainFrame ( wx.Frame ):
         self.setConfigKeyValue('TrackGenerator', 'gridLimit', str(tg_domain))
         self.refreshGUIsettings()
 
-
-
     def calculateFrequency(self, event):
 
         # Show warning if cannot find or import columns.py
@@ -2258,7 +2359,6 @@ class MainFrame ( wx.Frame ):
         freqdlg.MakeModal(True)
         freqdlg.Show()
 
-
     def loadHelp(self, event):
         if event.Id == 1010:
             helpText = "Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)\n" + \
@@ -2347,6 +2447,82 @@ class MainFrame ( wx.Frame ):
         for k in dict0.keys():
             newDict[k] = str(dict0[k])
         return newDict
+
+    def getStations(self):
+        # Use station file located in TCRM input directory
+        tcrm_dir = pathLocator.getRootDirectory()
+        tcrm_input_dir = os.path.join(tcrm_dir, 'input')
+        stnFile = os.path.join(tcrm_input_dir, 'station_list.txt')
+        
+        csvReader = csv.reader(open(stnFile, 'rb'), delimiter=';')
+        stnDict = {}  
+        for row in csvReader:
+            stnlat_str = row[7]
+            stnlat_str = stnlat_str.replace('-', ':')
+            if stnlat_str[-1] == 'N':
+                stnlat_str = stnlat_str[0:-1]
+            elif stnlat_str[-1] == 'S':
+                stnlat_str = '-' + stnlat_str[0:-1]
+            else:
+                continue
+
+            stnlon_str = row[8]
+            stnlon_str = stnlon_str.replace('-', ':')
+            if stnlon_str[-1] == 'E':
+                stnlon_str = stnlon_str[0:-1]
+            elif stnlon_str[-1] == 'W':
+                stnlon_str = '-' + stnlon_str[0:-1]
+            else:
+                continue
+
+            degminsec = numpy.double(stnlat_str.split(':'))
+            stnlat = 0
+            for k in range(len(degminsec)):
+                stnlat = stnlat + abs(degminsec[k] / 60.0**k)
+            stnlat = stnlat * numpy.sign(degminsec[0])
+
+            degminsec = numpy.double(stnlon_str.split(':'))
+            stnlon = 0
+            for k in range(len(degminsec)):
+                stnlon = stnlon + abs(degminsec[k] / 60.0**k)
+            stnlon = stnlon * numpy.sign(degminsec[0])
+            stnlon = numpy.mod(stnlon, 360.0)
+            stnlonlabel = str(int(stnlon*10)/10.0) + 'E'
+            if stnlat < 0:
+                stnlatlabel = str(int(abs(stnlat)*10)/10.0) + 'S'
+            else:
+                stnlatlabel = str(int(stnlat*10)/10.0) + 'N'
+                
+            if int(row[0] + row[1]) > 1:
+                stnDict[int(row[0] + row[1])] = [stnlon, stnlat, row[0] + row[1] + ':  ' \
+                                                 + row[3] + '  (' + stnlonlabel + ', ' + \
+                                                 stnlatlabel + ')', row[5]]
+        return stnDict
+
+    def getWestPacificStations(self):
+        westPacificStns = {}
+
+        country_filter = \
+           ['Australia', 'East Timor', 'Palau', 'Solomon Islands', 'Vanuatu', 'Nauru', 'Niue',
+            'Cook Islands', 'Tuvalu', 'Papua New Guinea', 'Marshall Islands', 
+            'Micronesia, Federated States of', 'Kiribati', 'Tonga', 'Philippines', 
+            'New Caledonia', 'Samoa', 'Fiji']
+
+        for stn in self.stnDict:
+            stnlon = self.stnDict[stn][0]
+            stnlat = self.stnDict[stn][1]
+            #if (stnlon>110) and (stnlon<210) and (stnlat>-25) and (stnlat<10) and (abs(stnlat) > 5):
+            #if 1 == 1:
+            if (stnlat>-25) and (stnlat<25) and (abs(stnlat) > 5):
+                stnCountry = self.stnDict[stn][3]
+                stnName = self.stnDict[stn][2]
+                if stnCountry in country_filter:
+                    if stnCountry in westPacificStns:
+                        westPacificStns[stnCountry][stnName] = [stn, stnlon, stnlat]
+                    else:
+                        westPacificStns[stnCountry] = {}
+                        westPacificStns[stnCountry][stnName] = [stn, stnlon, stnlat]
+        return westPacificStns       
 
 
 def MsgDlg(window, string, caption='wxProject', style=wx.YES_NO|wx.CANCEL):

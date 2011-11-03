@@ -10418,8 +10418,8 @@
 91;809;----;Manihiki Aws;;Cook Islands;5;10-26S;161-01W;;;2;;
 91;811;----;Pukapuka;;Cook Islands;5;10-53S;165-49W;;;2;3;
 91;819;----;Suwarrow;;Cook Islands;5;13-14S;163-05W;;;3;;
-91;822;NIUE;Alofi / Niue;;Cook Islands;5;19-04S;169-55W;;;20;22;P
-91;823;----;Hanan Airport / Niue;;Cook Islands;5;19-05S;169-56W;;;58;60;
+91;822;NIUE;Alofi;;Niue;5;19-04S;169-55W;;;20;22;P
+91;823;----;Hanan Airport;;Niue;5;19-05S;169-56W;;;58;60;
 91;831;----;Aitutaki Aws;;Cook Islands;5;18-50S;159-46W;;;5;;
 91;841;----;Mauke Aws;;Cook Islands;5;20-10S;157-21W;;;25;;
 91;843;NCRG;Rarotonga;;Cook Islands;5;21-12S;159-49W;21-12S;159-49W;7;7;P
