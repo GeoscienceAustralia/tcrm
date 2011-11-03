@@ -271,7 +271,7 @@ class MainFrame ( wx.Frame ):
 
         self.labeln0 = wx.StaticText( self.tab_input, wx.ID_ANY, u"Number of text header lines:", wx.DefaultPosition, wx.DefaultSize, 0 )
         self.labeln0.Wrap( -1 )
-        sizerhz1.Add( self.labeln0, 3, wx.ALL, 7 )
+        sizerhz1.Add( self.labeln0, 0, wx.ALL, 7 )
 
         self.m_spinCtrl1 = wx.SpinCtrl( self.tab_input, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0, 0, 10, 0 )
         self.m_spinCtrl1.Bind(wx.EVT_SPINCTRL, self.headerLinesSettingChange)
@@ -1215,15 +1215,15 @@ class MainFrame ( wx.Frame ):
 
         # If not a file name, reset columns size
         if len(os.path.basename(self.datafilename)) == 0:
-            self.scrolledWindow122.SetVirtualSize((self.gridColSize*self.gridMaxCols, self.gridRowSize*self.gridMaxRows))
             self.grid_inputCSV.SetSize((self.gridColSize*self.gridMaxCols, self.gridRowSize*self.gridMaxRows))
+            self.scrolledWindow122.SetVirtualSize((self.gridColSize*self.gridMaxCols, self.gridRowSize*self.gridMaxRows))
             self.scrolledWindow122.Scroll(0, 0)
         else:
             try:
                 datafile = open(self.datafilename, 'rb')
             except IOError:
-                self.scrolledWindow122.SetVirtualSize((self.gridColSize*self.gridMaxCols, self.gridRowSize*self.gridMaxRows))
                 self.grid_inputCSV.SetSize((self.gridColSize*self.gridMaxCols, self.gridRowSize*self.gridMaxRows))
+                self.scrolledWindow122.SetVirtualSize((self.gridColSize*self.gridMaxCols, self.gridRowSize*self.gridMaxRows))
                 self.scrolledWindow122.Scroll(0, 0)
                 return
 
@@ -1243,8 +1243,8 @@ class MainFrame ( wx.Frame ):
                 max_cols = max(len(fileline), max_cols)
                 for k2 in range(len(fileline)):
                     self.grid_inputCSV.SetCellValue(k1, k2, fileline[k2].strip())
-            self.scrolledWindow122.SetVirtualSize((self.gridColSize*max_cols, self.gridRowSize*self.gridMaxRows))
             self.grid_inputCSV.SetSize((self.gridColSize*self.gridMaxCols, self.gridRowSize*self.gridMaxRows))
+            self.scrolledWindow122.SetVirtualSize((self.gridColSize*max_cols, self.gridRowSize*self.gridMaxRows))
             datafile.close()
 
             # Clear settings for columns that exceed the number of input columns
