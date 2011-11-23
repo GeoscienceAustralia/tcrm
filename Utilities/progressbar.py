@@ -47,7 +47,7 @@ class ProgressBar():
         return '%3d%%' % (pbar * 100)
 
     def _formatTime(self, seconds):
-        return time.strftime('%H:%M:%S', time.gmtime(seconds))
+        return str(int(seconds/3600)).zfill(2) + time.strftime(':%M:%S', time.gmtime(seconds))
 
     def _getTimeStr(self, prg=0, secondsElapsed=0):
         if prg == 0:
