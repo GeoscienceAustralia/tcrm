@@ -25,15 +25,18 @@ Tropical Cyclone Risk Model. Allows users to interact with all available
 methods from DataProcess, StatInterface, TrackGenerator,
 WindfieldInterface and HazardInterface.
 
-Version :$Rev: 652 $
+Version :$Rev: 763 $
 
-$Id: main.py 652 2011-10-31 05:35:50Z nsummons $
+$Id: main.py 763 2011-11-25 06:01:42Z nsummons $
 
 Copyright - Geoscience Australia, 2008
 """
 
 import os, sys, pdb, logging, traceback
 
+import matplotlib
+matplotlib.use('Agg') # Use matplotlib backend 
+                      # (to allow plotting on unix machines with no graphics interface)
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flConfigFile, flStartLog, flLoadFile
 from Utilities import pathLocator
@@ -45,7 +48,7 @@ from Utilities.progressbar import ProgressBar
 if pathLocator.is_frozen():
     os.environ['BASEMAPDATA'] = os.path.join(pathLocator.getRootDirectory(), 'mpl-data', 'data')
 
-__version__ = "$Id: main.py 652 2011-10-31 05:35:50Z nsummons $"
+__version__ = "$Id: main.py 763 2011-11-25 06:01:42Z nsummons $"
 
 def main(configFile='main.ini'):
     """
