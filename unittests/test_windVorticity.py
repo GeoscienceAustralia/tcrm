@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
+    Tropical Cyclone Risk Model (TCRM) - Version 1.0
     Copyright (C) 2011  Geoscience Australia
 
     This program is free software: you can redistribute it and/or modify
@@ -33,10 +33,14 @@ import os, sys
 import unittest
 import cPickle
 import NumpyTestCase
+try:
+    import pathLocate
+except:
+    from unittests import pathLocate
 
 # Add parent folder to python path
-unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
-sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
+unittest_dir = pathLocate.getUnitTestDirectory()
+sys.path.append(pathLocate.getRootDirectory())
 from WindfieldInterface import windVorticity
 from Utilities.files import flStartLog
 
@@ -68,37 +72,37 @@ class TestVorticity(NumpyTestCase.NumpyTestCase):
 
 
     def test_rankine(self):
-        """testing rankine
+        """Testing rankine
         """
         vorticity_rankine = self.vorticity.rankine(self.vMax)
         self.numpyAssertAlmostEqual(vorticity_rankine, self.test_vorticity_rankine)
 
     def test_jelesnianski(self):
-        """testing jelesnianski
+        """Testing jelesnianski
         """
         vorticity_jelesnianski = self.vorticity.jelesnianski(self.vMax)
         self.numpyAssertAlmostEqual(vorticity_jelesnianski, self.test_vorticity_jelesnianski)
 
     def test_holland(self):
-        """testing holland
+        """Testing holland
         """
         vorticity_holland = self.vorticity.holland(self.vMax)
         self.numpyAssertAlmostEqual(vorticity_holland, self.test_vorticity_holland)
     
     def test_willoughby(self):
-        """testing willoughby
+        """Testing willoughby
         """
         vorticity_willoughby = self.vorticity.willoughby(self.vMax)
         self.numpyAssertAlmostEqual(vorticity_willoughby, self.test_vorticity_willoughby)
         
     def test_doubleHolland(self):
-        """testing doubleHolland
+        """Testing doubleHolland
         """
         vorticity_doubleHolland = self.vorticity.doubleHolland(self.vMax)
         self.numpyAssertAlmostEqual(vorticity_doubleHolland, self.test_vorticity_doubleHolland)
 
     def test_powell(self):
-        """testing powell
+        """Testing powell
         """       
         vorticity_powell = self.vorticity.powell(self.vMax)
         self.numpyAssertAlmostEqual(vorticity_powell, self.test_vorticity_powell)      

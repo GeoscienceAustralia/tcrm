@@ -22,17 +22,21 @@
  CreationDate: 2007-05-03
  Description: Unit testing module for Derivatives
 
- Version: $Rev: 667 $
+ Version: $Rev: 717 $
 
- $Id: test_derivatives.py 667 2011-10-31 05:41:40Z nsummons $
+ $Id: test_derivatives.py 717 2011-11-08 06:48:02Z nsummons $
 """
 import os, sys
 import unittest
 import NumpyTestCase
+try:
+    import pathLocate
+except:
+    from unittests import pathLocate
 
 # Add parent folder to python path
-unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
-sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
+unittest_dir = pathLocate.getUnitTestDirectory()
+sys.path.append(pathLocate.getRootDirectory())
 from WindfieldInterface import derivatives
 from Utilities.files import flStartLog
 

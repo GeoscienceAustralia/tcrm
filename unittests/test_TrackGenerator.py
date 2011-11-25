@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
+    Tropical Cyclone Risk Model (TCRM) - Version 1.0
     Copyright (C) 2011  Geoscience Australia
 
     This program is free software: you can redistribute it and/or modify
@@ -31,10 +31,14 @@ import cPickle
 import unittest
 from scipy import random
 import NumpyTestCase
+try:
+    import pathLocate
+except:
+    from unittests import pathLocate
 
 # Add parent folder to python path
-unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
-sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
+unittest_dir = pathLocate.getUnitTestDirectory()
+sys.path.append(pathLocate.getRootDirectory())
 import Utilities.my_tool as myutils
 from TrackGenerator import TrackGenerator
 from Utilities.files import flStartLog

@@ -22,19 +22,23 @@
  CreationDate: 07/15/08 1:46:PM
  Description: Unit test for grid.py
 
- Version :$Rev: 672 $
+ Version :$Rev: 734 $
 
- $Id: test_grid.py 672 2011-10-31 05:42:42Z nsummons $
+ $Id: test_grid.py 734 2011-11-08 07:00:19Z nsummons $
 """
 import os, sys, pdb
 import unittest
 import cPickle
 import NumpyTestCase
 import numpy
+try:
+    import pathLocate
+except:
+    from unittests import pathLocate
 
 # Add parent folder to python path
-unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
-sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
+unittest_dir = pathLocate.getUnitTestDirectory()
+sys.path.append(pathLocate.getRootDirectory())
 from Utilities import grid
 from Utilities.files import flStartLog
 

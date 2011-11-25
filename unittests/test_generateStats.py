@@ -29,10 +29,14 @@ import unittest
 import cPickle
 import NumpyTestCase
 import numpy
+try:
+    import pathLocate
+except:
+    from unittests import pathLocate
 
 # Add parent folder to python path
-unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
-sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
+unittest_dir = pathLocate.getUnitTestDirectory()
+sys.path.append(pathLocate.getRootDirectory())
 from StatInterface import generateStats
 from Utilities.files import flStartLog
 
@@ -49,11 +53,12 @@ class TestGenerateStats(NumpyTestCase.NumpyTestCase):
     gridInc = {'x': 1.0, 'y': 0.5}
     minSample = 100
     angular = False
-    missingValue=sys.maxint
+    missingValue=min(sys.maxint, 2147483648) # The second value corresponds to the maximum integer
+                                             # encoded in the pickle file.
 
 
     def test_generateStats(self):
-        """testing generateStats (warning: will take about 2 mins to run)
+        """Testing generateStats (warning: will take about 2 mins to run)
         """
         wP = generateStats.GenerateStats(self.configFile, self.parameter, self.lonLat, self.gridLimit,
                                          self.gridSpace, self.gridInc, self.minSample, self.angular, 

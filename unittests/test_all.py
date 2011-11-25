@@ -30,14 +30,37 @@ import unittest
 import os, sys
 import pdb
 
-# Add parent folder to python path
-unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
-sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
+# ---- Uncomment this section when compiling TCRM ----
+#from unittests import pathLocate
+#from unittests import test_derivatives, test_evd, test_generateStats, \
+#                      test_grid, test_gridNC, test_KDEOrigin, test_KDEParameters, \
+#                      test_maputils, test_metutils, test_mslp_seasonal_clim, \
+#                      test_nctools, test_pressureProfile, test_SamplingOrigin, \
+#                      test_SamplingParameters, test_stats, test_vmax, test_windField, \
+#                      test_windProfile, test_windVorticity
+# ----------------------------------------------------
+
+try:
+    import pathLocate
+except:
+    from unittests import pathLocate
+
+# Add tcrm folder to python path
+tcrm_dir = pathLocate.getRootDirectory()
+sys.path.append(tcrm_dir)
 from Utilities.files import flStartLog
+
+# Switch off minor warning messages
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=UserWarning, module="pytz")
 
 #List files that should be excluded from the testing process.
 #E.g. if they are known to fail and under development
-exclude = ['test_GenerateDistributions.py', 'test_lat_long_UTM_conversion.py', 'test_TrackGenerator.py']
+
+exclude = ['test_GenerateDistributions.py', 'test_lat_long_UTM_conversion.py', 'test_TrackGenerator.py', 'test_nctools.py']
+if pathLocate.is_frozen():
+    exclude = []
 
 # Test suites still to be produced:
 # config.py
@@ -50,6 +73,13 @@ def get_test_files(path):
     import sys
 
     files = os.listdir(path)
+    if pathLocate.is_frozen():  #If compiled, then revert to pre-listed test suites
+        files = ['test_derivatives', 'test_evd', 'test_generateStats',
+                'test_grid', 'test_gridNC', 'test_KDEOrigin', 'test_KDEParameters', 'test_maputils',
+                'test_metutils', 'test_mslp_seasonal_clim', 'test_pressureProfile',
+                'test_SamplingOrigin', 'test_SamplingParameters', 'test_stats', 'test_vmax', 'test_windField',
+                'test_windProfile', 'test_windVorticity']
+        files = [k + '.py' for k in files]
 
     #Check sub directories
     test_files = []
@@ -77,14 +107,10 @@ def regressionTest():
     import sys, os, re, unittest
     path = os.path.split(sys.argv[0])[0] or os.getcwd()
 
-
     files = get_test_files(path)
-
-
 
     #test = re.compile('^test_[\w]*.py$', re.IGNORECASE)
     #files = filter(test.search, files)
-
 
     #try:
     #    files.remove(__file__)  #Remove self from list (Ver 2.3. or later)
@@ -94,20 +120,22 @@ def regressionTest():
     print 'Testing:'
     for file in files:
         print '  ' + file
-
     if globals().has_key('exclude'):
         for file in exclude:
             files.remove(file)
-            print 'WARNING: File '+ file + ' excluded from testing'
+            #print 'WARNING: File '+ file + ' excluded from testing'
 
 
     filenameToModuleName = lambda f: os.path.splitext(f)[0]
     #print "files",files
     moduleNames = map(filenameToModuleName, files)
-    #print "moduleNames",moduleNames
-    modules = map(__import__, moduleNames)
+    if pathLocate.is_frozen():
+        modules = [sys.modules['unittests.' + k] for k in moduleNames]
+    else:
+        modules = map(__import__, moduleNames)  
     load = unittest.defaultTestLoader.loadTestsFromModule
     return unittest.TestSuite(map(load, modules))
+
 
 if __name__ == '__main__':
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
+    Tropical Cyclone Risk Model (TCRM) - Version 1.0
     Copyright (C) 2011  Geoscience Australia
 
     This program is free software: you can redistribute it and/or modify
@@ -38,10 +38,14 @@
 import os, sys
 from scipy import arange
 import unittest
+try:
+    import pathLocate
+except:
+    from unittests import pathLocate
 
 # Add parent folder to python path
-unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
-sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
+unittest_dir = pathLocate.getUnitTestDirectory()
+sys.path.append(pathLocate.getRootDirectory())
 import WindfieldInterface.vmax as vmax
 from Utilities.files import flStartLog
 
@@ -56,7 +60,7 @@ class TestVMax(unittest.TestCase):
                     32.7039505937,27.1731303211,20.9284420943,13.3928678506,0.0]}
 
     def test_vMax(self):
-        """testing vMax"""
+        """Testing vMax"""
 
         #testing willoughby
         for i in xrange(self.pc.size):
@@ -76,7 +80,7 @@ class TestVMax(unittest.TestCase):
 
 
     def test_pDiff(self):
-        """testing pDiff"""
+        """Testing pDiff"""
 
         #testing willoughby
         for i in xrange(self.pc.size):

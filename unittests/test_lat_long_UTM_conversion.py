@@ -24,10 +24,14 @@
 import os, sys
 import unittest
 from numpy import allclose
+try:
+    import pathLocate
+except:
+    from unittests import pathLocate
 
 # Add parent folder to python path
-unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
-sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
+unittest_dir = pathLocate.getUnitTestDirectory()
+sys.path.append(pathLocate.getRootDirectory())
 from Utilities.lat_long_UTM_conversion import *
 from Utilities.files import flStartLog
 from redfearn import degminsec2decimal_degrees, decimal_degrees2degminsec
