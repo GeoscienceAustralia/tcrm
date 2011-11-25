@@ -37,18 +37,18 @@ ModifiedDate: 14 July 2010
 Modification: Code simplified to return GEVD estimation for single vector of pre-sorted gust wind speeds.
               This allows for clean integration with the hazard interface of TCRM.
 
-Version: $Rev: 648 $
+Version: $Rev: 758 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2011-03-11 8:56:AM
 Modification: Minimum number of records required for calculation made a
               a kwarg
 
-$Id: evd.py 648 2011-10-31 05:34:02Z nsummons $
+$Id: evd.py 758 2011-11-24 07:30:15Z nsummons $
 """
 
 import os, sys, pdb, logging, traceback
 import numpy
-__version__ = "$Id: evd.py 648 2011-10-31 05:34:02Z nsummons $"
+__version__ = "$Id: evd.py 758 2011-11-24 07:30:15Z nsummons $"
 
 logger = logging.getLogger()
 
@@ -95,9 +95,12 @@ def estimate_EVD(v, years, missingValue=-9999.,minRecords=50,yrspersim=10):
                     loc,scale,shp = [missingValue, missingValue, missingValue]
 
     for i,t in enumerate(years):
-        w[i] = numpy.transpose(loc + (scale/shp)*(1.-numpy.power(-1.*numpy.log(1.-(yrspersim/t)),shp)))
-        # Replace any non-finite numbers with the missing value:
-        if not numpy.isfinite(w[i]):
+        if shp == -9999:
             w[i] = missingValue
+        else:
+            w[i] = numpy.transpose(loc + (scale/shp)*(1.-numpy.power(-1.*numpy.log(1.-(yrspersim/t)),shp)))
+            # Replace any non-finite numbers with the missing value:
+            if not numpy.isfinite(w[i]):
+                w[i] = missingValue
 
     return w, loc, scale, shp
