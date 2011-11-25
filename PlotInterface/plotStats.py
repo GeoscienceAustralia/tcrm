@@ -22,9 +22,9 @@
  CreationDate: 2010-05-10
  Description:
 
- Version: $Rev: 661 $
+ Version: $Rev: 762 $
 
- $Id: plotStats.py 661 2011-10-31 05:40:02Z nsummons $
+ $Id: plotStats.py 762 2011-11-25 05:02:07Z nsummons $
 """
 
 import os, sys, pdb, logging
@@ -39,7 +39,7 @@ import Utilities.config as config
 import Utilities.nctools as nctools
 import Utilities.stats as stats
 
-__version__ = '$Id: plotStats.py 661 2011-10-31 05:40:02Z nsummons $'
+__version__ = '$Id: plotStats.py 762 2011-11-25 05:02:07Z nsummons $'
 
 
 
@@ -104,7 +104,7 @@ def plotPressure(pAllData,pRateData,outputPath):
     pyplot.subplot(211)
     pyplot.plot(pAllData[1:],pAllData[:-1],'k.',markersize=1)
     m,c,r,p,e = _linreg(pAllData)
-
+    
     x = numpy.arange(880.,1021.,1.)
     y = m*x+c
     #pyplot.plot(x,y,'r-')
@@ -150,13 +150,17 @@ def plotBearing(bAllData,bRateData,outputPath):
 #    pyplot.ylim(-1.,1.)
 #    pyplot.xticks(numpy.arange(-1.,1.1,1.))
 #    pyplot.yticks(numpy.arange(-1.,1.1,1.))
-
-    pyplot.plot(numpy.cos(numpy.radians(bAllData[1:])),numpy.cos(numpy.radians(bAllData[:-1])),'k.',markersize=1)
+    bAllData_t0 = bAllData[1:]
+    bAllData_tm1 = bAllData[:-1]
+    bAllData_skip = (bAllData_t0>=sys.maxint) | (bAllData_tm1>=sys.maxint)
+    bAllData_t0 = bAllData_t0.compress(bAllData_skip == False)
+    bAllData_tm1 = bAllData_tm1.compress(bAllData_skip == False)
+    pyplot.plot(numpy.cos(numpy.radians(bAllData_t0)),numpy.cos(numpy.radians(bAllData_tm1)),'k.',markersize=1)
     pyplot.xlim(-1.,1.)
     pyplot.ylim(-1.,1.)
     pyplot.xticks(numpy.arange(-1.,1.1,1.))
     pyplot.yticks(numpy.arange(-1.,1.1,1.))
-    m,c,r,p,e = _linreg(numpy.cos(numpy.radians(bAllData)))
+    m,c,r,p,e = _linreg(numpy.cos(numpy.radians(bAllData)).compress(bAllData < sys.maxint))
 
     x = numpy.arange(-1.0,1.1,0.1)
     y = m*x+c
