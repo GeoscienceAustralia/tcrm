@@ -25,9 +25,9 @@
  values for each site in the station file, then run tsmultipliers.py
  to apply said multipliers to the output.
 
- Version :$Rev: 511 $
+ Version :$Rev: 528 $
 
- $Id: timeseries.py 511 2011-10-31 07:20:04Z nsummons $
+ $Id: timeseries.py 528 2011-11-23 21:53:18Z carthur $
 """
 import os, sys, pdb, logging
 filename = os.environ.get('PYTHONSTARTUP')
@@ -37,9 +37,11 @@ if filename and os.path.isfile(filename):
 from config import cnfGetIniValue
 from files import flLoadFile, flSaveFile
 import numpy
+from matplotlib.dates import num2date
 
-__version__ = '$Id: timeseries.py 511 2011-10-31 07:20:04Z nsummons $'
+__version__ = '$Id: timeseries.py 528 2011-11-23 21:53:18Z carthur $'
 
+ISO_FORMAT = "%Y-%m-%d %H:%M"
 
 class timeseries:
     """timeseries:
@@ -63,8 +65,8 @@ class timeseries:
             self.outputPath = os.path.join(cnfGetIniValue(self.configFile, 'Output', 'Path'), 'timeseries')
         else:
             self.outputPath = outputPath
-        self.logger.info("Loading stations from %s"%stnFile)
-        self.logger.info("Timeseries data will be written into %s"%self.outputPath)
+        self.logger.debug("Loading stations from %s"%stnFile)
+        self.logger.debug("Timeseries data will be written into %s"%self.outputPath)
         stndata = flLoadFile(stnFile, delimiter=',')
         # If there is more than 3 columns, save the additional columns as 'metadata'
         if stndata.shape[1] > 3:
@@ -82,16 +84,17 @@ class timeseries:
         Extract data from the grid at the given locations.
         Data is stored in a dictionary, with keys as the station id's.
         """
+        dt = num2date(tstep,tz=None)
+        dtfmt = dt.isoformat(' ')
         if spd is None:
             # Set these values to zero:
             for i in range(len(self.stnid)):
                 if self.meta:
-                    self.data[self.stnid[i]].append(list(numpy.concatenate(([tstep,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs],self.metadata[i,:]))))
+                    self.data[self.stnid[i]].append(list(numpy.concatenate(([dt,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs],self.metadata[i,:]))))
                 else:
-                    self.data[self.stnid[i]].append([tstep,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs])
+                    self.data[self.stnid[i]].append([dt,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs])
         else:
             self.logger.debug("Extracting timeseries data")
-            #pdb.set_trace()
             for i in range(len(self.stnid)):
                 if (float(self.stnlon[i]) < gridx.min() or \
                     float(self.stnlon[i]) > gridx.max() or \
@@ -99,13 +102,11 @@ class timeseries:
                     float(self.stnlat[i]) > gridy.max()):
                     self.logger.debug("Station %s (%8.4f, %8.4f) is outside of windfield grid" % \
                                        (repr(self.stnid[i]), float(self.stnlon[i]), float(self.stnlat[i])))
-                    #pdb.set_trace()
                     if self.meta:
-                        self.data[self.stnid[i]].append(list(numpy.concatenate(([tstep,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs[0,0]],self.metadata[i,:]))))
+                        self.data[self.stnid[i]].append(list(numpy.concatenate(([dt,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs[0,0]],self.metadata[i,:]))))
                     else:
-                        self.data[self.stnid[i]].append([tstep,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs[0,0]])
+                        self.data[self.stnid[i]].append([dt,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs[0,0]])
                 else:
-                    #pdb.set_trace()
                     self.logger.debug("Sampling data for station %s (%8.4f, %8.4f)" % \
                                        (repr(self.stnid[i]), float(self.stnlon[i]), float(self.stnlat[i])))
                     x = gridx.searchsorted(float(self.stnlon[i]))
@@ -114,11 +115,11 @@ class timeseries:
                     u = uu[y,x]
                     v = vv[y,x]
                     b = numpy.mod((180./numpy.pi)*numpy.arctan2(-u,-v), 360.)
-		    p = prs[y,x]
+                    p = prs[y,x]
                     if self.meta:
-                        self.data[self.stnid[i]].append(list(numpy.concatenate(([tstep,self.stnlon[i], self.stnlat[i],s,u,v,b,p],self.metadata[i,:]))))
+                        self.data[self.stnid[i]].append(list(numpy.concatenate(([dt,self.stnlon[i], self.stnlat[i],s,u,v,b,p],self.metadata[i,:]))))
                     else:
-                        self.data[self.stnid[i]].append([tstep,self.stnlon[i],self.stnlat[i],s,u,v,b,p])
+                        self.data[self.stnid[i]].append([dt,self.stnlon[i],self.stnlat[i],s,u,v,b,p])
 
     def shutdown(self):
         """
@@ -126,6 +127,9 @@ class timeseries:
         """
         header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
         for stn in self.stnid:
-            fname = os.path.join(self.outputPath, 'ts.%s.csv'%str(stn))
-            flSaveFile(fname, numpy.array(self.data[stn]), header, ',', '%s')
+            if numpy.any(numpy.array(self.data[stn])[:,3]>0.0):
+                tmpdata = numpy.array(self.data[stn])
+                fname = os.path.join(self.outputPath, 'ts.%s.csv'%str(stn))
+                tmpdata[:,0] = numpy.array([tmpdata[i,0].strftime(ISO_FORMAT) for i in xrange(tmpdata[:,0].size)])
+                flSaveFile(fname, numpy.array(tmpdata), header, ',', '%s')
         self.logger.info("Station data written to file")

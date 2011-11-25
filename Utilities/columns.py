@@ -21,9 +21,9 @@
  CreationDate: 2009-01-28 10:30 AM
  Description: Helper functions for reading CSV formatted data.
 
- Version :$Rev: 512 $
+ Version :$Rev: 519 $
 
- $Id: columns.py 512 2011-10-31 07:20:38Z nsummons $
+ $Id: columns.py 519 2011-11-11 00:08:24Z carthur $
 """
 import os, sys, pdb, logging
 filename = os.environ.get('PYTHONSTARTUP')
@@ -36,7 +36,7 @@ import numpy
 import csv
 gT = GetType()
 
-__version__ = '$Id: columns.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: columns.py 519 2011-11-11 00:08:24Z carthur $'
 logger = logging.getLogger()
 
 def colReadCSV(configFile, dataFile, source, nullValue=sys.maxint, configSettings=None):
@@ -69,7 +69,7 @@ def colReadCSV(configFile, dataFile, source, nullValue=sys.maxint, configSetting
             numHeadingLines = 1
         else:
             numHeadingLines = 0
-        # Overwrite depreciated 'HeadingLine' setting if 'NumberOfHeadingLines' is specified
+        # Overwrite deprecated 'HeadingLine' setting if 'NumberOfHeadingLines' is specified
         numHeadingLines = int(cnfGetIniValue(configFile, source, 'NumberOfHeadingLines', numHeadingLines))
         logger.debug("Opening %s, using format %s"%(dataFile, source))
     else:
@@ -79,8 +79,8 @@ def colReadCSV(configFile, dataFile, source, nullValue=sys.maxint, configSetting
         cols = configSettings['Columns'].split(delimiter)
         numHeadingLines = int(configSettings['NumberOfHeadingLines'])
         fields = []
-        
-        
+
+
     # Add default field names from GetType.py
     fields = fields + gT.getKeys()
 
@@ -112,7 +112,7 @@ def colReadCSV(configFile, dataFile, source, nullValue=sys.maxint, configSetting
                           delimiter=str(delimiter))
 
     dtypeDict = {}
-    
+
     for key in cols:
         if configFile is not None:
             dtype = cnfGetIniValue(configFile, 'Types', key, 'None')
@@ -123,7 +123,7 @@ def colReadCSV(configFile, dataFile, source, nullValue=sys.maxint, configSetting
         else:
             # If data type not specified, get default value from getType.py
             dtypeDict[key] = gT.getType(key)
-    
+
     ii = 0
     for record in data:
         ii += 1

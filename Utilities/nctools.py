@@ -55,7 +55,7 @@
                ensure the dimension and variable metadata are structured
                appropriately.
 
- Version: $Rev: 512 $
+ Version: $Rev: 520 $
  ModifiedBy: Nicholas Summons, nicholas.summons@ga.gov.au
  ModifiedDate: 06/10/11 2:09:PM
  Modification: Replaced ScientificPython netcdf library with SciPy equivalent
@@ -64,7 +64,7 @@
                latest versions of NumPy. Also allows fall-back to
                ScientificPython if SciPy version lacks netcdf writing
                support.
- $Id: nctools.py 512 2011-10-31 07:20:38Z nsummons $
+ $Id: nctools.py 520 2011-11-14 21:55:20Z carthur $
 """
 import os, sys, pdb, logging
 filename = os.environ.get('PYTHONSTARTUP')
@@ -85,7 +85,7 @@ if not hasattr(netcdf_file, 'createVariable'):
         logger.critical("TCRM requires either SciPy version >= 0.9.0 or ScientificPython to write NetCDF files.")
         raise
 
-__version__ = '$Id: nctools.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: nctools.py 520 2011-11-14 21:55:20Z carthur $'
 
 def ncLoadFile(filename):
     logger.debug("Opening netCDF file %s for reading"%filename)
@@ -364,9 +364,9 @@ def ncSaveGrid(filename, lon, lat, data, varname, units,
         return ncobj
 
 def _ncSaveGrid(filename, dimensions, variables,
-                 nodata=-9999,datatitle=None,dtype='f',
-                 writedata=True, keepfileopen=False,
-                 packed=False):
+                 nodata=-9999,datatitle=None,gatts=None,
+                 dtype='f',writedata=True, 
+                 keepfileopen=False,packed=False):
 
     """
     Save a gridded dataset to a netCDF file.
@@ -375,7 +375,8 @@ def _ncSaveGrid(filename, dimensions, variables,
     dimensions - dictionary - see below for details
     variables - dictionary - see below for details
     nodata - value to assign to missing data
-    datatitle - optional tilte to give the stored dataset
+    datatitle - optional title to give the stored dataset
+    gatts - optional dictionary of global attributes to include in the file
     dtype - data type of the missing value
     writedata - boolean. If true, then the function will write
                 the provided data (passed in via the variables dict)
@@ -492,11 +493,15 @@ def _ncSaveGrid(filename, dimensions, variables,
             for key,value in atts.items():
                 _setattr(var, key, value)
 
-    # Add global attributes:
+    # Add standard global attributes:
     _setattr(ncobj,'created_by', created_by)
     _setattr(ncobj,'created_on', created_time)
     if datatitle:
         _setattr(ncobj,'title',datatitle)
+
+    if gatts is not None:
+        for name,value in gatts.iteritems():
+            _setattr(ncobj,name,value)
 
     # Finally, set the convention attribute:
     _setattr(ncobj,'Conventions','CF-1.4')

@@ -41,7 +41,7 @@ coriolis(latitude) :
     Converts 'value' from 'input' units to 'output' units. Contains
     conversions for length, speed, pressure and temperature.
 
-Version: $Rev: 512 $
+Version: $Rev: 528 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2007-09-11
 Modification: Added functions for converting atmospheric moisture variables
@@ -49,7 +49,7 @@ Modification: Added functions for converting atmospheric moisture variables
 SeeAlso: (related programs)
 Constraints:
 
-$Id: metutils.py 512 2011-10-31 07:20:38Z nsummons $
+$Id: metutils.py 528 2011-11-23 21:53:18Z carthur $
 """
 
 """
@@ -69,7 +69,7 @@ if filename and os.path.isfile(filename):
 import math
 import numpy
 from numpy import radians
-__version__ = '$Id: metutils.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: metutils.py 528 2011-11-23 21:53:18Z carthur $'
 
 #Define constants
 gPressureUnits = "hPa"
@@ -307,6 +307,8 @@ def convert(value, input, output):
     if input == output:
         # Do nothing:
         return value
+    if input=='kmh':
+        input = 'kph'
     # Speeds:
     mps = {"kph":3.6, "kts":1.944, "mph":2.2369}
     mph = {"kph":1.60934, "kts":0.86898, "mps":0.44704}

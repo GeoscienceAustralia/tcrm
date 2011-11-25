@@ -22,35 +22,36 @@
  Description: Interpolates an historic TC track to a shorter time
  interval.  As an example, the csv data for TC Tracy is included in at
  the bottom of this file.
- 
- Version :$Rev: 512 $
+
+ Version :$Rev: 529 $
 
  ModifiedBy: Nicholas Summons
  ModifiedDate: 2011-02-08
- Modification: Replaced lat/lon interpolation with different spline 
+ Modification: Replaced lat/lon interpolation with different spline
                algorithm that exhibits less overshoot.
                Pressure and Rmax interpolation was replaced with linear
                interpolation.
 
- $Id: interpTrack.py 512 2011-10-31 07:20:38Z nsummons $
+ $Id: interpTrack.py 529 2011-11-23 23:32:28Z carthur $
 """
 import os, sys, pdb, logging, getopt
 
-from scipy import interpolate
+import scipy.interpolate
 import numpy
 import datetime
-import pylab
+from matplotlib.dates import date2num, num2date
 
 from files import flConfigFile, flModuleName, flSaveFile, flStartLog
 from config import cnfGetIniValue, logger
 from columns import colReadCSV
 from grid import SampleGrid
+from loadData import loadTrackFile
 
 
 import maputils
 import metutils
 
-__version__ = '$Id: interpTrack.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: interpTrack.py 529 2011-11-23 23:32:28Z carthur $'
 
 def usage():
     print "interpTrack.py:"
@@ -71,7 +72,7 @@ def usage():
 def main(argv):
     "Main part of the program"
     gConfigFile = flConfigFile()
-    logFIle = flConfigFile(".log")
+    logFile = flConfigFile(".log")
     verbose = False
     logger = logging.getLogger()
 
@@ -91,7 +92,6 @@ def main(argv):
             logFile = arg
         elif opt in ("-v","--verbose"):
             verbose = True
-    #pdb.set_trace()
 
     flStartLog(cnfGetIniValue(gConfigFile, 'Logging', 'LogFile', flConfigFile('.log')),
                cnfGetIniValue(gConfigFile, 'Logging', 'LogLevel', 'INFO'),
@@ -101,165 +101,78 @@ def main(argv):
     inputFile = cnfGetIniValue(gConfigFile, 'Input', 'File')
     logger.info("Processing %s"%inputFile)
     source = cnfGetIniValue(gConfigFile, 'Input', 'Source')
-    inputData = colReadCSV(gConfigFile,inputFile, source)
-    #pdb.set_trace()
-    logger.info("Extracting date/time information")
-    if inputData.has_key('index'):
-        indicator = numpy.array(inputData['index'], 'i')
-    # Sort date/time information
-    if inputData.has_key('date'):
-        logger.debug("File contains date information")
-        year = numpy.empty(len(indicator), 'i')
-        month = numpy.empty(len(indicator), 'i')
-        day = numpy.empty(len(indicator), 'i')
-        hour = numpy.empty(len(indicator), 'i')
-        minute = numpy.empty(len(indicator), 'i')
-        datefmt = cnfGetIniValue(gConfigFile, source, 'DateFormat', '%Y-%m-%d %H:%M:%S')
-        for i in range(len(inputData['date'])):
-            d = datetime.datetime.strptime(inputData['date'][i], datefmt)
-            year[i] = d.year
-            month[i] = d.month
-            day[i] = d.day
-            hour[i] = d.hour
-            minute[i] = d.minute
-    else:
-        # Sort out date/time information:
-        logger.debug("File contains year/month/day/hour information")
-        month = numpy.array(inputData['month'], 'i')
-        day = numpy.array(inputData['day'], 'i')
-        hour = numpy.array(inputData['hour'], 'i')
-        try:
-            year = numpy.array(inputData['year'], 'i')
-        except:
-            # Create dummy variable year - applicable for datasets
-            # such as WindRiskTech which contain no year information.
-            year = 2000*numpy.ones(indicator.size, 'i')
-            ii = numpy.where(month < 7)
-            year[ii] = 2001
-        try:
-            minute = numpy.array(inputData['minute'], 'i')
-            assert minute.size == hour.size
-        except KeyError:
-            # Create dummy variable minute:
-            logger.warning("Missing minute data from input data - setting minutes to 00 for all times")
-            minute = numpy.zeros((hour.size), 'i')
+    delta = cnfGetIniValue(gConfigFile, 'Output', 'Delta', 0.1)
 
-    # Create the dummy variable second for use in function datenum
-    second = numpy.zeros((hour.size), 'i')
+    nid, newtime, newdates, nLon, nLat, nthetaFm, nvFm, npCentre, npEnv, nrMax = interpolateTrack(gConfigFile,inputFile,source,delta)
+    header=''
+    outputFile = cnfGetIniValue(gConfigFile,'Output','File')
+    logger.info("Saving interpolated data to %s"%(outputFile))
+    fh = open(outputFile,'w')
+    for i in range(len(newtime)):
+        fh.write("%d,%5.1f,%s,%6.2f,%6.2f,%6.2f,%6.2f,%7.2f,%7.2f,%5.1f\n"
+                    % (nid[i], newtime[i], newdates[i].strftime("%Y-%m-%d %H:%M"),
+                        nLon[i], nLat[i], nthetaFm[i], nvFm[i], npCentre[i],
+                        npEnv[i], nrMax[i]) )
+    fh.close()
+    logger.info("Completed %s"%(sys.argv[0]))
+
+def interpolateTrack(configFile,trackFile,source,delta=0.1,interpolation_type='akima'):
+    """
+    interpTrack:
+    interpolate the data in a track file to the time
+    interval delta hours
+    """
+    logger = logging.getLogger()
+    indicator,year,month,day,hour,minute,lon,lat,pressure,speed,bearing,windspeed,rmax,penv = loadTrackFile(configFile,trackFile,source)
 
     # Time between observations:
-    day_ = [datetime.datetime(year[i], month[i], day[i], hour[i],minute[i], second[i]) for i in xrange(year.size)]
-    time_ = pylab.date2num(day_)
+    day_ = [datetime.datetime(year[i], month[i], day[i], hour[i],minute[i]) for i in xrange(year.size)]
+    time_ = date2num(day_)
     dt_ = 24.0*numpy.diff(time_)
     dt = numpy.empty(hour.size, 'f')
     dt[1:] = dt_
 
     # At this stage, convert all times to a time after initial observation:
     timestep = 24.0*(time_ - time_[0])
-    #pdb.set_trace()
 
-    lat = numpy.array(inputData['lat'], 'd')
-    lon = numpy.array(inputData['lon'], 'd')
-    pressure = numpy.array(inputData['pressure'], 'd')
-    rmax = numpy.array(inputData['rmax'],'d')
-    bear_, dist_ = maputils.latLon2Azi(lat, lon, 1, azimuth=0)
-    bear = numpy.empty(hour.size, 'f')
-    bear[1:] = bear_
-    bear[0] = bear_[1]
-    dist = numpy.empty(hour.size, 'f')
-    dist[1:] = dist_
-    speed = dist/dt
-    #pdb.set_trace()
-    if inputData.has_key('penv'):
-        penv = numpy.array(inputData['penv'], 'd')
-    else:
-        logger.info("No ambient MSLP data in this input file")
-        logger.info("Sampling data from MSLP data defined in configuration file")
-        # Warning: using sampled data will likely lead to some odd behaviour near the boundary of the
-        # MSLP grid boundaries - higher resolution MSLP data will decrease this unusual behaviour.
-        penv = numpy.zeros(len(lon))
-        mslp = SampleGrid(cnfGetIniValue(gConfigFile, 'Input', 'MSLPGrid'))
-        for i in range(len(lon)):
-            penv[i] = mslp.sampleGrid(lon[i], lat[i])
+    newtime = numpy.arange(timestep[0], timestep[-1]+.1, delta)
+    newtime[-1] = timestep[-1]
+    _newtime = (newtime/24.) + time_[0]
+    newdates = num2date(_newtime)
 
-    delta = cnfGetIniValue(gConfigFile,'Output','Delta',0.1)
-    newtime = numpy.arange(timestep[0], timestep[-1], delta)
     nid = numpy.ones(newtime.size)
 
     logger.info("Interpolating data...")
-    nLon = interpolate.splev(newtime, interpolate.splrep(timestep, lon, s=0), der=0)
-    nLat = interpolate.splev(newtime, interpolate.splrep(timestep, lat, s=0), der=0)    
-    #nvFm = interpolate.spline(timestep, speed, newtime,kind='smoothest')
-    #nthetaFm = interpolate.spline(timestep, bear, newtime,kind='smoothest')
+    if interpolation_type =='akima':
+        # Use the Akima interpolation method:
+        try:
+            import _akima
+        except ImportError:
+            logger.exception("Akima interpolation module unavailable - default to scipy.interpolate")
+            nLon = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lon, s=0), der=0)
+            nLat = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lat, s=0), der=0)
+        else:
+            nLon = _akima.interpolate(timestep,lon,newtime)
+            nLat = _akima.interpolate(timestep,lat,newtime)
+    else:
+        nLon = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lon, s=0), der=0)
+        nLat = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lat, s=0), der=0)
+    #nvFm = scipy.interpolate.spline(timestep, speed, newtime,kind='smoothest')
+    #nthetaFm = scipy.interpolate.spline(timestep, bear, newtime,kind='smoothest')
     #nthetaFm = numpy.mod(nthetaFm,360)
-    npCentre = interpolate.interp1d(timestep, pressure, kind='linear')(newtime)
-    npEnv = interpolate.interp1d(timestep, penv, kind='linear')(newtime)
-    nrMax = interpolate.interp1d(timestep, rmax, kind='linear')(newtime)
-    
+    npCentre = scipy.interpolate.interp1d(timestep, pressure, kind='linear')(newtime)
+    npEnv = scipy.interpolate.interp1d(timestep, penv, kind='linear')(newtime)
+    nrMax = scipy.interpolate.interp1d(timestep, rmax, kind='linear')(newtime)
+
     bear_, dist_ = maputils.latLon2Azi(nLat, nLon, 1, azimuth=0)
     nthetaFm = numpy.empty(newtime.size, 'f')
     nthetaFm[1:] = bear_
     dist = numpy.empty(newtime.size, 'f')
     dist[1:] = dist_
     nvFm = dist/delta
-    #pdb.set_trace()
 
-    newTrack = numpy.transpose(numpy.concatenate(([nid], [newtime], [nLon], [nLat], [nthetaFm],
-                                      [nvFm], [npCentre], [npEnv], [nrMax]), axis=0))
-    header=''
-    outputFile = cnfGetIniValue(gConfigFile,'Output','File')
-    logger.info("Saving interpolated data to %s"%(outputFile))
-    flSaveFile(outputFile,newTrack,header,',', fmt='%f')
-    logger.info("Completed %s"%(sys.argv[0]))
+    return nid, newtime, newdates, nLon, nLat, nthetaFm, nvFm, npCentre, npEnv, nrMax
 
-
-#####################################################
-"""
-def interpTrack(cfgFile):
-    ""interpTrack(cfgFile):
-    Interpolates TC track information to the time resolution given in
-    fractions of an hour.  cfgFile: configuration file containing
-    details of the track file to interpolate
-    ""
-    cfg = myutils.loadConfig(open(cfgFile))
-    delta = cfg['Timestep.delta']
-    trackData = myutils.textread(cfgFile)
-    iD = array(trackData['cycloneId'], int)
-    Age = array(trackData['cycloneAge'], float)
-    Lon = array(trackData['cLon'], float)
-    Lat = array(trackData['cLat'], float)
-    vFm = array(trackData['vFm'], float)
-    thetaFm = array(trackData['thetaFm'])
-    pCentre = array(trackData['pCentre'], float)
-    pEnv = array(trackData['pEnv'], float)
-    rMax = array(trackData['rMax'], float)
-    year = array(trackData['Yr'], int)
-    month = array(trackData['Mon'], int)
-    day = array(trackData['Day'], int)
-    hour = array(trackData['Hr'], int)
-    min = array(trackData['Min'], int)
-
-    datestamp = [datetime.datetime(year[i], month[i], day[i], hour[i], min[i])
-                 for i in xrange(year.size)]
-    time = 24.0*pylab.date2num(datestamp)      # Time in hours since 0001-01-01 00:00:00UTC
-    newtime = arange(time[0], time[-1], delta)
-
-    nid = interp(newtime, time, iD)
-    nage = interp(newtime, time, Age)
-    nLon = interp(newtime, time, Lon)
-    nLat = interp(newtime, time, Lat)
-    nvFm = interp(newtime, time, vFm)
-    nthetaFm = interp(newtime, time, thetaFm)
-    npCentre = interp(newtime, time, pCentre)
-    npEnv = interp(newtime, time, pEnv)
-    nrMax = interp(newtime, time, rMax)
-
-    newTrack = transpose(concatenate(([nid], [nage], [nLon], [nLat], [nthetaFm],
-                                      [nvFm], [npCentre], [npEnv], [nrMax]), axis=0))
-    header=''
-    myutils.save(cfg['File.Output'], newTrack,header,',', fmt='%f')
-
-"""
 
 # Call the main program:
 if __name__ == "__main__":

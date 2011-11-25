@@ -26,7 +26,7 @@
  ModifiedDate: 2009-04-29
  Modification: Added flStartLog
 
- Version: $Rev: 512 $
+ Version: $Rev: 524 $
  ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
  ModifiedDate: 2009-11-27 3:19:PM
  Modification: All exceptions are logged using the logging.exception() level
@@ -41,7 +41,7 @@
  ModifiedDate: 2011-06-22
  Modification: Replaced obsolete md5 package with hashlib
 
-$Id: files.py 512 2011-10-31 07:20:38Z nsummons $
+$Id: files.py 524 2011-11-22 04:33:52Z carthur $
 """
 import os, sys, pdb, logging, traceback
 filename = os.environ.get('PYTHONSTARTUP')
@@ -61,7 +61,7 @@ import numpy
 import csv
 import inspect
 
-__version__ = '$Id: files.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: files.py 524 2011-11-22 04:33:52Z carthur $'
 
 logger = logging.getLogger()
 
@@ -300,7 +300,7 @@ def flStartLog(logFile, logLevel, verbose=False,datestamp=False):
         logging.getLogger('').addHandler(console)
     logger=logging.getLogger()
     logger.info("Started log file %s (detail level %s)"%(logFile,logLevel))
-    logger.info("Running %s"%sys.argv[0])
+    logger.info("Running %s (pid %d)"%(sys.argv[0],os.getpid()))
     return logger
 
 def flLogFatalError(tblines):

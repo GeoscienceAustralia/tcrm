@@ -67,9 +67,9 @@ ModifiedBy: C. Arthur
 ModifiedDate: 2007-01-18
 Modification: Added dist2GC function, check if user requested degrees or
               radians to be returned from latlon2Azi
-Version: $Rev: 512 $
+Version: $Rev: 528 $
 
-$Id: maputils.py 512 2011-10-31 07:20:38Z nsummons $
+$Id: maputils.py 528 2011-11-23 21:53:18Z carthur $
 """
 
 
@@ -89,7 +89,7 @@ import time
 # does not appear to work on some systems.
 #from scipy import weave
 #from scipy.weave import converters
-__version__ = '$Id: maputils.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: maputils.py 528 2011-11-23 21:53:18Z carthur $'
 logger = logging.getLogger('maptools')
 #class MapToolError(Exception): pass
 #class ArrayMismatch(MapToolError): pass
@@ -209,7 +209,7 @@ def latLon2XY(xr, yr, lat, lon, ieast=1, azimuth=0):
     radius = 6367.0 # Earth radius (km)
 
     lat = radians(lat)
-    lon = radians(lon)  
+    lon = radians(lon)
 
     # Is azimuth fixed or variable?
     if size(azimuth) == 1:
@@ -486,6 +486,28 @@ def makeGrid(cLon, cLat, margin=2, resolution=0.01):
     theta = pi/2. - gridLatLonBear(cLon, cLat, xGrid/100., yGrid/100.)
     return R, theta
 
+def makeGridDomain(cLon, cLat, minLon, maxLon, minLat, maxLat, margin=2, resolution=0.01):
+    """
+    Generate a grid of the distance and angle of a grid of points
+    surrounding a storm centre given the location of the storm.
+    The grid margin and grid size can be set in configuration files.
+    xMargin, yMargin and gridSize are in degrees
+    """
+
+    gridSize = int(resolution*100)
+    minLon_ = int(100*(minLon)) - int(100*margin)
+    maxLon_ = int(100*(maxLon)) + int(100*margin) + 1
+    minLat_ = int(100*(minLat)) - int(100*margin)
+    maxLat_ = int(100*(maxLat)) + int(100*margin) + 1
+
+    xGrid = array(arange(minLon_, maxLon_, gridSize), dtype=int)
+    yGrid = array(arange(minLat_, maxLat_, gridSize), dtype=int)
+
+    R = gridLatLonDist(cLon, cLat, xGrid/100., yGrid/100.)
+    putmask(R, R==0, 1e-30)
+    theta = pi/2. - gridLatLonBear(cLon, cLat, xGrid/100., yGrid/100.)
+    return R, theta
+
 def meshLatLon(cLon, cLat, margin=2, resolution=0.01):
     """
     Create a meshgrid of the lon/lat grid.
@@ -499,6 +521,23 @@ def meshLatLon(cLon, cLat, margin=2, resolution=0.01):
 
     xx = array(arange(minLon, maxLon, gridSize))
     yy = array(arange(minLat, maxLat, gridSize))
+
+    xGrid,yGrid = meshgrid(xx, yy)
+    return xGrid/100., yGrid/100.
+
+def meshLatLonDomain(minLon, maxLon, minLat, maxLat, margin=2, resolution=0.01):
+    """
+    Create a meshgrid of the lon/lat grid.
+    """
+    gridSize = int(100*resolution)
+
+    minLon_ = int(100*(minLon-margin))
+    maxLon_ = int(100*(maxLon+margin))+gridSize
+    minLat_ = int(100*(minLat-margin))
+    maxLat_ = int(100*(maxLat+margin))+gridSize
+
+    xx = array(arange(minLon_, maxLon_, gridSize))
+    yy = array(arange(minLat_, maxLat_, gridSize))
 
     xGrid,yGrid = meshgrid(xx, yy)
     return xGrid/100., yGrid/100.
