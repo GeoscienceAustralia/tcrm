@@ -40,12 +40,12 @@ ModifiedDate: 2010-10-19 1:07:PM
 Modification: Apply masked arrays to data being plotted (if data is loaded from
               a netCDF file).
 
-Version: $Rev: 512 $
+Version: $Rev: 526 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2011-06-08 1:00:PM
 Modification: Added plotArray and plotBarb functions.
 
-Id: $Id: plotField.py 512 2011-10-31 07:20:38Z nsummons $
+Id: $Id: plotField.py 526 2011-11-22 04:36:11Z carthur $
 """
 
 import os, sys, pdb, logging, getopt, traceback
@@ -66,7 +66,7 @@ import colours
 from smooth import smooth
 
 
-__version__ = '$Id: plotField.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: plotField.py 526 2011-11-22 04:36:11Z carthur $'
 
 logger = logging.getLogger()
 
@@ -459,7 +459,7 @@ def plotArray(x,y,data,llLon=None, llLat=None, urLon=None,
             m.pcolormesh(xx,yy,datam,edgecolors='None',vmin=datarange[0],vmax=datarange[1],cmap=cmap)
     else:
         m.pcolormesh(xx,yy,data,edgecolors='None',vmin=datarange[0],vmax=datarange[1],cmap=cmap)
-    cb = pyplot.colorbar(shrink=0.5, orientation='horizontal', extend='both',pad=0.005)
+    cb = pyplot.colorbar(shrink=0.5, orientation='horizontal', extend='both',pad=0.05)
     if cb.orientation=='horizontal':
         for t in cb.ax.get_xticklabels():
             t.set_fontsize(10)
