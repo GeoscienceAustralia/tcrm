@@ -188,10 +188,10 @@ class AutoPlotHazard:
 
         # Crop region since windfields are not generated when storms
         # are within the margin distance from domain edges
-        #minLon = min(lon) + (margin * 2.0)
-        #maxLon = max(lon) - (margin * 2.0)
-        #minLat = min(lat) + (margin * 2.0)
-        #maxLat = max(lat) - (margin * 2.0)
+        minLon = min(lon) #+ (margin * 2.0)
+        maxLon = max(lon) #- (margin * 2.0)
+        minLat = min(lat) #+ (margin * 2.0)
+        maxLat = max(lat) #- (margin * 2.0)
 
         # If locality is not found in domain => revert to plotting return curves for all localities in domain
         self.sqlcur.execute('select placename from localities where lon > ? and lon < ? and lat > ? and lat < ? and placeID = ?', (minLon, maxLon, minLat, maxLat, str(self.localityID)))
@@ -231,10 +231,10 @@ class AutoPlotHazard:
             if placeWspd[0] > 0:
                 pyplot.semilogx(years, placeWspd, 'b-', linewidth=2, subsx=years, label='Return period wind speed')
                 if ciBounds:
-                    if placeWspd05[0] > 0 and ciBounds:
+                    if placeWspdLower[0] > 0 and ciBounds:
                         pyplot.semilogx(years, placeWspdLower, 'k--', linewidth=1, subsx=years, label='5th percentile')
-                    if placeWspd95[0] > 0 and ciBounds:
-                        pyplot.semilogx(years,placeWspdUpper, 'k--', linewidth=1, subsx=years, label='95th percentile')
+                    if placeWspdUpper[0] > 0 and ciBounds:
+                        pyplot.semilogx(years, placeWspdUpper, 'k--', linewidth=1, subsx=years, label='95th percentile')
                         maxWspd = numpy.max([maxWspd, placeWspdUpper.max()])
             else:
                 continue
