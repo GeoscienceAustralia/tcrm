@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ Author: Nicholas Summons
 Email: nicholas.summons@ga.gov.au
 CreationDate: 2011-08-05
 Description: Automatically plots hazard maps for each return period and 
-             hazard curves for each WMO station within domain.
+             hazard return curves for each locality within the domain.
              Adapted from compareGrids.py code and plotHazardCurves.py developed by Craig Arthur.
 """
 
@@ -41,12 +41,15 @@ from Utilities import pathLocator
 from Utilities import metutils
 from Utilities.progressbar import ProgressBar
 import csv
+import sqlite3
+import unicodedata
 
 class AutoPlotHazard:
 
-    def __init__(self, configFile):
+    def __init__(self, configFile, progressbar=None):
         self.logger = logging.getLogger()
         self.outputPath = cnfGetIniValue(configFile,'Output','Path')
+        self.localityID = cnfGetIniValue(configFile, 'Region', 'LocalityID', -99999)
         self.inputFile = os.path.join(self.outputPath, 'hazard', 'hazard.nc')
         self.plotPath = os.path.join(self.outputPath, 'plots', 'hazard')
         self.margin = cnfGetIniValue(configFile, 'WindfieldInterface', 'Margin', 2.0)
@@ -60,8 +63,15 @@ class AutoPlotHazard:
         elif self.plotSpeedUnits == 'kts':
             self.speedunitlabel = 'knots'
         else:
-            self.speedunitlabel = self.plotSpeedUnits        
-        self.pbar = ProgressBar('(6/6) Plotting results:      ')
+            self.speedunitlabel = self.plotSpeedUnits 
+        self.progressbar = progressbar
+        
+        # Load localities database
+        tcrm_dir = pathLocator.getRootDirectory()
+        tcrm_input_dir = os.path.join(tcrm_dir, 'input')
+        localitiesDataFile = os.path.join(tcrm_input_dir, 'localities.dat')
+        self.sqlcon = sqlite3.connect(localitiesDataFile)
+        self.sqlcur = self.sqlcon.cursor()
 
     def plot(self):
             lon, lat, years, inputData = self._loadFile(self.inputFile, 'wspd')
@@ -69,11 +79,11 @@ class AutoPlotHazard:
             # Plot return period wind speed maps
             for record in range(inputData.shape[0]):
                 self._plotHazardMap(inputData[record,:,:], lon, lat, int(years[record]), self.plotPath)
-                self.pbar.update((record + 1) / float(inputData.shape[0]), 0.0, 0.9)
+                self.progressbar.update((record + 1) / float(inputData.shape[0]), 0.0, 0.9)
             
             # Plot return period curves
             self._plotHazardCurves(self.inputFile, self.plotPath, self.margin)
-            self.pbar.update(1.0)
+            self.progressbar.update(1.0)
 
     def _loadFile(self, inputFile, varname):
         try:
@@ -169,8 +179,8 @@ class AutoPlotHazard:
         # Load data
         wspd = nctools.ncGetData(ncobj, 'wspd')
         try:
-            w05  = nctools.ncGetData(ncobj, 'wspd05')
-            w95 = nctools.ncGetData(ncobj, 'wspd95')
+            wLower  = nctools.ncGetData(ncobj, 'wspdlower')
+            wUpper = nctools.ncGetData(ncobj, 'wspdupper')
             ciBounds = True
         except:
             ciBounds = False
@@ -178,91 +188,70 @@ class AutoPlotHazard:
 
         # Crop region since windfields are not generated when storms
         # are within the margin distance from domain edges
-        minLon = min(lon) + (margin * 2.0)
-        maxLon = max(lon) - (margin * 2.0)
-        minLat = min(lat) + (margin * 2.0)
-        maxLat = max(lat) - (margin * 2.0)
-        stnDict = self._getStations()
+        #minLon = min(lon) + (margin * 2.0)
+        #maxLon = max(lon) - (margin * 2.0)
+        #minLat = min(lat) + (margin * 2.0)
+        #maxLat = max(lat) - (margin * 2.0)
 
-        # Use the same maximum value for all stations to simplify station intercomparisons
+        # If locality is not found in domain => revert to plotting return curves for all localities in domain
+        self.sqlcur.execute('select placename from localities where lon > ? and lon < ? and lat > ? and lat < ? and placeID = ?', (minLon, maxLon, minLat, maxLat, str(self.localityID)))
+        if len([z[0] for z in self.sqlcur.fetchall()]) == 0:
+            self.localityID = -99999
+
+        if self.localityID == -99999:
+            self.sqlcur.execute('select placename, parentcountry, lat, lon from localities where lon > ? and lon < ? and lat > ? and lat < ?', (minLon, maxLon, minLat, maxLat))
+        else:
+            self.sqlcur.execute('select placename, parentcountry, lat, lon from localities where placeID = ?', (str(self.localityID),))
+
+        placeNames, parentCountries, placeLats, placeLons = zip(*self.sqlcur.fetchall())
+        placeNames = list(placeNames)
+        parentCountries = list(parentCountries)
+        placeLats = list(placeLats)
+        placeLons = list(placeLons)
+
+        # Use the same maximum value for all localities to simplify intercomparisons
         defaultMax = numpy.ceil(metutils.convert(100.0, 'mps', self.plotSpeedUnits)/10.0)*10.0
 
-        for stn in stnDict:
-            stnlon = stnDict[stn][0]
-            stnlat = stnDict[stn][1]
+        for k in range(len(placeNames)):
+            placeName = placeNames[k]
+            placeLat = placeLats[k]
+            placeLon = placeLons[k]
+            parentCountry = parentCountries[k]
 
-            if (stnlon>minLon) and (stnlon<maxLon) and (stnlat>minLat) and (stnlat<maxLat):
-                self.logger.info("Plotting return period curve for %s"%stn)
-                i = numpy.where(stnlon<=lon)[0][0]
-                j = numpy.where(stnlat<=lat)[0][0]
-                stnWspd = metutils.convert(wspd[:,j,i], 'mps', self.plotSpeedUnits)
-                maxWspd = stnWspd.max()
+            self.logger.info("Plotting return period curve for %s"%placeName)
+            i = numpy.where(placeLon<=lon)[0][0]
+            j = numpy.where(placeLat<=lat)[0][0]
+            placeWspd = metutils.convert(wspd[:,j,i], 'mps', self.plotSpeedUnits)
+            maxWspd = placeWspd.max()
+            if ciBounds:
+                placeWspdLower = metutils.convert(wLower[:,j,i], 'mps', self.plotSpeedUnits)
+                placeWspdUpper  = metutils.convert(wUpper[:,j,i], 'mps', self.plotSpeedUnits)
+
+            pyplot.clf()
+            if placeWspd[0] > 0:
+                pyplot.semilogx(years, placeWspd, 'b-', linewidth=2, subsx=years, label='Return period wind speed')
                 if ciBounds:
-                    stnWspd05 = metutils.convert(w05[:,j,i], 'mps', self.plotSpeedUnits)
-                    stnWspd95  = metutils.convert(w95[:,j,i], 'mps', self.plotSpeedUnits)
-
-                pyplot.clf()
-                if stnWspd[0] > 0:
-                    pyplot.semilogx(years, stnWspd, 'b-', linewidth=2, subsx=years, label='Return period wind speed')
-                    if stnWspd05[0] > 0 and ciBounds:
-                        pyplot.semilogx(years, stnWspd05, 'k--', linewidth=1, subsx=years, label='5th percentile')
-                    if stnWspd95[0] > 0 and ciBounds:
-                        pyplot.semilogx(years,stnWspd95, 'k--', linewidth=1, subsx=years, label='95th percentile')
-                        maxWspd = numpy.max(maxWspd, stnWspd95.max())
-                else:
-                    continue
-                pyplot.xlabel('Return period (years)')
-                pyplot.ylabel('Wind speed (' + self.speedunitlabel + ')')
-                years2 = numpy.array([25.0 * (2 ** k) for k in range(7)])
-                pyplot.xticks(years2,years2.astype(int))
-                
-                pyplot.xlim(years.min(),years.max())
-
-                # Override default maximum if exceeded by hazard values
-                pyplot.ylim(0.0, max(numpy.ceil(maxWspd/10.0)*10.0, defaultMax))
-                pyplot.title("Return period wind speeds at " + stnDict[stn][2] + ", " + stnDict[stn][3] + "\n(%5.1f,%5.1f)"%(stnlon,stnlat))
-                pyplot.grid(True)
-                pyplot.savefig(os.path.join(plotPath, 'RP_curve_Station%s.%s'%(stn,"png")))
-
-    def _getStations(self):
-        # Use station file located in TCRM input directory
-        tcrm_dir = pathLocator.getRootDirectory()
-        tcrm_input_dir = os.path.join(tcrm_dir, 'input')
-        stnFile = os.path.join(tcrm_input_dir, 'station_list.txt')
-        
-        csvReader = csv.reader(open(stnFile, 'rb'), delimiter=';')
-        stnDict = {}  
-        for row in csvReader:
-            stnlat_str = row[7]
-            stnlat_str = stnlat_str.replace('-', ':')
-            if stnlat_str[-1] == 'N':
-                stnlat_str = stnlat_str[0:-1]
-            elif stnlat_str[-1] == 'S':
-                stnlat_str = '-' + stnlat_str[0:-1]
+                    if placeWspd05[0] > 0 and ciBounds:
+                        pyplot.semilogx(years, placeWspdLower, 'k--', linewidth=1, subsx=years, label='5th percentile')
+                    if placeWspd95[0] > 0 and ciBounds:
+                        pyplot.semilogx(years,placeWspdUpper, 'k--', linewidth=1, subsx=years, label='95th percentile')
+                        maxWspd = numpy.max([maxWspd, placeWspdUpper.max()])
             else:
                 continue
+            pyplot.xlabel('Return period (years)')
+            pyplot.ylabel('Wind speed (' + self.speedunitlabel + ')')
+            #years2 = numpy.array([25.0 * (2 ** k) for k in range(7)])
+            years2 = numpy.array([10.,25.,50.,100.,250.,500.,1000.,2500.])
+            pyplot.xticks(years2,years2.astype(int))
+            
+            pyplot.xlim(years.min(),years.max())
 
-            stnlon_str = row[8]
-            stnlon_str = stnlon_str.replace('-', ':')
-            if stnlon_str[-1] == 'E':
-                stnlon_str = stnlon_str[0:-1]
-            elif stnlon_str[-1] == 'W':
-                stnlon_str = '-' + stnlon_str[0:-1]
-            else:
-                continue
-
-            degminsec = numpy.double(stnlat_str.split(':'))
-            stnlat = 0
-            for k in range(len(degminsec)):
-                stnlat = stnlat + abs(degminsec[k] / 60.0**k)
-            stnlat = stnlat * numpy.sign(degminsec[0])
-
-            degminsec = numpy.double(stnlon_str.split(':'))
-            stnlon = 0
-            for k in range(len(degminsec)):
-                stnlon = stnlon + abs(degminsec[k] / 60.0**k)
-            stnlon = stnlon * numpy.sign(degminsec[0])
-            stnlon = numpy.mod(stnlon, 360.0)
-            if int(row[0] + row[1]) > 1:
-                stnDict[int(row[0] + row[1])] = [stnlon, stnlat, row[3], row[5]]
-        return stnDict
+            # Override default maximum if exceeded by hazard values
+            pyplot.ylim(0.0, numpy.max([numpy.ceil(maxWspd/10.0)*10.0, defaultMax]))
+            pyplot.title("Return period wind speeds at " + placeName + ", " + parentCountry + "\n(%5.1f,%5.1f)"%(placeLon,placeLat))
+            pyplot.grid(True)
+            
+            # Convert unicode to ascii and remove spaces
+            placeName = unicodedata.normalize('NFKD', placeName).encode('ascii', 'ignore')
+            placeName.replace(' ', '')
+            pyplot.savefig(os.path.join(plotPath, 'RP_curve_%s.%s'%(placeName,"png")))

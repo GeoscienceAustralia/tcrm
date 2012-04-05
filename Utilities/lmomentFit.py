@@ -1,6 +1,6 @@
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,11 +38,11 @@ Description: Two functions {pelgev, samlmu} from the LMOMENTS
  or projects, whether in an action of contract or tort, arising out of or in
  connection with the use or performance of this software. "
 
-$Id: lmomentFit.py 512 2011-10-31 07:20:38Z nsummons $
+$Id: lmomentFit.py 686 2012-03-29 04:24:59Z carthur $
 """
 import numpy
 from scipy import special
-__version__ = "$Id: lmomentFit.py 512 2011-10-31 07:20:38Z nsummons $"
+__version__ = "$Id: lmomentFit.py 686 2012-03-29 04:24:59Z carthur $"
 
 def pelgev(XMOM):
     #***********************************************************************
@@ -139,7 +139,7 @@ def pelgev(XMOM):
         T0 = (T3 + 3.0)*0.5
 
         convg = False
-        for IT in range(1, MAXIT+1):
+        for IT in xrange(1, MAXIT+1):
             X2 = 2.0**(-G)
             X3 = 3.0**(-G)
             XX2 = 1.0 - X2
@@ -211,7 +211,7 @@ def samlmu(X, NMOM):
         SUM1 = 0.0
         SUM2 = 0.0
         TEMP = -DN + 1.0
-        for I in range(1,N+1):
+        for I in xrange(1,N+1):
             SUM1 = SUM1 + X[I-1]
             SUM2 = SUM2 + X[I-1]*TEMP
             TEMP = TEMP + 2.0
@@ -224,7 +224,7 @@ def samlmu(X, NMOM):
     # UNBIASED ESTIMATES OF L-MOMENTS -- THE 'DO 30' LOOP
     # RECURSIVELY CALCULATES DISCRETE LEGENDRE POLYNOMIALS, VIA
     # EQ.(9) OF NEUMAN AND SCHONBACH (1974, INT.J.NUM.METH.ENG.)
-    for J in range(3, NMOM + 1):
+    for J in xrange(3, NMOM + 1):
         TEMP = 1.0/((J - 1)*(N - J + 1))
         COEF[0,J-1] = (J + J - 3)*TEMP
         COEF[1,J-1] = ((J - 2)*(N + J - 2))*TEMP
@@ -232,7 +232,7 @@ def samlmu(X, NMOM):
     TEMP = -DN - 1.0
     CONST = 1.0/(DN - 1.0)
     NHALF = N/2
-    for I in range(1,NHALF + 1):
+    for I in xrange(1,NHALF + 1):
         TEMP = TEMP + 2.0
         XI = X[I-1]
         XII = X[N - I]
@@ -242,7 +242,7 @@ def samlmu(X, NMOM):
         S1 = 1.0
         S = TEMP*CONST
         XMOM[1] = XMOM[1] + S*TERMN
-        for J in range(3,NMOM + 1,2):
+        for J in xrange(3,NMOM + 1,2):
             S2 = S1
             S1 = S
             S = COEF[0,J - 1]*TEMP*S1 - COEF[1,J - 1]*S2
@@ -259,17 +259,17 @@ def samlmu(X, NMOM):
         TERM = X[NHALF]
         S = 1.0
         XMOM[0] = XMOM[0] + TERM
-        for J in range(3,NMOM+1,2):
+        for J in xrange(3,NMOM+1,2):
             S = -COEF[1, J - 1]*S
             XMOM[J - 1] = XMOM[J - 1] + S*TERM
-            
+
     # L-MOMENT RATIOS
     XMOM[0] = XMOM[0]/DN
     if XMOM[1] == 0.0:
         print ' *** ERROR *** ROUTINE SAMLMU : ALL DATA VALUES EQUAL'
         XMOM[:] = 0.0
         return
-    for J in range(3, NMOM + 1):
+    for J in xrange(3, NMOM + 1):
         XMOM[J - 1] = XMOM[J - 1]/XMOM[1]
     XMOM[1] = XMOM[1]/DN
     return XMOM
@@ -296,7 +296,7 @@ def samlmu3(X):
     XMOM[1] = sum(TEMP*TERMN*CONST)
     S = [k*k*COEF02*CONST - COEF12 for k in TEMP]
     XMOM[2] = sum(S*TERMP)
-    
+
     if N != NHALF+NHALF:
         XMOM[0] = XMOM[0] + X[NHALF]
         XMOM[2] = XMOM[2] - COEF12*X[NHALF]

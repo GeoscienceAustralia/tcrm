@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,32 +31,35 @@ import pdb
 import csv
 import math
 import numpy
+import unicodedata
 import ConfigParser
 from copy import deepcopy
 from wx import ImageFromStream, BitmapFromImage, EmptyIcon
 import cStringIO, zlib
 from Utilities import pathLocator
 from Utilities import columns
+import sqlite3
 
 # Switch off minor warning messages
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning, module="pytz")
 
-import matplotlib
-matplotlib.use('WXAgg')
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg
-from matplotlib.figure import Figure
-
 
 class MainFrame ( wx.Frame ):
 
     def __init__( self, parent ):
-        self.stnDict = self.getStations()
-        self.allStations = self.getWestPacificStations()
+
+        tcrm_dir = pathLocator.getRootDirectory()
+        tcrm_input_dir = os.path.join(tcrm_dir, 'input')
+        localitiesDataFile = os.path.join(tcrm_input_dir, 'localities.dat')
+ 
+        self.sqlcon = sqlite3.connect(localitiesDataFile)
+        self.sqlcur = self.sqlcon.cursor()
 
         # Sort country names into alphabetical order (since dictionaries do not preserve order)
-        allStations_keys = self.allStations.keys()
+        self.sqlcur.execute('select placename from localities where placetype=?', ('country',))
+        allStations_keys = [z[0] for z in self.sqlcur.fetchall()]
         allStations_keys.sort()
 
         self.columnChoices = {'refName':['', 'num', 'date', 'season', 'index', 'year', 'month', 'day',
@@ -65,8 +68,9 @@ class MainFrame ( wx.Frame ):
                                             'Hour', 'Minute', 'Latitude', 'Longitude', 'Central Pressure', 'RMW', 'TC Serial Number'],
                               'unitMapping':['', '', 'DateFormat', '', '', '', '', '',
                                              '', '', '', '', 'PressureUnits', 'LengthUnits', ''],
-                              'Countries':allStations_keys,
-                              'Stations':''}
+                              'Countries':[u''] + allStations_keys,
+                              'Divisions':'',
+                              'Locations':''}
         self.speedUnits = ['mps', 'mph', 'kph', 'kts']
         self.speedUnitsLongname = ['metres / second','miles / hour','kilometres / hour','knots']
         self.pressureUnits = ['hPa', 'kPa', 'Pa', 'inHg', 'mmHg']
@@ -341,7 +345,7 @@ class MainFrame ( wx.Frame ):
         sizer311n.Add( self.label3111n, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         self.choiceBoxn2 = wx.Choice(self.tab_domain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, self.columnChoices['Countries'], 0)
-        self.choiceBoxn2.SetSelection(-1)
+        self.choiceBoxn2.SetSelection(0)
         self.choiceBoxn2.Enable(True)
         self.Bind(wx.EVT_CHOICE, self.setCountry, self.choiceBoxn2)
         sizer311n.Add( self.choiceBoxn2, 2, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
@@ -355,17 +359,33 @@ class MainFrame ( wx.Frame ):
         
         sizer311n2 = wx.BoxSizer( wx.HORIZONTAL )
 
-        self.label3111n2 = wx.StaticText( self.tab_domain, wx.ID_ANY, u"WMO Station:", wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.label3111n2 = wx.StaticText( self.tab_domain, wx.ID_ANY, u"Division:", wx.DefaultPosition, wx.DefaultSize, 0 )
         self.label3111n2.Wrap( -1 )
         sizer311n2.Add( self.label3111n2, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         self.choiceBoxn2b = wx.Choice(self.tab_domain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, [], 0)
         self.choiceBoxn2b.SetSelection(0)
         self.choiceBoxn2b.Enable(False)
-        self.Bind(wx.EVT_CHOICE, self.setStation, self.choiceBoxn2b)
+        self.Bind(wx.EVT_CHOICE, self.setDivision, self.choiceBoxn2b)
         sizer311n2.Add( self.choiceBoxn2b, 4, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         staticBox31.Add( sizer311n2, 1, wx.EXPAND, 5 )
+
+
+        sizer311n2b = wx.BoxSizer( wx.HORIZONTAL )
+
+        self.label3111n2b = wx.StaticText( self.tab_domain, wx.ID_ANY, u"Location:", wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.label3111n2b.Wrap( -1 )
+        sizer311n2b.Add( self.label3111n2b, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+        self.choiceBoxn2bb = wx.Choice(self.tab_domain, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, [], 0)
+        self.choiceBoxn2bb.SetSelection(0)
+        self.choiceBoxn2bb.Enable(False)
+        self.Bind(wx.EVT_CHOICE, self.setLocation, self.choiceBoxn2bb)
+        sizer311n2b.Add( self.choiceBoxn2bb, 4, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+        staticBox31.Add( sizer311n2b, 1, wx.EXPAND, 5 )
+
         
         
         sizer311n3 = wx.BoxSizer( wx.HORIZONTAL )
@@ -436,7 +456,7 @@ class MainFrame ( wx.Frame ):
 
         staticBox31.Add( sizer312, 1, wx.EXPAND, 5 )
         
-        sizer3.Add( staticBox31, 4, wx.ALL|wx.EXPAND, 5 )
+        sizer3.Add( staticBox31, 5, wx.ALL|wx.EXPAND, 5 )
 
         #staticBox32 = wx.StaticBoxSizer( wx.StaticBox( self.tab_domain, wx.ID_ANY, u"Track Generator Domain" ), wx.VERTICAL )
 
@@ -502,19 +522,20 @@ class MainFrame ( wx.Frame ):
 
         #sizer3.Add( staticBox32, 4, wx.ALL|wx.EXPAND, 5 )
 
-        padder33 = wx.BoxSizer( wx.VERTICAL )
+        #padder33 = wx.BoxSizer( wx.VERTICAL )
 
-        sizer3.Add( padder33, 1, wx.EXPAND, 5 )
+        #sizer3.Add( padder33, 1, wx.EXPAND, 5 )
 
         self.tab_domain.SetSizer( sizer3 )
 
         self.tab_domain.Layout()
         sizer3.Fit( self.tab_domain )
         self.notebook_panel.AddPage( self.tab_domain, u"Domain", False )
-        self.userhelptext.append(" Please select a country and WMO station for assessing the cyclonic wind\n" + \
-                                 " hazard.  The domain limits will then be automatically determined.\n\n" + \
-                                 " Note: Only WMO stations within the latitude bands of 5N-25N and 5S-25S\n" + \
-                                 " are listed.\n")
+        self.userhelptext.append(" Select a country, division and location for assessing the cyclonic wind hazard\n" + \
+                                 " (e.g. Australia -> Western Australia -> Port Hedland).\n\n" + \
+                                 " The domain limits will then be automatically determined.\n\n" + \
+                                 " Note: locations close to the equator (i.e. within 6 degrees) or poleward of \n" + \
+                                 " +/- 25 degrees latitude should not be chosen.")
         #---------------------------------------------------------
 
 
@@ -765,7 +786,7 @@ class MainFrame ( wx.Frame ):
 
         sizer611 = wx.BoxSizer( wx.HORIZONTAL )
 
-        self.label6111 = wx.StaticText( self.tab_trackgen, wx.ID_ANY, u"Number of Simulations:", wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.label6111 = wx.StaticText( self.tab_trackgen, wx.ID_ANY, u"Number of Years to Simulate:", wx.DefaultPosition, wx.DefaultSize, 0 )
         self.label6111.Wrap( -1 )
         sizer611.Add( self.label6111, 1, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
@@ -825,7 +846,9 @@ class MainFrame ( wx.Frame ):
         self.tab_trackgen.Layout()
         sizer6.Fit( self.tab_trackgen )
         self.notebook_panel.AddPage( self.tab_trackgen, u"Track Generator", False )
-        self.userhelptext.append(" Choose the number of simulations to perform.")
+        self.userhelptext.append(" Choose the number of years to simulate.\n\n" + \
+                                 " This should be much larger than the return period of interest \n" + \
+                                 " (e.g. 5000 year simulation for a 500 year return period).")
         #---------------------------------------------------------
 
 
@@ -1063,9 +1086,10 @@ class MainFrame ( wx.Frame ):
         self.setConfigKeyValue('Actions', 'PlotHazard', 'True', valueDataType='logical', allowOverwrite=False)
         self.setConfigKeyValue('DataProcess', 'InputFile', os.path.join(self.tcrmPath, 'input' + os.sep), valueDataType='str')
         self.setConfigKeyValue('DataProcess', 'Source', self.defaultSourceName, valueDataType='str')
+        self.setConfigKeyValue('DataProcess', 'StartSeason', '1981', valueDataType='int')
         self.setConfigKeyValue('Region', '; Domain for windfield and hazard calculation', '', valueDataType='str')
         self.setConfigKeyValue('Region', 'gridLimit', str(emptyDomain), valueDataType='domain')
-        self.setConfigKeyValue('Region', 'WMOStnNo', '-9999', valueDataType='int')
+        self.setConfigKeyValue('Region', 'LocalityID', '-99999', valueDataType='int')
         #self.setConfigKeyValue('StatInterface', 'gridLimit', str(emptyDomain), valueDataType='domain')
         self.setConfigKeyValue('StatInterface', 'kdeType', self.KDETypes[0], valueDataType='choicelist', choicelist=self.KDETypes)
         self.setConfigKeyValue('StatInterface', 'kde2DType', self.KDETypes[3], valueDataType='choicelist', choicelist=self.KDETypes)
@@ -1121,19 +1145,20 @@ class MainFrame ( wx.Frame ):
         #self.setConfigKeyValue(self.defaultSourceName, 'SpeedUnits', 'mps', valueDataType='choicelist', choicelist=self.speedUnits)
         self.setConfigKeyValue(self.defaultSourceName, 'PressureUnits', 'hPa', valueDataType='choicelist', choicelist=self.pressureUnits)
         self.setConfigKeyValue(self.defaultSourceName, 'LengthUnits', 'km', valueDataType='choicelist', choicelist=self.lengthUnits)
-        self.choiceBoxn2.SetSelection(-1)
-        self.choiceBoxn2.Clear()
-        for countryName in self.columnChoices['Countries']:
-            self.choiceBoxn2.Append(countryName)
+        self.choiceBoxn2.SetSelection(0)
         self.setCountry(0)
         if self.display_MSLP_tab:
             self.resetMslpMonthList()
 
     def setCountry(self, event):
         country_selection_number = self.choiceBoxn2.GetSelection()
-        if country_selection_number >= 0:
+        if country_selection_number > 0:
             country_selection = self.columnChoices['Countries'][country_selection_number]
             self.choiceBoxn2b.Clear()
+            self.choiceBoxn2bb.Clear()
+            self.columnChoices['Divisions'] = ['']
+            self.columnChoices['Locations'] = ['']
+            self.choiceBoxn2bb.Enable(False)
             self.textCtrl3113.SetValue('')
             self.textCtrl3115.SetValue('')
             self.textCtrl3123.SetValue('')
@@ -1149,17 +1174,23 @@ class MainFrame ( wx.Frame ):
             self.textCtrl3115.Enable(False)
             self.textCtrl3123.Enable(False)
             self.textCtrl3125.Enable(False)
-            self.columnChoices['Stations'] = self.allStations[country_selection].keys()
-            self.columnChoices['Stations'].sort()
-            self.setConfigKeyValue('Region', 'WMOStnNo', '-9999')
-            for stnName in self.columnChoices['Stations']:
-                self.choiceBoxn2b.Append(stnName)
+            self.sqlcur.execute('select placename from localities where parentcountry=? and placetype<>?',(country_selection,'locality'))
+            self.columnChoices['Divisions'] = [z[0] for z in self.sqlcur.fetchall()]
+            # Remove duplicates
+            self.columnChoices['Divisions'] = list(set(self.columnChoices['Divisions']))
+            self.columnChoices['Divisions'].sort()
+            self.setConfigKeyValue('Region', 'LocalityID', '-99999')
+            self.setConfigKeyValue('Region', 'LocalityName', '')
+            for divName in self.columnChoices['Divisions']:
+                self.choiceBoxn2b.Append(divName)
             self.choiceBoxn2b.Enable(True)
         else:
             self.choiceBoxn2b.Clear()
-            self.choiceBoxn2b.SetSelection(-1)
-            self.columnChoices['Stations'] = ['']
+            self.choiceBoxn2bb.Clear()
+            self.columnChoices['Divisions'] = ['']
+            self.columnChoices['Locations'] = ['']
             self.choiceBoxn2b.Enable(False)
+            self.choiceBoxn2bb.Enable(False)
             self.textCtrl3113.SetValue('')
             self.textCtrl3115.SetValue('')
             self.textCtrl3123.SetValue('')
@@ -1175,21 +1206,82 @@ class MainFrame ( wx.Frame ):
             self.textCtrl3115.Enable(False)
             self.textCtrl3123.Enable(False)
             self.textCtrl3125.Enable(False)
-            
+            self.setConfigKeyValue('Region', 'LocalityID', '-99999')
+            self.setConfigKeyValue('Region', 'LocalityName', '')
 
-    def setStation(self, event):
+
+    def setDivision(self, event):
         country_selection_number = self.choiceBoxn2.GetSelection()
-        station_selection_number = self.choiceBoxn2b.GetSelection()
+        division_selection_number = self.choiceBoxn2b.GetSelection()
+        if division_selection_number >= 0:
+            country_selection = self.columnChoices['Countries'][country_selection_number]
+            division_selection = self.columnChoices['Divisions'][division_selection_number]
+            self.choiceBoxn2bb.Clear()
+            self.columnChoices['Locations'] = ['']
+            self.textCtrl3113.SetValue('')
+            self.textCtrl3115.SetValue('')
+            self.textCtrl3123.SetValue('')
+            self.textCtrl3125.SetValue('')
+            self.label3111.Enable(False)
+            self.label3112.Enable(False)
+            self.label3114.Enable(False)
+            self.label3121.Enable(False)
+            self.label3122.Enable(False)
+            self.label3124.Enable(False)
+            self.label3111n3.Enable(False)
+            self.textCtrl3113.Enable(False)
+            self.textCtrl3115.Enable(False)
+            self.textCtrl3123.Enable(False)
+            self.textCtrl3125.Enable(False)
+            self.sqlcur.execute('select placename from localities where parentcountry=? and parentdivision=? and placetype=? order by population desc limit 50',(country_selection,division_selection,'locality'))
+            self.columnChoices['Locations'] = [z[0] for z in self.sqlcur.fetchall()]
+            self.columnChoices['Locations'].sort()
+            self.setConfigKeyValue('Region', 'LocalityID', '-99999')
+            self.setConfigKeyValue('Region', 'LocalityName', '')
+            for locName in self.columnChoices['Locations']:
+                self.choiceBoxn2bb.Append(locName)
+            self.choiceBoxn2bb.Enable(True)
+        else:
+            self.choiceBoxn2bb.Clear()
+            self.columnChoices['Locations'] = ['']
+            self.choiceBoxn2bb.Enable(False)
+            self.textCtrl3113.SetValue('')
+            self.textCtrl3115.SetValue('')
+            self.textCtrl3123.SetValue('')
+            self.textCtrl3125.SetValue('')
+            self.label3111.Enable(False)
+            self.label3112.Enable(False)
+            self.label3114.Enable(False)
+            self.label3121.Enable(False)
+            self.label3122.Enable(False)
+            self.label3124.Enable(False)
+            self.label3111n3.Enable(False)
+            self.textCtrl3113.Enable(False)
+            self.textCtrl3115.Enable(False)
+            self.textCtrl3123.Enable(False)
+            self.textCtrl3125.Enable(False)
+            self.setConfigKeyValue('Region', 'LocalityID', '-99999')
+            self.setConfigKeyValue('Region', 'LocalityName', '')
+          
+
+
+    def setLocation(self, event):
+        country_selection_number = self.choiceBoxn2.GetSelection()
+        division_selection_number = self.choiceBoxn2b.GetSelection()
+        location_selection_number = self.choiceBoxn2bb.GetSelection()
         country_selection = self.columnChoices['Countries'][country_selection_number]
-        station_selection = self.columnChoices['Stations'][station_selection_number]
-        if station_selection_number >= 0:
-            self.columnChoices['Stations']
-            stn, lon, lat = self.allStations[country_selection][station_selection]
-            self.setConfigKeyValue('Region', 'WMOStnNo', str(stn))
+        division_selection = self.columnChoices['Divisions'][division_selection_number]
+        location_selection = self.columnChoices['Locations'][location_selection_number]
+        if location_selection_number >= 0:
+            #self.columnChoices['Locations']
+            self.sqlcur.execute('select lon, lat, placeID from localities where parentcountry=? and parentdivision=? and placename=? and placetype=?',(country_selection,division_selection,location_selection,'locality'))
+            lon, lat, placeID = self.sqlcur.fetchone()
             self.textCtrl3113.SetValue(str(math.floor(lon - 5)))
             self.textCtrl3115.SetValue(str(math.ceil(lon + 5)))
             self.textCtrl3123.SetValue(str(math.floor(lat - 5)))
             self.textCtrl3125.SetValue(str(math.ceil(lat + 5)))
+            self.setConfigKeyValue('Region', 'LocalityID', placeID)
+            self.setConfigKeyValue('Region', 'LocalityName', location_selection + ', ' + division_selection + ', ' + country_selection + '.')
             self.label3111.Enable(True)
             self.label3112.Enable(True)
             self.label3114.Enable(True)
@@ -1201,6 +1293,7 @@ class MainFrame ( wx.Frame ):
             self.textCtrl3115.Enable(True)
             self.textCtrl3123.Enable(True)
             self.textCtrl3125.Enable(True)
+
 
     def setPlottingUnits(self, event):
         selection_number = self.choiceBoxn822.GetSelection()
@@ -1357,12 +1450,6 @@ class MainFrame ( wx.Frame ):
         self.textCtrl3115.SetValue(self.getConfigKeyValue('Region', 'gridLimit', 'xMax'))
         self.textCtrl3123.SetValue(self.getConfigKeyValue('Region', 'gridLimit', 'yMin'))
         self.textCtrl3125.SetValue(self.getConfigKeyValue('Region', 'gridLimit', 'yMax'))
-        #self.choiceBoxn2.SetSelection(-1)
-        #self.setCountry(0):
-        #self.textCtrl3213.SetValue(self.getConfigKeyValue('TrackGenerator', 'gridLimit', 'xMin'))
-        #self.textCtrl3215.SetValue(self.getConfigKeyValue('TrackGenerator', 'gridLimit', 'xMax'))
-        #self.textCtrl3223.SetValue(self.getConfigKeyValue('TrackGenerator', 'gridLimit', 'yMin'))
-        #self.textCtrl3225.SetValue(self.getConfigKeyValue('TrackGenerator', 'gridLimit', 'yMax'))
 
         # RMW Settings
         if self.display_RMW_tab:
@@ -1463,9 +1550,8 @@ class MainFrame ( wx.Frame ):
 
         # Hazard Settings
         self.textCtrl812.SetValue(self.getConfigKeyValue('HazardInterface','Years').strip('[]'))
-
         plotUnitSelection = self.getConfigKeyValue('HazardInterface', 'PlotSpeedUnits')
-        plotUnitSelectionIndex = numpy.flatnonzero(numpy.array([n == plotUnitSelection for n in self.speedUnits]))
+        plotUnitSelectionIndex = self.speedUnits.index(plotUnitSelection)
         self.choiceBoxn822.SetSelection(int(plotUnitSelectionIndex))
 
     def refreshColumns(self):
@@ -1493,13 +1579,16 @@ class MainFrame ( wx.Frame ):
         if not warningRaised:
             self.LoadConfigFile(None)
 
-    def menu_sel_file_save( self, event ):
+    def menu_sel_file_save( self, event, newfilename=None ):
         warningRaised = self.checkAllValues()
         if not warningRaised:
 
-            configFilename = self.textCtrl012.GetValue()
-            if configFilename == self.defaultconfigname:
-                return self.menu_sel_file_saveas(0)
+            if newfilename is None:
+                configFilename = self.textCtrl012.GetValue()
+                if configFilename == self.defaultconfigname:
+                    return self.menu_sel_file_saveas(0)
+            else:
+                configFilename = newfilename
 
             self.updateColumnsKeyValue()
 
@@ -1546,7 +1635,11 @@ class MainFrame ( wx.Frame ):
                             outputline = setting + '=' + ','.join([str(k) for k in settingValue])
                             f.write(outputline + '\n')
                         else:
-                            settingValue = str(settingValue)
+                            # Handle unicode place names by converting to ASCII
+                            if isinstance(settingValue, unicode):
+                                settingValue = unicodedata.normalize('NFKD', settingValue).encode('ascii', 'ignore')
+                            
+                            settingValue = str(settingValue)                            
                             if setting[0] == ';':   # Check if comment line or setting
                                 outputline = setting
                             else:
@@ -1572,6 +1665,12 @@ class MainFrame ( wx.Frame ):
                 self.SetStatusText("")
             except KeyError:
                 MsgDlg(self, "An error occured when writing to the file!   ", caption='Warning', style=wx.OK|wx.ICON_ERROR)
+            except IOError, e:
+                if e.errno == 13:
+                    MsgDlg(self, "You do not have permission to save in this directory.", caption='Warning', style=wx.OK|wx.ICON_ERROR)
+                    return True
+                else:
+                    MsgDlg(self, "An error occured when writing to the file!   ", caption='Warning', style=wx.OK|wx.ICON_ERROR)
 
     def menu_sel_file_saveas( self, event ):
         warningRaised = self.checkAllValues()
@@ -1580,31 +1679,27 @@ class MainFrame ( wx.Frame ):
             filename = self.textCtrl012.GetValue()
             if filename == self.defaultconfigname:
                 filename = '*.ini'
-            dlg = wx.FileDialog(self, 'Save As', '.', filename, 'Configuration Files (*.ini)|*.ini', wx.SAVE)
+            dlg = wx.FileDialog(self, 'Save As', '.', filename, 'Configuration Files (*.ini)|*.ini', wx.SAVE | wx.OVERWRITE_PROMPT)
 
             vetoExit = False
-            if dlg.ShowModal() == wx.ID_OK:
-                newfilename = dlg.GetPath()
-                if os.path.exists(newfilename):
-                    selFlag = MsgDlg(self, newfilename + ' already exists. \nDo you want to replace it? ', caption='Save As', style=wx.YES_NO|wx.NO_DEFAULT|wx.ICON_EXCLAMATION)
-                    if selFlag == wx.ID_YES:
-                        configFilename = self.textCtrl012.SetValue(newfilename)
-                        dlg.Destroy()
-                        self.backpanel.Update()
-                        self.menu_sel_file_save(0 )
-                    else:
-                        vetoExit = True
-                        dlg.Destroy()
-                else:
-                    configFilename = self.textCtrl012.SetValue(newfilename)
-                    dlg.Destroy()
-                    self.backpanel.Update()
-                    self.menu_sel_file_save(0 )
-            else:
-                # Flag to prevent program exit if user cancelled file save
-                vetoExit = True
 
-                dlg.Destroy()
+            while 1:
+                if dlg.ShowModal() == wx.ID_OK:
+                    newfilename = dlg.GetPath()
+                    noWritePermission = self.menu_sel_file_save( 0, newfilename)
+                    if noWritePermission:
+                        # If no write permission, then re-open SaveAs dialog
+                        pass
+                    else:
+                        self.textCtrl012.SetValue(newfilename)
+                        self.backpanel.Update()                    
+                        break
+                else:
+                    # Flag to prevent program exit if user cancelled file save
+                    vetoExit = True
+                    break
+
+            dlg.Destroy()
             return vetoExit
 
     def menu_sel_file_exit( self, event ):
@@ -1736,6 +1831,8 @@ class MainFrame ( wx.Frame ):
                 else:
                     event.Veto();
                     return
+        self.sqlcur.close()
+        self.sqlcon.close()
         event.Skip()
 
     def SelectCSVFile(self, event):
@@ -1955,14 +2052,24 @@ class MainFrame ( wx.Frame ):
             inputsource = self.getConfigKeyValue('DataProcess', 'Source')
             self.setConfigKeyValue(inputsource, 'Columns', '')
             self.refreshColumns()
-        stnNo = int(self.getConfigKeyValue('Region', 'WMOStnNo'))
-        if stnNo in self.stnDict:
-            self.choiceBoxn2.SetStringSelection(self.stnDict[stnNo][3])
-            self.setCountry(0)
-            self.choiceBoxn2b.SetStringSelection(self.stnDict[stnNo][2])
-            self.setStation(0)
+        placeID = self.getConfigKeyValue('Region', 'LocalityID')
+        
+        #country_selection_number = self.choiceBoxn2.GetSelection()
+        self.sqlcur.execute('select placename, parentcountry, parentdivision from localities where placeID=?', (placeID,))
+        localityMatch = self.sqlcur.fetchone()
+
+        if localityMatch is not None:
+            placeName, parentCountry, parentDivision = localityMatch
+            if parentCountry in self.columnChoices['Countries']:
+                self.choiceBoxn2.SetSelection(self.columnChoices['Countries'].index(parentCountry))
+                self.setCountry(0)
+                self.choiceBoxn2b.SetSelection(self.columnChoices['Divisions'].index(parentDivision))
+                self.setDivision(0)
+                self.choiceBoxn2bb.SetSelection(self.columnChoices['Locations'].index(placeName))
+                self.setLocation(0)
         else:
-            self.setConfigKeyValue('Region', 'WMOStnNo', '-9999')
+            self.setConfigKeyValue('Region', 'LocalityID', '-99999')
+
             
     def resetMslpMonthList(self):
         monthlist = set(self.convertString2IntList(self.getConfigKeyValue('Input', 'MSLPGrid')))
@@ -2095,270 +2202,6 @@ class MainFrame ( wx.Frame ):
             self.checkValue(None, objId=k)
         return self.valueWarningRaised
 
-    def onCalculateTrackGeneratorDomain(self, event):
-        self.SetStatusText(" Calculating hazard domain size....")
-        self.calculateTrackGeneratorDomain()
-        self.SetStatusText("")
-
-    def calculateTrackGeneratorDomain(self):
-        # Show warning if cannot find or import columns.py
-        try:
-            import Utilities.columns as columns
-        except ImportError:
-            MsgDlg(self, "Could not find required utility file: Utilities/columns.py", caption='Warning', style=wx.OK|wx.ICON_ERROR)
-            return
-        except:
-            MsgDlg(self, "Unexpected error raised when loading columns.py", caption='Warning', style=wx.OK|wx.ICON_ERROR)
-            return
-
-        inputsource = self.getConfigKeyValue('DataProcess', 'Source')
-        wf_domain = {}
-        wf_domain['xMin'] = self.getConfigKeyValue('Region', 'gridLimit', 'xMin')
-        wf_domain['xMax'] = self.getConfigKeyValue('Region', 'gridLimit', 'xMax')
-        wf_domain['yMin'] = self.getConfigKeyValue('Region', 'gridLimit', 'yMin')
-        wf_domain['yMax'] = self.getConfigKeyValue('Region', 'gridLimit', 'yMax')
-
-        # Show warning if hazard domain is invalid
-        if wf_domain['xMin'] == '' and wf_domain['xMax'] == '' and wf_domain['yMin'] == '' and wf_domain['yMax'] == '':
-            self.raiseValueWarning('Please enter a Windfield/Hazard domain.')
-            return
-        if wf_domain['xMin'] == '' or wf_domain['xMax'] == '' or wf_domain['yMin'] == '' or wf_domain['yMax'] == '':
-            self.raiseValueWarning('The Windfield/Hazard domain settings are incomplete.')
-            return
-        wf_domain['xMin'] = float(wf_domain['xMin'])
-        wf_domain['xMax'] = float(wf_domain['xMax'])
-        wf_domain['yMin'] = float(wf_domain['yMin'])
-        wf_domain['yMax'] = float(wf_domain['yMax'])
-        if (wf_domain['yMax'] <= wf_domain['yMin']) or (wf_domain['xMax'] <= wf_domain['xMin']):
-            self.raiseValueWarning('The Windfield/Hazard domain settings are invalid.  Please check values.')
-            return
-
-        # Show warning if no data file specified
-        if self.dataFilename == '':
-            MsgDlg(self, "Please select a track file on the 'Input' page", caption='Warning', style=wx.OK|wx.ICON_INFORMATION)
-            return
-
-        # Show warning if cannot find input data file
-        if not os.path.isfile(self.dataFilename):
-            MsgDlg(self, "The track file cannot be found.  Please check path and filename on the 'Input' page.", caption='Warning', style=wx.OK|wx.ICON_INFORMATION)
-            return
-
-        self.updateColumnsKeyValue()
-        datafileSettings = {}
-        datafileSettings['Columns'] = self.getConfigKeyValue(inputsource, 'Columns')
-        datafileSettings['NumberOfHeadingLines'] = self.getConfigKeyValue(inputsource, 'NumberOfHeadingLines')
-        datafileSettings['delimiter'] = ','
-
-        # Show warning if no columns selected
-        if datafileSettings['Columns'] == '':
-            MsgDlg(self, "Please select data columns on the 'Input' page", caption='Warning', style=wx.OK|wx.ICON_INFORMATION)
-            return
-
-        # Show warning if track file failed to load
-        try:
-            inputData = columns.colReadCSV(None, self.dataFilename, None, configSettings=datafileSettings)
-        except:
-            MsgDlg(self, "Error occured when reading track file", caption='Warning', style=wx.OK|wx.ICON_ERROR)
-            return
-
-        # Show warning if required columns for calculation have not been specified on the input page
-        if not (inputData.has_key('lat') and inputData.has_key('lon') and (inputData.has_key('index') or inputData.has_key('num') or inputData.has_key('tcserialno'))):
-            MsgDlg(self, "Some of the required columns have not been specified on the 'Input' page (Please refer to the help page)", caption='Warning', style=wx.OK|wx.ICON_INFORMATION)
-            return
-
-        if inputData.has_key('index'):
-            indicator = numpy.array(inputData['index'], 'i')
-        else:
-            if inputData.has_key('tcserialno'):
-                tcSerialNo = inputData['tcserialno']
-                indicator = numpy.ones(len(tcSerialNo), 'i')
-                for i in range(1, len(tcSerialNo)):
-                    if tcSerialNo[i] == tcSerialNo[i-1]:
-                        indicator[i] = 0
-            elif inputData.has_key('season') and inputData.has_key('num'):
-                num = numpy.array(inputData['num'], 'i')
-                season = numpy.array(inputData['season'], 'i')
-                indicator = numpy.ones(num.size, 'i')
-                for i in range(1, len(num)):
-                    if season[i] == season[i-1] and num[i] == num[i-1]:
-                        indicator[i] = 0
-            elif inputData.has_key('num'):
-                num = numpy.array(inputData['num'],'i')
-                indicator = numpy.ones(num.size,'i')
-                ind_ = numpy.diff(num)
-                ind_[numpy.where(ind_ > 0)] = 1
-                indicator[1:] = ind_
-
-        lon_all = numpy.mod(inputData['lon'], 360)
-        lat_all = inputData['lat']
-
-        # Split into separate tracks if large jump occurs (delta_lon > 10 degrees or delta_lat > 5 degrees)
-        # This avoids two tracks being accidentally combined when seasons and track numbers match but
-        # basins are different as occurs in the IBTrACS dataset.  This problem can also be prevented if
-        # the 'tcserialno' column is specified.
-        delta_lon = numpy.diff(lon_all)
-        delta_lat = numpy.diff(lat_all)
-        indicator[numpy.where(delta_lon > 10)[0] + 1] = 1
-        indicator[numpy.where(delta_lat > 5)[0] + 1] = 1
-        
-        tg_domain = wf_domain.copy()
-        track_limits = {'xMin':9999,'xMax':-9999,'yMin':9999,'yMax':-9999}
-
-        for k in range(indicator.size):
-            cyclone_idx = indicator[k]
-            track_lon = lon_all[k]
-            track_lat = lat_all[k]
-
-            if cyclone_idx == 1:
-                # Reset cyclone lon/lon limits
-                track_limits = {'xMin':9999,'xMax':-9999,'yMin':9999,'yMax':-9999}
-
-            track_limits['xMin'] = min(track_limits['xMin'], track_lon)
-            track_limits['xMax'] = max(track_limits['xMax'], track_lon)
-            track_limits['yMin'] = min(track_limits['yMin'], track_lat)
-            track_limits['yMax'] = max(track_limits['yMax'], track_lat)
-
-            if (wf_domain['xMin'] <= track_lon <= wf_domain['xMax']) & \
-               (wf_domain['yMin'] <= track_lat <= wf_domain['yMax']):
-
-                tg_domain['xMin'] = min(tg_domain['xMin'],
-                                        track_limits['xMin'])
-                tg_domain['xMax'] = max(tg_domain['xMax'],
-                                        track_limits['xMax'])
-                tg_domain['yMin'] = min(tg_domain['yMin'],
-                                        track_limits['yMin'])
-                tg_domain['yMax'] = max(tg_domain['yMax'],
-                                        track_limits['yMax'])
-
-            # Extend domain to closest integer lat/lon value
-            tg_domain['xMin'] = math.floor(tg_domain['xMin'])
-            tg_domain['xMax'] = math.ceil(tg_domain['xMax'])
-            tg_domain['yMin'] = math.floor(tg_domain['yMin'])
-            tg_domain['yMax'] = math.ceil(tg_domain['yMax'])
-
-        self.setConfigKeyValue('TrackGenerator', 'gridLimit', str(tg_domain))
-        self.refreshGUIsettings()
-
-    def calculateFrequency(self, event):
-
-        # Show warning if cannot find or import columns.py
-        try:
-            import Utilities.columns as columns
-        except ImportError:
-            MsgDlg(self, "Could not find required utility file: Utilities/columns.py", caption='Warning', style=wx.OK|wx.ICON_ERROR)
-            return
-        except:
-            MsgDlg(self, "Unexpected error raised when loading columns.py", caption='Warning', style=wx.OK|wx.ICON_ERROR)
-            return
-
-        inputsource = self.getConfigKeyValue('DataProcess', 'Source')
-        tg_domain = {}
-        tg_domain['xMin'] = self.getConfigKeyValue('TrackGenerator', 'gridLimit', 'xMin')
-        tg_domain['xMax'] = self.getConfigKeyValue('TrackGenerator', 'gridLimit', 'xMax')
-        tg_domain['yMin'] = self.getConfigKeyValue('TrackGenerator', 'gridLimit', 'yMin')
-        tg_domain['yMax'] = self.getConfigKeyValue('TrackGenerator', 'gridLimit', 'yMax')
-
-        # Show warning if track domain is invalid
-        if tg_domain['xMin'] == '' and tg_domain['xMax'] == '' and tg_domain['yMin'] == '' and tg_domain['yMax'] == '':
-            self.raiseValueWarning("Please enter a Track Generator domain on the 'Domain' page.")
-            return
-        if tg_domain['xMin'] == '' or tg_domain['xMax'] == '' or tg_domain['yMin'] == '' or tg_domain['yMax'] == '':
-            self.raiseValueWarning("The Track Generator domain settings are incomplete (refer to 'Domain' page).")
-            return
-        tg_domain['xMin'] = float(tg_domain['xMin'])
-        tg_domain['xMax'] = float(tg_domain['xMax'])
-        tg_domain['yMin'] = float(tg_domain['yMin'])
-        tg_domain['yMax'] = float(tg_domain['yMax'])
-        if (tg_domain['yMax'] <= tg_domain['yMin']) or (tg_domain['xMax'] <= tg_domain['xMin']):
-            self.raiseValueWarning("The Track Generator domain settings are invalid.  Please check values on 'Domain' page.")
-            return
-
-        # Show warning if no data file specified
-        if self.dataFilename == '':
-            MsgDlg(self, "Please select a track file on the 'Input' page", caption='Warning', style=wx.OK|wx.ICON_INFORMATION)
-            return
-
-        # Show warning if cannot find input data file
-        if not os.path.isfile(self.dataFilename):
-            MsgDlg(self, "The track file cannot be found.  Please check path and filename on the 'Input' page.", caption='Warning', style=wx.OK|wx.ICON_INFORMATION)
-            return
-
-        self.updateColumnsKeyValue()
-        datafileSettings = {}
-        datafileSettings['Columns'] = self.getConfigKeyValue(inputsource, 'Columns')
-        datafileSettings['NumberOfHeadingLines'] = self.getConfigKeyValue(inputsource, 'NumberOfHeadingLines')
-        datafileSettings['delimiter'] = ','
-
-        # Show warning if no columns selected
-        if datafileSettings['Columns'] == '':
-            MsgDlg(self, "Please select data columns on the 'Input' page", caption='Warning', style=wx.OK|wx.ICON_INFORMATION)
-            return
-
-        # Show warning if track file failed to load
-        try:
-            inputData = columns.colReadCSV(None, self.dataFilename, None, configSettings=datafileSettings)
-        except:
-            MsgDlg(self, "Error occured when reading track file", caption='Warning', style=wx.OK|wx.ICON_ERROR)
-            return
-
-        # Show warning if required columns for calculation have not been specified on the input page
-        if not (inputData.has_key('lat') and inputData.has_key('lon') and (inputData.has_key('index') or inputData.has_key('num') or inputData.has_key('tcserialno')) and (inputData.has_key('season') or inputData.has_key('year'))):
-            MsgDlg(self, "Some of the required columns have not been specified on the 'Input' page (Please refer to the help page)", caption='Warning', style=wx.OK|wx.ICON_INFORMATION)
-            return
-
-        if inputData.has_key('index'):
-            indicator = numpy.array(inputData['index'], 'i')
-        else:
-            if inputData.has_key('tcserialno'):
-                tcSerialNo = inputData['tcserialno']
-                indicator = numpy.ones(len(tcSerialNo), 'i')
-                for i in range(1, len(tcSerialNo)):
-                    if tcSerialNo[i] == tcSerialNo[i-1]:
-                        indicator[i] = 0        
-            elif inputData.has_key('season') and inputData.has_key('num'):
-                num = numpy.array(inputData['num'], 'i')
-                season = numpy.array(inputData['season'], 'i')
-                indicator = numpy.ones(num.size, 'i')
-                for i in range(1, len(num)):
-                    if season[i] == season[i-1] and num[i] == num[i-1]:
-                        indicator[i] = 0
-            elif inputData.has_key('num'):
-                num = numpy.array(inputData['num'],'i')
-                indicator = numpy.ones(num.size,'i')
-                ind_ = numpy.diff(num)
-                ind_[numpy.where(ind_ > 0)] = 1
-                indicator[1:] = ind_
-
-        lon_all = numpy.mod(inputData['lon'], 360)
-        lat_all = inputData['lat']
-
-        # Split into separate tracks if large jump occurs (delta_lon > 10 degrees or delta_lat > 5 degrees)
-        # This avoids two tracks being accidentally combined when seasons and track numbers match but
-        # basins are different as occurs in the IBTrACS dataset.
-        delta_lon = numpy.diff(lon_all)
-        delta_lat = numpy.diff(lat_all)
-        indicator[numpy.where(delta_lon > 10)[0] + 1] = 1
-        indicator[numpy.where(delta_lat > 5)[0] + 1] = 1
-
-        if inputData.has_key('season'):
-            seasonOrYear_all = inputData['season']
-        elif inputData.has_key('year'):
-            seasonOrYear_all = inputData['year']
-
-        freq_count = numpy.zeros(3000)
-        for k in range(len(indicator)):
-            indicator0 = indicator[k]
-            lon0 = lon_all[k]
-            lat0 = lat_all[k]
-            seasonOrYear0 = seasonOrYear_all[k]
-            if not indicator0 == 0:
-                if (lon0 > tg_domain['xMin']) & (lon0 < tg_domain['xMax']) & (lat0 > tg_domain['yMin']) & (lat0 < tg_domain['yMax']):
-                    freq_count[seasonOrYear0] = freq_count[seasonOrYear0] + 1
-
-        freqdlg = FreqDialog(self, freq_count)
-        freqdlg.MakeModal(True)
-        freqdlg.Show()
-
     def loadHelp(self, event):
         if event.Id == 1010:
             helpText = "Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)\n" + \
@@ -2447,57 +2290,6 @@ class MainFrame ( wx.Frame ):
         for k in dict0.keys():
             newDict[k] = str(dict0[k])
         return newDict
-
-    def getStations(self):
-        # Use station file located in TCRM input directory
-        tcrm_dir = pathLocator.getRootDirectory()
-        tcrm_input_dir = os.path.join(tcrm_dir, 'input')
-        stnFile = os.path.join(tcrm_input_dir, 'station_list.txt')
-        
-        csvReader = csv.reader(open(stnFile, 'rb'), delimiter=';')
-        stnDict = {}  
-        for row in csvReader:
-            stnlat_str = row[7]
-            stnlat_str = stnlat_str.replace('-', ':')
-            if stnlat_str[-1] == 'N':
-                stnlat_str = stnlat_str[0:-1]
-            elif stnlat_str[-1] == 'S':
-                stnlat_str = '-' + stnlat_str[0:-1]
-            else:
-                continue
-
-            stnlon_str = row[8]
-            stnlon_str = stnlon_str.replace('-', ':')
-            if stnlon_str[-1] == 'E':
-                stnlon_str = stnlon_str[0:-1]
-            elif stnlon_str[-1] == 'W':
-                stnlon_str = '-' + stnlon_str[0:-1]
-            else:
-                continue
-
-            degminsec = numpy.double(stnlat_str.split(':'))
-            stnlat = 0
-            for k in range(len(degminsec)):
-                stnlat = stnlat + abs(degminsec[k] / 60.0**k)
-            stnlat = stnlat * numpy.sign(degminsec[0])
-
-            degminsec = numpy.double(stnlon_str.split(':'))
-            stnlon = 0
-            for k in range(len(degminsec)):
-                stnlon = stnlon + abs(degminsec[k] / 60.0**k)
-            stnlon = stnlon * numpy.sign(degminsec[0])
-            stnlon = numpy.mod(stnlon, 360.0)
-            stnlonlabel = str(int(stnlon*10)/10.0) + 'E'
-            if stnlat < 0:
-                stnlatlabel = str(int(abs(stnlat)*10)/10.0) + 'S'
-            else:
-                stnlatlabel = str(int(stnlat*10)/10.0) + 'N'
-                
-            if int(row[0] + row[1]) > 1:
-                stnDict[int(row[0] + row[1])] = [stnlon, stnlat, row[0] + row[1] + ':  ' \
-                                                 + row[3] + '  (' + stnlonlabel + ', ' + \
-                                                 stnlatlabel + ')', row[5]]
-        return stnDict
 
     def getWestPacificStations(self):
         westPacificStns = {}
@@ -2745,209 +2537,6 @@ class DateFormatDialog ( wx.Dialog ):
         inputsource = self.parentpointer.getConfigKeyValue('DataProcess', 'Source')
         self.parentpointer.setConfigKeyValue(inputsource, 'DateFormat', self.m_textCtrl1.GetValue().strip("\" '"))
         self.EndModal(wx.ID_OK)
-
-
-class FreqDialog ( wx.Dialog ):
-
-    def __init__( self, parent, freq_count):
-        self.parentpointer = parent
-        self.freq_count = freq_count
-        wx.Frame.__init__  ( self, parent, id = wx.ID_ANY, title = u"TCRM Configuration Editor", pos = wx.DefaultPosition, size = wx.Size( 396,423 ), style = wx.DEFAULT_DIALOG_STYLE )
-        self.Bind(wx.EVT_CLOSE, self.freqDialogClose)
-        self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
-
-        bSizer1 = wx.BoxSizer( wx.VERTICAL )
-
-        self.m_panel1 = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-        self.m_panel1.SetFont( parent.guiFont )
-        bSizer8 = wx.BoxSizer( wx.VERTICAL )
-
-        sbSizer2 = wx.StaticBoxSizer( wx.StaticBox( self.m_panel1, wx.ID_ANY, u"Auto-Calculate Storm Frequency" ), wx.VERTICAL )
-
-        bSizer2111 = wx.BoxSizer( wx.VERTICAL )
-
-        sbSizer2.Add( bSizer2111, 1, wx.EXPAND, 5 )
-
-        self.m_staticText112 = wx.StaticText( self.m_panel1, wx.ID_ANY, u"Please enter year range for frequency calculation:", wx.DefaultPosition, wx.DefaultSize, 0 )
-        self.m_staticText112.Wrap( -1 )
-        sbSizer2.Add( self.m_staticText112, 2, wx.ALL, 5 )
-
-        bSizer9 = wx.BoxSizer( wx.HORIZONTAL )
-
-        bSizer5 = wx.BoxSizer( wx.VERTICAL )
-
-        bSizer9.Add( bSizer5, 1, wx.EXPAND, 5 )
-
-        self.m_staticText1 = wx.StaticText( self.m_panel1, wx.ID_ANY, u"min Year (i.e. 1970)", wx.DefaultPosition, wx.DefaultSize, 0 )
-        self.m_staticText1.Wrap( -1 )
-        bSizer9.Add( self.m_staticText1, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-
-        self.m_textCtrl1 = wx.TextCtrl( self.m_panel1, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-        bSizer9.Add( self.m_textCtrl1, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-
-        sbSizer2.Add( bSizer9, 3, wx.EXPAND, 0 )
-
-        bSizer91 = wx.BoxSizer( wx.HORIZONTAL )
-
-        bSizer51 = wx.BoxSizer( wx.VERTICAL )
-
-        bSizer91.Add( bSizer51, 1, wx.EXPAND, 5 )
-
-        self.m_staticText113 = wx.StaticText( self.m_panel1, wx.ID_ANY, u"max Year (i.e. 2010)", wx.DefaultPosition, wx.DefaultSize, 0 )
-        self.m_staticText113.Wrap( -1 )
-        bSizer91.Add( self.m_staticText113, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-
-        self.m_textCtrl12 = wx.TextCtrl( self.m_panel1, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-        bSizer91.Add( self.m_textCtrl12, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-
-        sbSizer2.Add( bSizer91, 3, wx.EXPAND, 5 )
-
-        self.m_button1 = wx.Button( self.m_panel1, wx.ID_ANY, u"Show Frequency Plot", wx.DefaultPosition, wx.DefaultSize, 0 )
-        self.m_button1.Bind(wx.EVT_BUTTON, self.showfreqplot)
-        sbSizer2.Add( self.m_button1, 0, wx.ALIGN_RIGHT|wx.ALL, 5 )
-
-        bSizer21 = wx.BoxSizer( wx.VERTICAL )
-
-        sbSizer2.Add( bSizer21, 1, wx.EXPAND, 5 )
-
-        self.m_staticText1121 = wx.StaticText( self.m_panel1, wx.ID_ANY, u"Then press 'Calculate Frequency' to determine annual frequency:", wx.DefaultPosition, wx.DefaultSize, 0 )
-        self.m_staticText1121.Wrap( -1 )
-        sbSizer2.Add( self.m_staticText1121, 2, wx.ALL, 5 )
-
-        bSizer6 = wx.BoxSizer( wx.HORIZONTAL )
-
-        bSizer22 = wx.BoxSizer( wx.VERTICAL )
-
-        bSizer6.Add( bSizer22, 1, wx.EXPAND, 5 )
-
-        bSizer23 = wx.BoxSizer( wx.HORIZONTAL )
-
-        self.m_button11 = wx.Button( self.m_panel1, wx.ID_ANY, u"Calculate Frequency", wx.DefaultPosition, wx.DefaultSize, 0 )
-        self.m_button11.Bind(wx.EVT_BUTTON, self.runfreqcalc)
-        bSizer23.Add( self.m_button11, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-
-        self.m_staticText111 = wx.StaticText( self.m_panel1, wx.ID_ANY, u"Frequency:", wx.DefaultPosition, wx.DefaultSize, 0 )
-        self.m_staticText111.Wrap( -1 )
-        bSizer23.Add( self.m_staticText111, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-
-        self.m_textCtrl111 = wx.TextCtrl( self.m_panel1, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_PROCESS_ENTER|wx.TE_READONLY )
-        bSizer23.Add( self.m_textCtrl111, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-
-        bSizer6.Add( bSizer23, 0, wx.EXPAND, 5 )
-
-        sbSizer2.Add( bSizer6, 2, wx.EXPAND, 5 )
-
-        bSizer211 = wx.BoxSizer( wx.VERTICAL )
-
-        sbSizer2.Add( bSizer211, 1, wx.EXPAND, 5 )
-
-        bSizer8.Add( sbSizer2, 6, wx.ALL|wx.EXPAND, 10 )
-
-        bSizer14 = wx.BoxSizer( wx.HORIZONTAL )
-
-        bSizer16 = wx.BoxSizer( wx.VERTICAL )
-
-        bSizer14.Add( bSizer16, 1, wx.EXPAND, 5 )
-
-        self.m_button1111 = wx.Button( self.m_panel1, wx.ID_ANY, u"OK", wx.DefaultPosition, wx.DefaultSize, 0 )
-        self.m_button1111.Bind(wx.EVT_BUTTON, self.okbuttonpressed)
-        bSizer14.Add( self.m_button1111, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-
-        self.m_button111 = wx.Button( self.m_panel1, wx.ID_ANY, u"Cancel", wx.DefaultPosition, wx.DefaultSize, 0 )
-        self.m_button111.Bind(wx.EVT_BUTTON, self.cancelbuttonpressed)
-        bSizer14.Add( self.m_button111, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
-
-        bSizer161 = wx.BoxSizer( wx.VERTICAL )
-
-        bSizer14.Add( bSizer161, 1, wx.EXPAND, 5 )
-
-        bSizer8.Add( bSizer14, 1, wx.EXPAND, 5 )
-
-        self.m_panel1.SetSizer( bSizer8 )
-        self.m_panel1.Layout()
-        bSizer8.Fit( self.m_panel1 )
-        bSizer1.Add( self.m_panel1, 1, wx.EXPAND |wx.ALL, 0 )
-
-        self.SetSizer( bSizer1 )
-        self.Layout()
-
-    def okbuttonpressed(self, event):
-        if not self.m_textCtrl111.GetValue() == '':
-            self.parentpointer.setConfigKeyValue('TrackGenerator', 'Frequency', self.m_textCtrl111.GetValue())
-        self.MakeModal(False)
-        self.closeFigureIfOpen()
-        self.parentpointer.refreshGUIsettings()
-        self.Destroy()
-
-    def cancelbuttonpressed(self, event):
-        self.closeFigureIfOpen()
-        self.MakeModal(False)
-        self.Destroy()
-
-    def runfreqcalc(self, event):
-        date_min = self.m_textCtrl1.GetValue()
-        date_max = self.m_textCtrl12.GetValue()
-
-        raise_value_err = False
-
-        try:
-            date_min = int(date_min)
-            date_max = int(date_max)
-            if (date_min < 1) or (date_min > 3000) or (date_max < 1) or (date_max > 3000) or (date_max <= date_min):
-                raise_value_err = True
-        except ValueError:
-            raise_value_err = True
-
-        if raise_value_err:
-            MsgDlg(self, 'Please enter a valid date range', "Warning", style=wx.OK|wx.ICON_INFORMATION)
-            return
-
-        self.m_textCtrl111.SetValue(str(numpy.round(numpy.mean(self.freq_count[date_min:date_max + 1]*100))/100))
-
-    def showfreqplot(self, event):
-        self.closeFigureIfOpen()
-        self.frame = PlotFigure(self.freq_count)
-        self.frame.init_plot_data()
-        self.frame.Show()
-
-    def freqDialogClose(self, event):
-        self.MakeModal(False)
-        self.closeFigureIfOpen()
-        event.Skip()
-
-    def closeFigureIfOpen(self):
-        try: self.frame
-        except NameError:
-            pass
-        except AttributeError:
-            pass            
-        else:
-            if hasattr(self.frame, 'Destroy'):
-                self.frame.Destroy()
-
-
-class PlotFigure(wx.Frame):
-
-    def __init__(self, freq_count):
-        self.freq_count = freq_count
-        wx.Frame.__init__(self, None, -1, "TCRM Configuration Editor")
-        self.fig = Figure((7,5), 80)
-        self.canvas = FigureCanvasWxAgg(self, -1, self.fig)
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.canvas, 1, wx.LEFT|wx.TOP|wx.GROW)
-        self.SetSizer(sizer)
-        self.Fit()
-
-    def init_plot_data(self):
-        x1 = numpy.flatnonzero(self.freq_count)[0]
-        x2 = numpy.flatnonzero(self.freq_count)[-1]    
-        a = self.fig.add_subplot(111)
-        bars = a.bar(numpy.arange(x1,x2 + 1), self.freq_count[x1:x2 + 1], align='center')
-        a.set_ylim([0, numpy.max(self.freq_count) + 1])
-        a.set_xlim([x1-1, x2+1])
-        a.set_xlabel('Year')
-        a.set_ylabel('Storm Counts')
-        a.set_title('Storm Genesis per Year in Track Generator Domain')
 
 
 if __name__ == "__main__":

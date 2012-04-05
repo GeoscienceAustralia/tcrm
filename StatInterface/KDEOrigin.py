@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ CreationDate: 2006-01-10
 Description:
 Python code developed from Xun Guo Lin's Matlab code on PDF &
 CDF of cyclone origin using 2D KDE
-Version: $Rev: 644 $
+Version: $Rev: 810 $
 
 ModifiedBy: C. Arthur
 ModifiedDate: 2006-10-24
@@ -58,7 +58,7 @@ ModifiedDate: 2008-07-02 2:31:PM
 Modification: Write PDF & CDF to ascii grid files (these can be read
 by GIS packages), eliminating the need for multiple files to be created
 
-Version: $Rev: 644 $
+Version: $Rev: 810 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2011-03-21 1:18:PM
 Modification: Write 2-D grid of genesis PDF to netCDF.

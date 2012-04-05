@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -67,9 +67,9 @@ ModifiedBy: C. Arthur
 ModifiedDate: 2007-01-18
 Modification: Added dist2GC function, check if user requested degrees or
               radians to be returned from latlon2Azi
-Version: $Rev: 528 $
+Version: $Rev: 686 $
 
-$Id: maputils.py 528 2011-11-23 21:53:18Z carthur $
+$Id: maputils.py 686 2012-03-29 04:24:59Z carthur $
 """
 
 
@@ -89,7 +89,7 @@ import time
 # does not appear to work on some systems.
 #from scipy import weave
 #from scipy.weave import converters
-__version__ = '$Id: maputils.py 528 2011-11-23 21:53:18Z carthur $'
+__version__ = '$Id: maputils.py 686 2012-03-29 04:24:59Z carthur $'
 logger = logging.getLogger('maptools')
 #class MapToolError(Exception): pass
 #class ArrayMismatch(MapToolError): pass
@@ -427,7 +427,7 @@ def bearing2theta(bearing):
     """
     theta = pi/2. - bearing
     if (type(bearing) is ndarray) or (type(bearing) is list):
-        for i in range(len(bearing)):
+        for i in xrange(len(bearing)):
             if theta[i] > 2.*pi:
                 theta[i] -= 2.*pi
             else:
@@ -447,7 +447,7 @@ def theta2bearing(theta):
     """
     bearing = 2.*pi - (theta - pi/2.)
     if (type(theta) is ndarray) or (type(theta) is list):
-        for i in range(len(theta)):
+        for i in xrange(len(theta)):
             if bearing[i] >= 2.*pi:
                 bearing[i] -= 2.*pi
             elif bearing[i] < 0:

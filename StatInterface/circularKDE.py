@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,12 +30,12 @@ SeeAlso:
 
 Constraints:
 
-Version: $Rev: 644 $
+Version: $Rev: 810 $
 ModifiedBy:
 ModifiedDate:
 Modification:
 
-$Id: circularKDE.py 644 2011-10-31 05:32:50Z nsummons $
+$Id: circularKDE.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import numpy
@@ -52,7 +52,7 @@ def circularKDE(parameters, kdeStep=pi/16.):
 
     By default, the grid is specified on [0,2*pi)
 
-    $Id: circularKDE.py 644 2011-10-31 05:32:50Z nsummons $
+    $Id: circularKDE.py 810 2012-02-21 07:52:50Z nsummons $
     """
     bw = KPDF.UPDFOptimumBandwidth(parameters)
     grid = numpy.arange(0, 2*pi+kdeStep, kdeStep)

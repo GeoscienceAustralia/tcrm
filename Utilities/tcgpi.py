@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,12 +29,12 @@
  SeeAlso:
  Constraints:
 
- Version: $Rev: 512 $
+ Version: $Rev: 686 $
  ModifiedBy:
  ModifiedDate:
  Modification:
 
- $Id: tcgpi.py 512 2011-10-31 07:20:38Z nsummons $
+ $Id: tcgpi.py 686 2012-03-29 04:24:59Z carthur $
 """
 import os, sys, pdb, logging
 filename = os.environ.get('PYTHONSTARTUP')
@@ -54,7 +54,7 @@ from datetime import *  # NWS: Module appears to be unused?  Also name conflict 
 import time
 import numpy, pylab
 
-__version__ = '$Id: tcgpi.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: tcgpi.py 686 2012-03-29 04:24:59Z carthur $'
 logger = logging.getLogger()
 
 def getVar(obj, outgrid, varname, verbose=False):
@@ -155,7 +155,7 @@ def tcgpi(infile, verbose=False, sLat=-50.0, nLat=25, dLat=2.0,
     m = numpy.where(plev == 200)[0][0]
 
     logger.debug("Calculating indices...")
-    for n in range(ntimes):
+    for n in xrange(ntimes):
         uu = uadata[n,l,:,:]
         vv = vadata[n,l,:,:]
         zeta = vorticity.absolute(numpy.transpose(uu), numpy.transpose(vv),
@@ -165,8 +165,8 @@ def tcgpi(infile, verbose=False, sLat=-50.0, nLat=25, dLat=2.0,
         dv = vadata[n,l,:,:]-vadata[n,m,:,:]
         shear = Numeric.sqrt(du**2+dv**2)
 
-        for i in range(nLat):
-            for j in range(nLon):
+        for i in xrange(nLat):
+            for j in xrange(nLon):
                 try:
                     mrdata[n,:,i,j] = metutils.spHumToMixRat(shdata[n,:,i,j], 'kgkg')
                 except IndexError:

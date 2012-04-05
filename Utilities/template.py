@@ -1,7 +1,7 @@
  #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,15 +22,18 @@
  Description: Read in lines of a text file and replace a given string
  with another value.  e.g. replace all occurences of {KEY} with 0001
 
- Version :$Rev: 512 $
+ Version :$Rev: 680 $
 
- $Id: template.py 512 2011-10-31 07:20:38Z nsummons $
+ $Id: template.py 680 2012-03-19 01:52:37Z carthur $
 """
 import os, sys, pdb, logging
 filename = os.environ.get('PYTHONSTARTUP')
 if filename and os.path.isfile(filename):
     execfile(filename)
-__version__ = '$Id: template.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: template.py 680 2012-03-19 01:52:37Z carthur $'
+
+import re
+
 def replace(infile, outfile, replacements):
     """replace(infile, outfile, replacements)
     Replace all instances of the keys with values in infile and write to
@@ -42,7 +45,9 @@ def replace(infile, outfile, replacements):
     for line in fi:
         newline = line
         for k,v in replacements.items():
-            newline = string.replace(newline, '{'+k+'}', v)
+            newline = re.sub('{'+k+'}', v, newline)
+            
         fo.write(newline)
     fi.close()
     fo.close()
+    return True

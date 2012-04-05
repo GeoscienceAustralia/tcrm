@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ Powell et al. (Holland with beta = beta(rmax, latitude))
 
 SeeAlso:
 Constraints:
-Version: $Rev: 645 $
+Version: $Rev: 810 $
 
 References:
 Holland, G.J., 1980:
@@ -62,7 +62,7 @@ Willoughby, H.E. and M.E. Rahn, 2004:
     Observations and Evaluation of the Holland (1980) Model.
     Mon. Wea. Rev., 132, 3033-3048
 
-$Id: pressureProfile.py 645 2011-10-31 05:33:04Z nsummons $
+$Id: pressureProfile.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, sys, pdb, logging

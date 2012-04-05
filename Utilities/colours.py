@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,9 +24,9 @@
  matplotlib. See below the function for a description on how to set up
  additional colourmaps
 
- Version :$Rev: 512 $
+ Version :$Rev: 642 $
 
- $Id: colours.py 512 2011-10-31 07:20:38Z nsummons $
+ $Id: colours.py 642 2012-02-21 07:54:04Z nsummons $
 """
 import os, sys, pdb, logging
 filename = os.environ.get('PYTHONSTARTUP')
@@ -37,7 +37,7 @@ import matplotlib.pyplot as pyplot
 import matplotlib.colorbar as colorbar
 from matplotlib.colors import LinearSegmentedColormap
 
-__version__ = '$Id: colours.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: colours.py 642 2012-02-21 07:54:04Z nsummons $'
 
 def colourMap(cmapName, style, nclasses=1024):
     # Set up new colourmaps:

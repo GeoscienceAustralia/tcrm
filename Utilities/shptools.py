@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@
  Uses the shapelib library,  normally provided with matplotlib v0.99 and
  higher.
 
- Version :$Rev: 512 $
+ Version :$Rev: 686 $
 
- $Id: shptools.py 512 2011-10-31 07:20:38Z nsummons $
+ $Id: shptools.py 686 2012-03-29 04:24:59Z carthur $
 """
 import os, sys, pdb, logging
 
@@ -35,7 +35,7 @@ if filename and os.path.isfile(filename):
 import shapelib
 import dbflib
 
-__version__ = '$Id: shptools.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: shptools.py 686 2012-03-29 04:24:59Z carthur $'
 
 logger = logging.getLogger()
 
@@ -79,7 +79,7 @@ def shpGetVertices(shpFile, keyName=None):
     nshapes = shpfh.info()[0]
     nfields = dbffh.field_count()
 
-    for oid in range(nshapes):
+    for oid in xrange(nshapes):
         shpdata = shpfh.read_object(oid)
         dbfdata = dbffh.read_record(oid)
         v = shpdata.vertices()[0]
@@ -107,10 +107,10 @@ return all fields.
     nrecs = dbffh.record_count()
     nfields = dbffh.field_count()
     data = {}
-    for f in range(nfields):
+    for f in xrange(nfields):
         fname = dbffh.field_info(f)[1]
         data[fname]=[]
-    for rec in range(nrecs):
+    for rec in xrange(nrecs):
         recdata = dbffh.read_record(rec)
         for key in recdata.keys():
             data[key].append(recdata[key])
@@ -167,10 +167,10 @@ def shpCreateLine(lons, lats):
     Output: shpObj shapelib line object.
     """
     coords = []
-    for lon,lat in zip(lons, lats):
-        coords.append((lon, lat))
+    for lon, lat in zip(lons, lats):
+        coords.append( (lon, lat) )
     shp_coords = [coords]
-    shpObj = shapelib.SHPObject(shapelib.SHPT_ARC, 1, shp_coords)
+    shpObj = shapelib.SHPObject( shapelib.SHPT_ARC, 1, shp_coords )
     return shpObj
 
 def shpCreateFile(fileName, shptype, fields):
@@ -178,12 +178,13 @@ def shpCreateFile(fileName, shptype, fields):
     Create a shapefile (and a corresponding dbf file) of the give type,
     containing the given fields.
     Input: fileName - full path (excluding extension!) to the shapefile
-           to create shptype - shapelib object type (these are integer
-           values, but you can also use the shapelib.SHPT_ value)
+           to create.
+           shptype - shapelib object type (these are integer
+           values, but you can also use the shapelib.SHPT_ value).
            fields - a dictionary of dictionaries with field names as
            keys, and each sub-dictionary containing keys of 'Type',
-           'Length','Precision' and 'Data'
-                    'Type' must be one of the following integer values:
+           'Length','Precision' and 'Data':
+           'Type' must be one of the following integer values:
                     0 - strings
                     1 - integers
                     2 - doubles
@@ -233,7 +234,7 @@ def shpSaveTrackFile(filename, lon, lat, fields):
     Output: None
     """
     fshp, fdbf = shpCreateFile(filename, 3, fields)
-    for i in range(len(lon)-1):
+    for i in xrange(len(lon)-1):
         if fields['Index']['Data'][i] == fields['Index']['Data'][i+1]:
             obj = shpCreateLine([lon[i], lon[i+1]], [lat[i], lat[i+1]])
         else:
@@ -282,7 +283,7 @@ def shpReadShapeFile(shapeFile):
     if info[1] in [1,8]:
         coords = []
         nelem = shp.info()[0]
-        for elem in range(nelem):
+        for elem in xrange(nelem):
             shpObj = shp.read_object(elem)
             verts = shpObj.vertices()
             lons, lats = zip(*verts)
@@ -293,16 +294,16 @@ def shpReadShapeFile(shapeFile):
                 coords.append(zip(lons, lats))
             else:
                 coords.append((lons[0], lats[0]))
-        attributes = [dbf.read_record(i) for i in range(nelem)]
+        attributes = [dbf.read_record(i) for i in xrange(nelem)]
 
     else:
         coords = []
         attributes = []
-        for npoly in range(shp.info()[0]):
+        for npoly in xrange(shp.info()[0]):
             shpObj = shp.read_object(npoly)
             verts = shpObj.vertices()
             rings = len(verts)
-            for ring in range(rings):
+            for ring in xrange(rings):
                 lons, lats = zip(*verts[ring])
                 if max(lons) > 721. or min(lons) < -721. or max(lats) > 91. or \
                    min(lats) < -91.:
@@ -369,7 +370,7 @@ def shpSaveDBFFile(fileName, fields, nrecords):
     Output: None
     """
     fdbf = shpCreateDBFFile(fileName, fields)
-    for rec in range(nrecords):
+    for rec in xrange(nrecords):
         recdata = ()
         fieldNames = fields.keys()
         for f in sorted(fieldNames):

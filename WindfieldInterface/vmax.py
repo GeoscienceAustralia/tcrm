@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ Harper (2002).
 
 SeeAlso: (related programs)
 Constraints: Input pressures should be in Pa (not hPa)
-Version: $Rev: 649 $
+Version: $Rev: 810 $
 
 Version: 220
 ModifiedBy: Craig Arthur
@@ -62,7 +62,7 @@ Harper, B.A. 2002:
     Wind-Pressure Relationships and Related Issues for Engineering
     Planning and Design.
 
-$Id: vmax.py 649 2011-10-31 05:35:00Z nsummons $
+$Id: vmax.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, sys, pdb, logging

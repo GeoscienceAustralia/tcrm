@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ factor (SWRF).  The McConochie SWRF is described in Harper et al. 2001.
 
 SeeAlso: (related programs)
 Constraints:
-Version: $Rev: 649 $
+Version: $Rev: 810 $
 
 Version:
 ModifiedBy:
@@ -59,7 +59,7 @@ McConochie, J.D., T.A. Hardy and L.B. Mason, 2004:
     Modelling tropical cyclone over-water wind and pressure fields.
     Ocean Engineering, 31, 1757-1782
 
-$Id: windField.py 649 2011-10-31 05:35:00Z nsummons $
+$Id: windField.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, sys, pdb, logging

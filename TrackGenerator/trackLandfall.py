@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,11 +40,11 @@ ModifiedBy:
 ModifiedDate:
 Modification:
 
-Version: $Rev: 643 $
+Version: $Rev: 810 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2009-01-13
 Modification: Documentation improved
-$Id: trackLandfall.py 643 2011-10-31 05:32:34Z nsummons $
+$Id: trackLandfall.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, sys, pdb, logging
@@ -55,7 +55,7 @@ from Utilities.config import cnfGetIniValue
 from Utilities.grid import SampleGrid
 from Utilities import pathLocator
 
-__version__ = '$Id: trackLandfall.py 643 2011-10-31 05:32:34Z nsummons $'
+__version__ = '$Id: trackLandfall.py 810 2012-02-21 07:52:50Z nsummons $'
 
 class LandfallDecay:
     """

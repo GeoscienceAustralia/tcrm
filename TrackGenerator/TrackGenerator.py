@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ Description: Generate synthetic cyclone tracks
 
 SeeAlso: (related programs)
 Constraints:
-Version: $Rev: 643 $
+Version: $Rev: 811 $
 
 ModifiedDate: 2007-02-19
 ModifiedBy: N. Habili
@@ -111,14 +111,14 @@ Modification: Separated the generation of the autocorrelations for each paramete
               This would be equivalent to stepping some variables multiple time steps
               rather than one time step.
 
-Version: $Rev: 643 $
+Version: $Rev: 811 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2011-06-07 10:53:AM
 Modification: Save coefficients to netCDF file to permit further analysis.
               Saves mu, sig, alpha and min for the bearing, speed, pressure and
               pressure rate of change variables, over water and over land.
 
-$Id: TrackGenerator.py 643 2011-10-31 05:32:34Z nsummons $
+$Id: TrackGenerator.py 811 2012-02-24 05:10:11Z carthur $
 """
 import os, sys, pdb, logging
 
@@ -142,7 +142,7 @@ from Utilities.grid import SampleGrid
 from MSLP.mslp_seasonal_clim import MSLPGrid
 from Utilities.shptools import shpSaveTrackFile
 
-__version__ = '$Id: TrackGenerator.py 643 2011-10-31 05:32:34Z nsummons $'
+__version__ = '$Id: TrackGenerator.py 811 2012-02-24 05:10:11Z carthur $'
 
 class TrackGenerator:
     """
@@ -354,7 +354,8 @@ class TrackGenerator:
                 self.logger.debug('Processed %i cyclones'%j)
 
             index = []
-            while len(index) < 12:
+            #while age[-1] < 12:
+            while len(index) < 2:
                 if initLon is None:
                     oLon, oLat = self.Origin.generateOneSample()
                     while (oLon <= self.gridLimit['xMin'] or
@@ -370,6 +371,9 @@ class TrackGenerator:
                 index, age, lon, lat, speed, bearing, pressure, \
                 penv, rmax = self._singleTrack(j, oLon, oLat, initSpeed,
                                                initBearing, initPressure)
+                if age[-1] < 12:
+                    index = []
+
                 if self.setInnerDomainFreq:
                     insideInnerDomain = [lon[k] > self.glInner['xMin'] and \
                                          lon[k] < self.glInner['xMax'] and \

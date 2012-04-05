@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,9 +28,9 @@ Description: Generate the cumulative distribution functions (CDF's) for
              of kernel density estimators to determine the
              distributions.
 
-Version: $Rev: 644 $
+Version: $Rev: 810 $
 
-Version: $Rev: 644 $
+Version: $Rev: 810 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2006-12-14
 Modification: Added _expandCell and _checkGridLimits to permit
@@ -42,7 +42,7 @@ ModifiedDate: 2007-03-22
 Modification: lonLat, parameterList, parameterName are now pass passed
               in at allDistributions.
 
-Version: $Rev: 644 $
+Version: $Rev: 810 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 10/04/08 11:42:AM
 Modification: Changed logging method
@@ -50,7 +50,7 @@ Modification: Changed logging method
 SeeAlso: (related programs)
 Constraints:
 
-$Id: GenerateDistributions.py 644 2011-10-31 05:32:50Z nsummons $
+$Id: GenerateDistributions.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, sys, pdb, logging

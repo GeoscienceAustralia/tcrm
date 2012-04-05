@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ estimation) of given cyclone parameters (speed, pressure, bearing, etc).
 Each of these PDF's is converted to a cumulative density function for
 use in other sections.
 
-Version: $Rev: 644 $
+Version: $Rev: 810 $
 
 ModifiedDate: 2006-11-29
 ModifiedBy: N. Habili, nariman.habili@ga.gov.au
@@ -45,12 +45,13 @@ Modifications: Removed plotting methods
                Removed generateKDEAll, generateKDEInit, and
                generateKDENoInit
 
-$Id: KDEParameters.py 644 2011-10-31 05:32:50Z nsummons $
+$Id: KDEParameters.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, sys, pdb, logging
 
 from scipy import array, arange, transpose
+import numpy
 import Utilities.stats as stats
 import Utilities.KPDF as KPDF
 
@@ -155,6 +156,42 @@ class KDEParameters:
             self.logger.debug("Saving KDE and CDF data to files")
             flSaveFile(kdeParameters, transpose(array([self.grid, self.pdf])))
             flSaveFile(cdfParameters, transpose(array([self.grid, self.cy])))
+
+    def generateGenesisDateCDF( self, genDays, bw=None, genesisKDE=None ):
+        """
+        Calculate the PDF of genesis day using KDEs.
+        Since the data is periodic, we use a simple method to include the 
+        periodicity in estimating the PDF. We prepend and append the data
+        to itself, then use the central third of the PDF and multiply by three to
+        obtain the required PDF. Probably notquite exact, but it should be
+        sufficient for our purposes. 
+        """
+
+        data = flLoadFile( genDays )
+        days = arange( 1, 366 )
+        ndays = numpy.concatenate( [days - 365, days, days + 365] )
+        ndata = numpy.concatenate( [data - 365, data, data + 365] )
+
+        if bw is None:
+            bw = KDPF.UPDFOptimumBandwidth( ndata ) 
+
+        try:
+            kdeMethod = getattr(KPDF, "UPDF%s" %self.kdeType)
+        except AttributeError:
+            self.logger.exception("Invalid input on option: KDE method UPDF%s does not exist"%self.kdeType)
+            raise
+        pdf = kdeMethod( ndata, ndays, bw )
+        # Actual PDF to return
+        apdf = 3.0*pdf[365:730]
+        cy = stats.cdf(days, apdf)
+        if genesisKDE is None:
+            return transpose(arraynumpy.concatenate( [days, apdf, cy] ) )
+        else:
+            # Assume both kdeParameters and cdfParameters are defined as files:
+            self.logger.debug("Saving KDE and CDF data to files")
+            flSaveFile(genesisKDE, transpose(numpy.concatenate([days, pdf])))
+            #flSaveFile(cdfParameters, transpose(array([days, cy])))
+        
 
     def _generatePDF(self, grid, bw, dataset):
         """

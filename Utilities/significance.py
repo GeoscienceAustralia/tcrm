@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,9 +21,9 @@
  CreationDate: 05/23/08 5:08:PM
  Description:
 
- Version :$Rev: 512 $
+ Version :$Rev: 686 $
 
- $Id: significance.py 512 2011-10-31 07:20:38Z nsummons $
+ $Id: significance.py 686 2012-03-29 04:24:59Z carthur $
 """
 import os, sys, pdb
 sys.path.append(os.environ.get('CDATLIB'))
@@ -33,7 +33,7 @@ from pyclimate.tools import *
 import Numeric
 from numpy import *
 from log_utils import *
-__version__ = '$Id: significance.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: significance.py 686 2012-03-29 04:24:59Z carthur $'
 def significance(data,testfun=ttest, sig=0.05):
     """significance(data, testfun=ttest, sig=0.05):
     Calculate the statistical significance of the difference between the
@@ -44,7 +44,7 @@ def significance(data,testfun=ttest, sig=0.05):
     """
     result = empty(shape(data))
     testdata = Numeric.empty((1, shape(data)[1], shape(data)[2]))
-    for n in range(shape(data)[0]):
+    for n in xrange(shape(data)[0]):
         testdata[0] = data[n]
         result[n] = test(data, testdata, sig)
     return result

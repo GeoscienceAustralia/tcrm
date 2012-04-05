@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ parameters, but no information on the change of parameters.
 This is a revision of the original DataProcess class written by
 Geoff Xu (2006).
 
-Version: $Rev: 647 $
+Version: $Rev: 832 $
 
 ModifiedBy: C. Arthur
 ModifiedDate: 2006-11-07
@@ -97,7 +97,7 @@ ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2010-05-15
 Modification: Generate a histogram of the frequency of events
 
-Version: $Rev: 647 $
+Version: $Rev: 832 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2010-06-24 5:45:PM
 Modification: Altered the calculation of dt to make allowance for TCRM data
@@ -106,7 +106,7 @@ Modification: Altered the calculation of dt to make allowance for TCRM data
 SeeAlso: (related programs)
 Constraints:
 
-$Id: DataProcess.py 647 2011-10-31 05:33:47Z nsummons $
+$Id: DataProcess.py 832 2012-03-28 07:23:32Z nsummons $
 """
 
 import os, sys, pdb, logging
@@ -247,8 +247,9 @@ class DataProcess:
             self.rmax_no_init = os.path.join(self.processPath, 'rmax_no_init')
             self.rmax_rate = os.path.join(self.processPath, 'rmax_rate')
             self.frequency = os.path.join(self.processPath, 'frequency')
-            self.jday_genesis = os.path.join(self.processPath,'jday_genesis')
-            self.jday_observations = os.path.join(self.processPath,'jday_obs')
+            self.jday_genesis = os.path.join(self.processPath, 'jday_genesis')
+            self.jday_observations = os.path.join(self.processPath, 'jday_obs')
+            self.jday = os.path.join( self.processPath, 'jdays' )
 
 
 
@@ -274,7 +275,8 @@ class DataProcess:
         inputSpeedUnits = cnfGetIniValue(self.configFile, source, 'SpeedUnits', 'mps')
         inputPressureUnits = cnfGetIniValue(self.configFile, source, 'PressureUnits', 'hPa')
         inputLengthUnits = cnfGetIniValue(self.configFile, source, 'LengthUnits', 'km')
-
+        startSeason = cnfGetIniValue(self.configFile, 'DataProcess', 'StartSeason', 1981)
+        
         if inputData.has_key('index'):
             self.logger.debug("Using index contained in file to determine initial TC positions")
             indicator = array(inputData['index'], 'i')
@@ -358,6 +360,21 @@ class DataProcess:
                     self.logger.warning("Missing minute data from input data - setting minutes to 00 for all times")
                     minute = zeros((hour.size), 'i')
 
+            if inputData.has_key('season'):
+                # Find indicies that satisfy minimum season filter
+                good_indices = where([k >= startSeason for k in inputData['season']])[0]
+                
+                # Filter records
+                for dictKey in inputData.keys():
+                    filteredResult = [inputData[dictKey][i] for i in good_indices]
+                    inputData[dictKey] = filteredResult
+                year = year[good_indices]
+                month = month[good_indices]
+                day = day[good_indices]
+                hour = hour[good_indices]
+                minute = minute[good_indices]
+                indicator = indicator[good_indices]
+
             # Create the dummy variable second for use in function datenum
             second = zeros((hour.size), 'i')
 
@@ -389,11 +406,11 @@ class DataProcess:
         lon = mod(array(inputData['lon'], 'd'), 360)
         delta_lon = diff(lon)
         delta_lat = diff(lat)
-        # Split into separate tracks if large jump occurs (delta_lon > 10 degrees or delta_lat > 5 degrees)
+        # Split into separate tracks if large jump occurs (delta_lon > 15 degrees or delta_lat > 5 degrees)
         # This avoids two tracks being accidentally combined when seasons and track numbers match but
         # basins are different as occurs in the IBTrACS dataset.  This problem can also be prevented if
         # the 'tcserialno' column is specified.
-        indicator[where(delta_lon > 10)[0] + 1] = 1
+        indicator[where(delta_lon > 15)[0] + 1] = 1
         indicator[where(delta_lat > 5)[0] + 1] = 1
 
         # Save information required for frequency auto-calculation
@@ -896,24 +913,25 @@ class DataProcess:
             bins = arange(minYr,maxYr+2,1)
             n,b = histogram(years.compress(indicator),bins)
             header = 'Year,count'
-            flSaveFile(self.frequency,transpose([bins[:-1],n]),header,fmt='%6.2f')
-            self.logger.info("Mean annual frequency: %5.1f"%mean(n))
-            self.logger.info("Standard deviation: %5.1f"%std(n))
+            flSaveFile( self.frequency, transpose( [bins[:-1],n] ), header, fmt='%6.2f' )
+            self.logger.info( "Mean annual frequency: %5.1f"%mean( n ) )
+            self.logger.info( "Standard deviation: %5.1f"%std( n ) )
 
-    def _juliandays(self,jdays,indicator,years):
+    def _juliandays(self, jdays, indicator, years ):
         # Generate a distribution of the annual distribution of observations
-        self.logger.info("Calculating annual distribution of observations")
+        self.logger.info( "Calculating annual distribution of observations" )
         # Do a bodgy job of addressing 29th of February (there surely must be a
         # recommended way of accounting for leap years)
-        for i in range(len(jdays)):
-            if (years[i]%4==0) and jdays[i]>=60:
-                jdays[i]-=1
-        bins = arange(1,367)
-        n,b = histogram(jdays.compress(indicator),bins)
+        for i in range( len( jdays ) ):
+            if ( years[i]%4 == 0 ) and ( jdays[i] >= 60 ):
+                jdays[i] -= 1
+        bins = arange( 1, 367 )
+        n,b = histogram( jdays.compress( indicator ), bins )
         header = 'Day,count'
-        flSaveFile(self.jday_genesis,transpose([bins[:-1],n]),header,fmt='%d',delimiter=',')
-        n,b = histogram(jdays,bins)
-        flSaveFile(self.jday_observations,transpose([bins[:-1],n]),header,fmt='%d',delimiter=',')
+        flSaveFile( self.jday_genesis,transpose( [bins[:-1], n] ), header, fmt='%d', delimiter=',' )
+        n,b = histogram( jdays, bins)
+        flSaveFile( self.jday_observations, transpose( [bins[:-1],n] ), header, fmt='%d', delimiter=',' )
+        flSaveFile( self.jday, transpose( jdays.compress( indicator ) ), header='Day', fmt='%d' )
 
 if __name__ == "__main__":
     try:

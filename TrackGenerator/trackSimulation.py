@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,12 +33,12 @@ ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2009-01-13
 Modification: Removed landfall PDF calculations
 
-Version: $Rev: 643 $
+Version: $Rev: 810 $
 ModifiedBy:
 ModifiedDate:
 Modification:
 
-$Id: trackSimulation.py 643 2011-10-31 05:32:34Z nsummons $
+$Id: trackSimulation.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 
@@ -52,16 +52,17 @@ from Utilities.progressbar import ProgressBar
 from Utilities.config import cnfGetIniValue
 #from Utilities.files import flSaveFile
 
-__version__ = '$Id: trackSimulation.py 643 2011-10-31 05:32:34Z nsummons $'
+__version__ = '$Id: trackSimulation.py 810 2012-02-21 07:52:50Z nsummons $'
 
 def trackSimulation(configFile, nSim, yrsPerSim, meanFrequency, outputPath, format='csv',
-                    dt=1, tsteps=360, maxDist=2500, autoCalc_gridLimit=None):
+                    dt=1, tsteps=360, maxDist=2500, autoCalc_gridLimit=None ):
     """
     Simulate nSim sets of cyclones, with a mean frequency and a given
     number of years in each simulation
     """
     logger = logging.getLogger()
-    pbar = ProgressBar('(3/6) Generating tracks:     ')
+    show_progress_bar = cnfGetIniValue( configFile, 'Logging', 'ProgressBar', True )
+    pbar = ProgressBar('(3/6) Generating tracks:     ', show_progress_bar )
     numCyclones = sum(random.poisson(meanFrequency, yrsPerSim))
     tracks = TG.TrackGenerator(configFile, dt, tsteps, autoCalc_gridLimit=autoCalc_gridLimit, progressbar=pbar)
 

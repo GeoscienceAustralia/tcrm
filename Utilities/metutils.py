@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ coriolis(latitude) :
     Converts 'value' from 'input' units to 'output' units. Contains
     conversions for length, speed, pressure and temperature.
 
-Version: $Rev: 528 $
+Version: $Rev: 642 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2007-09-11
 Modification: Added functions for converting atmospheric moisture variables
@@ -49,7 +49,7 @@ Modification: Added functions for converting atmospheric moisture variables
 SeeAlso: (related programs)
 Constraints:
 
-$Id: metutils.py 528 2011-11-23 21:53:18Z carthur $
+$Id: metutils.py 642 2012-02-21 07:54:04Z nsummons $
 """
 
 """
@@ -69,7 +69,7 @@ if filename and os.path.isfile(filename):
 import math
 import numpy
 from numpy import radians
-__version__ = '$Id: metutils.py 528 2011-11-23 21:53:18Z carthur $'
+__version__ = '$Id: metutils.py 642 2012-02-21 07:54:04Z nsummons $'
 
 #Define constants
 gPressureUnits = "hPa"
@@ -304,6 +304,7 @@ def convert(value, input, output):
     Convert value from input units to output units.
     """
     startValue = value
+    value = numpy.array(value)
     if input == output:
         # Do nothing:
         return value

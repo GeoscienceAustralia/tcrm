@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,9 +21,9 @@
  CreationDate: 2006-12-12
  Description: Equality tests for numpy arrays.
 
- Version: $Rev: 512 $
+ Version: $Rev: 642 $
 
- $Id: NumpyTestCase.py 512 2011-10-31 07:20:38Z nsummons $
+ $Id: NumpyTestCase.py 642 2012-02-21 07:54:04Z nsummons $
 """
 
 from scipy import array, alltrue, iscomplexobj, allclose, equal

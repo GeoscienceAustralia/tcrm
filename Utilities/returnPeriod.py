@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,13 +27,13 @@ References: Emanuel and Nolan (2004)
         Emanuel (1999)
 SeeAlso:
 
-Version: $Rev: 512 $
+Version: $Rev: 642 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2008-02-26
 Modification: Changed f3 to have non-constant value to ensure some
               changes in the frequency of low-probability events.
 
-$Id: returnPeriod.py 512 2011-10-31 07:20:38Z nsummons $
+$Id: returnPeriod.py 642 2012-02-21 07:54:04Z nsummons $
 """
 
 import os, pdb, gc
@@ -47,7 +47,7 @@ import my_tool as myutils
 #import nctools
 import met
 import map
-__version__ = '$Id: returnPeriod.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: returnPeriod.py 642 2012-02-21 07:54:04Z nsummons $'
 def intensityDistribution(v):
     """intensityDistribution(v):
     The distribution of intensity, normalised by the maximum potential

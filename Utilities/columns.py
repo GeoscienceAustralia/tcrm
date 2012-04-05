@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,9 +21,9 @@
  CreationDate: 2009-01-28 10:30 AM
  Description: Helper functions for reading CSV formatted data.
 
- Version :$Rev: 519 $
+ Version :$Rev: 642 $
 
- $Id: columns.py 519 2011-11-11 00:08:24Z carthur $
+ $Id: columns.py 642 2012-02-21 07:54:04Z nsummons $
 """
 import os, sys, pdb, logging
 filename = os.environ.get('PYTHONSTARTUP')
@@ -36,7 +36,7 @@ import numpy
 import csv
 gT = GetType()
 
-__version__ = '$Id: columns.py 519 2011-11-11 00:08:24Z carthur $'
+__version__ = '$Id: columns.py 642 2012-02-21 07:54:04Z nsummons $'
 logger = logging.getLogger()
 
 def colReadCSV(configFile, dataFile, source, nullValue=sys.maxint, configSettings=None):

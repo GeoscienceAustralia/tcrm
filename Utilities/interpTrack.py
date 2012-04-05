@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  interval.  As an example, the csv data for TC Tracy is included in at
  the bottom of this file.
 
- Version :$Rev: 529 $
+ Version :$Rev: 685 $
 
  ModifiedBy: Nicholas Summons
  ModifiedDate: 2011-02-08
@@ -32,7 +32,7 @@
                Pressure and Rmax interpolation was replaced with linear
                interpolation.
 
- $Id: interpTrack.py 529 2011-11-23 23:32:28Z carthur $
+ $Id: interpTrack.py 685 2012-03-29 04:22:32Z carthur $
 """
 import os, sys, pdb, logging, getopt
 
@@ -51,7 +51,7 @@ from loadData import loadTrackFile
 import maputils
 import metutils
 
-__version__ = '$Id: interpTrack.py 529 2011-11-23 23:32:28Z carthur $'
+__version__ = '$Id: interpTrack.py 685 2012-03-29 04:22:32Z carthur $'
 
 def usage():
     print "interpTrack.py:"
@@ -108,7 +108,7 @@ def main(argv):
     outputFile = cnfGetIniValue(gConfigFile,'Output','File')
     logger.info("Saving interpolated data to %s"%(outputFile))
     fh = open(outputFile,'w')
-    for i in range(len(newtime)):
+    for i in xrange(len(newtime)):
         fh.write("%d,%5.1f,%s,%6.2f,%6.2f,%6.2f,%6.2f,%7.2f,%7.2f,%5.1f\n"
                     % (nid[i], newtime[i], newdates[i].strftime("%Y-%m-%d %H:%M"),
                         nLon[i], nLat[i], nthetaFm[i], nvFm[i], npCentre[i],
@@ -116,11 +116,10 @@ def main(argv):
     fh.close()
     logger.info("Completed %s"%(sys.argv[0]))
 
-def interpolateTrack(configFile,trackFile,source,delta=0.1,interpolation_type='akima'):
+def interpolateTrack(configFile,trackFile,source,delta=0.1,interpolation_type=None):
     """
     interpTrack:
-    interpolate the data in a track file to the time
-    interval delta hours
+    interpolate the data in a track file to the time interval delta hours
     """
     logger = logging.getLogger()
     indicator,year,month,day,hour,minute,lon,lat,pressure,speed,bearing,windspeed,rmax,penv = loadTrackFile(configFile,trackFile,source)
@@ -135,7 +134,7 @@ def interpolateTrack(configFile,trackFile,source,delta=0.1,interpolation_type='a
     # At this stage, convert all times to a time after initial observation:
     timestep = 24.0*(time_ - time_[0])
 
-    newtime = numpy.arange(timestep[0], timestep[-1]+.1, delta)
+    newtime = numpy.arange(timestep[0], timestep[-1]+.01, delta)
     newtime[-1] = timestep[-1]
     _newtime = (newtime/24.) + time_[0]
     newdates = num2date(_newtime)
@@ -143,32 +142,44 @@ def interpolateTrack(configFile,trackFile,source,delta=0.1,interpolation_type='a
     nid = numpy.ones(newtime.size)
 
     logger.info("Interpolating data...")
-    if interpolation_type =='akima':
-        # Use the Akima interpolation method:
-        try:
-            import _akima
-        except ImportError:
-            logger.exception("Akima interpolation module unavailable - default to scipy.interpolate")
+    if len( indicator ) <= 2:
+        # Use linear interpolation only (only a start and end point given):
+        nLon = scipy.interpolate.interp1d(timestep, lon, kind='linear')(newtime)
+        nLat = scipy.interpolate.interp1d(timestep, lat, kind='linear')(newtime)
+        npCentre = scipy.interpolate.interp1d(timestep, pressure, kind='linear')(newtime)
+        npEnv = scipy.interpolate.interp1d(timestep, penv, kind='linear')(newtime)
+        nrMax = scipy.interpolate.interp1d(timestep, rmax, kind='linear')(newtime)
+
+    else:
+        if interpolation_type=='akima':
+            # Use the Akima interpolation method:
+            try:
+                import _akima
+            except ImportError:
+                logger.exception("Akima interpolation module unavailable - default to scipy.interpolate")
+                nLon = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lon, s=0), der=0)
+                nLat = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lat, s=0), der=0)
+            else:
+                nLon = _akima.interpolate(timestep,lon,newtime)
+                nLat = _akima.interpolate(timestep,lat,newtime)
+        elif interpolation_type=='linear':
+            nLon = scipy.interpolate.interp1d(timestep, lon, kind='linear')(newtime)
+            nLat = scipy.interpolate.interp1d(timestep, lat, kind='linear')(newtime)
+        else:
             nLon = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lon, s=0), der=0)
             nLat = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lat, s=0), der=0)
-        else:
-            nLon = _akima.interpolate(timestep,lon,newtime)
-            nLat = _akima.interpolate(timestep,lat,newtime)
-    else:
-        nLon = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lon, s=0), der=0)
-        nLat = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lat, s=0), der=0)
-    #nvFm = scipy.interpolate.spline(timestep, speed, newtime,kind='smoothest')
-    #nthetaFm = scipy.interpolate.spline(timestep, bear, newtime,kind='smoothest')
-    #nthetaFm = numpy.mod(nthetaFm,360)
-    npCentre = scipy.interpolate.interp1d(timestep, pressure, kind='linear')(newtime)
-    npEnv = scipy.interpolate.interp1d(timestep, penv, kind='linear')(newtime)
-    nrMax = scipy.interpolate.interp1d(timestep, rmax, kind='linear')(newtime)
+
+        npCentre = scipy.interpolate.interp1d(timestep, pressure, kind='linear')(newtime)
+        npEnv = scipy.interpolate.interp1d(timestep, penv, kind='linear')(newtime)
+        nrMax = scipy.interpolate.interp1d(timestep, rmax, kind='linear')(newtime)
 
     bear_, dist_ = maputils.latLon2Azi(nLat, nLon, 1, azimuth=0)
-    nthetaFm = numpy.empty(newtime.size, 'f')
-    nthetaFm[1:] = bear_
-    dist = numpy.empty(newtime.size, 'f')
-    dist[1:] = dist_
+    nthetaFm = numpy.zeros(newtime.size, 'f')
+    nthetaFm[:-1] = bear_
+    nthetaFm[-1] = bear_[-1]
+    dist = numpy.zeros(newtime.size, 'f')
+    dist[:-1] = dist_
+    dist[-1] = dist_[-1]
     nvFm = dist/delta
 
     return nid, newtime, newdates, nLon, nLat, nthetaFm, nvFm, npCentre, npEnv, nrMax

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,12 +40,12 @@ Modification: Converted to class structure.
 
 Version: 285
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: $LastChangedDate: 2011-10-31 16:35:00 +1100 (Mon, 31 Oct 2011) $
+ModifiedDate: $LastChangedDate: 2012-02-21 18:52:50 +1100 (Tue, 21 Feb 2012) $
 Modification: Super-array limits set by passing dictionary of
               {'xmin','xmax','ymin','ymax'}
               Modified logging method
 
-Version: $Rev: 649 $
+Version: $Rev: 810 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2010-10-14 3:32:PM
 Modification: If set to save all times, the data (gust wind speed, u and
@@ -53,7 +53,7 @@ Modification: If set to save all times, the data (gust wind speed, u and
               file at each timestep when the cyclone is within the
               specified region.
 
-$Id: generateWindfield.py 649 2011-10-31 05:35:00Z nsummons $
+$Id: generateWindfield.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, sys, pdb, logging

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,12 +20,16 @@ Title: progressbar.py
 Author: Nicholas Summons, nicholas.summons@ga.gov.au
 CreationDate: 2011-10-14
 Description: Draws progress bar on terminal window
-""" 
+"""
 import os, sys, pdb, logging
 import time
 
 class ProgressBar():
-    def __init__(self, modname):
+    def __init__(self, modname, showbar=True):
+        if not (sys.stderr.isatty() and sys.stdin.isatty()): 
+            self.showbar = False
+        else:
+            self.showbar = showbar
         self.modname = modname + " "
         self.lastPercentage = None
         self.screenWidth = 79
@@ -34,14 +38,15 @@ class ProgressBar():
         self.update(0.0)
 
     def update(self, progress, startPos=0, endPos=1):
-        prg = progress * (endPos - startPos) + startPos
-        if self._percentage(prg) != self.lastPercentage:
-            barfill = round(self.barWidth * prg)
-            barString = ''.join(['#' for i in range(barfill)] + [' ' for i in range(self.barWidth - barfill)])        
-            self.secondsElapsed = time.time() - self.start_time
-            sys.stderr.write("\r" + self.modname + self._percentage(prg) \
-                             + " [" + barString + "] " + self._getTimeStr(prg, self.secondsElapsed))
-            self.lastPercentage = self._percentage(prg)
+        if self.showbar:
+            prg = progress * (endPos - startPos) + startPos
+            if self._percentage(prg) != self.lastPercentage:
+                barfill = int(round(self.barWidth * prg))
+                barString = ''.join(['#' for i in range(barfill)] + [' ' for i in range(self.barWidth - barfill)])
+                self.secondsElapsed = time.time() - self.start_time
+                sys.stderr.write("\r" + self.modname + self._percentage(prg) \
+                                + " [" + barString + "] " + self._getTimeStr(prg, self.secondsElapsed))
+                self.lastPercentage = self._percentage(prg)
 
     def _percentage(self, pbar):
         return '%3d%%' % (pbar * 100)

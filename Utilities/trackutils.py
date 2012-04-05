@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,13 +23,13 @@ CreationDate: 2006-12-06
 Description:
 
 
-Version: $Rev: 510 $
+Version: $Rev: 686 $
 ModifiedBy:
 ModifiedDate: yyyy-mm-dd
 SeeAlso: (related programs)
 Constraints:
 
-$Id: trackutils.py 510 2011-10-31 07:19:59Z nsummons $
+$Id: trackutils.py 686 2012-03-29 04:24:59Z carthur $
 """
 import os, sys, pdb, logging
 filename = os.environ.get('PYTHONSTARTUP')
@@ -38,14 +38,14 @@ if filename and os.path.isfile(filename):
 import metutils
 import maputils
 
-__version__ = '$Id: trackutils.py 510 2011-10-31 07:19:59Z nsummons $'
+__version__ = '$Id: trackutils.py 686 2012-03-29 04:24:59Z carthur $'
 
 def convert2vertex(a1, a2):
     """
     converts 2 1D arrays into a list of Points
     """
     result = []
-    for i in range(len(a1)):
+    for i in xrange(len(a1)):
         result.append(Point(a1[i], a2[i]))
     return result
 
@@ -71,7 +71,7 @@ def _cnPnPoly(P, V):
     cn = 0    # the crossing number counter
     n = len(V) - 1
     # loop through all edges of the polygon
-    for i in range(n):    # edge from V[i] to V[i+1]
+    for i in xrange(n):    # edge from V[i] to V[i+1]
         if (((V[i].y <= P.y) and (V[i+1].y > P.y)) \
             or ((V[i].y > P.y) and (V[i+1].y <= P.y))):   # a downward crossing
             # compute the actual edge-ray intersect x-coordinate
@@ -97,7 +97,7 @@ def _wnPnPoly(P, V):
     wn = 0    # the winding number counter
     n = len(V) - 1
     # loop through all edges of the polygon
-    for i in range(n):    # edge from V[i] to V[i+1]
+    for i in xrange(n):    # edge from V[i] to V[i+1]
         if (V[i].y <= P.y):          # start y <= P.y
             if (V[i+1].y > P.y):      # an upward crossing
                 if (_isLeft(V[i], V[i+1], P) > 0):  # P left of edge

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ vMax relations.
 
 SeeAlso: (related programs)
 Constraints:
-Version: $Rev: 649 $
+Version: $Rev: 810 $
 
 ModifiedBy:
 ModifiedDate: yyyy-mm-dd
@@ -41,7 +41,7 @@ Kaplan, J. and M. DeMaria, 1995:
     Cyclone Winds after Landfall.
     J. Appl. Met., 34, 2499-2512
 
-$Id: windSpeedDecay.py 649 2011-10-31 05:35:00Z nsummons $
+$Id: windSpeedDecay.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, sys, pdb, logging

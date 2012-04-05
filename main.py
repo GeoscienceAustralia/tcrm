@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@ Tropical Cyclone Risk Model. Allows users to interact with all available
 methods from DataProcess, StatInterface, TrackGenerator,
 WindfieldInterface and HazardInterface.
 
-Version :$Rev: 763 $
+Version :$Rev: 826 $
 
-$Id: main.py 763 2011-11-25 06:01:42Z nsummons $
+$Id: main.py 826 2012-03-26 02:06:55Z nsummons $
 
 Copyright - Geoscience Australia, 2008
 """
@@ -48,7 +48,7 @@ from Utilities.progressbar import ProgressBar
 if pathLocator.is_frozen():
     os.environ['BASEMAPDATA'] = os.path.join(pathLocator.getRootDirectory(), 'mpl-data', 'data')
 
-__version__ = "$Id: main.py 763 2011-11-25 06:01:42Z nsummons $"
+__version__ = "$Id: main.py 826 2012-03-26 02:06:55Z nsummons $"
 
 def main(configFile='main.ini'):
     """
@@ -89,9 +89,10 @@ def main(configFile='main.ini'):
             except OSError:
                 raise
 
+    show_progress_bar = cnfGetIniValue( configFile, 'Logging', 'ProgressBar', True )
     # Execute Data Process:
     if cnfGetIniValue(configFile, 'Actions', 'DataProcess', False):
-        pbar = ProgressBar('(1/6) Processing data files: ')
+        pbar = ProgressBar('(1/6) Processing data files: ', show_progress_bar )
         
         from DataProcess import DataProcess
         logger.info('Running Data Processing')
@@ -144,12 +145,14 @@ def main(configFile='main.ini'):
     if cnfGetIniValue(configFile, 'Actions', 'ExecuteStat', False):
         logger.info('Running StatInterface')
         # Auto-calculate track generator domain
-        pbar = ProgressBar('(2/6) Calculating statistics:')
+        pbar = ProgressBar('(2/6) Calculating statistics:', show_progress_bar )
         CalcTD = CalcTrackDomain(configFile)
         autoCalc_TG_gridLimit = CalcTD.calc()
 
         from StatInterface import StatInterface
         statInterface = StatInterface.StatInterface(configFile, autoCalc_gridLimit=autoCalc_TG_gridLimit, progressbar=pbar)
+        statInterface.kdeGenesisDate()
+        pbar.update(0.6)
         statInterface.kdeOrigin()
         pbar.update(0.7)
         statInterface.cdfCellBearing()
@@ -212,8 +215,9 @@ def main(configFile='main.ini'):
     # Plot Hazard:
     if cnfGetIniValue(configFile, 'Actions', 'PlotHazard', False):
         logger.info('Plotting Hazard Maps')
+        pbar = ProgressBar('(6/6) Plotting results:      ', show_progress_bar )
         from PlotInterface.AutoPlotHazard import AutoPlotHazard
-        plotHazard = AutoPlotHazard(configFile)
+        plotHazard = AutoPlotHazard(configFile, progressbar=pbar)
         plotHazard.plot()
 
     logger.info('Completed TCRM')
@@ -264,3 +268,4 @@ if __name__ == "__main__":
         for line in tblines:
             logger.critical(line.lstrip())
         #sys.exit(1)
+

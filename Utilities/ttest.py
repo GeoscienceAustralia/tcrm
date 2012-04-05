@@ -1,6 +1,6 @@
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-""" 
+"""
 import os, sys, math, pdb
 sys.path.append('/home/carthur/sandpit/climate/lib/python/')
 sys.path.append(os.environ.get('CDATLIB'))
@@ -80,9 +80,9 @@ if __name__ == "__main__":
                 lat = valuefid['lat'][:]
                 records = valuefid['record'][:]
 
-                for rec in range(nrec):
-                    for i in range(nlat):
-                        for j in range(nlon):
+                for rec in xrange(nrec):
+                    for i in xrange(nlat):
+                        for j in xrange(nlon):
                             value = valuefid[v][rec,i,j]
                             if abs(value) < 10e10:
                                 count = countfid['count'][i,j]

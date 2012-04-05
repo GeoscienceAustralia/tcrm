@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,11 +26,11 @@ Description: Interface between main.py and generateWindfield module for
 SeeAlso: generateWindfield.py, main.py
 Constraints:
 
-Version: $Rev: 649 $
-ModifiedDate: $Date: 2011-10-31 16:35:00 +1100 (Mon, 31 Oct 2011) $
-ModifiedBy: $Author: nsummons $
+Version: $Rev: 819 $
+ModifiedDate: $Date: 2012-03-15 15:03:34 +1100 (Thu, 15 Mar 2012) $
+ModifiedBy: $Author: carthur $
 
-$Id: WindfieldInterface.py 649 2011-10-31 05:35:00Z nsummons $
+$Id: WindfieldInterface.py 819 2012-03-15 04:03:34Z carthur $
 """
 
 import os, sys, pdb, logging
@@ -45,7 +45,7 @@ from PlotInterface.plotWindfield import plotWindfield, plotPressurefield
 from PlotInterface.plotTimeseries import plotTimeseries
 
 from Utilities.grid import grdSave
-from Utilities.files import flConfigFile, flGetStat
+from Utilities.files import flConfigFile, flModDate, flProgramVersion, flGetStat
 from Utilities.config import cnfGetIniValue
 from Utilities.columns import colReadCSV
 from Utilities.process import pGetProcessedFiles, pAlreadyProcessed, pWriteProcessedFile
@@ -56,7 +56,7 @@ from Utilities.progressbar import ProgressBar
 class WindfieldInterface:
 
 
-    def __init__(self, configFile='WindfieldInterface.ini', nfiles=1):
+    def __init__(self, configFile='WindfieldInterface.ini', nfiles=1, show_progress_bar=False):
         """
         Initiate and run generateWindfield for nfiles simulations. If
         there is only a single simulation, the module will automatically
@@ -64,8 +64,10 @@ class WindfieldInterface:
         Otherwise only the gust wind speed will be stored and the rest
         of the data discarded (this may change in future versions).
         """
-        self.pbar = ProgressBar("(4/6) Generating windfields: ")
+
         self.configFile = configFile
+        show_progress_bar = cnfGetIniValue( self.configFile, 'Logging', 'ProgressBar', True )
+        self.pbar = ProgressBar("(4/6) Generating windfields: ", show_progress_bar)
         self.logger = logging.getLogger()
         self.logger.info("Initialising WindfieldInterface")
         self.datFile = cnfGetIniValue(self.configFile, 'Process', 'DatFile', configFile.split('.')[0] + '.dat')
@@ -228,13 +230,26 @@ class WindfieldInterface:
                 nctools.ncSaveGrid(outputFile, lon, lat, speed, 'vmax', 'm/s',longname='Maximum 3-second gust wind speed')
 
                 """
-                dimensions = {0:{'name':'lat','values':lat,'dtype':'f','atts':{'long_name':'Latitude','units':'degrees_north'} },
-                              1:{'name':'lon','values':lon,'dtype':'f','atts':{'long_name':'Longitude','units':'degrees_east'} } }
+                inputFileDate = flModDate( inputFile )
+                gatts = {'history':'TCRM hazard simulation - synthetic event wind field',
+                         'version':flProgramVersion( ),
+                         'Python_ver':sys.version,
+                         'track_file':'%s (modified %s)'%( inputFile, inputFileDate ),
+                         'radial_profile':self.WF.profileType,
+                         'boundary_layer':self.WF.windFieldType,
+                         'beta':self.WF.beta}
+                dimensions = {0:{'name':'lat','values':lat,'dtype':'f',
+                                 'atts':{'long_name':'Latitude',
+                                         'units':'degrees_north'} },
+                              1:{'name':'lon','values':lon,'dtype':'f',
+                                 'atts':{'long_name':'Longitude',
+                                         'units':'degrees_east'} } }
                 variables = {0:{'name':'vmax','dims':('lat','lon'),
                                 'values':numpy.array(speed),'dtype':'f',
                                 'atts':{'long_name':'Maximum 3-second gust wind speed',
                                         'units':'m/s'} } }
-                nctools._ncSaveGrid(os.path.join(self.outputPath,'gust.%04d.nc'%n), dimensions, variables)
+                nctools._ncSaveGrid(os.path.join(self.outputPath,'gust.%04d.nc'%n), 
+                                    dimensions, variables, gatts=gatts)
                 """
 
                 if cnfGetIniValue(self.configFile, 'WindfieldInterface',

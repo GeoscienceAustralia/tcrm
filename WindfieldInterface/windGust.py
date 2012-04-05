@@ -1,6 +1,6 @@
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,12 +28,12 @@ Histograms, J. Appl. Meteorol., 44, pp. 270-280
 SeeAlso:
 Constraints:
 
-Version: $Rev: 649 $
+Version: $Rev: 810 $
 ModifiedBy:
 ModifiedDate:
 Modification:
 
-$Id: windGust.py 649 2011-10-31 05:35:00Z nsummons $
+$Id: windGust.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, sys, pdb, logging

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,9 +24,9 @@
  values from a configuration file.
  Constraints:
  SeeAlso: files.py
- Version :$Rev: 512 $
+ Version :$Rev: 642 $
 
- $Id: config.py 512 2011-10-31 07:20:38Z nsummons $
+ $Id: config.py 642 2012-02-21 07:54:04Z nsummons $
 """
 
 import os, sys, pdb, logging
@@ -37,8 +37,9 @@ import time
 import ConfigParser
 from files import flConfigFile
 import inspect
+import re
 
-__version__ = '$Id: config.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: config.py 642 2012-02-21 07:54:04Z nsummons $'
 config_dict = {}
 logger = logging.getLogger()
 
@@ -244,3 +245,117 @@ def cnfGetIniFileValue(configFile, section, option, default=None):
         value = default
     FH.close()
     return value
+
+def cnfGetUnorderedList( configFile, section ):
+    """
+    Get a list of unordered values in the given section.
+    Input: ini file name, section
+    Output: list, or number of values in scalar context
+    Example: out = cnfGetUnorderdedList( filename, section )
+    This function requires a different approach to reading 
+    the configuration file, as ConfigParser in Python versions
+    prior to 2.7 cannot handle options with no value. The workaround
+    reads the configuration file and constructs a dict similar
+    to config_dict used elsewhere in this module. 
+    Lists of unordered values are included in the dict with the 
+    key and subkey equal to the section name.
+    i.e. cfgDict[ section ][ section ] = [list]
+
+    """
+    sect = None
+    sect_list = [ ]
+    cfgDict = { }
+    if configFile is None:
+        configFile = flConfigFile( )
+    try:
+        FH = open( configFile )
+    except IOError:
+        logger.warn( "Cannot open %s"%( configFile ) )
+    else: 
+        for line in FH:
+            line = line.lstrip( ).rstrip( '\n' )
+            cm = re.match( '^;', line )
+            if cm:
+                # Ignore lines that begin with a comment character
+                continue
+            sm = re.match('^\[(\w*)\]', line )
+            am = re.match('^([^=]+)=(.+)', line )
+            if sm:
+                new_sect = sm.group( 1 )
+                if sect:
+                    key = sect
+                    subkey = key
+                    cfgDict[ key ][ subkey ] = sect_list
+                sect = new_sect
+                sect_list = []
+                            
+            elif am:
+                # Attribute/value pair
+                att = am.group( 1 )
+                val = am.group( 2 )
+                att = att.rstrip( )
+                val = val.rstrip( ).lstrip( )
+                if cfgDict.has_key( sect ):
+                    cfgDict[ sect ][ att ] = val
+                else:
+                    cfgDict[ sect ] = { }
+                    cfgDict[ sect ][ att ] = val
+            elif len( line ):
+                sect_list.append( line )
+            
+        FH.close( )
+
+    return cfgDict[ section ][ section ]
+            
+def _cnfCacheIniFile( filename ):
+    """
+    This version of cnfCacheIniFile doesn't rely on configParser.
+    The disadvantage of this is that all values are treated as strings
+    and so type checking/conversion will need to be performed in the
+    calling program.
+    """
+    section = None
+    
+    try:
+        FH = open( filename )
+    except IOError:
+        logger.warn( "Cannot open %s"%( filename ) )
+    else:
+        for line in FH:
+            line = line.rstrip( '\n' )
+            line = line.lstrip( )
+            cm = re.match( '^[;#]', line )
+            if cm:
+                # Ignore comment lines
+                continue
+            sm = re.match('^\[(\w*)\]', line )
+            am = re.match('^([^=]+)=(.+)', line )
+            if sm:
+                new_sect = sm.group( 1 )
+                if sect:
+                    key = sect
+                    subkey = key
+                    cfgDict[ key ][ subkey ] = sect_list
+                sect = new_sect
+                sect_list = []
+                            
+            elif am:
+                # Attribute/value pair
+                att = am.group( 1 )
+                val = am.group( 2 )
+                att = att.rstrip( )
+                val = val.rstrip( ).lstrip( )
+                if cfgDict.has_key( sect ):
+                    cfgDict[ sect ][ att ] = val
+                else:
+                    cfgDict[ sect ] = { }
+                    cfgDict[ sect ][ att ] = val
+            elif len( line ):
+                sect_list.append( line )
+            
+        FH.close( )
+
+    return cfgDict
+
+def cnfRefreshCachedIniFile( configFile ):
+    config_dict = cnfCacheIniFile( configFile )

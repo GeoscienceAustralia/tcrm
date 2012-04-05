@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@
  field described by U and V components of wind.
  Assumes the array of components is defined on a lat/lon grid.
 
- Version :$Rev: 507 $
+ Version :$Rev: 686 $
 
- $Id: vorticity.py 507 2011-10-31 07:18:56Z nsummons $
+ $Id: vorticity.py 686 2012-03-29 04:24:59Z carthur $
 """
 import os, sys, pdb, logging
 filename = os.environ.get('PYTHONSTARTUP')
@@ -33,7 +33,7 @@ if filename and os.path.isfile(filename):
     execfile(filename)
 from numpy import *
 import metutils
-__version__ = '$Id: vorticity.py 507 2011-10-31 07:18:56Z nsummons $'
+__version__ = '$Id: vorticity.py 686 2012-03-29 04:24:59Z carthur $'
 
 def relative(u, v, lon, lat):
     """relative(u, v, lon, lat):
@@ -51,18 +51,18 @@ def relative(u, v, lon, lat):
     dv = numpy.zeros((len(lat), len(lon)-2))
     zeta = numpy.zeros((len(lat)-2, len(lon)-2))
 
-    for i in range(1, len(lon)-1):
-        for j in range(0, len(lat)):
+    for i in xrange(1, len(lon)-1):
+        for j in xrange(0, len(lat)):
             dx[j,i-1] = metutils.convert((lon[i+1]-lon[i-1])*numpy.cos(pi*lat[j]/180.), "deg", "m")
             dv[j,i-1] = v[i+1,j]-v[i-1,j]
 
-    for i in range(0, len(lon)):
-        for j in range(1,len(lat)-1):
+    for i in xrange(0, len(lon)):
+        for j in xrange(1,len(lat)-1):
             dy[j-1,i] = metutils.convert((lat[j+1]-lat[j-1]), "deg", "m")
             du[j-1,i] = u[i,j+1]-u[i,j-1]
 
-    for i in range(len(lat)-2):
-        for j in range(len(lon)-2):
+    for i in xrange(len(lat)-2):
+        for j in xrange(len(lon)-2):
             zeta[i,j] = dv[i,j]/dx[i,j] - du[i,j]/dy[i,j]
     return zeta
 
@@ -81,18 +81,18 @@ def absolute(u, v, lon, lat):
     dv = numpy.zeros((len(lat), len(lon)-2))
     zeta = numpy.zeros((len(lat)-2, len(lon)-2))
 
-    for i in range(1, len(lon)-1):
-        for j in range(0, len(lat)):
+    for i in xrange(1, len(lon)-1):
+        for j in xrange(0, len(lat)):
             dx[j,i-1] = metutils.convert((lon[i+1]-lon[i-1])*numpy.cos(pi*lat[j]/180.), "deg", "m")
             dv[j,i-1] = v[i+1,j]-v[i-1,j]
 
-    for i in range(0, len(lon)):
-        for j in range(1, len(lat)-1):
+    for i in xrange(0, len(lon)):
+        for j in xrange(1, len(lat)-1):
             dy[j-1,i] = metutils.convert((lat[j+1]-lat[j-1]), "deg", "m")
             du[j-1,i] = u[i,j+1]-u[i,j-1]
 
-    for i in range(len(lat)-2):
-        for j in range(len(lon)-2):
+    for i in xrange(len(lat)-2):
+        for j in xrange(len(lon)-2):
             zeta[i,j] = dv[i,j]/dx[i,j] - du[i,j]/dy[i,j] + metutils.coriolis(lat[i+1])
 
     return zeta

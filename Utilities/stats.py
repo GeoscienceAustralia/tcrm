@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ CreationDate: 2005-12-23
 Description: Miscellaneous tools required for statistics-related classes.
 SeeAlso:
 Constraints:
-Version: $Rev: 512 $
+Version: $Rev: 686 $
 
 ModifiedBy: Geoff Xu, geoff.xu@ga.gov.au
 ModifiedDate: 2006-01-25
@@ -50,12 +50,12 @@ ModifiedDate: 2006-12-22
 Modification: Added maxCellNum
           Modified getCellNum. Index out of range will now assert.
 
-Version: $Rev: 512 $
+Version: $Rev: 686 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2009-04-24 4:07:PM
 Modification: Added statCellFraction
 
-$Id: stats.py 512 2011-10-31 07:20:38Z nsummons $
+$Id: stats.py 686 2012-03-29 04:24:59Z carthur $
 """
 import os, sys, pdb, logging
 filename = os.environ.get('PYTHONSTARTUP')
@@ -67,7 +67,7 @@ from numpy import *
 
 from grid import grdRead
 
-__version__ = '$Id: stats.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: stats.py 686 2012-03-29 04:24:59Z carthur $'
 
 logger = logging.getLogger()
 
@@ -121,8 +121,8 @@ def cdf2d(x, y, z):
     cz[:, 0] = (grid_volume[:,0]).cumsum()
     cz[0, :] = (grid_volume[0,:]).cumsum()
 
-    for i in range(1, len(x)):
-        for j in range(1, len(y)):
+    for i in xrange(1, len(x)):
+        for j in xrange(1, len(y)):
             cz[i,j] = cz[i-1,j] + cz[i,j-1] - cz[i-1,j-1] + grid_volume[i,j]
 
     if cz[-1,-1] == 0:
@@ -283,7 +283,7 @@ def statCellFraction(gridLimit, gridSpace, valueFile):
     gLon, gLat, gData = grdRead(valueFile)
     nCells = maxCellNum(gridLimit, gridSpace) + 1
     output = zeros(nCells)
-    for cellNum in range(nCells):
+    for cellNum in xrange(nCells):
         cellLon, cellLat = getCellLonLat(cellNum, gridLimit, gridSpace)
         wLon = cellLon
         eLon = cellLon + gridSpace['x']

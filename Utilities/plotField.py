@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,12 +40,12 @@ ModifiedDate: 2010-10-19 1:07:PM
 Modification: Apply masked arrays to data being plotted (if data is loaded from
               a netCDF file).
 
-Version: $Rev: 526 $
+Version: $Rev: 642 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2011-06-08 1:00:PM
 Modification: Added plotArray and plotBarb functions.
 
-Id: $Id: plotField.py 526 2011-11-22 04:36:11Z carthur $
+Id: $Id: plotField.py 642 2012-02-21 07:54:04Z nsummons $
 """
 
 import os, sys, pdb, logging, getopt, traceback
@@ -66,7 +66,7 @@ import colours
 from smooth import smooth
 
 
-__version__ = '$Id: plotField.py 526 2011-11-22 04:36:11Z carthur $'
+__version__ = '$Id: plotField.py 642 2012-02-21 07:54:04Z nsummons $'
 
 logger = logging.getLogger()
 

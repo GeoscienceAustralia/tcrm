@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,9 +22,9 @@
  CreationDate: 2007-05-03
  Description: Unit testing module for Derivatives
 
- Version: $Rev: 717 $
+ Version: $Rev: 810 $
 
- $Id: test_derivatives.py 717 2011-11-08 06:48:02Z nsummons $
+ $Id: test_derivatives.py 810 2012-02-21 07:52:50Z nsummons $
 """
 import os, sys
 import unittest

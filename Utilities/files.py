@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
  ModifiedDate: 2009-04-29
  Modification: Added flStartLog
 
- Version: $Rev: 524 $
+ Version: $Rev: 685 $
  ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
  ModifiedDate: 2009-11-27 3:19:PM
  Modification: All exceptions are logged using the logging.exception() level
@@ -41,12 +41,12 @@
  ModifiedDate: 2011-06-22
  Modification: Replaced obsolete md5 package with hashlib
 
-$Id: files.py 524 2011-11-22 04:33:52Z carthur $
+$Id: files.py 685 2012-03-29 04:22:32Z carthur $
 """
 import os, sys, pdb, logging, traceback
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
+filename = os.environ.get( 'PYTHONSTARTUP' )
+if filename and os.path.isfile( filename ):
+    execfile( filename )
 try:
     import hashlib
     md5_constructor = hashlib.md5
@@ -56,14 +56,13 @@ except ImportError:
 import time
 import datetime
 import ConfigParser
-#from matplotlib.cbook import is_string_like
 import numpy
 import csv
 import inspect
 
-__version__ = '$Id: files.py 524 2011-11-22 04:33:52Z carthur $'
+__version__ = '$Id: files.py 685 2012-03-29 04:22:32Z carthur $'
 
-logger = logging.getLogger()
+logger = logging.getLogger( )
 
 
 def flModulePath(level=1):
@@ -71,10 +70,10 @@ def flModulePath(level=1):
     Get the path of the module <level> levels above this function
     Default: level = 1 (function calling flModulePath)
     """
-    filename = os.path.realpath(sys._getframe(level).f_code.co_filename)
-    path, fname = os.path.split(filename)
-    base, ext = os.path.splitext(fname)
-    path = path.replace(os.path.sep, '/')
+    filename = os.path.realpath( sys._getframe( level ).f_code.co_filename )
+    path, fname = os.path.split( filename )
+    base, ext = os.path.splitext( fname )
+    path = path.replace( os.path.sep, '/' )
     return path, base, ext
 
 def flModuleName(level=1):
@@ -82,10 +81,22 @@ def flModuleName(level=1):
     Get the name of the module <level> levels above this function
     Default: level = 1 (function calling flModuleName)
     """
-    package = sys._getframe(level).f_code.co_name
+    package = sys._getframe( level ).f_code.co_name
     return package
 
-def flLoadFile(fname,comments='%', delimiter=None, skiprows=0):
+def flProgramVersion(level=len( inspect.stack( ) ) - 1 ):
+    """flProgramVersion:
+    Function to return the __version__ string from the parent
+    program, where it is defined.
+    If it is not defined, return an empty string.
+    """
+    f = sys._getframe( level )
+    if f.f_globals.has_key( '__version__' ):
+        return f.f_globals[ '__version__' ]
+    else:
+        return ''
+
+def flLoadFile(fname, comments='%', delimiter=None, skiprows=0):
     """
     Load ASCII data from fname into an array and return the array. The
     data must be regular, same number of values in every row.
@@ -98,60 +109,60 @@ def flLoadFile(fname,comments='%', delimiter=None, skiprows=0):
     Example: data = flLoadFile('/home/user/data.csv', comments='#',
                                delimiter=',', skiprows=0)
     """
-    if os.path.isfile(fname):
+    if os.path.isfile( fname ):
         pass
     else:
-        logger.error("Filename %s is not a file"%fname)
-        raise IOError("Filename %s is not a file"%fname)
+        logger.error( 'Filename %s is not a file'%( fname ) )
+        raise IOError( 'Filename %s is not a file'%( fname ) )
 
-    logger.debug("Loading %s"%fname)
-    if os.path.isfile(fname):
-        if fname.endswith('.gz'):
+    logger.debug( 'Loading %s'%( fname ) )
+    if os.path.isfile( fname ):
+        if fname.endswith( '.gz' ):
             import gzip
             try:
-                fh = gzip.open(fname)
+                fh = gzip.open( fname )
             except IOError:
-                logger.exception("Cannot open %s"%fname)
-                flLogFatalError(traceback.format_exc().splitlines())
+                logger.exception( 'Cannot open %s '%( fname ) )
+                flLogFatalError( traceback.format_exc( ).splitlines( ) )
         else:
             try:
-                fh = open(fname)
+                fh = open( fname )
             except IOError:
-                logger.exception("Cannot open %s"%fname)
-                flLogFatalError(traceback.format_exc().splitlines())
-    elif hasattr(fname, 'seek'):
+                logger.exception( 'Cannot open %s'%( fname ) )
+                flLogFatalError( traceback.format_exc( ).splitlines( ) )
+    elif hasattr( fname, 'seek' ):
         fh = fname
     else:
-        logger.error('Filename must be a string or file handle')
-        flLogFatalError(traceback.format_exc().splitlines())
+        logger.error( 'Filename must be a string or file handle' )
+        flLogFatalError( traceback.format_exc( ).splitlines( ) )
     data = []
     i = -1
     while True:
-        line = fh.readline()
+        line = fh.readline( )
         if len(line) == 0:
             break
-        line = line.rstrip('\n')
+        line = line.rstrip( '\n' )
         i = i + 1
-        commentIdx = line.find(comments)
+        commentIdx = line.find( comments )
         if (commentIdx != -1):
             line = line[:commentIdx]
-        line = line.strip()
+        line = line.strip( )
         if i < skiprows: continue
-        if not len(line): continue
+        if not len( line ): continue
         row = []
-        for val in line.split(delimiter):
+        for val in line.split( delimiter ):
             if val == 'NaN': val = Nan
             try:
-                row.append(float(val))
+                row.append( float( val ) )
             except ValueError:
-                row.append(str(val))
-        thisLen = len(row)
-        data.append(row)
-    data = numpy.array(data)
+                row.append( str( val ) )
+        thisLen = len( row )
+        data.append( row )
+    data = numpy.array( data )
     r,c = data.shape
     if r == 1 or c == 1:
-        data.shape = max([r,c]),
-    fh.close()
+        data.shape = max( [r,c] ),
+    fh.close( )
     return data
 
 def flSaveFile(filename, data, header=None, delimiter=' ', fmt='%.18e'):
@@ -167,43 +178,53 @@ def flSaveFile(filename, data, header=None, delimiter=' ', fmt='%.18e'):
                         delimiter=',', fmt='%5.2f')
     """
     try:
-        directory, fname = os.path.split(filename)
+        directory, fname = os.path.split( filename )
     except AttributeError:
-        logger.exception("Input filename is not a string")
-        flLogFatalError(traceback.format_exc().splitlines())
-    if not os.path.isdir(directory):
+        logger.exception( 'Input filename is not a string' )
+        flLogFatalError( traceback.format_exc( ).splitlines( ) )
+    if not os.path.isdir( directory ):
         try:
-            os.makedirs(directory)
+            os.makedirs( directory )
         except:
-            logger.exception("Cannot build path: %s"%directory)
-            flLogFatalError(traceback.format_exc().splitlines())
-    logger.debug("Saving data to %s"%filename)
-    if type(filename) == str:
-        if fname.endswith('.gz'):
+            logger.exception( 'Cannot build path: %s'%( directory ) )
+            flLogFatalError( traceback.format_exc( ).splitlines( ) )
+    logger.debug( 'Saving data to %s'%( filename ) )
+
+    if type( filename ) == str:
+        if fname.endswith( '.gz' ):
             import gzip
-            fh = gzip.open(filename, 'wb')
+            fh = gzip.open( filename, 'wb' )
         else:
-            fh = open(filename,'w')
-    elif hasattr(filename, 'seek'):
+            fh = open( filename, 'w' )
+    elif hasattr( filename, 'seek' ):
         fh = filename
     else:
-        logger.error('Filename must be a string or file handle')
-        raise IOError('Filename must be a string or file handle')
+        logger.error( 'Filename must be a string or file handle' )
+        raise IOError( 'Filename must be a string or file handle' )
 
     if header:
-        fh.write('%'+header+'\n')
-    X = numpy.asarray(data)
+        fh.write( '%' + header + '\n' )
+
+    X = numpy.asarray( data )
     origShape = None
-    if len(X.shape) == 1:
+    if len( X.shape ) == 1:
         origShape = X.shape
-        X.shape = len(X), 1
+        X.shape = len( X ), 1
+
     for row in X:
         try:
-            fh.write(delimiter.join([fmt%val for val in row]) + '\n')
+            if type(fmt) == list:
+                fh.write( delimiter.join( [f%v for f,v in zip(fmt,row)] ) + '\n' )
+            elif type(fmt) == str:
+                fh.write( delimiter.join( [fmt%val for val in row] ) + '\n' )
+            else:
+                logger.exception( "Mismatch between format string and values in _write" )
+                raise TypeError, "Mismatch between format string and values in _write"
         except ValueError:
-            logger.exception("Cannont write data to file")
+            logger.exception( "Cannont write data to file" )
             raise
-    fh.close()
+
+    fh.close( )
     if origShape is not None:
         X.shape = origShape
 
@@ -218,34 +239,34 @@ def flGetStat(filename, CHUNK=2**16):
     Example: dir, name, md5sum, moddate = flGetStat(filename)
     """
     try:
-        fh = open(filename)
-        fh.close()
+        fh = open( filename )
+        fh.close( )
     except:
-        logger.exception("Cannot open %s"%repr(filename))
-        raise IOError("Cannot open %s"%repr(filename))
+        logger.exception("Cannot open %s"%( filename ) )
+        raise IOError("Cannot open %s"%( filename ) )
 
     try:
-        directory,fname = os.path.split(filename)
+        directory, fname = os.path.split( filename )
     except:
-        logger.exception("Input file is not a string")
-        raise TypeError("Input file is not a string")
+        logger.exception( 'Input file is not a string' )
+        raise TypeError( 'Input file is not a string' )
 
     try:
-        si = os.stat(filename)
+        si = os.stat( filename )
     except IOError:
-        logger.exception("Input file is not a valid file: %s"%filename)
-        raise IOError("Input file is not a valid file: %s"%filename)
+        logger.exception( 'Input file is not a valid file: %s'%( filename ) )
+        raise IOError( 'Input file is not a valid file: %s'%( filename ) )
 
-    moddate = time.ctime(si.st_mtime)
-    m = md5_constructor()
-    f = open(filename,'rb')
+    moddate = time.ctime( si.st_mtime )
+    m = md5_constructor( )
+    f = open( filename, 'rb' )
 
     while 1:
-        chunk = f.read(CHUNK)
+        chunk = f.read( CHUNK )
         if not chunk:
             break
-        m.update(chunk)
-    md5sum = m.hexdigest()
+        m.update( chunk )
+    md5sum = m.hexdigest( )
 
     return directory, fname, md5sum, moddate
 
@@ -261,46 +282,72 @@ def flConfigFile(extension='.ini', prefix='', level=len(inspect.stack())):
     after the last path separator
     Example: configFile = flConfigFile('.ini')
     """
-    path,base,ext = flModulePath(level)
-    config_file = os.path.join(path, prefix + base + extension)
-    config_file = config_file.replace(os.path.sep, '/')
+    path, base, ext = flModulePath( level )
+    config_file = os.path.join( path, prefix + base + extension )
+    config_file = config_file.replace( os.path.sep, '/' )
     return config_file
 
-def flStartLog(logFile, logLevel, verbose=False,datestamp=False):
+def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
     """
     Start logging to logFile all messages of logLevel and higher.
     Setting verbose=True will report all messages to STDOUT as well
     Input: logFile - full path to log file
            logLevel - string specifiying one of the standard Python logging
                levels ('NOTSET','DEBUG','INFO','WARNING','ERROR','CRITICAL')
-           verbose - boolean
+           verbose - boolean: True will echo all logging calls to STDOUT
+           datestamp - boolean: True will include a timestamp of the creation
+                       time in the filename
+           newlog - boolean: True will create a new log file each time this
+                    function is called. False will append to the existing file.
     Output: None
     Example: flStartLog('/home/user/log/app.log','INFO',verbose=True)
     """
     if datestamp:
-        b,e = os.path.splitext(logFile)
+        b, e = os.path.splitext(logFile)
         curdate = datetime.datetime.now()
-        curdatestr = curdate.strftime("%Y%m%d%H%M")
-        logFile = "%s.%s%s"%(b,curdatestr,e)
+        curdatestr = curdate.strftime( '%Y%m%d%H%M' )
+        # The lstrip on the extension is required as splitext leaves it on.
+        logFile = "%s.%s.%s"%( b, curdatestr, e.lstrip( '.' ) )
 
-    logging.basicConfig(level=getattr(logging, logLevel),
+    logDir = os.path.dirname( os.path.realpath( logFile ) )
+    if not os.path.isdir( logDir ):
+        try:
+            os.makedirs( logDir )
+        except OSError:
+            # Unable to create the directory, so stick it in the 
+            # current working directory:
+            path, fname = os.path.split( logFile )
+            logFile = os.path.join( os.getcwd( ), fname )
+
+    if newlog:
+        mode = 'w'
+    else:
+        mode = 'a'
+
+    logging.basicConfig(level=getattr( logging, logLevel ),
                         format='%(asctime)s %(module)-15s: %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S',
                         filename=logFile,
-                        filemode='w')
+                        filemode=mode)
+    logger = logging.getLogger( )
 
-    if verbose:
-        # If set to true, all logging calls will also be printed to the
-        # console (i.e. STDOUT)
-        console = logging.StreamHandler()
-        console.setLevel(getattr(logging, logLevel))
-        formatter = logging.Formatter('%(asctime)s %(message)s',
-                                      '%Y-%m-%d %H:%M:%S',)
-        console.setFormatter(formatter)
-        logging.getLogger('').addHandler(console)
-    logger=logging.getLogger()
-    logger.info("Started log file %s (detail level %s)"%(logFile,logLevel))
-    logger.info("Running %s (pid %d)"%(sys.argv[0],os.getpid()))
+    if len( logger.handlers ) < 2:
+        # Assume that the second handler is a StreamHandler for verbose
+        # logging. This ensures we do not create multiple StreamHandler
+        # instances that will *each* print to STDOUT
+        if verbose and sys.stdout.isatty():
+            # If set to true, all logging calls will also be printed to the
+            # console (i.e. STDOUT)
+            console = logging.StreamHandler( )
+            console.setLevel( getattr( logging, logLevel ) )
+            formatter = logging.Formatter( '%(asctime)s %(message)s',
+                                           '%Y-%m-%d %H:%M:%S', )
+            console.setFormatter( formatter )
+            logger.addHandler( console )
+
+    logger.info( 'Started log file %s (detail level %s)'%( logFile, logLevel ) )
+    logger.info( 'Running %s (pid %d)'%( sys.argv[0], os.getpid( ) ) )
+    logger.info( 'Version %s'% ( flProgramVersion( ) ) )
     return logger
 
 def flLogFatalError(tblines):
@@ -311,5 +358,29 @@ def flLogFatalError(tblines):
     traceback.format_exc().splitlines()
     """
     for line in tblines:
-        logger.critical(line.lstrip())
-    sys.exit()
+        logger.critical( line.lstrip( ) )
+    sys.exit( )
+
+def flModDate(filename, dateformat='%Y-%m-%d %H:%M:%S'):
+    """flModDate: return the update date of a file"""
+    try:
+        si = os.stat( filename )
+    except IOError:
+        logger.exception( 'Input file is not a valid file: %s'%( filename ) )
+        raise IOError( 'Input file is not a valid file: %s'%( filename ) )
+    moddate = time.localtime( si.st_mtime )
+
+    return time.strftime( dateformat, moddate )
+
+def flSize(filename):
+    """Return the size of a file in bytes"""
+    try:
+        si = os.stat( filename )
+    except IOError:
+        logger.exception( 'Input file is not a valid file: %s'%( filename ) )
+        raise IOError( 'Input file is not a valid file: %s'%( filename ) )
+    size = si.st_size
+
+    return size
+
+

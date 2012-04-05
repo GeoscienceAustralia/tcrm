@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ Modification: Added setParameters
 SeeAlso: (related programs)
 Constraints:
 
-$Id: SamplingParameters.py 644 2011-10-31 05:32:50Z nsummons $
+$Id: SamplingParameters.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, sys, pdb, logging

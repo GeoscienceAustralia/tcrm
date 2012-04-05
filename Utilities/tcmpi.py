@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,12 +28,12 @@
  SeeAlso:
  Constraints:
 
- Version: $Rev: 512 $
+ Version: $Rev: 686 $
  ModifiedBy:
  ModifiedDate:
  Modification:
 
- $Id: tcmpi.py 512 2011-10-31 07:20:38Z nsummons $
+ $Id: tcmpi.py 686 2012-03-29 04:24:59Z carthur $
 """
 import os, sys, math, pdb
 filename = os.environ.get('PYTHONSTARTUP')
@@ -52,7 +52,7 @@ from datetime import * # NWS: Module appears to be unused?  Also name conflict b
 import time
 from numpy import *
 import numpy, pylab
-__version__ = '$Id: tcmpi.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: tcmpi.py 686 2012-03-29 04:24:59Z carthur $'
 def tcmpi(infile, verbose=False):
     sLat = -50.
     nLat = 25
@@ -143,9 +143,9 @@ def tcmpi(infile, verbose=False):
 
     if verbose:
         print "Calculating indices..."
-    for n in range(ntimes):
-        for i in range(nLat):
-            for j in range(nLon):
+    for n in xrange(ntimes):
+        for i in xrange(nLat):
+            for j in xrange(nLon):
                 try:
                     mrdata[n,:,i,j] = met.spHumToMixRat(shdata[n,:,i,j], 'kgkg')
                 except IndexError:

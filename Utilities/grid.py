@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,12 +35,12 @@
  SeeAlso: files.py, config.py
  Version: 74
 
-Version: $Rev: 512 $
+Version: $Rev: 685 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2009-04-30 1:09:PM
 Modification: Standardised function names
 
-$Id: grid.py 512 2011-10-31 07:20:38Z nsummons $
+$Id: grid.py 685 2012-03-29 04:22:32Z carthur $
 """
 import os, sys, pdb, logging
 filename = os.environ.get('PYTHONSTARTUP')
@@ -52,7 +52,7 @@ from lat_long_UTM_conversion import LLtoUTM, UTMtoLL
 import metutils
 import nctools
 
-__version__ = '$Id: grid.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: grid.py 685 2012-03-29 04:22:32Z carthur $'
 
 
 def grdSave(filename, data, lon, lat, delta, delimiter=' ', nodata=-9999,
@@ -161,7 +161,7 @@ def grdRead(filename, delimiter=None):
         metadata["cellsize"] = []
         metadata["NODATA_value"] = []
 
-        for i in range(0,6):
+        for i in xrange(0,6):
             line = fh.readline()
             contents = line.split()
             label = contents[0]
@@ -177,7 +177,7 @@ def grdRead(filename, delimiter=None):
 
         data = numpy.zeros([metadata["nrows"], metadata["ncols"]], dtype=float)
 
-        for i in range(int(metadata["nrows"])):
+        for i in xrange(int(metadata["nrows"])):
             row = numpy.zeros([metadata["ncols"]], dtype=float)
             line = fh.readline()
             for j, val in enumerate(line.split(delimiter)):

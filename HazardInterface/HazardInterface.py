@@ -48,7 +48,7 @@ Modification: Uses updated ncSaveGrid, where all output data including
               Made the minimum number of records for calculation of GEV
               distribution configurable. Default value set to 50.
 
-Version: $Rev: 648 $
+Version: $Rev: 817 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2011-04-14 9:01:AM
 Modification: Included capacity to calculate confidence interval of
@@ -58,7 +58,7 @@ Modification: Included capacity to calculate confidence interval of
               'CalculateCI=True' in the HazardInterface section of the
               configuration file.
 
-$Id: HazardInterface.py 648 2011-10-31 05:34:02Z nsummons $
+$Id: HazardInterface.py 817 2012-03-15 03:56:14Z carthur $
 """
 
 import os, sys, pdb, logging
@@ -68,17 +68,18 @@ from numpy import *
 
 import Utilities.nctools as nctools
 from Utilities.config import cnfGetIniValue
+from Utilities.files import flProgramVersion
 from Utilities.grid import grdSave, grdRead
 import random
 from scipy.stats import scoreatpercentile as percentile
 from Utilities.progressbar import ProgressBar
 import evd
 
-__version__ = "$Id: HazardInterface.py 648 2011-10-31 05:34:02Z nsummons $"
+__version__ = "$Id: HazardInterface.py 817 2012-03-15 03:56:14Z carthur $"
 
 class HazardInterface:
 
-    def __init__(self, configFile='HazardInterface.ini'):
+    def __init__(self, configFile='HazardInterface.ini', show_progress_bar=False):
         """
         Initialise HazardInterface module and run internal functions to
         determine return period hazard maps based on wind fields
@@ -88,9 +89,10 @@ class HazardInterface:
         sufficient years in the windfields to give a 'reliable' estimate
         of the longest return period requested).
         """
-        self.pbar = ProgressBar('(5/6) Calculating hazard:    ')
         self.nodata = -9999
         self.configFile = configFile
+        show_progress_bar = cnfGetIniValue( self.configFile, 'Logging', 'ProgressBar', True)
+        self.pbar = ProgressBar('(5/6) Calculating hazard:    ', show_progress_bar)
         self.logger = logging.getLogger()
         self.logger.info("Initiating HazardInterface")
         self.gL = eval(cnfGetIniValue(self.configFile, 'Region', 'gridLimit'))
@@ -147,18 +149,29 @@ class HazardInterface:
                         'values':array(self.nodata),'dtype':'d',
                         'atts':{'long_name':'Return period wind speed',
                                 'units':'m/s'} },
-                     4:{'name':'wspd95','dims':('years','lat','lon'),
+                     4:{'name':'wspdupper','dims':('years','lat','lon'),
                         'values':array(self.nodata),'dtype':'d',
-                        'atts':{'long_name':'95th percentile return period wind speed',
-                                'units':'m/s'} },
-                     5:{'name':'wspd05','dims':('years','lat','lon'),
+                        'atts':{'long_name':'Upper percentile return period wind speed',
+                                'units':'m/s',
+                                'percentile':95} },
+                     5:{'name':'wspdlower','dims':('years','lat','lon'),
                         'values':array(self.nodata),'dtype':'d',
-                        'atts':{'long_name':'5th percentile return period wind speed',
-                                'units':'m/s'} } }
-
+                        'atts':{'long_name':'Lower percentile return period wind speed',
+                                'units':'m/s',
+                                'percentile':5} } }
+        # Create global attributes
+        gatts = {'history':'TCRM hazard simulation - return period wind speeds',
+                 'version':flProgramVersion( ),
+                 'Python_ver':sys.version,
+                 'extent':'Left: %f, Right: %f, Top: %f, Bottom: %f' %
+                           (self.gL['xMin'],self.gL['xMax'],
+                            self.gL['yMax'],self.gL['yMin']),
+                 'number_simulations':self.nsim,
+                 'minimum_records':self.minRecords}
         # Create output file for return-period gust wind speeds and GEV parameters
         self.nc_obj = nctools._ncSaveGrid(os.path.join(self.outputPath,'hazard.nc'),
-                                          dimensions, variables, nodata=self.nodata,
+                                          dimensions, variables,  nodata=self.nodata,
+                                          datatitle='TCRM hazard simulation',gatts=gatts,
                                           writedata=False,dtype='d',keepfileopen=True)
 
     def calculateWindHazard(self):
@@ -182,29 +195,29 @@ class HazardInterface:
         shp_varobj = self.nc_obj.variables['shp']
         windspd_varobj = self.nc_obj.variables['wspd']
         if self.calcCI:
-            wspd95_varobj = self.nc_obj.variables['wspd95']
-            wspd05_varobj = self.nc_obj.variables['wspd05']
+            wspdupper_varobj = self.nc_obj.variables['wspdupper']
+            wspdlower_varobj = self.nc_obj.variables['wspdlower']
 
         for k in range(no_subsets):
             i_lim = (self.imin + x_start[k], self.imin + x_end[k])
             j_lim = (self.jmin + y_start[k], self.jmin + y_end[k])
             Vr = self._loadData(i_lim, j_lim)
-            Rp,loc2D,scale2D,shp2D = self._calculate(Vr)
+            Rp, loc2D, scale2D, shp2D = self._calculate( Vr )
             # Calculate confidence interval of return periods:
             if self.calcCI:
-                Rp95,Rp05 = self._calculateCI(Vr)
+                RpUpper, RpLower = self._calculateCI2( Vr )
 
-            y1 = int(y_start[k])
-            y2 = int(y_end[k] + 1)
-            x1 = int(x_start[k])
-            x2 = int(x_end[k] + 1)
+            y1 = int( y_start[k] )
+            y2 = int( y_end[k] + 1 )
+            x1 = int( x_start[k] )
+            x2 = int( x_end[k] + 1 )
             loc_varobj[y1:y2, x1:x2] = loc2D
             scale_varobj[y1:y2, x1:x2] = scale2D
             shp_varobj[y1:y2, x1:x2] = shp2D
             windspd_varobj[:, y1:y2, x1:x2] = Rp[:,:,:]
             if self.calcCI:
-                wspd95_varobj[:, y1:y2, x1:x2] = Rp95[:,:,:]
-                wspd05_varobj[:, y1:y2, x1:x2] = Rp05[:,:,:]
+                wspdupper_varobj[:, y1:y2, x1:x2] = RpUpper[:,:,:]
+                wspdlower_varobj[:, y1:y2, x1:x2] = RpLower[:,:,:]
 
             # Report calculation progress
             percent_complete = int((k / float(no_subsets)) * 10) * 10
@@ -221,8 +234,8 @@ class HazardInterface:
         setattr(scale_varobj,'actual_range',[scale_varobj[:].min(), scale_varobj[:].max()])
         setattr(shp_varobj,'actual_range',[shp_varobj[:].min(), shp_varobj[:].max()])
         if self.calcCI:
-            setattr(wspd95_varobj,'actual_range',[wspd95_varobj[:].min(), wspd95_varobj[:].max()])
-            setattr(wspd05_varobj,'actual_range',[wspd05_varobj[:].min(), wspd05_varobj[:].max()])
+            setattr(wspdupper_varobj,'actual_range',[wspdupper_varobj[:].min(), wspdupper_varobj[:].max()])
+            setattr(wspdlower_varobj,'actual_range',[wspdlower_varobj[:].min(), wspdlower_varobj[:].max()])
 
         self.nc_obj.close()
         self.pbar.update(1.0)
@@ -256,7 +269,7 @@ class HazardInterface:
         """
         ncobj = nctools.ncLoadFile(fileName)
         ncobj_vmax = nctools.ncGetVar(ncobj, 'vmax')
-        data_subset = ncobj_vmax[int(j_lim[0]):int(j_lim[1]+1), 
+        data_subset = ncobj_vmax[int(j_lim[0]):int(j_lim[1]+1),
                                  int(i_lim[0]):int(i_lim[1]+1)]
         ncobj.close()
         return data_subset
@@ -284,9 +297,10 @@ class HazardInterface:
                     loc2D[i,j] = loc
                     scale2D[i,j] = scale
                     shp2D[i,j] = shp
+                
         return Rp, loc2D, scale2D, shp2D
 
-    def _calculateCI(self, Vr,resamples=200):
+    def _calculateCI(self, Vr, resamples=200):
         """
         Calculate the confidence interval of the return period using a
         simple generalised extreme value distribution method combined
@@ -294,17 +308,14 @@ class HazardInterface:
         Input: array of years to calculate return periods for
         Output: Array of return period wind fields
         """
-        #pdb.set_trace()
-        Vr_dim = shape(Vr)
-        #Vr.sort(axis=0)
-        Rp95 = self.nodata*ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
-        Rp05 = self.nodata*ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
-        #loc2D = self.nodata*ones((Vr_dim[1], Vr_dim[2]), dtype='f')
-        #scale2D = self.nodata*ones((Vr_dim[1], Vr_dim[2]), dtype='f')
-        #shp2D = self.nodata*ones((Vr_dim[1], Vr_dim[2]), dtype='f')
-        w = zeros((len(self.years),resamples),dtype='f')
-        w95 = zeros((len(self.years)),dtype='f')
-        w05 = zeros((len(self.years)),dtype='f')
+
+        Vr_dim = shape( Vr )
+
+        RpUpper = self.nodata*ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
+        RpLower = self.nodata*ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
+        w = zeros((len(self.years), resamples), dtype='f')
+        wUpper = zeros( ( len( self.years ) ), dtype='f' )
+        wLower = zeros( ( len( self.years ) ), dtype='f' )
         for i in range(Vr_dim[1]):
             for j in range(Vr_dim[2]):
                 if Vr[:,i,j].max() > 0:
@@ -316,12 +327,12 @@ class HazardInterface:
                                                         self.yrsPerSim)
                     for n in range(len(self.years)):
                         w[n,:].sort()
-                        w95[n] = percentile(w[n,:],95)
-                        w05[n] = percentile(w[n,:],5)
+                        wUpper[n] = percentile(w[n,:],95)
+                        wLower[n] = percentile(w[n,:],5)
 
-                    Rp95[:,i,j] = w95
-                    Rp05[:,i,j] = w05
-        return Rp95, Rp05
+                    RpUpper[:,i,j] = wUpper
+                    RpLower[:,i,j] = wLower
+        return RpUpper, RpLower
 
 
     def _create_output_files(self, lat, lon):
@@ -360,3 +371,60 @@ class HazardInterface:
                 y_end[k] = min((j+1)*y_step, y_dim)-1
                 k += 1
         return x_start.astype(int), x_end.astype(int), y_start.astype(int), y_end.astype(int)
+
+    def _calculateCI2(self, Vr, subsample_size=50, pctile_range=90 ):
+        """
+        Calculate the confidence interval of the return period using a
+        simple generalised extreme value distribution method combined
+        with bootstrap sampling.
+        Input: vector of wind speed records, number of records for
+                each subsample, percentile range to calculate
+        Output: Array of confidence interval return period wind speeds
+        """
+        #pdb.set_trace()
+        # Set the upper and lower confidence levels, based on the percentile range:
+        lower = ( 100 - pctile_range ) / 2.
+        upper = 100 - lower
+        Vr_dim = shape( Vr )
+        
+        # number of records in the input vector:
+        nrecords = Vr_dim[0]
+
+        # Set the number of times to iterate over:
+        nsamples = nrecords / subsample_size
+
+        RpUpper = self.nodata*ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
+        RpLower = self.nodata*ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
+
+        w = zeros( ( len( self.years ), nsamples ), dtype='f' )
+        wUpper = zeros( (len( self.years ) ), dtype='f' )
+        wLower = zeros( (len( self.years ) ), dtype='f' )
+        
+        for i in range( Vr_dim[1] ):
+            for j in range( Vr_dim[2] ):
+                if Vr[:,i,j].max( ) > 0.:
+                    # The Vr.sort() in _calculate modifies the original Vr array, so the
+                    # array passed to this function is already sorted.
+                    # Perform a shuffle on each grid point to ensure we 
+                    # obtain unordered subsamples.
+                    random.shuffle( Vr[:,i,j] )
+                    for n in range( nsamples ):
+                        nstart = n*subsample_size
+                        nend  = (n + 1)*subsample_size - 1
+                        vsub = Vr[nstart:nend, i, j]                        
+
+                        vsub.sort()
+                        if vsub.max( ) > 0.:
+                            #self.logger.debug( "Max value in subset array is: {0}".format(vsub.max()) )
+                            w[:,n], loc, scale, shp = evd.estimate_EVD(vsub, self.years,
+                                                                       self.nodata, self.minRecords/5,
+                                                                       self.yrsPerSim )
+                    for n in range( len( self.years ) ):
+                        wUpper[n] = percentile( w[n,:], upper )
+                        wLower[n] = percentile( w[n,:], lower )
+
+                    RpUpper[:,i,j] = wUpper
+                    RpLower[:,i,j] = wLower
+
+        return RpUpper, RpLower
+

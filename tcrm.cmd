@@ -8,7 +8,7 @@ goto RunSimulation
 cls
 echo.
 echo    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-echo    Copyright (C) 2011  Geoscience Australia
+echo    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 echo.
 echo    This program is free software: you can redistribute it and/or modify
 echo    it under the terms of the GNU General Public License as published by

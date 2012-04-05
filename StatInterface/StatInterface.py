@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2008-04-10
 Modification: Changed logging method
 
-Version: $Rev: 644 $
+Version: $Rev: 810 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2010-08-19 10:03:AM
 Modification: Removed generation of unneccesary CDF files (namely
@@ -68,12 +68,13 @@ SeeAlso: (related programs)
 Constraints:
 References:
 
-$Id: StatInterface.py 644 2011-10-31 05:32:50Z nsummons $
+$Id: StatInterface.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, sys, pdb, logging
 
 import KDEOrigin
+import KDEParameters
 #import SamplingOrigin
 import GenerateDistributions
 
@@ -200,6 +201,16 @@ class StatInterface:
 
         # samplingOrigin = SamplingOrigin.SamplingOrigin(kdeOrigin=os.path.join(self.processPath, 'originPDF.txt'))
         # samplingOrigin.generateSamples(self.ns,os.path.join(self.processPath, 'sample_origin_lonlat'))
+        
+    def kdeGenesisDate(self):
+        """
+        Generate CDFs relating to the genesis day-of-year of cyclones
+        """
+        self.logger.info('Generating CDFs for TC genesis day')
+        self.logger.debug('Reading data from %s', os.path.join( self.processPath, 'jdays' ) )
+        jdays = os.path.join( self.processPath, 'jdays' )
+        kde = KDEParameters.KDEParameters( self.kdeType )
+        kde.generateGenesisDateCDF( jdays, bw=14, genesisKDE=os.path.join( self.processPath, 'cdfGenesisDays' ) )
 
     def cdfCellBearing(self):
         """

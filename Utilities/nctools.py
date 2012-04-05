@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@
                ensure the dimension and variable metadata are structured
                appropriately.
 
- Version: $Rev: 520 $
+ Version: $Rev: 642 $
  ModifiedBy: Nicholas Summons, nicholas.summons@ga.gov.au
  ModifiedDate: 06/10/11 2:09:PM
  Modification: Replaced ScientificPython netcdf library with SciPy equivalent
@@ -64,7 +64,7 @@
                latest versions of NumPy. Also allows fall-back to
                ScientificPython if SciPy version lacks netcdf writing
                support.
- $Id: nctools.py 520 2011-11-14 21:55:20Z carthur $
+ $Id: nctools.py 642 2012-02-21 07:54:04Z nsummons $
 """
 import os, sys, pdb, logging
 filename = os.environ.get('PYTHONSTARTUP')
@@ -82,10 +82,11 @@ if not hasattr(netcdf_file, 'createVariable'):
     try:
         from Scientific.IO.NetCDF import NetCDFFile as netcdf_file
     except ImportError:
-        logger.critical("TCRM requires either SciPy version >= 0.9.0 or ScientificPython to write NetCDF files.")
+        logger.critical("nctools requires either SciPy version >= 0.9.0 or ScientificPython to write NetCDF files.")
         raise
 
-__version__ = '$Id: nctools.py 520 2011-11-14 21:55:20Z carthur $'
+__version__ = '$Id: nctools.py 642 2012-02-21 07:54:04Z nsummons $'
+ISO_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 def ncLoadFile(filename):
     logger.debug("Opening netCDF file %s for reading"%filename)
@@ -316,7 +317,7 @@ def ncSaveGrid(filename, lon, lat, data, varname, units,
     None
     """
     nodata = numpy.array(nodata, dtype=dtype)
-    created_time = time.ctime(time.time())
+    created_time = time.strftime(ISO_FORMAT, time.localtime())
     created_by = getpass.getuser()
     ncobj = ncCreateFile(filename,op='w')
     latrange = [min(lat), max(lat)]
@@ -429,7 +430,7 @@ def _ncSaveGrid(filename, dimensions, variables,
     the dimensions specified above.
     """
     nodata = numpy.array(nodata, dtype=dtype)
-    created_time = time.ctime(time.time())
+    created_time = time.strftime(ISO_FORMAT, time.localtime())
     created_by = getpass.getuser()
 
 

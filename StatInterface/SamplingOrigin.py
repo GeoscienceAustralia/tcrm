@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ Description: Define the class for sampling cyconle origins. Python code
               developed from Xun Guo Lin's MATLAB code on sampling of
               cyclone origins
 
-Version: $Rev: 644 $
+Version: $Rev: 810 $
 
 ModifiedDate: 2006-10-31
 ModifiedBy: C. Arthur
@@ -47,12 +47,12 @@ ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 10/04/08 11:42:AM
 Modification: Changed logging method
 
-Version: $Rev: 644 $
+Version: $Rev: 810 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2008-07-02 2:35:PM
 Modification: Reads the origin PDF data from an ascii grid format file
 
-$Id: SamplingOrigin.py 644 2011-10-31 05:32:50Z nsummons $
+$Id: SamplingOrigin.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, sys, pdb, logging

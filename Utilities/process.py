@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,24 +28,30 @@
  versions should use the hashlib module.
  SeeAlso: files.py
 
- Version :$Rev: 512 $
+ Version :$Rev: 642 $
 
- $Id: process.py 512 2011-10-31 07:20:38Z nsummons $
+ $Id: process.py 642 2012-02-21 07:54:04Z nsummons $
 """
 import os, sys, time, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
+filename = os.environ.get( 'PYTHONSTARTUP' )
 if filename and os.path.isfile(filename):
-    execfile(filename)
+    execfile( filename )
 
-from files import flGetStat
-__version__ = '$Id: process.py 512 2011-10-31 07:20:38Z nsummons $'
+from files import flGetStat, flModDate
+__version__ = '$Id: process.py 642 2012-02-21 07:54:04Z nsummons $'
 global gDatFile
 global gProcessedFiles
-logger = logging.getLogger()
+global g_archive_dir
+global g_archive_timestamp
+global g_archive_date_format
+logger = logging.getLogger( )
 
-gProcessedFiles = {}
+gProcessedFiles = { }
+g_archive_dir = ''
+g_archive_date_format = '%Y%m%d%H%M'
+g_archive_timestamp = True
 
-def pSetProcessedEntry(directory, filename, attribute, value):
+def pSetProcessedEntry( directory, filename, attribute, value ):
     """
     Update the attribute of the given file with the given value.
     Input: directory, filename, attribute, value
@@ -59,13 +65,13 @@ def pSetProcessedEntry(directory, filename, attribute, value):
             if attribute in gProcessedFiles[directory][filename]:
                 gProcessedFiles[directory][filename][attribute] = value
             else:
-                gProcessedFiles[directory][filename].update({attribute:value})
+                gProcessedFiles[directory][filename].update( {attribute:value} )
         else:
-            gProcessedFiles[directory].update({filename:{attribute:value}})
+            gProcessedFiles[directory].update( {filename:{attribute:value}} )
     else:
-        gProcessedFiles.update({directory:{filename:{attribute:value}}})
+        gProcessedFiles.update( {directory:{filename:{attribute:value}}} )
 
-def pGetProcessedEntry(directory, filename, attribute):
+def pGetProcessedEntry( directory, filename, attribute ):
     """
     Retrieve the value of an attribute for a file from the
     gProcessedFiles dictionary.
@@ -83,7 +89,7 @@ def pGetProcessedEntry(directory, filename, attribute):
     return rc
 
 
-def pGetProcessedFiles(datFileName=None):
+def pGetProcessedFiles( datFileName=None ):
     """
     Retrieve a list of processed files from a dat file. This will also
     set the global gDatFile.
@@ -97,20 +103,20 @@ def pGetProcessedFiles(datFileName=None):
     if datFileName:
         gDatFile = datFileName
         try:
-            fh = open(datFileName)
+            fh = open( datFileName )
 
         except IOError:
-            logger.warn("Couldn't open dat file %s"%datFileName)
+            logger.warn( "Couldn't open dat file %s"%( datFileName ) )
             return rc
         else:
-            logger.debug("Getting previously-processed files from %s"%datFileName)
+            logger.debug( "Getting previously-processed files from %s"%( datFileName ) )
             for line in fh:
-                line.rstrip('\n')
+                line.rstrip( '\n' )
                 directory, filename, moddate, md5sum = line.split('|')
-                pSetProcessedEntry(directory, filename, 'moddate',
-                                   moddate.rstrip('\n'))
-                pSetProcessedEntry(directory, filename, 'md5sum',
-                                   md5sum.rstrip('\n'))
+                pSetProcessedEntry( directory, filename, 'moddate',
+                                   moddate.rstrip( '\n' ) )
+                pSetProcessedEntry( directory, filename, 'md5sum',
+                                   md5sum.rstrip( '\n' ) )
             rc = 1
             fh.close()
 
@@ -120,7 +126,7 @@ def pGetProcessedFiles(datFileName=None):
         return rc
     return rc
 
-def pWriteProcessedFile(filename):
+def pWriteProcessedFile( filename ):
     """pWriteProcessedFile(filename):
     Write the various attributes of the given file to gDatFile
     Input: filename that has been processed
@@ -132,24 +138,24 @@ def pWriteProcessedFile(filename):
     global gProcessedFiles
     rc = 0
     if gDatFile:
-        directory,fname,md5sum,moddate = flGetStat(filename)
+        directory,fname,md5sum,moddate = flGetStat( filename )
         try:
-            fh = open(gDatFile,'a')
+            fh = open( gDatFile,'a' )
         except:
-            logger.info("Cannot open %s"%(gDatFile))
+            logger.info( "Cannot open %s"%( gDatFile ) )
 
         else:
-            pSetProcessedEntry(directory, fname, 'md5sum', md5sum)
-            pSetProcessedEntry(directory, fname, 'moddate', moddate)
-            fh.write('|'.join([directory, fname, moddate, md5sum])+'\n')
+            pSetProcessedEntry( directory, fname, 'md5sum', md5sum )
+            pSetProcessedEntry( directory, fname, 'moddate', moddate )
+            fh.write( '|'.join( [directory, fname, moddate, md5sum] ) + '\n' )
             fh.close()
             rc = 1
     else:
-        logger.warn("Dat file name not provided. Can't record %s as processed."%filename)
+        logger.warn( "Dat file name not provided. Can't record %s as processed."%( filename ) )
 
     return rc
 
-def pDeleteDatFile():
+def pDeleteDatFile( ):
     """
     Delete the existing dat file - defined in the gDatFile variable
     (list of previously-processed files).
@@ -161,13 +167,13 @@ def pDeleteDatFile():
     global gDatFile
     global gProcessedFiles
     rc = 0
-    if os.unlink(gDatFile):
+    if os.unlink( gDatFile ):
         rc = 1
     else:
-        logger.warn("Cannot remove dat file %s"%gDatFile)
+        logger.warn( "Cannot remove dat file %s"%( gDatFile ) )
     return rc
 
-def pAlreadyProcessed(directory, filename, attribute, value):
+def pAlreadyProcessed( directory, filename, attribute, value ):
     """
     Determine if a file has already been processed (i.e. it is stored in
     gProcessedFiles)
@@ -181,9 +187,97 @@ def pAlreadyProcessed(directory, filename, attribute, value):
     global gDatFile
     global gProcessedFiles
     rc = False
-    if pGetProcessedEntry(directory, filename, attribute)==value:
+    if pGetProcessedEntry( directory, filename, attribute ) == value:
         rc = True
     else:
         rc = False
     return rc
 
+def pArchiveDir( archive_dir=None ):
+    """
+    pArchiveDir
+    Set or get the archive directory.
+    Input: archive directory (if setting it)
+    Output: original archive directory
+    """
+    global g_archive_dir
+    
+    if archive_dir:
+        g_archive_dir = archive_dir
+        g_archive_dir.rstrip("/\\")
+        if (not os.path.isdir(g_archive_dir) ):
+            try:
+                os.makedirs(g_archive_dir)
+            except:
+                logger.exception( "Cannot create %s"%( g_archive_dir ) )
+    rc = g_archive_dir
+    
+    return rc
+
+
+def pArchiveDateFormat( date_format=None ):
+    """pArchiveDateFormat:
+    Set or get archive date format.
+    Input: archive date format (if setting it)
+    Output: original archive date format
+    """
+    global g_archive_date_format
+    if ( date_format ):
+        g_archive_date_format = date_format
+    rc = g_archive_date_format
+    return rc
+
+
+def pArchiveTimestamp( timestamp=False ):
+    """pArchiveTimestamp
+    Set or get archive timstamp flag.
+    Input: true or false (if setting it)
+    Output: original setting
+    """
+    global g_archive_timestamp
+    if ( timestamp ):
+        g_archive_timestamp = timestamp
+    rc = g_archive_timestamp
+    return rc
+
+def pMoveFile( origin, destination ):
+    """pMoveFile: move a single file"""
+    try:
+        os.rename( origin, destination )
+    except:
+        logger.warn( "Error moving %s to %s"%( origin, destination ) )
+        raise
+        rc = 0
+    else:
+        logger.debug( "%s moved to %s"%( origin, destination ) )
+        rc = 1
+
+    return rc
+
+def pArchiveFile( filename ):
+    """pArchiveFile
+    Move the file to the archive directory (if specified), inserting a
+    timestamp in the name.
+    """
+    path, ext = os.path.splitext( filename )
+    path, base = os.path.split( path )
+    archive_dir = pArchiveDir( )
+    ext = ext.lstrip('.')
+    if ( archive_dir ):
+        if os.path.isdir( archive_dir ):
+            pass
+        else:
+            try:
+                os.path.mkdir( archive_dir )
+            except:
+                logger.critcal( "Cannot create %s"%( archive_dir ) )
+                raise
+
+    if ( pArchiveTimestamp( ) ):
+        archive_date = flModDate( filename, g_archive_date_format )
+        archive_file_name = os.path.join( archive_dir, "%s.%s.%s"%( base, archive_date, ext ) )
+    else:
+        archive_file_name = os.path.join( archive_dir, "%s.%s"%( base, ext ) )
+
+    rc = pMoveFile( filename, archive_file_name )
+    return rc

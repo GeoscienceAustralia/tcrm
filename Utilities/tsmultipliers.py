@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,13 +30,13 @@
  ModifiedDate: 2009-02-05 12:13:PM
  Modification: Included correct bearing value in timeseries.
 
- Version: $Rev: 509 $
+ Version: $Rev: 642 $
  ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
  ModifiedDate: 2009-08-25 3:43:PM
  Modification: Interpolate multiplier values to actual bearing rather
                than classifying - still need to test value of performing
                interpolation
- $Id: tsmultipliers.py 509 2011-10-31 07:19:54Z nsummons $
+ $Id: tsmultipliers.py 642 2012-02-21 07:54:04Z nsummons $
 """
 
 import os, sys, pdb, logging
@@ -47,7 +47,7 @@ if filename and os.path.isfile(filename):
 import numpy
 from files import flLoadFile, flSaveFile
 
-__version__ = '$Id: tsmultipliers.py 509 2011-10-31 07:19:54Z nsummons $'
+__version__ = '$Id: tsmultipliers.py 642 2012-02-21 07:54:04Z nsummons $'
 
 def tsmultiply(inputFile):
     """

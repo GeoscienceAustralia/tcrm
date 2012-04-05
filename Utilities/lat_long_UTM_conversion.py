@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,19 +34,19 @@
  ModifiedDate: 2007-10-29
  Modification: Added to ATCRAM
 
- Version: $Rev: 512 $
+ Version: $Rev: 642 $
  ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
  ModifiedDate: 2007-11-12 17:13
  Modification: A bastardised version to make life a little easier for
                converting to UTM coords. You can now give the UTM Zone
                as an option
 
-$Id: lat_long_UTM_conversion.py 512 2011-10-31 07:20:38Z nsummons $
+$Id: lat_long_UTM_conversion.py 642 2012-02-21 07:54:04Z nsummons $
 """
 
 from math import pi, sin, cos, tan, sqrt
 
-__version__ = '$Id: lat_long_UTM_conversion.py 512 2011-10-31 07:20:38Z nsummons $'
+__version__ = '$Id: lat_long_UTM_conversion.py 642 2012-02-21 07:54:04Z nsummons $'
 
 _deg2rad = pi / 180.0
 _rad2deg = 180.0 / pi

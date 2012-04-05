@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,18 +37,18 @@ ModifiedDate: 14 July 2010
 Modification: Code simplified to return GEVD estimation for single vector of pre-sorted gust wind speeds.
               This allows for clean integration with the hazard interface of TCRM.
 
-Version: $Rev: 758 $
+Version: $Rev: 817 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2011-03-11 8:56:AM
 Modification: Minimum number of records required for calculation made a
               a kwarg
 
-$Id: evd.py 758 2011-11-24 07:30:15Z nsummons $
+$Id: evd.py 817 2012-03-15 03:56:14Z carthur $
 """
 
 import os, sys, pdb, logging, traceback
 import numpy
-__version__ = "$Id: evd.py 758 2011-11-24 07:30:15Z nsummons $"
+__version__ = "$Id: evd.py 817 2012-03-15 03:56:14Z carthur $"
 
 logger = logging.getLogger()
 
@@ -71,7 +71,7 @@ def estimate_EVD(v, years, missingValue=-9999.,minRecords=50,yrspersim=10):
     # Initialise variables:
     loc,scale,shp = [missingValue, missingValue, missingValue]
     w = missingValue*numpy.ones(len(years), dtype='float32')
-
+    
     if (v.max() > 0.):
         ii = numpy.flatnonzero(v)
         # Only calculate l-moments for those grid points

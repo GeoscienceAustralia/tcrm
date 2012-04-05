@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011  Geoscience Australia
+    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ Kepert (2001).
 
 SeeAlso: windVorticity.py, derivative.py
 Constraints:
-Version: $Rev: 649 $
+Version: $Rev: 810 $
 
 Version: 573
 ModifiedBy: Craig Arthur
@@ -52,7 +52,7 @@ ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2008-04-04
 Modification: dVm variable removed - dVm is zero at rMax
 
-Version :$Rev: 649 $
+Version :$Rev: 810 $
 ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
 ModifiedDate: 2009-01-06
 Modification: Added Powell et al (2005) relation for beta
@@ -82,7 +82,7 @@ Willoughby, H.E. and M.E. Rahn, 2004:
     Observations and Evaluation of the Holland (1980) Model.
     Mon. Wea. Rev., 132, 3033-3048
 
-$Id: windProfile.py 649 2011-10-31 05:35:00Z nsummons $
+$Id: windProfile.py 810 2012-02-21 07:52:50Z nsummons $
 """
 #-----------------------------------------------------------------------
 # Imports:
