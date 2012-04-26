@@ -126,7 +126,7 @@ class HazardInterface:
         self.minRecords = cnfGetIniValue(self.configFile, 'HazardInterface',
                                           'MinimumRecords',50)
         self.yrsPerSim = cnfGetIniValue(self.configFile, 'HazardInterface',
-                                          'YearsPerSimulation',10)
+                                          'YearsPerSimulation',1)
 
         # Create dimensions for storing data:
         dimensions = {0:{'name':'years', 'values':self.years, 'dtype':'d', 'atts':{'long_name':'Return period','units':'years'} },
