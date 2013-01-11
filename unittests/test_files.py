@@ -123,6 +123,30 @@ class Test_flConfigFile(NumpyTestCase.NumpyTestCase):
         testconfig = os.path.join(unittest_dir,'test_files.ini').replace(os.path.sep,'/')
         self.assertEqual(testconfig,files.flConfigFile())
 
+class Test_flSize(NumpyTestCase.NumpyTestCase):
+    # Set up the test:
+    filename = os.path.realpath( __file__ )
+    def test_flSize(self):
+        """Test flSize returns correct file size value"""
+        testsize = os.stat( self.filename ).st_size
+        self.assertEqual(testsize,files.flSize(self.filename))
+
+    def test_flSizeError(self):
+        """Test flSize raises IOError for non-file"""
+        self.assertRaises(IOError, files.flSize, 'string')
+
+class Test_flModDate(NumpyTestCase.NumpyTestCase):
+    # Set up the test:
+    filename = os.path.realpath( __file__ )
+    def test_flModDate(self):
+        """Test flModDate function"""
+        testdate = time.localtime(os.stat(self.filename).st_mtime)
+        testdatestr = time.strftime( '%Y-%m-%dT%H:%M:%S', testdate )
+        self.assertEqual( testdatestr, 
+                          files.flModDate( self.filename,
+                                           '%Y-%m-%dT%H:%M:%S'))
+
+
 
 
 ########################################################################
@@ -136,4 +160,7 @@ if __name__ == "__main__":
     testSuite.addTest(Test_flGetStat('test_fileErrors'))
     testSuite.addTest(Test_flGetStat('test_flGetStat'))
     testSuite.addTest(Test_flConfigFile('test_flConfigFile'))
+    testSuite.addTest(Test_flSize('test_flSize'))
+    testSuite.addTest(Test_flSize('test_flSizeError'))
+    testSuite.addTest(Test_flModDate('test_flModDate'))
     unittest.TextTestRunner(verbosity=2).run(testSuite)

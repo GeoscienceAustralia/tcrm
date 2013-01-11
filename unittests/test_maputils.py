@@ -51,7 +51,11 @@ class TestMapUtils(NumpyTestCase.NumpyTestCase):
     lat = arange(0, -21, -1, 'd')
     lon = arange(130, 151, 1, 'd')
     theta = arange(-2.*pi,2.*pi,pi/4, 'd')
-
+    
+    findpts = [ 131.5, 135, 140., 140.9 ]
+    indices = [ 1, 5, 10, 11]
+    nearvals = [131.0, 135.0, 140.0, 141.0]
+    
     XN = array([-111.1251, -111.1251, -111.1251, -111.1251, -111.1251,
                 -111.1251, -111.1251, -111.1251, -111.1251, -111.1251, -111.1251,
                 -111.1251, -111.1251, -111.1251, -111.1251, -111.1251, -111.1251,
@@ -130,6 +134,26 @@ class TestMapUtils(NumpyTestCase.NumpyTestCase):
                 self.assertAlmostEqual(th, result + 2*pi)
             else:
                 self.assertAlmostEqual(th, result)
+
+    def test_findindex_Err(self):
+        """Test that find_index raises ValueError if second arg is an array"""
+        self.assertRaises(ValueError, maputils.find_index, self.lon, self.findpts)
+
+    def test_findindex(self):
+        """Test find_index function"""
+        for pt,idx in zip(self.findpts, self.indices):
+            i = maputils.find_index(self.lon, pt)
+            self.assertEqual(i,idx)
+
+    def test_findnearest(self):
+        """Test find_nearest function"""
+        for pt,val in zip(self.findpts, self.nearvals):
+            v = maputils.find_nearest(self.lon, pt)
+            self.assertEqual(v,val)
+
+    def test_findnearest_Err(self):
+        """Test that find_nearest raises ValueError if second arg is an array"""
+        self.assertRaises(ValueError, maputils.find_nearest, self.lon, self.findpts)
 
 #class TestInput(unittest.TestCase):
 #   xx=[1, 3, 5, 9, 11]
