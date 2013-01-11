@@ -297,7 +297,7 @@ def ncCreateVar(ncobj, varName, varDims, dtype, data=None, atts=None):
 
 
 
-def ncSaveGrid(filename, lon, lat, data, varname, units,
+def __ncSaveGrid(filename, lon, lat, data, varname, units,
                  lonunits='degrees_east', latunits='degrees_north',
                  nodata=-9999,longname=None,datatitle=None,dtype='f',
                  writedata=True, keepfileopen=False):
@@ -364,7 +364,7 @@ def ncSaveGrid(filename, lon, lat, data, varname, units,
     else:
         return ncobj
 
-def _ncSaveGrid(filename, dimensions, variables,
+def ncSaveGrid(filename, dimensions, variables,
                  nodata=-9999,datatitle=None,gatts=None,
                  dtype='f',writedata=True, 
                  keepfileopen=False,packed=False):
@@ -512,7 +512,13 @@ def _ncSaveGrid(filename, dimensions, variables,
         return ncobj
 
 def _setattr(var, key, value):
-    # Replace empty strings with None to prevent error when scipy writes to netcdf file
+    """
+    Replace empty strings with None to prevent error when scipy writes to netcdf file
+    Input: var - netCDF variable object. If setting a global attribute, this should
+                 be the netCDF object itself, rather than a variable object.
+           key - name of the attribute to set
+           value - value to assign to the attribute.
+    """
     if value == '':
         value = 'None'
     setattr(var, key, value)

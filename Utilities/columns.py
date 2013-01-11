@@ -26,9 +26,6 @@
  $Id: columns.py 642 2012-02-21 07:54:04Z nsummons $
 """
 import os, sys, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
 
 from config import cnfGetIniValue
 from GetType import GetType

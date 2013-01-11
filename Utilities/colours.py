@@ -40,6 +40,10 @@ from matplotlib.colors import LinearSegmentedColormap
 __version__ = '$Id: colours.py 642 2012-02-21 07:54:04Z nsummons $'
 
 def colourMap(cmapName, style, nclasses=1024):
+    """
+    Set up a series of additional colour maps for use
+    in TCRM and other applicaitons
+    """
     # Set up new colourmaps:
     # Blue through white to red cmap:
     cdict0 = {'red':((0.0,0.0,0.0),(0.475,1.0,1.0),(0.525,1.0,1.0),(1.0,0.9,0.9)),

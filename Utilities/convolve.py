@@ -27,9 +27,6 @@
  $Id: convolve.py 642 2012-02-21 07:54:04Z nsummons $
 """
 import os, sys, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
 
 import numpy
 from scipy import signal
@@ -37,10 +34,21 @@ from scipy import signal
 def getKernel(d,m,r=25.,h=5.):
     """
     Define an appropriate kernel for smoothing the data:
+
+    Input: d - direction - one of ['N','NE','E','SE','S','SW','W','NW']
+           m - multiplier type - either 'terrain' or 'shield'
+           r - resolution of the dataset (in metres) (default is 25)
+           h - nominal height of buildings, for use in evaluating the
+               shielding multiplier (default is 5)
+
+    Output: 2-d kernel to apply to the raw multiplier values to generate
+            directional multiplier values.
+
+    Example: g = getKernel( 'NE', 'terrain', 25., 5. )
     """
 
     if d not in ['N','NE','E','SE','S','SW','W','NW']:
-        raise ValueError
+        raise ValueError, "No valid direction provided"
 
     if m=="terrain":
         # We assume that the boundary layer develops over a 1 km distance:
@@ -117,6 +125,12 @@ def convolve(im, dir, m="terrain", res=25.,height=5.):
     res (float): resolution of the input grid dataset
     height (float): nominal height of the buildings to be used in evaluating
         the shielding multiplier.
+
+    Output: 2D array of convolved data (convolved with the appropriate kernel)
+            The output array is the same size as the input array, with 
+            boundary values set to be filled to a value of 1.0
+
+    Example: arr = convolve(im, 'NW', 'terrain', 25., 5. )
     """
     g = getKernel(dir,m,res,height)
     improc = signal.convolve2d(im, g, mode='same', boundary='fill',fillvalue=1.0)

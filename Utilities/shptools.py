@@ -82,7 +82,10 @@ def shpGetVertices(shpFile, keyName=None):
     for oid in xrange(nshapes):
         shpdata = shpfh.read_object(oid)
         dbfdata = dbffh.read_record(oid)
-        v = shpdata.vertices()[0]
+        nparts = len(shpdata.vertices())
+        v = []
+        for p in xrange(nparts):
+            v.append(shpdata.vertices()[p])
         if keyName and dbfdata.has_key(keyName):
             vertices[dbfdata[keyName]] = v
         else:

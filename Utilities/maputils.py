@@ -72,15 +72,9 @@ Version: $Rev: 686 $
 $Id: maputils.py 686 2012-03-29 04:24:59Z carthur $
 """
 
-
-#-----------------------------------------------------------------------
-# Imports:
-#-----------------------------------------------------------------------
 import os, sys, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
-from numpy import *
+
+import numpy
 import math
 import metutils
 import time
@@ -89,6 +83,7 @@ import time
 # does not appear to work on some systems.
 #from scipy import weave
 #from scipy.weave import converters
+
 __version__ = '$Id: maputils.py 686 2012-03-29 04:24:59Z carthur $'
 logger = logging.getLogger('maptools')
 #class MapToolError(Exception): pass
@@ -102,7 +97,7 @@ def xy2r(x, y):
 
     #if len(x) != len(y):
     #   raise ArrayMismatch, "Input array sizes do not match"
-    return sqrt(x**2 + y**2)
+    return numpy.sqrt(x**2 + y**2)
 
 def latLon2Azi(lat, lon, ieast=1, azimuth=0, wantdeg=True):
     """
@@ -142,12 +137,12 @@ def latLon2Azi(lat, lon, ieast=1, azimuth=0, wantdeg=True):
     ### 4th quadrant (yn > 0 xe < 0):  pi/2  <= angle <=  pi
     ###      Rule -1* + 5pi/2 maps to: 2pi               3pi/2
     ####################################################################
-    angle = arctan2(yn, xe) # yes, in that order
+    angle = numpy.arctan2(yn, xe) # yes, in that order
     bearing = [theta2bearing(i) for i in angle]
 
     # If bearing in degrees isexpected on return:
     if wantdeg:
-        bearing = array([math.degrees(i) for i in bearing], 'f')
+        bearing = numpy.array([math.degrees(i) for i in bearing], 'f')
 
     return bearing, length
 
@@ -161,12 +156,12 @@ def bear2LatLon(bearing, distance, oLon, oLat):
     oLat = math.radians(oLat)
     bear = math.radians(bearing)
 
-    nLat = math.asin(sin(oLat)*cos(distance/radius) + \
-            cos(oLat)*sin(distance/radius)*cos(bear))
-    aa = sin(bear)*sin(distance/radius)*cos(oLat)
-    bb = cos(distance/radius) - sin(oLat)*sin(nLat)
+    nLat = math.asin(numpy.sin(oLat)*numpy.cos(distance/radius) + \
+            numpy.cos(oLat)*numpy.sin(distance/radius)*numpy.cos(bear))
+    aa = numpy.sin(bear)*numpy.sin(distance/radius)*numpy.cos(oLat)
+    bb = numpy.cos(distance/radius) - numpy.sin(oLat)*numpy.sin(nLat)
 
-    nLon = oLon + arctan2(aa, bb)
+    nLon = oLon + numpy.arctan2(aa, bb)
 
     return math.degrees(nLon), math.degrees(nLat)
 
@@ -208,32 +203,46 @@ def latLon2XY(xr, yr, lat, lon, ieast=1, azimuth=0):
 
     radius = 6367.0 # Earth radius (km)
 
-    lat = radians(lat)
-    lon = radians(lon)
+    lat = numpy.radians(lat)
+    lon = numpy.radians(lon)
 
     # Is azimuth fixed or variable?
-    if size(azimuth) == 1:
-        angle = radians(azimuth)*ones(lat.size - 1)
+    ifnumpy. size(azimuth) == 1:
+        angle = numpy.radians(azimuth)*numpy.ones(lat.size - 1)
     else:
-        angle = radians(azimuth)
+        angle = numpy.radians(azimuth)
 
-    cosazi = cos(angle)
-    sinazi = sin(angle)
+    cosazi = numpy.cos(angle)
+    sinazi = numpy.sin(angle)
 
-    xntru = xr + radius*(diff(lat))
-    yetru = yr + ieast*radius*(diff(lon))*cos(lat[1:])
+    xntru = xr + radius*(numpy.diff(lat))
+    yetru = yr + ieast*radius*(numpy.diff(lon))*numpy.cos(lat[1:])
     xn = xntru*cosazi + yetru*sinazi
     ye = -xntru*sinazi + yetru*cosazi
 
     return xn, ye
 
 def distGC(lat, lon):
-    """Distance based on the great circle navigation
+    """
+    Distance based on the great circle navigation between pairs of points
+
+    Input:
+    lat - a pair of latitude values for the two points 
+    lon - a pair of longitude values for the two points
+
+    Output:
+    distance (in kilometres) between the two points, based on
+    great circle navigation
+
+    Example:
+
+    dist = distGC([-20, -40],[120,190])
+    
     """
     radius = 6367.0 # Earth radius (km)
 
-    lat = radians(lat)
-    lon = radians(lon)
+    lat = numpy.radians(lat)
+    lon = numpy.radians(lon)
 
     angular_distance = math.acos(math.sin(lat[0])*math.sin(lat[1]) + \
                        math.cos(lat[0])*math.cos(lat[1])*math.cos(lon[0] - lon[1]))
@@ -253,6 +262,25 @@ def gridLatLonDist(cLon, cLat, lonArray, latArray, units=None):
 
     Based on m_lldist.m by Rich Pawlowicz (rich@ocgy.ubc.ca)
     Modified by Craig Arthur 2006-11-13
+
+    Input:
+    cLon - longitude of the point to measure the distance from
+    cLat - latitude of the point to measure the distance from
+    lonArray - 1-d array of longitude values that will define the grid over
+               which distances will be calculated
+    latArray - 1-d array of latitude values that will define the grid over
+               which distances will be calculated
+    units - units of distance to be returned (default is kilometre)
+
+    Output:
+    dist - 2-d array containing the distance of the points defined in lonArray 
+           and latArray from the point (cLon, cLat)
+
+    Example:
+    lonArray = numpy.arange(90.,100.,0.1)
+    latArray = numpy.arange(-20.,-10.,0.1)
+    dist = gridLatLonDist( 105., -15., lonArray, latArray,'km') 
+
     """
 
     # #CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -318,18 +346,18 @@ def gridLatLonDist(cLon, cLat, lonArray, latArray, units=None):
 
     radius = 6367.0
 
-    lat = radians(latArray)
-    lon = radians(lonArray)
+    lat = numpy.radians(latArray)
+    lon = numpy.radians(lonArray)
 
     cLon = math.radians(cLon)
     cLat = math.radians(cLat)
-    lon_, lat_ = meshgrid(lon, lat)
+    lon_, lat_ = numpy.meshgrid(lon, lat)
 
     dLon= lon_ - cLon
     dLat= lat_ - cLat
 
-    a = square(sin(dLat/2.0)) + cos(cLat)*cos(lat_)*square(sin(dLon/2.0))
-    c = 2.0*arctan2(sqrt(absolute(a)), sqrt(1 - a))
+    a = numpy.square(numpy.sin(dLat/2.0)) + numpy.cos(cLat)*numpy.cos(lat_)*numpy.square(numpy.sin(dLon/2.0))
+    c = 2.0*numpy.arctan2(numpy.sqrt(numpy.absolute(a)),numpy. sqrt(1 - a))
     dist = radius*c
 
     dist = metutils.convert(dist, "km", units)
@@ -342,6 +370,23 @@ def gridLatLonBear(cLon, cLat, lonArray, latArray):
     (lonArray,latArray) from the point defined by (cLon,cLat).
     (lonArray,latArray) and (cLon,cLat) are in degrees.
     Returns bearing in radians.
+
+    Input:
+    cLon - longitude of the point to measure the bearing from
+    cLat - latitude of the point to measure the bearing from
+    lonArray - 1-d array of longitude values that will define the grid over
+               which bearings will be calculated
+    latArray - 1-d array of latitude values that will define the grid over
+               which bearingss will be calculated
+    
+    Output:
+    bear - 2-d array containing the bearing (direction) of the points defined in 
+           lonArray and latArray from the point (cLon, cLat)
+
+    Example:
+    lonArray = numpy.arange(90.,100.,0.1)
+    latArray = numpy.arange(-20.,-10.,0.1)
+    bear = gridLatLonBear( 105., -15., lonArray, latArray )
     """
 
     # #CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -402,20 +447,21 @@ def gridLatLonBear(cLon, cLat, lonArray, latArray):
                        # compiler = 'gcc')
     # #CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-    lat = radians(latArray)
-    lon = radians(lonArray)
+    lat = numpy.radians(latArray)
+    lon = numpy.radians(lonArray)
 
     cLon = math.radians(cLon)
     cLat = math.radians(cLat)
-    lon_, lat_ = meshgrid(lon, lat)
+    lon_, lat_ = numpy.meshgrid(lon, lat)
 
     dLon= lon_ - cLon
     #dLat= lat_ - cLat
 
-    alpha = sin(dLon)*cos(lat_)
-    beta = cos(cLat)*sin(lat_) - sin(cLat)*cos(lat_)*cos(dLon)
+    alpha = numpy.sin(dLon)*numpy.cos(lat_)
+    beta = numpy.cos(cLat)*numpy.sin(lat_) - \
+           numpy.sin(cLat)*numpy.cos(lat_)*numpy.cos(dLon)
 
-    bearing = arctan2(alpha,beta)
+    bearing = numpy.arctan2(alpha,beta)
 
     return bearing
 
@@ -425,18 +471,9 @@ def bearing2theta(bearing):
     into theta in cartesian coordinate system
     Assumes -2*pi <= bearing <= 2*pi
     """
-    theta = pi/2. - bearing
-    if (type(bearing) is ndarray) or (type(bearing) is list):
-        for i in xrange(len(bearing)):
-            if theta[i] > 2.*pi:
-                theta[i] -= 2.*pi
-            else:
-                pass
-
-    else:
-        if theta > 2.*pi:
-            theta = theta - 2.*pi
-
+    theta = numpy.pi/2. - bearing
+    theta = numpy.mod(theta, 2.*numpy.pi)
+    
     return theta
 
 def theta2bearing(theta):
@@ -446,44 +483,47 @@ def theta2bearing(theta):
     Assumes -2*pi <= theta <= 2*pi
     """
     bearing = 2.*pi - (theta - pi/2.)
-    if (type(theta) is ndarray) or (type(theta) is list):
-        for i in xrange(len(theta)):
-            if bearing[i] >= 2.*pi:
-                bearing[i] -= 2.*pi
-            elif bearing[i] < 0:
-                bearing[i] += 2.*pi
-            else:
-                pass
-    else:
-        if bearing >= 2.*pi:
-            bearing -= 2.*pi
-        elif bearing < 0:
-            bearing += 2.*pi
-        else:
-            pass
-
+    bearing = numpy.mod(bearing, 2.*numpy.pi)
+    
     return bearing
 
-def makeGrid(cLon, cLat, margin=2, resolution=0.01):
+def makeGrid(cLon, cLat, margin=2, resolution=0.01, minLon=None, maxLon=None,
+             minLat=None, maxLat=None):
     """
     Generate a grid of the distance and angle of a grid of points
     surrounding a storm centre given the location of the storm.
     The grid margin and grid size can be set in configuration files.
     xMargin, yMargin and gridSize are in degrees
     """
+    if type(cLon)==list or type(cLat)==list or type(cLon)==numpy.ndarray or type(cLat)==numpy.ndarray:
+        raise TypeError, "Input values must be scalar values"
 
     gridSize = int(resolution*100)
-    minLon = int(100*(cLon)) - int(100*margin)
-    maxLon = int(100*(cLon)) + int(100*margin) + 1
-    minLat = int(100*(cLat)) - int(100*margin)
-    maxLat = int(100*(cLat)) + int(100*margin) + 1
 
-    xGrid = array(arange(minLon, maxLon, gridSize), dtype=int)
-    yGrid = array(arange(minLat, maxLat, gridSize), dtype=int)
+    if minLon:
+        minLon_ = int(100*(minLon)) - int(100*margin)
+    else:
+        minLon_ = int(100*(cLon)) - int(100*margin)
+    if maxLon:
+        maxLon_ = int(100*(maxLon)) + int(100*margin) + 1
+    else:
+        maxLon_ = int(100*(cLon)) + int(100*margin) + 1
+    if minLat:
+        minLat_ = int(100*(minLat)) - int(100*margin)
+    else:
+        minLat_= int(100*(cLat)) - int(100*margin)
+    if maxLat:
+        maxLat_ = int(100*(maxLat)) + int(100*margin) + 1
+    else:
+        maxLat_= int(100*(cLat)) + int(100*margin) + 1
+
+    xGrid = numpy.array(numpy.arange(minLon, maxLon, gridSize), dtype=int)
+    yGrid = numpy.array(numpy.arange(minLat, maxLat, gridSize), dtype=int)
 
     R = gridLatLonDist(cLon, cLat, xGrid/100., yGrid/100.)
-    putmask(R, R==0, 1e-30)
-    theta = pi/2. - gridLatLonBear(cLon, cLat, xGrid/100., yGrid/100.)
+    numpy.putmask(R, R==0, 1e-30)
+    theta = numpy.pi/2. - gridLatLonBear(cLon, cLat, xGrid/100., yGrid/100.)
+
     return R, theta
 
 def makeGridDomain(cLon, cLat, minLon, maxLon, minLat, maxLat, margin=2, resolution=0.01):
@@ -492,26 +532,33 @@ def makeGridDomain(cLon, cLat, minLon, maxLon, minLat, maxLat, margin=2, resolut
     surrounding a storm centre given the location of the storm.
     The grid margin and grid size can be set in configuration files.
     xMargin, yMargin and gridSize are in degrees
-    """
 
+
+    """
+    if (type(cLon)==list or type(cLat)==list or 
+        type(cLon)==numpy.ndarray or type(cLat)==numpy.ndarray):
+        raise TypeError, "Input values must be scalar values"
     gridSize = int(resolution*100)
     minLon_ = int(100*(minLon)) - int(100*margin)
     maxLon_ = int(100*(maxLon)) + int(100*margin) + 1
     minLat_ = int(100*(minLat)) - int(100*margin)
     maxLat_ = int(100*(maxLat)) + int(100*margin) + 1
 
-    xGrid = array(arange(minLon_, maxLon_, gridSize), dtype=int)
-    yGrid = array(arange(minLat_, maxLat_, gridSize), dtype=int)
+    xGrid = numpy.array(numpy.arange(minLon_, maxLon_, gridSize), dtype=int)
+    yGrid = numpy.array(numpy.arange(minLat_, maxLat_, gridSize), dtype=int)
 
     R = gridLatLonDist(cLon, cLat, xGrid/100., yGrid/100.)
-    putmask(R, R==0, 1e-30)
-    theta = pi/2. - gridLatLonBear(cLon, cLat, xGrid/100., yGrid/100.)
+    numpy.putmask(R, R==0, 1e-30)
+    theta = numpy.pi/2. - gridLatLonBear(cLon, cLat, xGrid/100., yGrid/100.)
     return R, theta
 
 def meshLatLon(cLon, cLat, margin=2, resolution=0.01):
     """
     Create a meshgrid of the lon/lat grid.
     """
+    if (type(cLon)==list or type(cLat)==list or 
+        type(cLon)==numpy.ndarray or type(cLat)==numpy.ndarray):
+        raise TypeError, "Input values must be scalar values"
     gridSize = int(100*resolution)
 
     minLon = int(100*(cLon-margin))
@@ -519,10 +566,10 @@ def meshLatLon(cLon, cLat, margin=2, resolution=0.01):
     minLat = int(100*(cLat-margin))
     maxLat = int(100*(cLat+margin))+gridSize
 
-    xx = array(arange(minLon, maxLon, gridSize))
-    yy = array(arange(minLat, maxLat, gridSize))
+    xx = numpy.array(numpy.arange(minLon, maxLon, gridSize))
+    yy = numpy.array(numpy.arange(minLat, maxLat, gridSize))
 
-    xGrid,yGrid = meshgrid(xx, yy)
+    xGrid,yGrid = numpy.meshgrid(xx, yy)
     return xGrid/100., yGrid/100.
 
 def meshLatLonDomain(minLon, maxLon, minLat, maxLat, margin=2, resolution=0.01):
@@ -536,10 +583,10 @@ def meshLatLonDomain(minLon, maxLon, minLat, maxLat, margin=2, resolution=0.01):
     minLat_ = int(100*(minLat-margin))
     maxLat_ = int(100*(maxLat+margin))+gridSize
 
-    xx = array(arange(minLon_, maxLon_, gridSize))
-    yy = array(arange(minLat_, maxLat_, gridSize))
+    xx = numpy.array(numpy.arange(minLon_, maxLon_, gridSize))
+    yy = numpy.array(numpy.arange(minLat_, maxLat_, gridSize))
 
-    xGrid,yGrid = meshgrid(xx, yy)
+    xGrid,yGrid = numpy.meshgrid(xx, yy)
     return xGrid/100., yGrid/100.
 
 def dist2GC(cLon1, cLat1, cLon2, cLat2, lonArray, latArray, units="km"):
@@ -561,7 +608,7 @@ def dist2GC(cLon1, cLat1, cLon2, cLat2, lonArray, latArray, units="km"):
     #bearing of the cyclone:
     cyc_bear_ = latLon2Azi([cLon1, cLon2], [cLat1, cLat2])
 
-    dist2GC_ = asin(sin(dist_)*sin(bear_-cyc_bear_))
+    dist2GC_ = numpy.asin(sin(dist_)*numpy.sin(bear_-cyc_bear_))
 
     dist2GC = metutils.convert(dist2GC_, "rad", units)
     return dist2GC
@@ -572,6 +619,58 @@ def coriolis(lat):
     If a list is passed, return a list, else return a single value.
     """
     omega = 2*math.pi/24./3600.
-    f = 2*omega*sin(radians(lat))
+    f = 2*omega*numpy.sin(numpy.radians(lat))
 
     return f
+
+def find_index( array, value ):
+    """
+    Find the index of 'array' with a value closest to 'value'
+    Input:
+    array - numpy array of data values
+    value - a value to search the array for (or find the index of the nearest value to 'value'
+    
+    Output:
+    idx - integer representing the index of 'array' that most closely matches 'value'
+    
+    Example:
+    idx = find_index( numpy.arange(0.,100.,0.5), 15.25 )
+    """
+    if type( value )==numpy.ndarray or type( value )==list:
+        raise ValueError, "Value cannot be an array"
+
+    if ( value > array.max() ): 
+        # Value is above the largest value in the array - return the last index:
+        return len(array) - 1
+    elif ( value < array.min() ):
+        # Value is below minimum value in the array - return the first index:
+        return 0
+    else:
+        # argmin gives us the index corresponding to the minimum value of the array.
+        idx = ( abs( array - value ) ).argmin( )
+        return idx
+
+def find_nearest( array, value ):
+    """
+    Find the closest value in 'array' to 'value'
+    
+    Input:
+    array - numpy array of data values
+    value - a value to search the array for (or find the index of the nearest value to 'value'
+    
+    Output:
+    array[idx], where idx is the index of array that corresponds to the value closest to 'value'
+
+    Example:
+    n = find_nearest( numpy.arange(0,100.,0.5), 15.25 )
+    """
+    if type( value )==numpy.ndarray or type( value )==list:
+        raise ValueError, "Value cannot be an array"
+    idx = find_index( array, value )
+
+    try:
+        v = array[idx]
+    except IndexError:
+        raise
+    else:
+        return v

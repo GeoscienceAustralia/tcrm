@@ -27,9 +27,7 @@
  $Id: template.py 680 2012-03-19 01:52:37Z carthur $
 """
 import os, sys, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
+
 __version__ = '$Id: template.py 680 2012-03-19 01:52:37Z carthur $'
 
 import re

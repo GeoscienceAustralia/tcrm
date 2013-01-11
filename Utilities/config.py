@@ -30,9 +30,6 @@
 """
 
 import os, sys, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
 import time
 import ConfigParser
 from files import flConfigFile
@@ -49,6 +46,7 @@ def cnfCacheIniFile(configFile=None):
     dictionaries. Each dictionary in the parent dictionary is named
     after sections in the configuration file. Keys in the
     sub-directories are named by the options in each section.
+
     Input: configuration file name (optional, defaults to output from
            flConfigFile())
     Output: configuration dictionary
@@ -100,23 +98,32 @@ def cnfGetCachedIniValue(section, option):
     """
     Get the cached value of an option
     Assumes the global config_dict dictionary exists & is populated
+
     Input: section, option
     Output: value
+
+    Example: value = cnfGetCachedIniValue( section, option )
     """
-    if section in config_dict:
-        if option in config_dict[section]:
-            return config_dict[section][option]
+    try:
+        if section in config_dict:
+            if option in config_dict[section]:
+                return config_dict[section][option]
+            else:
+                return None
         else:
             return None
-    else:
-        return None
+    except ConfigParser.NoSectionError:
+        logger.exception("No {0} section in the configuration file".format(section))
+        raise 
 
 def cnfSetCachedIniValue(section, option, value):
     """
-    Set the cache value of an option
-    Assumes the global config_dict dictionary exists
+    Set the cached value of an option in the config_dict object
+    Assumes the global config_dict dictionary exists.
+
     Input: section, option, value
     Output: None
+    Example: cnfSetCachedIniValue( section, option, value )
     """
     if section in config_dict:
         if option in config_dict[section]:
@@ -162,6 +169,7 @@ def cnfGetIniList(configFile, section, first=1, last=None):
     Input: ini file name, section, first value (optional, default 1)
     Output: list, or number of values in scalar context
     Example: out = cnfGetIniList(fileName, section, first=1, last=None)
+
     First value defaults to 1. Last is the last value which will be
     tried.  Allows gaps in the sequence, but there should not be
     duplicate values (we can't define which would be retrieved!).
@@ -174,7 +182,13 @@ def cnfGetIniList(configFile, section, first=1, last=None):
     cp.optionxform = str
     cp.readfp(FH)
     values = []
-    options = cp.options(section)
+    try:
+        options = cp.options(section)
+    except ConfigParser.NoSectionError:
+        logger.exception("No section named {0} in configuration file {1}".format(section, configFile))
+        FH.close()
+        raise
+
     options = [int(o) for o in options]
     options.sort()
     for opt in options:
@@ -212,6 +226,7 @@ def cnfGetIniFileValue(configFile, section, option, default=None):
     adverse effects if you make changes to the config file while a
     program is running. Optionally takes a default value to return if
     the option is not in the configuration file.
+
     Input: configuration file name, section name, option name, default
     value.
     Output: value directly from the configuration file.
@@ -225,7 +240,13 @@ def cnfGetIniFileValue(configFile, section, option, default=None):
     cp = ConfigParser.ConfigParser()
     cp.optionxform = str
     cp.readfp(FH)
-    sections = cp.sections()
+    try:
+        sections = cp.sections()
+    except ConfigParser.NoSectionError:
+        logger.exception("No section named {0} in configuration file {1}".format(section, configFile))
+        FH.close()
+        raise
+
     if section in sections:
         options = cp.options(section)
         if option in options:
@@ -249,9 +270,11 @@ def cnfGetIniFileValue(configFile, section, option, default=None):
 def cnfGetUnorderedList( configFile, section ):
     """
     Get a list of unordered values in the given section.
+
     Input: ini file name, section
     Output: list, or number of values in scalar context
     Example: out = cnfGetUnorderdedList( filename, section )
+
     This function requires a different approach to reading 
     the configuration file, as ConfigParser in Python versions
     prior to 2.7 cannot handle options with no value. The workaround
@@ -260,6 +283,7 @@ def cnfGetUnorderedList( configFile, section ):
     Lists of unordered values are included in the dict with the 
     key and subkey equal to the section name.
     i.e. cfgDict[ section ][ section ] = [list]
+
 
     """
     sect = None
@@ -313,6 +337,11 @@ def _cnfCacheIniFile( filename ):
     The disadvantage of this is that all values are treated as strings
     and so type checking/conversion will need to be performed in the
     calling program.
+
+    Input: configuration file name (optional, defaults to output from
+           flConfigFile())
+    Output: configuration dictionary
+    Example: config_dict = _cnfCacheIniFile(configFile)
     """
     section = None
     
@@ -358,4 +387,14 @@ def _cnfCacheIniFile( filename ):
     return cfgDict
 
 def cnfRefreshCachedIniFile( configFile ):
+    """
+    Reload a configuration file into the configuration 
+    dictionary. This will replace all values with the values from 
+    the file, so use with caution as the input configuration file
+    may have been changed.
+    
+    Input: ini file name
+    Output: None. The config_dict object is updated
+    Example: cnfRefreshCachedIniFile( configFile )
+    """
     config_dict = cnfCacheIniFile( configFile )

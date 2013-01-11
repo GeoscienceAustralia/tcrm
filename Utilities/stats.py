@@ -299,3 +299,8 @@ def statCellFraction(gridLimit, gridSpace, valueFile):
         else:
             output[cellNum] = average(cellValues)/abs(cellValues).max()
     return output
+
+def probability(return_period):
+    """Return an annual probability given a return period"""
+    p = 1.0 - exp(-1.0/return_period)
+    return p

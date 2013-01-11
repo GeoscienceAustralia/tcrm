@@ -44,9 +44,7 @@
 $Id: files.py 685 2012-03-29 04:22:32Z carthur $
 """
 import os, sys, pdb, logging, traceback
-filename = os.environ.get( 'PYTHONSTARTUP' )
-if filename and os.path.isfile( filename ):
-    execfile( filename )
+
 try:
     import hashlib
     md5_constructor = hashlib.md5
@@ -68,7 +66,13 @@ logger = logging.getLogger( )
 def flModulePath(level=1):
     """
     Get the path of the module <level> levels above this function
-    Default: level = 1 (function calling flModulePath)
+
+    Input: level - level in the stack of the module calling this function
+           (default = 1, function calling flModulePath)
+    Output: path, basename and extension of the file containing the module
+    Example: path, base, ext = flModulePath( )
+             Calling flModulePath() from "/foo/bar/baz.py" produces the result
+             "/foo/bar", "baz", ".py"
     """
     filename = os.path.realpath( sys._getframe( level ).f_code.co_filename )
     path, fname = os.path.split( filename )
@@ -79,16 +83,26 @@ def flModulePath(level=1):
 def flModuleName(level=1):
     """
     Get the name of the module <level> levels above this function
-    Default: level = 1 (function calling flModuleName)
+
+    Input: level - level in the stack of the module calling this function
+           (default = 1, function calling flModuleName)
+    Output: module name (as str)
+    Example: mymodule = flModuleName( )
     """
     package = sys._getframe( level ).f_code.co_name
     return package
 
 def flProgramVersion(level=len( inspect.stack( ) ) - 1 ):
-    """flProgramVersion:
+    """
     Function to return the __version__ string from the parent
     program, where it is defined.
     If it is not defined, return an empty string.
+    
+    Input: level - level in the stack of the main script 
+           (default = maximum level in the stack)
+    Output: version string (defined as the __version__ global variable)
+
+    Example: my_program_version = flProgramVersion( )
     """
     f = sys._getframe( level )
     if f.f_globals.has_key( '__version__' ):
@@ -103,6 +117,7 @@ def flLoadFile(fname, comments='%', delimiter=None, skiprows=0):
     Code originated from pylab.py in matplotlib
     by John D. Hunter <jdhunter@ace.bsd.uhicago.edu>
     modified by Geoff Xu, 2005
+
     Input: filename, comment indicator, delimiter, skiprows
     Output: array of data, each column represents the columns in the
             input file
@@ -134,6 +149,7 @@ def flLoadFile(fname, comments='%', delimiter=None, skiprows=0):
         fh = fname
     else:
         logger.error( 'Filename must be a string or file handle' )
+        raise IOError( 'Filename must be a string or file handle' ) 
         flLogFatalError( traceback.format_exc( ).splitlines( ) )
     data = []
     i = -1
@@ -171,6 +187,7 @@ def flSaveFile(filename, data, header=None, delimiter=' ', fmt='%.18e'):
     data to strings, originated from pylab.py in matplotlib
     by John D. Hunter <jdhunter@ace.bsd.uhicago.edu>
     modified by Geoff Xu, 2006
+
     Input: filename, array of data, header line (default=None),
            delimiter (default=' '), format string (default='%.18e')
     Output: None
@@ -193,9 +210,18 @@ def flSaveFile(filename, data, header=None, delimiter=' ', fmt='%.18e'):
     if type( filename ) == str:
         if fname.endswith( '.gz' ):
             import gzip
-            fh = gzip.open( filename, 'wb' )
+            try:
+                fh = gzip.open( filename, 'wb' )
+            except IOError: 
+                logger.exception( 'Cannot open %s'%( filename ) )
+                flLogFatalError( traceback.format_exc( ).splitlines( ) )
         else:
-            fh = open( filename, 'w' )
+            try:
+                fh = open( filename, 'w' )
+            except IOError:
+                logger.exception( 'Cannot open %s'%( filename ) )
+                flLogFatalError( traceback.format_exc( ).splitlines( ) )
+
     elif hasattr( filename, 'seek' ):
         fh = filename
     else:
@@ -222,7 +248,8 @@ def flSaveFile(filename, data, header=None, delimiter=' ', fmt='%.18e'):
                 raise TypeError, "Mismatch between format string and values in _write"
         except ValueError:
             logger.exception( "Cannont write data to file" )
-            raise
+            flLogFatalError( traceback.format_exc( ).splitlines( ) )
+            raise ValueError( "Cannont write data to file" )
 
     fh.close( )
     if origShape is not None:
@@ -234,6 +261,7 @@ def flGetStat(filename, CHUNK=2**16):
     Get basic statistics of filename - namely directory, name (excluding
     base path), md5sum and the last modified date. Useful for checking
     if a file has previously been processed.
+
     Input: filename, chunk size (for md5sum calculation)
     Output: path, name, md5sum, modification date
     Example: dir, name, md5sum, moddate = flGetStat(filename)
@@ -276,12 +304,18 @@ def flConfigFile(extension='.ini', prefix='', level=len(inspect.stack())):
     name and path of the function/module calling this function. Can also
     be useful for setting log file names automatically.
     If prefix is passed, this is preprended to the filename.
+
     Input: extension (default=.ini), prefix (default is empty)
     Output: Full path of calling function/module, with the source file's
     extension replaced with extension, and optionally prefix inserted
     after the last path separator
     Example: configFile = flConfigFile('.ini')
+             Calling flConfigFile from /foo/bar/baz.py should 
+             return /foo/bar/baz.ini
     """
+    if level is None:
+        level = len(inspect.stack())
+
     path, base, ext = flModulePath( level )
     config_file = os.path.join( path, prefix + base + extension )
     config_file = config_file.replace( os.path.sep, '/' )
@@ -291,6 +325,7 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
     """
     Start logging to logFile all messages of logLevel and higher.
     Setting verbose=True will report all messages to STDOUT as well
+
     Input: logFile - full path to log file
            logLevel - string specifiying one of the standard Python logging
                levels ('NOTSET','DEBUG','INFO','WARNING','ERROR','CRITICAL')
@@ -362,7 +397,14 @@ def flLogFatalError(tblines):
     sys.exit( )
 
 def flModDate(filename, dateformat='%Y-%m-%d %H:%M:%S'):
-    """flModDate: return the update date of a file"""
+    """
+    Return the update date of the input file
+
+    Input: filename - file name (full path)
+           dateformat - (optional) format string for the date
+    Output: File modification date/time as a string
+    Example: modDate = flModDate( 'C:/foo/bar.csv' , dateformat='%Y-%m-%dT%H:%M:%S' )
+    """
     try:
         si = os.stat( filename )
     except IOError:
@@ -373,7 +415,13 @@ def flModDate(filename, dateformat='%Y-%m-%d %H:%M:%S'):
     return time.strftime( dateformat, moddate )
 
 def flSize(filename):
-    """Return the size of a file in bytes"""
+    """
+    Return the size of the input file in bytes
+    
+    Input: filename - file name (full path)
+    Output: file size in bytes
+    Example: file_size = flSize( 'C:/foo/bar.csv' )
+    """
     try:
         si = os.stat( filename )
     except IOError:

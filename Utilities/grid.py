@@ -43,9 +43,7 @@ Modification: Standardised function names
 $Id: grid.py 685 2012-03-29 04:22:32Z carthur $
 """
 import os, sys, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
+
 import numpy
 import threading
 from lat_long_UTM_conversion import LLtoUTM, UTMtoLL
@@ -84,7 +82,10 @@ def grdSave(filename, data, lon, lat, delta, delimiter=' ', nodata=-9999,
     elif hasattr(filename, 'seek'):
         fh = filename
     else:
-        raise ValueError('Filename must be a string or file handle')
+        try:
+            fh = open(filename,'w')
+        except:
+            raise ValueError('Filename must be a string or file handle')
 
     if coords == 'UTM':
         zone, xllcorner, yllcorner = LLtoUTM(lat.min(),lon.min())
@@ -252,8 +253,18 @@ class SampleGrid:
 
     def sampleGrid(self, lon, lat):
         """sampleGrid(self, lon, lat):
-        Grab nearest value to given location.
-        No interpolation performed!
+        Sample a value from the grid at the given cLon, cLat
+        At this time, does not interplolate from the input grid to the given location
+        
+        Input: lon - longitude of the point to sample
+               lat - latitude of the point to sample
+        Output: value of the nearest grid point to the given lon/lat point
+        
+        Example:
+        
+        grid = SampleGrid( '/foo/bar/grid.nc' )
+        value = grid.sampleGrid( 100., -25. )
+
         """
         indi = self.lon.searchsorted(lon)
         indj = self.lat.searchsorted(lat)

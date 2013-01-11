@@ -14,9 +14,6 @@
 """
 
 import os, sys, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
 
 import numpy
 from datetime import datetime
@@ -27,14 +24,119 @@ from columns import colReadCSV
 from config import cnfGetIniValue
 from grid import SampleGrid
 
+__version__ = "$Id$"
+
 logger = logging.getLogger()
+
+def maxWindSpeed(indicator, deltatime, lon, lat, pressure, penv, gf=0.9524):
+    """
+    Calculate the 10-minute-mean maximum wind speed from the central
+    pressure deficit, using the method described in Holland et al. (2010)
+    
+    Input: indicator - array (values of 1 or 0) indicating the beginning of
+               a new TC in the input dataset;
+           deltatime - time difference (in hours) between each point in the 
+               record;
+           lon - array of longitudes of TC positions
+           lat - array of latitides of TC positions
+           pressure - central pressure estimates of TCs
+           penv - environmental pressure values
+           gf - gust factor - default value represents converting from a
+               1-minute sustained wind speed to a 10-minute mean wind speed.
+               Based on Harper et al. 2010, WMO-TD1555
+
+    Output: array of estimated wind speed based on estimated central pressure.
+           
+    Example: v = maxWindSpeed(indicator, dt, lon, lat, pressure, penv)
+           
+    """
+
+    # Speed and bearing:
+    bear_, dist_ = maputils.latLon2Azi(lat, lon, 1, azimuth=0)
+    assert bear_.size == indicator.size - 1
+    assert dist_.size == indicator.size - 1
+    bearing = numpy.zeros(indicator.size, 'f')
+    bearing[1:] = bear_
+    numpy.putmask(bearing, indicator, 0)
+
+    dist = numpy.zeros(indicator.size, 'f')
+    dist[1:] = dist_
+    speed = dist/deltatime
+    # Delete speeds less than 0, greated than 200,
+    # or where indicator == 1.
+    numpy.putmask(speed, (speed < 0) | (speed > 100) | indicator, 0)
+    numpy.putmask(speed, numpy.isnan(speed), 0)
+    speed = metutils.convert(speed, 'kmh','mps')
+
+    # Pressure deficit:
+    dp = penv - pressure
+
+    # Pressure rate of change
+    _dpt = numpy.diff(pressure)
+    dpt = numpy.zeros(indicator.size,'f')
+    dpt[1:] = _dpt
+    dpdt = dpt/deltatime
+    numpy.putmask(dpdt, indicator, 0)
+    numpy.putmask(dpdt, numpy.isnan(dpdt) | numpy.isinf(dpdt) , 0)
+    
+    
+    # Estimated pressure at the radius of maximum wind:
+    prmw = pressure + dp/3.7
+
+    # Calculate thermodynamic variables at RMW:
+    ts = 28.0 - 3*(numpy.abs(lat) - 10.)/20.
+    qm = 0.9*(3.802/prmw)*numpy.exp(17.67*ts/(243.5+ts))
+    tvs = (ts+273.15)*(1.+0.81*qm)
+    rho = prmw*100./(tvs*287.04)
+
+    x = 0.6*(1.0 - dp/215.)
+    bs = -0.000044*numpy.power(dp,2.) + \
+         0.01*dp + 0.03*dpdt -0.014*numpy.abs(lat) + \
+         0.15*numpy.power(speed,x)+ 1. 
+
+    # gf is the gust factor. Holland's P-W relation derives a 
+    # 1-minute mean wind speed, so we often need to convert to 
+    # some other averaging period. 
+    # I use the recommendations of Harper et al. (2010) WMO TD-1555:
+    # Common values are( Assuming "At-sea" conditions):
+    # 10-min mean: 0.95 (default)
+    # 3-second gust: 1.11
+
+    v = gf*numpy.sqrt(dp*100*bs/(rho*numpy.exp(1.))) 
+
+    numpy.putmask(v, (numpy.isnan(v) | numpy.isinf(v) | (pressure>=sys.maxint) ), 0)
+
+    return v
 
 def loadTrackFile(configFile, trackFile, source, missingValue=0):
     """
     Load TC track data from the given input file, from a specified source.
     The configFile is a configuration file that contains a section called
     'source' that describes the data.
-    This returns a series of arrays containing the data. See the return line
+    This returns a series of arrays containing the data. See the return line for the 
+    common names of the data returned.
+
+    Input:
+    configFile: configuration file with a section 'source'
+    trackFile:  path to a csv-formatted file containing TC data
+    source:     string describing the source format of the TC data. There *must* be 
+                a section in 'configFile' matching this string, containing the 
+                details of the format of the data
+    missingValue: replace all null values in the input data with this value (default=0)
+    calculateWindSpeed: Boolean (default True), calculate maximum wind speed using 
+                a pressure-wind relation described in maxWindSpeed()
+
+    Output:
+    A series of arrays with the required variables for use in TCRM:
+        indicator, year, month, day, hour, minute, lon, lat, pressure, speed, bearing, 
+        windspeed, rmax, penv
+    If any of these variables are not present in the input dataset, they 
+    are (where possible) calculated (date/time/windspeed), sampled from default 
+    datasets (e.g. environmental pressure) or set to the missing value.
+
+    Example:
+    indicator,year,month,day,hour,minute,lon,lat,pressure,speed,bearing,windspeed,rmax,penv = loadTrackFile('tcrm.ini', 'IBTRaCS.csv', 'IBTrACS' )
+
     """
     logger.debug("Loading %s"%trackFile)
     inputData = colReadCSV(configFile, trackFile, source, nullValue=missingValue )
@@ -116,6 +218,11 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0):
             month = numpy.array(inputData['month'], 'i')
             day = numpy.array(inputData['day'], 'i')
             hour = numpy.array(inputData['hour'], 'i')
+            # Occasionally, hours are stored in UTC format, where the minutes are appended
+            if hour.max()>=100:
+                minute = numpy.mod(hour,100)
+                hour = hour/100
+
             try:
                 year = numpy.array(inputData['year'], 'i')
             except:
@@ -259,6 +366,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0):
     # or where indicator == 1.
     numpy.putmask(speed, (speed < 0) | (speed > 200) | indicator, sys.maxint)
     numpy.putmask(speed, numpy.isnan(speed), sys.maxint)
-
+    if calculateWindSpeed:
+        windspeed = maxWindSpeed(indicator, dt, lon, lat, pressure, penv)
 
     return indicator,year,month,day,hour,minute,lon,lat,pressure,speed,bearing,windspeed,rmax,penv

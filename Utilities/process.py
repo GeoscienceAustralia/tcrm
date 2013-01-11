@@ -33,9 +33,6 @@
  $Id: process.py 642 2012-02-21 07:54:04Z nsummons $
 """
 import os, sys, time, pdb, logging
-filename = os.environ.get( 'PYTHONSTARTUP' )
-if filename and os.path.isfile(filename):
-    execfile( filename )
 
 from files import flGetStat, flModDate
 __version__ = '$Id: process.py 642 2012-02-21 07:54:04Z nsummons $'
@@ -268,7 +265,7 @@ def pArchiveFile( filename ):
             pass
         else:
             try:
-                os.path.mkdir( archive_dir )
+                os.makedirs( archive_dir )
             except:
                 logger.critcal( "Cannot create %s"%( archive_dir ) )
                 raise

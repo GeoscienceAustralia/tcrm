@@ -53,21 +53,28 @@ import metutils
 
 __version__ = '$Id: interpTrack.py 685 2012-03-29 04:22:32Z carthur $'
 
-def usage():
-    print "interpTrack.py:"
+__doc__ = """Interpolates an historic TC track to a shorter time \
+interval, for use in modelling a scenario event in TCRM.  
+
+As an example, the csv data for TC Tracy is included in at \
+the bottom of this file."""
+
+def ShowSyntax( exit_code=0 ):
+    print sys.argv[0]
     print "Interpolate the observed points of a tropical cyclone temporally"
     print "for use in modelling a scenario event in TCRM"
     print "Example usage:"
-    print "interpTrack.py -c <config file> -l <log file> -v"
+    print "{0} -c <config file> -l <log file> -v".format( sys.argv[0] )
     print ""
     print "Options:"
     print "-h, --help:   prints this help message"
-    print "-c, --config: configuration path (default value is interpTrack.ini)"
-    print "-l --logfile: path to log file to record actions (default value is interpTrack.log)"
+    print "-c, --config: configuration path (default value is {0})".format( flConfigFile( ) )
+    print "-l --logfile: path to log file to record actions (default value is {0})".format( flConfigFile( ".log" ) )
     print "-v --verbose: True|False - print all logging messages to the screen"
     print ""
     print "Created by Craig Arthur, 2007-10-25 9:51:AM"
     print __version__
+    sys.exit( exit_code )
 
 def main(argv):
     "Main part of the program"
@@ -118,8 +125,23 @@ def main(argv):
 
 def interpolateTrack(configFile,trackFile,source,delta=0.1,interpolation_type=None):
     """
-    interpTrack:
-    interpolate the data in a track file to the time interval delta hours
+    Interpolate the data in a track file to the time interval delta hours. 
+    
+    Input:
+    configFile - configuration file that contains information on the source
+                 format of the track file
+    trackFile - path to csv format track file
+    source - string identifying the data source. There must be a corresponding
+             section in the configuration file that contains the description
+             of the data
+    delta - time interval in hours to interpolate to. Default is 0.1 hours
+    interpolation_type - optionally use Akima or linear interpolation for the track
+             positions. Default is linear 1-dimensional spline interpolation.
+
+    Output:
+    Returns 10 arrays (id, time, date, lon, lat, bearing, forward speed, central 
+    pressure, environmental pressure and radius to maximum wind) that describe the
+    track at delta hours intervals.
     """
     logger = logging.getLogger()
     indicator,year,month,day,hour,minute,lon,lat,pressure,speed,bearing,windspeed,rmax,penv = loadTrackFile(configFile,trackFile,source)

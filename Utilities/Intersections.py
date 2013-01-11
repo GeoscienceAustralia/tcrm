@@ -19,7 +19,7 @@
  Title: Intersections.py
  Author: Craig Arthur, craig.arthur@ga.gov.au
  CreationDate: 2007-03-13
- Description: Functions to determine
+ Description: Functions to determine line intersections for polygons and line features
  Reference:
  SeeAlso:
  Constraints:
@@ -31,11 +31,13 @@
 
  $Id: Intersections.py 685 2012-03-29 04:22:32Z carthur $
 """
+
 import os, math, numpy, pdb
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
+
 __version__ = '$Id: Intersections.py 685 2012-03-29 04:22:32Z carthur $'
+
+__doc__ = """ Functions to determine line intersections for polygons and line features """
+
 def convert2vertex(a1, a2):
     """
     Converts 2 1D arrays into a list of Points
@@ -122,17 +124,17 @@ def _isLeft(P0, P1, P2):
 
 class Intersection:
     """
-    Description:
-    Parameters:
-    Members:
-    Methods:
-    Internal Methods:
+    Description: Intersection object
+    Parameters: None
+    Members: status (string) and points (list)
+    Methods: None
+    Internal Methods: None
 
     """
 
     def __init__(self, state = None):
         """
-        Initialise required fields
+        Initialise the members of the object
         """
         self.status = state
         self.points = []
@@ -140,16 +142,20 @@ class Intersection:
 
 class Crossings:
     """
-    Description:
-    Parameters:
-    Members:
-    Methods:
-    Internal Methods:
+    Description: 
+    Parameters: None
+    Members: 
+    Methods: CircleLine
+             CirclePolygon
+             LineLine
+             LinePolygon
+
+    Internal Methods: lerp
     """
 
     def __init__(self):
         """
-        Initialise required fields
+        Initialise required fields - none required
         """
 
     def __doc__(self):
@@ -160,7 +166,20 @@ class Crossings:
 
     def CircleLine(self, c, r, a1, a2):
         """
-        Short description:
+        Determine the intersection points of a circle and a line segment
+
+        Input: c - Point object describing the centre of the circle
+               r - radius of the circle in map units
+               a1, a2 - Point objects describing the start and end of the line segment
+        Output: Intersection object - "Inside" means the line segment is wholly contained
+                                      within the circle; "Outside" means the line segment
+                                      is wholly outside the circle; "Intersection" means 
+                                      means the line intersects the circle. In this final
+                                      case, the points attribute of the Intersection object
+                                      is populated with a Point object of the location of 
+                                      the intersection.
+
+        Example: 
         """
 
         a = (a2.x - a1.x) * (a2.x - a1.x) + (a2.y - a1.y) * (a2.y - a1.y)

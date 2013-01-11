@@ -14,10 +14,23 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Title: compile.py
+Author: Nicholas Summons, nicholas.summons@ga.gov.au
+
+
+Version: $Rev$
+
+
+$Id$
+
 """
 import os, sys
 import numpy
 import platform
+
+
+__version__ = '$Id$'
 
 operatingSystem = platform.system()
 pythonPath = sys.prefix
