@@ -189,7 +189,7 @@ class WindfieldInterface:
                         'values':array(pressure),'dtype':'f',
                         'atts':{'long_name':'Minimum air pressure at sea level',
                                 'units':'hPa'} } }
-        nctools._ncSaveGrid(os.path.join(self.outputPath,'tc.nc'), dimensions, variables)
+        nctools.ncSaveGrid(os.path.join(self.outputPath,'tc.nc'), dimensions, variables)
 
         # Plot up the final results for verifying the output:
         if plotOutput:
@@ -227,9 +227,8 @@ class WindfieldInterface:
                 data = self._loadFile(inputFile)
                 outputFile = os.path.join(self.outputPath, 'gust.%04d.nc'%n)
                 speed, UU, VV, pressure, lon, lat = self.WF.calcwind(data, False)
-                nctools.ncSaveGrid(outputFile, lon, lat, speed, 'vmax', 'm/s',longname='Maximum 3-second gust wind speed')
+                #nctools.ncSaveGrid(outputFile, lon, lat, speed, 'vmax', 'm/s',longname='Maximum 3-second gust wind speed')
 
-                """
                 inputFileDate = flModDate( inputFile )
                 gatts = {'history':'TCRM hazard simulation - synthetic event wind field',
                          'version':flProgramVersion( ),
@@ -248,9 +247,8 @@ class WindfieldInterface:
                                 'values':numpy.array(speed),'dtype':'f',
                                 'atts':{'long_name':'Maximum 3-second gust wind speed',
                                         'units':'m/s'} } }
-                nctools._ncSaveGrid(os.path.join(self.outputPath,'gust.%04d.nc'%n), 
+                nctools.ncSaveGrid(os.path.join(self.outputPath,'gust.%04d.nc'%n),
                                     dimensions, variables, gatts=gatts)
-                """
 
                 if cnfGetIniValue(self.configFile, 'WindfieldInterface',
                                   'PlotOutput', False):

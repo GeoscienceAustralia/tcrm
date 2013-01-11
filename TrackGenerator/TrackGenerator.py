@@ -297,14 +297,14 @@ class TrackGenerator:
                                                   os.path.join(self.processPath, 'all_lon_lat'),
                                                   self.gridLimit, self.gridSpace,
                                                   self.gridInc, minSample=100,
-                                                  missingValue=self.missingValue, 
+                                                  missingValue=self.missingValue,
                                                   progressbar=progressbar, prgStartValue=0, prgEndValue=0.075)
 
         self.pStats = generateStats.GenerateStats(self.configFile, os.path.join(self.processPath, 'all_pressure'),
                                                   os.path.join(self.processPath, 'all_lon_lat'),
                                                   self.gridLimit, self.gridSpace,
                                                   self.gridInc, minSample=100,
-                                                  missingValue=self.missingValue, 
+                                                  missingValue=self.missingValue,
                                                   progressbar=progressbar, prgStartValue=0.075, prgEndValue=0.15)
 
         self.bStats = generateStats.GenerateStats(self.configFile, os.path.join(self.processPath, 'all_bearing'),
@@ -323,7 +323,7 @@ class TrackGenerator:
         self.dpStats = generateStats.GenerateStats(self.configFile, os.path.join(self.processPath,'pressure_rate'),
                                                    os.path.join(self.processPath,'all_lon_lat'),
                                                    self.gridLimit, self.gridSpace, self.gridInc,
-                                                   minSample=100, missingValue=self.missingValue, 
+                                                   minSample=100, missingValue=self.missingValue,
                                                    progressbar=progressbar, prgStartValue=0.225, prgEndValue=0.30)
 
         #self.dbStats = generateStats.GenerateStats(self.configFile, os.path.join(self.processPath,'bearing_rate'),
@@ -345,10 +345,10 @@ class TrackGenerator:
         all self.numCyclones events will be the defined point
         """
         self.logger.debug('Generating %d tropical cyclone tracks'%nEvents)
-        
+
         # Initialise array to prevent error when nEvents=0
         results = []
-        
+
         for j in xrange(1, nEvents + 1):
             if (j % (nEvents/100.)) == 0. and j != 0.:
                 self.logger.debug('Processed %i cyclones'%j)
@@ -950,9 +950,9 @@ class TrackGenerator:
                                 'units':'hPa/h'} } }
 
         outputFile = os.path.join(self.processPath,'coefficients.nc')
-        nctools._ncSaveGrid(outputFile, dimensions, variables,
-                            nodata=self.missingValue,datatitle=None,dtype='f',
-                            writedata=True, keepfileopen=False)
+        nctools.ncSaveGrid(outputFile, dimensions, variables,
+                           nodata=self.missingValue,datatitle=None,dtype='f',
+                           writedata=True, keepfileopen=False)
 
 if __name__ == "__main__":
     try:

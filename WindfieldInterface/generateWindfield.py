@@ -207,9 +207,9 @@ class generateWindfield:
             # write data to the file:
             outputFile = os.path.join(self.outputPath,'tcrm.nc')
             self.logger.info("Creating output file: %s"%outputFile)
-            ncobj = nctools._ncSaveGrid(outputFile, dimensions, variables,
-                                        nodata=missingValue,writedata=False,
-                                        dtype='d',keepfileopen=True)
+            ncobj = nctools.ncSaveGrid(outputFile, dimensions, variables,
+                                       nodata=missingValue,writedata=False,
+                                       dtype='d',keepfileopen=True)
 
             # Create the variable objects:
             gust_varobj = ncobj.variables['vmax']

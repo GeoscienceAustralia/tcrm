@@ -169,10 +169,10 @@ class HazardInterface:
                  'number_simulations':self.nsim,
                  'minimum_records':self.minRecords}
         # Create output file for return-period gust wind speeds and GEV parameters
-        self.nc_obj = nctools._ncSaveGrid(os.path.join(self.outputPath,'hazard.nc'),
-                                          dimensions, variables,  nodata=self.nodata,
-                                          datatitle='TCRM hazard simulation',gatts=gatts,
-                                          writedata=False,dtype='d',keepfileopen=True)
+        self.nc_obj = nctools.ncSaveGrid(os.path.join(self.outputPath,'hazard.nc'),
+                                         dimensions, variables,  nodata=self.nodata,
+                                         datatitle='TCRM hazard simulation',gatts=gatts,
+                                         writedata=False,dtype='d',keepfileopen=True)
 
     def calculateWindHazard(self):
         """
@@ -334,18 +334,6 @@ class HazardInterface:
                     RpLower[:,i,j] = wLower
         return RpUpper, RpLower
 
-
-    def _create_output_files(self, lat, lon):
-        """
-        Create netcdf output files for entering hazard data.
-        Note: this step is required when processing with spatial subsets.
-        """
-        nc_objs = []
-        for (i, y) in enumerate(self.years):
-            ncFileName = os.path.join(self.outputPath, "v%d.nc"%(y))
-            nc_objs.append(nctools.ncSaveGrid(ncFileName, lon, lat, array(self.nodata), 'windspd', 'm/s', nodata=self.nodata,
-                                          writedata=False, keepfileopen=True))
-        return nc_objs
 
     def _return_subset_edges(self, x_dim, y_dim, x_step=10, y_step=10):
         """

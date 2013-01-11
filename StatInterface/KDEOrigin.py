@@ -76,7 +76,7 @@ import Utilities.KPDF as KPDF
 from Utilities.files import flLoadFile, flStartLog
 from Utilities.config import cnfGetIniValue
 from Utilities.grid import grdSave
-from Utilities.nctools import ncSaveGrid, _ncSaveGrid
+from Utilities.nctools import ncSaveGrid
 from Utilities.plotField import plotField
 
 
@@ -210,12 +210,11 @@ class KDEOrigin:
                              'values':numpy.array(pdf),'dtype':'f',
                              'atts':{'long_name':'TC Genesis probability distribution',
                                       'units':''} } }
-            _ncSaveGrid(outputFile, dimensions, variables)
+            ncSaveGrid(outputFile, dimensions, variables)
 
-            #ncSaveGrid(os.path.join(self.processPath, 'originPDF.nc'),self.x,self.y,pdf,'gpdf',"",longname='TC genesis probability')
             [gx,gy] = numpy.meshgrid(self.x,self.y)
 
-            # Automatically determine appropriate contour levels 
+            # Automatically determine appropriate contour levels
             min_lvls = 6.0
             lvls_options = numpy.array([1.0, 0.5, 0.25, 0.2, 0.1])
             pdfMax = pdf.max()

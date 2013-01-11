@@ -97,9 +97,18 @@ def main(configFile):
         output_filename = "mslp_clim_" + ''.join([calendar.month_abbr[i][0] for i in sort(list(selected_months))]) + '.nc'
         data_title = 'MSLP (NCEP Reanalysis-2) seasonal climatology.  Averaging period: ' \
                      +  months_str + ' ' + '1980-2007.'
-        nctools.ncSaveGrid(output_filename, lon, lat, mslp_av , 'mslp',
-                           'millibar', 'degrees_east', 'degrees_north', -9999,
-                           'mean sea level pressure', data_title)
+        dimensions = {0:{'name':'lat','values':lat,'dtype':'f','atts':{'long_name':'Latitude',
+                                                                       'units':'degrees_north'} },
+                      1:{'name':'lon','values':lon,'dtype':'f','atts':{'long_name':'Longitude',
+                                                                       'units':'degrees_east'} } }
+
+        variables = {0:{'name':'mslp','dims':('lat','lon'),
+                        'values':array(mslp_av),'dtype':'f',
+                        'atts':{'long_name':'Mean sea level pressure',
+                                'units':'hPa'} } }
+        nctools.ncSaveGrid( output_filename, dimensions, variables, 
+                            nodata=-9999,datatitle=data_title )
+        
         print "Created output file: " + output_filename
         
         
