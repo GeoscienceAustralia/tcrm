@@ -31,6 +31,7 @@
 
 import os, sys
 from scipy import array, arange, pi
+import numpy
 import unittest
 import NumpyTestCase
 try:
@@ -128,10 +129,10 @@ class TestMapUtils(NumpyTestCase.NumpyTestCase):
     def test_Bearing(self):
         """Test conversion from bearing to theta and back again"""
         for th in self.theta:
-            bearing=maputils.theta2bearing(th)
-            result=maputils.bearing2theta(bearing)
-            if th > 0.5*pi:
-                self.assertAlmostEqual(th, result + 2*pi)
+            bearing = maputils.theta2bearing(th)
+            result = maputils.bearing2theta(bearing)
+            if th < 0.0:
+                self.assertAlmostEqual(th+2.*pi, result)
             else:
                 self.assertAlmostEqual(th, result)
 

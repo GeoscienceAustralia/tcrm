@@ -51,7 +51,7 @@ try:
 except ImportError:
     import md5
     md5_constructor = md5.new
-import time
+from time import time, ctime, localtime, strftime
 import datetime
 import ConfigParser
 import numpy
@@ -285,7 +285,7 @@ def flGetStat(filename, CHUNK=2**16):
         logger.exception( 'Input file is not a valid file: %s'%( filename ) )
         raise IOError( 'Input file is not a valid file: %s'%( filename ) )
 
-    moddate = time.ctime( si.st_mtime )
+    moddate = ctime( si.st_mtime )
     m = md5_constructor( )
     f = open( filename, 'rb' )
 
@@ -410,9 +410,9 @@ def flModDate(filename, dateformat='%Y-%m-%d %H:%M:%S'):
     except IOError:
         logger.exception( 'Input file is not a valid file: %s'%( filename ) )
         raise IOError( 'Input file is not a valid file: %s'%( filename ) )
-    moddate = time.localtime( si.st_mtime )
+    moddate = localtime( si.st_mtime )
 
-    return time.strftime( dateformat, moddate )
+    return strftime( dateformat, moddate )
 
 def flSize(filename):
     """
@@ -424,10 +424,14 @@ def flSize(filename):
     """
     try:
         si = os.stat( filename )
+    except WindowsError:
+        logger.exception( 'Input file is not a valid file: %s'%( filename ) )
+        raise IOError( 'Input file is not a valid file: %s'%( filename ) )
     except IOError:
         logger.exception( 'Input file is not a valid file: %s'%( filename ) )
         raise IOError( 'Input file is not a valid file: %s'%( filename ) )
-    size = si.st_size
+    else:
+        size = si.st_size
 
     return size
 

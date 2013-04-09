@@ -207,7 +207,7 @@ def latLon2XY(xr, yr, lat, lon, ieast=1, azimuth=0):
     lon = numpy.radians(lon)
 
     # Is azimuth fixed or variable?
-    ifnumpy. size(azimuth) == 1:
+    if numpy.size(azimuth) == 1:
         angle = numpy.radians(azimuth)*numpy.ones(lat.size - 1)
     else:
         angle = numpy.radians(azimuth)
@@ -482,7 +482,7 @@ def theta2bearing(theta):
     bearing (in radians).
     Assumes -2*pi <= theta <= 2*pi
     """
-    bearing = 2.*pi - (theta - pi/2.)
+    bearing = 2.*numpy.pi - (theta - numpy.pi/2.)
     bearing = numpy.mod(bearing, 2.*numpy.pi)
     
     return bearing
@@ -618,7 +618,7 @@ def coriolis(lat):
     Calculate the Coriolis factor (f) for a given latitude (degrees).
     If a list is passed, return a list, else return a single value.
     """
-    omega = 2*math.pi/24./3600.
+    omega = 2*numpy.pi/24./3600.
     f = 2*omega*numpy.sin(numpy.radians(lat))
 
     return f

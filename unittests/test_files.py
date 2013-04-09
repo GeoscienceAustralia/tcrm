@@ -35,6 +35,7 @@
 """
 import os, sys, pdb, logging, unittest
 import numpy
+from time import localtime, strftime
 import NumpyTestCase
 try:
     import pathLocate
@@ -138,10 +139,11 @@ class Test_flSize(NumpyTestCase.NumpyTestCase):
 class Test_flModDate(NumpyTestCase.NumpyTestCase):
     # Set up the test:
     filename = os.path.realpath( __file__ )
+    from time import localtime, strftime
     def test_flModDate(self):
         """Test flModDate function"""
-        testdate = time.localtime(os.stat(self.filename).st_mtime)
-        testdatestr = time.strftime( '%Y-%m-%dT%H:%M:%S', testdate )
+        testdate = localtime(os.stat(self.filename).st_mtime)
+        testdatestr = strftime( '%Y-%m-%dT%H:%M:%S', testdate )
         self.assertEqual( testdatestr, 
                           files.flModDate( self.filename,
                                            '%Y-%m-%dT%H:%M:%S'))

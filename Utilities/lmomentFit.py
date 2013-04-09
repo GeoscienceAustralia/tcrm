@@ -272,12 +272,13 @@ def samlmu(X, NMOM):
     for J in xrange(3, NMOM + 1):
         XMOM[J - 1] = XMOM[J - 1]/XMOM[1]
     XMOM[1] = XMOM[1]/DN
-    return XMOM
+    return numpy.array(XMOM)
 
 
 def samlmu3(X):
     # Function equivalent to lmoments.samlmu(X, 3)
     # Vectorised for speed but still about half speed of original fortran package
+    X = numpy.array(X)
     N = numpy.size(X)
     XMOM = numpy.zeros(3)
 
@@ -301,4 +302,4 @@ def samlmu3(X):
         XMOM[0] = XMOM[0] + X[NHALF]
         XMOM[2] = XMOM[2] - COEF12*X[NHALF]
     XMOM = [XMOM[0]/N, XMOM[1]/N, XMOM[2]/XMOM[1]]
-    return XMOM
+    return numpy.array(XMOM)

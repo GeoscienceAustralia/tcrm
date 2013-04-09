@@ -41,8 +41,8 @@ import numpy
 # Add parent folder to python path
 unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
 sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
-import lmomentFit as lmom
-from files import flStartLog
+from Utilities import lmomentFit as lmom
+from Utilities.files import flStartLog
 
 class Testlmoments(NumpyTestCase.NumpyTestCase):
 
@@ -57,7 +57,7 @@ class Testlmoments(NumpyTestCase.NumpyTestCase):
 
     def test_samlmu_list(self):
         """Test samlmu works with list input"""
-        moments = lmom.samlmu(list(self.values),3 )
+        moments = lmom.samlmu(list(self.values),3)
         self.numpyAssertAlmostEqual(moments,self.moments[0:3])
 
     def test_samlmu_mom(self):
