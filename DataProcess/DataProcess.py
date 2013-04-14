@@ -127,10 +127,10 @@ import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="DataProcess")
 
 class DataProcess:
-    """DataProcess:
-    Processes the database of historical TCs into suitably
-    formatted text files.  Data is written to plain text files for ease
-    of access (this may be upgraded in future versions to netCDF files).
+    """
+    Processes the database of historical TCs into suitably formatted
+    text files.  Data is written to plain text files for ease of
+    access (this may be upgraded in future versions to netCDF files).
     Currently extracts fields containing the value of cyclone
     parameters, but no information on the change of parameters.
 
@@ -202,6 +202,7 @@ class DataProcess:
         Initialize the data include tool instance, Nan value and all
         full path names of the files in which data will be stored.
         """
+
         self.configFile = configFile
         self.progressbar = progressbar
         self.logger = logging.getLogger()
@@ -214,7 +215,10 @@ class DataProcess:
         tcrm_dir = pathLocator.getRootDirectory()
         self.tcrm_input_dir = os.path.join(tcrm_dir, 'input')
         
-        landmask = cnfGetIniValue(self.configFile, 'Input', 'LandMask', os.path.join(self.tcrm_input_dir, 'landmask.nc'))
+        landmask = cnfGetIniValue(self.configFile, 'Input', 'LandMask', 
+                                  os.path.join(self.tcrm_input_dir, 
+                                               'landmask.nc'))
+
         self.landmask = SampleGrid(landmask)
 
         self.ncflag = False
@@ -254,28 +258,39 @@ class DataProcess:
 
 
     def __doc__(self):
-        return 'Processes the database of historical TCs into suitably formatted text files. \
-            Data is written to plain text files for ease of access (this may be upgraded in future \
-            versions to netCDF format files). Currently extracts fields containing the value of \
-            cyclone parameters, but no information on the change of parameters.'
+        return 'Processes the database of historical TCs into \
+            suitably formatted text files. Data is written to \
+            plain text files for ease of access (this may be  \
+            upgraded in future versions to netCDF format files).\
+            Currently extracts fields containing the value of \
+            cyclone parameters, but no information on the \
+            change of parameters.'
 
     def processData(self):
         """
         Process raw data into ASCII files that can be read by the main
         components of the system
+
         """
+
         self.logger.info("Running %s"%flModuleName())
         inputFile = cnfGetIniValue(self.configFile, 'DataProcess', 'InputFile')
         # If input file has no path information, default to tcrm input folder
         if len(os.path.dirname(inputFile)) == 0:
             inputFile = os.path.join(self.tcrm_input_dir, inputFile)
+
         self.logger.info("Processing %s"%inputFile)
         source = cnfGetIniValue(self.configFile, 'DataProcess', 'Source')
         inputData = colReadCSV(self.configFile, inputFile, source)
-        inputSpeedUnits = cnfGetIniValue(self.configFile, source, 'SpeedUnits', 'mps')
-        inputPressureUnits = cnfGetIniValue(self.configFile, source, 'PressureUnits', 'hPa')
-        inputLengthUnits = cnfGetIniValue(self.configFile, source, 'LengthUnits', 'km')
-        startSeason = cnfGetIniValue(self.configFile, 'DataProcess', 'StartSeason', 1981)
+        inputSpeedUnits = cnfGetIniValue(self.configFile, source, 
+                                         'SpeedUnits', 'mps')
+        inputPressureUnits = cnfGetIniValue(self.configFile, source, 
+                                            'PressureUnits', 'hPa')
+        inputLengthUnits = cnfGetIniValue(self.configFile, source, 
+                                          'LengthUnits', 'km')
+        
+        startSeason = cnfGetIniValue(self.configFile, 'DataProcess', 
+                                     'StartSeason', 1981)
         
         if inputData.has_key('index'):
             self.logger.debug("Using index contained in file to determine initial TC positions")
@@ -293,8 +308,10 @@ class DataProcess:
                 season = array(inputData['season'], 'i')
                 indicator = ones(num.size, 'i')
                 for i in range(1, len(num)):
-                    if season[i] == season[i-1] and num[i] == num[i-1]:
+                    if (season[i] == season[i-1]) and 
+                    (num[i] == num[i-1]):
                         indicator[i] = 0
+
             elif inputData.has_key('num'):
                 self.logger.debug("Using TC number to determine initial TC positions (no season information)")
                 num = array(inputData['num'],'i')
@@ -305,6 +322,7 @@ class DataProcess:
             else:
                 self.logger.critical("Insufficient input file columns have been specified to run TCRM.")
                 sys.exit(2)
+
         if self.progressbar is not None:
             self.progressbar.update(0.125)
 
@@ -320,7 +338,10 @@ class DataProcess:
                 day = empty(len(indicator), 'i')
                 hour = empty(len(indicator), 'i')
                 minute = empty(len(indicator), 'i')
-                datefmt = cnfGetIniValue(self.configFile, source, 'DateFormat', '%Y-%m-%d %H:%M:%S')
+                datefmt = cnfGetIniValue(self.configFile, source, 
+                                         'DateFormat', 
+                                         '%Y-%m-%d %H:%M:%S')
+
                 for i in range(len(inputData['date'])):
                     try:
                         d = datetime.datetime.strptime(inputData['date'][i], datefmt)
@@ -362,11 +383,13 @@ class DataProcess:
 
             if inputData.has_key('season'):
                 # Find indicies that satisfy minimum season filter
-                good_indices = where([k >= startSeason for k in inputData['season']])[0]
+                good_indices = where([k >= startSeason for 
+                                      k in inputData['season']])[0]
                 
                 # Filter records
                 for dictKey in inputData.keys():
-                    filteredResult = [inputData[dictKey][i] for i in good_indices]
+                    filteredResult = [inputData[dictKey][i] for 
+                                      i in good_indices]
                     inputData[dictKey] = filteredResult
                 year = year[good_indices]
                 month = month[good_indices]
@@ -375,14 +398,16 @@ class DataProcess:
                 minute = minute[good_indices]
                 indicator = indicator[good_indices]
 
-            # Create the dummy variable second for use in function datenum
+            # Create the dummy variable second for use in function
+            # datenum
             second = zeros((hour.size), 'i')
 
             # Time between observations:
             try:
-                day_ = [datetime.datetime(year[i], month[i], day[i], hour[i],
-                                  minute[i], second[i])
-                    for i in xrange(year.size)]
+                day_ = [datetime.datetime(year[i], month[i], 
+                                          day[i], hour[i],
+                                          minute[i], second[i])
+                        for i in xrange(year.size)]
             except ValueError:
                 self.logger.critical("Error in date information")
                 self.logger.critical(sys.exc_info()[1])
@@ -400,16 +425,19 @@ class DataProcess:
             dt = empty(indicator.size, 'f')
             dt[1:] = dt_
             # Calculate julian days:
-            jdays = array([int(day_[i].strftime("%j")) for i in xrange(year.size)])
+            jdays = array([int(day_[i].strftime("%j")) for 
+                           i in xrange(year.size)])
 
         lat = array(inputData['lat'], 'd')
         lon = mod(array(inputData['lon'], 'd'), 360)
         delta_lon = diff(lon)
         delta_lat = diff(lat)
-        # Split into separate tracks if large jump occurs (delta_lon > 15 degrees or delta_lat > 5 degrees)
-        # This avoids two tracks being accidentally combined when seasons and track numbers match but
-        # basins are different as occurs in the IBTrACS dataset.  This problem can also be prevented if
-        # the 'tcserialno' column is specified.
+        # Split into separate tracks if large jump occurs (delta_lon >
+        # 15 degrees or delta_lat > 5 degrees) This avoids two tracks
+        # being accidentally combined when seasons and track numbers
+        # match but basins are different as occurs in the IBTrACS
+        # dataset.  This problem can also be prevented if the
+        # 'tcserialno' column is specified.
         indicator[where(delta_lon > 15)[0] + 1] = 1
         indicator[where(delta_lat > 5)[0] + 1] = 1
 
@@ -918,20 +946,33 @@ class DataProcess:
             self.logger.info( "Standard deviation: %5.1f"%std( n ) )
 
     def _juliandays(self, jdays, indicator, years ):
-        # Generate a distribution of the annual distribution of observations
+        """
+        Generate a distribution of the formation day of 
+        year from observations
+        """
+
         self.logger.info( "Calculating annual distribution of observations" )
-        # Do a bodgy job of addressing 29th of February (there surely must be a
-        # recommended way of accounting for leap years)
+
+        # Do a bodgy job of addressing 29th of February (there surely
+        # must be a recommended way of accounting for leap years)
+
         for i in range( len( jdays ) ):
             if ( years[i]%4 == 0 ) and ( jdays[i] >= 60 ):
                 jdays[i] -= 1
+
         bins = arange( 1, 367 )
         n,b = histogram( jdays.compress( indicator ), bins )
         header = 'Day,count'
-        flSaveFile( self.jday_genesis,transpose( [bins[:-1], n] ), header, fmt='%d', delimiter=',' )
+        # Distribution of genesis days (histogram):
+        flSaveFile( self.jday_genesis,transpose( [bins[:-1], n] ), 
+                    header, fmt='%d', delimiter=',' )
         n,b = histogram( jdays, bins)
-        flSaveFile( self.jday_observations, transpose( [bins[:-1],n] ), header, fmt='%d', delimiter=',' )
-        flSaveFile( self.jday, transpose( jdays.compress( indicator ) ), header='Day', fmt='%d' )
+        # Distribution of all days (histogram):
+        flSaveFile( self.jday_observations, transpose( [bins[:-1],n] ), 
+                    header, fmt='%d', delimiter=',' )
+        # All days:
+        flSaveFile( self.jday, transpose( jdays.compress( indicator ) ), 
+                    header='Day', fmt='%d' )
 
 if __name__ == "__main__":
     try:

@@ -17,8 +17,8 @@ import numpy
 
 unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
 sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
-import nctools
-import interp3d
+import Utilities.nctools as nctools
+import Utilities.interp3d as interp3d
 from files import flStartLog
 
 class TestInterp3d(NumpyTestCase.NumpyTestCase):

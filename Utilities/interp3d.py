@@ -14,12 +14,15 @@ import numpy
 import pdb
 from scipy.ndimage.interpolation import map_coordinates
 
-def interp3d( input_array, coords, scale=[360., 180., 365.],offset=[0.,-90.,0.] ):
+def interp3d(input_array, coords, 
+             scale=[360., 180., 365.],
+             offset=[0.,-90.,0.]):
     """
-    Wrapper to scipy.ndimage.interpolation.map_coordinates, which converts 
-    coordinates of points to indices that correspond to the array. 
-    We assume that one is working with lon, lat, day data (i.e. initially 
-    designed to work with daily long term mean sea level pressure)
+    Wrapper to scipy.ndimage.interpolation.map_coordinates, which
+    converts coordinates of points to indices that correspond to the
+    array.  We assume that one is working with lon, lat, day data
+    (i.e. initially designed to work with daily long term mean sea
+    level pressure)
 
     Input:
     input_array - a 3-d array of data at regular intervals, representing the 
@@ -35,18 +38,21 @@ def interp3d( input_array, coords, scale=[360., 180., 365.],offset=[0.,-90.,0.] 
     1-d array of values corresponding to the interpolated values 
     at the points given in 'coords'
 
-    Example: vals = interp3d( data, coords, scale=[360., 180., 365.],
+    Example: vals = interp3d( data, coords, 
+                              scale=[360., 180., 365.],
                               offset=[0.,-90.,0.] )
+
     """
-    if len(input_array.shape) != 3:
+
+    if input_array.ndim != 3:
         raise ValueError('Input array has incorrect shape')
     if coords.shape[0] != 3:
         raise ValueError('Coordinates of points must be 3-d')
 
-    indices = numpy.empty(coords.shape)
-    dims = numpy.array(input_array.shape)
-    indices[0] = dims[0]*( coords[0] - offset[0] ) / scale[0]
-    indices[1] = dims[1]*( coords[1] - offset[1] ) / scale[1]
-    indices[2] = dims[2]*( coords[2] - offset[2] ) / scale[2]
+    dims = input_array.shape
+    indices = [d*(c - o) / s for d,c,o,s in 
+               zip(dims,coords,offset,scale)]
+
     values = map_coordinates(input_array,indices, mode='wrap')
+
     return values
