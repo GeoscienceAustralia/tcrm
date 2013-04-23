@@ -45,7 +45,9 @@ class CalcTrackDomain:
         track_limits = {'xMin':9999,'xMax':-9999,'yMin':9999,'yMax':-9999}
 
         # Load tracks
-        cyclone_tracks = flLoadFile(os.path.join(self.outputPath, 'process', 'cyclone_tracks'), '%', ',')
+        cyclone_tracks = flLoadFile(os.path.join(self.outputPath,
+                                                 'process', 'cyclone_tracks'),
+                                                 '%', ',')
         
         for file_line in cyclone_tracks:
             cyclone_idx = file_line[0]
@@ -54,7 +56,8 @@ class CalcTrackDomain:
 
             if cyclone_idx == 1:
                 # Reset cyclone lon/lon limits
-                track_limits = {'xMin':9999,'xMax':-9999,'yMin':9999,'yMax':-9999}
+                track_limits = {'xMin':9999, 'xMax':-9999,
+                                'yMin':9999, 'yMax':-9999}
 
             track_limits['xMin'] = min(track_limits['xMin'], track_lon)
             track_limits['xMax'] = max(track_limits['xMax'], track_lon)

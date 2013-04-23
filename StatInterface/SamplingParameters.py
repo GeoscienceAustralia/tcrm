@@ -41,7 +41,7 @@ $Id: SamplingParameters.py 810 2012-02-21 07:52:50Z nsummons $
 
 import os, sys, pdb, logging
 
-from scipy import rand, flatnonzero, empty, ndarray, array
+from scipy import rand, ndarray, array
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile, flSaveFile
 

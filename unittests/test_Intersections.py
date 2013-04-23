@@ -17,9 +17,9 @@ import NumpyTestCase
 # Add parent folder to python path
 unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
 sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
-from files import flStartLog
+from Utilities.files import flStartLog
 
-import Intersections
+from Utilities import Intersections
 
 class IntersectionsTest(NumpyTestCase.NumpyTestCase):
 

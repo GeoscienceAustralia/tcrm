@@ -45,7 +45,6 @@ $Id: trackSimulation.py 810 2012-02-21 07:52:50Z nsummons $
 import os, sys, pdb, logging
 
 from numpy import random
-import math
 import TrackGenerator as TG
 from Utilities.progressbar import ProgressBar
 

@@ -64,6 +64,6 @@ class TestSamplingParameters(NumpyTestCase.NumpyTestCase):
         self.assertAlmostEqual(sp, s)
 
 if __name__ == "__main__":
-    flStartLog('', 'CRITICAL', False)
+    #flStartLog('', 'CRITICAL', False)
     testSuite = unittest.makeSuite(TestSamplingParameters,'test')
     unittest.TextTestRunner(verbosity=2).run(testSuite)

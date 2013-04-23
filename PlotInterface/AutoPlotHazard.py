@@ -32,15 +32,15 @@ from mpl_toolkits.basemap import Basemap
 import numpy.ma as ma
 from matplotlib import pyplot
 
-from Utilities.files import flConfigFile, flStartLog
+#from Utilities.files import flConfigFile, flStartLog
 from Utilities.config import cnfGetIniValue
 from Utilities.colours import colourMap
 import Utilities.nctools as nctools
 from Utilities.smooth import smooth
 from Utilities import pathLocator
 from Utilities import metutils
-from Utilities.progressbar import ProgressBar
-import csv
+#from Utilities.progressbar import ProgressBar
+#import csv
 import sqlite3
 import unicodedata
 

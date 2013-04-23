@@ -44,8 +44,8 @@ import NumpyTestCase
 # Add parent folder to python path
 unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
 sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
-import GetType
-from files import flStartLog
+from Utilities import GetType
+from Utilities.files import flStartLog
 
 class Test_GetType(NumpyTestCase.NumpyTestCase):
     Types = GetType.GetType()

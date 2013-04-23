@@ -44,8 +44,7 @@ from numpy import transpose, array, meshgrid, pi
 from PlotInterface.plotWindfield import plotWindfield, plotPressurefield
 from PlotInterface.plotTimeseries import plotTimeseries
 
-from Utilities.grid import grdSave
-from Utilities.files import flConfigFile, flModDate, flProgramVersion, flGetStat
+from Utilities.files import flModDate, flProgramVersion, flGetStat
 from Utilities.config import cnfGetIniValue
 from Utilities.columns import colReadCSV
 from Utilities.process import pGetProcessedFiles, pAlreadyProcessed, pWriteProcessedFile
@@ -56,7 +55,8 @@ from Utilities.progressbar import ProgressBar
 class WindfieldInterface:
 
 
-    def __init__(self, configFile='WindfieldInterface.ini', nfiles=1, show_progress_bar=False):
+    def __init__(self, config_file='WindfieldInterface.ini', nfiles=1, 
+                 show_progress_bar=False):
         """
         Initiate and run generateWindfield for nfiles simulations. If
         there is only a single simulation, the module will automatically
@@ -65,54 +65,68 @@ class WindfieldInterface:
         of the data discarded (this may change in future versions).
         """
 
-        self.configFile = configFile
-        show_progress_bar = cnfGetIniValue( self.configFile, 'Logging', 'ProgressBar', True )
-        self.pbar = ProgressBar("(4/6) Generating windfields: ", show_progress_bar)
+        self.config_file = config_file
+        show_progress_bar = cnfGetIniValue( self.config_file, 'Logging', 
+                                           'ProgressBar', True )
+        self.pbar = ProgressBar("(4/6) Generating windfields: ", 
+                                show_progress_bar)
         self.logger = logging.getLogger()
         self.logger.info("Initialising WindfieldInterface")
-        self.datFile = cnfGetIniValue(self.configFile, 'Process', 'DatFile', configFile.split('.')[0] + '.dat')
-        self.excludePastProcessed = cnfGetIniValue(self.configFile, 'Process', 'ExcludePastProcessed', True)
-        self.source = cnfGetIniValue(self.configFile, 'WindfieldInterface', 'Source')
-        self.outputPath = os.path.join(cnfGetIniValue(self.configFile, 'Output', 'Path'), 'windfield')
+        self.datFile = cnfGetIniValue(self.config_file, 'Process', 'DatFile',
+                                      config_file.split('.')[0] + '.dat')
+        
+        self.excludePastProcessed = cnfGetIniValue(self.config_file, 'Process',
+                                                   'ExcludePastProcessed', True)
+        
+        self.source = cnfGetIniValue(self.config_file, 'WindfieldInterface', 'Source')
+        self.output_path = os.path.join(cnfGetIniValue(self.config_file,
+                                                       'Output', 'Path'),
+                                                       'windfield')
         self.nfiles = nfiles
 
-        self.WF = gW.generateWindfield(configFile)
+        self.WF = gW.generateWindfield(config_file)
         if self.nfiles == 1:
-            trackFile = cnfGetIniValue(self.configFile, 'WindfieldInterface',
+            track_file = cnfGetIniValue(self.config_file, 'WindfieldInterface',
                                        'TrackFile')
 
-            saveAllTimes = cnfGetIniValue(self.configFile,'WindfieldInterface','SaveAllTimes',False)
-            plotOutput = cnfGetIniValue(self.configFile,'WindfieldInterface','PlotOutput',False)
+            saveAllTimes = cnfGetIniValue(self.config_file, 'WindfieldInterface',
+                                          'SaveAllTimes',False)
+            plot_output = cnfGetIniValue(self.config_file, 'WindfieldInterface',
+                                         'PlotOutput',False)
 
-            self.generateSingleWindfield(trackFile, saveAllTimes, plotOutput)
+            self.generateSingleWindfield(track_file, saveAllTimes, plot_output)
         else:
-            trackPath = cnfGetIniValue(self.configFile, 'WindfieldInterface', 'TrackPath', os.path.join(cnfGetIniValue(self.configFile, 'Output', 'Path'), 'tracks'))
-            self.logger.info("Processing %d files in %s"%(self.nfiles, trackPath))
-            trackFiles = os.listdir(trackPath)
+            track_path = cnfGetIniValue(self.config_file, 'WindfieldInterface', 'TrackPath',
+                                        os.path.join(cnfGetIniValue(self.config_file,
+                                                                    'Output', 'Path'),
+                                                                    'tracks'))
+                                       
+            self.logger.info("Processing %d files in %s"%(self.nfiles, track_path))
+            track_files = os.listdir(track_path)
             # For convenience, put them in some sort of order:
-            trackFiles.sort()
+            track_files.sort()
 
-            if len(trackFiles) < nfiles:
+            if len(track_files) < nfiles:
                 # For the case where someone is unable to count:
                 self.logger.warning("Number of available track files is less than requested number")
-                self.logger.warning("Resetting requested number to %d"%len(trackFiles))
+                self.logger.warning("Resetting requested number to %d"%len(track_files))
                 # Reset number of files to the available number of track files in the directory:
-                self.nfiles = len(trackFiles)
+                self.nfiles = len(track_files)
             if self.nfiles == 0:
                 self.logger.error("No track files available - not proceeding with WindfieldInterface")
                 sys.exit(1)
             if self.nfiles == 1:
                 # Handle the case of someone only putting a single track file in the directory:
-                trackFile = os.path.join(trackPath, trackFiles[0])
-                self.generateSingleWindfield(trackFile)
+                track_file = os.path.join(track_path, track_files[0])
+                self.generateSingleWindfield(track_file)
             else:
-                self.generateMultipleWindfields(trackPath, trackFiles)
+                self.generateMultipleWindfields(track_path, track_files)
 
 
     def __doc__(self):
         return "An interface between main and generateWindfield modules"
 
-    def _loadFile(self,inputFile):
+    def load_file(self, track_file):
         """
         Load the data from a track file into an array suitable for
         digestion by generateWindfield.  The data source is defined in
@@ -121,90 +135,106 @@ class WindfieldInterface:
         other components become available, we may include options to
         vary parameters such as the beta value or thetaMax.
         """
-        self.logger.debug("Loading data from %s"%inputFile)
+        self.logger.debug("Loading data from %s"%track_file)
 
-        trackData = colReadCSV(self.configFile, inputFile,self.source)
+        track_data = colReadCSV(self.config_file, track_file, self.source)
 
-        index = array(trackData['index'], int)
-        age = array(trackData['age'], float)
-        lon = array(trackData['lon'], float)
-        lat = array(trackData['lat'], float)
-        speed = array(trackData['speed'], float)
-        penv = array(trackData['penv'], float)
-        pressure = array(trackData['pressure'], float)
+        index = array(track_data['index'], int)
+        age = array(track_data['age'], float)
+        lon = array(track_data['lon'], float)
+        lat = array(track_data['lat'], float)
+        speed = array(track_data['speed'], float)
+        penv = array(track_data['penv'], float)
+        pressure = array(track_data['pressure'], float)
 
         try:
-            speedUnits = cnfGetIniValue(self.configFile, self.source, 'SpeedUnits', 'mps')
+            speed_units = cnfGetIniValue(self.config_file, self.source, 
+                                        'SpeedUnits', 'mps')
         except NameError:
             pass
         else:
-            speed = metutils.convert(speed, speedUnits, 'mps')
+            speed = metutils.convert(speed, speed_units, 'mps')
 
         try:
-            prUnits = cnfGetIniValue(self.configFile, self.source, 'PressureUnits', 'hPa')
+            pr_units = cnfGetIniValue(self.config_file, self.source, 
+                                      'PressureUnits', 'hPa')
         except NameError:
             pass
         else:
-            pressure = metutils.convert(pressure, prUnits, 'Pa')
-            penv = metutils.convert(penv, prUnits, 'Pa')
+            pressure = metutils.convert(pressure, pr_units, 'Pa')
+            penv = metutils.convert(penv, pr_units, 'Pa')
         # At this time, assume the storm motion direction is given in
         # degrees true.  Thus the storm motion direction must be
         # converted to radians.
-        bearing = array(trackData['bearing'])*pi/180.
+        bearing = array(track_data['bearing'])*pi/180.
         bearing = maputils.bearing2theta(bearing)
 
-        rmax=array(trackData['rmax'],float)
+        rmax = array(track_data['rmax'], float)
 
         return transpose(array([index, age, lon, lat, speed, bearing,
                                 pressure, penv, rmax]))
 
-    def generateSingleWindfield(self,trackFile,saveAllTimes=False,plotOutput=True):
+    def generateSingleWindfield(self, track_file, saveAllTimes=False,
+                                plot_output=True):
         """
         Run generatWindfield for a single track file
         Automatically saves gust, U and V data, and plots resulting
         gust speeds
         """
 
-        data = self._loadFile(trackFile)
+        data = self.load_file(track_file)
 
         speed, UU, VV, pressure, lon, lat = self.WF.calcwind(data, saveAllTimes)
 
         # Save final data (i.e. maximum wind speeds, minimum pressures)
         # to netCDF file
-        dimensions = {0:{'name':'lat','values':lat,'dtype':'f','atts':{'long_name':'Latitude','units':'degrees_north'} },
-                      1:{'name':'lon','values':lon,'dtype':'f','atts':{'long_name':'Longitude','units':'degrees_east'} } }
-        variables = {0:{'name':'vmax','dims':('lat','lon'),
-                        'values':array(speed),'dtype':'f',
+        dimensions = {0:{'name':'lat', 'values':lat, 'dtype':'f',
+                             'atts':{'long_name':'Latitude',
+                                         'units':'degrees_north'} },
+                      1:{'name':'lon', 'values':lon, 'dtype':'f',
+                             'atts':{'long_name':'Longitude',
+                                         'units':'degrees_east'} } }
+        variables = {0:{'name':'vmax', 'dims':('lat', 'lon'),
+                        'values':array(speed), 'dtype':'f',
                         'atts':{'long_name':'Maximum 3-second gust wind speed',
                                 'units':'m/s'} },
-                     1:{'name':'ua','dims':('lat','lon'),
-                        'values':array(UU),'dtype':'f',
+                     1:{'name':'ua', 'dims':('lat', 'lon'),
+                        'values':array(UU), 'dtype':'f',
                         'atts':{'long_name':'Maximum eastward wind',
                                 'units':'m/s'} },
-                     2:{'name':'va','dims':('lat','lon'),
-                        'values':array(VV),'dtype':'f',
+                     2:{'name':'va', 'dims':('lat', 'lon'),
+                        'values':array(VV), 'dtype':'f',
                         'atts':{'long_name':'Maximum northward wind',
                                 'units':'m/s'} },
-                     3:{'name':'psl','dims':('lat','lon'),
-                        'values':array(pressure),'dtype':'f',
+                     3:{'name':'psl', 'dims':('lat', 'lon'),
+                        'values':array(pressure), 'dtype':'f',
                         'atts':{'long_name':'Minimum air pressure at sea level',
                                 'units':'hPa'} } }
-        nctools.ncSaveGrid(os.path.join(self.outputPath,'tc.nc'), dimensions, variables)
+        nctools.ncSaveGrid(os.path.join(self.output_path, 'tc.nc'), 
+                               dimensions, variables)
 
         # Plot up the final results for verifying the output:
-        if plotOutput:
-            [gridX,gridY] = meshgrid(lon,lat)
-            plotWindfield(gridX, gridY, speed,title="Windfield", fileName=os.path.join(self.outputPath,'windfield.png'))
-            plotPressurefield(gridX, gridY, pressure,title="Pressure field", fileName=os.path.join(self.outputPath,'pressure.png'))
+        if plot_output:
+            [gridX, gridY] = meshgrid(lon, lat)
+            plotWindfield(gridX, gridY, speed, title="Windfield", 
+                          fileName=os.path.join(self.output_path, 
+                                                'windfield.png'))
+                                                
+            plotPressurefield(gridX, gridY, pressure, title="Pressure field", 
+                              fileName=os.path.join(self.output_path, 
+                                                    'pressure.png'))
 
         # If timeseries data was collected, save that as well:
-        if cnfGetIniValue(self.configFile, 'Timeseries', 'Extract', False):
-            tsPath = os.path.join(cnfGetIniValue(self.configFile, 'Output', 'Path'), 'process', 'timeseries')
-            plotPath =os.path.join(cnfGetIniValue(self.configFile, 'Output', 'Path'), 'plots')
-            plotTimeseries(tsPath, plotPath)
+        if cnfGetIniValue(self.config_file, 'Timeseries', 'Extract', False):
+            ts_path = os.path.join(cnfGetIniValue(self.config_file, 
+                                                  'Output', 'Path'), 
+                                  'process', 'timeseries')
+            plot_path = os.path.join(cnfGetIniValue(self.config_file, 
+                                                    'Output', 'Path'), 'plots')
+            plotTimeseries(ts_path, plot_path)
         return
 
-    def generateMultipleWindfields(self, directory, trackFiles):
+    def generateMultipleWindfields(self, directory, track_files):
         """
         Run generateWindfield multiple times for multiple track files
         Only saves the maximum gust speed, and only plots output if
@@ -216,44 +246,44 @@ class WindfieldInterface:
         rc = pGetProcessedFiles(self.datFile)
 
         for n in range(self.nfiles):
-            inputFile = os.path.join(directory, trackFiles[n])
+            input_file = os.path.join(directory, track_files[n])
 
-            directory, fname, md5sum, moddate = flGetStat(inputFile)
-            if pAlreadyProcessed(directory,fname, 'md5sum', md5sum) & self.excludePastProcessed:
-                self.logger.info("Already processed %s"%inputFile)
-                pass
+            directory, fname, md5sum, moddate = flGetStat(input_file)
+            if pAlreadyProcessed(directory, fname, 'md5sum', md5sum) & self.excludePastProcessed:
+                self.logger.info("Already processed %s"%input_file)
             else:
-                self.logger.info("Processing %s"%inputFile)
-                data = self._loadFile(inputFile)
-                outputFile = os.path.join(self.outputPath, 'gust.%04d.nc'%n)
+                self.logger.info("Processing %s"%input_file)
+                data = self.load_file(input_file)
+                output_file = os.path.join(self.output_path, 'gust.%04d.nc'%n)
                 speed, UU, VV, pressure, lon, lat = self.WF.calcwind(data, False)
-                #nctools.ncSaveGrid(outputFile, lon, lat, speed, 'vmax', 'm/s',longname='Maximum 3-second gust wind speed')
 
-                inputFileDate = flModDate( inputFile )
+                inputFileDate = flModDate( input_file )
                 gatts = {'history':'TCRM hazard simulation - synthetic event wind field',
                          'version':flProgramVersion( ),
                          'Python_ver':sys.version,
-                         'track_file':'%s (modified %s)'%( inputFile, inputFileDate ),
+                         'track_file':'%s (modified %s)'%( input_file, inputFileDate ),
                          'radial_profile':self.WF.profileType,
                          'boundary_layer':self.WF.windFieldType,
                          'beta':self.WF.beta}
-                dimensions = {0:{'name':'lat','values':lat,'dtype':'f',
+                dimensions = {0:{'name':'lat', 'values':lat, 'dtype':'f',
                                  'atts':{'long_name':'Latitude',
                                          'units':'degrees_north'} },
-                              1:{'name':'lon','values':lon,'dtype':'f',
+                              1:{'name':'lon', 'values':lon, 'dtype':'f',
                                  'atts':{'long_name':'Longitude',
                                          'units':'degrees_east'} } }
-                variables = {0:{'name':'vmax','dims':('lat','lon'),
-                                'values':numpy.array(speed),'dtype':'f',
+                variables = {0:{'name':'vmax', 'dims':('lat', 'lon'),
+                                'values':array(speed), 'dtype':'f',
                                 'atts':{'long_name':'Maximum 3-second gust wind speed',
                                         'units':'m/s'} } }
-                nctools.ncSaveGrid(os.path.join(self.outputPath,'gust.%04d.nc'%n),
-                                    dimensions, variables, gatts=gatts)
+                nctools.ncSaveGrid(output_file, dimensions, variables, 
+                                   gatts=gatts)
 
-                if cnfGetIniValue(self.configFile, 'WindfieldInterface',
+                if cnfGetIniValue(self.config_file, 'WindfieldInterface',
                                   'PlotOutput', False):
+                    [gridX, gridY] = meshgrid(lon, lat)                  
                     plotWindfield(gridX, gridY, speed, title="Windfield",
-                                  fileName=os.path.join(self.outputPath, 'windfield.%04d.png'%(n+1)))
-                pWriteProcessedFile(inputFile)
+                                  fileName=os.path.join(self.output_path, 
+                                                        'windfield.%04d.png'%(n)))
+                pWriteProcessedFile(input_file)
             self.pbar.update((n+1)/float(self.nfiles))
 

@@ -122,7 +122,7 @@ $Id: TrackGenerator.py 811 2012-02-24 05:10:11Z carthur $
 """
 import os, sys, pdb, logging
 
-from scipy import array, empty, flatnonzero, transpose, concatenate
+from scipy import array, empty, transpose, concatenate
 import math
 from numpy import mod, random, arange
 
@@ -137,7 +137,7 @@ import Utilities.Cmap as Cmap
 import Utilities.Cstats as Cstats
 from Utilities.AsyncRun import AsyncRun
 from Utilities.config import cnfGetIniValue
-from Utilities.files import flLoadFile, flSaveFile
+from Utilities.files import flStartLog, flLoadFile, flSaveFile
 from Utilities.grid import SampleGrid
 from MSLP.mslp_seasonal_clim import MSLPGrid
 from Utilities.shptools import shpSaveTrackFile

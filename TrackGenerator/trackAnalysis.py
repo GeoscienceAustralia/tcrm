@@ -193,7 +193,7 @@ class Analysis:
         for i in range(m):
             self.data.append(loadData(self.dataPath+self.fileList[i]))
 
-        bearing = histogram(numpy.arange(-22.5, 382.5, 45.)
+        bearing = histogram(numpy.arange(-22.5, 382.5, 45.))
 
         for i in range(m):
             n,bins,patches = pylab.hist(data[i][:, 4])

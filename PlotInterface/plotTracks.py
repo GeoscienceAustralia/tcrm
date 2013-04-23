@@ -211,7 +211,7 @@ class PlotTracks:
         instance using the readshapefile() function
         """
         for shapedict,shape in zip(self.map.tctrack_info,self.map.tctrack):
-	        print shapedict['Index']
+            print shapedict['Index']
             cp = shapedict['Pressure']
             xx, yy = zip(*shape)
             # show part of track where storm > Cat 4 as thick red.

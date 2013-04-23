@@ -173,7 +173,7 @@ class KDEParameters:
         ndata = numpy.concatenate( [data - 365, data, data + 365] )
 
         if bw is None:
-            bw = KDPF.UPDFOptimumBandwidth( ndata ) 
+            bw = KPDF.UPDFOptimumBandwidth( ndata ) 
 
         try:
             kdeMethod = getattr(KPDF, "UPDF%s" %self.kdeType)
@@ -185,7 +185,7 @@ class KDEParameters:
         apdf = 3.0*pdf[365:730]
         cy = stats.cdf(days, apdf)
         if genesisKDE is None:
-            return transpose(arraynumpy.concatenate( [days, apdf, cy] ) )
+            return transpose(array(numpy.concatenate( [days, apdf, cy] ) ))
         else:
             # Assume both kdeParameters and cdfParameters are defined as files:
             self.logger.debug("Saving KDE and CDF data to files")

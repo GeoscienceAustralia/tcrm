@@ -72,6 +72,6 @@ class TestSamplingOrigin(NumpyTestCase.NumpyTestCase):
         self.assertAlmostEqual(yp, y, 4)
 
 if __name__ == "__main__":        
-    flStartLog('', 'CRITICAL', False)
+
     testSuite = unittest.makeSuite(TestSamplingOrigin,'test')
     unittest.TextTestRunner(verbosity=2).run(testSuite)

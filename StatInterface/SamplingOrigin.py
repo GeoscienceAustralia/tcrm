@@ -61,7 +61,7 @@ import time
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile, flSaveFile
 from Utilities.grid import grdRead
-from scipy import array, zeros, rand, empty, flatnonzero, ndarray, transpose
+from scipy import array, zeros, rand, empty, ndarray, transpose
 import Utilities.stats as stats
 
 class SamplingOrigin:
@@ -171,7 +171,7 @@ Documentation on the purpose of the class
                 raise
             self._calculateCDF()  # calculate CDF of (x,Px) and (y,Py)
         elif type(kdeOriginZ) == ndarray:
-            self.x, self.y, self.z = grdRead(kdeOrigin)
+            self.x, self.y, self.z = grdRead(kdeOriginZ)
             self._calculateCDF()  # calculate CDF of (x,Px) and (y,Py)
         else:
             self.logger.error("No input arguments")

@@ -50,7 +50,6 @@ $Id: trackLandfall.py 810 2012-02-21 07:52:50Z nsummons $
 import os, sys, pdb, logging
 
 import numpy
-import Utilities.maputils as maputils
 from Utilities.config import cnfGetIniValue
 from Utilities.grid import SampleGrid
 from Utilities import pathLocator

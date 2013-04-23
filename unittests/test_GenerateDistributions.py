@@ -64,6 +64,6 @@ class TestGenerateDistributions(NumpyTestCase.NumpyTestCase):
         self.numpyAssertAlmostEqual(dist, distp)
 
 if __name__ == "__main__":
-    flStartLog('', 'CRITICAL', False)
+    #flStartLog('', 'CRITICAL', False)
     testSuite = unittest.makeSuite(TestGenerateDistributions,'test')
     unittest.TextTestRunner(verbosity=2).run(testSuite)

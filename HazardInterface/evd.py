@@ -46,7 +46,7 @@ Modification: Minimum number of records required for calculation made a
 $Id: evd.py 817 2012-03-15 03:56:14Z carthur $
 """
 
-import os, sys, pdb, logging, traceback
+import logging
 import numpy
 __version__ = "$Id: evd.py 817 2012-03-15 03:56:14Z carthur $"
 
@@ -55,22 +55,25 @@ logger = logging.getLogger()
 try:
     # Test if LMOMENTS package is installed
     import lmoments as lmom
-except:
+except ImportError:
     # If not, load ported python version of required functions
     # (note: this runs about half the speed of the LMOMENTS fortran package)
     import Utilities.lmomentFit as lmom
     logger.debug('LMOMENTS package not found - reverting to slower python version of code')
 
-def estimate_EVD(v, years, missingValue=-9999.,minRecords=50,yrspersim=10):
-
+def estimate_EVD(v, years, missing_value=-9999., minRecords=50, yrspersim=10):
+    """
+    Calculate extreme value distribution parameters using the Lmoments module
+    """
+    
     # Convert to float to prevent integer division & ensure consistent data types for output variables
     yrspersim = numpy.array(yrspersim, dtype='float32')
-    missingValue = numpy.array(missingValue, dtype='float32')
+    missing_value = numpy.array(missing_value, dtype='float32')
     years = numpy.array(years, dtype='float32')
 
     # Initialise variables:
-    loc,scale,shp = [missingValue, missingValue, missingValue]
-    w = missingValue*numpy.ones(len(years), dtype='float32')
+    loc, scale, shp = [missing_value, missing_value, missing_value]
+    w = missing_value*numpy.ones(len(years), dtype='float32')
     
     if (v.max() > 0.):
         ii = numpy.flatnonzero(v)
@@ -78,7 +81,7 @@ def estimate_EVD(v, years, missingValue=-9999.,minRecords=50,yrspersim=10):
         # where the values are not all equal, and where
         # there are 50 or more valid values.
         if (v[ii].min() != v[ii].max()) and (len(ii)>=minRecords):
-            l1,l2,l3 = lmom.samlmu(v[ii], 3)
+            l1, l2, l3 = lmom.samlmu(v[ii], 3)
             t3 = l3/l2
             if (l2<=0.) or (numpy.abs(t3) >= 1.):
                 # Reject points where the second l-moment is negative
@@ -87,20 +90,22 @@ def estimate_EVD(v, years, missingValue=-9999.,minRecords=50,yrspersim=10):
             else:
                 # Parameter estimation returns the location,
                 # scale and shape parameters
-                xmom = [l1,l2,t3]
-                loc,scale,shp = numpy.array(lmom.pelgev(xmom), dtype='float32')
+                xmom = [l1, l2, t3]
+                loc, scale, shp = numpy.array(lmom.pelgev(xmom), 
+                                              dtype='float32')
                 # We only store the values if the first parameter is
                 # finite (i.e. the location parameter is finite)
                 if not numpy.isfinite(loc):
-                    loc,scale,shp = [missingValue, missingValue, missingValue]
+                    loc, scale, shp = [missing_value, missing_value, missing_value]
 
-    for i,t in enumerate(years):
+    for i, t in enumerate(years):
         if shp == -9999:
-            w[i] = missingValue
+            w[i] = missing_value
         else:
-            w[i] = numpy.transpose(loc + (scale/shp)*(1.-numpy.power(-1.*numpy.log(1.-(yrspersim/t)),shp)))
+            w[i] = numpy.transpose(loc + (scale/shp)*(1. - \
+                        numpy.power(-1.*numpy.log(1.-(yrspersim/t)), shp)))
             # Replace any non-finite numbers with the missing value:
             if not numpy.isfinite(w[i]):
-                w[i] = missingValue
+                w[i] = missing_value
 
     return w, loc, scale, shp

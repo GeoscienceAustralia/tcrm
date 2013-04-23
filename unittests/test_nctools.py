@@ -96,8 +96,8 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
         temp_check.shape = (self.nlevs,self.nlats,self.nlons) # reshape to 2d array
         lats = nctools.ncGetDims(ncobj,'lat')
         lons = nctools.ncGetDims(ncobj,'lon')
-        self.numpyAssertEqual(lats_check,lats)
-        self.numpyAssertEqual(lons_check,lons)
+        self.numpyAssertAlmostEqual(lats_check,lats)
+        self.numpyAssertAlmostEqual(lons_check,lons)
         press = nctools.ncGetData(ncobj, 'pressure')
         temp = nctools.ncGetData(ncobj, 'temperature')
         for nrec in range(self.nrecs):

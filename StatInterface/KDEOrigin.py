@@ -70,7 +70,6 @@ Id: KDEOrigin.py 219 2009-10-02 03:20:56Z carthur $
 import os, sys, pdb, logging
 
 import numpy
-from scipy import array, arange
 import Utilities.stats as stats
 import Utilities.KPDF as KPDF
 from Utilities.files import flLoadFile, flStartLog
@@ -144,8 +143,8 @@ class KDEOrigin:
             KPDF.set_callback(self.updateProgressBar)
         self.logger.info("Initialising KDEOrigins")
         self.configFile = configFile
-        self.x = arange(gridLimit['xMin'], gridLimit['xMax'], kdeStep)
-        self.y = arange(gridLimit['yMax'], gridLimit['yMin'], -kdeStep)
+        self.x = numpy.arange(gridLimit['xMin'], gridLimit['xMax'], kdeStep)
+        self.y = numpy.arange(gridLimit['yMax'], gridLimit['yMin'], -kdeStep)
 
         self.kdeType = kdeType
         self.kdeStep = kdeStep

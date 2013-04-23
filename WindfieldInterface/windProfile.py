@@ -226,8 +226,9 @@ class WindProfile:
         delta = (self.rMax/self.R)**beta
         edelta = numpy.exp(-delta)
 
-        V = numpy.sign(self.f)*numpy.sqrt((self.dP*beta/self.rho)*delta*edelta + (self.R*self.f/2.)**2) \
-            - self.R*numpy.abs(self.f)/2.
+        V = numpy.sign(self.f)*numpy.sqrt((self.dP*beta/self.rho)*delta*edelta +\
+                                          (self.R*self.f/2.)**2) \
+                                          - self.R*numpy.abs(self.f)/2.
 
         # Replace all values within rMax of the storm centre with the
         # cubic profile to eliminate barotropic instability:
@@ -262,7 +263,7 @@ class WindProfile:
         V = self.holland(beta)
         return V
 
-    def doubleHolland(self, rMax2=250.):
+    def doubleHolland(self):
         """
         McConochie et al's double Holland vortex model (based on Cardone
         et al, 1994).  This application is the Coral Sea adaptation of
@@ -282,7 +283,6 @@ class WindProfile:
         if self.beta2 is None:
             self.beta2 = 7.2 - self.pCentre/16000.
 
-        rMax1 = self.rMax
 
         # The two gradient wind components:
         mu = (self.rMax/self.R)**self.beta1
@@ -365,6 +365,6 @@ class WindProfile:
 
         delta = (self.rMax/self.R)**Bs
         edelta = numpy.exp(-delta)
-        pdb.set_trace()
+
         V = numpy.sign(self.f)*numpy.power((self.dP*Bs/self.rho)*delta*edelta,xx)
         return V

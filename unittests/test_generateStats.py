@@ -98,6 +98,6 @@ class TestGenerateStats(NumpyTestCase.NumpyTestCase):
         self.numpyAssertAlmostEqual(wP.coeffs.min, wP.coeffs.lmin)
 
 if __name__ == "__main__":
-    flStartLog('', 'CRITICAL', False)
+    #flStartLog('', 'CRITICAL', False)
     testSuite = unittest.makeSuite(TestGenerateStats,'test')
     unittest.TextTestRunner(verbosity=2).run(testSuite)

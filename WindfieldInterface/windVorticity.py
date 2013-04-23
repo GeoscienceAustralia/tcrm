@@ -77,7 +77,6 @@ import time
 import numpy
 import Utilities.metutils as metutils
 import derivatives
-import vmax
 
 class WindVorticity:
     """
@@ -291,6 +290,7 @@ Z = (numpy.sqrt((b1*dp1/rho)*delta*edelta + (b2*dp2/rho)*gamma*egamma + (r*f/2)*
             (4*numpy.sqrt(4*(beta1*dp1/self.rho)*delta*edelta + \
             4*(beta2*dp2/self.rho)*gamma*egamma+(self.R*self.f)**2))
         """
+        
         # Calculate first and second derivatives at R = Rmax:
         d2Vm = derivatives.doubleHolland(self.f, self.rMax, self.rMax2,
                                          self.beta1, self.beta2, dp1,dp2,

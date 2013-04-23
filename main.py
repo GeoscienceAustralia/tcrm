@@ -25,6 +25,9 @@ Tropical Cyclone Risk Model. Allows users to interact with all available
 methods from DataProcess, StatInterface, TrackGenerator,
 WindfieldInterface and HazardInterface.
 
+Usage:
+    
+
 Version :$Rev: 826 $
 
 $Id: main.py 826 2012-03-26 02:06:55Z nsummons $
@@ -50,7 +53,7 @@ if pathLocator.is_frozen():
 
 __version__ = "$Id: main.py 826 2012-03-26 02:06:55Z nsummons $"
 
-def main(configFile='main.ini'):
+def main(config_file='main.ini'):
     """
     Main interface of TCRM that allows control and interaction with the
     5 interfaces: DataProcess, StatInterface, TrackGenerator,
@@ -67,90 +70,94 @@ def main(configFile='main.ini'):
     logging.addLevelName(100, '')
     logger.log(100, "Starting TCRM")
 
-    logger.info("Configuration file: %s"%configFile)
+    logger.info("Configuration file: %s"%config_file)
 
     # Set up output folders - at this time, we create *all* output
     # folders that may be required:
-    outputPath = cnfGetIniValue(configFile, 'Output', 'Path',
+    output_path = cnfGetIniValue(config_file, 'Output', 'Path',
                                 os.path.join(os.getcwd(), 'output'))
-    logger.info("Output will be stored under %s"%outputPath)
-    subdirs = ['tracks', 'hazard', 'windfield', 'plots', 'plots/hazard', 'plots/stats',
-               'log', 'process', 'process/timeseries', 'process/dat']
+    logger.info("Output will be stored under %s"%output_path)
+    subdirs = ['tracks', 'hazard', 'windfield', 'plots', 'plots/hazard', 
+               'plots/stats', 'log', 'process', 'process/timeseries', 
+               'process/dat']
 
-    if not os.path.isdir(outputPath):
+    if not os.path.isdir(output_path):
         try:
-            os.makedirs(outputPath)
+            os.makedirs(output_path)
         except OSError:
             raise
     for subdir in subdirs:
-        if not os.path.isdir(os.path.realpath(os.path.join(outputPath, subdir))):
+        if not os.path.isdir(os.path.realpath(os.path.join(output_path, subdir))):
             try:
-                os.makedirs(os.path.realpath(os.path.join(outputPath, subdir)))
+                os.makedirs(os.path.realpath(os.path.join(output_path, subdir)))
             except OSError:
                 raise
 
-    show_progress_bar = cnfGetIniValue( configFile, 'Logging', 'ProgressBar', True )
+    show_progress_bar = cnfGetIniValue( config_file, 'Logging', 'ProgressBar', True )
     # Execute Data Process:
-    if cnfGetIniValue(configFile, 'Actions', 'DataProcess', False):
+    if cnfGetIniValue(config_file, 'Actions', 'DataProcess', False):
         pbar = ProgressBar('(1/6) Processing data files: ', show_progress_bar )
         
         from DataProcess import DataProcess
         logger.info('Running Data Processing')
-        dP = DataProcess.DataProcess(configFile, progressbar=pbar)
-        dP.processData()
+        data_process = DataProcess.DataProcess(config_file, progressbar=pbar)
+        data_process.processData()
 
-        statsPlotPath = os.path.join(outputPath, 'plots', 'stats')
-        processPath = os.path.join(outputPath, 'process')
+        statsPlotPath = os.path.join(output_path, 'plots', 'stats')
+        processPath = os.path.join(output_path, 'process')
         
-        pRateData = flLoadFile(os.path.join(processPath,'pressure_rate'))
-        pAllData = flLoadFile(os.path.join(processPath,'all_pressure'))
-        bRateData = flLoadFile(os.path.join(processPath,'bearing_rate'))
-        bAllData = flLoadFile(os.path.join(processPath,'all_bearing'))
-        sRateData = flLoadFile(os.path.join(processPath,'speed_rate'))
-        sAllData = flLoadFile(os.path.join(processPath,'all_speed'))
+        pRateData = flLoadFile(os.path.join(processPath, 'pressure_rate'))
+        pAllData = flLoadFile(os.path.join(processPath, 'all_pressure'))
+        bRateData = flLoadFile(os.path.join(processPath, 'bearing_rate'))
+        bAllData = flLoadFile(os.path.join(processPath, 'all_bearing'))
+        sRateData = flLoadFile(os.path.join(processPath, 'speed_rate'))
+        sAllData = flLoadFile(os.path.join(processPath, 'all_speed'))
         pbar.update(0.625)
         
-        indLonLat = flLoadFile(os.path.join(processPath,'cyclone_tracks'),delimiter=',')
-        indicator = indLonLat[:,0]
-        lonData = indLonLat[:,1]
-        latData = indLonLat[:,2]
+        indLonLat = flLoadFile(os.path.join(processPath, 'cyclone_tracks'), 
+                               delimiter=',')
+        indicator = indLonLat[:, 0]
+        lonData = indLonLat[:, 1]
+        latData = indLonLat[:, 2]
 
         import PlotInterface.plotStats as plotStats
-        plotStats.plotPressure(pAllData,pRateData,statsPlotPath)
-        plotStats.minPressureHist(indicator,pAllData,statsPlotPath)
-        plotStats.minPressureLat(pAllData,latData,statsPlotPath)
+        plotStats.plotPressure(pAllData, pRateData, statsPlotPath)
+        plotStats.minPressureHist(indicator, pAllData, statsPlotPath)
+        plotStats.minPressureLat(pAllData, latData, statsPlotPath)
         pbar.update(0.75)
         
-        plotStats.plotBearing(bAllData,bRateData,statsPlotPath)
-        plotStats.plotSpeed(sAllData,sRateData,statsPlotPath)
-        #plotStats.plotSpeedBear(sAllData,bAllData,statsPlotPath)
-        plotStats.plotLonLat(lonData,latData,indicator,statsPlotPath)
+        plotStats.plotBearing(bAllData, bRateData, statsPlotPath)
+        plotStats.plotSpeed(sAllData, sRateData, statsPlotPath)
+        #plotStats.plotSpeedBear(sAllData, bAllData, statsPlotPath)
+        plotStats.plotLonLat(lonData, latData, indicator, statsPlotPath)
         pbar.update(0.875)
         
-        plotStats.quantile(pRateData,statsPlotPath,"Pressure")
-        plotStats.quantile(bRateData,statsPlotPath,"Bearing")
-        plotStats.quantile(sRateData,statsPlotPath,"Speed")
+        plotStats.quantile(pRateData, statsPlotPath, "Pressure")
+        plotStats.quantile(bRateData, statsPlotPath, "Bearing")
+        plotStats.quantile(sRateData, statsPlotPath, "Speed")
         try:
-            freq = flLoadFile(os.path.join(processPath,'frequency'))
+            freq = flLoadFile(os.path.join(processPath, 'frequency'))
         except IOError:
             logger.warning("No frequency file available - skipping this stage")
         else:
-            years = freq[:,0]
-            frequency = freq[:,1]
-            plotStats.plotFrequency(years,frequency,statsPlotPath)
+            years = freq[:, 0]
+            frequency = freq[:, 1]
+            plotStats.plotFrequency(years, frequency, statsPlotPath)
         logger.info('Completed Data Processing')
         pbar.update(1.0)
 
     # Execute StatInterface:
-    if cnfGetIniValue(configFile, 'Actions', 'ExecuteStat', False):
+    if cnfGetIniValue(config_file, 'Actions', 'ExecuteStat', False):
         logger.info('Running StatInterface')
         # Auto-calculate track generator domain
         pbar = ProgressBar('(2/6) Calculating statistics:', show_progress_bar )
-        CalcTD = CalcTrackDomain(configFile)
-        autoCalc_TG_gridLimit = CalcTD.calc()
+        CalcTD = CalcTrackDomain(config_file)
+        TG_domain = CalcTD.calc()
 
         from StatInterface import StatInterface
-        statInterface = StatInterface.StatInterface(configFile, autoCalc_gridLimit=autoCalc_TG_gridLimit, progressbar=pbar)
+        statInterface = StatInterface.StatInterface(config_file, 
+                                                    autoCalc_gridLimit=TG_domain,
+                                                    progressbar=pbar)
         statInterface.kdeGenesisDate()
         pbar.update(0.6)
         statInterface.kdeOrigin()
@@ -160,99 +167,101 @@ def main(configFile='main.ini'):
         statInterface.cdfCellSpeed()
         pbar.update(0.9)
         statInterface.cdfCellPressure()
-        if cnfGetIniValue(configFile, 'RMW', 'GetRMWDistFromInputData', False):
+        if cnfGetIniValue(config_file, 'RMW', 'GetRMWDistFromInputData', False):
             statInterface.cdfCellSize()
         pbar.update(1.0)
         logger.info('Completed StatInterface')
 
     # Execute TrackGenerator:
-    if cnfGetIniValue(configFile, 'Actions', 'ExecuteTrackGenerator', False):
+    if cnfGetIniValue(config_file, 'Actions', 'ExecuteTrackGenerator', False):
         logger.info('Running TrackGenerator')
         # Auto-calculate track generator domain if not calculated previously
         try:
-            autoCalc_TG_gridLimit
+            TG_domain
         except NameError:
-            CalcTD = CalcTrackDomain(configFile)
-            autoCalc_TG_gridLimit = CalcTD.calc()        
+            CalcTD = CalcTrackDomain(config_file)
+            TG_domain = CalcTD.calc()        
+            
         from TrackGenerator.trackSimulation import trackSimulation
-        numSimulations = cnfGetIniValue(configFile, 'TrackGenerator',
+        numSimulations = cnfGetIniValue(config_file, 'TrackGenerator',
                                         'NumSimulations', 50)
-        dt = cnfGetIniValue(configFile, 'TrackGenerator', 'TimeStep', 1)
-        tsteps = cnfGetIniValue(configFile, 'TrackGenerator',
+        dt = cnfGetIniValue(config_file, 'TrackGenerator', 'TimeStep', 1)
+        tsteps = cnfGetIniValue(config_file, 'TrackGenerator',
                                 'NumTimeSteps', 360)
-        trackPath = os.path.join(outputPath, 'tracks')
-        yrsPerSim = cnfGetIniValue(configFile, 'TrackGenerator',
+        trackPath = os.path.join(output_path, 'tracks')
+        yrsPerSim = cnfGetIniValue(config_file, 'TrackGenerator',
                                    'YearsPerSimulation', 10)
-        frequency = cnfGetIniValue(configFile, 'TrackGenerator', 'Frequency', '')
+        frequency = cnfGetIniValue(config_file, 'TrackGenerator', 'Frequency', '')
+        
         if frequency == '':
-            logger.info('No genesis frequency specified -> auto-calculating')
-            CalcF = CalcFrequency(configFile, autoCalc_TG_gridLimit)
+            logger.info('No genesis frequency specified: auto-calculating')
+            CalcF = CalcFrequency(config_file, TG_domain)
             frequency = CalcF.calc()
             logger.info("Estimated annual genesis frequency for Track Generator domain: %s"%frequency)
-        format = cnfGetIniValue(configFile, 'TrackGenerator',
-                                'Format', 'csv')
-        trackSimulation(configFile, numSimulations, frequency, yrsPerSim, trackPath,
-                        format, dt=dt, tsteps=tsteps, autoCalc_gridLimit=autoCalc_TG_gridLimit)
+            
+        fmt = cnfGetIniValue(config_file, 'TrackGenerator', 'Format', 'csv')
+        trackSimulation(config_file, numSimulations, frequency, yrsPerSim, trackPath,
+                        fmt, dt=dt, tsteps=tsteps, autoCalc_gridLimit=TG_domain)
         logger.info('Completed TrackGenerator')
 
     # Execute Windfield:
-    if cnfGetIniValue(configFile, 'Actions', 'ExecuteWindfield', False):
+    if cnfGetIniValue(config_file, 'Actions', 'ExecuteWindfield', False):
         logger.info('Running WindfieldInterface')
         from WindfieldInterface import WindfieldInterface
-        nfiles = cnfGetIniValue(configFile, 'WindfieldInterface',
+        nfiles = cnfGetIniValue(config_file, 'WindfieldInterface',
                                 'NumberofFiles', 1)
-        wfinterface = WindfieldInterface.WindfieldInterface(configFile, nfiles)
+        wfinterface = WindfieldInterface.WindfieldInterface(config_file, nfiles)
         logger.info('Completed WindfieldInterface')
 
     # Execute Hazard:
-    if cnfGetIniValue(configFile, 'Actions', 'ExecuteHazard', False):
+    if cnfGetIniValue(config_file, 'Actions', 'ExecuteHazard', False):
         logger.info('Running HazardInterface')
         from HazardInterface.HazardInterface import HazardInterface
-        hzdinterface = HazardInterface(configFile)
+        hzdinterface = HazardInterface(config_file)
         hzdinterface.calculateWindHazard()
         logger.info('Completed HazardInterface')
 
     # Plot Hazard:
-    if cnfGetIniValue(configFile, 'Actions', 'PlotHazard', False):
+    if cnfGetIniValue(config_file, 'Actions', 'PlotHazard', False):
         logger.info('Plotting Hazard Maps')
         pbar = ProgressBar('(6/6) Plotting results:      ', show_progress_bar )
         from PlotInterface.AutoPlotHazard import AutoPlotHazard
-        plotHazard = AutoPlotHazard(configFile, progressbar=pbar)
-        plotHazard.plot()
+        plot_hazard = AutoPlotHazard(config_file, progressbar=pbar)
+        plot_hazard.plot()
 
     logger.info('Completed TCRM')
     #exits program if not do matplotlib plots
 
 if __name__ == "__main__":
     try:
-        configFile = sys.argv[1]
+        CONFIG_FILE = sys.argv[1]
     except IndexError:
         # Try loading config file with same name as python script
-        configFile = 'main.ini'
+        CONFIG_FILE = 'main.ini'
         # If no filename is specified and default filename doesn't exist => raise error
-        if not os.path.exists(configFile):
-            error_msg = "No configuration file specified, please type: python main.py {config filename}.ini"
-            raise IOError, error_msg
+        if not os.path.exists(CONFIG_FILE):
+            ERROR_MSG = "No configuration file specified, please type: python main.py {config filename}.ini"
+            raise IOError, ERROR_MSG
     # If config file doesn't exist => raise error
-    if not os.path.exists(configFile):
-        error_msg = "Configuration file '" + configFile +"' not found"
-        raise IOError, error_msg
+    if not os.path.exists(CONFIG_FILE):
+        ERROR_MSG = "Configuration file '" + CONFIG_FILE +"' not found"
+        raise IOError, ERROR_MSG
     
-    tcrm_dir = pathLocator.getRootDirectory()
-    os.chdir(tcrm_dir)
+    TCRM_DIR = pathLocator.getRootDirectory()
+    os.chdir(TCRM_DIR)
 
-    logFile = cnfGetIniValue(configFile, 'Logging', 'LogFile', 'main.log')
-    logFileDir = os.path.dirname(os.path.realpath(logFile))
+    LOG_FILE = cnfGetIniValue(CONFIG_FILE, 'Logging', 'LogFile', 'main.log')
+    LOG_FILE_DIR = os.path.dirname(os.path.realpath(LOG_FILE))
     # If log file directory does not exist, create it
-    if not os.path.isdir(logFileDir):
+    if not os.path.isdir(LOG_FILE_DIR):
         try:
-            os.makedirs(logFileDir)
+            os.makedirs(LOG_FILE_DIR)
         except OSError:
-            logFile = os.path.join(os.getcwd(), 'main.log')
+            LOG_FILE = os.path.join(os.getcwd(), 'main.log')
     
-    flStartLog(logFile,
-               cnfGetIniValue(configFile, 'Logging', 'LogLevel', 'INFO'),
-               cnfGetIniValue(configFile, 'Logging', 'Verbose', False))
+    flStartLog(LOG_FILE,
+               cnfGetIniValue(CONFIG_FILE, 'Logging', 'LogLevel', 'INFO'),
+               cnfGetIniValue(CONFIG_FILE, 'Logging', 'Verbose', False))
     
     # Switch off minor warning messages
     import warnings
@@ -260,12 +269,12 @@ if __name__ == "__main__":
     warnings.filterwarnings("ignore", category=UserWarning, module="pytz")
     
     try:
-        main(configFile)
+        main(CONFIG_FILE)
     except:
         # Catch any exceptions that occur and log them (nicely):
-        tblines = traceback.format_exc().splitlines()
-        logger = logging.getLogger()
-        for line in tblines:
-            logger.critical(line.lstrip())
+        TB_LINES = traceback.format_exc().splitlines()
+        LOGGER = logging.getLogger()
+        for line in TB_LINES:
+            LOGGER.critical(line.lstrip())
         #sys.exit(1)
 

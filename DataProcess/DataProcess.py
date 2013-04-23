@@ -113,7 +113,7 @@ import os, sys, pdb, logging
 
 import datetime
 import pylab
-from numpy import *
+import numpy
 from Utilities.grid import SampleGrid
 from Utilities.files import flModuleName, flSaveFile, flStartLog
 from Utilities.config import cnfGetIniValue
@@ -197,36 +197,37 @@ class DataProcess:
         Extract the maximum sustained wind speed
     """
 
-    def __init__(self, configFile, progressbar=None):
+    def __init__(self, config_file, progressbar=None):
         """
         Initialize the data include tool instance, Nan value and all
         full path names of the files in which data will be stored.
         """
 
-        self.configFile = configFile
+        self.config_file = config_file
         self.progressbar = progressbar
         self.logger = logging.getLogger()
         self.logger.info("Initialising DataProcess")
-        format = cnfGetIniValue(self.configFile, 'Output', 'format', 'txt')
-        self.outputPath = cnfGetIniValue(self.configFile, 'Output', 'Path')
-        self.processPath = os.path.join(self.outputPath, 'process')
+        self.outputPath = cnfGetIniValue(self.config_file, 'Output', 'Path')
+        self.processPath = os.path.join(self.config_file, 'process')
         
         # Determine TCRM input directory
         tcrm_dir = pathLocator.getRootDirectory()
         self.tcrm_input_dir = os.path.join(tcrm_dir, 'input')
         
-        landmask = cnfGetIniValue(self.configFile, 'Input', 'LandMask', 
+        landmask = cnfGetIniValue(self.config_file, 'Input', 'LandMask', 
                                   os.path.join(self.tcrm_input_dir, 
                                                'landmask.nc'))
 
         self.landmask = SampleGrid(landmask)
+        
+        fmt = cnfGetIniValue(self.config_file, 'Output', 'format', 'txt')
 
         self.ncflag = False
-        if format.startswith("nc"):
+        if fmt.startswith("nc"):
             self.logger.debug("Output format is netcdf")
             self.ncflag = True
             self.data = {}
-        elif format.startswith("txt"):
+        elif fmt.startswith("txt"):
             self.logger.debug("Output format is text")
             self.origin_lon_lat = os.path.join(self.processPath, 'origin_lon_lat')
             self.init_lon_lat = os.path.join(self.processPath, 'init_lon_lat')
@@ -274,50 +275,49 @@ class DataProcess:
         """
 
         self.logger.info("Running %s"%flModuleName())
-        inputFile = cnfGetIniValue(self.configFile, 'DataProcess', 'InputFile')
+        inputFile = cnfGetIniValue(self.config_file, 'DataProcess', 'InputFile')
         # If input file has no path information, default to tcrm input folder
         if len(os.path.dirname(inputFile)) == 0:
             inputFile = os.path.join(self.tcrm_input_dir, inputFile)
 
         self.logger.info("Processing %s"%inputFile)
-        source = cnfGetIniValue(self.configFile, 'DataProcess', 'Source')
-        inputData = colReadCSV(self.configFile, inputFile, source)
-        inputSpeedUnits = cnfGetIniValue(self.configFile, source, 
+        source = cnfGetIniValue(self.config_file, 'DataProcess', 'Source')
+        inputData = colReadCSV(self.config_file, inputFile, source)
+        inputSpeedUnits = cnfGetIniValue(self.config_file, source, 
                                          'SpeedUnits', 'mps')
-        inputPressureUnits = cnfGetIniValue(self.configFile, source, 
+        inputPressureUnits = cnfGetIniValue(self.config_file, source, 
                                             'PressureUnits', 'hPa')
-        inputLengthUnits = cnfGetIniValue(self.configFile, source, 
+        inputLengthUnits = cnfGetIniValue(self.config_file, source, 
                                           'LengthUnits', 'km')
         
-        startSeason = cnfGetIniValue(self.configFile, 'DataProcess', 
+        startSeason = cnfGetIniValue(self.config_file, 'DataProcess', 
                                      'StartSeason', 1981)
         
         if inputData.has_key('index'):
             self.logger.debug("Using index contained in file to determine initial TC positions")
-            indicator = array(inputData['index'], 'i')
+            indicator = numpy.array(inputData['index'], 'i')
         else:
             if inputData.has_key('tcserialno'):
                 tcSerialNo = inputData['tcserialno']
-                indicator = ones(len(tcSerialNo), 'i')
+                indicator = numpy.ones(len(tcSerialNo), 'i')
                 for i in range(1, len(tcSerialNo)):
                     if tcSerialNo[i] == tcSerialNo[i-1]:
                         indicator[i] = 0
             elif inputData.has_key('season') and inputData.has_key('num'):
                 self.logger.debug("Using season and TC number to determine initial TC positions")
-                num = array(inputData['num'], 'i')
-                season = array(inputData['season'], 'i')
-                indicator = ones(num.size, 'i')
+                num = numpy.array(inputData['num'], 'i')
+                season = numpy.array(inputData['season'], 'i')
+                indicator = numpy.ones(num.size, 'i')
                 for i in range(1, len(num)):
-                    if (season[i] == season[i-1]) and 
-                    (num[i] == num[i-1]):
+                    if (season[i] == season[i-1]) and (num[i] == num[i-1]):
                         indicator[i] = 0
 
             elif inputData.has_key('num'):
                 self.logger.debug("Using TC number to determine initial TC positions (no season information)")
-                num = array(inputData['num'],'i')
-                indicator = ones(num.size,'i')
-                ind_ = diff(num)
-                ind_[where(ind_ > 0)] = 1
+                num = numpy.array(inputData['num'],'i')
+                indicator = numpy.ones(num.size,'i')
+                ind_ = numpy.diff(num)
+                ind_[numpy.where(ind_ > 0)] = 1
                 indicator[1:] = ind_
             else:
                 self.logger.critical("Insufficient input file columns have been specified to run TCRM.")
@@ -328,23 +328,24 @@ class DataProcess:
 
         # Sort date/time information
         if inputData.has_key('age'):
-            dt_ = diff(inputData['age'])
-            dt = empty(indicator.size, 'f')
+            dt_ = numpy.diff(inputData['age'])
+            dt = numpy.empty(indicator.size, 'f')
             dt[1:] = dt_
         else:
             if inputData.has_key('date'):
-                year = empty(len(indicator), 'i')
-                month = empty(len(indicator), 'i')
-                day = empty(len(indicator), 'i')
-                hour = empty(len(indicator), 'i')
-                minute = empty(len(indicator), 'i')
-                datefmt = cnfGetIniValue(self.configFile, source, 
+                year = numpy.empty(len(indicator), 'i')
+                month = numpy.empty(len(indicator), 'i')
+                day = numpy.empty(len(indicator), 'i')
+                hour = numpy.empty(len(indicator), 'i')
+                minute = numpy.empty(len(indicator), 'i')
+                datefmt = cnfGetIniValue(self.config_file, source, 
                                          'DateFormat', 
                                          '%Y-%m-%d %H:%M:%S')
 
                 for i in range(len(inputData['date'])):
                     try:
-                        d = datetime.datetime.strptime(inputData['date'][i], datefmt)
+                        d = datetime.datetime.strptime(inputData['date'][i], 
+                                                       datefmt)
                     except ValueError:
                         self.logger.critical("Error in date information for record %d"%i)
                         self.logger.critical(sys.exc_info()[1])
@@ -357,15 +358,15 @@ class DataProcess:
                     minute[i] = d.minute
             else:
                 # Sort out date/time information:
-                month = array(inputData['month'], 'i')
-                day = array(inputData['day'], 'i')
-                hour = array(inputData['hour'], 'i')
+                month = numpy.array(inputData['month'], 'i')
+                day = numpy.array(inputData['day'], 'i')
+                hour = numpy.array(inputData['hour'], 'i')
                 try:
-                    year = array(inputData['year'], 'i')
-                except:
+                    year = numpy.array(inputData['year'], 'i')
+                except KeyError:
                     # Create dummy variable year - applicable for datasets
                     # such as WindRiskTech which contain no year information.
-                    year = zeros(indicator.size, 'i')
+                    year = numpy.zeros(indicator.size, 'i')
                     for i in range(len(year)):
                         if indicator[i] > 0:
                             fill_year = 2000
@@ -374,16 +375,16 @@ class DataProcess:
                         year[i] = fill_year
 
                 try:
-                    minute = array(inputData['minute'], 'i')
-                    assert minute.size == indicator.size
+                    minute = numpy.array(inputData['minute'], 'i')
                 except KeyError:
                     # Create dummy variable minute:
                     self.logger.warning("Missing minute data from input data - setting minutes to 00 for all times")
-                    minute = zeros((hour.size), 'i')
+                    minute = numpy.zeros((hour.size), 'i')
+                assert minute.size == indicator.size
 
             if inputData.has_key('season'):
                 # Find indicies that satisfy minimum season filter
-                good_indices = where([k >= startSeason for 
+                good_indices = numpy.where([k >= startSeason for 
                                       k in inputData['season']])[0]
                 
                 # Filter records
@@ -400,7 +401,7 @@ class DataProcess:
 
             # Create the dummy variable second for use in function
             # datenum
-            second = zeros((hour.size), 'i')
+            second = numpy.zeros((hour.size), 'i')
 
             # Time between observations:
             try:
@@ -421,66 +422,65 @@ class DataProcess:
                 self.logger.critical("Check your input file")
                 sys.exit(2)
 
-            dt_ = 24.0*diff(time_)
-            dt = empty(indicator.size, 'f')
+            dt_ = 24.0*numpy.diff(time_)
+            dt = numpy.empty(indicator.size, 'f')
             dt[1:] = dt_
             # Calculate julian days:
-            jdays = array([int(day_[i].strftime("%j")) for 
-                           i in xrange(year.size)])
+            jdays = numpy.array([int(day_[i].strftime("%j")) for 
+                                i in xrange(year.size)]) 
 
-        lat = array(inputData['lat'], 'd')
-        lon = mod(array(inputData['lon'], 'd'), 360)
-        delta_lon = diff(lon)
-        delta_lat = diff(lat)
+        lat = numpy.array(inputData['lat'], 'd')
+        lon = numpy.mod(numpy.array(inputData['lon'], 'd'), 360)
+        delta_lon = numpy.diff(lon)
+        delta_lat = numpy.diff(lat)
         # Split into separate tracks if large jump occurs (delta_lon >
         # 15 degrees or delta_lat > 5 degrees) This avoids two tracks
         # being accidentally combined when seasons and track numbers
         # match but basins are different as occurs in the IBTrACS
         # dataset.  This problem can also be prevented if the
         # 'tcserialno' column is specified.
-        indicator[where(delta_lon > 15)[0] + 1] = 1
-        indicator[where(delta_lat > 5)[0] + 1] = 1
+        indicator[numpy.where(delta_lon > 15)[0] + 1] = 1
+        indicator[numpy.where(delta_lat > 5)[0] + 1] = 1
 
         # Save information required for frequency auto-calculation
         if inputData.has_key('season'):
-            origin_seasonOrYear = array(inputData['season'], 'i').compress(indicator)
+            origin_seasonOrYear = numpy.array(inputData['season'], 'i').compress(indicator)
             header = 'Season'
         else:
             origin_seasonOrYear = year.compress(indicator)
             header = 'Year'
-        origin_lon = lon.compress(indicator)
-        origin_lat = lat.compress(indicator)
-        flSaveFile(self.origin_year,
-                   transpose(origin_seasonOrYear),
+            
+        flSaveFile(self.origin_year, numpy.transpose(origin_seasonOrYear),
                    header, ',', fmt='%d')
 
-        pressure = array(inputData['pressure'], 'd')
-        novalue_index = where(pressure==sys.maxint)
+        pressure = numpy.array(inputData['pressure'], 'd')
+        novalue_index = numpy.where(pressure==sys.maxint)
         pressure = metutils.convert(pressure, inputPressureUnits, "hPa")
         pressure[novalue_index] = sys.maxint
 
         # Convert any non-physical central pressure values to maximum integer
         # This is required because IBTrACS has a mix of missing value codes (i.e. -999, 0, 9999)
         # in the same global dataset.
-        pressure = where((pressure < 600) | (pressure > 1100), sys.maxint, pressure)
+        pressure = numpy.where((pressure < 600) | (pressure > 1100), 
+                               sys.maxint, pressure)
         if self.progressbar is not None:
             self.progressbar.update(0.25)
         try:
-            vmax = array(inputData['vmax'], 'd')
-            novalue_index = where(vmax==sys.maxint)
+            vmax = numpy.array(inputData['vmax'], 'd')
+            novalue_index = numpy.where(vmax==sys.maxint)
             vmax = metutils.convert(vmax, inputSpeedUnits, "mps")
             vmax[novalue_index] = sys.maxint
         except KeyError:
             self.logger.warning("No max wind speed data")
-            vmax = empty(indicator.size, 'f')
+            vmax = numpy.empty(indicator.size, 'f')
         assert lat.size == indicator.size
         assert lon.size == indicator.size
         assert pressure.size == indicator.size
         #assert vmax.size == indicator.size
 
         try:
-            rmax = array(inputData['rmax'])
-            novalue_index = where(rmax==sys.maxint)
+            rmax = numpy.array(inputData['rmax'])
+            novalue_index = numpy.where(rmax==sys.maxint)
             rmax = metutils.convert(rmax, inputLengthUnits, "km")
             rmax[novalue_index] = sys.maxint
 
@@ -499,17 +499,17 @@ class DataProcess:
         # Determine the index of initial cyclone observations, excluding
         # those cyclones that have only one observation. This is used
         # for calculating initial bearing and speed
-        indicator2 = where(indicator > 0, 1, 0)   # ensure indicator is only ones and zeros
-        initIndex = concatenate([where(diff(indicator2) == -1, 1, 0), [0]])
+        indicator2 = numpy.where(indicator > 0, 1, 0)   # ensure indicator is only ones and zeros
+        initIndex = numpy.concatenate([numpy.where(numpy.diff(indicator2) == -1, 1, 0), [0]])
 
         # Calculate the bearing and distance (km) of every two
         # consecutive records using ll2azi
         bear_, dist_ = maputils.latLon2Azi(lat, lon, ieast, azimuth=0)
         assert bear_.size == indicator.size - 1
         assert dist_.size == indicator.size - 1
-        bear = empty(indicator.size, 'f')
+        bear = numpy.empty(indicator.size, 'f')
         bear[1:] = bear_
-        dist = empty(indicator.size, 'f')
+        dist = numpy.empty(indicator.size, 'f')
         dist[1:] = dist_
         
         self._lonLat(lon, lat, indicator, initIndex)
@@ -519,47 +519,44 @@ class DataProcess:
             self.progressbar.update(0.375)        
         self._speed(dist, dt, indicator, initIndex)
         self._speedRate(dist, dt, indicator)
-        self._pressure(pressure, indicator, initIndex)
+        self._pressure(pressure, indicator)
         self._pressureRate(pressure, dt, indicator)
-        self._windSpeed(vmax, indicator)
+        self._windSpeed(vmax)
         if inputData.has_key('year') or inputData.has_key('date'):
             # Disabled frequency plot as misleading since represents entire dataset
             # rather than selected domain
             #self._frequency(year,indicator)
             self._juliandays(jdays,indicator,year)
-
-        if self.ncflag:
-            outputFile = os.path.join(self.outputPath,
-                                      cnfGetIniValue(cfgFile,'Output', 'ncfile'))
-            self.logger.debug('Saving data to %s'%outputFile)
-            ncfile = nctools.DataProcess(outputFile, self.data,
-                                         description="Generated by DataProcess.py")
+                               
         self.logger.info("Completed %s"%flModuleName())
         if self.progressbar is not None:
             self.progressbar.update(0.5)
 
     def _lonLat(self, lon, lat, indicator, initIndex):
-        """Extract longitudes and latitudes for all obs, initial obs, TC
+        """
+        Extract longitudes and latitudes for all obs, initial obs, TC
         origins and determine a land/sea flag indicating if the TC
         position is over land or sea.
+        
         Input: lon - array of TC longitudes
                lat - array of TC latitudes
                indicator - array of ones/zeros representing initial TC
-                           observations (including TCs with a single
-                           observation)
+                           observations, including TCs with a single
+                           observation
                initIndex - array of ones/zeros representing initial TC
-                           observations (excluding TCs with a single
-                           observation)
+                           observations, excluding TCs with a single
+                           observation
+        
         Output: None - data is written to file
+        
         """
+        
         self.logger.info('Extracting longitudes and latitudes')
-        lsflag = zeros(len(lon))
-        i = 0
-        for x,y in zip(lon, lat):
+        lsflag = numpy.zeros(len(lon))
+        for i,x,y in enumerate(zip(lon, lat)):
             if self.landmask.sampleGrid(x,y) > 0:
                 lsflag[i] = 1
-            i += 1
-
+            
         lonOne = lon.compress(indicator)
         latOne = lat.compress(indicator)
         lsflagOne = lsflag.compress(indicator)
@@ -579,19 +576,20 @@ class DataProcess:
             self.data['lsflag'] = lsflag
         else:
             flSaveFile(self.origin_lon_lat,
-                       transpose([lonOne, latOne, lsflagOne]),
+                       numpy.transpose([lonOne, latOne, lsflagOne]),
                        header, ',', fmt='%6.2f')
             flSaveFile(self.init_lon_lat,
-                       transpose([lonInit, latInit, lsflagInit]),
+                       numpy.transpose([lonInit, latInit, lsflagInit]),
                        header, ',', fmt='%6.2f')
             flSaveFile(self.all_lon_lat,
-                       transpose([lon, lat, lsflag]),
+                       numpy.transpose([lon, lat, lsflag]),
                        header, ',', fmt='%6.2f')
+            
             # Output all cyclone positions:
             self.logger.debug('Outputting data into %s'%self.cyclone_tracks)
             header = 'Cyclone Origin,Longitude,Latitude, LSflag'
             flSaveFile(self.cyclone_tracks,
-                       transpose([indicator, lon, lat, lsflag]),
+                       numpy.transpose([indicator, lon, lat, lsflag]),
                        header, ',', fmt='%6.2f')
 
     def _bearing(self, bear, indicator, initIndex):
@@ -607,10 +605,10 @@ class DataProcess:
         self.logger.info('Extracting bearings')
 
         #extract all bearings
-        putmask(bear, indicator, sys.maxint)
+        numpy.putmask(bear, indicator, sys.maxint)
 
         # extract initial bearings
-        initBearingIndex = flatnonzero(initIndex[:-1]) + 1
+        initBearingIndex = numpy.flatnonzero(initIndex[:-1]) + 1
         initBearing = bear.take(initBearingIndex)
 
         # extract non-initial bearings
@@ -653,10 +651,11 @@ class DataProcess:
         speed = dist/dt
         # Delete speeds less than 0, greated than 200,
         # or where indicator == 1.
-        putmask(speed, (speed < 0) | (speed > 200) | indicator, sys.maxint)
-        putmask(speed, isnan(speed), sys.maxint)
+        numpy.putmask(speed, (speed < 0) | (speed > 200) | indicator, 
+                      sys.maxint)
+        numpy.putmask(speed, numpy.isnan(speed), sys.maxint)
 
-        initSpeedIndex = flatnonzero(initIndex[:-1]) + 1
+        initSpeedIndex = numpy.flatnonzero(initIndex[:-1]) + 1
         initSpeed = speed.take(initSpeedIndex)
         indicator_ = indicator.copy()
         indicator_.put(initSpeedIndex, 1)
@@ -682,7 +681,7 @@ class DataProcess:
             header = 'cyclone speed without initial ones in km/hour'
             flSaveFile(self.speed_no_init, speedNoInit, header, fmt='%6.2f')
 
-    def _pressure(self, pressure, indicator, initIndex):
+    def _pressure(self, pressure, indicator):
         """Extract pressure for all obs, initial obs and TC origins
         Input: pressure - array of central pressure observations for TC
                           observations
@@ -738,8 +737,8 @@ class DataProcess:
         self.logger.info('Extracting the rate of pressure change from the pressure values')
 
         #Change in pressure:
-        pressureChange_ = diff(pressure)
-        pressureChange = empty(indicator.size, 'f')
+        pressureChange_ = numpy.diff(pressure)
+        pressureChange = numpy.empty(indicator.size, 'f')
         pressureChange[1:] = pressureChange_
 
         # Rate of pressure change:
@@ -751,10 +750,10 @@ class DataProcess:
         # The highest rate of intensification on record is
         # Typhoon Forrest (Sept 1983) 100 mb in 24 hrs.
         self.logger.debug('Outputting data into %s'%self.pressure_rate)
-        putmask(pressureRate, indicator, sys.maxint)
-        putmask(pressureRate, pressure >= sys.maxint, sys.maxint)
-        putmask(pressureRate, isnan(pressureRate), sys.maxint)
-        putmask(pressureRate, abs(pressureRate)>10, sys.maxint)
+        numpy.putmask(pressureRate, indicator, sys.maxint)
+        numpy.putmask(pressureRate, pressure >= sys.maxint, sys.maxint)
+        numpy.putmask(pressureRate, numpy.isnan(pressureRate), sys.maxint)
+        numpy.putmask(pressureRate, numpy.abs(pressureRate)>10, sys.maxint)
 
         if self.ncflag:
             self.data['pressureRate'] = pressureRate
@@ -778,20 +777,21 @@ class DataProcess:
         """
         self.logger.info('Extracting the rate of bearing change for each cyclone')
 
-        bearingChange_ = diff(bear)
-        ii = where((bearingChange_ > 180.))
-        jj = where((bearingChange_ < -180.))
+        bearingChange_ = numpy.diff(bear)
+        ii = numpy.where((bearingChange_ > 180.))
+        jj = numpy.where((bearingChange_ < -180.))
         bearingChange_[ii] -= 360.
         bearingChange_[jj] += 360.
-        bearingChange = empty(indicator.size, 'd')
+        bearingChange = numpy.empty(indicator.size, 'd')
         bearingChange[1:] = bearingChange_
 
         bearingRate = bearingChange/dt
 
-        putmask(bearingRate, indicator, sys.maxint)
-        putmask(bearingRate[1:], indicator[:-1], sys.maxint)
-        putmask(bearingRate, (bearingRate >= sys.maxint) | (bearingRate <= -sys.maxint), sys.maxint)
-        putmask(bearingRate, isnan(bearingRate), sys.maxint)
+        numpy.putmask(bearingRate, indicator, sys.maxint)
+        numpy.putmask(bearingRate[1:], indicator[:-1], sys.maxint)
+        numpy.putmask(bearingRate, (bearingRate >= sys.maxint) | (bearingRate <= -sys.maxint), 
+                      sys.maxint)
+        numpy.putmask(bearingRate, numpy.isnan(bearingRate), sys.maxint)
 
         if self.ncflag:
             self.data['bearingRate'] = bearingRate
@@ -818,19 +818,19 @@ class DataProcess:
         self.logger.info('Extracting the rate of speed change for each cyclone')
 
         speed = dist/dt
-        speedChange_ = diff(speed)
-        speedChange = empty(indicator.size, 'd')
+        speedChange_ = numpy.diff(speed)
+        speedChange = numpy.empty(indicator.size, 'd')
         speedChange[1:] = speedChange_
 
         indicator_ = indicator.copy()
-        putmask(indicator_, (speed < 0) | (speed > 200), 1)
+        numpy.putmask(indicator_, (speed < 0) | (speed > 200), 1)
 
         speedRate = speedChange/dt
 
-        putmask(speedRate, indicator_, sys.maxint)
-        putmask(speedRate[1:], indicator_[:-1], sys.maxint)
-        putmask(speedRate, (speedRate >= sys.maxint) | (speedRate <= -sys.maxint), sys.maxint)
-        putmask(speedRate, isnan(speedRate), sys.maxint)
+        numpy.putmask(speedRate, indicator_, sys.maxint)
+        numpy.putmask(speedRate[1:], indicator_[:-1], sys.maxint)
+        numpy.putmask(speedRate, (speedRate >= sys.maxint) | (speedRate <= -sys.maxint), sys.maxint)
+        numpy.putmask(speedRate, numpy.isnan(speedRate), sys.maxint)
 
         if self.ncflag:
             self.data['speedRate'] = speedRate
@@ -839,16 +839,14 @@ class DataProcess:
             header = 'All speed change rates (km/hr/hr)'
             flSaveFile(self.speed_rate, speedRate, header, fmt='%6.2f')
 
-    def _windSpeed(self, windSpeed, indicator):
+    def _windSpeed(self, windSpeed):
         """Extract maximum sustained wind speeds
         Input: windSpeed - array of windspeeds for TC observations
-               indicator - array of ones/zeros representing initial TC
-                           observations (including TCs with a single
-                           observation)
+               
         Output: None - data is written to file
         """
         self.logger.info('Extracting maximum sustained wind speeds')
-        putmask(windSpeed, windSpeed > 200., sys.maxint)
+        numpy.putmask(windSpeed, windSpeed > 200., sys.maxint)
         if self.ncflag:
             self.data['windspeed'] = windSpeed
         else:
@@ -907,8 +905,8 @@ class DataProcess:
         self.logger.info('Extracting the rate of size change from the rmax values')
 
         #Change in rmax:
-        rmaxChange_ = diff(rmax)
-        rmaxChange = empty(indicator.size, 'f')
+        rmaxChange_ = numpy.diff(rmax)
+        rmaxChange = numpy.empty(indicator.size, 'f')
         rmaxChange[1:] = rmaxChange_
 
         # Rate of rmax change:
@@ -917,10 +915,10 @@ class DataProcess:
         # Mask rates corresponding to initial times and times when
         # the rmax is known to be missing.
         self.logger.debug('Outputting data into %s'%self.rmax_rate)
-        putmask(rmaxRate, indicator, sys.maxint)
-        putmask(rmaxRate, rmax >= sys.maxint, sys.maxint)
-        putmask(rmaxRate, (rmaxRate >= sys.maxint) | (rmaxRate <= -sys.maxint), sys.maxint)
-        putmask(rmaxRate, isnan(rmaxRate), sys.maxint)
+        numpy.putmask(rmaxRate, indicator, sys.maxint)
+        numpy.putmask(rmaxRate, rmax >= sys.maxint, sys.maxint)
+        numpy.putmask(rmaxRate, (rmaxRate >= sys.maxint) | (rmaxRate <= -sys.maxint), sys.maxint)
+        numpy.putmask(rmaxRate, numpy.isnan(rmaxRate), sys.maxint)
 
         if self.ncflag:
             self.data['rmaxRate'] = rmaxRate
@@ -938,12 +936,14 @@ class DataProcess:
             self.logger.info("First and last year of input data are the same")
             self.logger.info("Cannot generate histogram of frequency")
         else:
-            bins = arange(minYr,maxYr+2,1)
-            n,b = histogram(years.compress(indicator),bins)
+            bins = numpy.arange(minYr,maxYr+2,1)
+            n,b = numpy.histogram(genesisYears,bins)
             header = 'Year,count'
-            flSaveFile( self.frequency, transpose( [bins[:-1],n] ), header, fmt='%6.2f' )
-            self.logger.info( "Mean annual frequency: %5.1f"%mean( n ) )
-            self.logger.info( "Standard deviation: %5.1f"%std( n ) )
+            flSaveFile(self.frequency, numpy.transpose( [bins[:-1],n] ), 
+                       header, fmt='%6.2f' )
+                       
+            self.logger.info( "Mean annual frequency: %5.1f"%numpy.mean( n ) )
+            self.logger.info( "Standard deviation: %5.1f"%numpy.std( n ) )
 
     def _juliandays(self, jdays, indicator, years ):
         """
@@ -960,41 +960,41 @@ class DataProcess:
             if ( years[i]%4 == 0 ) and ( jdays[i] >= 60 ):
                 jdays[i] -= 1
 
-        bins = arange( 1, 367 )
-        n,b = histogram( jdays.compress( indicator ), bins )
+        bins = numpy.arange( 1, 367 )
+        n,b = numpy.histogram( jdays.compress( indicator ), bins )
         header = 'Day,count'
         # Distribution of genesis days (histogram):
-        flSaveFile( self.jday_genesis,transpose( [bins[:-1], n] ), 
+        flSaveFile( self.jday_genesis, numpy.transpose( [bins[:-1], n] ), 
                     header, fmt='%d', delimiter=',' )
-        n,b = histogram( jdays, bins)
+        n,b = numpy.histogram( jdays, bins)
         # Distribution of all days (histogram):
-        flSaveFile( self.jday_observations, transpose( [bins[:-1],n] ), 
+        flSaveFile( self.jday_observations, numpy.transpose( [bins[:-1],n] ), 
                     header, fmt='%d', delimiter=',' )
         # All days:
-        flSaveFile( self.jday, transpose( jdays.compress( indicator ) ), 
+        flSaveFile( self.jday, numpy.transpose( jdays.compress( indicator ) ), 
                     header='Day', fmt='%d' )
 
 if __name__ == "__main__":
     try:
-        configFile = sys.argv[1]
+        config_file = sys.argv[1]
     except IndexError:
         # Try loading config file with same name as python script
-        configFile = __file__.rstrip('.py') + '.ini'
+        config_file = __file__.rstrip('.py') + '.ini'
         # If no filename is specified and default filename does not exist => raise error
-        if not os.path.exists(configFile):
+        if not os.path.exists(config_file):
             error_msg = "No configuration file specified, please type: python main.py {config filename}.ini"
             raise IOError, error_msg
     # If config file does not exist => raise error
-    if not os.path.exists(configFile):
-        error_msg = "Configuration file '" + configFile +"' not found"
+    if not os.path.exists(config_file):
+        error_msg = "Configuration file '" + config_file +"' not found"
         raise IOError, error_msg
 
-    logFile = cnfGetIniValue(configFile, 'Logging', 'LogFile',
+    logFile = cnfGetIniValue(config_file, 'Logging', 'LogFile',
                              __file__.rstrip('.py') + '.log')
-    logLevel = cnfGetIniValue(configFile, 'Logging', 'LogLevel', 'DEBUG')
-    verbose = cnfGetIniValue(configFile, 'Logging', 'Verbose', True)
+    logLevel = cnfGetIniValue(config_file, 'Logging', 'LogLevel', 'DEBUG')
+    verbose = cnfGetIniValue(config_file, 'Logging', 'Verbose', True)
     flStartLog(logFile, logLevel, verbose)
 
-    dp = DataProcess(configFile)
+    dp = DataProcess(config_file)
     dp.processData()
     logging.shutdown()

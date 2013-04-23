@@ -42,13 +42,13 @@ from StatInterface import KDEParameters
 from Utilities.files import flStartLog
 
 class TestKDEParameters(NumpyTestCase.NumpyTestCase):
-    
+
     def setUp(self):
         self.pressure_rate = cPickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_parameters_pressure_rate.pck')))
         self.resultp = cPickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_parameters_result.pck')))
         kdeType = 'Epanechnikov'
         self.k = KDEParameters.KDEParameters(kdeType)
-
+    
     def test_GenerateKDE(self):
         """Testing GenerateKDE for 1-D data"""
         kdeStep = 0.1

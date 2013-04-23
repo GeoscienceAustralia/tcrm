@@ -54,6 +54,6 @@ class TestMSLP(NumpyTestCase.NumpyTestCase):
         self.numpyAssertAlmostEqual(mslpSA, self.mslpSA_test)
 
 if __name__ == "__main__":
-    flStartLog('', 'CRITICAL', False)
+    #flStartLog('', 'CRITICAL', False)
     testSuite = unittest.makeSuite(TestMSLP,'test')
     unittest.TextTestRunner(verbosity=2).run(testSuite)
