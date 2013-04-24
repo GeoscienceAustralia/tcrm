@@ -414,6 +414,7 @@ class DataProcess:
                 self.logger.critical(sys.exc_info()[1])
                 self.logger.critical("Check your input file")
                 sys.exit(2)
+                
             try:
                 time_ = pylab.date2num(day_)
             except ValueError:
@@ -425,6 +426,7 @@ class DataProcess:
             dt_ = 24.0*numpy.diff(time_)
             dt = numpy.empty(indicator.size, 'f')
             dt[1:] = dt_
+            
             # Calculate julian days:
             jdays = numpy.array([int(day_[i].strftime("%j")) for 
                                 i in xrange(year.size)]) 
@@ -459,20 +461,22 @@ class DataProcess:
         pressure[novalue_index] = sys.maxint
 
         # Convert any non-physical central pressure values to maximum integer
-        # This is required because IBTrACS has a mix of missing value codes (i.e. -999, 0, 9999)
-        # in the same global dataset.
+        # This is required because IBTrACS has a mix of missing value codes
+        # (i.e. -999, 0, 9999) in the same global dataset.
         pressure = numpy.where((pressure < 600) | (pressure > 1100), 
                                sys.maxint, pressure)
         if self.progressbar is not None:
             self.progressbar.update(0.25)
         try:
             vmax = numpy.array(inputData['vmax'], 'd')
-            novalue_index = numpy.where(vmax==sys.maxint)
-            vmax = metutils.convert(vmax, inputSpeedUnits, "mps")
-            vmax[novalue_index] = sys.maxint
         except KeyError:
             self.logger.warning("No max wind speed data")
             vmax = numpy.empty(indicator.size, 'f')
+        else:
+            novalue_index = numpy.where(vmax==sys.maxint)
+            vmax = metutils.convert(vmax, inputSpeedUnits, "mps")
+            vmax[novalue_index] = sys.maxint
+            
         assert lat.size == indicator.size
         assert lon.size == indicator.size
         assert pressure.size == indicator.size
@@ -553,9 +557,11 @@ class DataProcess:
         
         self.logger.info('Extracting longitudes and latitudes')
         lsflag = numpy.zeros(len(lon))
-        for i,x,y in enumerate(zip(lon, lat)):
+        i = 0
+        for x,y in zip(lon, lat):
             if self.landmask.sampleGrid(x,y) > 0:
                 lsflag[i] = 1
+            i += 1
             
         lonOne = lon.compress(indicator)
         latOne = lat.compress(indicator)
