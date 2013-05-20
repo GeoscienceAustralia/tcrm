@@ -69,7 +69,7 @@ import os, sys, pdb, logging
 
 import Utilities.metutils as metutils
 
-from numpy import *
+import numpy
 import WindfieldInterface.vmax as vmax
 import time
 
@@ -183,11 +183,11 @@ class PrsProfile:
         """
         Holland profile.
         """
-        if beta==None:
-            beta=self.beta
+        if beta == None:
+            beta = self.beta
         t0 = time.time()
-        P = zeros(self.R.shape)
-        P = self.pCentre + self.dP*exp(-(self.rMax/self.R)**beta)
+        P = numpy.zeros(self.R.shape)
+        P = self.pCentre + self.dP*numpy.exp(-(self.rMax/self.R)**beta)
         self.logger.debug("Timing for holland wind profile calculation: %.3f"
                            % (time.time()-t0))
         return P
@@ -203,8 +203,8 @@ class PrsProfile:
         data, not Australian data.
         """
         vMax = vmax.vmax(self.pCentre, self.pEnv, type="willoughby")
-        beta = 1.0036 + 0.0173*vMax  - 0.313*log(self.rMax) \
-               + 0.0087*abs(self.cLat)
+        beta = 1.0036 + 0.0173*vMax  - 0.313*numpy.log(self.rMax) \
+               + 0.0087*numpy.abs(self.cLat)
         P = self.holland(beta)
         return P
 
@@ -238,13 +238,11 @@ class PrsProfile:
         if self.beta2 is None:
             self.beta2 = 7.2 - self.pCentre/16000.
 
-        rMax1 = self.rMax
-
         # The two gradient wind components:
         mu = (self.rMax/self.R)**self.beta1
         nu = (self.rMax2/self.R)**self.beta2
-        emu = exp(-mu)
-        enu = exp(-nu)
+        emu = numpy.exp(-mu)
+        enu = numpy.exp(-nu)
         P = self.pCentre + dp1*emu +dp2*enu
 #        gradientV1 = (self.beta1*dp1/self.rho)*mu*emu
 #        gradientV2 = (self.beta2*dp2/self.rho)*nu*enu

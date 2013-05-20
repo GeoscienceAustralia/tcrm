@@ -40,6 +40,15 @@ __version__ = '$Id: config.py 642 2012-02-21 07:54:04Z nsummons $'
 config_dict = {}
 logger = logging.getLogger()
 
+class ConfigError(Exception):
+    """
+    Exception class to handle configuration errors
+    """
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
 def cnfCacheIniFile(configFile=None):
     """
     A wrapper to the ConfigParser module which caches a dictionary of
@@ -113,8 +122,9 @@ def cnfGetCachedIniValue(section, option):
         else:
             return None
     except ConfigParser.NoSectionError:
-        logger.exception("No {0} section in the configuration file".format(section))
-        raise 
+        logger.exception("No {0} section in the configuration file".\
+                            format(section))
+        raise
 
 def cnfSetCachedIniValue(section, option, value):
     """
@@ -159,8 +169,9 @@ def cnfGetIniValue(configFile, section, option, default=None):
     elif default is not None:
         return default
     else:
-        logger.info("No value set for section: {0}, option: {1} (and no default value was given)".format(section,option))
-        return None
+        raise ConfigError("No value set for section: {0}, option: {1} (and no \
+        default value was given)".format(section,option))
+        #return None
 
 
 def cnfGetIniList(configFile, section, first=1, last=None):
@@ -185,7 +196,8 @@ def cnfGetIniList(configFile, section, first=1, last=None):
     try:
         options = cp.options(section)
     except ConfigParser.NoSectionError:
-        logger.exception("No section named {0} in configuration file {1}".format(section, configFile))
+        logger.exception("No section named {0} in configuration file {1}".\
+                            format(section, configFile))
         FH.close()
         raise
 
@@ -243,7 +255,8 @@ def cnfGetIniFileValue(configFile, section, option, default=None):
     try:
         sections = cp.sections()
     except ConfigParser.NoSectionError:
-        logger.exception("No section named {0} in configuration file {1}".format(section, configFile))
+        logger.exception("No section named {0} in configuration file {1}".\
+                            format(section, configFile))
         FH.close()
         raise
 
@@ -275,12 +288,12 @@ def cnfGetUnorderedList(configFile, section):
     Output: list, or number of values in scalar context
     Example: out = cnfGetUnorderdedList( filename, section )
 
-    This function requires a different approach to reading 
+    This function requires a different approach to reading
     the configuration file, as ConfigParser in Python versions
     prior to 2.7 cannot handle options with no value. The workaround
     reads the configuration file and constructs a dict similar
-    to config_dict used elsewhere in this module. 
-    Lists of unordered values are included in the dict with the 
+    to config_dict used elsewhere in this module.
+    Lists of unordered values are included in the dict with the
     key and subkey equal to the section name.
     i.e. cfgDict[ section ][ section ] = [list]
 
@@ -295,7 +308,7 @@ def cnfGetUnorderedList(configFile, section):
         FH = open(configFile)
     except IOError:
         logger.warn("Cannot open {0}".format(configFile))
-    else: 
+    else:
         for line in FH:
             line = line.lstrip().rstrip('\n')
             cm = re.match('^;', line)
@@ -312,7 +325,7 @@ def cnfGetUnorderedList(configFile, section):
                     cfgDict[key][subkey] = sect_list
                 sect = new_sect
                 sect_list = []
-                            
+
             elif am:
                 # Attribute/value pair
                 att = am.group(1)
@@ -326,11 +339,11 @@ def cnfGetUnorderedList(configFile, section):
                     cfgDict[sect][att] = val
             elif len(line):
                 sect_list.append(line)
-            
+
         FH.close()
 
     return cfgDict[section][section]
-            
+
 def _cnfCacheIniFile(filename):
     """
     This version of cnfCacheIniFile doesn't rely on configParser.
@@ -345,7 +358,7 @@ def _cnfCacheIniFile(filename):
     """
 
     section = None
-    
+
     try:
         FH = open( filename )
     except IOError:
@@ -368,7 +381,7 @@ def _cnfCacheIniFile(filename):
                     cfgDict[ key ][ subkey ] = sect_list
                 sect = new_sect
                 sect_list = []
-                            
+
             elif am:
                 # Attribute/value pair
                 att = am.group( 1 )
@@ -382,18 +395,18 @@ def _cnfCacheIniFile(filename):
                     cfgDict[ sect ][ att ] = val
             elif len( line ):
                 sect_list.append( line )
-            
+
         FH.close( )
 
     return cfgDict
 
 def cnfRefreshCachedIniFile( configFile ):
     """
-    Reload a configuration file into the configuration 
-    dictionary. This will replace all values with the values from 
+    Reload a configuration file into the configuration
+    dictionary. This will replace all values with the values from
     the file, so use with caution as the input configuration file
     may have been changed.
-    
+
     Input: ini file name
     Output: None. The config_dict object is updated
     Example: cnfRefreshCachedIniFile( configFile )

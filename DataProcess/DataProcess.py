@@ -111,8 +111,6 @@ $Id: DataProcess.py 832 2012-03-28 07:23:32Z nsummons $
 
 import os, sys, pdb, logging
 
-import datetime
-import pylab
 import numpy
 from Utilities.grid import SampleGrid
 from Utilities.files import flModuleName, flSaveFile, flStartLog
@@ -120,11 +118,16 @@ from Utilities.config import cnfGetIniValue
 from Utilities.columns import colReadCSV
 import Utilities.maputils as maputils
 import Utilities.metutils as metutils
+import Utilities.stats as stats
 from Utilities import pathLocator
+import Utilities.loadData as loadData
+from CalcTrackDomain import CalcTrackDomain
+
 
 # Switch off minor warning messages
 import warnings
-warnings.filterwarnings("ignore", category=RuntimeWarning, module="DataProcess")
+warnings.filterwarnings("ignore", category=RuntimeWarning,
+                        module="DataProcess")
 
 class DataProcess:
     """
@@ -202,24 +205,25 @@ class DataProcess:
         Initialize the data include tool instance, Nan value and all
         full path names of the files in which data will be stored.
         """
-
+        #CalcTD = CalcTrackDomain(config_file)
+        #self.domain = CalcTD.calc()
         self.config_file = config_file
         self.progressbar = progressbar
-        self.logger = logging.getLogger()
+        self.logger = logging.getLogger(__name__)
         self.logger.info("Initialising DataProcess")
         self.outputPath = cnfGetIniValue(self.config_file, 'Output', 'Path')
-        self.processPath = os.path.join(self.config_file, 'process')
-        
+        self.processPath = os.path.join(self.outputPath, 'process')
+
         # Determine TCRM input directory
         tcrm_dir = pathLocator.getRootDirectory()
         self.tcrm_input_dir = os.path.join(tcrm_dir, 'input')
-        
-        landmask = cnfGetIniValue(self.config_file, 'Input', 'LandMask', 
-                                  os.path.join(self.tcrm_input_dir, 
+
+        landmask = cnfGetIniValue(self.config_file, 'Input', 'LandMask',
+                                  os.path.join(self.tcrm_input_dir,
                                                'landmask.nc'))
 
         self.landmask = SampleGrid(landmask)
-        
+
         fmt = cnfGetIniValue(self.config_file, 'Output', 'format', 'txt')
 
         self.ncflag = False
@@ -227,23 +231,35 @@ class DataProcess:
             self.logger.debug("Output format is netcdf")
             self.ncflag = True
             self.data = {}
+            #dimensions = {records}
+            #variables = {init_index(records),
+            #             genesis_index(records),
+            #             non_init_index(records),
+            #             lon(records), lat(records),
+            #             year(records), month(records),
+            #             day(records), hour(records),
+            #             minute(records), julianday(records),
+            #             bearing(records), speed(records),
+            #             pressure(records), lsflag(records), }
+            #global_attributes = dict(description=
+            #                         source_file=,
+            #                         source_file_moddate,
+            #                         landmask_file=,
+            #                         version=,)
         elif fmt.startswith("txt"):
             self.logger.debug("Output format is text")
-            self.origin_lon_lat = os.path.join(self.processPath, 'origin_lon_lat')
-            self.init_lon_lat = os.path.join(self.processPath, 'init_lon_lat')
             self.origin_year = os.path.join(self.processPath, 'origin_year')
-            self.all_lon_lat = os.path.join(self.processPath, 'all_lon_lat')
-            self.cyclone_tracks = os.path.join(self.processPath, 'cyclone_tracks')
-            self.init_bearing = os.path.join(self.processPath, 'init_bearing')
-            self.all_bearing = os.path.join(self.processPath, 'all_bearing')
-            self.bearing_no_init = os.path.join(self.processPath, 'bearing_no_init')
             self.init_speed = os.path.join(self.processPath, 'init_speed')
             self.all_speed = os.path.join(self.processPath, 'all_speed')
-            self.speed_no_init = os.path.join(self.processPath, 'speed_no_init')
-            self.init_pressure = os.path.join(self.processPath, 'init_pressure')
+            self.speed_no_init = os.path.join(self.processPath,
+                                              'speed_no_init')
+            self.init_pressure = os.path.join(self.processPath,
+                                              'init_pressure')
             self.all_pressure = os.path.join(self.processPath, 'all_pressure')
-            self.pressure_no_init = os.path.join(self.processPath, 'pressure_no_init')
-            self.pressure_rate = os.path.join(self.processPath, 'pressure_rate')
+            self.pressure_no_init = os.path.join(self.processPath,
+                                                 'pressure_no_init')
+            self.pressure_rate = os.path.join(self.processPath,
+                                              'pressure_rate')
             self.bearing_rate = os.path.join(self.processPath, 'bearing_rate')
             self.speed_rate = os.path.join(self.processPath, 'speed_rate')
             self.wind_speed = os.path.join(self.processPath, 'wind_speed')
@@ -267,6 +283,39 @@ class DataProcess:
             cyclone parameters, but no information on the \
             change of parameters.'
 
+    def extractTracks(self, index, lon, lat):
+        """
+        Extract tracks that only *start* within the pre-defined domain.
+        The function returns the indices of the tracks that begin within
+        the domain.
+        """
+        outIndex = []
+        flag = 0
+        for i in xrange(len(index)):
+            if index[i] == 1:
+                # A new track:
+                if ( stats.between(lon[i], self.domain['xMin'], self.domain['xMax']) &
+                     stats.between(lat[i], self.domain['yMin'], self.domain['yMax']) ):
+                    # We have a track starting within the spatial domain:
+                    outIndex.append(i)
+                    flag = 1
+                else:
+                    flag = 0
+            else:
+                if flag == 1:
+                    outIndex.append(i)
+                else:
+                    pass
+
+        return outIndex
+
+    def filterData(self, data, index):
+        for key in data.keys():
+            filteredResult = numpy.array([data[key][i] for i in index])
+            data[key] = filteredResult
+
+        return data
+
     def processData(self):
         """
         Process raw data into ASCII files that can be read by the main
@@ -274,167 +323,71 @@ class DataProcess:
 
         """
 
-        self.logger.info("Running %s"%flModuleName())
+        self.logger.info("Running %s" % flModuleName())
         inputFile = cnfGetIniValue(self.config_file, 'DataProcess', 'InputFile')
         # If input file has no path information, default to tcrm input folder
         if len(os.path.dirname(inputFile)) == 0:
             inputFile = os.path.join(self.tcrm_input_dir, inputFile)
 
         self.logger.info("Processing %s"%inputFile)
-        source = cnfGetIniValue(self.config_file, 'DataProcess', 'Source')
-        inputData = colReadCSV(self.config_file, inputFile, source)
-        inputSpeedUnits = cnfGetIniValue(self.config_file, source, 
+        self.source = cnfGetIniValue(self.config_file, 'DataProcess', 'Source')
+        inputData = colReadCSV(self.config_file, inputFile, self.source)
+        inputSpeedUnits = cnfGetIniValue(self.config_file, self.source,
                                          'SpeedUnits', 'mps')
-        inputPressureUnits = cnfGetIniValue(self.config_file, source, 
+        inputPressureUnits = cnfGetIniValue(self.config_file, self.source,
                                             'PressureUnits', 'hPa')
-        inputLengthUnits = cnfGetIniValue(self.config_file, source, 
+        inputLengthUnits = cnfGetIniValue(self.config_file, self.source,
                                           'LengthUnits', 'km')
-        
-        startSeason = cnfGetIniValue(self.config_file, 'DataProcess', 
-                                     'StartSeason', 1981)
-        
-        if inputData.has_key('index'):
-            self.logger.debug("Using index contained in file to determine initial TC positions")
-            indicator = numpy.array(inputData['index'], 'i')
-        else:
-            if inputData.has_key('tcserialno'):
-                tcSerialNo = inputData['tcserialno']
-                indicator = numpy.ones(len(tcSerialNo), 'i')
-                for i in range(1, len(tcSerialNo)):
-                    if tcSerialNo[i] == tcSerialNo[i-1]:
-                        indicator[i] = 0
-            elif inputData.has_key('season') and inputData.has_key('num'):
-                self.logger.debug("Using season and TC number to determine initial TC positions")
-                num = numpy.array(inputData['num'], 'i')
-                season = numpy.array(inputData['season'], 'i')
-                indicator = numpy.ones(num.size, 'i')
-                for i in range(1, len(num)):
-                    if (season[i] == season[i-1]) and (num[i] == num[i-1]):
-                        indicator[i] = 0
 
-            elif inputData.has_key('num'):
-                self.logger.debug("Using TC number to determine initial TC positions (no season information)")
-                num = numpy.array(inputData['num'],'i')
-                indicator = numpy.ones(num.size,'i')
-                ind_ = numpy.diff(num)
-                ind_[numpy.where(ind_ > 0)] = 1
-                indicator[1:] = ind_
-            else:
-                self.logger.critical("Insufficient input file columns have been specified to run TCRM.")
-                sys.exit(2)
+        startSeason = cnfGetIniValue(self.config_file, 'DataProcess',
+                                     'StartSeason', 1981)
+
+        indicator = loadData.getInitialPositions(inputData)
+        lat = numpy.array(inputData['lat'], 'd')
+        lon = numpy.mod(numpy.array(inputData['lon'], 'd'), 360)
+
+        # This section filters the input arrays to a domain that covers all
+        # tracks that pass through the main area of interest - i.e. the
+        # windfield domain.
+        CD = CalcTrackDomain(self.config_file)
+        self.domain = CD.calcDomainFromTracks(indicator, lon, lat)
+        domainIndex = self.extractTracks(indicator, lon, lat)
+        inputData = self.filterData(inputData, domainIndex)
+        indicator = indicator[domainIndex]
+        lon = lon[domainIndex]
+        lat = lat[domainIndex]
 
         if self.progressbar is not None:
             self.progressbar.update(0.125)
 
         # Sort date/time information
         if inputData.has_key('age'):
-            dt_ = numpy.diff(inputData['age'])
             dt = numpy.empty(indicator.size, 'f')
-            dt[1:] = dt_
+            dt[1:] = numpy.diff(inputData['age'])
         else:
-            if inputData.has_key('date'):
-                year = numpy.empty(len(indicator), 'i')
-                month = numpy.empty(len(indicator), 'i')
-                day = numpy.empty(len(indicator), 'i')
-                hour = numpy.empty(len(indicator), 'i')
-                minute = numpy.empty(len(indicator), 'i')
-                datefmt = cnfGetIniValue(self.config_file, source, 
-                                         'DateFormat', 
-                                         '%Y-%m-%d %H:%M:%S')
-
-                for i in range(len(inputData['date'])):
-                    try:
-                        d = datetime.datetime.strptime(inputData['date'][i], 
-                                                       datefmt)
-                    except ValueError:
-                        self.logger.critical("Error in date information for record %d"%i)
-                        self.logger.critical(sys.exc_info()[1])
-                        self.logger.critical("Check your input file")
-
-                    year[i] = d.year
-                    month[i] = d.month
-                    day[i] = d.day
-                    hour[i] = d.hour
-                    minute[i] = d.minute
-            else:
-                # Sort out date/time information:
-                month = numpy.array(inputData['month'], 'i')
-                day = numpy.array(inputData['day'], 'i')
-                hour = numpy.array(inputData['hour'], 'i')
-                try:
-                    year = numpy.array(inputData['year'], 'i')
-                except KeyError:
-                    # Create dummy variable year - applicable for datasets
-                    # such as WindRiskTech which contain no year information.
-                    year = numpy.zeros(indicator.size, 'i')
-                    for i in range(len(year)):
-                        if indicator[i] > 0:
-                            fill_year = 2000
-                        if month[i] == 1:
-                            fill_year = 2001
-                        year[i] = fill_year
-
-                try:
-                    minute = numpy.array(inputData['minute'], 'i')
-                except KeyError:
-                    # Create dummy variable minute:
-                    self.logger.warning("Missing minute data from input data - setting minutes to 00 for all times")
-                    minute = numpy.zeros((hour.size), 'i')
-                assert minute.size == indicator.size
-
             if inputData.has_key('season'):
                 # Find indicies that satisfy minimum season filter
-                good_indices = numpy.where([k >= startSeason for 
-                                      k in inputData['season']])[0]
-                
-                # Filter records
-                for dictKey in inputData.keys():
-                    filteredResult = [inputData[dictKey][i] for 
-                                      i in good_indices]
-                    inputData[dictKey] = filteredResult
-                year = year[good_indices]
-                month = month[good_indices]
-                day = day[good_indices]
-                hour = hour[good_indices]
-                minute = minute[good_indices]
-                indicator = indicator[good_indices]
+                idx = numpy.where(inputData['season'] >= startSeason)[0]
+                # Filter records:
+                inputData = self.filterData(inputData, idx)
+                indicator = indicator[idx]
+                lon = lon[idx]
+                lat = lat[idx]
 
-            # Create the dummy variable second for use in function
-            # datenum
-            second = numpy.zeros((hour.size), 'i')
+            year, month, day, hour, minute = loadData.parseDates(inputData,
+                                                             indicator)
+
+
 
             # Time between observations:
-            try:
-                day_ = [datetime.datetime(year[i], month[i], 
-                                          day[i], hour[i],
-                                          minute[i], second[i])
-                        for i in xrange(year.size)]
-            except ValueError:
-                self.logger.critical("Error in date information")
-                self.logger.critical(sys.exc_info()[1])
-                self.logger.critical("Check your input file")
-                sys.exit(2)
-                
-            try:
-                time_ = pylab.date2num(day_)
-            except ValueError:
-                self.logger.critical("Error in day values")
-                self.logger.critical(sys.exc_info()[1])
-                self.logger.critical("Check your input file")
-                sys.exit(2)
+            dt = loadData.getTimeDelta(year, month, day, hour, minute)
 
-            dt_ = 24.0*numpy.diff(time_)
-            dt = numpy.empty(indicator.size, 'f')
-            dt[1:] = dt_
-            
             # Calculate julian days:
-            jdays = numpy.array([int(day_[i].strftime("%j")) for 
-                                i in xrange(year.size)]) 
+            jdays = loadData.julianDays(year, month, day, hour, minute)
 
-        lat = numpy.array(inputData['lat'], 'd')
-        lon = numpy.mod(numpy.array(inputData['lon'], 'd'), 360)
         delta_lon = numpy.diff(lon)
         delta_lat = numpy.diff(lat)
+
         # Split into separate tracks if large jump occurs (delta_lon >
         # 15 degrees or delta_lat > 5 degrees) This avoids two tracks
         # being accidentally combined when seasons and track numbers
@@ -446,12 +399,13 @@ class DataProcess:
 
         # Save information required for frequency auto-calculation
         if inputData.has_key('season'):
-            origin_seasonOrYear = numpy.array(inputData['season'], 'i').compress(indicator)
+            origin_seasonOrYear = numpy.array(inputData['season'], 'i'). \
+                                                compress(indicator)
             header = 'Season'
         else:
             origin_seasonOrYear = year.compress(indicator)
             header = 'Year'
-            
+
         flSaveFile(self.origin_year, numpy.transpose(origin_seasonOrYear),
                    header, ',', fmt='%d')
 
@@ -463,7 +417,7 @@ class DataProcess:
         # Convert any non-physical central pressure values to maximum integer
         # This is required because IBTrACS has a mix of missing value codes
         # (i.e. -999, 0, 9999) in the same global dataset.
-        pressure = numpy.where((pressure < 600) | (pressure > 1100), 
+        pressure = numpy.where((pressure < 600) | (pressure > 1100),
                                sys.maxint, pressure)
         if self.progressbar is not None:
             self.progressbar.update(0.25)
@@ -476,7 +430,7 @@ class DataProcess:
             novalue_index = numpy.where(vmax==sys.maxint)
             vmax = metutils.convert(vmax, inputSpeedUnits, "mps")
             vmax[novalue_index] = sys.maxint
-            
+
         assert lat.size == indicator.size
         assert lon.size == indicator.size
         assert pressure.size == indicator.size
@@ -491,7 +445,7 @@ class DataProcess:
             self._rmax(rmax, indicator)
             self._rmaxRate(rmax, dt, indicator)
         except KeyError:
-            self.logger.warning("No rmax data available - using published distributions")
+            self.logger.warning("No rmax data available")
 
         if self.ncflag:
             self.data['index'] = indicator
@@ -503,8 +457,9 @@ class DataProcess:
         # Determine the index of initial cyclone observations, excluding
         # those cyclones that have only one observation. This is used
         # for calculating initial bearing and speed
-        indicator2 = numpy.where(indicator > 0, 1, 0)   # ensure indicator is only ones and zeros
-        initIndex = numpy.concatenate([numpy.where(numpy.diff(indicator2) == -1, 1, 0), [0]])
+        indicator2 = numpy.where(indicator > 0, 1, 0)
+        initIndex = numpy.concatenate([numpy.where(numpy.diff(indicator2) == \
+                                            -1, 1, 0), [0]])
 
         # Calculate the bearing and distance (km) of every two
         # consecutive records using ll2azi
@@ -515,24 +470,24 @@ class DataProcess:
         bear[1:] = bear_
         dist = numpy.empty(indicator.size, 'f')
         dist[1:] = dist_
-        
+
         self._lonLat(lon, lat, indicator, initIndex)
         self._bearing(bear, indicator, initIndex)
         self._bearingRate(bear, dt, indicator)
         if self.progressbar is not None:
-            self.progressbar.update(0.375)        
+            self.progressbar.update(0.375)
         self._speed(dist, dt, indicator, initIndex)
         self._speedRate(dist, dt, indicator)
         self._pressure(pressure, indicator)
         self._pressureRate(pressure, dt, indicator)
         self._windSpeed(vmax)
         if inputData.has_key('year') or inputData.has_key('date'):
-            # Disabled frequency plot as misleading since represents entire dataset
-            # rather than selected domain
-            #self._frequency(year,indicator)
-            self._juliandays(jdays,indicator,year)
-                               
-        self.logger.info("Completed %s"%flModuleName())
+            # Disabled frequency plot as misleading since represents entire
+            # dataset rather than selected domain
+            self._frequency(year, indicator)
+            self._juliandays(jdays, indicator, year)
+
+        self.logger.info("Completed %s" % flModuleName())
         if self.progressbar is not None:
             self.progressbar.update(0.5)
 
@@ -541,7 +496,7 @@ class DataProcess:
         Extract longitudes and latitudes for all obs, initial obs, TC
         origins and determine a land/sea flag indicating if the TC
         position is over land or sea.
-        
+
         Input: lon - array of TC longitudes
                lat - array of TC latitudes
                indicator - array of ones/zeros representing initial TC
@@ -550,19 +505,17 @@ class DataProcess:
                initIndex - array of ones/zeros representing initial TC
                            observations, excluding TCs with a single
                            observation
-        
+
         Output: None - data is written to file
-        
+
         """
-        
+
         self.logger.info('Extracting longitudes and latitudes')
         lsflag = numpy.zeros(len(lon))
-        i = 0
-        for x,y in zip(lon, lat):
-            if self.landmask.sampleGrid(x,y) > 0:
+        for i, [x, y] in enumerate(zip(lon, lat)):
+            if self.landmask.sampleGrid(x, y) > 0:
                 lsflag[i] = 1
-            i += 1
-            
+
         lonOne = lon.compress(indicator)
         latOne = lat.compress(indicator)
         lsflagOne = lsflag.compress(indicator)
@@ -570,10 +523,14 @@ class DataProcess:
         latInit = lat.compress(initIndex)
         lsflagInit = lsflag.compress(initIndex)
 
+        origin_lon_lat = os.path.join(self.processPath, 'origin_lon_lat')
+        init_lon_lat = os.path.join(self.processPath, 'init_lon_lat')
+        all_lon_lat = os.path.join(self.processPath, 'all_lon_lat')
+
         # Output the lon & lat of cyclone origins
-        self.logger.debug('Outputting data into %s'%self.init_lon_lat)
-        self.logger.debug('Outputting data into %s'%self.origin_lon_lat)
-        self.logger.debug('Outputting data into %s'%self.all_lon_lat)
+        self.logger.debug('Outputting data into %s' % init_lon_lat)
+        self.logger.debug('Outputting data into %s' % origin_lon_lat)
+        self.logger.debug('Outputting data into %s' % all_lon_lat)
 
         header = 'Longitude, Latitude, LSFlag'
         if self.ncflag:
@@ -581,25 +538,27 @@ class DataProcess:
             self.data['latitude'] = lat
             self.data['lsflag'] = lsflag
         else:
-            flSaveFile(self.origin_lon_lat,
+            flSaveFile(origin_lon_lat,
                        numpy.transpose([lonOne, latOne, lsflagOne]),
                        header, ',', fmt='%6.2f')
-            flSaveFile(self.init_lon_lat,
+            flSaveFile(init_lon_lat,
                        numpy.transpose([lonInit, latInit, lsflagInit]),
                        header, ',', fmt='%6.2f')
-            flSaveFile(self.all_lon_lat,
+            flSaveFile(all_lon_lat,
                        numpy.transpose([lon, lat, lsflag]),
                        header, ',', fmt='%6.2f')
-            
+
             # Output all cyclone positions:
-            self.logger.debug('Outputting data into %s'%self.cyclone_tracks)
+            cyclone_tracks = os.path.join(self.processPath, 'cyclone_tracks')
+            self.logger.debug('Outputting data into %s' % cyclone_tracks)
             header = 'Cyclone Origin,Longitude,Latitude, LSflag'
-            flSaveFile(self.cyclone_tracks,
+            flSaveFile(cyclone_tracks,
                        numpy.transpose([indicator, lon, lat, lsflag]),
                        header, ',', fmt='%6.2f')
 
     def _bearing(self, bear, indicator, initIndex):
-        """Extract bearings for all obs, initial obs and TC origins
+        """
+        Extract bearings for all obs, initial obs and TC origins
         Input: bear - array of bearing of TC observations
                indicator - array of ones/zeros representing initial TC
                            observations (including TCs with a single
@@ -607,7 +566,9 @@ class DataProcess:
                initIndex - array of ones/zeros representing initial TC
                            observations (excluding TCs with a single
                            observation)
-        Output: None - data is written to file"""
+        Output: None - data is written to file
+        """
+
         self.logger.info('Extracting bearings')
 
         #extract all bearings
@@ -627,21 +588,23 @@ class DataProcess:
             self.data['init_bearing'] = initBearing
             self.data['bearing_no_init'] = bearingNoInit
         else:
-            self.logger.debug('Outputting data into %s'%self.all_bearing)
+            all_bearing = os.path.join(self.processPath, 'all_bearing')
+            self.logger.debug('Outputting data into %s' % all_bearing)
             header = 'all cyclone bearing in degrees'
-            flSaveFile(self.all_bearing, bear, header, fmt='%6.2f')
+            flSaveFile(all_bearing, bear, header, fmt='%6.2f')
 
-            self.logger.debug('Outputting data into %s'%self.init_bearing)
+            init_bearing = os.path.join(self.processPath, 'init_bearing')
+            self.logger.debug('Outputting data into %s' % init_bearing)
             header = 'initial cyclone bearing in degrees'
-            flSaveFile(self.init_bearing, initBearing, header, fmt='%6.2f')
-
-            self.logger.debug('Outputting data into %s'%self.bearing_no_init)
+            flSaveFile(init_bearing, initBearing, header, fmt='%6.2f')
+            bearing_no_init = os.path.join(self.processPath, 'bearing_no_init')
+            self.logger.debug('Outputting data into %s' % bearing_no_init)
             header = 'cyclone bearings without initial ones in degrees'
-            flSaveFile(self.bearing_no_init, bearingNoInit, header,
-                       fmt='%6.2f')
+            flSaveFile(bearing_no_init, bearingNoInit, header, fmt='%6.2f')
 
     def _speed(self, dist, dt, indicator, initIndex):
-        """Extract speeds for all obs, initial obs and TC origins
+        """
+        Extract speeds for all obs, initial obs and TC origins
         Input: dist - array of distances between consecutive TC
                       observations
                dt - array of times between consecutive TC observations
@@ -657,7 +620,7 @@ class DataProcess:
         speed = dist/dt
         # Delete speeds less than 0, greated than 200,
         # or where indicator == 1.
-        numpy.putmask(speed, (speed < 0) | (speed > 200) | indicator, 
+        numpy.putmask(speed, (speed < 0) | (speed > 200) | indicator,
                       sys.maxint)
         numpy.putmask(speed, numpy.isnan(speed), sys.maxint)
 
@@ -740,7 +703,7 @@ class DataProcess:
                            observation)
         Output: None - data is written to file
         """
-        self.logger.info('Extracting the rate of pressure change from the pressure values')
+        self.logger.info('Extracting the rate of pressure change')
 
         #Change in pressure:
         pressureChange_ = numpy.diff(pressure)
@@ -781,7 +744,7 @@ class DataProcess:
                            observation)
         Output: None - data is written to file
         """
-        self.logger.info('Extracting the rate of bearing change for each cyclone')
+        self.logger.info('Extracting the rate of bearing change')
 
         bearingChange_ = numpy.diff(bear)
         ii = numpy.where((bearingChange_ > 180.))
@@ -795,8 +758,10 @@ class DataProcess:
 
         numpy.putmask(bearingRate, indicator, sys.maxint)
         numpy.putmask(bearingRate[1:], indicator[:-1], sys.maxint)
-        numpy.putmask(bearingRate, (bearingRate >= sys.maxint) | (bearingRate <= -sys.maxint), 
-                      sys.maxint)
+        numpy.putmask(bearingRate, (bearingRate >= sys.maxint) |
+                                    (bearingRate <= -sys.maxint),
+                                      sys.maxint)
+
         numpy.putmask(bearingRate, numpy.isnan(bearingRate), sys.maxint)
 
         if self.ncflag:
@@ -835,7 +800,9 @@ class DataProcess:
 
         numpy.putmask(speedRate, indicator_, sys.maxint)
         numpy.putmask(speedRate[1:], indicator_[:-1], sys.maxint)
-        numpy.putmask(speedRate, (speedRate >= sys.maxint) | (speedRate <= -sys.maxint), sys.maxint)
+        numpy.putmask(speedRate, (speedRate >= sys.maxint) |
+                                 (speedRate <= -sys.maxint), sys.maxint)
+
         numpy.putmask(speedRate, numpy.isnan(speedRate), sys.maxint)
 
         if self.ncflag:
@@ -848,7 +815,7 @@ class DataProcess:
     def _windSpeed(self, windSpeed):
         """Extract maximum sustained wind speeds
         Input: windSpeed - array of windspeeds for TC observations
-               
+
         Output: None - data is written to file
         """
         self.logger.info('Extracting maximum sustained wind speeds')
@@ -908,7 +875,7 @@ class DataProcess:
                            observation)
         Output: None - data is written to file
         """
-        self.logger.info('Extracting the rate of size change from the rmax values')
+        self.logger.info('Extracting the rate of size change')
 
         #Change in rmax:
         rmaxChange_ = numpy.diff(rmax)
@@ -923,7 +890,8 @@ class DataProcess:
         self.logger.debug('Outputting data into %s'%self.rmax_rate)
         numpy.putmask(rmaxRate, indicator, sys.maxint)
         numpy.putmask(rmaxRate, rmax >= sys.maxint, sys.maxint)
-        numpy.putmask(rmaxRate, (rmaxRate >= sys.maxint) | (rmaxRate <= -sys.maxint), sys.maxint)
+        numpy.putmask(rmaxRate, (rmaxRate >= sys.maxint) |
+                                (rmaxRate <= -sys.maxint), sys.maxint)
         numpy.putmask(rmaxRate, numpy.isnan(rmaxRate), sys.maxint)
 
         if self.ncflag:
@@ -932,7 +900,7 @@ class DataProcess:
             header = 'All rmax change rates (km/hr)'
             flSaveFile(self.rmax_rate, rmaxRate, header, fmt='%6.2f')
 
-    def _frequency(self,years,indicator):
+    def _frequency(self, years, indicator):
         # Generate a histogram of the annual frequency of events from the input data
         self.logger.info('Extracting annual frequency of events')
         minYr = years.min()
@@ -943,17 +911,17 @@ class DataProcess:
             self.logger.info("Cannot generate histogram of frequency")
         else:
             bins = numpy.arange(minYr,maxYr+2,1)
-            n,b = numpy.histogram(genesisYears,bins)
+            n, b = numpy.histogram(genesisYears, bins)
             header = 'Year,count'
-            flSaveFile(self.frequency, numpy.transpose( [bins[:-1],n] ), 
+            flSaveFile(self.frequency, numpy.transpose( [bins[:-1], n] ),
                        header, fmt='%6.2f' )
-                       
+
             self.logger.info( "Mean annual frequency: %5.1f"%numpy.mean( n ) )
             self.logger.info( "Standard deviation: %5.1f"%numpy.std( n ) )
 
     def _juliandays(self, jdays, indicator, years ):
         """
-        Generate a distribution of the formation day of 
+        Generate a distribution of the formation day of
         year from observations
         """
 
@@ -970,14 +938,14 @@ class DataProcess:
         n,b = numpy.histogram( jdays.compress( indicator ), bins )
         header = 'Day,count'
         # Distribution of genesis days (histogram):
-        flSaveFile( self.jday_genesis, numpy.transpose( [bins[:-1], n] ), 
+        flSaveFile( self.jday_genesis, numpy.transpose( [bins[:-1], n] ),
                     header, fmt='%d', delimiter=',' )
         n,b = numpy.histogram( jdays, bins)
         # Distribution of all days (histogram):
-        flSaveFile( self.jday_observations, numpy.transpose( [bins[:-1],n] ), 
+        flSaveFile( self.jday_observations, numpy.transpose( [bins[:-1],n] ),
                     header, fmt='%d', delimiter=',' )
         # All days:
-        flSaveFile( self.jday, numpy.transpose( jdays.compress( indicator ) ), 
+        flSaveFile( self.jday, numpy.transpose( jdays.compress( indicator ) ),
                     header='Day', fmt='%d' )
 
 if __name__ == "__main__":

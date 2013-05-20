@@ -304,3 +304,49 @@ def probability(return_period):
     """Return an annual probability given a return period"""
     p = 1.0 - exp(-1.0/return_period)
     return p
+
+def between(value, minval, maxval, fuzz=2, inclusive=True):
+    """
+    Test whether a value is within some range with some fuzziness at the edges
+    to allow for floating point noise.
+
+    The fuzziness is implemented by expanding the range at each end `fuzz` steps
+    using the numpy.nextafter function. For example, with the inputs
+    minval = 1, maxval = 2, and fuzz = 2; the range would be expanded to
+    minval = 0.99999999999999978 and maxval = 2.0000000000000009 before doing
+    comparisons.
+
+    Parameters
+    ----------
+    val : float
+        Value being tested.
+
+    minval : float
+        Lower bound of range. Must be lower than `maxval`.
+
+    maxval : float
+        Upper bound of range. Must be higher than `minval`.
+
+    fuzz : int, optional
+        Number of times to expand bounds using numpy.nextafter.
+
+    inclusive : bool, optional
+        Set whether endpoints are within the range.
+
+    Returns
+    -------
+    between : bool
+        True if `val` is between `minval` and `maxval`, False otherwise.
+
+    From http://penandpants.com/category/python/numpy/
+    """
+    # expand bounds
+    for _ in xrange(fuzz):
+        minval = nextafter(minval, minval - 1e6)
+        maxval = nextafter(maxval, maxval + 1e6)
+
+    if inclusive:
+        return minval <= value <= maxval
+
+    else:
+        return minval < value < maxval

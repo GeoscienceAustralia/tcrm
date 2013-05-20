@@ -26,7 +26,7 @@ methods from DataProcess, StatInterface, TrackGenerator,
 WindfieldInterface and HazardInterface.
 
 Usage:
-    
+
 
 Version :$Rev: 826 $
 
@@ -38,7 +38,7 @@ Copyright - Geoscience Australia, 2008
 import os, sys, pdb, logging, traceback
 
 import matplotlib
-matplotlib.use('Agg') # Use matplotlib backend 
+matplotlib.use('Agg') # Use matplotlib backend
                       # (to allow plotting on unix machines with no graphics interface)
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flConfigFile, flStartLog, flLoadFile
@@ -77,8 +77,8 @@ def main(config_file='main.ini'):
     output_path = cnfGetIniValue(config_file, 'Output', 'Path',
                                 os.path.join(os.getcwd(), 'output'))
     logger.info("Output will be stored under %s"%output_path)
-    subdirs = ['tracks', 'hazard', 'windfield', 'plots', 'plots/hazard', 
-               'plots/stats', 'log', 'process', 'process/timeseries', 
+    subdirs = ['tracks', 'hazard', 'windfield', 'plots', 'plots/hazard',
+               'plots/stats', 'log', 'process', 'process/timeseries',
                'process/dat']
 
     if not os.path.isdir(output_path):
@@ -97,7 +97,7 @@ def main(config_file='main.ini'):
     # Execute Data Process:
     if cnfGetIniValue(config_file, 'Actions', 'DataProcess', False):
         pbar = ProgressBar('(1/6) Processing data files: ', show_progress_bar )
-        
+
         from DataProcess import DataProcess
         logger.info('Running Data Processing')
         data_process = DataProcess.DataProcess(config_file, progressbar=pbar)
@@ -105,7 +105,7 @@ def main(config_file='main.ini'):
 
         statsPlotPath = os.path.join(output_path, 'plots', 'stats')
         processPath = os.path.join(output_path, 'process')
-        
+
         pRateData = flLoadFile(os.path.join(processPath, 'pressure_rate'))
         pAllData = flLoadFile(os.path.join(processPath, 'all_pressure'))
         bRateData = flLoadFile(os.path.join(processPath, 'bearing_rate'))
@@ -113,28 +113,29 @@ def main(config_file='main.ini'):
         sRateData = flLoadFile(os.path.join(processPath, 'speed_rate'))
         sAllData = flLoadFile(os.path.join(processPath, 'all_speed'))
         pbar.update(0.625)
-        
-        indLonLat = flLoadFile(os.path.join(processPath, 'cyclone_tracks'), 
+
+        indLonLat = flLoadFile(os.path.join(processPath, 'cyclone_tracks'),
                                delimiter=',')
         indicator = indLonLat[:, 0]
         lonData = indLonLat[:, 1]
         latData = indLonLat[:, 2]
 
-        import PlotInterface.plotStats as plotStats
-        plotStats.plotPressure(pAllData, pRateData, statsPlotPath)
-        plotStats.minPressureHist(indicator, pAllData, statsPlotPath)
-        plotStats.minPressureLat(pAllData, latData, statsPlotPath)
+        from PlotInterface.plotStats import PlotData
+        plotting = PlotData(statsPlotPath, "png")
+        plotting.plotPressure(pAllData, pRateData)
+        plotting.minPressureHist(indicator, pAllData)
+        plotting.minPressureLat(pAllData, latData)
         pbar.update(0.75)
-        
-        plotStats.plotBearing(bAllData, bRateData, statsPlotPath)
-        plotStats.plotSpeed(sAllData, sRateData, statsPlotPath)
+
+        plotting.plotBearing(bAllData, bRateData)
+        plotting.plotSpeed(sAllData, sRateData)
         #plotStats.plotSpeedBear(sAllData, bAllData, statsPlotPath)
-        plotStats.plotLonLat(lonData, latData, indicator, statsPlotPath)
+        plotting.plotLonLat(lonData, latData, indicator)
         pbar.update(0.875)
-        
-        plotStats.quantile(pRateData, statsPlotPath, "Pressure")
-        plotStats.quantile(bRateData, statsPlotPath, "Bearing")
-        plotStats.quantile(sRateData, statsPlotPath, "Speed")
+
+        plotting.quantile(pRateData, "Pressure")
+        plotting.quantile(bRateData, "Bearing")
+        plotting.quantile(sRateData, "Speed")
         try:
             freq = flLoadFile(os.path.join(processPath, 'frequency'))
         except IOError:
@@ -142,7 +143,7 @@ def main(config_file='main.ini'):
         else:
             years = freq[:, 0]
             frequency = freq[:, 1]
-            plotStats.plotFrequency(years, frequency, statsPlotPath)
+            plotting.plotFrequency(years, frequency)
         logger.info('Completed Data Processing')
         pbar.update(1.0)
 
@@ -152,10 +153,10 @@ def main(config_file='main.ini'):
         # Auto-calculate track generator domain
         pbar = ProgressBar('(2/6) Calculating statistics:', show_progress_bar )
         CalcTD = CalcTrackDomain(config_file)
-        TG_domain = CalcTD.calc()
+        TG_domain = CalcTD.calcDomainFromFile()
 
         from StatInterface import StatInterface
-        statInterface = StatInterface.StatInterface(config_file, 
+        statInterface = StatInterface.StatInterface(config_file,
                                                     autoCalc_gridLimit=TG_domain,
                                                     progressbar=pbar)
         statInterface.kdeGenesisDate()
@@ -180,8 +181,8 @@ def main(config_file='main.ini'):
             TG_domain
         except NameError:
             CalcTD = CalcTrackDomain(config_file)
-            TG_domain = CalcTD.calc()        
-            
+            TG_domain = CalcTD.calc()
+
         from TrackGenerator.trackSimulation import trackSimulation
         numSimulations = cnfGetIniValue(config_file, 'TrackGenerator',
                                         'NumSimulations', 50)
@@ -192,13 +193,13 @@ def main(config_file='main.ini'):
         yrsPerSim = cnfGetIniValue(config_file, 'TrackGenerator',
                                    'YearsPerSimulation', 10)
         frequency = cnfGetIniValue(config_file, 'TrackGenerator', 'Frequency', '')
-        
+
         if frequency == '':
             logger.info('No genesis frequency specified: auto-calculating')
             CalcF = CalcFrequency(config_file, TG_domain)
             frequency = CalcF.calc()
             logger.info("Estimated annual genesis frequency for Track Generator domain: %s"%frequency)
-            
+
         fmt = cnfGetIniValue(config_file, 'TrackGenerator', 'Format', 'csv')
         trackSimulation(config_file, numSimulations, frequency, yrsPerSim, trackPath,
                         fmt, dt=dt, tsteps=tsteps, autoCalc_gridLimit=TG_domain)
@@ -246,7 +247,7 @@ if __name__ == "__main__":
     if not os.path.exists(CONFIG_FILE):
         ERROR_MSG = "Configuration file '" + CONFIG_FILE +"' not found"
         raise IOError, ERROR_MSG
-    
+
     TCRM_DIR = pathLocator.getRootDirectory()
     os.chdir(TCRM_DIR)
 
@@ -258,16 +259,16 @@ if __name__ == "__main__":
             os.makedirs(LOG_FILE_DIR)
         except OSError:
             LOG_FILE = os.path.join(os.getcwd(), 'main.log')
-    
+
     flStartLog(LOG_FILE,
                cnfGetIniValue(CONFIG_FILE, 'Logging', 'LogLevel', 'INFO'),
                cnfGetIniValue(CONFIG_FILE, 'Logging', 'Verbose', False))
-    
+
     # Switch off minor warning messages
     import warnings
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     warnings.filterwarnings("ignore", category=UserWarning, module="pytz")
-    
+
     try:
         main(CONFIG_FILE)
     except:
