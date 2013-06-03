@@ -133,7 +133,7 @@ class GenerateDistributions:
     """
     
     def __init__(self, configFile, gridLimit, gridSpace, gridInc, kdeType,
-                 minSamplesCell, missingValue=sys.maxint):
+                 minSamplesCell=40, missingValue=sys.maxint):
         """
         Initialise required fields
         """
@@ -257,7 +257,7 @@ class GenerateDistributions:
         self.parameter = stats.statRemoveNum(array(parameter_),
                                              self.missingValue)
 
-        while size(self.parameter ) <= self.minSamplesCell:
+        while size(self.parameter) <= self.minSamplesCell:
             self.logger.debug("Insufficient samples. Increasing the size of the cell")
             wLon_last = wLon
             eLon_last = eLon
@@ -266,7 +266,9 @@ class GenerateDistributions:
             wLon, eLon, nLat, sLat = self._expandCell(lon, lat, wLon, eLon,
                                                       nLat, sLat)
             if (wLon == wLon_last) & (eLon == eLon_last) & (nLat == nLat_last) & (sLat == sLat_last):
-                errMsg = "Insufficient grid points in selected domain to estimate storm statistics - please select a larger domain."
+                errMsg = "Insufficient grid points in selected domain to " \
+                       + "estimate storm statistics - please select a larger " \
+                       + "domain. Samples = %i / %i" % (size(self.parameter), self.minSamplesCell)
                 self.logger.critical(errMsg)
                 raise StopIteration, errMsg
             indij = where(((lat >= sLat) & (lat < nLat)) &
