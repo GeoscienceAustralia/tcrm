@@ -32,8 +32,12 @@ import os, sys, pdb, logging
 filename = os.environ.get('PYTHONSTARTUP')
 if filename and os.path.isfile(filename):
     execfile(filename)
-import shapelib
-import dbflib
+
+try:
+    import shapelib
+    import dbflib
+except ImportError:
+    logging.warning('Could not import shapelib')
 
 __version__ = '$Id: shptools.py 686 2012-03-29 04:24:59Z carthur $'
 
