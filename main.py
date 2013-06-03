@@ -35,10 +35,17 @@ $Id: main.py 826 2012-03-26 02:06:55Z nsummons $
 Copyright - Geoscience Australia, 2008
 """
 
-import os, sys, logging
+__version__ = "$Id: main.py 826 2012-03-26 02:06:55Z nsummons $"
 
+import os
+import io
+import sys
+import logging as log
+import traceback
 import matplotlib
-matplotlib.use('Agg') # Use matplotlib backend
+
+from os.path import join as pjoin, dirname
+from ConfigParser import RawConfigParser
 
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flConfigFile, flStartLog, flLoadFile
@@ -47,30 +54,67 @@ from DataProcess.CalcTrackDomain import CalcTrackDomain
 from DataProcess.CalcFrequency import CalcFrequency
 from Utilities.progressbar import ProgressBar
 
+matplotlib.use('Agg') # Use matplotlib backend
+
 # Set Basemap data path if compiled with py2exe
 if pathLocator.is_frozen():
     os.environ['BASEMAPDATA'] = os.path.join(pathLocator.getRootDirectory(), 'mpl-data', 'data')
 
-__version__ = "$Id: main.py 826 2012-03-26 02:06:55Z nsummons $"
+DEFAULTS = """
+[TrackGenerator]
+NumSimulations=50
+YearsPerSimulation=10
+NumTimeSteps=360
+TimeStep=1.0
+Format=csv
+
+[Output]
+Path=%(cwd)s/output
+""" % {'cwd': os.getcwd()}
+
+class ConfigParser(RawConfigParser):
+    """
+    A configuration file parser that extends
+    :class:`ConfigParser.RawConfigParser` with a few helper functions
+    and default options.
+    """
+
+    def __init__(self, *args, **kwargs):
+        RawConfigParser.__init__(self, *args, **kwargs)
+        self.readfp(io.BytesIO(DEFAULTS))
+
+    def geteval(self, section, option):
+        """
+        :return: an evaluated setting.
+        """
+        return self._get(section, eval, option)
+
 
 def doAttemptParallel():
-    """Attempt to load Pypar globally as `pp`. If successful this function
-    registers a call to `finalize` so that MPI exits cleanly. If pypar cannot
-    be loaded then a dummy `pp` is created."""
+    """
+    Attempt to load Pypar globally as `pp`. If Pypar loads successfully, then a
+    call to `pypar.finalize` is registered to be called at exit of the Python
+    interpreter. This is to ensure that MPI exits cleanly. 
+    
+    If pypar cannot be loaded then a dummy `pp` is created.
+    """
 
     global pp
 
     try:
         # load pypar for everyone
+        
         import pypar as pp
 
         # success! now ensure a clean MPI exit
+        
         import atexit
         atexit.register(pp.finalize)
 
         # ... but fail if you only have one cpu
+        
         if pp.size() == 1:
-            print('You need to have more than one processors!')
+            print('You need to have more than one processor!')
             sys.exit(1)
 
     except ImportError:
@@ -82,6 +126,48 @@ def doAttemptParallel():
             def rank(self): return 0
 
         pp = DummyPypar()
+
+def doTrackGeneration(configfile, gridLimit=None):
+    """
+    Do the tropical cyclone track generation.
+
+    The track settings are read from *configfile*. *gridLimit* specifies the
+    domain where the tracks will be restricted to. If *gridLimit* is not given
+    then the domain will be taken as the region grid limit.
+    """
+
+    log.info('Loading track generation settings')
+
+    config = ConfigParser()
+    config.read(configfile)
+
+    outputPath = config.get('Output', 'Path')
+    trackPath = pjoin(outputPath, 'tracks')
+
+    if not gridLimit:
+        gridLimit = config.geteval('Region', 'gridLimit')
+
+    nGenesisPoints = config.getint('TrackGenerator', 'NumSimulations')
+    yrsPerSim = config.getint('TrackGenerator', 'YearsPerSimulation')
+    maxTimeSteps = config.getint('TrackGenerator', 'NumTimeSteps')
+    dt = config.getfloat('TrackGenerator', 'TimeStep')
+    fmt = config.get('TrackGenerator', 'Format')
+
+    if config.has_option('TrackGenerator', 'Frequency'):
+        meanFreq = config.getfloat('TrackGenerator', 'Frequency')
+    else:
+        log.info('No genesis frequency specified: auto-calculating')
+        CalcF = CalcFrequency(configfile, gridLimit)
+        meanFreq = CalcF.calc()
+        log.info("Estimated annual genesis frequency for domain: %s" % meanFreq)
+
+    log.info('Starting track generation')
+
+    from TrackGenerator.trackSimulation import trackSimulation
+    trackSimulation(configfile, nGenesisPoints, meanFreq, yrsPerSim, trackPath,
+                    fmt, dt=dt, tsteps=maxTimeSteps, autoCalc_gridLimit=gridLimit)
+
+    log.info('Completed track generation')
 
 
 def main(config_file='main.ini'):
@@ -95,10 +181,10 @@ def main(config_file='main.ini'):
     Example: main('main.ini')
     """
 
-    logger = logging.getLogger()
+    logger = log.getLogger()
     # Temporarily define a level so that we can write to the log file
     # some general info about the program...
-    logging.addLevelName(100, '')
+    log.addLevelName(100, '')
     logger.log(100, "Starting TCRM")
 
     logger.info("Configuration file: %s"%config_file)
@@ -206,35 +292,7 @@ def main(config_file='main.ini'):
 
     # Execute TrackGenerator:
     if cnfGetIniValue(config_file, 'Actions', 'ExecuteTrackGenerator', False):
-        logger.info('Running TrackGenerator')
-        # Auto-calculate track generator domain if not calculated previously
-        try:
-            TG_domain
-        except NameError:
-            CalcTD = CalcTrackDomain(config_file)
-            TG_domain = CalcTD.calc()
-
-        from TrackGenerator.trackSimulation import trackSimulation
-        numSimulations = cnfGetIniValue(config_file, 'TrackGenerator',
-                                        'NumSimulations', 50)
-        dt = cnfGetIniValue(config_file, 'TrackGenerator', 'TimeStep', 1)
-        tsteps = cnfGetIniValue(config_file, 'TrackGenerator',
-                                'NumTimeSteps', 360)
-        trackPath = os.path.join(output_path, 'tracks')
-        yrsPerSim = cnfGetIniValue(config_file, 'TrackGenerator',
-                                   'YearsPerSimulation', 10)
-        frequency = cnfGetIniValue(config_file, 'TrackGenerator', 'Frequency', '')
-
-        if frequency == '':
-            logger.info('No genesis frequency specified: auto-calculating')
-            CalcF = CalcFrequency(config_file, TG_domain)
-            frequency = CalcF.calc()
-            logger.info("Estimated annual genesis frequency for Track Generator domain: %s"%frequency)
-
-        fmt = cnfGetIniValue(config_file, 'TrackGenerator', 'Format', 'csv')
-        trackSimulation(config_file, numSimulations, frequency, yrsPerSim, trackPath,
-                        fmt, dt=dt, tsteps=tsteps, autoCalc_gridLimit=TG_domain)
-        logger.info('Completed TrackGenerator')
+        doTrackGeneration(config_file)
 
     # Execute Windfield:
     if cnfGetIniValue(config_file, 'Actions', 'ExecuteWindfield', False):
@@ -305,7 +363,7 @@ if __name__ == "__main__":
     except:
         # Catch any exceptions that occur and log them (nicely):
         TB_LINES = traceback.format_exc().splitlines()
-        LOGGER = logging.getLogger()
+        LOGGER = log.getLogger()
         for line in TB_LINES:
             LOGGER.critical(line.lstrip())
         #sys.exit(1)
