@@ -316,7 +316,7 @@ class DataProcess:
 
         return data
 
-    def processData(self):
+    def processData(self, restrictToWindfieldDomain=False):
         """
         Process raw data into ASCII files that can be read by the main
         components of the system
@@ -346,16 +346,16 @@ class DataProcess:
         lat = numpy.array(inputData['lat'], 'd')
         lon = numpy.mod(numpy.array(inputData['lon'], 'd'), 360)
 
-        # This section filters the input arrays to a domain that covers all
-        # tracks that pass through the main area of interest - i.e. the
-        # windfield domain.
-        CD = CalcTrackDomain(self.config_file)
-        self.domain = CD.calcDomainFromTracks(indicator, lon, lat)
-        domainIndex = self.extractTracks(indicator, lon, lat)
-        inputData = self.filterData(inputData, domainIndex)
-        indicator = indicator[domainIndex]
-        lon = lon[domainIndex]
-        lat = lat[domainIndex]
+        if restrictToWindfieldDomain:
+            # Filter the input arrays to only retain the tracks that
+            # pass through the windfield domain.
+            CD = CalcTrackDomain(self.config_file)
+            self.domain = CD.calcDomainFromTracks(indicator, lon, lat)
+            domainIndex = self.extractTracks(indicator, lon, lat)
+            inputData = self.filterData(inputData, domainIndex)
+            indicator = indicator[domainIndex]
+            lon = lon[domainIndex]
+            lat = lat[domainIndex]
 
         if self.progressbar is not None:
             self.progressbar.update(0.125)
