@@ -35,11 +35,11 @@ $Id: main.py 826 2012-03-26 02:06:55Z nsummons $
 Copyright - Geoscience Australia, 2008
 """
 
-import os, sys, pdb, logging, traceback
+import os, sys, logging
 
 import matplotlib
 matplotlib.use('Agg') # Use matplotlib backend
-                      # (to allow plotting on unix machines with no graphics interface)
+
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flConfigFile, flStartLog, flLoadFile
 from Utilities import pathLocator
@@ -52,6 +52,37 @@ if pathLocator.is_frozen():
     os.environ['BASEMAPDATA'] = os.path.join(pathLocator.getRootDirectory(), 'mpl-data', 'data')
 
 __version__ = "$Id: main.py 826 2012-03-26 02:06:55Z nsummons $"
+
+def doAttemptParallel():
+    """Attempt to load Pypar globally as `pp`. If successful this function
+    registers a call to `finalize` so that MPI exits cleanly. If pypar cannot
+    be loaded then a dummy `pp` is created."""
+
+    global pp
+
+    try:
+        # load pypar for everyone
+        import pypar as pp
+
+        # success! now ensure a clean MPI exit
+        import atexit
+        atexit.register(pp.finalize)
+
+        # ... but fail if you only have one cpu
+        if pp.size() == 1:
+            print('You need to have more than one processors!')
+            sys.exit(1)
+
+    except ImportError:
+       
+        # no pypar, create a dummy one
+    
+        class DummyPypar(object):
+            def size(self): return 1
+            def rank(self): return 0
+
+        pp = DummyPypar()
+
 
 def main(config_file='main.ini'):
     """
