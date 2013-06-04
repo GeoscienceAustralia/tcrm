@@ -1,1 +1,1 @@
-__all__ = ["TrackGenerator"]
+from TrackGenerator import run

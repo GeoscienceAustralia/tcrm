@@ -120,7 +120,7 @@ Modification: Save coefficients to netCDF file to permit further analysis.
 
 $Id: TrackGenerator.py 811 2012-02-24 05:10:11Z carthur $
 """
-import os, sys, pdb, logging
+import os, sys, pdb, logging as log
 
 from scipy import array, empty, transpose, concatenate
 import math
@@ -166,7 +166,7 @@ class TrackGenerator:
     def __init__(self, configFile, dt=1, tsteps=360, autoCalc_gridLimit=None, progressbar=None):
         """Initialise required fields"""
         self.configFile = configFile
-        self.logger = logging.getLogger()
+        self.logger = log.getLogger()
         self.logger.info("Initialising TrackGenerator")
 
         self.outputPath = cnfGetIniValue(self.configFile, 'Output', 'Path')
@@ -954,55 +954,117 @@ class TrackGenerator:
                            nodata=self.missingValue,datatitle=None,dtype='f',
                            writedata=True, keepfileopen=False)
 
+def attemptParallel():
+    """
+    Attempt to load Pypar globally as `pp`. If Pypar loads successfully, then a
+    call to `pypar.finalize` is registered to be called at exit of the Python
+    interpreter. This is to ensure that MPI exits cleanly. 
+    
+    If pypar cannot be loaded then a dummy `pp` is created.
+    """
+    global pp
+
+    try: # to access Pypar
+        pp
+    except NameError:
+        try:
+            # load pypar for everyone
+            
+            import pypar as pp
+
+            # success! now ensure a clean MPI exit
+            
+            import atexit
+            atexit.register(pp.finalize)
+
+        except ImportError:
+           
+            # no pypar, create a dummy one
+        
+            class DummyPypar(object):
+                def size(self): return 1
+                def rank(self): return 0
+                def barrier(self): pass
+
+            pp = DummyPypar()
+
+
+def run(configFile):
+    """
+    Perform the tropical cyclone track generation.
+    """
+
+    attemptParallel()
+
+    from config import ConfigParser
+    from os.path import join as pjoin, dirname
+    from DataProcess.CalcFrequency import CalcFrequency
+
+    log.info('Loading track generation settings')
+
+    config = ConfigParser()
+    config.read(configFile)
+
+    outputPath = config.get('Output', 'Path')
+    trackPath = pjoin(outputPath, 'tracks')
+
+    if config.has_option('TrackGenerator', 'gridLimit'):
+        gridLimit = config.geteval('TrackGenerator', 'gridLimit')
+    else:
+        gridLimit = config.geteval('Region', 'gridLimit')
+
+    nGenesisPoints = config.getint('TrackGenerator', 'NumSimulations')
+    yrsPerSim = config.getint('TrackGenerator', 'YearsPerSimulation')
+    maxTimeSteps = config.getint('TrackGenerator', 'NumTimeSteps')
+    dt = config.getfloat('TrackGenerator', 'TimeStep')
+    fmt = config.get('TrackGenerator', 'Format')
+
+    if config.has_option('TrackGenerator', 'Frequency'):
+        meanFreq = config.getfloat('TrackGenerator', 'Frequency')
+    else:
+        log.info('No genesis frequency specified: auto-calculating')
+        CalcF = CalcFrequency(configFile, gridLimit)
+        meanFreq = CalcF.calc()
+        log.info("Estimated annual genesis frequency for domain: %s" % meanFreq)
+
+
+    # wait for configuration to be loaded by all processors
+
+    pp.barrier()
+
+    from Utilities.progressbar import ProgressBar
+    logger = log.getLogger()
+    show_progress_bar = cnfGetIniValue( configFile, 'Logging', 'ProgressBar', True )
+    pbar = ProgressBar('(3/6) Generating tracks:     ', show_progress_bar )
+    numCyclones = sum(random.poisson(meanFreq, yrsPerSim))
+    tracks = TrackGenerator(configFile, dt, maxTimeSteps, autoCalc_gridLimit=gridLimit, progressbar=pbar)
+
+    for i in range(1,nGenesisPoints+1):
+        # This seemingly simple expression provides a method to generate
+        # a timeseries of annual TC numbers with a given mean.
+        numCyclones = sum(random.poisson(meanFreq, yrsPerSim))
+        logger.info("Generating %d synthetic TC events for simulation %04d"
+                     % (numCyclones,i))
+        trackFile = os.path.join(outputPath,"tracks.%04d.%s"%(i,fmt))
+        tracks.generatePath(nEvents=numCyclones, outputFile=trackFile)
+        pbar.update(i/float(nGenesisPoints), 0.3, 1.0)
+
 if __name__ == "__main__":
     try:
         configFile = sys.argv[1]
     except IndexError:
+
         # Try loading config file with same name as python script
         configFile = __file__.rstrip('.py') + '.ini'
+
         # If no filename is specified and default filename doesn't exist => raise error
         if not os.path.exists(configFile):
             error_msg = "No configuration file specified, please type: python main.py {config filename}.ini"
             raise IOError, error_msg
+
     # If config file doesn't exist => raise error
     if not os.path.exists(configFile):
         error_msg = "Configuration file '" + configFile +"' not found"
         raise IOError, error_msg
 
-    flStartLog(cnfGetIniValue(configFile, 'Logging', 'LogFile', __file__.rstrip('.py') + '.log'),
-               cnfGetIniValue(configFile, 'Logging', 'LogLevel', 'DEBUG'),
-               cnfGetIniValue(configFile, 'Logging', 'Verbose', True))
-
-    outputPath = cnfGetIniValue(configFile, 'Output', 'Path', os.getcwd())
-    trackFile = os.path.join(outputPath, 'sample_tracks.200.shp')
-    numCyclones = 50
-    dt = 1
-    tsteps = 360
-
-    initLon = 155.
-    initLat = -25.
-    initBearing = 225.
-    initSpeed = 5.
-    initPressure = 950.
-    tracks = TrackGenerator(configFile)
-    tracks.generatePath(numCyclones, trackFile)  #, initLon,initLat,initSpeed,initBearing,initPressure)
-"""
-
-    gridLimit = eval(cnfGetIniValue(configFile,'Parameters','gridLimit'))
-    gridSpace = eval(cnfGetIniValue(configFile,'Parameters','gridSpace'))
-    gridInc = eval(cnfGetIniValue(configFile,'Parameters','gridInc'))
-    gridLimit = eval(cfgMain['Parameters.gridLimit'])
-    gridSpace = eval(cfgMain['Parameters.gridSpace'])
-    gridInc = eval(cfgMain['Parameters.gridInc'])
-""""""
-    import profile
-    import pstats
-    #profile.run("tracks.generatePath(cfgFiles['Output.sample_tracks'])", 'fooprof')
-
-    profile.run("tracks.generatePath(cfgMain['Output.path'] + 'sample_tracks_200.txt')", 'fooprof')
-    p = pstats.Stats('fooprof')
-    p.sort_stats('cumulative').print_stats(10)
-    p.sort_stats('cumulative').strip_dirs().print_callees()
-
-    print 'total time = ', time.time() - start
-"""
+    run(configFile)
