@@ -188,6 +188,17 @@ Documentation on the purpose of the class
 
         return self.x[xi], self.y[yj]
 
+    def ppf(self, q1, q2):
+        xi = self.cdfX.searchsorted(q1)
+        yj = self.cdfY[xi, :].searchsorted(q2)
+        return self.x[xi], self.y[yj]
+
+    def cdf(self, x, y):
+        # crude, this should be an interpolation
+        xi = self.x.searchsorted(x) - 1
+        yi = self.y.searchsorted(y) - 1
+        return self.cdfX[xi], self.cdfY[xi, yi]
+
     def generateSamples(self, ns, outputFile=None):
         """Generate random samples of cyclone origins"""
         if ns <= 0:

@@ -44,7 +44,7 @@ $Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $
 
 import os, pdb, logging, sys, math
 
-from numpy import *
+import numpy as np
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile
 import Utilities.stats as stats
@@ -52,21 +52,21 @@ import Utilities.stats as stats
 
 __version__ = '$Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $'
 
-class parameters:
+class parameters(object):
     """parameters:
 
-    Description: Create an object that holds arrays of the statistical
-    properties of each grid cell. There are arrays for both land and sea cells.
+    Description: Create an object that holds np.arrays of the statistical
+    properties of each grid cell. There are np.arrays for both land and sea cells.
 
     Parameters:
     None
 
     Members:
-    mu/lmu : Array of mean values of parameter for each grid cell
-    sig/lsig : Array of variance values of parameter for each grid cell
-    alpha/lalpha : Array of autoregression coefficients of parameter for
+    mu/lmu : np.array of mean values of parameter for each grid cell
+    sig/lsig : np.array of variance values of parameter for each grid cell
+    alpha/lalpha : np.array of autoregression coefficients of parameter for
     each grid cell
-    phi/lphi : Array of normalisation values for random variations
+    phi/lphi : np.array of normalisation values for random variations
 
     Methods:
     None
@@ -76,16 +76,16 @@ class parameters:
     """
 
     def __init__(self,numCells):
-        self.mu = zeros(numCells)
-        self.sig = zeros(numCells)
-        self.alpha = zeros(numCells)
-        self.phi = zeros(numCells)
-        self.min = zeros(numCells)
-        self.lmu = zeros(numCells)
-        self.lsig = zeros(numCells)
-        self.lalpha = zeros(numCells)
-        self.lphi = zeros(numCells)
-        self.lmin = zeros(numCells)
+        self.mu = np.zeros(numCells)
+        self.sig = np.zeros(numCells)
+        self.alpha = np.zeros(numCells)
+        self.phi = np.zeros(numCells)
+        self.min = np.zeros(numCells)
+        self.lmu = np.zeros(numCells)
+        self.lsig = np.zeros(numCells)
+        self.lalpha = np.zeros(numCells)
+        self.lphi = np.zeros(numCells)
+        self.lmin = np.zeros(numCells)
 
 class GenerateStats:
     """GenerateStats:
@@ -93,12 +93,12 @@ class GenerateStats:
     Description:
 
     Parameters:
-    parameter: Array or String (representing filename)
+    parameter: np.array or String (representing filename)
                Contains the data which the statistical values will be
                based
-    lonLat:    Array or String (representing filename)
+    lonLat:    np.array or String (representing filename)
                Contains the longitude and latitude of each of the
-               observations in the array parameter
+               observations in the np.array parameter
     gridLimit: dictionary containing limits of regional grid
                Contains keys 'xMin', 'xMax', 'yMin', 'yMax'
     gridSpace: Dictionary containing spacing of grid
@@ -111,27 +111,19 @@ class GenerateStats:
                The minimum required number of observations in a given
                cell to calculate meaningful statistics.
     angular:   Boolean
-               True = the data in array 'parameter' is angular in nature
+               True = the data in np.array 'parameter' is angular in nature
                (e.g. bearings)
-               False = the data in array 'parameter' is not angular.
+               False = the data in np.array 'parameter' is not angular.
     Members:
     Methods:
     Internal methods:
     """
-    def __init__(self, configFile, parameter, lonLat, gridLimit,
+    def __init__(self, parameter, lonLat, gridLimit,
                  gridSpace, gridInc, minSample=100, angular=False, missingValue=sys.maxint, 
-                 progressbar=None, prgStartValue=0, prgEndValue=1):
-        self.logger = logging.getLogger()
-        self.logger.info('Initialising GenerateStats')
+                 progressbar=None, prgStartValue=0, prgEndValue=1, calculateLater=False):
 
-        if type(lonLat) is str:
-            self.lonLat = array(flLoadFile(lonLat, delimiter=','))
-        else:
-            self.lonLat = lonLat
-        if type(parameter) is str:
-            self.param = array(flLoadFile(parameter))
-        else:
-            self.param = parameter
+        self.logger = logging.getLogger()
+        self.logger.debug('Initialising GenerateStats')
 
         self.gridLimit = gridLimit
         self.gridSpace = gridSpace
@@ -147,16 +139,39 @@ class GenerateStats:
 
         self.domain_warning_raised = False
 
+        self.progressbar = progressbar
+        self.prgStartValue = prgStartValue
+        self.prgEndValue = prgEndValue
+
+        if not calculateLater:
+            if type(lonLat) is str:
+                self.lonLat = np.array(flLoadFile(lonLat, delimiter=','))
+            else:
+                self.lonLat = lonLat
+            if type(parameter) is str:
+                self.param = np.array(flLoadFile(parameter))
+            else:
+                self.param = parameter
+
+            self.calculateStatistics()
+
+    def calculateStatistics(self):
+        progressbar = self.progressbar
+        prgStartValue = self.prgStartValue
+        prgEndValue = self.prgEndValue
+
+        self.logger.debug('Calculating statistics for %i cells' % self.maxCell)
         for i in range(self.maxCell + 1):
             self.coeffs.mu[i], self.coeffs.sig[i], self.coeffs.alpha[i], \
             self.coeffs.phi[i],self.coeffs.min[i] = self.calculate(i,False)
             self.coeffs.lmu[i], self.coeffs.lsig[i], self.coeffs.lalpha[i], \
             self.coeffs.lphi[i], self.coeffs.lmin[i] = self.calculate(i,True)
-            if mod(i, 10) == 0:  # Periodically update progress bar
+            if np.mod(i, 10) == 0:  # Periodically update progress bar
                 if progressbar is not None:
                     progressbar.update((i+1)/float(self.maxCell+1), prgStartValue, prgEndValue)
         if progressbar is not None:
             progressbar.update(1.0, prgStartValue, prgEndValue)
+        self.logger.debug('Finished calculating statistics')
 
     def calculate(self, cellNum, onLand):
         """calculate(cellNum):
@@ -165,18 +180,19 @@ class GenerateStats:
         given cell.
         """
         p = self.extractParameter(cellNum, onLand)
+        #self.logger.debug('Calculating statistics for cell %i from %i samples' % (cellNum, len(p)))
         if self.angular:
-            mu = stats.circmean(radians(p))
-            sig = stats.circstd(radians(p))
+            mu = stats.circmean(np.radians(p))
+            sig = stats.circstd(np.radians(p))
         else:
-            mu = mean(p)
-            sig = std(p)
+            mu = np.mean(p)
+            sig = np.std(p)
         # Calculate the autocorrelations:
-        alphas = correlate(p, p, 'full')
+        alphas = np.correlate(p, p, 'full')
         n = len(p)
         # Grab only the lag-one autocorrelation coeff.
         alpha = alphas[n]/alphas.max()
-        phi = sqrt(1 - alpha**2)
+        phi = np.sqrt(1 - alpha**2)
         mn = min(p)
         return mu, sig, alpha, phi, mn
 
@@ -203,15 +219,15 @@ class GenerateStats:
         lat = self.lonLat[:,1]
         lsflag = self.lonLat[:,2]
         if onLand:
-            ij = where(((lat >= sLat) & (lat < nLat)) &
+            ij = np.where(((lat >= sLat) & (lat < nLat)) &
                        (lon >= wLon) & (lon < eLon) & (lsflag>0))
         else:
-            ij = where(((lat >= sLat) & (lat < nLat)) &
+            ij = np.where(((lat >= sLat) & (lat < nLat)) &
                        (lon >= wLon) & (lon < eLon) & (lsflag==0))
         p_ = self.param[ij]
-        p = stats.statRemoveNum(array(p_), self.missingValue)
+        p = stats.statRemoveNum(np.array(p_), self.missingValue)
 
-        while size(p) <= self.minSample:
+        while np.size(p) <= self.minSample:
             wLon_last = wLon
             eLon_last = eLon
             nLat_last = nLat
@@ -230,15 +246,15 @@ class GenerateStats:
                     self.logger.critical(errMsg)
                     raise StopIteration, errMsg
             if onLand:
-                ij = where(((lat >= sLat) & (lat < nLat)) & (lon >= wLon) &
+                ij = np.where(((lat >= sLat) & (lat < nLat)) & (lon >= wLon) &
                            (lon < eLon) & (lsflag>0))
             else:
-                ij = where(((lat >= sLat) & (lat < nLat)) & (lon >= wLon) &
+                ij = np.where(((lat >= sLat) & (lat < nLat)) & (lon >= wLon) &
                            (lon < eLon) & (lsflag==0))
             p_ = self.param[ij]
-            p = stats.statRemoveNum(array(p_), self.missingValue)
+            p = stats.statRemoveNum(np.array(p_), self.missingValue)
 
-        # Check to see if all values in the array are the same. If the values
+        # Check to see if all values in the np.array are the same. If the values
         # are the same, bandwidth would be 0, and therefore KDE cannot be generated
         while p.max() == p.min():
             wLon_last = wLon
@@ -259,14 +275,14 @@ class GenerateStats:
                     self.logger.critical(errMsg)
                     raise StopIteration, errMsg
             if onLand:
-                ij = where(((lat >= sLat) & (lat < nLat)) &
+                ij = np.where(((lat >= sLat) & (lat < nLat)) &
                            (lon >= wLon) & (lon < eLon) & (lsflag>0))
             else:
-                ij = where(((lat >= sLat) & (lat < nLat)) &
+                ij = np.where(((lat >= sLat) & (lat < nLat)) &
                            (lon >= wLon) & (lon < eLon) & (lsflag==0))
 
             p_ = self.param[ij]
-            p = stats.statRemoveNum(array(p_), self.missingValue)
+            p = stats.statRemoveNum(np.array(p_), self.missingValue)
         return p
 
     def _expandCell(self, lon, lat, wLon, eLon, nLat, sLat):
@@ -298,6 +314,82 @@ class GenerateStats:
         if sLat < self.gridLimit['yMin']:
             sLat = self.gridLimit['yMin']
         return wLon, eLon, nLat, sLat
+
+    def load(self, filename):
+        self.logger.debug('Loading statistics from %s' % filename)
+        from scipy.io.netcdf import netcdf_file
+        ncdf = netcdf_file(filename, 'r')
+        for var in ncdf.variables.keys():
+            setattr(self.coeffs, var, ncdf.variables[var][:].flatten())
+        #TODO: maybe save and check grid settings?
+
+    def save(self, filename, description=''):
+        description = ' ' + description.strip()
+        self.logger.debug('Saving' + description + ' statistics to %s' % filename)
+
+        lon = np.arange(self.gridLimit['xMin'],self.gridLimit['xMax'],self.gridSpace['x'])
+        lat = np.arange(self.gridLimit['yMax'],self.gridLimit['yMin'],-1*self.gridSpace['y'])
+
+        nx = len(lon)
+        ny = len(lat)
+
+        dimensions = {0:{'name':'lat','values':lat,'dtype':'f',
+                         'atts':{'long_name':'Latitude','units':'degrees_north'} },
+                      1:{'name':'lon','values':lon,'dtype':'f',
+                         'atts':{'long_name':'Longitude','units':'degrees_east'} } }
+
+        variables = {0:{'name':'mu','dims':('lat','lon'),
+                        'values':self.coeffs.mu.reshape((ny,nx)),
+                        'dtype':'d',
+                        'atts':{'long_name':'Mean' + description,
+                                'units':'m/s'} },
+                     1:{'name':'alpha','dims':('lat','lon'),
+                        'values':self.coeffs.alpha.reshape((ny,nx)),
+                        'dtype':'d',
+                        'atts':{'long_name':'Lag-1 autocorrelation of' + description,
+                                'units':''} },
+                     2:{'name':'sig','dims':('lat','lon'),
+                        'values':self.coeffs.sig.reshape((ny,nx)),
+                        'dtype':'d',
+                        'atts':{'long_name':'Standard deviation' + description,
+                                'units':'m/s'} },
+                     3:{'name':'min','dims':('lat','lon'),
+                        'values':self.coeffs.min.reshape((ny,nx)),
+                        'dtype':'d',
+                        'atts':{'long_name':'Minimum' + description,
+                                'units':'m/s'} },
+                     4:{'name':'lmu','dims':('lat','lon'),
+                        'values':self.coeffs.lmu.reshape((ny,nx)),
+                        'dtype':'d',
+                        'atts':{'long_name':'Mean' + description +' (over land)',
+                                'units':'m/s'} },
+                     5:{'name':'lalpha','dims':('lat','lon'),
+                        'values':self.coeffs.lalpha.reshape((ny,nx)),
+                        'dtype':'d',
+                        'atts':{'long_name':'Lag-1 autocorrelation of' + description + ' (over land)',
+                                'units':''} },
+                     6:{'name':'lsig','dims':('lat','lon'),
+                        'values':self.coeffs.lsig.reshape((ny,nx)),
+                        'dtype':'d',
+                        'atts':{'long_name':'Standard deviation of' + description + ' (over land)',
+                                'units':'m/s'} },
+                     7:{'name':'lmin','dims':('lat','lon'),
+                        'values':self.coeffs.lmin.reshape((ny,nx)),
+                        'dtype':'d',
+                        'atts':{'long_name':'Minimum' + description + ' (over land)',
+                                'units':'m/s'} },
+                    8:{'name':'cell', 'dims':('lat','lon'),
+                        'values':np.arange(self.maxCell+1).reshape((ny,nx)),
+                        'dtype':'i',
+                        'atts':{'long_name':'Cell', 'units':''} }
+                   }
+
+        import Utilities.nctools as nctools
+
+        nctools.ncSaveGrid(filename, dimensions, variables,
+                           nodata=self.missingValue,datatitle=None,dtype='f',
+                           writedata=True, keepfileopen=False)
+
 
 if __name__=="__main__":
     try:
