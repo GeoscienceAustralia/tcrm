@@ -22,6 +22,8 @@ Alternatively, it can be run from the command line::
 
 """
 
+import traceback
+
 import os
 import sys
 import logging as log
@@ -176,24 +178,21 @@ class TrackGenerator:
             """
 
             # try to load the netcdf version of the file
-            try:
-                ncdf = netcdf_file(filename + '.nc', 'r')
-                log.debug('Loading data from %s.nc' % filename)
 
+            if os.path.isfile(filename + '.nc'):
+                log.debug('Loading data from %s.nc' % filename)
+                ncdf = netcdf_file(filename + '.nc', 'r')
                 i = ncdf.variables['cell'][:]
                 x = ncdf.variables['x'][:]
                 y = ncdf.variables['y'][:]
-
                 return np.vstack((i, x, y)).T
 
-            except IOError:
-                log.warning('Could not find %s.nc, reverting to old format.' \
-                        % filename)
-                
-            # revert to old csv format
+            # otherwise, revert to old csv format
+            
+            log.info('Could not load %s.nc, reverting to old format.' % filename)
             return flLoadFile(filename, '%', ',')
 
-        # Now do the loading
+        # Load the files
         
         log.debug('Loading the cyclone parameter data')
 
@@ -214,7 +213,7 @@ class TrackGenerator:
 
         except IOError:
             log.warning('RMW distribution file does not exist! Assuming ' + \
-                        'lognormal with mean %f and stdev %f' \
+                        'lognormal with mean %f and stdev %f.' \
                         % (self.sizeMean, self.sizeStdDev))
             self.cdfSize = np.array(stats.rMaxDist(self.sizeMean, 
                                                    self.sizeStdDev, 
@@ -493,18 +492,18 @@ class TrackGenerator:
 
         nbefore = len(results)
         results = [track for track in results if not empty(track)]
-        log.debug('Removed %i empty tracks.' % (len(results) - nbefore))
+        log.debug('Removed %i empty tracks.' % (nbefore - len(results)))
 
         nbefore = len(results)
         results = [track for track in results if not died_early(track)]
-        log.debug('Removing %i tracks that died early.' %
-                  (len(results) - nbefore))
+        log.debug('Removed %i tracks that died early.' %
+                  (nbefore - len(results)))
 
         if self.innerGridLimit:
             nbefore = len(results)
             results = [track for track in results if inside_domain(track)]
             log.debug('Removed %i tracks that do not pass inside domain.' %
-                     (len(results) - nbefore))
+                     (nbefore  - len(results)))
 
         # Return the tracks as an stacked array
 
@@ -752,7 +751,7 @@ class TrackGenerator:
             
             if self._notValidTrackStep(pressure[i], penv[i], age[i], 
                                        lon[0], lat[0], lon[i], lat[i]):
-               log.debug('Terminating the track early.')
+               log.debug('Track did not satisfy criteria, terminating the track early.')
                return index[:i], age[:i], lon[:i], lat[:i], \
                       speed[:i], bearing[:i], pressure[:i], penv[:i], rmax[:i]
 
@@ -934,9 +933,11 @@ class TrackGenerator:
         """
 
         if penv - pressure < 5.0:
+            log.debug('Pressure difference < 5.0')
             return True
 
         if pressure > 1000.0:
+            log.debug('Pressure > 1000')
             return True
 
         return False
@@ -1385,7 +1386,12 @@ def run(configFile):
                + ',Speed(km/hr),Bearing(degrees),CentralPressure(hPa)' \
                + ',EnvPressure(hPa),rMax(km)'
 
-        flSaveFile(trackFile, tracks, header=header, delimiter=',', fmt='%10.5f')
+        if len(tracks) > 0:
+            np.savetxt(trackFile, tracks, header=header, delimiter=',', 
+                    fmt='%i %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f')
+        else:
+            with open(trackFile, 'w') as fp:
+                fp.write(header)
 
 if __name__ == "__main__":
     try:
