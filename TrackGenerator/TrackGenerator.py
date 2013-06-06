@@ -258,7 +258,7 @@ class TrackGenerator:
         self.bStats = calculate('all_bearing', angular=True)
 
         log.debug('Calculating cell statistics for pressure rate of change')
-        self.pStats = calculate('pressure_rate')
+        self.dpStats = calculate('pressure_rate')
 
 
     def saveCellStatistics(self):
@@ -452,14 +452,13 @@ class TrackGenerator:
 
         # Generate a `nTracks` tracks from the genesis point
 
-        for j in range(nTracks):
+        for j in range(1, nTracks+1):
+            log.debug('** Generating track %i from point (%.2f,%.2f)' \
+                      % (j, initLat, initLon))
             track = self._singleTrack(j, initLat, initLon, initSpeed, initBearing, 
                                       initPressure, initEnvPressure, initRmax)
             results.append(track)
-
-            log.debug('Finished generating track %i from genesis point (%f,%f)' \
-                      % (j, initLat, initLon))
-    
+   
         # Define some filter functions
 
         def empty(track):
@@ -684,7 +683,8 @@ class TrackGenerator:
                 lat[i] <= self.gridLimit['yMin'] or
                 lat[i] >  self.gridLimit['yMax']):
 
-                log.debug('TC stepped out of grid')
+                log.debug('TC stepped out of grid (%.2f %.2f)' % (lon[i],
+                    lat[i]))
                 return index[:i], age[:i], lon[:i], lat[:i], speed[:i], \
                        bearing[:i], pressure[:i], penv[:i], rmax[:i]
 
@@ -751,7 +751,8 @@ class TrackGenerator:
             
             if self._notValidTrackStep(pressure[i], penv[i], age[i], 
                                        lon[0], lat[0], lon[i], lat[i]):
-               log.debug('Track did not satisfy criteria, terminating the track early.')
+               log.debug('Track did not satisfy criteria, terminating' + \
+                         ' at time %i.' % i)
                return index[:i], age[:i], lon[:i], lat[:i], \
                       speed[:i], bearing[:i], pressure[:i], penv[:i], rmax[:i]
 
@@ -932,12 +933,9 @@ class TrackGenerator:
         conditions.
         """
 
-        if penv - pressure < 5.0:
-            log.debug('Pressure difference < 5.0')
-            return True
-
-        if pressure > 1000.0:
-            log.debug('Pressure > 1000')
+        if age > 12 and (abs(penv - pressure) < 5.0):
+            log.debug('Pressure difference < 5.0 (penv: %f pressure: %f)' % \
+                    (penv, pressure))
             return True
 
         return False
@@ -1129,8 +1127,18 @@ class TrackGenerator:
                            nodata=self.missingValue, datatitle=None, dtype='f',
                            writedata=True, keepfileopen=False)
 
-    def loadDataAndStatistics(self):
-        self.loadInitialConditionDistributions()
+    def calculateOrLoadCellStatistics(self):
+        """
+        Helper function to calculate the cell statistics if they have
+        not been previously calculated.
+        """
+        exists = os.path.exists
+        if not exists(pjoin(self.processPath, 'speed_stats.nc')) \
+        or not exists(pjoin(self.processPath, 'pressure_stats.nc')) \
+        or not exists(pjoin(self.processPath, 'bearing_stats.nc')) \
+        or not exists(pjoin(self.processPath, 'pressure_rate_stats.nc')):
+            self.calculateCellStatistics()
+            self.saveCellStatistics()
         self.loadCellStatistics()
 
 def attemptParallel():
@@ -1365,7 +1373,7 @@ def run(configFile):
             landfall, dt=dt, maxTimeSteps=maxTimeSteps)
 
     tg.loadInitialConditionDistributions()
-    tg.loadCellStatistics()
+    tg.calculateOrLoadCellStatistics()
 
     # Hold until all processors are ready
     
@@ -1378,6 +1386,7 @@ def run(configFile):
         if sim.seed:
             PRNG.seed(sim.seed)
             PRNG.jumpahead(sim.jumpahead)
+            log.debug('seed %i jumpahead %i' % (sim.seed, sim.jumpahead))
 
         trackFile = pjoin(trackPath, sim.outfile)
         tracks = tg.generateTracks(sim.ntracks)
