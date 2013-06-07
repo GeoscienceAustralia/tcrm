@@ -36,6 +36,7 @@ import trackLandfall
 import Utilities.nctools as nctools
 import Utilities.Cmap as Cmap
 import Utilities.Cstats as Cstats
+import Utilities.maputils as maputils
 
 from os.path import join as pjoin, dirname
 from scipy.io.netcdf import netcdf_file
@@ -392,24 +393,15 @@ class TrackGenerator:
 
         if not (initLon and initLat):
             log.debug('Cyclone origin not given, sampling a random one instead.')
-            initLat, initLon = self.originSampler.ppf(uniform(), uniform())
-
-        # Do not generate tracks if the genesis point outside of domain
-        
-        if not ((self.gridLimit['xMin'] <= initLat <= self.gridLimit['xMax'])
-                and (self.gridLimit['yMin'] <= initLon <= self.gridLimit['yMax'])):
-            log.warning('Genesis point (%f,%f) outside of domain.' \
-                       % (initLat, initLon))
-            log.warning('No tracks generated for this genesis point.')
-            return np.array(results).T
+            initLon, initLat = self.originSampler.ppf(uniform(), uniform())
 
         # Get the initial grid cell
 
-        initCellNum = Cstats.getCellNum(initLat, initLon, 
+        initCellNum = Cstats.getCellNum(initLon, initLat, 
                                         self.gridLimit, self.gridSpace)
 
-        log.debug("Cyclones origin: (%6.2f, %6.2f). Grid cell: %i " % \
-                  (initLat, initLon, initCellNum))
+        log.debug("Cyclones origin: (%6.2f, %6.2f) Cell: %i Grid: %s" % \
+                  (initLon, initLat, initCellNum, self.gridLimit))
 
         # Sample an initial bearing if none is provided
 
@@ -450,12 +442,26 @@ class TrackGenerator:
                 cdfSize = self.allCDFInitSize[ind, 1:3]
             initRmax = ppf(uniform(), cdfSize)
 
+
+        # Do not generate tracks from this genesis point if we are going to
+        # exit the domain on the first step
+        
+        nextLon, nextLat = maputils.bear2LatLon(initBearing, self.dt*initSpeed, initLon, initLat)
+
+        log.debug('initBearing: %.2f initSpeed: %.2f initEnvPressure: %.2f initPressure: %.2f' % (initBearing, initSpeed, initEnvPressure, initPressure))
+        log.debug('Next step: (%.2f, %.2f) to (%.2f, %.2f)' % (initLon, initLat, nextLon, nextLat))
+
+        if not ((self.gridLimit['xMin'] <= nextLon <= self.gridLimit['xMax'])
+            and (self.gridLimit['yMin'] <= nextLat <= self.gridLimit['yMax'])):
+            log.debug('Tracks will exit domain immediately for this genesis point.')
+            return np.array(results).T
+
         # Generate a `nTracks` tracks from the genesis point
 
         for j in range(1, nTracks+1):
             log.debug('** Generating track %i from point (%.2f,%.2f)' \
-                      % (j, initLat, initLon))
-            track = self._singleTrack(j, initLat, initLon, initSpeed, initBearing, 
+                      % (j, initLon, initLat))
+            track = self._singleTrack(j, initLon, initLat, initSpeed, initBearing, 
                                       initPressure, initEnvPressure, initRmax)
             results.append(track)
    
@@ -649,15 +655,15 @@ class TrackGenerator:
 
         self.offshorePressure = initPressure
         self.theta = initBearing
-        self.v = initSpeed
-        self.vChi = 0.0
-        self.bChi = 0.0
-        self.pChi = 0.0
-        self.sChi = 0.0
+        self.v     = initSpeed
+        self.vChi  = 0.0
+        self.bChi  = 0.0
+        self.pChi  = 0.0
+        self.sChi  = 0.0
         self.dpChi = 0.0
         self.dsChi = 0.0
-        self.dp = 0.0
-        self.ds = 0.0
+        self.dp    = 0.0
+        self.ds    = 0.0
 
         # Initialise the landfall tolerance
         
@@ -683,8 +689,9 @@ class TrackGenerator:
                 lat[i] <= self.gridLimit['yMin'] or
                 lat[i] >  self.gridLimit['yMax']):
 
-                log.debug('TC stepped out of grid (%.2f %.2f)' % (lon[i],
-                    lat[i]))
+                log.debug('TC stepped out of grid at point ' + \
+                          '(%.2f %.2f) and time %i' % (lon[i], lat[i], i))
+
                 return index[:i], age[:i], lon[:i], lat[:i], speed[:i], \
                        bearing[:i], pressure[:i], penv[:i], rmax[:i]
 
@@ -751,7 +758,7 @@ class TrackGenerator:
             
             if self._notValidTrackStep(pressure[i], penv[i], age[i], 
                                        lon[0], lat[0], lon[i], lat[i]):
-               log.debug('Track did not satisfy criteria, terminating' + \
+               log.debug('Track no longer satisfies criteria, terminating' + \
                          ' at time %i.' % i)
                return index[:i], age[:i], lon[:i], lat[:i], \
                       speed[:i], bearing[:i], pressure[:i], penv[:i], rmax[:i]
@@ -1177,7 +1184,7 @@ def attemptParallel():
 
 
 # Define a global pseudo-random number generator. This is done to ensure
-# we are sampling correctly accross processors when performing the simulation 
+# we are sampling correctly across processors when performing the simulation 
 # in parallel. We use the inbuilt Python `random` library as it provides the
 # ability to `jumpahead` in the stream (as opposed to `numpy.random`).
 
@@ -1334,8 +1341,8 @@ def run(configFile):
 
     pp.barrier()
 
-    # Seed the numpy PRNG. We use this to sample the number of tropical cyclone
-    # tracks to simulate at each genesis point. count as the inbuilt Python
+    # Seed the numpy PRNG. We use this PRNG to sample the number of tropical
+    # cyclone tracks to simulate at each genesis point. The inbuilt Python
     # `random` library does not provide a function to sample from the Poisson
     # distribution.
 

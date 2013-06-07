@@ -186,12 +186,12 @@ Documentation on the purpose of the class
         xi = array(self.cdfX).searchsorted(unifX)
         yj = self.cdfY[xi, :].searchsorted(unifY)
 
-        return self.x[xi], self.y[yj]
+        return self.x[xi], self.y[yj] #lon, lat
 
     def ppf(self, q1, q2):
         xi = self.cdfX.searchsorted(q1)
         yj = self.cdfY[xi, :].searchsorted(q2)
-        return self.x[xi], self.y[yj]
+        return self.x[xi], self.y[yj] #lon, lat
 
     def cdf(self, x, y):
         # crude, this should be an interpolation
