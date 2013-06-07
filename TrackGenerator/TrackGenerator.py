@@ -1293,7 +1293,7 @@ def run(configFile):
     trackSeed      = None
     trackPath      = pjoin(outputPath, 'tracks')
     processPath    = pjoin(outputPath, 'process')
-    trackFilename  = 'tracks-%04i.' + fmt
+    trackFilename  = 'tracks.%04i.' + fmt
 
     if config.has_option('TrackGenerator', 'gridLimit'):
         gridLimit = config.geteval('TrackGenerator', 'gridLimit')
@@ -1403,11 +1403,11 @@ def run(configFile):
                + ',EnvPressure(hPa),rMax(km)'
 
         if len(tracks) > 0:
-            np.savetxt(trackFile, tracks, header=header, delimiter=',', 
-                    fmt='%i %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f')
+            np.savetxt(trackFile, tracks, header=header, comments='%', delimiter=',', 
+                    fmt='%i,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f')
         else:
             with open(trackFile, 'w') as fp:
-                fp.write(header)
+                fp.write('%'+header)
 
 if __name__ == "__main__":
     try:
