@@ -493,6 +493,10 @@ class TrackGenerator:
                       for k in range(len(lon))]
             return all(inside)
 
+        def valid_pressures(track):
+            index, age, lon, lat, speed, bearing, pressure, penv, rmax = track
+            return all(pressure < penv)
+
         # Filter the generated tracks based on certain criteria
 
         nbefore = len(results)
@@ -502,6 +506,11 @@ class TrackGenerator:
         nbefore = len(results)
         results = [track for track in results if not died_early(track)]
         log.debug('Removed %i tracks that died early.' %
+                  (nbefore - len(results)))
+
+        nbefore = len(results)
+        results = [track for track in results if valid_pressures(track)]
+        log.debug('Removed %i tracks that had incorrect pressures.' %
                   (nbefore - len(results)))
 
         if self.innerGridLimit:
