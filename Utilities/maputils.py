@@ -517,8 +517,8 @@ def makeGrid(cLon, cLat, margin=2, resolution=0.01, minLon=None, maxLon=None,
     else:
         maxLat_= int(100*(cLat)) + int(100*margin) + 1
 
-    xGrid = numpy.array(numpy.arange(minLon, maxLon, gridSize), dtype=int)
-    yGrid = numpy.array(numpy.arange(minLat, maxLat, gridSize), dtype=int)
+    xGrid = numpy.array(numpy.arange(minLon_, maxLon_, gridSize), dtype=int)
+    yGrid = numpy.array(numpy.arange(minLat_, maxLat_, gridSize), dtype=int)
 
     R = gridLatLonDist(cLon, cLat, xGrid/100., yGrid/100.)
     numpy.putmask(R, R==0, 1e-30)
