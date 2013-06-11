@@ -1159,11 +1159,8 @@ class TrackGenerator:
 
 def attemptParallel():
     """
-    Attempt to load Pypar globally as `pp`. If Pypar loads successfully, then a
-    call to `pypar.finalize` is registered to be called at exit of the Python
-    interpreter. This is to ensure that MPI exits cleanly.
-
-    If pypar cannot be loaded then a dummy `pp` is created.
+    Attempt to load Pypar globally as `pp`.  If pypar cannot be loaded then a
+    dummy `pp` is created.
     """
     global pp
 
