@@ -349,14 +349,13 @@ class WindfieldGenerator(object):
         self.dumpGustsFromTracks(tracks, windfieldPath, filenameFormat, progressCallback=progressCallback)
 
     def dumpGustsFromTracks(self, trackiter, windfieldPath, filenameFormat, progressCallback=None):
-
         results = itertools.imap(self.calculateExtremesFromTrack, trackiter)
 
         gusts = {}
         done = defaultdict(list)
 
         i = 0
-        for track, result in balanced(results):
+        for track, result in results:
             gust, bearing, Vx, Vy, P, lon, lat = result
 
             if track.trackfile in gusts:
@@ -462,7 +461,8 @@ def readMultipleTrackData(trackfile):
 
 
 def loadTracksFromFiles(trackfiles):
-    for f in trackfiles:
+    for f in balanced(trackfiles):
+        log.info('Calculating wind fields for tracks in %s' % f)
         tracks = loadTracks(f)
         for track in tracks:
             yield track
