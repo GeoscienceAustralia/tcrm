@@ -83,9 +83,8 @@ def doWindfieldCalculations(configFile):
 
     log.info('Starting wind field calculations')
 
-    from WindfieldInterface import WindfieldInterface
-    nfiles = cnfGetIniValue(configFile, 'WindfieldInterface', 'NumberofFiles', 1)
-    wfinterface = WindfieldInterface.WindfieldInterface(configFile, nfiles)
+    import WindfieldInterface
+    WindfieldInterface.run(configFile)
 
     log.info('Completed wind field calculations')
 

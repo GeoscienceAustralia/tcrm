@@ -13,8 +13,22 @@ TrackSeed=1
 gridSpace={'x':1.0,'y':1.0}
 gridInc={'x':1.0,'y':0.5}
 
+[WindfieldInterface]
+profileType=holland
+windFieldType=kepert
+beta=1.3
+beta1=1.3
+beta2=1.3
+thetaMax=70.0
+Margin=2
+Resolution=0.01
+PlotOutput=False
+
 [Output]
 Path=%(cwd)s/output
+
+[Logging]
+ProgressBar=False
 """ % {'cwd': os.getcwd()}
 
 class ConfigParser(RawConfigParser):
