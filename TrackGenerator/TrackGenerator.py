@@ -1158,29 +1158,21 @@ def attemptParallel():
     """
     global pp
 
-    try:  # to access Pypar
-        pp
-    except NameError:
-        try:
-            # load pypar for everyone
+    try:
+        # load pypar for everyone
 
-            import pypar as pp
+        import pypar as pp
 
-            # success! now ensure a clean MPI exit
+    except ImportError:
 
-            import atexit
-            atexit.register(pp.finalize)
+        # no pypar, create a dummy one
 
-        except ImportError:
+        class DummyPypar(object):
+            def size(self): return 1
+            def rank(self): return 0
+            def barrier(self): pass
 
-            # no pypar, create a dummy one
-
-            class DummyPypar(object):
-                def size(self): return 1
-                def rank(self): return 0
-                def barrier(self): pass
-
-            pp = DummyPypar()
+        pp = DummyPypar()
 
 
 # Define a global pseudo-random number generator. This is done to ensure
@@ -1429,3 +1421,7 @@ if __name__ == "__main__":
         raise IOError, error_msg
 
     run(configFile)
+
+    # Finalise MPI
+    
+    pp.finalize()

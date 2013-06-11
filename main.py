@@ -227,7 +227,42 @@ def main(config_file='main.ini'):
     logger.info('Completed TCRM')
     #exits program if not do matplotlib plots
 
+def attemptParallel():
+    """
+    Attempt to load Pypar globally as `pp`. If Pypar loads successfully, then a
+    call to `pypar.finalize` is registered to be called at exit of the Python
+    interpreter. This is to ensure that MPI exits cleanly.
+
+    If pypar cannot be loaded then a dummy `pp` is created.
+    """
+    global pp
+
+    try:
+         # load pypar for everyone
+
+         import pypar as pp
+
+         # success! now ensure a clean MPI exit
+
+         import atexit
+         atexit.register(pp.finalize)
+
+    except ImportError:
+
+         # no pypar, create a dummy one
+
+         class DummyPypar(object):
+             def size(self): return 1
+             def rank(self): return 0
+             def barrier(self): pass
+
+         pp = DummyPypar()
+
+
 if __name__ == "__main__":
+
+    attemptParallel()
+
     try:
         CONFIG_FILE = sys.argv[1]
     except IndexError:
@@ -254,14 +289,20 @@ if __name__ == "__main__":
         except OSError:
             LOG_FILE = os.path.join(os.getcwd(), 'main.log')
 
-    flStartLog(LOG_FILE,
-               cnfGetIniValue(CONFIG_FILE, 'Logging', 'LogLevel', 'INFO'),
-               cnfGetIniValue(CONFIG_FILE, 'Logging', 'Verbose', False))
+    logLevel = cnfGetIniValue(CONFIG_FILE, 'Logging', 'LogLevel', 'INFO')
+    verbose = cnfGetIniValue(CONFIG_FILE, 'Logging', 'Verbose', False)
+
+    if pp.rank() > 0:
+        LOG_FILE += '-' + str(pp.rank())
+        verbose = False # to stop output to console
+
+    flStartLog(LOG_FILE, logLevel, verbose)
 
     # Switch off minor warning messages
     import warnings
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     warnings.filterwarnings("ignore", category=UserWarning, module="pytz")
+    warnings.filterwarnings("ignore", category=UserWarning, module="numpy")
 
     try:
         main(CONFIG_FILE)
