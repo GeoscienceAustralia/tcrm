@@ -74,6 +74,21 @@ def doTrackGeneration(configFile):
 
     log.info('Completed track generation')
 
+def doWindfieldCalculations(configFile):
+    """
+    Do the wind field calculations.
+
+    The wind field settings are read from *configFile*.
+    """
+
+    log.info('Starting wind field calculations')
+
+    from WindfieldInterface import WindfieldInterface
+    nfiles = cnfGetIniValue(configFile, 'WindfieldInterface', 'NumberofFiles', 1)
+    wfinterface = WindfieldInterface.WindfieldInterface(configFile, nfiles)
+
+    log.info('Completed wind field calculations')
+
 
 def main(config_file='main.ini'):
     """
@@ -201,12 +216,7 @@ def main(config_file='main.ini'):
 
     # Execute Windfield:
     if cnfGetIniValue(config_file, 'Actions', 'ExecuteWindfield', False):
-        logger.info('Running WindfieldInterface')
-        from WindfieldInterface import WindfieldInterface
-        nfiles = cnfGetIniValue(config_file, 'WindfieldInterface',
-                                'NumberofFiles', 1)
-        wfinterface = WindfieldInterface.WindfieldInterface(config_file, nfiles)
-        logger.info('Completed WindfieldInterface')
+        doWindfieldCalculations(config_file)
 
     # Execute Hazard:
     if cnfGetIniValue(config_file, 'Actions', 'ExecuteHazard', False):
