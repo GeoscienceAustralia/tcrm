@@ -63,6 +63,8 @@ from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile, flSaveFile, flStartLog
 from Utilities.AsyncRun import AsyncRun
 
+from scipy.io.netcdf import netcdf_file
+import numpy as np
 
 class GenerateDistributions:
     """
@@ -225,9 +227,26 @@ class GenerateDistributions:
                                             'all_cell_cdf_' + self.pName)
             args = {"filename":allCellCdfOutput, "data":results,
                     "header":cdfHeader, "delimiter":",", "fmt":"%f"}
-            fl = AsyncRun(flSaveFile, args)
-            fl.start()
             self.logger.debug("Writing CDF dataset for all individual cell numbers into files")
+            flSaveFile(**args)
+
+            # Save to netcdf too
+
+            filename = allCellCdfOutput + '.nc'
+
+            ncdf = netcdf_file(filename, 'w')
+            
+            ncdf.createDimension('cell', len(results[:,0]))
+            cell = ncdf.createVariable('cell', 'i', ('cell',))
+            cell[:] = results[:,0]
+            
+            x = ncdf.createVariable('x', 'f', ('cell',))
+            x[:] = results[:,1]
+            
+            y = ncdf.createVariable('CDF', 'f', ('cell',))
+            y[:] = results[:,2]
+            
+            ncdf.close()
 
     def extractParameter(self, cellNum):
         """extractParameter(cellNum):

@@ -185,7 +185,7 @@ class TrackGenerator:
                 ncdf = netcdf_file(filename + '.nc', 'r')
                 i = ncdf.variables['cell'][:]
                 x = ncdf.variables['x'][:]
-                y = ncdf.variables['y'][:]
+                y = ncdf.variables['CDF'][:]
                 return np.vstack((i, x, y)).T
 
             # otherwise, revert to old csv format
