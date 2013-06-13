@@ -40,7 +40,7 @@ __version__ = "$Id: main.py 826 2012-03-26 02:06:55Z nsummons $"
 import os
 import io
 import sys
-import logging as log
+import logging
 import traceback
 import matplotlib
 
@@ -54,11 +54,93 @@ from DataProcess.CalcTrackDomain import CalcTrackDomain
 from DataProcess.CalcFrequency import CalcFrequency
 from Utilities.progressbar import ProgressBar
 
-matplotlib.use('Agg') # Use matplotlib backend
+matplotlib.use('Agg')  # Use matplotlib backend
 
 # Set Basemap data path if compiled with py2exe
 if pathLocator.is_frozen():
-    os.environ['BASEMAPDATA'] = os.path.join(pathLocator.getRootDirectory(), 'mpl-data', 'data')
+    os.environ['BASEMAPDATA'] = pjoin(
+        pathLocator.getRootDirectory(), 'mpl-data', 'data')
+
+log = logging.getLogger('main')
+
+def attemptParallel():
+    """
+    Attempt to load Pypar globally as `pp`. If Pypar loads successfully, then a
+    call to `pypar.finalize` is registered to be called at exit of the Python
+    interpreter. This is to ensure that MPI exits cleanly.
+
+    If pypar cannot be loaded then a dummy `pp` is created.
+    """
+    global pp
+
+    try:
+        # load pypar for everyone
+
+        import pypar as pp
+
+        # success! now ensure a clean MPI exit
+
+        import atexit
+        atexit.register(pp.finalize)
+
+    except ImportError:
+
+        # just in case user is trying to run with mpirun anyhow
+        # NOTE: this only works with OpenMPI
+
+        if os.getenv('OMPI_COMM_WORLD_RANK'):
+            raise
+
+        # no pypar and not run with mpirun, use the dummy one
+
+        class DummyPypar(object):
+            def size(self):
+                return 1
+
+            def rank(self):
+                return 0
+
+            def barrier(self):
+                pass
+
+        pp = DummyPypar()
+
+
+def disableOnWorkers(f):
+    def wrap(*args, **kwargs):
+        if pp.size() > 1 and pp.rank() > 0:
+            return
+        else:
+            return f(*args, **kwargs)
+    return wrap
+
+
+@disableOnWorkers
+def doOutputDirectoryCreation(configFile):
+    # Set up output folders - at this time, we create *all* output
+    # folders that may be required:
+
+    outputPath = cnfGetIniValue(configFile, 'Output', 'Path',
+                                pjoin(os.getcwd(), 'output'))
+
+    log.info('Output will be stored under %s' % outputPath)
+
+    subdirs = ['tracks', 'hazard', 'windfield', 'plots', 'plots/hazard',
+               'plots/stats', 'log', 'process', 'process/timeseries',
+               'process/dat']
+
+    if not os.path.isdir(outputPath):
+        try:
+            os.makedirs(outputPath)
+        except OSError:
+            raise
+    for subdir in subdirs:
+        if not os.path.isdir(os.path.realpath(pjoin(outputPath, subdir))):
+            try:
+                os.makedirs(os.path.realpath(pjoin(outputPath, subdir)))
+            except OSError:
+                raise
+
 
 def doTrackGeneration(configFile):
     """
@@ -73,6 +155,7 @@ def doTrackGeneration(configFile):
     TrackGenerator.run(configFile)
 
     log.info('Completed track generation')
+
 
 def doWindfieldCalculations(configFile):
     """
@@ -89,6 +172,115 @@ def doWindfieldCalculations(configFile):
     log.info('Completed wind field calculations')
 
 
+@disableOnWorkers
+def doDataProcessing(configFile):
+
+    showProgressBar = cnfGetIniValue(
+        configFile, 'Logging', 'ProgressBar', True)
+    outputPath = cnfGetIniValue(
+        configFile, 'Output', 'Path', pjoin(os.getcwd(), 'output'))
+
+    pbar = ProgressBar('(1/6) Processing data files: ', showProgressBar)
+
+    log.info('Running Data Processing')
+
+    from DataProcess.DataProcess import DataProcess
+    data_process = DataProcess(configFile, progressbar=pbar)
+    data_process.processData()
+
+    statsPlotPath = pjoin(outputPath, 'plots', 'stats')
+    processPath = pjoin(outputPath, 'process')
+
+    pRateData = flLoadFile(pjoin(processPath, 'pressure_rate'))
+    pAllData = flLoadFile(pjoin(processPath, 'all_pressure'))
+    bRateData = flLoadFile(pjoin(processPath, 'bearing_rate'))
+    bAllData = flLoadFile(pjoin(processPath, 'all_bearing'))
+    sRateData = flLoadFile(pjoin(processPath, 'speed_rate'))
+    sAllData = flLoadFile(pjoin(processPath, 'all_speed'))
+    pbar.update(0.625)
+
+    indLonLat = flLoadFile(pjoin(processPath, 'cyclone_tracks'),
+                           delimiter=',')
+    indicator = indLonLat[:, 0]
+    lonData = indLonLat[:, 1]
+    latData = indLonLat[:, 2]
+
+    from PlotInterface.plotStats import PlotData
+    plotting = PlotData(statsPlotPath, "png")
+    plotting.plotPressure(pAllData, pRateData)
+    plotting.minPressureHist(indicator, pAllData)
+    plotting.minPressureLat(pAllData, latData)
+    pbar.update(0.75)
+
+    plotting.plotBearing(bAllData, bRateData)
+    plotting.plotSpeed(sAllData, sRateData)
+    # plotStats.plotSpeedBear(sAllData, bAllData, statsPlotPath)
+    plotting.plotLonLat(lonData, latData, indicator)
+    pbar.update(0.875)
+
+    plotting.quantile(pRateData, "Pressure")
+    plotting.quantile(bRateData, "Bearing")
+    plotting.quantile(sRateData, "Speed")
+    try:
+        freq = flLoadFile(pjoin(processPath, 'frequency'))
+    except IOError:
+        log.warning("No frequency file available - skipping this stage")
+    else:
+        years = freq[:, 0]
+        frequency = freq[:, 1]
+        plotting.plotFrequency(years, frequency)
+    log.info('Completed Data Processing')
+    pbar.update(1.0)
+
+
+@disableOnWorkers
+def doStatistics(configFile):
+    showProgressBar = cnfGetIniValue(configFile, 'Logging', 'ProgressBar', True)
+
+    log.info('Running StatInterface')
+    # Auto-calculate track generator domain
+    pbar = ProgressBar('(2/6) Calculating statistics:', showProgressBar)
+    CalcTD = CalcTrackDomain(configFile)
+    TG_domain = CalcTD.calcDomainFromFile()
+
+    from StatInterface import StatInterface
+    statInterface = StatInterface.StatInterface(configFile,
+                                                autoCalc_gridLimit=TG_domain,
+                                                progressbar=pbar)
+    statInterface.kdeGenesisDate()
+    pbar.update(0.6)
+    statInterface.kdeOrigin()
+    pbar.update(0.7)
+    statInterface.cdfCellBearing()
+    pbar.update(0.8)
+    statInterface.cdfCellSpeed()
+    pbar.update(0.9)
+    statInterface.cdfCellPressure()
+    if cnfGetIniValue(configFile, 'RMW', 'GetRMWDistFromInputData', False):
+        statInterface.cdfCellSize()
+    pbar.update(1.0)
+    log.info('Completed StatInterface')
+
+
+@disableOnWorkers
+def doHazard(configFile):
+    log.info('Running HazardInterface')
+    from HazardInterface.HazardInterface import HazardInterface
+    hzdinterface = HazardInterface(configFile)
+    hzdinterface.calculateWindHazard()
+    log.info('Completed HazardInterface')
+
+
+@disableOnWorkers
+def doHazardPlotting(configFile):
+    showProgressBar = cnfGetIniValue(configFile, 'Logging', 'ProgressBar', True)
+    log.info('Plotting Hazard Maps')
+    pbar = ProgressBar('(6/6) Plotting results:      ', showProgressBar)
+    from PlotInterface.AutoPlotHazard import AutoPlotHazard
+    plot_hazard = AutoPlotHazard(configFile, progressbar=pbar)
+    plot_hazard.plot()
+
+
 def main(config_file='main.ini'):
     """
     Main interface of TCRM that allows control and interaction with the
@@ -100,191 +292,61 @@ def main(config_file='main.ini'):
     Example: main('main.ini')
     """
 
-    logger = log.getLogger()
-    # Temporarily define a level so that we can write to the log file
-    # some general info about the program...
-    log.addLevelName(100, '')
-    logger.log(100, "Starting TCRM")
+    log.info("Starting TCRM")
+    log.info("Configuration file: %s" % config_file)
 
-    logger.info("Configuration file: %s"%config_file)
+    doOutputDirectoryCreation(config_file)
 
-    # Set up output folders - at this time, we create *all* output
-    # folders that may be required:
-    output_path = cnfGetIniValue(config_file, 'Output', 'Path',
-                                os.path.join(os.getcwd(), 'output'))
-    logger.info("Output will be stored under %s"%output_path)
-    subdirs = ['tracks', 'hazard', 'windfield', 'plots', 'plots/hazard',
-               'plots/stats', 'log', 'process', 'process/timeseries',
-               'process/dat']
+    pp.barrier()
 
-    if not os.path.isdir(output_path):
-        try:
-            os.makedirs(output_path)
-        except OSError:
-            raise
-    for subdir in subdirs:
-        if not os.path.isdir(os.path.realpath(os.path.join(output_path, subdir))):
-            try:
-                os.makedirs(os.path.realpath(os.path.join(output_path, subdir)))
-            except OSError:
-                raise
-
-    show_progress_bar = cnfGetIniValue( config_file, 'Logging', 'ProgressBar', True )
-    # Execute Data Process:
     if cnfGetIniValue(config_file, 'Actions', 'DataProcess', False):
-        pbar = ProgressBar('(1/6) Processing data files: ', show_progress_bar )
+        doDataProcessing(config_file)
 
-        from DataProcess import DataProcess
-        logger.info('Running Data Processing')
-        data_process = DataProcess.DataProcess(config_file, progressbar=pbar)
-        data_process.processData()
+    pp.barrier()
 
-        statsPlotPath = os.path.join(output_path, 'plots', 'stats')
-        processPath = os.path.join(output_path, 'process')
-
-        pRateData = flLoadFile(os.path.join(processPath, 'pressure_rate'))
-        pAllData = flLoadFile(os.path.join(processPath, 'all_pressure'))
-        bRateData = flLoadFile(os.path.join(processPath, 'bearing_rate'))
-        bAllData = flLoadFile(os.path.join(processPath, 'all_bearing'))
-        sRateData = flLoadFile(os.path.join(processPath, 'speed_rate'))
-        sAllData = flLoadFile(os.path.join(processPath, 'all_speed'))
-        pbar.update(0.625)
-
-        indLonLat = flLoadFile(os.path.join(processPath, 'cyclone_tracks'),
-                               delimiter=',')
-        indicator = indLonLat[:, 0]
-        lonData = indLonLat[:, 1]
-        latData = indLonLat[:, 2]
-
-        from PlotInterface.plotStats import PlotData
-        plotting = PlotData(statsPlotPath, "png")
-        plotting.plotPressure(pAllData, pRateData)
-        plotting.minPressureHist(indicator, pAllData)
-        plotting.minPressureLat(pAllData, latData)
-        pbar.update(0.75)
-
-        plotting.plotBearing(bAllData, bRateData)
-        plotting.plotSpeed(sAllData, sRateData)
-        #plotStats.plotSpeedBear(sAllData, bAllData, statsPlotPath)
-        plotting.plotLonLat(lonData, latData, indicator)
-        pbar.update(0.875)
-
-        plotting.quantile(pRateData, "Pressure")
-        plotting.quantile(bRateData, "Bearing")
-        plotting.quantile(sRateData, "Speed")
-        try:
-            freq = flLoadFile(os.path.join(processPath, 'frequency'))
-        except IOError:
-            logger.warning("No frequency file available - skipping this stage")
-        else:
-            years = freq[:, 0]
-            frequency = freq[:, 1]
-            plotting.plotFrequency(years, frequency)
-        logger.info('Completed Data Processing')
-        pbar.update(1.0)
-
-    # Execute StatInterface:
     if cnfGetIniValue(config_file, 'Actions', 'ExecuteStat', False):
-        logger.info('Running StatInterface')
-        # Auto-calculate track generator domain
-        pbar = ProgressBar('(2/6) Calculating statistics:', show_progress_bar )
-        CalcTD = CalcTrackDomain(config_file)
-        TG_domain = CalcTD.calcDomainFromFile()
+        doStatistics(config_file)
 
-        from StatInterface import StatInterface
-        statInterface = StatInterface.StatInterface(config_file,
-                                                    autoCalc_gridLimit=TG_domain,
-                                                    progressbar=pbar)
-        statInterface.kdeGenesisDate()
-        pbar.update(0.6)
-        statInterface.kdeOrigin()
-        pbar.update(0.7)
-        statInterface.cdfCellBearing()
-        pbar.update(0.8)
-        statInterface.cdfCellSpeed()
-        pbar.update(0.9)
-        statInterface.cdfCellPressure()
-        if cnfGetIniValue(config_file, 'RMW', 'GetRMWDistFromInputData', False):
-            statInterface.cdfCellSize()
-        pbar.update(1.0)
-        logger.info('Completed StatInterface')
+    pp.barrier()
 
-    # Execute TrackGenerator:
     if cnfGetIniValue(config_file, 'Actions', 'ExecuteTrackGenerator', False):
         doTrackGeneration(config_file)
 
-    # Execute Windfield:
+    pp.barrier()
+
     if cnfGetIniValue(config_file, 'Actions', 'ExecuteWindfield', False):
         doWindfieldCalculations(config_file)
 
-    # Execute Hazard:
+    pp.barrier()
+
     if cnfGetIniValue(config_file, 'Actions', 'ExecuteHazard', False):
-        logger.info('Running HazardInterface')
-        from HazardInterface.HazardInterface import HazardInterface
-        hzdinterface = HazardInterface(config_file)
-        hzdinterface.calculateWindHazard()
-        logger.info('Completed HazardInterface')
+        doHazard(config_file)
 
-    # Plot Hazard:
+    pp.barrier()
+
     if cnfGetIniValue(config_file, 'Actions', 'PlotHazard', False):
-        logger.info('Plotting Hazard Maps')
-        pbar = ProgressBar('(6/6) Plotting results:      ', show_progress_bar )
-        from PlotInterface.AutoPlotHazard import AutoPlotHazard
-        plot_hazard = AutoPlotHazard(config_file, progressbar=pbar)
-        plot_hazard.plot()
+        doHazardPlotting(config_file)
 
-    logger.info('Completed TCRM')
-    #exits program if not do matplotlib plots
+    pp.barrier()
 
-def attemptParallel():
-    """
-    Attempt to load Pypar globally as `pp`. If Pypar loads successfully, then a
-    call to `pypar.finalize` is registered to be called at exit of the Python
-    interpreter. This is to ensure that MPI exits cleanly.
-
-    If pypar cannot be loaded then a dummy `pp` is created.
-    """
-    global pp
-
-    try:
-         # load pypar for everyone
-
-         import pypar as pp
-
-         # success! now ensure a clean MPI exit
-
-         import atexit
-         atexit.register(pp.finalize)
-
-    except ImportError:
-
-         # no pypar, create a dummy one
-
-         class DummyPypar(object):
-             def size(self): return 1
-             def rank(self): return 0
-             def barrier(self): pass
-
-         pp = DummyPypar()
-
+    log.info('Completed TCRM')
 
 if __name__ == "__main__":
-
-    attemptParallel()
 
     try:
         CONFIG_FILE = sys.argv[1]
     except IndexError:
         # Try loading config file with same name as python script
         CONFIG_FILE = 'main.ini'
-        # If no filename is specified and default filename doesn't exist => raise error
+        # If no filename is specified and default filename doesn't exist =>
+        # raise error
         if not os.path.exists(CONFIG_FILE):
             ERROR_MSG = "No configuration file specified, please type: python main.py {config filename}.ini"
-            raise IOError, ERROR_MSG
+            raise IOError(ERROR_MSG)
     # If config file doesn't exist => raise error
     if not os.path.exists(CONFIG_FILE):
-        ERROR_MSG = "Configuration file '" + CONFIG_FILE +"' not found"
-        raise IOError, ERROR_MSG
+        ERROR_MSG = "Configuration file '" + CONFIG_FILE + "' not found"
+        raise IOError(ERROR_MSG)
 
     TCRM_DIR = pathLocator.getRootDirectory()
     os.chdir(TCRM_DIR)
@@ -296,14 +358,16 @@ if __name__ == "__main__":
         try:
             os.makedirs(LOG_FILE_DIR)
         except OSError:
-            LOG_FILE = os.path.join(os.getcwd(), 'main.log')
+            LOG_FILE = pjoin(os.getcwd(), 'main.log')
 
     logLevel = cnfGetIniValue(CONFIG_FILE, 'Logging', 'LogLevel', 'INFO')
     verbose = cnfGetIniValue(CONFIG_FILE, 'Logging', 'Verbose', False)
 
-    if pp.rank() > 0:
+    attemptParallel()
+
+    if pp.size() > 1 and pp.rank() > 0:
         LOG_FILE += '-' + str(pp.rank())
-        verbose = False # to stop output to console
+        verbose = False  # to stop output to console
 
     flStartLog(LOG_FILE, logLevel, verbose)
 
@@ -318,8 +382,6 @@ if __name__ == "__main__":
     except:
         # Catch any exceptions that occur and log them (nicely):
         TB_LINES = traceback.format_exc().splitlines()
-        LOGGER = log.getLogger()
         for line in TB_LINES:
-            LOGGER.critical(line.lstrip())
-        #sys.exit(1)
-
+            log.critical(line.lstrip())
+        # sys.exit(1)
