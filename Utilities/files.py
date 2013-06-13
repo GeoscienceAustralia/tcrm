@@ -360,7 +360,7 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
         mode = 'a'
 
     logging.basicConfig(level=getattr( logging, logLevel ),
-                        format='%(asctime)s %(module)-15s: %(message)s',
+                        format='%(asctime)s: %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S',
                         filename=logFile,
                         filemode=mode)
@@ -375,7 +375,7 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
             # console (i.e. STDOUT)
             console = logging.StreamHandler( )
             console.setLevel( getattr( logging, logLevel ) )
-            formatter = logging.Formatter( '%(asctime)s %(message)s',
+            formatter = logging.Formatter( '%(asctime)s: %(message)s',
                                            '%Y-%m-%d %H:%M:%S', )
             console.setFormatter( formatter )
             logger.addHandler( console )
