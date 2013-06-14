@@ -198,7 +198,6 @@ class WindField:
         Core. Part I: Linear Theory.
         J. Atmos. Sci., 58, 2469-2484
         """
-        t0 = time.time()
         K = 50.    # Diffusivity
 
         # Constant drag coefficient.
@@ -267,6 +266,5 @@ class WindField:
         # Gradient level winds, cartesian coordinates:
         #Ugx = (Uf**2+Vf**2)*cos(lam-phi)
         #Vgx = (Uf**2+Vf**2)*sin(lam-phi)
-        logger.debug("Timing for wind field: %.3f" %(time.time()-t0))
 
         return Ux,Vy
