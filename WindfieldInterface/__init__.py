@@ -42,7 +42,7 @@ from Utilities.progressbar import ProgressBar
 
 
 """
-Trackfile format
+Trackfile .csv format.
 """
 
 TRACKFILE_COLS = ('CycloneNumber', 'TimeElapsed', 'Longitude', 'Latitude',
@@ -675,6 +675,9 @@ def readTrackData(trackfile):
         TRACKFILE_COLS -- The column names
         TRACKFILE_FMTS -- The entry formats
         TRACKFILE_CNVT -- The column converters
+
+    :type  trackfile: str
+    :param trackfile: the track data filename.
     """
     try:
         return np.loadtxt(trackfile,
@@ -692,6 +695,14 @@ def readTrackData(trackfile):
 
 
 def readMultipleTrackData(trackfile):
+    """
+    Reads all the track datas from a .csv file into a list of numpy.ndarrays.
+    The tracks are seperated based in their cyclone id. This function calls
+    `readTrackData` to read the data from the file.
+    
+    :type  trackfile: str
+    :param trackfile: the track data filename.
+    """
     datas = []
     data = readTrackData(trackfile)
     if len(data) > 0:
@@ -704,6 +715,21 @@ def readMultipleTrackData(trackfile):
 
 
 def loadTracksFromFiles(trackfiles):
+    """
+    Generator that yields :class:`Track` objects from a list of track
+    filenames. 
+    
+    When run in parallel, the list `trackfiles` is distributed across the MPI
+    processors using the `balanced` function. Track files are loaded in a lazy
+    fashion to reduce memory consumption. The generator returns individual
+    tracks (recall: a trackfile can contain multiple tracks) and only moves on
+    to the next file once all the tracks from the current file have been
+    returned.
+
+    :type  trackfiles: list of strings
+    :param trackfiles: list of track filenames. The filenames must include the
+                       path to the file.
+    """
     for f in balanced(trackfiles):
         log.info('Calculating wind fields for tracks in %s' % f)
         tracks = loadTracks(f)
@@ -712,6 +738,16 @@ def loadTracksFromFiles(trackfiles):
 
 
 def loadTracks(trackfile):
+    """
+    Read tracks from a track .csv file and return a list of :class:`Track`
+    objects.
+
+    This calls the function `readMultipleTrackData` to parse the track .csv
+    file.
+
+    :type  trackfile: str
+    :param trackfile: the track data filename.
+    """
     tracks = []
     datas = readMultipleTrackData(trackfile)
     n = len(datas)
@@ -724,6 +760,16 @@ def loadTracks(trackfile):
 
 
 def loadTracksFromPath(path):
+    """
+    Helper function to obtain a generator that yields :class:`Track` objects
+    from a directory containing track .csv files.
+
+    This function calls `loadTracksFromFiles` to obtain the generator and track
+    filenames are processed in alphabetical order.
+
+    :type  path: str
+    :param path: the directory path.
+    """
     files = os.listdir(path)
     trackfiles = [pjoin(path, f) for f in files if f.startswith('tracks')]
     log.info('Processing %d track files in %s' % (len(trackfiles), path))
