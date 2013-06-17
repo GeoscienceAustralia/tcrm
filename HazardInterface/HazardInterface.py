@@ -62,17 +62,16 @@ $Id: HazardInterface.py 817 2012-03-15 03:56:14Z carthur $
 """
 
 import os, sys, logging
-
-#from math import *
+import random
 import numpy
-
 import Utilities.nctools as nctools
+import evd
+
+from os.path import join as pjoin
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flProgramVersion
-import random
 from scipy.stats import scoreatpercentile as percentile
 from Utilities.progressbar import ProgressBar
-import evd
 
 __version__ = "$Id: HazardInterface.py 817 2012-03-15 03:56:14Z carthur $"
 
@@ -273,23 +272,15 @@ class HazardInterface:
         """
         Load all windfield data for each spatial subset into a 3-d array
         """
-        Vr = numpy.empty((self.nsim, j_lim[1] - j_lim[0] + 1, 
+        files = [pjoin(self.inputPath, f) for f in self.fileList]
+        files = [f for f in files if os.path.isfile(f)]
+
+        Vr = numpy.empty((len(files), j_lim[1] - j_lim[0] + 1, 
                           i_lim[1] - i_lim[0] + 1), dtype='f')
-        inputFileList = []
-        i = 0
 
-        while len(inputFileList) < self.nsim:
-            inputFile = os.path.join(self.inputPath, self.fileList[i])
-            if os.path.isfile(inputFile):
-                inputFileList.append(inputFile)
-                i += 1
-            else:
-                self.logger.warn("%s does not exist"%inputFile)
-                i += 1
-                sys.exit( )
+        for n, f in enumerate(files):
+            Vr[n, :, :] = self._loadFile(f, i_lim, j_lim)
 
-        for n in range(self.nsim):
-            Vr[n, :, :] = self._loadFile(inputFileList[n], i_lim, j_lim)
         return Vr
 
     def _loadFile(self, fileName, i_lim, j_lim):
