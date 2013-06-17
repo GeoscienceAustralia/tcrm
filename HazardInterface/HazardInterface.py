@@ -377,21 +377,21 @@ class HazardInterface:
         is used to prevent TCRM from exceeding the available memory when
         calculating wind hazard.
         """
-        subset_maxcols = numpy.ceil(x_dim/float(x_step))
-        subset_maxrows = numpy.ceil(y_dim/float(y_step))
+        subset_maxcols = int(numpy.ceil(x_dim/float(x_step)))
+        subset_maxrows = int(numpy.ceil(y_dim/float(y_step)))
         n_subsets = subset_maxcols * subset_maxrows
-        x_start = numpy.zeros(n_subsets)
-        x_end = numpy.zeros(n_subsets)
-        y_start = numpy.zeros(n_subsets)
-        y_end = numpy.zeros(n_subsets)
+        x_start = numpy.zeros(n_subsets, 'i')
+        x_end = numpy.zeros(n_subsets, 'i')
+        y_start = numpy.zeros(n_subsets, 'i')
+        y_end = numpy.zeros(n_subsets, 'i')
         k = 0
 
         for i in xrange(subset_maxcols):
             for j in xrange(subset_maxrows):
                 x_start[k] = i*x_step
-                x_end[k] = numpy.min((i+1)*x_step, x_dim)-1
+                x_end[k] = min((i+1)*x_step, x_dim)-1
                 y_start[k] = j*y_step
-                y_end[k] = numpy.min((j+1)*y_step, y_dim)-1
+                y_end[k] = min((j+1)*y_step, y_dim)-1
                 k += 1
         return x_start.astype(int), x_end.astype(int), y_start.astype(int), y_end.astype(int)
 
