@@ -28,9 +28,16 @@ Description: Automatically plots hazard maps for each return period and
 import os, sys, pdb, logging
 import numpy
 import pylab
-from mpl_toolkits.basemap import Basemap
 import numpy.ma as ma
 from matplotlib import pyplot
+
+try:
+    from mpl_toolkits.basemap import Basemap
+    NO_BASEMAP = False
+except ImportError:
+    NO_BASEMAP = True
+    logging.warn('Basemap package not installed. Disabling some plots')
+
 
 #from Utilities.files import flConfigFile, flStartLog
 from Utilities.config import cnfGetIniValue
@@ -108,6 +115,9 @@ class AutoPlotHazard:
         return lon,lat,years,mdata
 
     def _plotHazardMap(self, inputData, lon, lat, year, plotPath):
+        if NO_BASEMAP:
+            return
+
         llLon = lon[0]
         llLat = lat[0]
         urLon = lon[-1]
