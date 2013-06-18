@@ -1399,13 +1399,12 @@ def run(configFile):
         header = 'CycloneNumber,TimeElapsed(hr),Longitude(degree),Latitude(degree)' \
                + ',Speed(km/hr),Bearing(degrees),CentralPressure(hPa)' \
                + ',EnvPressure(hPa),rMax(km)'
-
-        if len(tracks) > 0:
-            np.savetxt(trackFile, tracks, header=header, comments='%', delimiter=',', 
-                    fmt='%i,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f')
-        else:
-            with open(trackFile, 'w') as fp:
-                fp.write('%'+header)
+        format = '%i,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f'
+       
+        with open(trackFile, 'w') as fp:
+            fp.write('%'+header)
+            if len(tracks) > 0:
+                np.savetxt(fp, tracks, fmt=format)
 
 if __name__ == "__main__":
     try:
