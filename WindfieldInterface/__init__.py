@@ -337,11 +337,11 @@ class WindfieldAroundTrack(object):
 
         # Initialise the region
 
-        UU = np.zeros_like(cGridX, dtype='f64')
-        VV = np.zeros_like(cGridY, dtype='f64')
-        bearing = np.zeros_like(cGridX, dtype='f64')
-        gust = np.zeros_like(cGridX, dtype='f64')
-        pressure = np.ones_like(cGridX, dtype='f64')*envPressure
+        UU = np.zeros_like(cGridX, dtype='f')
+        VV = np.zeros_like(cGridY, dtype='f')
+        bearing = np.zeros_like(cGridX, dtype='f')
+        gust = np.zeros_like(cGridX, dtype='f')
+        pressure = np.ones_like(cGridX, dtype='f')*envPressure
 
         lonCDegree = np.array(100.*self.track.Longitude, dtype=int)
         latCDegree = np.array(100.*self.track.Latitude, dtype=int)
