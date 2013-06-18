@@ -48,14 +48,21 @@ Modification: Added plotArray and plotBarb functions.
 Id: $Id: plotField.py 642 2012-02-21 07:54:04Z nsummons $
 """
 
-import os, sys, pdb, logging, getopt, traceback
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
+import os, sys, logging
+
+logger = logging.getLogger()
+
+import getopt, traceback
 
 from numpy import *
 from matplotlib import pyplot, cm, rcParams
-from mpl_toolkits.basemap import Basemap
+
+try:
+    from mpl_toolkits.basemap import Basemap
+    NO_BASEMAP = False
+except ImportError:
+    NO_BASEMAP = True
+    logger.warn('Basemap package not installed. Disabling some plots')
 
 # GA modules:
 from files import flStartLog, flConfigFile, flLogFatalError
@@ -65,10 +72,12 @@ import grid
 import colours
 from smooth import smooth
 
+filename = os.environ.get('PYTHONSTARTUP')
+if filename and os.path.isfile(filename):
+    execfile(filename)
 
 __version__ = '$Id: plotField.py 642 2012-02-21 07:54:04Z nsummons $'
 
-logger = logging.getLogger()
 
 def _usage():
     """
@@ -244,6 +253,9 @@ def plotField(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
     Basemap), contours the data over the map, applies labels, titles
     and a colourbar.
     """
+    if NO_BASEMAP:
+        return
+
     pyplot.rcdefaults()
     pyplot.figure()
     if (len(x.shape)<2)and(len(y.shape)<2):
@@ -407,6 +419,9 @@ def plotArray(x,y,data,llLon=None, llLat=None, urLon=None,
     plot of a 2-dimensional array, with a basemap included.
     """
     #pyplot.rcdefaults()
+
+    if NO_BASEMAP:
+        return
 
     pyplot.figure()
     if (len(x.shape)<2)and(len(y.shape)<2):
