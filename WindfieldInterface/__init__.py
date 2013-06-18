@@ -24,6 +24,7 @@ import itertools
 import math
 import time
 import os
+import sys
 import Utilities.metutils as metutils
 import Utilities.maputils as maputils
 import Utilities.nctools as nctools
@@ -35,10 +36,9 @@ from PressureInterface.pressureProfile import PrsProfile as PressureProfile
 from windProfile import WindProfile
 from windVorticity import WindVorticity
 from windField import WindField
-
 from Utilities.config import cnfGetIniValue
 from Utilities.progressbar import ProgressBar
-
+from Utilities.files import flModDate, flProgramVersion, flGetStat
 
 
 """
@@ -568,6 +568,7 @@ class WindfieldGenerator(object):
                 dumpfile = pjoin(windfieldPath, filenameFormat % i)
                 self._saveGustToFile(track.trackfile, (lat, lon, gust), dumpfile)
                 del done[track.trackfile]
+                del gusts[track.trackfile]
                 i += 1
                 if progressCallback:
                     progressCallback((track.trackfile, dumpfile))
@@ -577,9 +578,6 @@ class WindfieldGenerator(object):
 
         """
         lat, lon, speed = result
-
-        from Utilities.files import flModDate, flProgramVersion, flGetStat
-        import sys
 
         inputFileDate = flModDate(trackfile)
 
