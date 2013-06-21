@@ -112,6 +112,44 @@ def grdSave(filename, data, lon, lat, delta, delimiter=' ', nodata=-9999,
     if origShape is not None:
         X.shape = origShape
 
+def grdReadFromNetcdf(filename):
+    """
+    Read formatted data from an ascii grid format file.
+    Returns the longitude and latitude of the grid and the data values
+    The files have 6 header lines describing the data, followed by the
+    data in a gridded format.
+
+    Headers:
+    ncols
+    nrows
+    xllcorner
+    yllcorner
+    cellsize
+    NODATA_value
+
+    Usage:
+    longitude, latitude, data = grdRead(filename, [delimiter])
+    """
+    from scipy.io.netcdf import netcdf_file
+
+    lon = None
+    lat = None
+    data = None
+
+    if filename.endswith('nc'):
+        ncdf = netcdf_file(filename, 'r')
+        lon = ncdf.variables['lon'][:]
+        lat = ncdf.variables['lat'][:]
+        dataname = (set(ncdf.variables.keys()) -
+                set(ncdf.dimensions.keys())).pop()
+        data = ncdf.variables[dataname][:]
+        ncdf.close()
+
+    logging.debug('Loaded filename %s, memory usage (bytes): lon %i lat %i data %i' % (filename, lon.nbytes, lat.nbytes, data.nbytes))
+
+    return lon, lat, data
+
+
 def grdRead(filename, delimiter=None):
     """
     Read formatted data from an ascii grid format file.
@@ -189,6 +227,8 @@ def grdRead(filename, delimiter=None):
             data[i,:] = row
         fh.close()
 
+    print('filename %s mem:: lon %i lat %i data %i' % (filename, lon.nbytes, lat.nbytes, data.nbytes))
+
     return lon, lat, data
 
 class SampleGrid:
@@ -228,7 +268,10 @@ class SampleGrid:
         """
         Read in the data and ensure it's the right way around.
         """
-        self.lon, self.lat, self.grid = grdRead(filename)
+        if filename.endswith('nc'):
+            self.lon, self.lat, self.grid = grdReadFromNetcdf(filename)
+        else:
+            self.lon, self.lat, self.grid = grdRead(filename)
         self.grid = numpy.flipud(self.grid)
 
     def __doc__(self):

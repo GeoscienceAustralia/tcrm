@@ -37,6 +37,9 @@ Copyright - Geoscience Australia, 2008
 
 __version__ = "$Id: main.py 826 2012-03-26 02:06:55Z nsummons $"
 
+import gc
+gc.set_debug(gc.DEBUG_SAVEALL)
+
 import os
 import io
 import sys
@@ -45,14 +48,11 @@ import traceback
 import matplotlib
 
 from os.path import join as pjoin, dirname
-from ConfigParser import RawConfigParser
 
-from Utilities.config import cnfGetIniValue
 from Utilities.files import flConfigFile, flStartLog, flLoadFile
 from Utilities import pathLocator
-from DataProcess.CalcTrackDomain import CalcTrackDomain
-from DataProcess.CalcFrequency import CalcFrequency
 from Utilities.progressbar import ProgressBar
+from config import ConfigParser
 
 matplotlib.use('Agg')  # Use matplotlib backend
 
@@ -120,8 +120,10 @@ def doOutputDirectoryCreation(configFile):
     # Set up output folders - at this time, we create *all* output
     # folders that may be required:
 
-    outputPath = cnfGetIniValue(configFile, 'Output', 'Path',
-                                pjoin(os.getcwd(), 'output'))
+    config = ConfigParser()
+    config.read(configFile)
+
+    outputPath = config.get('Output', 'Path')
 
     log.info('Output will be stored under %s' % outputPath)
 
@@ -175,11 +177,12 @@ def doWindfieldCalculations(configFile):
 @disableOnWorkers
 def doDataProcessing(configFile):
 
-    showProgressBar = cnfGetIniValue(
-        configFile, 'Logging', 'ProgressBar', True)
-    outputPath = cnfGetIniValue(
-        configFile, 'Output', 'Path', pjoin(os.getcwd(), 'output'))
+    config = ConfigParser()
+    config.read(configFile)
 
+    outputPath      = config.get('Output', 'Path')
+    showProgressBar = config.get('Logging', 'ProgressBar')
+ 
     pbar = ProgressBar('(1/6) Processing data files: ', showProgressBar)
 
     log.info('Running Data Processing')
@@ -187,6 +190,20 @@ def doDataProcessing(configFile):
     from DataProcess.DataProcess import DataProcess
     data_process = DataProcess(configFile, progressbar=pbar)
     data_process.processData()
+
+    log.info('Completed Data Processing')
+    pbar.update(1.0)
+
+
+@disableOnWorkers
+def doDataPlotting(configFile):
+    config = ConfigParser()
+    config.read(configFile)
+
+    outputPath      = config.get('Output', 'Path')
+    showProgressBar = config.get('Logging', 'ProgressBar')
+ 
+    pbar = ProgressBar('Plotting data files: ', showProgressBar)
 
     statsPlotPath = pjoin(outputPath, 'plots', 'stats')
     processPath = pjoin(outputPath, 'process')
@@ -229,13 +246,18 @@ def doDataProcessing(configFile):
         years = freq[:, 0]
         frequency = freq[:, 1]
         plotting.plotFrequency(years, frequency)
-    log.info('Completed Data Processing')
-    pbar.update(1.0)
 
+    pbar.update(1.0)
 
 @disableOnWorkers
 def doStatistics(configFile):
-    showProgressBar = cnfGetIniValue(configFile, 'Logging', 'ProgressBar', True)
+    from DataProcess.CalcTrackDomain import CalcTrackDomain
+
+    config = ConfigParser()
+    config.read(configFile)
+
+    showProgressBar = config.get('Logging', 'ProgressBar')
+    getRMWDistFromInputData = config.getboolean('RMW', 'GetRMWDistFromInputData')
 
     log.info('Running StatInterface')
     # Auto-calculate track generator domain
@@ -255,9 +277,12 @@ def doStatistics(configFile):
     pbar.update(0.8)
     statInterface.cdfCellSpeed()
     pbar.update(0.9)
+
     statInterface.cdfCellPressure()
-    if cnfGetIniValue(configFile, 'RMW', 'GetRMWDistFromInputData', False):
+
+    if getRMWDistFromInputData: 
         statInterface.cdfCellSize()
+
     pbar.update(1.0)
     log.info('Completed StatInterface')
 
@@ -273,7 +298,11 @@ def doHazard(configFile):
 
 @disableOnWorkers
 def doHazardPlotting(configFile):
-    showProgressBar = cnfGetIniValue(configFile, 'Logging', 'ProgressBar', True)
+    config = ConfigParser()
+    config.read(configFile)
+
+    showProgressBar = config.get('Logging', 'ProgressBar')
+
     log.info('Plotting Hazard Maps')
     pbar = ProgressBar('(6/6) Plotting results:      ', showProgressBar)
     from PlotInterface.AutoPlotHazard import AutoPlotHazard
@@ -281,7 +310,7 @@ def doHazardPlotting(configFile):
     plot_hazard.plot()
 
 
-def main(config_file='main.ini'):
+def main(configFile='main.ini'):
     """
     Main interface of TCRM that allows control and interaction with the
     5 interfaces: DataProcess, StatInterface, TrackGenerator,
@@ -293,39 +322,43 @@ def main(config_file='main.ini'):
     """
 
     log.info("Starting TCRM")
-    log.info("Configuration file: %s" % config_file)
+    log.info("Configuration file: %s" % configFile)
 
-    doOutputDirectoryCreation(config_file)
+    doOutputDirectoryCreation(configFile)
 
-    pp.barrier()
-
-    if cnfGetIniValue(config_file, 'Actions', 'DataProcess', False):
-        doDataProcessing(config_file)
+    config = ConfigParser()
+    config.read(configFile)
 
     pp.barrier()
 
-    if cnfGetIniValue(config_file, 'Actions', 'ExecuteStat', False):
-        doStatistics(config_file)
+    if config.getboolean('Actions', 'DataProcess'):
+        doDataProcessing(configFile)
+        #doDataPlotting(configFile)
 
     pp.barrier()
 
-    if cnfGetIniValue(config_file, 'Actions', 'ExecuteTrackGenerator', False):
-        doTrackGeneration(config_file)
+    if config.getboolean('Actions', 'ExecuteStat'):
+        doStatistics(configFile)
 
     pp.barrier()
 
-    if cnfGetIniValue(config_file, 'Actions', 'ExecuteWindfield', False):
-        doWindfieldCalculations(config_file)
+    if config.getboolean('Actions', 'ExecuteTrackGenerator'):
+        doTrackGeneration(configFile)
 
     pp.barrier()
 
-    if cnfGetIniValue(config_file, 'Actions', 'ExecuteHazard', False):
-        doHazard(config_file)
+    if config.getboolean('Actions', 'ExecuteWindfield'):
+        doWindfieldCalculations(configFile)
 
     pp.barrier()
 
-    if cnfGetIniValue(config_file, 'Actions', 'PlotHazard', False):
-        doHazardPlotting(config_file)
+    if config.getboolean('Actions', 'ExecuteHazard'):
+        doHazard(configFile)
+
+    pp.barrier()
+
+    if config.getboolean('Actions', 'PlotHazard'):
+        doHazardPlotting(configFile)
 
     pp.barrier()
 
@@ -334,24 +367,27 @@ def main(config_file='main.ini'):
 if __name__ == "__main__":
 
     try:
-        CONFIG_FILE = sys.argv[1]
+        configFile = sys.argv[1]
     except IndexError:
         # Try loading config file with same name as python script
-        CONFIG_FILE = 'main.ini'
+        configFile = 'main.ini'
         # If no filename is specified and default filename doesn't exist =>
         # raise error
-        if not os.path.exists(CONFIG_FILE):
+        if not os.path.exists(configFile):
             ERROR_MSG = "No configuration file specified, please type: python main.py {config filename}.ini"
             raise IOError(ERROR_MSG)
     # If config file doesn't exist => raise error
-    if not os.path.exists(CONFIG_FILE):
-        ERROR_MSG = "Configuration file '" + CONFIG_FILE + "' not found"
+    if not os.path.exists(configFile):
+        ERROR_MSG = "Configuration file '" + configFile + "' not found"
         raise IOError(ERROR_MSG)
 
     TCRM_DIR = pathLocator.getRootDirectory()
     os.chdir(TCRM_DIR)
 
-    LOG_FILE = cnfGetIniValue(CONFIG_FILE, 'Logging', 'LogFile', 'main.log')
+    config = ConfigParser()
+    config.read(configFile)
+
+    LOG_FILE = config.get('Logging', 'LogFile')
     LOG_FILE_DIR = os.path.dirname(os.path.realpath(LOG_FILE))
     # If log file directory does not exist, create it
     if not os.path.isdir(LOG_FILE_DIR):
@@ -360,8 +396,8 @@ if __name__ == "__main__":
         except OSError:
             LOG_FILE = pjoin(os.getcwd(), 'main.log')
 
-    logLevel = cnfGetIniValue(CONFIG_FILE, 'Logging', 'LogLevel', 'INFO')
-    verbose = cnfGetIniValue(CONFIG_FILE, 'Logging', 'Verbose', False)
+    logLevel = config.get('Logging', 'LogLevel')
+    verbose = config.getboolean('Logging', 'Verbose')
 
     attemptParallel()
 
@@ -378,10 +414,13 @@ if __name__ == "__main__":
     warnings.filterwarnings("ignore", category=UserWarning, module="numpy")
 
     try:
-        main(CONFIG_FILE)
+        main(configFile)
     except:
         # Catch any exceptions that occur and log them (nicely):
         TB_LINES = traceback.format_exc().splitlines()
         for line in TB_LINES:
             log.critical(line.lstrip())
         # sys.exit(1)
+
+    #for o in gc.garbage:
+    #    print('%s %s' % (type(o), str(o)))

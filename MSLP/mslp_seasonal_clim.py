@@ -37,7 +37,6 @@ Input data: mslp_seasonal_clim.nc (contains monthly means averaged over 28 year 
 
 import os, sys, logging, traceback, pdb
 from numpy import *
-from Utilities.config import cnfGetIniValue
 import Utilities.nctools as nctools
 from Utilities import pathLocator
 import calendar
@@ -79,52 +78,52 @@ class MSLPGrid:
         return self.lon, self.lat, self.mslp_av
 
 
-def main(configFile):
-    selected_months_str = str(cnfGetIniValue(configFile, 'DataProcess', 'selected_months', arange(13)))
-    selected_months = set(selected_months_str.strip('[]{}() ').replace(',', ' ').split(' '))
-    selected_months.discard('')
-    if selected_months.issubset([str(k) for k in range(1,13)]):
-        selected_months = [int(k) for k in selected_months]
-        months_str = ', '.join([calendar.month_abbr[i] for i in sort(list(selected_months))])
-        print "Creating Mean Sea Level Pressure (MSLP) seasonal climatology:"
-        print "Months specified for seasonal average: " + months_str
-        print "Using NCEP Reanalysis-2 data from 1980-2007"
-
-        msp = MSLPGrid(selected_months)
-        lon, lat, mslp_av = msp.returnGrid()
-    
-        #Create output file
-        output_filename = "mslp_clim_" + ''.join([calendar.month_abbr[i][0] for i in sort(list(selected_months))]) + '.nc'
-        data_title = 'MSLP (NCEP Reanalysis-2) seasonal climatology.  Averaging period: ' \
-                     +  months_str + ' ' + '1980-2007.'
-        dimensions = {0:{'name':'lat','values':lat,'dtype':'f','atts':{'long_name':'Latitude',
-                                                                       'units':'degrees_north'} },
-                      1:{'name':'lon','values':lon,'dtype':'f','atts':{'long_name':'Longitude',
-                                                                       'units':'degrees_east'} } }
-
-        variables = {0:{'name':'mslp','dims':('lat','lon'),
-                        'values':array(mslp_av),'dtype':'f',
-                        'atts':{'long_name':'Mean sea level pressure',
-                                'units':'hPa'} } }
-        nctools.ncSaveGrid( output_filename, dimensions, variables, 
-                            nodata=-9999,datatitle=data_title )
-        
-        print "Created output file: " + output_filename
-        
-        
-if __name__ == "__main__":
-    try:
-        configFile = sys.argv[1]
-    except IndexError:
-        # Try loading config file with same name as python script
-        configFile = __file__.rstrip('.py') + '.ini'
-        # If no filename is specified and default filename doesn't exist => raise error
-        if not os.path.exists(configFile):
-            error_msg = "No configuration file specified"
-            raise IOError, error_msg
-    # If config file doesn't exist => raise error
-    if not os.path.exists(configFile):
-        error_msg = "Configuration file '" + configFile +"' not found"
-        raise IOError, error_msg
-
-    main(configFile)
+#def main(configFile):
+#    selected_months_str = str(cnfGetIniValue(configFile, 'DataProcess', 'selected_months', arange(13)))
+#    selected_months = set(selected_months_str.strip('[]{}() ').replace(',', ' ').split(' '))
+#    selected_months.discard('')
+#    if selected_months.issubset([str(k) for k in range(1,13)]):
+#        selected_months = [int(k) for k in selected_months]
+#        months_str = ', '.join([calendar.month_abbr[i] for i in sort(list(selected_months))])
+#        print "Creating Mean Sea Level Pressure (MSLP) seasonal climatology:"
+#        print "Months specified for seasonal average: " + months_str
+#        print "Using NCEP Reanalysis-2 data from 1980-2007"
+#
+#        msp = MSLPGrid(selected_months)
+#        lon, lat, mslp_av = msp.returnGrid()
+#    
+#        #Create output file
+#        output_filename = "mslp_clim_" + ''.join([calendar.month_abbr[i][0] for i in sort(list(selected_months))]) + '.nc'
+#        data_title = 'MSLP (NCEP Reanalysis-2) seasonal climatology.  Averaging period: ' \
+#                     +  months_str + ' ' + '1980-2007.'
+#        dimensions = {0:{'name':'lat','values':lat,'dtype':'f','atts':{'long_name':'Latitude',
+#                                                                       'units':'degrees_north'} },
+#                      1:{'name':'lon','values':lon,'dtype':'f','atts':{'long_name':'Longitude',
+#                                                                       'units':'degrees_east'} } }
+#
+#        variables = {0:{'name':'mslp','dims':('lat','lon'),
+#                        'values':array(mslp_av),'dtype':'f',
+#                        'atts':{'long_name':'Mean sea level pressure',
+#                                'units':'hPa'} } }
+#        nctools.ncSaveGrid( output_filename, dimensions, variables, 
+#                            nodata=-9999,datatitle=data_title )
+#        
+#        print "Created output file: " + output_filename
+#        
+#        
+#if __name__ == "__main__":
+#    try:
+#        configFile = sys.argv[1]
+#    except IndexError:
+#        # Try loading config file with same name as python script
+#        configFile = __file__.rstrip('.py') + '.ini'
+#        # If no filename is specified and default filename doesn't exist => raise error
+#        if not os.path.exists(configFile):
+#            error_msg = "No configuration file specified"
+#            raise IOError, error_msg
+#    # If config file doesn't exist => raise error
+#    if not os.path.exists(configFile):
+#        error_msg = "Configuration file '" + configFile +"' not found"
+#        raise IOError, error_msg
+#
+#    main(configFile)

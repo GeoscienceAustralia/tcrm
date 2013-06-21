@@ -24,9 +24,10 @@ Description: Calculates annual genesis frequency in track generator domain
 
 import os
 import logging
-from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile
 import numpy
+
+from config import ConfigParser
 
 logger = logging.getLogger(__name__)
 
@@ -37,16 +38,17 @@ class CalcFrequency:
     for the given domain
     """
 
-    def __init__(self, config_file, auto_calc_grid_limit):
+    def __init__(self, configFile, auto_calc_grid_limit):
 
-        tg_domain = cnfGetIniValue(config_file, 'TrackGenerator',
-                                   'gridLimit', '')
-        if tg_domain == '':
-            self.tg_domain = auto_calc_grid_limit
+        config = ConfigParser()
+        config.read(configFile)
+
+        if config.has_option('TrackGenerator', 'gridLimit'):
+            self.tg_domain = config.geteval('TrackGenerator', 'gridLimit')
         else:
-            self.tg_domain = eval(tg_domain)
-            
-        self.output_path = cnfGetIniValue(config_file, 'Output', 'Path')
+            self.tg_domain = auto_calc_grid_limit
+           
+        self.outputPath = config.get('Output', 'Path')
 
     def calc(self):
         """
@@ -58,11 +60,11 @@ class CalcFrequency:
         and restricts the range to a user-selected range of years.
         """
         logger.info("Calculating annual frequency of TC events")
-        origin_year = numpy.array(flLoadFile(os.path.join(self.output_path,
+        origin_year = numpy.array(flLoadFile(os.path.join(self.outputPath,
                                                           'process', 'origin_year'),
                                                           '%', ','), dtype='int')
         
-        origin_lon_lat = flLoadFile(os.path.join(self.output_path,
+        origin_lon_lat = flLoadFile(os.path.join(self.outputPath,
                                                  'process', 'origin_lon_lat'),
                                                  '%', ',')
         origin_lon = origin_lon_lat[:, 0]

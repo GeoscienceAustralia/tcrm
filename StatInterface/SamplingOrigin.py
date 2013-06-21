@@ -58,11 +58,11 @@ $Id: SamplingOrigin.py 810 2012-02-21 07:52:50Z nsummons $
 import os, sys, pdb, logging
 
 import time
-from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile, flSaveFile
-from Utilities.grid import grdRead
+from Utilities.grid import grdRead, grdReadFromNetcdf
 from scipy import array, zeros, rand, empty, ndarray, transpose
 import Utilities.stats as stats
+from config import ConfigParser
 
 class SamplingOrigin:
     """
@@ -124,7 +124,10 @@ class SamplingOrigin:
         if type(kdeOrigin) == str:
             self.logger.debug("Loading PDF from %s"%kdeOrigin)
             try:
-                self.x, self.y, self.z = grdRead(kdeOrigin)
+                if kdeOrigin.endswith('nc'):
+                    self.x, self.y, self.z = grdReadFromNetcdf(kdeOrigin)
+                else:
+                    self.x, self.y, self.z = grdRead(kdeOrigin)
             except IOError:
                 self.logger.critical('Error! Files relating to cdf of cyclone parameters does not exist, please generate KDE of cyclone parameters first.')
                 raise
@@ -278,41 +281,3 @@ Documentation on the purpose of the class
         self.cdfX = cdfX
         self.cdfY = cdfY
         return
-
-if __name__ == "__main__":
-    import profile
-    import pstats
-    try:
-        configFile = sys.argv[1]
-    except IndexError:
-        # Try loading config file with same name as python script
-        configFile = __file__.rstrip('.py') + '.ini'
-        # If no filename is specified and default filename doesn't exist => raise error
-        if not os.path.exists(configFile):
-            error_msg = "No configuration file specified, please type: python main.py {config filename}.ini"
-            raise IOError, error_msg
-    # If config file doesn't exist => raise error
-    if not os.path.exists(configFile):
-        error_msg = "Configuration file '" + configFile +"' not found"
-        raise IOError, error_msg
-
-    logging.basicConfig(level=logging.getattr(cnfGetIniValue(configFile, 'Logging', 'LogLevel', DEBUG)),
-                        format='%(asctime)s %(name)-12s: %(levelname)-8s %(message)s',
-                        filename=cnfGetIniValue(configFile, 'Logging', 'LogFile', __file__.rstrip('.py') + '.log'),
-                        filemode='w')
-
-
-    originPDF = os.path.join(cnfGetIniValue(configFile, 'Output', 'Path'),
-                             'originPDF.txt')
-    so = SamplingOrigin(originPDF, None, None)
-    x, y = so.generateOneSample()
-    lonLat = so.generateSamples(cnfGetIniValue(configFile, 'StatInterface',
-                                               'Samples'))
-
-    #profile.run("so.generateSamples(cnfGetIniValue(configFile,'Parameters','numberOfSamples'))")#, 'fooprof')
-    #p = pstats.Stats('fooprof')
-    #p.sort_stats('time').print_stats(10)
-    #p.sort_stats('cumulative').strip_dirs().print_callees()
-
-
-    #so.plotContours(cfgFiles)

@@ -27,17 +27,19 @@ Description: Determine track generator domain, ensuring it encompasses
 import os, sys, pdb, logging
 
 import math
+import config
 
-from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile
 
 
 class CalcTrackDomain:
 
     def __init__(self, configFile):
+        config = ConfigParser()
+        config.read(configFile)
 
-        self.outputPath = cnfGetIniValue(configFile, 'Output', 'Path')
-        self.wf_domain = eval(cnfGetIniValue(configFile, 'Region', 'gridLimit'))
+        self.outputPath = config.get('Output', 'Path')
+        self.wf_domain = config.geteval('Region', 'gridLimit')
 
     def _calc(self, index, lons, lats):
 

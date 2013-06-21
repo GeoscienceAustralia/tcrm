@@ -22,8 +22,6 @@ Alternatively, it can be run from the command line::
 
 """
 
-import traceback
-
 import os
 import sys
 import logging as log
@@ -31,6 +29,7 @@ import math
 import random
 import itertools
 import numpy as np
+
 import Utilities.stats as stats
 import trackLandfall
 import Utilities.nctools as nctools
@@ -38,19 +37,17 @@ import Utilities.Cmap as Cmap
 import Utilities.Cstats as Cstats
 import Utilities.maputils as maputils
 
-from os.path import join as pjoin, dirname
-from scipy.io.netcdf import netcdf_file
 from config import ConfigParser
+from os.path import join as pjoin, dirname
+
+from scipy.io.netcdf import netcdf_file
+
 from StatInterface.generateStats import GenerateStats
 from StatInterface.SamplingOrigin import SamplingOrigin
-from Utilities.AsyncRun import AsyncRun
-from Utilities.config import cnfGetIniValue
 from Utilities.files import flStartLog, flLoadFile, flSaveFile
 from Utilities.grid import SampleGrid
 from MSLP.mslp_seasonal_clim import MSLPGrid
-from Utilities.shptools import shpSaveTrackFile
 from DataProcess.CalcFrequency import CalcFrequency
-
 
 class TrackGenerator:
     """
@@ -186,6 +183,7 @@ class TrackGenerator:
                 i = ncdf.variables['cell'][:]
                 x = ncdf.variables['x'][:]
                 y = ncdf.variables['CDF'][:]
+                ncdf.close()
                 return np.vstack((i, x, y)).T
 
             # otherwise, revert to old csv format
@@ -549,6 +547,9 @@ class TrackGenerator:
                                       initRmax=initRmax)
 
         if outputFile.endswith("shp"):
+            from Utilities.shptools import shpSaveTrackFile
+            from Utilities.AsyncRun import AsyncRun
+
             log.debug('Outputting data into %s' % outputFile)
 
             fields = {}
@@ -1387,6 +1388,7 @@ def run(configFile):
     # Balance the simulations over the number of processors and do it
 
     for sim in balanced(sims):
+        log.info('Performing simulation %i of %i tracks' % (sim.index, sim.ntracks))
 
         if sim.seed:
             PRNG.seed(sim.seed)

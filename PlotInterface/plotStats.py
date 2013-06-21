@@ -114,6 +114,7 @@ class PlotData:
         outputfile = ".".join([filename, self.fmt])
         pyplot.savefig(os.path.join(self.outpath, outputfile),
                        format=self.fmt, **kwargs)
+        pyplot.close()
         return
 
     def scatterHistogram(self, x, y, img_name=None, allpos=False):

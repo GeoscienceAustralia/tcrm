@@ -45,9 +45,9 @@ $Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $
 import os, pdb, logging, sys, math
 
 import numpy as np
-from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile
 import Utilities.stats as stats
+from config import ConfigParser
 
 
 __version__ = '$Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $'
@@ -129,9 +129,6 @@ class GenerateStats:
         self.gridSpace = gridSpace
         self.gridInc = gridInc
         self.maxCell = stats.maxCellNum(self.gridLimit, self.gridSpace)
-        #landmask = cnfGetIniValue(configFile, 'Input', 'LandMask')
-        #lsfraction = stats.statCellFraction(self.gridLimit, self.gridSpace,
-        #                                    landmask)
         self.minSample = minSample
         self.coeffs = parameters(self.maxCell+1)
         self.angular = angular
@@ -398,47 +395,3 @@ class GenerateStats:
                            nodata=self.missingValue,datatitle=None,dtype='f',
                            writedata=True, keepfileopen=False)
 
-
-if __name__=="__main__":
-    try:
-        configFile = sys.argv[1]
-    except IndexError:
-        # Try loading config file with same name as python script
-        configFile = __file__.rstrip('.py') + '.ini'
-        # If no filename is specified and default filename does not exist => raise error
-        if not os.path.exists(configFile):
-            error_msg = "No configuration file specified, please type: python main.py {config filename}.ini"
-            raise IOError, error_msg
-    # If config file does not exist => raise error
-    if not os.path.exists(configFile):
-        error_msg = "Configuration file '" + configFile +"' not found"
-        raise IOError, error_msg
-
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s %(name)-12s: %(levelname)-8s %(message)s',
-                        filename=cnfGetIniValue(configFile, 'Logging',
-                                                'LogFile',
-                                                __file__.rstrip('.py') + '.ini'),
-                        filemode='w')
-
-    gridLimit = eval(cnfGetIniValue(configFile, 'Parameters', 'gridLimit'))
-    gridSpace = eval(cnfGetIniValue(configFile, 'Parameters', 'gridSpace'))
-    gridInc = eval(cnfGetIniValue(configFile, 'Parameters', 'gridInc'))
-    path = cnfGetIniValue(configFile, 'Output', 'Path')
-    latLon = os.path.join(path, 'all_lon_lat')
-    pS = GenerateStats(configFile, os.path.join(path, 'all_pressure'), latLon,
-                       gridLimit, gridSpace, gridInc)
-    vS = GenerateStats(configFile, os.path.join(path, 'all_speed'), latLon,
-                       gridLimit, gridSpace, gridInc)
-    bS = GenerateStats(configFile, os.path.join(path, 'all_bearing'), latLon,
-                       gridLimit, gridSpace, gridInc, angular=True)
-    sS = GenerateStats(configFile, os.path.join(path, 'all_rmax'), latLon,
-                       gridLimit, gridSpace, gridInc)
-    dvS = GenerateStats(configFile, os.path.join(path, 'speed_rate'), latLon,
-                        gridLimit, gridSpace, gridInc)
-    dpS = GenerateStats(configFile, os.path.join(path, 'pressure_rate'), latLon,
-                        gridLimit, gridSpace, gridInc)
-    dbS = GenerateStats(configFile, os.path.join(path, 'bearing_rate'), latLon,
-                        gridLimit, gridSpace, gridInc, angular=True)
-    dsS = GenerateStats(configFile, os.path.join(path, 'rmax_rate'), latLon,
-                        gridLimit, gridSpace, gridInc)

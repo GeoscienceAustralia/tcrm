@@ -50,9 +50,9 @@ $Id: trackLandfall.py 810 2012-02-21 07:52:50Z nsummons $
 import os, sys, pdb, logging
 
 import numpy
-from Utilities.config import cnfGetIniValue
 from Utilities.grid import SampleGrid
 from Utilities import pathLocator
+from config import ConfigParser
 
 __version__ = '$Id: trackLandfall.py 810 2012-02-21 07:52:50Z nsummons $'
 
@@ -93,14 +93,15 @@ class LandfallDecay:
         Initialise required fields
         """
         self.configFile = configFile
+
+        config = ConfigParser()
+        config.read(configFile)
+
+        landMaskFile = config.get('Input', 'LandMask')
+
         self.logger = logging.getLogger()
         
-        # Determine TCRM input directory
-        tcrm_dir = pathLocator.getRootDirectory()
-        self.tcrm_input_dir = os.path.join(tcrm_dir, 'input')
-
-        self.landMask = SampleGrid(cnfGetIniValue(self.configFile, 'Input',
-                                                  'LandMask', os.path.join(self.tcrm_input_dir, 'landmask.nc')))
+        self.landMask = SampleGrid(landMaskFile)
         self.tol = 0 # Time over land
         self.dt = dt
 

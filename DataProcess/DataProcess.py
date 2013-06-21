@@ -114,7 +114,6 @@ import os, sys, pdb, logging
 import numpy
 from Utilities.grid import SampleGrid
 from Utilities.files import flModuleName, flSaveFile, flStartLog
-from Utilities.config import cnfGetIniValue
 from Utilities.columns import colReadCSV
 import Utilities.maputils as maputils
 import Utilities.metutils as metutils
@@ -123,6 +122,7 @@ from Utilities import pathLocator
 import Utilities.loadData as loadData
 from CalcTrackDomain import CalcTrackDomain
 
+from config import ConfigParser
 
 # Switch off minor warning messages
 import warnings
@@ -200,31 +200,33 @@ class DataProcess:
         Extract the maximum sustained wind speed
     """
 
-    def __init__(self, config_file, progressbar=None):
+    def __init__(self, configFile, progressbar=None):
         """
         Initialize the data include tool instance, Nan value and all
         full path names of the files in which data will be stored.
         """
-        #CalcTD = CalcTrackDomain(config_file)
+        #CalcTD = CalcTrackDomain(configFile)
         #self.domain = CalcTD.calc()
-        self.config_file = config_file
+        self.configFile = configFile
         self.progressbar = progressbar
         self.logger = logging.getLogger(__name__)
         self.logger.info("Initialising DataProcess")
-        self.outputPath = cnfGetIniValue(self.config_file, 'Output', 'Path')
+
+        config = ConfigParser()
+        config.read(configFile)
+
+        self.outputPath = config.get('Output', 'Path')
         self.processPath = os.path.join(self.outputPath, 'process')
 
         # Determine TCRM input directory
         tcrm_dir = pathLocator.getRootDirectory()
         self.tcrm_input_dir = os.path.join(tcrm_dir, 'input')
 
-        landmask = cnfGetIniValue(self.config_file, 'Input', 'LandMask',
-                                  os.path.join(self.tcrm_input_dir,
-                                               'landmask.nc'))
+        landmask = config.get('Input', 'LandMask')
 
         self.landmask = SampleGrid(landmask)
 
-        fmt = cnfGetIniValue(self.config_file, 'Output', 'format', 'txt')
+        fmt = config.get('Output', 'Format')
 
         self.ncflag = False
         if fmt.startswith("nc"):
@@ -316,31 +318,35 @@ class DataProcess:
 
         return data
 
+    @profile
     def processData(self, restrictToWindfieldDomain=False):
         """
         Process raw data into ASCII files that can be read by the main
         components of the system
 
         """
+        config = ConfigParser()
+        config.read(self.configFile)
 
         self.logger.info("Running %s" % flModuleName())
-        inputFile = cnfGetIniValue(self.config_file, 'DataProcess', 'InputFile')
+        inputFile = config.get('DataProcess', 'InputFile')
+
         # If input file has no path information, default to tcrm input folder
         if len(os.path.dirname(inputFile)) == 0:
             inputFile = os.path.join(self.tcrm_input_dir, inputFile)
 
-        self.logger.info("Processing %s"%inputFile)
-        self.source = cnfGetIniValue(self.config_file, 'DataProcess', 'Source')
-        inputData = colReadCSV(self.config_file, inputFile, self.source)
-        inputSpeedUnits = cnfGetIniValue(self.config_file, self.source,
-                                         'SpeedUnits', 'mps')
-        inputPressureUnits = cnfGetIniValue(self.config_file, self.source,
-                                            'PressureUnits', 'hPa')
-        inputLengthUnits = cnfGetIniValue(self.config_file, self.source,
-                                          'LengthUnits', 'km')
+        self.logger.info("Processing %s" % inputFile)
+        
+        self.source = config.get('DataProcess', 'Source')
 
-        startSeason = cnfGetIniValue(self.config_file, 'DataProcess',
-                                     'StartSeason', 1981)
+        inputData = colReadCSV(self.configFile, inputFile, self.source)
+
+        #import ipdb; ipdb.set_trace()
+
+        inputSpeedUnits = config.get(self.source, 'SpeedUnits')
+        inputPressureUnits = config.get(self.source, 'PressureUnits')
+        inputLengthUnits = config.get(self.source, 'LengthUnits')
+        startSeason = config.getint('DataProcess', 'StartSeason')
 
         indicator = loadData.getInitialPositions(inputData)
         lat = numpy.array(inputData['lat'], 'd')
@@ -349,7 +355,7 @@ class DataProcess:
         if restrictToWindfieldDomain:
             # Filter the input arrays to only retain the tracks that
             # pass through the windfield domain.
-            CD = CalcTrackDomain(self.config_file)
+            CD = CalcTrackDomain(self.configFile)
             self.domain = CD.calcDomainFromTracks(indicator, lon, lat)
             domainIndex = self.extractTracks(indicator, lon, lat)
             inputData = self.filterData(inputData, domainIndex)
@@ -950,25 +956,28 @@ class DataProcess:
 
 if __name__ == "__main__":
     try:
-        config_file = sys.argv[1]
+        configFile = sys.argv[1]
     except IndexError:
         # Try loading config file with same name as python script
-        config_file = __file__.rstrip('.py') + '.ini'
+        configFile = __file__.rstrip('.py') + '.ini'
         # If no filename is specified and default filename does not exist => raise error
-        if not os.path.exists(config_file):
+        if not os.path.exists(configFile):
             error_msg = "No configuration file specified, please type: python main.py {config filename}.ini"
             raise IOError, error_msg
     # If config file does not exist => raise error
-    if not os.path.exists(config_file):
-        error_msg = "Configuration file '" + config_file +"' not found"
+    if not os.path.exists(configFile):
+        error_msg = "Configuration file '" + configFile +"' not found"
         raise IOError, error_msg
 
-    logFile = cnfGetIniValue(config_file, 'Logging', 'LogFile',
-                             __file__.rstrip('.py') + '.log')
-    logLevel = cnfGetIniValue(config_file, 'Logging', 'LogLevel', 'DEBUG')
-    verbose = cnfGetIniValue(config_file, 'Logging', 'Verbose', True)
+    config = ConfigParser()
+    config.read(configFile)
+
+    logFile = config.read('Logging', 'LogFile')
+    logLevel = config.read('Logging', 'LogLevel')
+    verbose = config.read('Logging', 'Verbose')
+
     flStartLog(logFile, logLevel, verbose)
 
-    dp = DataProcess(config_file)
+    dp = DataProcess(configFile)
     dp.processData()
     logging.shutdown()

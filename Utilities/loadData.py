@@ -26,8 +26,9 @@ import nctools
 import interp3d
 from matplotlib.dates import date2num, num2date
 from columns import colReadCSV
-from config import cnfGetIniValue
+#from config import cnfGetIniValue
 #from grid import SampleGrid
+from config import ConfigParser
 
 __version__ = "$Id$"
 
@@ -461,12 +462,14 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     logger.debug("Loading %s"%trackFile)
     inputData = colReadCSV(configFile, trackFile, source,
                            nullValue=missingValue)
-    inputSpeedUnits = cnfGetIniValue(configFile, source, 'SpeedUnits', 'mps')
-    inputPressureUnits = cnfGetIniValue(configFile, source, 'PressureUnits',
-                                        'hPa')
-    inputLengthUnits = cnfGetIniValue(configFile, source, 'LengthUnits', 'km')
-    inputDateFormat = cnfGetIniValue(configFile, source, 'DateFormat',
-                                     '%Y-%m-%d %H:%M:%S')
+
+    config = ConfigParser()
+    config.read(configFile)
+
+    inputSpeedUnits = config.get(source, 'SpeedUnits')
+    inputPressureUnits = config.get(source, 'PressureUnits')
+    inputLengthUnits = config.get(source, 'LengthUnits')
+    inputDateFormat = config.get(source, 'DateFormat')
 
     # Determine the initial TC positions...
     indicator = getInitialPositions(inputData)

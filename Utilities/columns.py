@@ -27,7 +27,8 @@
 """
 import os, sys, pdb, logging
 
-from config import cnfGetIniValue
+from config import ConfigParser
+
 from GetType import GetType
 import numpy
 import csv
@@ -54,20 +55,20 @@ def colReadCSV(configFile, dataFile, source, nullValue=sys.maxint, configSetting
     """
 
     if configFile is not None:
-        delimiter = cnfGetIniValue(configFile,source, 'FieldDelimiter', ',')
-        cols = cnfGetIniValue(configFile, source, 'Columns').split(delimiter)
-        fields = cnfGetIniValue(configFile, source, 'Fields', '')
-        if fields == '':
+        config = ConfigParser()
+        config.read(configFile)
+
+        delimiter = config.get(source, 'FieldDelimiter')
+        numHeadingLines = config.getint(source, 'NumberOfHeadingLines')
+
+        if config.has_option(source, 'Columns'):
+            cols = config.get(source, 'Columns').split(delimiter)
+
+        if config.has_option(source, 'Fields'):
+            fields = config.get(source, 'Fields').split(delimiter)
+        else:
             fields = []
-        else:
-            fields = cnfGetIniValue(configFile, source, 'Fields', '').split(delimiter)
-        headingLine = cnfGetIniValue(configFile, source, 'HeadingLine', False)
-        if headingLine:
-            numHeadingLines = 1
-        else:
-            numHeadingLines = 0
-        # Overwrite deprecated 'HeadingLine' setting if 'NumberOfHeadingLines' is specified
-        numHeadingLines = int(cnfGetIniValue(configFile, source, 'NumberOfHeadingLines', numHeadingLines))
+
         logger.debug("Opening %s, using format %s"%(dataFile, source))
     else:
         # If no configFile provided => load settings from configSettings dictionary
@@ -94,9 +95,8 @@ def colReadCSV(configFile, dataFile, source, nullValue=sys.maxint, configSetting
     # A dictionary of column names to field names:
     mappings = {}
     for colname in cols:
-        if colname not in fields:
-            mappings[colname] = cnfGetIniValue(configFile, 'Mappings',
-                                                      colname)
+        if (colname not in fields) and config.has_section('Mappings'):
+            mappings[colname] = config.get('Mappings', colname)
         else:
             mappings[colname] = colname
 
@@ -105,46 +105,49 @@ def colReadCSV(configFile, dataFile, source, nullValue=sys.maxint, configSetting
     for colname in cols:
         temp[colname] = []
 
-    data = csv.DictReader(file(dataFile), cols, restval=nullValue,
-                          delimiter=str(delimiter))
+    with open(dataFile, 'rb') as csvfile:
+        data = csv.DictReader(csvfile, cols, restval=nullValue, delimiter=str(delimiter))
 
-    dtypeDict = {}
+        dtypeDict = {}
 
-    for key in cols:
-        if configFile is not None:
-            dtype = cnfGetIniValue(configFile, 'Types', key, 'None')
-        else:
-            dtype = 'None'
-        if dtype != 'None':
-            dtypeDict[key] = dtype
-        else:
-            # If data type not specified, get default value from getType.py
-            dtypeDict[key] = gT.getType(key)
-
-    ii = 0
-    for record in data:
-        ii += 1
-        if ii <= numHeadingLines:
-            if ii == 1:
-                logger.debug("Skipping text header lines")
-            continue
-        for key in record.keys():
-            if key in temp.keys():
-                if dtypeDict[key] == 'int':
-                    try:
-                        temp[key].append(int(record[key]))
-                    except ValueError:
-                        temp[key].append(nullValue)
-                elif dtypeDict[key] == 'float':
-                    try:
-                        temp[key].append(float(record[key]))
-                    except ValueError:
-                        temp[key].append(nullValue)
+        for key in cols:
+            if configFile is not None:
+                if config.has_option('Types', key):
+                    dtype = config.get('Types', key)
                 else:
-                    temp[key].append(record[key])
+                    dtype = 'None'
+            else:
+                dtype = 'None'
+            if dtype != 'None':
+                dtypeDict[key] = dtype
+            else:
+                # If data type not specified, get default value from getType.py
+                dtypeDict[key] = gT.getType(key)
 
-    output = {}
-    for key in temp.keys():
-        output[mappings[key]] = numpy.array(temp[key])
+        ii = 0
+        for record in data:
+            ii += 1
+            if ii <= numHeadingLines:
+                if ii == 1:
+                    logger.debug("Skipping text header lines")
+                continue
+            for key in record.keys():
+                if key in temp.keys():
+                    if dtypeDict[key] == 'int':
+                        try:
+                            temp[key].append(int(record[key]))
+                        except ValueError:
+                            temp[key].append(nullValue)
+                    elif dtypeDict[key] == 'float':
+                        try:
+                            temp[key].append(float(record[key]))
+                        except ValueError:
+                            temp[key].append(nullValue)
+                    else:
+                        temp[key].append(record[key])
 
-    return output
+        output = {}
+        for key in temp.keys():
+            output[mappings[key]] = numpy.array(temp[key])
+
+        return output
