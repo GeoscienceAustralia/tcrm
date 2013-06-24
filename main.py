@@ -224,9 +224,13 @@ def doDataPlotting(configFile):
 
     from PlotInterface.plotStats import PlotData
     plotting = PlotData(statsPlotPath, "png")
+
     plotting.plotPressure(pAllData, pRateData)
+    plotting.scatterHistogram(pAllData[1:], pAllData[:-1], 'prs_scatterHist', allpos=True)
+    plotting.scatterHistogram(pRateData[1:], pRateData[:-1], 'prsRate_scatterHist')
     plotting.minPressureHist(indicator, pAllData)
     plotting.minPressureLat(pAllData, latData)
+
     pbar.update(0.75)
 
     plotting.plotBearing(bAllData, bRateData)
@@ -333,7 +337,7 @@ def main(configFile='main.ini'):
 
     if config.getboolean('Actions', 'DataProcess'):
         doDataProcessing(configFile)
-        #doDataPlotting(configFile)
+        doDataPlotting(configFile)
 
     pp.barrier()
 

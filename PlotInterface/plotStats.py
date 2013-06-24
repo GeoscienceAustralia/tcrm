@@ -115,9 +115,8 @@ class PlotData:
         pyplot.savefig(os.path.join(self.outpath, outputfile),
                        format=self.fmt, **kwargs)
         pyplot.close()
-        return
 
-    def scatterHistogram(self, x, y, img_name=None, allpos=False):
+    def scatterHistogram(self, x, y, img_name, allpos=False):
         """
         Generate a combined scatter/histogram plot of data
         """
@@ -137,15 +136,13 @@ class PlotData:
         axHistY = divider.append_axes("right", 1.2, pad=0.2, sharey=axScatter)
 
         # Make labels invisible:
-        pyplot.setp(axHistX.get_xticklabels() + axHistY.get_yticklabels(),
-                    visible=False)
+        pyplot.setp(axHistX.get_xticklabels() + axHistY.get_yticklabels(), visible=False)
 
         xbins = get_bins(x[i], allpos)
         ybins = get_bins(y[i], allpos)
 
         axHistX.hist(x[i], bins=xbins, fc='k', ec=None)
-        axHistY.hist(y[i], bins=ybins, fc='k', ec=None,
-                     orientation='horizontal')
+        axHistY.hist(y[i], bins=ybins, fc='k', ec=None, orientation='horizontal')
 
         for xticks in axHistX.get_xticklabels():
             xticks.set_visible(False)
@@ -158,12 +155,9 @@ class PlotData:
             xticks.set_fontsize('x-small')
             xticks.set_rotation(90)
 
-        pyplot.draw()
-
-        if img_name:
-            self.savefig(img_name)
-
-        return
+        outputfile = '%s.%s' % (img_name, self.fmt)
+        pyplot.savefig(os.path.join(self.outpath, outputfile), format=self.fmt)
+        pyplot.close()
 
     def plotPressure(self, pAllData, pRateData):
         """
@@ -176,10 +170,12 @@ class PlotData:
         pyplot.figure(self.figurenum())
         pyplot.subplot(211)
         pyplot.plot(pAllData[1:], pAllData[:-1], 'k.', markersize=1)
+
         m, c, r, p, e = _linreg(pAllData)
 
         x = numpy.arange(880., 1021., 1.)
         y = m*x + c
+
         pyplot.plot(x, y, 'r-')
         pyplot.plot(x, x, 'k-')
         pyplot.text(900, 1010, "r = %5.3f"%r, ha='center', va='center',
@@ -208,14 +204,9 @@ class PlotData:
         #pyplot.grid(True)
         pyplot.title("Pressure rate of change")
 
-        self.savefig('prs_corr')
-
-        self.scatterHistogram(pAllData[1:], pAllData[:-1],
-                              'prs_scatterHist',allpos=True)
-
-        self.scatterHistogram(pRateData[1:], pRateData[:-1],
-                              'prsRate_scatterHist')
-        return
+        outputfile = 'prs_corr.%s' % self.fmt
+        pyplot.savefig(os.path.join(self.outpath, outputfile), format=self.fmt)
+        pyplot.close()
 
     def plotSpeed(self, speedData, speedRate):
         """
@@ -268,7 +259,6 @@ class PlotData:
 
         self.scatterHistogram(speedRate[1:], speedRate[:-1],
                               'speedRate_scatterHist', allpos=True)
-        return
 
     def plotBearing(self, bAllData, bRateData):
         """
@@ -353,7 +343,6 @@ class PlotData:
 
         pyplot.ylabel('Number of genesis events', fontsize=10)
         self.savefig("julian_day_genesis")
-        return
 
     def plotLonLat(self, lonData, latData, indicator):
         """
@@ -407,8 +396,6 @@ class PlotData:
         self.scatterHistogram(dlon[1:], dlon[:-1], 'dlon_scatterHist')
 
         self.scatterHistogram(dlat[1:], dlat[:-1], 'dlat_scatterHist')
-
-        return
 
     def plotFrequency(self, years, frequency):
         """Plot annual frequency of TCs, plus linear trend line"""
@@ -481,7 +468,6 @@ class PlotData:
         x[:, 1] = minP
         files.flSaveFile(os.path.join(self.outpath, 'min_pressure_lat.csv'), x,
                          delimiter=',', fmt='%6.2f')
-        return
 
     def minPressureHist(self, index, pAllData):
         """
@@ -517,7 +503,6 @@ class PlotData:
         files.flSaveFile(os.path.join(self.outpath, 'min_pressure_hist.csv'), x,
                          delimiter=',', fmt='%6.2f')
         pyplot.rcdefaults()
-        return
 
     def plotSpeedBear(self, sAllData, bAllData):
         """
@@ -571,7 +556,6 @@ class PlotData:
 
         self.savefig('qqplot_%s' % parameterName)
         pyplot.rcdefaults()
-        return
 
 if __name__=="__main__":
     configFile = sys.argv[1]
