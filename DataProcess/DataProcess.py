@@ -318,7 +318,6 @@ class DataProcess:
 
         return data
 
-    @profile
     def processData(self, restrictToWindfieldDomain=False):
         """
         Process raw data into ASCII files that can be read by the main
@@ -340,8 +339,6 @@ class DataProcess:
         self.source = config.get('DataProcess', 'Source')
 
         inputData = colReadCSV(self.configFile, inputFile, self.source)
-
-        #import ipdb; ipdb.set_trace()
 
         inputSpeedUnits = config.get(self.source, 'SpeedUnits')
         inputPressureUnits = config.get(self.source, 'PressureUnits')
