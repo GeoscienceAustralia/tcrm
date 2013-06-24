@@ -376,7 +376,7 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
             console = logging.StreamHandler( )
             console.setLevel( getattr( logging, logLevel ) )
             formatter = logging.Formatter( '%(asctime)s: %(message)s',
-                                           '%Y-%m-%d %H:%M:%S', )
+                                           '%H:%M:%S', )
             console.setFormatter( formatter )
             logger.addHandler( console )
 

@@ -1385,10 +1385,13 @@ def run(configFile):
     
     pp.barrier()
 
+    N = sims[-1].index
+
     # Balance the simulations over the number of processors and do it
 
     for sim in balanced(sims):
-        log.info('Performing simulation %i of %i tracks' % (sim.index, sim.ntracks))
+        log.info("Simulating tropical cyclone tracks: %3.0f percent complete" \
+                 % (sim.index/float(N)*100.))
 
         if sim.seed:
             PRNG.seed(sim.seed)
@@ -1407,6 +1410,9 @@ def run(configFile):
             fp.write('%'+header)
             if len(tracks) > 0:
                 np.savetxt(fp, tracks, fmt=format)
+
+    log.info("Simulating tropical cyclone tracks: 100 percent complete")
+
 
 if __name__ == "__main__":
     try:
