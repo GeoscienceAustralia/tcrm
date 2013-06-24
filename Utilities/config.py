@@ -43,6 +43,9 @@ LogFile=main.log
 LogLevel=INFO
 Verbose=False
 
+[StatInterface]
+kdeType=Gaussian
+
 [DEFAULT]
 FieldDelimiter=,
 NumberOfHeadingLines=0
@@ -82,3 +85,26 @@ class ConfigParser(RawConfigParser):
         if self.read_once: return
         RawConfigParser.read(self, filename)
         self.read_once = True
+
+
+def cnfGetIniValue(configFile, section, option, default=None):
+    """
+    Helper function to interface with code that uses the
+    old config parser.
+    """
+    config = ConfigParser()
+    config.read(configFile)
+    if not config.has_option(section, option):
+        return default
+    if default is None:
+        return config.get(section, option)
+    if isinstance(default, str):
+        return config.get(section, option)
+    if isinstance(default, bool):
+        return config.getboolean(section, option)
+    if isinstance(default, int):
+        return config.getint(section, option)
+    if isinstance(default, float):
+        return config.getfloat(section, option)
+    if isinstance(default, dict):
+        return config.geteval(section, option)

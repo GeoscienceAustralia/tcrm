@@ -97,7 +97,7 @@ class HazardInterface:
         self.logger = logging.getLogger()
         self.logger.info("Initiating HazardInterface")
         self.gL = eval(cnfGetIniValue(self.configFile, 'Region', 'gridLimit'))
-        self.nsim = cnfGetIniValue(self.configFile, 'HazardInterface', 'NumSim')
+        self.nsim = cnfGetIniValue(self.configFile, 'HazardInterface', 'NumSim', 1000)
         self.calcCI = cnfGetIniValue(self.configFile, 'HazardInterface', 
                                      'CalculateCI', False)
                                      

@@ -73,11 +73,10 @@ import numpy
 import Utilities.stats as stats
 import Utilities.KPDF as KPDF
 from Utilities.files import flLoadFile, flStartLog
-from Utilities.config import cnfGetIniValue
 from Utilities.grid import grdSave
 from Utilities.nctools import ncSaveGrid
 from Utilities.plotField import plotField
-
+from config import ConfigParser
 
 class KDEOrigin:
     """
@@ -149,8 +148,11 @@ class KDEOrigin:
         self.kdeType = kdeType
         self.kdeStep = kdeStep
 
+        config = ConfigParser()
+        config.read(configFile)
+
         if lonLat is None:
-            self.outputPath = cnfGetIniValue(self.configFile, 'Output', 'Path')
+            self.outputPath = config.get('Output', 'Path')
             self.processPath = os.path.join(self.outputPath, 'process')
             self.logger.debug("Loading "+os.path.join(self.processPath,
                                                   'init_lon_lat'))
@@ -255,32 +257,4 @@ class KDEOrigin:
         """
         if self.progressbar:
             self.progressbar.update(n/float(nMax), 0.0, 0.7)
-
-if __name__ == "__main__":
-    try:
-        configFile = sys.argv[1]
-    except IndexError:
-        # Try loading config file with same name as python script
-        configFile = __file__.rstrip('.py') + '.ini'
-        # If no filename is specified and default filename doesn't exist => raise error
-        if not os.path.exists(configFile):
-            error_msg = "No configuration file specified, please type: python main.py {config filename}.ini"
-            raise IOError, error_msg
-    # If config file doesn't exist => raise error
-    if not os.path.exists(configFile):
-        error_msg = "Configuration file '" + configFile +"' not found"
-        raise IOError, error_msg
-
-    flStartLog(cnfGetIniValue(configFile, 'Logging', 'LogFile', __file__.rstrip('.py') + '.log'),
-               cnfGetIniValue(configFile, 'Logging', 'LogLevel', 'DEBUG'),
-               cnfGetIniValue(configFile, 'Logging', 'Verbose', True))
-
-    kdeType = cnfGetIniValue(configFile, 'StatInterface', 'kdeType',
-                             'Gaussian')
-    gridLimit = eval(cnfGetIniValue(configFile, 'Settings', 'gridLImit'))
-    kdeStep = 0.1
-    kde = KDEOrigin(configFile, kdeType, gridLimit, kdeStep)
-    kde.generateKDE(save=True)
-
-    kde.generateCdf(save=True)
 
