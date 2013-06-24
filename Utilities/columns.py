@@ -35,6 +35,7 @@ import csv
 gT = GetType()
 
 __version__ = '$Id: columns.py 642 2012-02-21 07:54:04Z nsummons $'
+
 logger = logging.getLogger()
 
 def colReadCSV(configFile, dataFile, source, nullValue=sys.maxint, configSettings=None):
@@ -131,8 +132,8 @@ def colReadCSV(configFile, dataFile, source, nullValue=sys.maxint, configSetting
                 if ii == 1:
                     logger.debug("Skipping text header lines")
                 continue
-            for key in record.keys():
-                if key in temp.keys():
+            for key in record.iterkeys():
+                if key in temp:
                     if dtypeDict[key] == 'int':
                         try:
                             temp[key].append(int(record[key]))
