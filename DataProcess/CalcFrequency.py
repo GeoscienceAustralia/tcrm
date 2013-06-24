@@ -24,10 +24,10 @@ Description: Calculates annual genesis frequency in track generator domain
 
 import os
 import logging
-from Utilities.files import flLoadFile
 import numpy
 
-from config import ConfigParser
+from Utilities.files import flLoadFile
+from Utilities.config import ConfigParser
 
 logger = logging.getLogger(__name__)
 

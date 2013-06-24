@@ -52,7 +52,7 @@ from os.path import join as pjoin, dirname
 from Utilities.files import flConfigFile, flStartLog, flLoadFile
 from Utilities import pathLocator
 from Utilities.progressbar import ProgressBar
-from config import ConfigParser
+from Utilities.config import ConfigParser
 
 matplotlib.use('Agg')  # Use matplotlib backend
 

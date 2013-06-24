@@ -68,15 +68,16 @@ Id: KDEOrigin.py 219 2009-10-02 03:20:56Z carthur $
 """
 
 import os, sys, pdb, logging
-
 import numpy
+
 import Utilities.stats as stats
 import Utilities.KPDF as KPDF
+
 from Utilities.files import flLoadFile, flStartLog
 from Utilities.grid import grdSave
 from Utilities.nctools import ncSaveGrid
 from Utilities.plotField import plotField
-from config import ConfigParser
+from Utilities.config import ConfigParser
 
 class KDEOrigin:
     """

@@ -110,19 +110,19 @@ $Id: DataProcess.py 832 2012-03-28 07:23:32Z nsummons $
 """
 
 import os, sys, pdb, logging
-
 import numpy
-from Utilities.grid import SampleGrid
-from Utilities.files import flModuleName, flSaveFile, flStartLog
-from Utilities.columns import colReadCSV
+
 import Utilities.maputils as maputils
 import Utilities.metutils as metutils
 import Utilities.stats as stats
-from Utilities import pathLocator
 import Utilities.loadData as loadData
-from CalcTrackDomain import CalcTrackDomain
 
-from config import ConfigParser
+from Utilities.grid import SampleGrid
+from Utilities.files import flModuleName, flSaveFile, flStartLog
+from Utilities.columns import colReadCSV
+from Utilities import pathLocator
+from CalcTrackDomain import CalcTrackDomain
+from Utilities.config import ConfigParser
 
 # Switch off minor warning messages
 import warnings

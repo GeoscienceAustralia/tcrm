@@ -45,10 +45,11 @@ $Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $
 import os, pdb, logging, sys, math
 
 import numpy as np
-from Utilities.files import flLoadFile
-import Utilities.stats as stats
-from config import ConfigParser
 
+import Utilities.stats as stats
+
+from Utilities.files import flLoadFile
+from Utilities.config import ConfigParser
 
 __version__ = '$Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $'
 

@@ -62,7 +62,7 @@ from Utilities.files import flLoadFile, flSaveFile
 from Utilities.grid import grdRead, grdReadFromNetcdf
 from scipy import array, zeros, rand, empty, ndarray, transpose
 import Utilities.stats as stats
-from config import ConfigParser
+from Utilities.config import ConfigParser
 
 class SamplingOrigin:
     """

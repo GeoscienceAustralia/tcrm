@@ -37,9 +37,7 @@ import Utilities.Cmap as Cmap
 import Utilities.Cstats as Cstats
 import Utilities.maputils as maputils
 
-from config import ConfigParser
 from os.path import join as pjoin, dirname
-
 from scipy.io.netcdf import netcdf_file
 
 from StatInterface.generateStats import GenerateStats
@@ -48,6 +46,7 @@ from Utilities.files import flStartLog, flLoadFile, flSaveFile
 from Utilities.grid import SampleGrid
 from MSLP.mslp_seasonal_clim import MSLPGrid
 from DataProcess.CalcFrequency import CalcFrequency
+from Utilities.config import ConfigParser
 
 class TrackGenerator:
     """

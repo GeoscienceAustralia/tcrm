@@ -25,13 +25,14 @@ import math
 import time
 import os
 import sys
+
 import Utilities.metutils as metutils
 import Utilities.maputils as maputils
 import Utilities.nctools as nctools
 
 from os.path import join as pjoin, dirname
 from collections import defaultdict
-from config import ConfigParser
+
 from PressureInterface.pressureProfile import PrsProfile as PressureProfile
 from windProfile import WindProfile
 from windVorticity import WindVorticity
@@ -39,6 +40,7 @@ from windField import WindField
 from Utilities.config import cnfGetIniValue
 from Utilities.progressbar import ProgressBar
 from Utilities.files import flModDate, flProgramVersion, flGetStat
+from Utilities.config import ConfigParser
 
 
 """

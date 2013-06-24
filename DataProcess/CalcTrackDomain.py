@@ -25,10 +25,9 @@ Description: Determine track generator domain, ensuring it encompasses
 """
 
 import os, sys, pdb, logging
-
 import math
-from config import ConfigParser
 
+from Utilities.config import ConfigParser
 from Utilities.files import flLoadFile
 
 
