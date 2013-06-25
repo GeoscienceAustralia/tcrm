@@ -37,15 +37,11 @@ Copyright - Geoscience Australia, 2008
 
 __version__ = "$Id: main.py 826 2012-03-26 02:06:55Z nsummons $"
 
-import gc
-gc.set_debug(gc.DEBUG_SAVEALL)
-
 import os
 import io
 import sys
 import logging
 import traceback
-import matplotlib
 
 from os.path import join as pjoin, dirname
 
@@ -53,8 +49,6 @@ from Utilities.files import flConfigFile, flStartLog, flLoadFile
 from Utilities import pathLocator
 from Utilities.progressbar import ProgressBar
 from Utilities.config import ConfigParser
-
-matplotlib.use('Agg')  # Use matplotlib backend
 
 # Set Basemap data path if compiled with py2exe
 if pathLocator.is_frozen():
@@ -197,6 +191,9 @@ def doDataProcessing(configFile):
 
 @disableOnWorkers
 def doDataPlotting(configFile):
+    import matplotlib
+    matplotlib.use('Agg')  # Use matplotlib backend
+
     config = ConfigParser()
     config.read(configFile)
 
@@ -302,6 +299,9 @@ def doHazard(configFile):
 
 @disableOnWorkers
 def doHazardPlotting(configFile):
+    import matplotlib
+    matplotlib.use('Agg')  # Use matplotlib backend
+
     config = ConfigParser()
     config.read(configFile)
 
@@ -424,7 +424,3 @@ if __name__ == "__main__":
         TB_LINES = traceback.format_exc().splitlines()
         for line in TB_LINES:
             log.critical(line.lstrip())
-        # sys.exit(1)
-
-    #for o in gc.garbage:
-    #    print('%s %s' % (type(o), str(o)))
