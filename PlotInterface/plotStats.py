@@ -96,8 +96,6 @@ class PlotData:
         self.fmt = output_format
         self.fignum = 0
 
-        return
-
     def figurenum(self):
         """
         Increment the figure number and return the new value
