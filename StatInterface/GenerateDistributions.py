@@ -57,7 +57,6 @@ import os, sys, pdb, logging
 
 import Utilities.stats as stats
 import KDEParameters
-import pylab
 from scipy import array, arange, where, size, transpose, concatenate
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile, flSaveFile, flStartLog
@@ -321,6 +320,7 @@ class GenerateDistributions:
 
 
     def _plotParameter(self, cellNum, kdeStep):
+        import pylab
         self.logger.debug("Plotting %s"%self.pName)
         pMin = self.parameter.min()
         pMax = self.parameter.max()
