@@ -76,7 +76,6 @@ import Utilities.KPDF as KPDF
 from Utilities.files import flLoadFile, flStartLog
 from Utilities.grid import grdSave
 from Utilities.nctools import ncSaveGrid
-from Utilities.plotField import plotField
 from Utilities.config import ConfigParser
 
 class KDEOrigin:
@@ -189,7 +188,7 @@ class KDEOrigin:
 
         return kdeMethod(self.lonLat, grid, bw)
 
-    def generateKDE(self, bw=None, save=False):
+    def generateKDE(self, bw=None, save=False, plot=False):
         """
         Generate the PDF for cyclone origins using kernel density
         estimation technique then save it to a file path provided by
@@ -204,6 +203,7 @@ class KDEOrigin:
         pdf = pdf / pdf.sum()
         pdf.shape = (pdf.shape[0]/self.x.size, self.x.size)
         self.pdf = pdf.transpose()
+
         if save:
             outputFile = os.path.join(self.processPath, 'originPDF.nc')
             dimensions = {0:{'name':'lat','values':self.y,'dtype':'f','atts':{'long_name':'Latitude','units':'degrees_north'} },
@@ -213,6 +213,9 @@ class KDEOrigin:
                              'atts':{'long_name':'TC Genesis probability distribution',
                                       'units':''} } }
             ncSaveGrid(outputFile, dimensions, variables)
+
+        if plot:
+            from Utilities.plotField import plotField
 
             [gx,gy] = numpy.meshgrid(self.x,self.y)
 
@@ -236,8 +239,8 @@ class KDEOrigin:
             self.logger.debug("Saving origin PDF to file")
             #grdSave(os.path.join(self.processPath, 'originPDF.txt'),
             #        pdf, self.x, self.y, self.kdeStep)
-        else:
-            return self.x, self.y, self.pdf
+        
+        return self.x, self.y, self.pdf
 
     def generateCdf(self, save=False):
         """
