@@ -191,17 +191,11 @@ def doDataProcessing(configFile):
 
 @disableOnWorkers
 def doDataPlotting(configFile):
-    import matplotlib
-    matplotlib.use('Agg')  # Use matplotlib backend
-
     config = ConfigParser()
     config.read(configFile)
 
-    outputPath      = config.get('Output', 'Path')
-    showProgressBar = config.get('Logging', 'ProgressBar')
+    outputPath = config.get('Output', 'Path')
  
-    pbar = ProgressBar('Plotting data files: ', showProgressBar)
-
     statsPlotPath = pjoin(outputPath, 'plots', 'stats')
     processPath = pjoin(outputPath, 'process')
 
@@ -211,7 +205,6 @@ def doDataPlotting(configFile):
     bAllData = flLoadFile(pjoin(processPath, 'all_bearing'))
     sRateData = flLoadFile(pjoin(processPath, 'speed_rate'))
     sAllData = flLoadFile(pjoin(processPath, 'all_speed'))
-    pbar.update(0.625)
 
     indLonLat = flLoadFile(pjoin(processPath, 'cyclone_tracks'),
                            delimiter=',')
@@ -222,23 +215,34 @@ def doDataPlotting(configFile):
     from PlotInterface.plotStats import PlotData
     plotting = PlotData(statsPlotPath, "png")
 
+    log.info('Plotting pressure data')
+
     plotting.plotPressure(pAllData, pRateData)
     plotting.scatterHistogram(pAllData[1:], pAllData[:-1], 'prs_scatterHist', allpos=True)
     plotting.scatterHistogram(pRateData[1:], pRateData[:-1], 'prsRate_scatterHist')
     plotting.minPressureHist(indicator, pAllData)
     plotting.minPressureLat(pAllData, latData)
 
-    pbar.update(0.75)
+    log.info('Plotting bearing data')
 
     plotting.plotBearing(bAllData, bRateData)
+
+    log.info('Plotting speed data')
+
     plotting.plotSpeed(sAllData, sRateData)
-    # plotStats.plotSpeedBear(sAllData, bAllData, statsPlotPath)
+
+    log.info('Plotting longitude and lattitude data')
+
     plotting.plotLonLat(lonData, latData, indicator)
-    pbar.update(0.875)
+
+    log.info('Plotting quantiles for pressure, bearing, and speed')
 
     plotting.quantile(pRateData, "Pressure")
     plotting.quantile(bRateData, "Bearing")
     plotting.quantile(sRateData, "Speed")
+
+    log.info('Plotting frequency data')
+
     try:
         freq = flLoadFile(pjoin(processPath, 'frequency'))
     except IOError:
@@ -248,7 +252,6 @@ def doDataPlotting(configFile):
         frequency = freq[:, 1]
         plotting.plotFrequency(years, frequency)
 
-    pbar.update(1.0)
 
 @disableOnWorkers
 def doStatistics(configFile):
@@ -337,7 +340,6 @@ def main(configFile='main.ini'):
 
     if config.getboolean('Actions', 'DataProcess'):
         doDataProcessing(configFile)
-        doDataPlotting(configFile)
 
     pp.barrier()
 
@@ -358,6 +360,11 @@ def main(configFile='main.ini'):
 
     if config.getboolean('Actions', 'ExecuteHazard'):
         doHazard(configFile)
+
+    pp.barrier()
+
+    if config.getboolean('Actions', 'PlotData'):
+        doDataPlotting(configFile)
 
     pp.barrier()
 

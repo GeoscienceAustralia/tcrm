@@ -1,33 +1,4 @@
-#!/usr/bin/env python
-"""
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
- Title: plotStats.py - plot basic statistical info based on processed data
- Author: Craig Arthur, craig.arthur@ga.gov.au
- CreationDate: 2010-05-10
- Description:
-
- Version: $Rev: 810 $
-
- $Id: plotStats.py 810 2012-02-21 07:52:50Z nsummons $
-"""
-
-import os, sys, pdb, logging
+import os
 
 from matplotlib import pyplot
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -42,16 +13,7 @@ import Utilities.stats as stats
 
 __version__ = '$Id: plotStats.py 810 2012-02-21 07:52:50Z nsummons $'
 
-
-"""
-possible class variables:
-    output_path
-    output_format
-    figure_number (increment)
-
-"""
-
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 def get_bins(data, allpos=False):
     """
@@ -63,6 +25,7 @@ def get_bins(data, allpos=False):
 
     lims = (int(dmax/binwidth) + 1) * binwidth
     if allpos:
+
         bins = numpy.arange(0, lims+binwidth, binwidth)
     else:
         bins = numpy.arange(-lims, lims+binwidth, binwidth)
@@ -472,8 +435,6 @@ class PlotData:
         Plot a histogram of the minimum central pressures from the input
         dataset.
         """
-        logger.debug("Plotting minimum pressure histogram")
-
         pyplot.rcParams['figure.figsize'] = (8, 7)
         pyplot.figure(self.figurenum())
         pyplot.clf()

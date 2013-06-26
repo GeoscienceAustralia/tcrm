@@ -2,6 +2,15 @@ import os, io
 from ConfigParser import RawConfigParser
 
 DEFAULTS = """
+[Actions]
+DataProcess=False
+ExecuteStat=False
+ExecuteTrackGenerator=False
+ExecuteWindfield=False
+ExecuteHazard=False
+PlotData=False
+PlotHazard=False
+
 [DataProcess]
 StartSeason=1981
 
