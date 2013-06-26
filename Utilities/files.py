@@ -83,9 +83,10 @@ def flSaveFile(filename, data, header='', delimiter=' ', fmt='%.18e'):
         os.makedirs(directory)
 
     try:
-        np.savetxt(filename, data, header=header, delimiter=delimiter, fmt=fmt)
+        np.savetxt(filename, data, header=header, delimiter=delimiter, fmt=fmt,
+                comments='%')
     except TypeError:
-        np.savetxt(filename, data, delimiter=delimiter, fmt=fmt)
+        np.savetxt(filename, data, delimiter=delimiter, fmt=fmt, comments='%')
 
 
 def flGetStat(filename, CHUNK=2 ** 16):
