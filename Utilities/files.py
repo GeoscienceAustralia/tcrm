@@ -2,7 +2,7 @@ import os
 import sys
 import logging
 import datetime
-import numpy
+import numpy as np
 import csv
 from time import time, ctime, localtime, strftime
 
@@ -49,7 +49,7 @@ def flModuleName(level=1):
     return package
 
 
-def flProgramVersion(level=len(inspect.stack()) - 1):
+def flProgramVersion(level=None):
     """
     Function to return the __version__ string from the parent
     program, where it is defined.
@@ -61,6 +61,9 @@ def flProgramVersion(level=len(inspect.stack()) - 1):
 
     Example: my_program_version = flProgramVersion( )
     """
+    if not level:
+        import inspect
+        level = len(inspect.stack()) - 1
     f = sys._getframe(level)
     if f.f_globals.has_key('__version__'):
         return f.f_globals['__version__']
@@ -69,129 +72,20 @@ def flProgramVersion(level=len(inspect.stack()) - 1):
 
 
 def flLoadFile(filename, comments='%', delimiter=',', skiprows=0):
-    """
-    Load ASCII data from `filename` into an array and return the array. The
-    data must be regular, same number of values in every row.
-
-    Input: filename, comment indicator, delimiter, skiprows
-    Output: array of data, each column represents the columns in the
-            input file
-
-    Example: data = flLoadFile('/home/user/data.csv', comments='#',
-                               delimiter=',', skiprows=0)
-    """
-    if not os.path.isfile(filename):
-        raise IOError('Filename %s is not a file' % filename)
-
-    logger.debug('Loading data from %s' % filename)
-
-    if filename.endswith('.gz'):
-        import gzip
-        opened = lambda f: gzip.open(f, 'rb')
-    else:
-        opened = lambda f: open(f, 'r')
-
-    with opened(filename) as fh:
-        data = []
-        for i, line in enumerate(fh):
-            line = line.rstrip('\n')
-            comment = line.find(comments)
-            if (comment != -1):
-                line = line[:comment]
-            line = line.strip()
-            if (i < skiprows) or len(line) == 0:
-                continue
-            row = []
-            for val in line.split(delimiter):
-                if val == 'NaN':
-                    val = Nan
-                try:
-                    row.append(float(val))
-                except ValueError:
-                    row.append(str(val))
-            data.append(row)
-        data = numpy.array(data)
-        r, c = data.shape
-        if r == 1 or c == 1:
-            data.shape = max(r, c)
-        return data
+    return np.genfromtxt(filename, comments=comments, delimiter=delimiter,
+            skiprows=skiprows)
 
 
-def flSaveFile(filename, data, header=None, delimiter=' ', fmt='%.18e'):
-    """
-    Save the data in X to file fname using fmt string to convert the
-    data to strings, originated from pylab.py in matplotlib
-    by John D. Hunter <jdhunter@ace.bsd.uhicago.edu>
-    modified by Geoff Xu, 2006
+def flSaveFile(filename, data, header='', delimiter=' ', fmt='%.18e'):
 
-    Input: filename, array of data, header line (default=None),
-           delimiter (default=' '), format string (default='%.18e')
-    Output: None
-    Example: flSaveFile(file, data, header='List of fields',
-                        delimiter=',', fmt='%5.2f')
-    """
-    try:
-        directory, fname = os.path.split(filename)
-    except AttributeError:
-        logger.exception('Input filename is not a string')
-        flLogFatalError(traceback.format_exc().splitlines())
+    directory, fname = os.path.split(filename)
     if not os.path.isdir(directory):
-        try:
-            os.makedirs(directory)
-        except:
-            logger.exception('Cannot build path: %s' % (directory))
-            flLogFatalError(traceback.format_exc().splitlines())
-    logger.debug('Saving data to %s' % (filename))
+        os.makedirs(directory)
 
-    if type(filename) == str:
-        if fname.endswith('.gz'):
-            import gzip
-            try:
-                fh = gzip.open(filename, 'wb')
-            except IOError:
-                logger.exception('Cannot open %s' % (filename))
-                flLogFatalError(traceback.format_exc().splitlines())
-        else:
-            try:
-                fh = open(filename, 'w')
-            except IOError:
-                logger.exception('Cannot open %s' % (filename))
-                flLogFatalError(traceback.format_exc().splitlines())
-
-    elif hasattr(filename, 'seek'):
-        fh = filename
-    else:
-        logger.error('Filename must be a string or file handle')
-        raise IOError('Filename must be a string or file handle')
-
-    if header:
-        fh.write('%' + header + '\n')
-
-    X = numpy.asarray(data)
-    origShape = None
-    if len(X.shape) == 1:
-        origShape = X.shape
-        X.shape = len(X), 1
-
-    for row in X:
-        try:
-            if type(fmt) == list:
-                fh.write(
-                    delimiter.join([f % v for f, v in zip(fmt, row)]) + '\n')
-            elif type(fmt) == str:
-                fh.write(delimiter.join([fmt % val for val in row]) + '\n')
-            else:
-                logger.exception(
-                    "Mismatch between format string and values in _write")
-                raise TypeError, "Mismatch between format string and values in _write"
-        except ValueError:
-            logger.exception("Cannont write data to file")
-            flLogFatalError(traceback.format_exc().splitlines())
-            raise ValueError("Cannont write data to file")
-
-    fh.close()
-    if origShape is not None:
-        X.shape = origShape
+    try:
+        np.savetxt(filename, data, header=header, delimiter=delimiter, fmt=fmt)
+    except TypeError:
+        np.savetxt(filename, data, delimiter=delimiter, fmt=fmt)
 
 
 def flGetStat(filename, CHUNK=2 ** 16):
@@ -237,7 +131,7 @@ def flGetStat(filename, CHUNK=2 ** 16):
     return directory, fname, md5sum, moddate
 
 
-def flConfigFile(extension='.ini', prefix='', level=len(inspect.stack())):
+def flConfigFile(extension='.ini', prefix='', level=None):
     """
     Build a configuration filename (default extension .ini) based on the
     name and path of the function/module calling this function. Can also
@@ -252,7 +146,8 @@ def flConfigFile(extension='.ini', prefix='', level=len(inspect.stack())):
              Calling flConfigFile from /foo/bar/baz.py should
              return /foo/bar/baz.ini
     """
-    if level is None:
+    if not level:
+        import inspect
         level = len(inspect.stack())
 
     path, base, ext = flModulePath(level)
