@@ -1,4 +1,4 @@
-import os
+import os, logging
 
 from matplotlib import pyplot
 from mpl_toolkits.axes_grid1 import make_axes_locatable
