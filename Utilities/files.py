@@ -73,10 +73,10 @@ def flProgramVersion(level=None):
 
 def flLoadFile(filename, comments='%', delimiter=',', skiprows=0):
     return np.genfromtxt(filename, comments=comments, delimiter=delimiter,
-            skiprows=skiprows)
+            skip_header=skiprows)
 
 
-def flSaveFile(filename, data, header='', delimiter=' ', fmt='%.18e'):
+def flSaveFile(filename, data, header='', delimiter=',', fmt='%.18e'):
 
     directory, fname = os.path.split(filename)
     if not os.path.isdir(directory):
