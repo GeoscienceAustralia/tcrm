@@ -130,43 +130,48 @@ def getInitialPositions(data):
     data).
 
     """
-
-    if data.has_key('index'):
-        logger.debug("Using index contained in file to determine \
-                            initial TC positions")
+    try:
         indicator = np.array(data['index'], 'i')
-    else:
-        if data.has_key('tcserialno'):
-            logger.debug("Using TC serial number to determine \
-                                initial TC positions")
-            tcSerialNo = data['tcserialno']
-            indicator = np.ones(len(tcSerialNo), 'i')
-            for i in range(1, len(tcSerialNo)):
-                if tcSerialNo[i] == tcSerialNo[i - 1]:
-                    indicator[i] = 0
-        elif data.has_key('season') and data.has_key('num'):
-            logger.debug("Using season and TC number to determine \
-                                initial TC positions")
-            num = np.array(data['num'], 'i')
-            season = np.array(data['season'], 'i')
-            indicator = np.ones(num.size, 'i')
-            for i in range(1, len(num)):
-                if (season[i] == season[i - 1]) and (num[i] == num[i - 1]):
-                    indicator[i] = 0
+        logger.debug("Using index contained in file to determine initial TC positions")
+        return indicator
+    except (ValueError, KeyError):
+        pass
 
-        elif data.has_key('num'):
-            logger.debug("Using TC number to determine initial \
-                                TC positions (no season information)")
-            num = np.array(data['num'], 'i')
-            indicator = np.ones(num.size, 'i')
-            ind_ = np.diff(num)
-            ind_[np.where(ind_ != 0)] = 1
-            indicator[1:] = ind_
-        else:
-            raise KeyError ("Insufficient input file columns have \
-                                    been specified to run TCRM.")
+    try:
+        tcSerialNo = data['tcserialno']
+        logger.debug("Using TC serial number to determine initial TC positions")
+        indicator = np.ones(len(tcSerialNo), 'i')
+        for i in range(1, len(tcSerialNo)):
+            if tcSerialNo[i] == tcSerialNo[i - 1]:
+                indicator[i] = 0
+        return indicator
+    except (ValueError, KeyError):
+        pass
 
-    return indicator
+    try:
+        num = np.array(data['num'], 'i')
+        season = np.array(data['season'], 'i')
+        logger.debug("Using season and TC number to determine initial TC positions")
+        indicator = np.ones(num.size, 'i')
+        for i in range(1, len(num)):
+            if (season[i] == season[i - 1]) and (num[i] == num[i - 1]):
+                indicator[i] = 0
+        return indicator
+    except (ValueError, KeyError):
+        pass
+
+    try:
+        num = np.array(data['num'], 'i')
+        logger.debug("Using TC number to determine initial TC positions (no season information)")
+        indicator = np.ones(num.size, 'i')
+        ind_ = np.diff(num)
+        ind_[np.where(ind_ != 0)] = 1
+        indicator[1:] = ind_
+        return indicator
+    except (ValueError, KeyError):
+        pass
+
+    raise ValueError('Insufficient input file columns have been specified')
 
 
 def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):
@@ -202,17 +207,16 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
     Parse the date/time information to extract year, month, day, hour and
     minute details for the input dataset
     """
-    if data.has_key('date'):
+    try:
         year, month, day, hour, minute = date2ymdh(data['date'], datefmt)
-
-    else:
+    except (ValueError, KeyError):
         # Sort out date/time information:
         month = np.array(data['month'], 'i')
         day = np.array(data['day'], 'i')
         hour = np.array(data['hour'], 'i')
         try:
             year = np.array(data['year'], 'i')
-        except KeyError:
+        except (ValueError, KeyError):
             # Create dummy variable year - applicable for datasets
             # such as WindRiskTech which contain no year information.
             year = np.zeros(month.size, 'i')
@@ -223,15 +227,16 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
                     fill_year = 2001
                 year[i] = fill_year
 
-        if data.has_key('minute'):
+        try:
             minute = np.array(data['minute'], 'i')
-        elif hour.max() >= 100:
-            minute = np.mod(hour, 100)
-            hour = hour / 100
-        else:
-            logger.warning("Missing minute data from input data - \
-                                    setting minutes to 00 for all times")
-            minute = np.zeros((hour.size), 'i')
+        except (ValueError, KeyError):
+            if hour.max() >= 100:
+                minute = np.mod(hour, 100)
+                hour = hour / 100
+            else:
+                logger.warning("Missing minute data from input data" + \
+                               "- setting minutes to 00 for all times")
+                minute = np.zeros((hour.size), 'i')
 
     return year, month, day, hour, minute
 

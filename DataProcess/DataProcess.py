@@ -109,8 +109,8 @@ Constraints:
 $Id: DataProcess.py 832 2012-03-28 07:23:32Z nsummons $
 """
 
-import os, sys, pdb, logging
-import numpy
+import os, sys, logging
+import numpy as np
 
 import Utilities.maputils as maputils
 import Utilities.metutils as metutils
@@ -312,11 +312,7 @@ class DataProcess:
         return outIndex
 
     def filterData(self, data, index):
-        for key in data.keys():
-            filteredResult = numpy.array([data[key][i] for i in index])
-            data[key] = filteredResult
-
-        return data
+        return data[:,index]
 
     def processData(self, restrictToWindfieldDomain=False):
         """
@@ -346,8 +342,8 @@ class DataProcess:
         startSeason = config.getint('DataProcess', 'StartSeason')
 
         indicator = loadData.getInitialPositions(inputData)
-        lat = numpy.array(inputData['lat'], 'd')
-        lon = numpy.mod(numpy.array(inputData['lon'], 'd'), 360)
+        lat = np.array(inputData['lat'], 'd')
+        lon = np.mod(np.array(inputData['lon'], 'd'), 360)
 
         if restrictToWindfieldDomain:
             # Filter the input arrays to only retain the tracks that
@@ -364,23 +360,24 @@ class DataProcess:
             self.progressbar.update(0.125)
 
         # Sort date/time information
-        if inputData.has_key('age'):
-            dt = numpy.empty(indicator.size, 'f')
-            dt[1:] = numpy.diff(inputData['age'])
-        else:
-            if inputData.has_key('season'):
+        try:
+            dt = np.empty(indicator.size, 'f')
+            dt[1:] = np.diff(inputData['age'])
+        except (ValueError, KeyError):
+
+            try:
                 # Find indicies that satisfy minimum season filter
-                idx = numpy.where(inputData['season'] >= startSeason)[0]
+                idx = np.where(inputData['season'] >= startSeason)[0]
                 # Filter records:
                 inputData = self.filterData(inputData, idx)
                 indicator = indicator[idx]
                 lon = lon[idx]
                 lat = lat[idx]
+            except (ValueError, KeyError):
+                pass
 
             year, month, day, hour, minute = loadData.parseDates(inputData,
                                                              indicator)
-
-
 
             # Time between observations:
             dt = loadData.getTimeDelta(year, month, day, hour, minute)
@@ -388,8 +385,8 @@ class DataProcess:
             # Calculate julian days:
             jdays = loadData.julianDays(year, month, day, hour, minute)
 
-        delta_lon = numpy.diff(lon)
-        delta_lat = numpy.diff(lat)
+        delta_lon = np.diff(lon)
+        delta_lat = np.diff(lat)
 
         # Split into separate tracks if large jump occurs (delta_lon >
         # 15 degrees or delta_lat > 5 degrees) This avoids two tracks
@@ -397,40 +394,41 @@ class DataProcess:
         # match but basins are different as occurs in the IBTrACS
         # dataset.  This problem can also be prevented if the
         # 'tcserialno' column is specified.
-        indicator[numpy.where(delta_lon > 15)[0] + 1] = 1
-        indicator[numpy.where(delta_lat > 5)[0] + 1] = 1
+        indicator[np.where(delta_lon > 15)[0] + 1] = 1
+        indicator[np.where(delta_lat > 5)[0] + 1] = 1
 
         # Save information required for frequency auto-calculation
-        if inputData.has_key('season'):
-            origin_seasonOrYear = numpy.array(inputData['season'], 'i'). \
-                                                compress(indicator)
+        try:
+            origin_seasonOrYear = np.array(inputData['season'], 'i').compress(indicator)
             header = 'Season'
-        else:
+        except (ValueError, KeyError):
             origin_seasonOrYear = year.compress(indicator)
             header = 'Year'
 
-        flSaveFile(self.origin_year, numpy.transpose(origin_seasonOrYear),
+        flSaveFile(self.origin_year, np.transpose(origin_seasonOrYear),
                    header, ',', fmt='%d')
 
-        pressure = numpy.array(inputData['pressure'], 'd')
-        novalue_index = numpy.where(pressure==sys.maxint)
+        pressure = np.array(inputData['pressure'], 'd')
+        novalue_index = np.where(pressure==sys.maxint)
         pressure = metutils.convert(pressure, inputPressureUnits, "hPa")
         pressure[novalue_index] = sys.maxint
 
         # Convert any non-physical central pressure values to maximum integer
         # This is required because IBTrACS has a mix of missing value codes
         # (i.e. -999, 0, 9999) in the same global dataset.
-        pressure = numpy.where((pressure < 600) | (pressure > 1100),
+        pressure = np.where((pressure < 600) | (pressure > 1100),
                                sys.maxint, pressure)
+
         if self.progressbar is not None:
             self.progressbar.update(0.25)
+
         try:
-            vmax = numpy.array(inputData['vmax'], 'd')
-        except KeyError:
+            vmax = np.array(inputData['vmax'], 'd')
+        except (ValueError, KeyError):
             self.logger.warning("No max wind speed data")
-            vmax = numpy.empty(indicator.size, 'f')
+            vmax = np.empty(indicator.size, 'f')
         else:
-            novalue_index = numpy.where(vmax==sys.maxint)
+            novalue_index = np.where(vmax==sys.maxint)
             vmax = metutils.convert(vmax, inputSpeedUnits, "mps")
             vmax[novalue_index] = sys.maxint
 
@@ -440,14 +438,14 @@ class DataProcess:
         #assert vmax.size == indicator.size
 
         try:
-            rmax = numpy.array(inputData['rmax'])
-            novalue_index = numpy.where(rmax==sys.maxint)
+            rmax = np.array(inputData['rmax'])
+            novalue_index = np.where(rmax==sys.maxint)
             rmax = metutils.convert(rmax, inputLengthUnits, "km")
             rmax[novalue_index] = sys.maxint
 
             self._rmax(rmax, indicator)
             self._rmaxRate(rmax, dt, indicator)
-        except KeyError:
+        except (ValueError, KeyError):
             self.logger.warning("No rmax data available")
 
         if self.ncflag:
@@ -460,8 +458,8 @@ class DataProcess:
         # Determine the index of initial cyclone observations, excluding
         # those cyclones that have only one observation. This is used
         # for calculating initial bearing and speed
-        indicator2 = numpy.where(indicator > 0, 1, 0)
-        initIndex = numpy.concatenate([numpy.where(numpy.diff(indicator2) == \
+        indicator2 = np.where(indicator > 0, 1, 0)
+        initIndex = np.concatenate([np.where(np.diff(indicator2) == \
                                             -1, 1, 0), [0]])
 
         # Calculate the bearing and distance (km) of every two
@@ -469,9 +467,9 @@ class DataProcess:
         bear_, dist_ = maputils.latLon2Azi(lat, lon, ieast, azimuth=0)
         assert bear_.size == indicator.size - 1
         assert dist_.size == indicator.size - 1
-        bear = numpy.empty(indicator.size, 'f')
+        bear = np.empty(indicator.size, 'f')
         bear[1:] = bear_
-        dist = numpy.empty(indicator.size, 'f')
+        dist = np.empty(indicator.size, 'f')
         dist[1:] = dist_
 
         self._lonLat(lon, lat, indicator, initIndex)
@@ -484,11 +482,14 @@ class DataProcess:
         self._pressure(pressure, indicator)
         self._pressureRate(pressure, dt, indicator)
         self._windSpeed(vmax)
-        if inputData.has_key('year') or inputData.has_key('date'):
+
+        try:
             # Disabled frequency plot as misleading since represents entire
             # dataset rather than selected domain
             self._frequency(year, indicator)
             self._juliandays(jdays, indicator, year)
+        except (ValueError, KeyError):
+            pass
 
         self.logger.info("Completed %s" % flModuleName())
         if self.progressbar is not None:
@@ -514,7 +515,7 @@ class DataProcess:
         """
 
         self.logger.info('Extracting longitudes and latitudes')
-        lsflag = numpy.zeros(len(lon))
+        lsflag = np.zeros(len(lon))
         for i, [x, y] in enumerate(zip(lon, lat)):
             if self.landmask.sampleGrid(x, y) > 0:
                 lsflag[i] = 1
@@ -542,13 +543,13 @@ class DataProcess:
             self.data['lsflag'] = lsflag
         else:
             flSaveFile(origin_lon_lat,
-                       numpy.transpose([lonOne, latOne, lsflagOne]),
+                       np.transpose([lonOne, latOne, lsflagOne]),
                        header, ',', fmt='%6.2f')
             flSaveFile(init_lon_lat,
-                       numpy.transpose([lonInit, latInit, lsflagInit]),
+                       np.transpose([lonInit, latInit, lsflagInit]),
                        header, ',', fmt='%6.2f')
             flSaveFile(all_lon_lat,
-                       numpy.transpose([lon, lat, lsflag]),
+                       np.transpose([lon, lat, lsflag]),
                        header, ',', fmt='%6.2f')
 
             # Output all cyclone positions:
@@ -556,7 +557,7 @@ class DataProcess:
             self.logger.debug('Outputting data into %s' % cyclone_tracks)
             header = 'Cyclone Origin,Longitude,Latitude, LSflag'
             flSaveFile(cyclone_tracks,
-                       numpy.transpose([indicator, lon, lat, lsflag]),
+                       np.transpose([indicator, lon, lat, lsflag]),
                        header, ',', fmt='%6.2f')
 
     def _bearing(self, bear, indicator, initIndex):
@@ -575,10 +576,10 @@ class DataProcess:
         self.logger.info('Extracting bearings')
 
         #extract all bearings
-        numpy.putmask(bear, indicator, sys.maxint)
+        np.putmask(bear, indicator, sys.maxint)
 
         # extract initial bearings
-        initBearingIndex = numpy.flatnonzero(initIndex[:-1]) + 1
+        initBearingIndex = np.flatnonzero(initIndex[:-1]) + 1
         initBearing = bear.take(initBearingIndex)
 
         # extract non-initial bearings
@@ -623,11 +624,11 @@ class DataProcess:
         speed = dist/dt
         # Delete speeds less than 0, greated than 200,
         # or where indicator == 1.
-        numpy.putmask(speed, (speed < 0) | (speed > 200) | indicator,
+        np.putmask(speed, (speed < 0) | (speed > 200) | indicator,
                       sys.maxint)
-        numpy.putmask(speed, numpy.isnan(speed), sys.maxint)
+        np.putmask(speed, np.isnan(speed), sys.maxint)
 
-        initSpeedIndex = numpy.flatnonzero(initIndex[:-1]) + 1
+        initSpeedIndex = np.flatnonzero(initIndex[:-1]) + 1
         initSpeed = speed.take(initSpeedIndex)
         indicator_ = indicator.copy()
         indicator_.put(initSpeedIndex, 1)
@@ -709,8 +710,8 @@ class DataProcess:
         self.logger.info('Extracting the rate of pressure change')
 
         #Change in pressure:
-        pressureChange_ = numpy.diff(pressure)
-        pressureChange = numpy.empty(indicator.size, 'f')
+        pressureChange_ = np.diff(pressure)
+        pressureChange = np.empty(indicator.size, 'f')
         pressureChange[1:] = pressureChange_
 
         # Rate of pressure change:
@@ -722,10 +723,10 @@ class DataProcess:
         # The highest rate of intensification on record is
         # Typhoon Forrest (Sept 1983) 100 mb in 24 hrs.
         self.logger.debug('Outputting data into %s'%self.pressure_rate)
-        numpy.putmask(pressureRate, indicator, sys.maxint)
-        numpy.putmask(pressureRate, pressure >= sys.maxint, sys.maxint)
-        numpy.putmask(pressureRate, numpy.isnan(pressureRate), sys.maxint)
-        numpy.putmask(pressureRate, numpy.abs(pressureRate)>10, sys.maxint)
+        np.putmask(pressureRate, indicator, sys.maxint)
+        np.putmask(pressureRate, pressure >= sys.maxint, sys.maxint)
+        np.putmask(pressureRate, np.isnan(pressureRate), sys.maxint)
+        np.putmask(pressureRate, np.abs(pressureRate)>10, sys.maxint)
 
         if self.ncflag:
             self.data['pressureRate'] = pressureRate
@@ -749,23 +750,23 @@ class DataProcess:
         """
         self.logger.info('Extracting the rate of bearing change')
 
-        bearingChange_ = numpy.diff(bear)
-        ii = numpy.where((bearingChange_ > 180.))
-        jj = numpy.where((bearingChange_ < -180.))
+        bearingChange_ = np.diff(bear)
+        ii = np.where((bearingChange_ > 180.))
+        jj = np.where((bearingChange_ < -180.))
         bearingChange_[ii] -= 360.
         bearingChange_[jj] += 360.
-        bearingChange = numpy.empty(indicator.size, 'd')
+        bearingChange = np.empty(indicator.size, 'd')
         bearingChange[1:] = bearingChange_
 
         bearingRate = bearingChange/dt
 
-        numpy.putmask(bearingRate, indicator, sys.maxint)
-        numpy.putmask(bearingRate[1:], indicator[:-1], sys.maxint)
-        numpy.putmask(bearingRate, (bearingRate >= sys.maxint) |
+        np.putmask(bearingRate, indicator, sys.maxint)
+        np.putmask(bearingRate[1:], indicator[:-1], sys.maxint)
+        np.putmask(bearingRate, (bearingRate >= sys.maxint) |
                                     (bearingRate <= -sys.maxint),
                                       sys.maxint)
 
-        numpy.putmask(bearingRate, numpy.isnan(bearingRate), sys.maxint)
+        np.putmask(bearingRate, np.isnan(bearingRate), sys.maxint)
 
         if self.ncflag:
             self.data['bearingRate'] = bearingRate
@@ -792,21 +793,21 @@ class DataProcess:
         self.logger.info('Extracting the rate of speed change for each cyclone')
 
         speed = dist/dt
-        speedChange_ = numpy.diff(speed)
-        speedChange = numpy.empty(indicator.size, 'd')
+        speedChange_ = np.diff(speed)
+        speedChange = np.empty(indicator.size, 'd')
         speedChange[1:] = speedChange_
 
         indicator_ = indicator.copy()
-        numpy.putmask(indicator_, (speed < 0) | (speed > 200), 1)
+        np.putmask(indicator_, (speed < 0) | (speed > 200), 1)
 
         speedRate = speedChange/dt
 
-        numpy.putmask(speedRate, indicator_, sys.maxint)
-        numpy.putmask(speedRate[1:], indicator_[:-1], sys.maxint)
-        numpy.putmask(speedRate, (speedRate >= sys.maxint) |
+        np.putmask(speedRate, indicator_, sys.maxint)
+        np.putmask(speedRate[1:], indicator_[:-1], sys.maxint)
+        np.putmask(speedRate, (speedRate >= sys.maxint) |
                                  (speedRate <= -sys.maxint), sys.maxint)
 
-        numpy.putmask(speedRate, numpy.isnan(speedRate), sys.maxint)
+        np.putmask(speedRate, np.isnan(speedRate), sys.maxint)
 
         if self.ncflag:
             self.data['speedRate'] = speedRate
@@ -822,7 +823,7 @@ class DataProcess:
         Output: None - data is written to file
         """
         self.logger.info('Extracting maximum sustained wind speeds')
-        numpy.putmask(windSpeed, windSpeed > 200., sys.maxint)
+        np.putmask(windSpeed, windSpeed > 200., sys.maxint)
         if self.ncflag:
             self.data['windspeed'] = windSpeed
         else:
@@ -881,8 +882,8 @@ class DataProcess:
         self.logger.info('Extracting the rate of size change')
 
         #Change in rmax:
-        rmaxChange_ = numpy.diff(rmax)
-        rmaxChange = numpy.empty(indicator.size, 'f')
+        rmaxChange_ = np.diff(rmax)
+        rmaxChange = np.empty(indicator.size, 'f')
         rmaxChange[1:] = rmaxChange_
 
         # Rate of rmax change:
@@ -891,11 +892,11 @@ class DataProcess:
         # Mask rates corresponding to initial times and times when
         # the rmax is known to be missing.
         self.logger.debug('Outputting data into %s'%self.rmax_rate)
-        numpy.putmask(rmaxRate, indicator, sys.maxint)
-        numpy.putmask(rmaxRate, rmax >= sys.maxint, sys.maxint)
-        numpy.putmask(rmaxRate, (rmaxRate >= sys.maxint) |
+        np.putmask(rmaxRate, indicator, sys.maxint)
+        np.putmask(rmaxRate, rmax >= sys.maxint, sys.maxint)
+        np.putmask(rmaxRate, (rmaxRate >= sys.maxint) |
                                 (rmaxRate <= -sys.maxint), sys.maxint)
-        numpy.putmask(rmaxRate, numpy.isnan(rmaxRate), sys.maxint)
+        np.putmask(rmaxRate, np.isnan(rmaxRate), sys.maxint)
 
         if self.ncflag:
             self.data['rmaxRate'] = rmaxRate
@@ -913,14 +914,14 @@ class DataProcess:
             self.logger.info("First and last year of input data are the same")
             self.logger.info("Cannot generate histogram of frequency")
         else:
-            bins = numpy.arange(minYr,maxYr+2,1)
-            n, b = numpy.histogram(genesisYears, bins)
+            bins = np.arange(minYr,maxYr+2,1)
+            n, b = np.histogram(genesisYears, bins)
             header = 'Year,count'
-            flSaveFile(self.frequency, numpy.transpose( [bins[:-1], n] ),
+            flSaveFile(self.frequency, np.transpose( [bins[:-1], n] ),
                        header, fmt='%6.2f' )
 
-            self.logger.info( "Mean annual frequency: %5.1f"%numpy.mean( n ) )
-            self.logger.info( "Standard deviation: %5.1f"%numpy.std( n ) )
+            self.logger.info( "Mean annual frequency: %5.1f"%np.mean( n ) )
+            self.logger.info( "Standard deviation: %5.1f"%np.std( n ) )
 
     def _juliandays(self, jdays, indicator, years ):
         """
@@ -937,18 +938,18 @@ class DataProcess:
             if ( years[i]%4 == 0 ) and ( jdays[i] >= 60 ):
                 jdays[i] -= 1
 
-        bins = numpy.arange( 1, 367 )
-        n,b = numpy.histogram( jdays.compress( indicator ), bins )
+        bins = np.arange( 1, 367 )
+        n,b = np.histogram( jdays.compress( indicator ), bins )
         header = 'Day,count'
         # Distribution of genesis days (histogram):
-        flSaveFile( self.jday_genesis, numpy.transpose( [bins[:-1], n] ),
+        flSaveFile( self.jday_genesis, np.transpose( [bins[:-1], n] ),
                     header, fmt='%d', delimiter=',' )
-        n,b = numpy.histogram( jdays, bins)
+        n,b = np.histogram( jdays, bins)
         # Distribution of all days (histogram):
-        flSaveFile( self.jday_observations, numpy.transpose( [bins[:-1],n] ),
+        flSaveFile( self.jday_observations, np.transpose( [bins[:-1],n] ),
                     header, fmt='%d', delimiter=',' )
         # All days:
-        flSaveFile( self.jday, numpy.transpose( jdays.compress( indicator ) ),
+        flSaveFile( self.jday, np.transpose( jdays.compress( indicator ) ),
                     header='Day', fmt='%d' )
 
 if __name__ == "__main__":
