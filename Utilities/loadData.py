@@ -1,38 +1,19 @@
-#!/usr/bin/env python
-"""
- Title: loadData.py
- Author: Craig Arthur, craig.arthur@ga.gov.au
- CreationDate: 2011-10-27 2:21:PM
- Description: Load a csv-format file of TC track data and return a series
-              of arrays containing the data. Expected fields which have no
-              data are replaced with numpy.zero arrays matching the length
-              of the other fields.
-
- Version :$Rev$
-
- $Id$
-"""
-
-#import os
 import sys
-#import pdb
 import logging
-
-import numpy
-from datetime import datetime
+import numpy as np
 import metutils
 import maputils
 import nctools
 import interp3d
-from matplotlib.dates import date2num, num2date
+
+from datetime import datetime
 from columns import colReadCSV
-#from config import cnfGetIniValue
-#from grid import SampleGrid
 from config import ConfigParser
 
 __version__ = "$Id$"
 
 logger = logging.getLogger(__name__)
+
 
 def getSpeedBearing(index, lon, lat, deltatime, ieast=1):
     """
@@ -42,19 +23,20 @@ def getSpeedBearing(index, lon, lat, deltatime, ieast=1):
     bear_, dist_ = maputils.latLon2Azi(lat, lon, ieast, azimuth=0)
     assert bear_.size == index.size - 1
     assert dist_.size == index.size - 1
-    bearing = numpy.zeros(index.size, 'f')
+    bearing = np.zeros(index.size, 'f')
     bearing[1:] = bear_
-    numpy.putmask(bearing, index, sys.maxint)
+    np.putmask(bearing, index, sys.maxint)
 
-    dist = numpy.zeros(index.size, 'f')
+    dist = np.zeros(index.size, 'f')
     dist[1:] = dist_
-    speed = dist/deltatime
+    speed = dist / deltatime
     # Delete speeds less than 0, greated than 200,
     # or where indicator == 1.
-    numpy.putmask(speed, (speed < 0) | (speed > 200) | index, sys.maxint)
-    numpy.putmask(speed, numpy.isnan(speed), sys.maxint)
+    np.putmask(speed, (speed < 0) | (speed > 200) | index, sys.maxint)
+    np.putmask(speed, np.isnan(speed), sys.maxint)
 
     return speed, bearing
+
 
 def maxWindSpeed(index, deltatime, lon, lat, pressure, penv,
                  gustfactor=0.9524):
@@ -88,26 +70,25 @@ def maxWindSpeed(index, deltatime, lon, lat, pressure, penv,
     deltap = penv - pressure
 
     # Pressure rate of change
-    dpt = numpy.zeros(index.size,'f')
-    dpt[1:] = numpy.diff(pressure)
-    dpdt = dpt/deltatime
-    numpy.putmask(dpdt, index, 0)
-    numpy.putmask(dpdt, numpy.isnan(dpdt) | numpy.isinf(dpdt) , 0)
-
+    dpt = np.zeros(index.size, 'f')
+    dpt[1:] = np.diff(pressure)
+    dpdt = dpt / deltatime
+    np.putmask(dpdt, index, 0)
+    np.putmask(dpdt, np.isnan(dpdt) | np.isinf(dpdt), 0)
 
     # Estimated pressure at the radius of maximum wind:
-    prmw = pressure + deltap/3.7
+    prmw = pressure + deltap / 3.7
 
     # Calculate thermodynamic variables at RMW:
-    tsurf = 28.0 - 3*(numpy.abs(lat) - 10.)/20.
-    qmix = 0.9*(3.802/prmw)*numpy.exp(17.67*tsurf/(243.5 + tsurf))
-    tvs = (tsurf + 273.15)*(1. + 0.81*qmix)
-    rho = prmw*100./(tvs*287.04)
+    tsurf = 28.0 - 3 * (np.abs(lat) - 10.) / 20.
+    qmix = 0.9 * (3.802 / prmw) * np.exp(17.67 * tsurf / (243.5 + tsurf))
+    tvs = (tsurf + 273.15) * (1. + 0.81 * qmix)
+    rho = prmw * 100. / (tvs * 287.04)
 
-    chi = 0.6*(1.0 - deltap/215.)
-    beta = -0.000044*numpy.power(deltap, 2.) + \
-             0.01*deltap + 0.03*dpdt - 0.014*numpy.abs(lat) + \
-             0.15*numpy.power(speed, chi)+ 1.
+    chi = 0.6 * (1.0 - deltap / 215.)
+    beta = -0.000044 * np.power(deltap, 2.) + \
+        0.01 * deltap + 0.03 * dpdt - 0.014 * np.abs(lat) + \
+        0.15 * np.power(speed, chi) + 1.
 
     # Holland's P-W relation derives a 1-minute mean wind speed, so we often
     # need to convert to some other averaging period. I use the recommendations
@@ -116,13 +97,14 @@ def maxWindSpeed(index, deltatime, lon, lat, pressure, penv,
     # 10-min mean: 0.95 (default)
     # 3-second gust: 1.11
 
-    v = gustfactor*numpy.sqrt(deltap*100*beta/(rho*numpy.exp(1.)))
+    v = gustfactor * np.sqrt(deltap * 100 * beta / (rho * np.exp(1.)))
 
-    numpy.putmask(v, (numpy.isnan(v) |
-                      numpy.isinf(v) |
-                      (pressure>=sys.maxint) ), 0)
+    np.putmask(v, (np.isnan(v) |
+                   np.isinf(v) |
+              (pressure >= sys.maxint)), 0)
 
     return v
+
 
 def getInitialPositions(data):
     """
@@ -135,7 +117,7 @@ def getInitialPositions(data):
                 file
 
     Output:
-        numpy.ndarray of indexes that can be used to slice the observations
+        np.ndarray of indexes that can be used to slice the observations
         and return those corresponding to an initial TC position
 
     NOTE: using only the 'num' field will result in different results than
@@ -152,39 +134,40 @@ def getInitialPositions(data):
     if data.has_key('index'):
         logger.debug("Using index contained in file to determine \
                             initial TC positions")
-        indicator = numpy.array(data['index'], 'i')
+        indicator = np.array(data['index'], 'i')
     else:
         if data.has_key('tcserialno'):
             logger.debug("Using TC serial number to determine \
                                 initial TC positions")
             tcSerialNo = data['tcserialno']
-            indicator = numpy.ones(len(tcSerialNo), 'i')
+            indicator = np.ones(len(tcSerialNo), 'i')
             for i in range(1, len(tcSerialNo)):
-                if tcSerialNo[i] == tcSerialNo[i-1]:
+                if tcSerialNo[i] == tcSerialNo[i - 1]:
                     indicator[i] = 0
         elif data.has_key('season') and data.has_key('num'):
             logger.debug("Using season and TC number to determine \
                                 initial TC positions")
-            num = numpy.array(data['num'], 'i')
-            season = numpy.array(data['season'], 'i')
-            indicator = numpy.ones(num.size, 'i')
+            num = np.array(data['num'], 'i')
+            season = np.array(data['season'], 'i')
+            indicator = np.ones(num.size, 'i')
             for i in range(1, len(num)):
-                if (season[i] == season[i-1]) and (num[i] == num[i-1]):
+                if (season[i] == season[i - 1]) and (num[i] == num[i - 1]):
                     indicator[i] = 0
 
         elif data.has_key('num'):
             logger.debug("Using TC number to determine initial \
                                 TC positions (no season information)")
-            num = numpy.array(data['num'], 'i')
-            indicator = numpy.ones(num.size, 'i')
-            ind_ = numpy.diff(num)
-            ind_[numpy.where(ind_ != 0)] = 1
+            num = np.array(data['num'], 'i')
+            indicator = np.ones(num.size, 'i')
+            ind_ = np.diff(num)
+            ind_[np.where(ind_ != 0)] = 1
             indicator[1:] = ind_
         else:
             raise KeyError ("Insufficient input file columns have \
                                     been specified to run TCRM.")
 
     return indicator
+
 
 def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):
 
@@ -193,17 +176,17 @@ def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):
     if pattern.search(datefmt):
         raise ValueError("Cannot use 2-digit year formats in date format")
 
-    year = numpy.empty(len(dates), 'i')
-    month = numpy.empty(len(dates), 'i')
-    day = numpy.empty(len(dates), 'i')
-    hour = numpy.empty(len(dates), 'i')
-    minute = numpy.empty(len(dates), 'i')
+    year = np.empty(len(dates), 'i')
+    month = np.empty(len(dates), 'i')
+    day = np.empty(len(dates), 'i')
+    hour = np.empty(len(dates), 'i')
+    minute = np.empty(len(dates), 'i')
 
     for i in xrange(len(dates)):
         try:
             d = datetime.strptime(dates[i], datefmt)
         except ValueError:
-            raise ValueError("Error in date information for record %d"%i)
+            raise ValueError("Error in date information for record %d" % i)
         else:
             year[i] = d.year
             month[i] = d.month
@@ -212,6 +195,7 @@ def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):
             minute[i] = d.minute
 
     return year, month, day, hour, minute
+
 
 def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
     """
@@ -223,15 +207,15 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
 
     else:
         # Sort out date/time information:
-        month = numpy.array(data['month'], 'i')
-        day = numpy.array(data['day'], 'i')
-        hour = numpy.array(data['hour'], 'i')
+        month = np.array(data['month'], 'i')
+        day = np.array(data['day'], 'i')
+        hour = np.array(data['hour'], 'i')
         try:
-            year = numpy.array(data['year'], 'i')
+            year = np.array(data['year'], 'i')
         except KeyError:
             # Create dummy variable year - applicable for datasets
             # such as WindRiskTech which contain no year information.
-            year = numpy.zeros(month.size, 'i')
+            year = np.zeros(month.size, 'i')
             for i in range(len(year)):
                 if indicator[i] > 0:
                     fill_year = 2000
@@ -240,49 +224,51 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
                 year[i] = fill_year
 
         if data.has_key('minute'):
-            minute = numpy.array(data['minute'], 'i')
+            minute = np.array(data['minute'], 'i')
         elif hour.max() >= 100:
-            minute = numpy.mod(hour, 100)
-            hour = hour/100
+            minute = np.mod(hour, 100)
+            hour = hour / 100
         else:
             logger.warning("Missing minute data from input data - \
                                     setting minutes to 00 for all times")
-            minute = numpy.zeros((hour.size), 'i')
-
-
-    return year, month, day, hour, minute
-
-def parseAge(data, indicator):
-    """
-    Parse the TC age information to get a proxy date record. Assumes every TC
-    starts at 2000-01-01 00:00 and calculates year, month, day, hour and
-    minute values based on the age field.
-    """
-
-    start_time = date2num(datetime(2000, 1, 1, 0, 0))
-    times_ = start_time + data['age']/24.
-    d = num2date(times_)
-    year = 2000*numpy.ones(indicator.size, 'i')
-    month = numpy.ones(indicator.size, 'i')
-    day = numpy.ones(indicator.size, 'i')
-    hour = 12*numpy.ones(indicator.size, 'i')
-    minute = numpy.zeros(indicator.size, 'i')
-
-    for i in xrange(len(d)):
-        year[i] = d[i].year
-        month[i] = d[i].month
-        day[i] = d[i].day
-        hour[i] = d[i].hour
-        minute[i] = d[i].minute
+            minute = np.zeros((hour.size), 'i')
 
     return year, month, day, hour, minute
+
+# NOTE: commented out so that matplotlib can be disabled
+#
+# def parseAge(data, indicator):
+#    """
+#    Parse the TC age information to get a proxy date record. Assumes every TC
+#    starts at 2000-01-01 00:00 and calculates year, month, day, hour and
+#    minute values based on the age field.
+#    """
+#
+#    start_time = date2num(datetime(2000, 1, 1, 0, 0))
+#    times_ = start_time + data['age']/24.
+#    d = num2date(times_)
+#    year = 2000*np.ones(indicator.size, 'i')
+#    month = np.ones(indicator.size, 'i')
+#    day = np.ones(indicator.size, 'i')
+#    hour = 12*np.ones(indicator.size, 'i')
+#    minute = np.zeros(indicator.size, 'i')
+#
+#    for i in xrange(len(d)):
+#        year[i] = d[i].year
+#        month[i] = d[i].month
+#        day[i] = d[i].day
+#        hour[i] = d[i].hour
+#        minute[i] = d[i].minute
+#
+#    return year, month, day, hour, minute
+
 
 def getTimeDelta(year, month, day, hour, minute):
     """
     Calculate the time difference between consecutive observations
 
     Input:
-        year - numpy.ndarray of the year of all observations
+        year - np.ndarray of the year of all observations
         month - as for year, but for the month of observation
         day - as for year, but for the day of observation
         hour - as for year, but for the hour of the observation
@@ -290,73 +276,19 @@ def getTimeDelta(year, month, day, hour, minute):
         seconds - as for year, but for the hour of the observation
 
     Output:
-        dt - numpy.ndarray of time difference between observations in hours
+        dt - np.ndarray of time difference between observations in hours
     """
-    if numpy.any(year < 0):
-        raise ValueError("Error in input year information - check input file")
-    if numpy.any(month >= 13):
-        raise ValueError("Error in input month information - check input file")
-    if numpy.any(day > 31):
-        raise ValueError("Error in input day information - check input file")
-    if numpy.any(hour > 24):
-        raise ValueError("Error in input hour information - check input file")
-    if numpy.any(minute > 60):
-        raise ValueError("Error in input minute information - check input file")
+    dates = [datetime(*x) for x in zip(year, month, day, hour, minute)]
+    diffs = [d1 - d0 for d0, d1 in zip(dates[:-1], dates[1:])]
+    return np.array([0.0] + [round(d.days * 24. + d.seconds / 3600.) for d in diffs], 'f')
 
-    logger.debug("Calculating time difference between observations")
-    second = numpy.zeros((hour.size), 'i')
-    try:
-        day_ = [datetime(year[i], month[i], day[i], hour[i],
-                                  minute[i], second[i])
-                for i in xrange(year.size)]
-    except ValueError:
-        raise ValueError("Error in date information - check your input file")
-
-
-    try:
-        time_ = date2num(day_)
-    except ValueError:
-        raise ValueError("Error in day values - check your input file")
-
-    dt = numpy.zeros(year.size, 'f')
-    dt[1:] = 24.0*numpy.diff(time_)
-
-    return dt
 
 def getTime(year, month, day, hour, minute):
     """
     Calculate the number of days since 0001-01-01 00:00:00 UTC + 1
-
     """
-
-    logger.debug("Calculating time in hours since epoch")
-    second = numpy.zeros((hour.size), 'i')
-
-    if numpy.any(year < 0):
-        raise ValueError("Error in input year information - check input file")
-    if numpy.any(month >= 13):
-        raise ValueError("Error in input month information - check input file")
-    if numpy.any(day > 31):
-        raise ValueError("Error in input day information - check input file")
-    if numpy.any(hour > 24):
-        raise ValueError("Error in input hour information - check input file")
-    if numpy.any(minute > 60):
-        raise ValueError("Error in input minute information - check input file")
-
-    try:
-        day_ = [datetime(year[i], month[i], day[i], hour[i],
-                                  minute[i], second[i])
-                for i in xrange(year.size)]
-    except ValueError:
-        raise ValueError("Error in date information - check input file")
-
-    try:
-        time = date2num(day_)
-    except ValueError:
-        raise ValueError("Error in day values - check input file")
-
-    else:
-        return numpy.array(time,'f')
+    dates = [dt.datetime(*x) for x in zip(year, month, day, hour, minute)]
+    return np.array([d.toordinal() + d.hour / 24. for d in dates], 'f')
 
 
 def julianDays(year, month, day, hour, minute):
@@ -366,29 +298,31 @@ def julianDays(year, month, day, hour, minute):
     """
     logger.debug("Calculating julian day (day of year) values")
 
-    if numpy.any(year < 0):
+    if np.any(year < 0):
         raise ValueError("Error in input year information - check input file")
-    if numpy.any(month >= 13):
+    if np.any(month >= 13):
         raise ValueError("Error in input month information - check input file")
-    if numpy.any(day > 31):
+    if np.any(day > 31):
         raise ValueError("Error in input day information - check input file")
-    if numpy.any(hour > 24):
+    if np.any(hour > 24):
         raise ValueError("Error in input hour information - check input file")
-    if numpy.any(minute > 60):
-        raise ValueError("Error in input minute information - check input file")
+    if np.any(minute > 60):
+        raise ValueError(
+            "Error in input minute information - check input file")
 
     # set all years prior to 1900 to 1904 - strftime() requires year >=1900;
     # and in the Gregorian calendar, 1900 is not a leap year (and there are
     # many years prior to 1900 that are!).
-    second = numpy.zeros((hour.size), 'i')
-    jyear = numpy.copy(year)
-    jyear[numpy.where(jyear<1900)]=1904
+    second = np.zeros((hour.size), 'i')
+    jyear = np.copy(year)
+    jyear[np.where(jyear < 1900)] = 1904
     day = [datetime(jyear[i], month[i], day[i], hour[i], minute[i],
-                              second[i]) for i in xrange(year.size)]
+                    second[i]) for i in xrange(year.size)]
 
-    jdays = numpy.array([int(day[i].strftime("%j")) for
-                            i in xrange(year.size)])
+    jdays = np.array([int(day[i].strftime("%j")) for
+                      i in xrange(year.size)])
     return jdays
+
 
 def ltmPressure(jdays, time, lon, lat, ncfile):
     """
@@ -397,8 +331,8 @@ def ltmPressure(jdays, time, lon, lat, ncfile):
     To use this function (and hence some form of daily LTM SLP data) requires
     knowledge of the day of year.
     """
-    jtime = jdays + numpy.modf(time)[0]
-    coords = numpy.array([jtime, lat, lon])
+    jtime = jdays + np.modf(time)[0]
+    coords = np.array([jtime, lat, lon])
 
     logger.debug("Sampling data from MSLP data in {0}".format(ncfile))
     ncobj = nctools.ncLoadFile(ncfile)
@@ -411,21 +345,23 @@ def ltmPressure(jdays, time, lon, lat, ncfile):
 
     return penv
 
+
 def filterPressure(pressure, inputPressureUnits='hPa'):
     """
     Filter pressure values to remove any non-physical values
     """
 
-    novalue_index = numpy.where(pressure==sys.maxint)
+    novalue_index = np.where(pressure == sys.maxint)
     pressure = metutils.convert(pressure, inputPressureUnits, "hPa")
     pressure[novalue_index] = sys.maxint
 
     # Convert any non-physical central pressure values to maximum integer
     # This is required because IBTrACS has a mix of missing value codes
     # (i.e. -999, 0, 9999) in the same global dataset.
-    pressure = numpy.where((pressure < 600) | (pressure > 1100),
-                           sys.maxint, pressure)
+    pressure = np.where((pressure < 600) | (pressure > 1100),
+                        sys.maxint, pressure)
     return pressure
+
 
 def loadTrackFile(configFile, trackFile, source, missingValue=0,
                   calculateWindSpeed=True):
@@ -459,7 +395,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     windspeed,rmax,penv = loadTrackFile('tcrm.ini', 'IBTRaCS.csv', 'IBTrACS' )
 
     """
-    logger.debug("Loading %s"%trackFile)
+    logger.debug("Loading %s" % trackFile)
     inputData = colReadCSV(configFile, trackFile, source,
                            nullValue=missingValue)
 
@@ -487,11 +423,10 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     # Calculate julian days
     jdays = julianDays(year, month, day, hour, minute)
 
-
-    lat = numpy.array(inputData['lat'], 'd')
-    lon = numpy.mod(numpy.array(inputData['lon'], 'd'), 360)
-    delta_lon = numpy.diff(lon)
-    delta_lat = numpy.diff(lat)
+    lat = np.array(inputData['lat'], 'd')
+    lon = np.mod(np.array(inputData['lon'], 'd'), 360)
+    delta_lon = np.diff(lon)
+    delta_lat = np.diff(lat)
 
     # Split into separate tracks if large jump occurs (delta_lon > 10 degrees
     # or delta_lat > 5 degrees)
@@ -499,45 +434,46 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     # numbers match but basins are different as occurs in the IBTrACS dataset.
     # This problem can also be prevented if the 'tcserialno' column is
     # specified.
-    indicator[numpy.where(delta_lon > 10)[0] + 1] = 1
-    indicator[numpy.where(delta_lat > 5)[0] + 1] = 1
+    indicator[np.where(delta_lon > 10)[0] + 1] = 1
+    indicator[np.where(delta_lat > 5)[0] + 1] = 1
 
-    pressure = filterPressure(numpy.array(inputData['pressure'], 'd'),
+    pressure = filterPressure(np.array(inputData['pressure'], 'd'),
                               inputPressureUnits)
     try:
-        windspeed = numpy.array(inputData['vmax'], 'd')
-        novalue_index = numpy.where(windspeed==sys.maxint)
+        windspeed = np.array(inputData['vmax'], 'd')
+        novalue_index = np.where(windspeed == sys.maxint)
         windspeed = metutils.convert(windspeed, inputSpeedUnits, "mps")
         windspeed[novalue_index] = sys.maxint
     except KeyError:
         logger.debug("No max wind speed data - all values will be zero")
-        windspeed = numpy.zeros(indicator.size, 'f')
+        windspeed = np.zeros(indicator.size, 'f')
     assert lat.size == indicator.size
     assert lon.size == indicator.size
     assert pressure.size == indicator.size
-    #assert vmax.size == indicator.size
+    # assert vmax.size == indicator.size
 
     try:
-        rmax = numpy.array(inputData['rmax'])
-        novalue_index = numpy.where(rmax==sys.maxint)
+        rmax = np.array(inputData['rmax'])
+        novalue_index = np.where(rmax == sys.maxint)
         rmax = metutils.convert(rmax, inputLengthUnits, "km")
         rmax[novalue_index] = sys.maxint
 
     except KeyError:
         logger.debug("No radius to max wind data - all values will be zero")
-        rmax = numpy.zeros( indicator.size, 'f' )
+        rmax = np.zeros(indicator.size, 'f')
 
     if 'penv' in inputData:
-        penv = numpy.array( inputData['penv'], 'd' )
+        penv = np.array(inputData['penv'], 'd')
     else:
         logger.info("No ambient MSLP data in this input file")
-        logger.info("Sampling data from MSLP data defined in configuration file")
+        logger.info(
+            "Sampling data from MSLP data defined in configuration file")
         # Warning: using sampled data will likely lead to some odd behaviour near
         # the boundary of the MSLP grid boundaries - higher resolution MSLP
         # data will decrease this unusual behaviour.
 
         try:
-            ncfile = cnfGetIniValue( configFile, 'Input', 'MSLPFile')
+            ncfile = cnfGetIniValue(configFile, 'Input', 'MSLPFile')
         except:
             logger.exception("No input MSLP file specified in configuration")
             raise
@@ -550,4 +486,4 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         windspeed = maxWindSpeed(indicator, dt, lon, lat, pressure, penv)
 
     return indicator, year, month, day, hour, minute, lon, lat, pressure, \
-            speed, bearing, windspeed, rmax, penv
+        speed, bearing, windspeed, rmax, penv
