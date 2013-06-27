@@ -474,7 +474,7 @@ class TrackGenerator:
             log.debug('** Generating track %i from point (%.2f,%.2f)' \
                       % (j, genesisLon, genesisLat))
             track = self._singleTrack(j, genesisLon, genesisLat, genesisSpeed, 
-                                      genesisBearing, genesisPressure
+                                      genesisBearing, genesisPressure,
                                       initEnvPressure, genesisRmax)
             results.append(track)
    
