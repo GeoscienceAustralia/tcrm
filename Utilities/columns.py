@@ -1,24 +1,10 @@
-import logging
 import numpy as np
 from config import ConfigParser
 
-log = logging.getLogger()
-
 def colReadCSV(configFile, dataFile, source):
     """
-    Loads a csv file containing 'column' data into a dictionary of
-    (numpy) arrays with keys labelled by 'fields'. Values of the
-    dictionary are arrays containing the data in the columns in the
-    file.  This is necessary as the csv.reader() function
-    (and hence DictReader) returns all values as strings. No automatic
-    data type conversion is performed.
-    Input: dataFile - path to the csv file to read
-           source - name of a data source format describing the data.
-                    The source should have a corresponding section in
-                    gConfigFile.
-    Output: data - a dictionary of arrays, with keys given by the
-                   column names specified in the configuration file.
-    Example: data = colReadCSV(dataFile, source)
+    Loads a csv file containing 'column' data into a record
+    (numpy) array with columns labelled by 'fields'.
     """
     config = ConfigParser()
     config.read(configFile)
@@ -34,5 +20,9 @@ def colReadCSV(configFile, dataFile, source):
             autostrip=True)
 
     data.dtype.names = [c for c in cols if c != 'skip']
+
+    # FIXME: patch the instance to make it look like the old way we did things
+    import types
+    data.has_key = types.MethodType(lambda o,x: x in o.dtype.names, data)
 
     return data
