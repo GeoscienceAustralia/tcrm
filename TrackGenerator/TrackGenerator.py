@@ -46,6 +46,7 @@ from Utilities.files import flStartLog, flLoadFile, flSaveFile
 from Utilities.grid import SampleGrid
 from MSLP.mslp_seasonal_clim import MSLPGrid
 from DataProcess.CalcFrequency import CalcFrequency
+from DataProcess.CalcTrackDomain import CalcTrackDomain
 from Utilities.config import ConfigParser
 
 class TrackGenerator:
@@ -387,79 +388,94 @@ class TrackGenerator:
         log.debug('Generating %d tropical cyclone tracks' % nTracks)
 
         results = []
-
-        if not (initLon and initLat):
-            log.debug('Cyclone origin not given, sampling a random one instead.')
-            initLon, initLat = self.originSampler.ppf(uniform(), uniform())
-
-        # Get the initial grid cell
-
-        initCellNum = Cstats.getCellNum(initLon, initLat, 
-                                        self.gridLimit, self.gridSpace)
-
-        log.debug("Cyclones origin: (%6.2f, %6.2f) Cell: %i Grid: %s" % \
-                  (initLon, initLat, initCellNum, self.gridLimit))
-
-        # Sample an initial bearing if none is provided
-
-        if not initBearing:
-            ind = self.allCDFInitBearing[:, 0] == initCellNum
-            cdfInitBearing = self.allCDFInitBearing[ind, 1:3]
-            initBearing = ppf(uniform(), cdfInitBearing)
-
-        # Sample an initial speed if none is provided
-        
-        if not initSpeed:
-            ind = self.allCDFInitSpeed[:, 0] == initCellNum
-            cdfInitSpeed = self.allCDFInitSpeed[ind, 1:3]
-            initSpeed = ppf(uniform(), cdfInitSpeed)
-
-        # Sample an initial environment pressure if none is provided
-
-        if not initEnvPressure:
-            initEnvPressure = self.mslp.sampleGrid(initLon, initLat)
-
-        # Sample an initial pressure if none is provided
-
-        if not initPressure:
-            # Sample subject to the constraint initPressure < initEnvPressure
-            ind = self.allCDFInitPressure[:, 0] == initCellNum
-            cdfInitPressure = self.allCDFInitPressure[ind, 1:3]
-            ix = cdfInitPressure[:, 0].searchsorted(initEnvPressure)
-            upperProb = cdfInitPressure[ix-1, 1]
-            initPressure = ppf(uniform(0.0, upperProb), cdfInitPressure)
-
-        # Sample an initial maximum radius if none is provided
-        
-        if not initRmax:
-            if not self.allCDFInitSize:
-                cdfSize = self.cdfSize[:, [0, 2]]
-            else:
-                ind = self.allCDFInitSize[:, 0] == initCellNum
-                cdfSize = self.allCDFInitSize[ind, 1:3]
-            initRmax = ppf(uniform(), cdfSize)
-
-
-        # Do not generate tracks from this genesis point if we are going to
-        # exit the domain on the first step
-        
-        nextLon, nextLat = maputils.bear2LatLon(initBearing, self.dt*initSpeed, initLon, initLat)
-
-        log.debug('initBearing: %.2f initSpeed: %.2f initEnvPressure: %.2f initPressure: %.2f' % (initBearing, initSpeed, initEnvPressure, initPressure))
-        log.debug('Next step: (%.2f, %.2f) to (%.2f, %.2f)' % (initLon, initLat, nextLon, nextLat))
-
-        if not ((self.gridLimit['xMin'] <= nextLon <= self.gridLimit['xMax'])
-            and (self.gridLimit['yMin'] <= nextLat <= self.gridLimit['yMax'])):
-            log.debug('Tracks will exit domain immediately for this genesis point.')
-            return np.array(results).T
-
-        # Generate a `nTracks` tracks from the genesis point
-
         for j in range(1, nTracks+1):
+            if not (initLon and initLat):
+                log.debug('Cyclone origin not given, sampling a random one instead.')
+                genesisLon, genesisLat = self.originSampler.ppf(uniform(), uniform())
+            else:
+                log.debug('Using prescribed initial position (%6.2f, %6.2f)'.format(
+                                        initLon,initLat))
+                genesisLon = initLon
+                genesisLat = initLat
+
+            # Get the initial grid cell
+
+            initCellNum = Cstats.getCellNum(genesisLon, genesisLat, 
+                                            self.gridLimit, self.gridSpace)
+
+            log.debug("Cyclones origin: (%6.2f, %6.2f) Cell: %i Grid: %s" % \
+                      (genesisLon, genesisLat, initCellNum, self.gridLimit))
+
+            # Sample an initial bearing if none is provided
+
+            if not initBearing:
+                ind = self.allCDFInitBearing[:, 0] == initCellNum
+                cdfInitBearing = self.allCDFInitBearing[ind, 1:3]
+                genesisBearing = ppf(uniform(), cdfInitBearing)
+            else:
+                genesisBearing = initBearing
+ 
+            # Sample an initial speed if none is provided
+
+            if not initSpeed:
+                ind = self.allCDFInitSpeed[:, 0] == initCellNum
+                cdfInitSpeed = self.allCDFInitSpeed[ind, 1:3]
+                genesisSpeed = ppf(uniform(), cdfInitSpeed)
+            else:
+                genesisSpeed = initSpeed
+
+            # Sample an initial environment pressure if none is provided
+
+            if not initEnvPressure:
+                initEnvPressure = self.mslp.sampleGrid(genesisLon, genesisLat)
+
+            # Sample an initial pressure if none is provided
+
+            if not initPressure:
+                # Sample subject to the constraint initPressure < initEnvPressure
+                ind = self.allCDFInitPressure[:, 0] == initCellNum
+                cdfInitPressure = self.allCDFInitPressure[ind, 1:3]
+                ix = cdfInitPressure[:, 0].searchsorted(initEnvPressure)
+                upperProb = cdfInitPressure[ix-1, 1]
+                genesisPressure = ppf(uniform(0.0, upperProb), cdfInitPressure)
+            else:
+                genesisPressure = initPressure
+
+            # Sample an initial maximum radius if none is provided
+
+            if not initRmax:
+                if not self.allCDFInitSize:
+                    cdfSize = self.cdfSize[:, [0, 2]]
+                else:
+                    ind = self.allCDFInitSize[:, 0] == initCellNum
+                    cdfSize = self.allCDFInitSize[ind, 1:3]
+                genesisRmax = ppf(uniform(), cdfSize)
+            else:
+                genesisRmax = initRmax
+
+            # Do not generate tracks from this genesis point if we are going to
+            # exit the domain on the first step
+
+            nextLon, nextLat = maputils.bear2LatLon(genesisBearing, 
+                                                    self.dt*genesisSpeed, 
+                                                    genesisLon, genesisLat)
+
+            log.debug('initBearing: %.2f initSpeed: %.2f initEnvPressure: %.2f initPressure: %.2f' % (genesisBearing, genesisSpeed, initEnvPressure, genesisPressure))
+            log.debug('Next step: (%.2f, %.2f) to (%.2f, %.2f)' % (genesisLon, genesisLat, nextLon, nextLat))
+
+            if not ((self.gridLimit['xMin'] <= nextLon <= self.gridLimit['xMax'])
+                and (self.gridLimit['yMin'] <= nextLat <= self.gridLimit['yMax'])):
+                log.debug('Tracks will exit domain immediately for this genesis point.')
+                #return np.array(results).T
+                continue
+            # Generate a `nTracks` tracks from the genesis point
+
+        
             log.debug('** Generating track %i from point (%.2f,%.2f)' \
-                      % (j, initLon, initLat))
-            track = self._singleTrack(j, initLon, initLat, initSpeed, initBearing, 
-                                      initPressure, initEnvPressure, initRmax)
+                      % (j, genesisLon, genesisLat))
+            track = self._singleTrack(j, genesisLon, genesisLat, genesisSpeed, 
+                                      genesisBearing, genesisPressure
+                                      initEnvPressure, genesisRmax)
             results.append(track)
    
         # Define some filter functions
@@ -949,7 +965,7 @@ class TrackGenerator:
         conditions.
         """
 
-        if age > 12 and (abs(penv - pressure) < 5.0):
+        if age > 12 and ((penv - pressure) < 5.0):
             log.debug('Pressure difference < 5.0 (penv: %f pressure: %f)' % \
                     (penv, pressure))
             return True
@@ -1295,6 +1311,9 @@ def run(configFile):
 
     if config.has_option('TrackGenerator', 'gridLimit'):
         gridLimit = config.geteval('TrackGenerator', 'gridLimit')
+    else:
+        CalcTD = CalcTrackDomain(configFile)
+        gridLimit = CalcTD.calcDomainFromFile()
 
     if config.has_option('TrackGenerator', 'Frequency'):
         meanFreq = config.getfloat('TrackGenerator', 'Frequency')
