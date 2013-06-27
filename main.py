@@ -191,6 +191,9 @@ def doDataProcessing(configFile):
 
 @disableOnWorkers
 def doDataPlotting(configFile):
+    import matplotlib
+    matplotlib.use('Agg')  # Use matplotlib backend
+
     config = ConfigParser()
     config.read(configFile)
 
@@ -245,13 +248,11 @@ def doDataPlotting(configFile):
 
     try:
         freq = flLoadFile(pjoin(processPath, 'frequency'))
-    except IOError:
-        log.warning("No frequency file available - skipping this stage")
-    else:
         years = freq[:, 0]
         frequency = freq[:, 1]
         plotting.plotFrequency(years, frequency)
-
+    except IOError:
+        log.warning("No frequency file available - skipping this stage")
 
 @disableOnWorkers
 def doStatistics(configFile):
@@ -423,6 +424,7 @@ if __name__ == "__main__":
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     warnings.filterwarnings("ignore", category=UserWarning, module="pytz")
     warnings.filterwarnings("ignore", category=UserWarning, module="numpy")
+    warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")
 
     try:
         main(configFile)
