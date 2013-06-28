@@ -389,6 +389,7 @@ class TrackGenerator:
 
         results = []
         for j in range(1, nTracks+1):
+
             if not (initLon and initLat):
                 log.debug('Cyclone origin not given, sampling a random one instead.')
                 genesisLon, genesisLat = self.originSampler.ppf(uniform(), uniform())
@@ -460,22 +461,25 @@ class TrackGenerator:
                                                     self.dt*genesisSpeed, 
                                                     genesisLon, genesisLat)
 
-            log.debug('initBearing: %.2f initSpeed: %.2f initEnvPressure: %.2f initPressure: %.2f' % (genesisBearing, genesisSpeed, initEnvPressure, genesisPressure))
-            log.debug('Next step: (%.2f, %.2f) to (%.2f, %.2f)' % (genesisLon, genesisLat, nextLon, nextLat))
+            log.debug(('initBearing: %.2f initSpeed: %.2f initEnvPressure: %.2f'
+                    + 'initPressure: %.2f') % (genesisBearing, genesisSpeed, \
+                            initEnvPressure, genesisPressure))
+
+            log.debug('Next step: (%.2f, %.2f) to (%.2f, %.2f)' \ 
+                    % (genesisLon, genesisLat, nextLon, nextLat))
 
             if not ((self.gridLimit['xMin'] <= nextLon <= self.gridLimit['xMax'])
                 and (self.gridLimit['yMin'] <= nextLat <= self.gridLimit['yMax'])):
                 log.debug('Tracks will exit domain immediately for this genesis point.')
-                #return np.array(results).T
                 continue
-            # Generate a `nTracks` tracks from the genesis point
-
-        
+            
             log.debug('** Generating track %i from point (%.2f,%.2f)' \
                       % (j, genesisLon, genesisLat))
+
             track = self._singleTrack(j, genesisLon, genesisLat, genesisSpeed, 
                                       genesisBearing, genesisPressure,
                                       initEnvPressure, genesisRmax)
+
             results.append(track)
    
         # Define some filter functions
@@ -1303,7 +1307,7 @@ def run(configFile):
     gridInc        = config.geteval('TrackGenerator', 'GridInc')
     gridLimit      = config.geteval('Region', 'gridLimit')
     mslpGrid       = config.get('Input', 'MSLPGrid')
-    genesisSeed    = None
+    seasonSeed    = None
     trackSeed      = None
     trackPath      = pjoin(outputPath, 'tracks')
     processPath    = pjoin(outputPath, 'process')
@@ -1324,8 +1328,8 @@ def run(configFile):
         log.info("Estimated annual genesis frequency for domain: %s" %
                  meanFreq)
 
-    if config.has_option('TrackGenerator', 'GenesisSeed'):
-        genesisSeed = config.getint('TrackGenerator', 'GenesisSeed')
+    if config.has_option('TrackGenerator', 'SeasonSeed'):
+        seasonSeed = config.getint('TrackGenerator', 'SeasonSeed')
 
     if config.has_option('TrackGenerator', 'TrackSeed'):
         trackSeed = config.getint('TrackGenerator', 'TrackSeed')
@@ -1334,7 +1338,7 @@ def run(configFile):
     
     attemptParallel()
 
-    if pp.size() > 1 and (not genesisSeed or not trackSeed):
+    if pp.size() > 1 and (not seasonSeed or not trackSeed):
         log.critical('TrackSeed and GenesisSeed are needed for parallel runs!')
         sys.exit(1)
 
@@ -1359,12 +1363,12 @@ def run(configFile):
     pp.barrier()
 
     # Seed the numpy PRNG. We use this PRNG to sample the number of tropical
-    # cyclone tracks to simulate at each genesis point. The inbuilt Python
+    # cyclone tracks to simulate for each season. The inbuilt Python
     # `random` library does not provide a function to sample from the Poisson
     # distribution.
 
-    if genesisSeed:
-        np.random.seed(genesisSeed)
+    if seasonSeed:
+        np.random.seed(seasonSeed)
 
     # Do the first stage of the simulation (i.e., sample the number of tracks to
     # simulate at each genesis point) on all processors simultaneously. Since
