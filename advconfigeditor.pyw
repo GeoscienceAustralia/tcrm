@@ -1981,28 +1981,31 @@ class MainFrame ( wx.Frame ):
             MsgDlg(self, "Error occured when reading track file", caption='Warning', style=wx.OK|wx.ICON_ERROR)
             return
 
+        def dataHasColumn(key):
+            return key in inputData.dtype.names
+
         # Show warning if required columns for calculation have not been specified on the input page
-        if not (inputData.has_key('lat') and inputData.has_key('lon') and (inputData.has_key('index') or inputData.has_key('num') or inputData.has_key('tcserialno'))):
+        if not (dataHasColumn('lat') and dataHasColumn('lon') and (dataHasColumn('index') or dataHasColumn('num') or dataHasColumn('tcserialno'))):
             MsgDlg(self, "Some of the required columns have not been specified on the 'Input' page (Please refer to the help page)", caption='Warning', style=wx.OK|wx.ICON_INFORMATION)
             return
 
-        if inputData.has_key('index'):
+        if dataHasColumn('index'):
             indicator = numpy.array(inputData['index'], 'i')
         else:
-            if inputData.has_key('tcserialno'):
+            if dataHasColumn('tcserialno'):
                 tcSerialNo = inputData['tcserialno']
                 indicator = numpy.ones(len(tcSerialNo), 'i')
                 for i in range(1, len(tcSerialNo)):
                     if tcSerialNo[i] == tcSerialNo[i-1]:
                         indicator[i] = 0
-            elif inputData.has_key('season') and inputData.has_key('num'):
+            elif dataHasColumn('season') and dataHasColumn('num'):
                 num = numpy.array(inputData['num'], 'i')
                 season = numpy.array(inputData['season'], 'i')
                 indicator = numpy.ones(num.size, 'i')
                 for i in range(1, len(num)):
                     if season[i] == season[i-1] and num[i] == num[i-1]:
                         indicator[i] = 0
-            elif inputData.has_key('num'):
+            elif dataHasColumn('num'):
                 num = numpy.array(inputData['num'],'i')
                 indicator = numpy.ones(num.size,'i')
                 ind_ = numpy.diff(num)
@@ -2123,28 +2126,31 @@ class MainFrame ( wx.Frame ):
             MsgDlg(self, "Error occured when reading track file", caption='Warning', style=wx.OK|wx.ICON_ERROR)
             return
 
+        def dataHasColumn(key):
+            return key in inputData.dtype.names
+
         # Show warning if required columns for calculation have not been specified on the input page
-        if not (inputData.has_key('lat') and inputData.has_key('lon') and (inputData.has_key('index') or inputData.has_key('num') or inputData.has_key('tcserialno')) and (inputData.has_key('season') or inputData.has_key('year'))):
+        if not (dataHasColumn('lat') and dataHasColumn('lon') and (dataHasColumn('index') or dataHasColumn('num') or dataHasColumn('tcserialno')) and (dataHasColumn('season') or dataHasColumn('year'))):
             MsgDlg(self, "Some of the required columns have not been specified on the 'Input' page (Please refer to the help page)", caption='Warning', style=wx.OK|wx.ICON_INFORMATION)
             return
 
-        if inputData.has_key('index'):
+        if dataHasColumn('index'):
             indicator = numpy.array(inputData['index'], 'i')
         else:
-            if inputData.has_key('tcserialno'):
+            if dataHasColumn('tcserialno'):
                 tcSerialNo = inputData['tcserialno']
                 indicator = numpy.ones(len(tcSerialNo), 'i')
                 for i in range(1, len(tcSerialNo)):
                     if tcSerialNo[i] == tcSerialNo[i-1]:
                         indicator[i] = 0        
-            elif inputData.has_key('season') and inputData.has_key('num'):
+            elif dataHasColumn('season') and dataHasColumn('num'):
                 num = numpy.array(inputData['num'], 'i')
                 season = numpy.array(inputData['season'], 'i')
                 indicator = numpy.ones(num.size, 'i')
                 for i in range(1, len(num)):
                     if season[i] == season[i-1] and num[i] == num[i-1]:
                         indicator[i] = 0
-            elif inputData.has_key('num'):
+            elif dataHasColumn('num'):
                 num = numpy.array(inputData['num'],'i')
                 indicator = numpy.ones(num.size,'i')
                 ind_ = numpy.diff(num)
@@ -2162,9 +2168,9 @@ class MainFrame ( wx.Frame ):
         indicator[numpy.where(delta_lon > 10)[0] + 1] = 1
         indicator[numpy.where(delta_lat > 5)[0] + 1] = 1
 
-        if inputData.has_key('season'):
+        if dataHasColumn('season'):
             seasonOrYear_all = inputData['season']
-        elif inputData.has_key('year'):
+        elif dataHasColumn('year'):
             seasonOrYear_all = inputData['year']
 
         freq_count = numpy.zeros(3000)

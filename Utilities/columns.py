@@ -21,8 +21,4 @@ def colReadCSV(configFile, dataFile, source):
 
     data.dtype.names = [c for c in cols if c != 'skip']
 
-    # FIXME: patch the instance to make it look like the old way we did things
-    import types
-    data.has_key = types.MethodType(lambda o,x: x in o.dtype.names, data)
-
     return data
