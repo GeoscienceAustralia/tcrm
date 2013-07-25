@@ -465,9 +465,6 @@ class TrackGenerator:
                     + 'initPressure: %.2f') % (genesisBearing, genesisSpeed, \
                             initEnvPressure, genesisPressure))
 
-            log.debug('Next step: (%.2f, %.2f) to (%.2f, %.2f)' \ 
-                    % (genesisLon, genesisLat, nextLon, nextLat))
-
             if not ((self.gridLimit['xMin'] <= nextLon <= self.gridLimit['xMax'])
                 and (self.gridLimit['yMin'] <= nextLat <= self.gridLimit['yMax'])):
                 log.debug('Tracks will exit domain immediately for this genesis point.')
