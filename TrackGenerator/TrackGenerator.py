@@ -1409,7 +1409,7 @@ def run(configFile):
     # Balance the simulations over the number of processors and do it
 
     for sim in balanced(sims):
-        log.info("Simulating tropical cyclone tracks: %3.0f percent complete" \
+        log.debug("Simulating tropical cyclone tracks: %3.0f percent complete" \
                  % (sim.index/float(N)*100.))
 
         if sim.seed:
@@ -1422,8 +1422,8 @@ def run(configFile):
 
         header = 'CycloneNumber,TimeElapsed(hr),Longitude(degree),Latitude(degree)' \
                + ',Speed(km/hr),Bearing(degrees),CentralPressure(hPa)' \
-               + ',EnvPressure(hPa),rMax(km)'
-        format = '%i,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f,%10.5f'
+               + ',EnvPressure(hPa),rMax(km)\n'
+        format = '%i,%7.3f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f'
        
         with open(trackFile, 'w') as fp:
             fp.write('%'+header)
