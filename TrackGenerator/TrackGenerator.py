@@ -63,8 +63,8 @@ class TrackGenerator:
     :param gridLimit: the domain where the tracks will be generated.
                       The :class:`dict` should contain the keys :attr:`xMin`,
                       :attr:`xMax`, :attr:`yMin` and :attr:`yMax`. The *x*
-                      variable bounds the latitude and the *y* variable bounds
-                      the longitude.
+                      variable bounds the longitude and the *y* variable bounds
+                      the latitude.
 
     :type  gridSpace: :class:`dict`
     :param gridSpace: the grid spacing of the domain.
@@ -90,8 +90,8 @@ class TrackGenerator:
                            tropical cyclone paths. The :class:`dict` should
                            contain the keys :attr:`xMin`, :attr:`xMax`,
                            :attr:`yMin` and :attr:`yMax`. The *x* variable
-                           bounds the latitude and the *y* variable bounds the
-                           longitude.
+                           bounds the longitude and the *y* variable bounds the
+                           latitude.
 
     :type  dt: float
     :param dt: the time step used the the track simulation.

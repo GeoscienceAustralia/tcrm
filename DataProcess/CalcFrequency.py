@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 """
+:mod:`CalcFrequency` -- Calculate annual genesis frequency
+==========================================================
+
+Calculate annual genesis frequency of TCs within the track
+generation domain.
+
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
     Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
 
@@ -19,7 +25,7 @@
 Title: CalcTrackDomain.py
 Author: Nicholas Summons, nicholas.summons@ga.gov.au
 CreationDate: 2011-08-3
-Description: Calculates annual genesis frequency in track generator domain
+
 """
 
 import os
@@ -36,9 +42,28 @@ class CalcFrequency:
     Calculate the annual mean frequency of TC events
     based on input dataset. The frequency is calculated
     for the given domain
+
+    :type  tg_domain: :class:`dict`
+    :param tg_domain: the domain where the tracks will be generated.
+                      The :class:`dict` should contain the keys :attr:`xMin`,
+                      :attr:`xMax`, :attr:`yMin` and :attr:`yMax`. The *x*
+                      variable bounds the longitude and the *y* variable bounds
+                      the latitude.
     """
 
     def __init__(self, configFile, auto_calc_grid_limit):
+        """
+        :type  configFile: string
+        :param configFile: Configuration file name
+
+        :type  auto_calc_grid_limit: :class:`dict`
+        :param auto_calc_grid_limit: the domain where the frequency will be calculated.
+                                     The :class:`dict` should contain the keys 
+                                     :attr:`xMin`, :attr:`xMax`, :attr:`yMin` 
+                                     and :attr:`yMax`. The *x*  variable bounds the 
+                                     longitude and the *y* variable bounds
+                                     the latitude.
+        """
 
         config = ConfigParser()
         config.read(configFile)
@@ -52,13 +77,15 @@ class CalcFrequency:
 
     def calc(self):
         """
-        Calculate the frequency of TC events in a pre-defined
-        domain, based on the input dataset and the full range
-        of years contained in the 'origin_year' file
+        Calculate the frequency of TC events in a pre-defined domain, based 
+        on the input dataset and the full range of years contained in the 
+        :attr:`origin_year` file.
 
-        The 'origin_year' file is created in DataProcess.processData()
-        and restricts the range to a user-selected range of years.
+        The :attr:`origin_year` file is created in 
+        :class:`DataProcess.processData` and restricts the range to a 
+        user-selected range of years.
         """
+
         logger.info("Calculating annual frequency of TC events")
         origin_year = numpy.array(flLoadFile(os.path.join(self.outputPath,
                                                           'process', 'origin_year'),
@@ -80,8 +107,9 @@ class CalcFrequency:
                                  (origin_lon > self.tg_domain['xMin']) & \
                                  (origin_lon < self.tg_domain['xMax']) & \
                                  (origin_lat > self.tg_domain['yMin']) & \
-                                 (origin_lat < self.tg_domain['yMax']))        
+                                 (origin_lat < self.tg_domain['yMax']))
+
         freq = numpy.mean(freq_count[min_year:max_year + 1])
-        # Round to 2 decimal places
         freq = numpy.round(freq*100)/100
+
         return freq
