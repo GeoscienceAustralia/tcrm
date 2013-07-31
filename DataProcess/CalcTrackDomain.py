@@ -27,7 +27,7 @@ Description: Determine track generator domain, ensuring it encompasses
              all tracks entering the windfield generator domain.
 """
 
-import os.path.join as pjoin
+from os.path import join as pjoin
 import logging
 import math
 

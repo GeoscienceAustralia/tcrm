@@ -111,7 +111,7 @@ $Id: DataProcess.py 832 2012-03-28 07:23:32Z nsummons $
 
 import os, sys, logging
 import numpy as np
-import os.path.join as pjoin
+from os.path import join as pjoin
 
 import Utilities.maputils as maputils
 import Utilities.metutils as metutils
@@ -127,8 +127,8 @@ from Utilities.config import ConfigParser
 
 # Switch off minor warning messages
 import warnings
-warnings.filterwarnings("ignore", category=RuntimeWarning,
-                        module="DataProcess")
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+
 
 class DataProcess:
     """
@@ -680,7 +680,7 @@ class DataProcess:
         # pressure rate is greater than 10 hPa/hour (a sanity check).
         # The highest rate of intensification on record is
         # Typhoon Forrest (Sept 1983) 100 mb in 24 hrs.
-        self.logger.debug('Outputting data into %s'%self.pressure_rate)
+        
         np.putmask(pressureRate, indicator, sys.maxint)
         np.putmask(pressureRate, pressure >= sys.maxint, sys.maxint)
         np.putmask(pressureRate, np.isnan(pressureRate), sys.maxint)
@@ -690,6 +690,7 @@ class DataProcess:
             self.data['pressureRate'] = pressureRate
         else:
             pressure_rate = pjoin(self.processPath, 'pressure_rate')
+            self.logger.debug('Outputting data into %s'%pressure_rate)
             header = 'All pressure change rates (hPa/hr)'
             flSaveFile(pressure_rate, pressureRate, header, fmt='%6.2f')
 
