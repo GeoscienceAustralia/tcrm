@@ -165,30 +165,24 @@ class HollandWindProfile(WindProfileModel):
         return V
 
     def vorticity(self, R):
-        # For r < rMax, we reset the wind field to a cubic profile to
-        # avoid the barotropic instability mentioned in Kepert & Wang
-        # (2001).
-
         beta = self.beta
         delta = (self.rMax / R) ** beta
         edelta = np.exp(-delta)
 
-        Z = np.sign(self.f) * (np.sqrt((self.dP * beta / self.rho) *
-            delta * edelta + (R * self.f / 2.) ** 2)) / R - abs(self.f)
-        +  edelta * (2 * (beta ** 2) * self.dP * (delta - 1) * delta +
-                self.rho * edelta * (self.f * R) ** 2) / (2 * self.rho
-                        * R * np.sqrt(4 * (beta * self.dP / self.rho) *
-                            delta * edelta + (self.f * R) ** 2))
+        Z = np.sign(self.f)*(np.sqrt((self.dP*beta/self.rho)*delta*edelta + (R*self.f/2.)**2))/R \
+            - np.abs(self.f) \
+            + edelta*(2*(beta**2)*self.dP*(delta-1)*delta + self.rho*edelta*(self.f*R)**2) \
+            / (2*self.rho*R*np.sqrt(4*(beta*self.dP/self.rho)*delta*edelta + (self.f*R)**2))
 
+        # Calculate first and second derivatives at R = Rmax:
         d2Vm = self.secondDerivative()
-        aa = (d2Vm / 2 - (-1.0 * np.sign(self.f) * vMax / self.rMax) \
-                / self.rMax) / self.rMax
-
-        bb = (d2Vm - 6 * aa * self.rMax) / 2
-        cc = -3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
+        aa = (d2Vm/2 - (-1.0*np.sign(self.f)*self.vMax/self.rMax)/self.rMax) \
+             / self.rMax
+        bb = (d2Vm - 6*aa*self.rMax) / 2
+        cc = -3*aa*self.rMax**2 - 2*bb*self.rMax
 
         icore = np.where(R <= self.rMax)
-        Z[icore] = R[icore] * (R[icore] * 4 * aa + 3 * bb) + 2 * cc
+        Z[icore] = R[icore] * (R[icore] * 4*aa + 3*bb) + 2*cc
 
         return Z
 
@@ -208,7 +202,8 @@ class WilloughbyWindProfile(HollandWindProfile):
         self.eP = eP
         self.cP = cP
         self.vMax = windSpeed(self).maximum()
-        self.beta = 1.0036 + 0.0173 * self.vMax - 0.313 * log(rMax) + 0.0087 * abs(lat)
+        self.beta = 1.0036 + 0.0173 * self.vMax - 0.313 * np.log(rMax) + \
+                    0.0087 * np.abs(lat)
         HollandWindProfile.__init__(self, lat, lon, eP, cP, rMax,
                 self.beta, HollandWindSpeed)
 
@@ -237,7 +232,7 @@ class RankineWindProfile(WindProfileModel):
     def vorticity(self, R):
         Z = np.sign(self.f) * self.vMax * ((self.rMax / R) **
                 self.alpha) / R - self.alpha * self.vMax * (self.rMax **
-                        self.alpha) / (R ** alpha)
+                        self.alpha) / (R ** self.alpha)
         icore = np.where(R <= self.rMax)
         Z[icore] = np.sign(self.f) * (self.vMax * (R[icore] / \
                 self.rMax) + self.vMax / self.rMax)
@@ -360,25 +355,25 @@ class DoubleHollandWindProfile(WindProfileModel):
         chi_ = self.beta1 * dp1 / self.rho
         psi_ = self.beta2 * dp2 / self.rho
 
-        delta_ = (self.rMax / self.R) ** self.beta1
-        gamma_ = (self.rMax2 / self.R) ** self.beta2
+        delta_ = (self.rMax / R) ** self.beta1
+        gamma_ = (self.rMax2 / R) ** self.beta2
         edelta_ = np.exp(-delta_)
         egamma_ = np.exp(-gamma_)
 
         # Derivatives:
 
         ddelta_ = -self.beta1 * \
-            (self.rMax ** self.beta1) / (self.R ** (self.beta1 + 1))
+            (self.rMax ** self.beta1) / (R ** (self.beta1 + 1))
         dgamma_ = -self.beta2 * \
-            (self.rMax2 ** self.beta2) / (self.R ** (self.beta2 + 1))
+            (self.rMax2 ** self.beta2) / (R ** (self.beta2 + 1))
 
         Z = np.sign(self.f) * np.sqrt(chi_ * delta_ * edelta_ + \
-                psi_ * gamma_ * egamma_ + (self.f * self.R / 2) ** 2) \
-                / self.R  - np.abs(self.f) +  (1 / 2) * (chi_ * \
+                psi_ * gamma_ * egamma_ + (self.f * R / 2) ** 2) \
+                / R  - np.abs(self.f) +  (1 / 2) * (chi_ * \
                 ddelta_ * edelta_ * (1 - delta_) + psi_ * dgamma_ * \
-                egamma_ * (1 - gamma_) + self.R * self.f ** 2)  / \
+                egamma_ * (1 - gamma_) + R * self.f ** 2)  / \
                 np.sqrt(chi_ * delta_ * edelta_ + psi_ * gamma_ * \
-                egamma_ + (self.f * self.R / 2) ** 2)
+                egamma_ + (self.f * R / 2) ** 2)
 
         d2Vm = self.secondDerivative()
         aa = (d2Vm / 2.0 - (-1.0 * np.sign(self.f) * self.vMax / \
@@ -387,8 +382,8 @@ class DoubleHollandWindProfile(WindProfileModel):
         cc = -3.0 * aa * self.rMax ** 2.0 - 2.0 * bb * self.rMax
 
         if self.dP >= 1500.:
-            icore = np.where(self.R <= self.rMax)
-            Z[icore] = self.R[icore] * (self.R[icore]
+            icore = np.where(R <= self.rMax)
+            Z[icore] = R[icore] * (R[icore]
                        * 4.0 * aa + 3.0 * bb) + 2.0 * cc
 
         return Z
@@ -407,7 +402,7 @@ class PowellWindProfile(HollandWindProfile):
     """
 
     def __init__(self, lat, lon, eP, cP, rMax):
-        beta = 1.881093 - 0.010917 * abs(lat) - 0.005567 * rMax
+        beta = 1.881093 - 0.010917 * np.abs(lat) - 0.005567 * rMax
         if beta < 0.8: beta = 0.8
         if beta > 2.2: beta = 2.2
 
@@ -432,15 +427,15 @@ class NewHollandWindModel(WindProfileModel):
         # In this incarnation, we are assuming the pressure rate of change and
         # forward velocity is zero, so there is no requirement for a first-pass
         # guess at x
-        Bs = -0.000044 * (self.dP / 100.) ** 2. + 0.01 * ( self.dP / 100.) - 0.014 * np.abs(lat) + 1.0
-        deltag = np.power(rMax / rGale, Bs)
+        Bs = -0.000044 * (self.dP / 100.) ** 2. + 0.01 * ( self.dP / 100.) - 0.014 * np.abs(self.lat) + 1.0
+        deltag = np.power(self.rMax / self.rGale, Bs)
         edeltag = np.exp(-1. * deltag)
         rgterm = Bs * self.dP * deltag * edeltag / self.rho
         xn = np.log(17.) / np.log(rgterm)
         xx = 0.5 * np.ones(R.shape)
 
-        i = np.where(R > rMax)
-        xx[i] = 0.5 + (R[i] - rMax) * (xn - 0.5) / (rGale - rMax)
+        i = np.where(R > self.rMax)
+        xx[i] = 0.5 + (R[i] - self.rMax) * (xn - 0.5) / (self.rGale - self.rMax)
 
         delta = (self.rMax / R) ** Bs
         edelta = np.exp(-delta)
