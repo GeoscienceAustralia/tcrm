@@ -1,23 +1,30 @@
 import numpy as np
-from math import exp, sqrt, log
+from math import exp, sqrt
 import Utilities.metutils as metutils
 
 
 class WindSpeedModel(object):
 
     def __init__(self, windProfileModel):
-        self.eP = windProfileModel.eP
-        self.cP = windProfileModel.cP
+        self.profile = windProfileModel
 
-        # Convert from hPa to Pa if necessary
+    @property
+    def eP(self):
+        eP = self.profile.eP
+        if eP < 10000:
+            eP = metutils.convert(eP, 'hPa', 'Pa')
+        return eP
 
-        if self.cP < 10000:
-            self.cP = metutils.convert(self.cP, 'hPa', 'Pa')
+    @property
+    def cP(self):
+        cP = self.profile.cP
+        if cP < 10000:
+            cP = metutils.convert(cP, 'hPa', 'Pa')
+        return cP
 
-        if self.eP < 10000:
-            self.eP = metutils.convert(self.eP, 'hPa', 'Pa')
-
-        self.dP = self.eP - self.cP
+    @property
+    def dP(self):
+        return self.eP - self.cP
 
     def maximum(self):
         raise NotImplementedError
@@ -47,13 +54,10 @@ class HollandWindSpeed(WindSpeedModel):
     can be specified.  Gradient level wind (assumed maximum).
     """
 
-    def __init__(self, windProfileModel):
-        WindSpeedModel.__init__(self, windProfileModel)
-        self.beta = windProfileModel.beta
-        self.rho = 1.15
-
     def maximum(self):
-        return sqrt(self.beta * self.dP / (exp(1) * self.rho))
+        beta = self.profile.beta
+        rho = 1.15
+        return sqrt(beta * self.dP / (exp(1) * rho))
 
 
 class AtkinsonWindSpeed(WindSpeedModel):
@@ -65,22 +69,38 @@ class AtkinsonWindSpeed(WindSpeedModel):
     Maximum 10m, 1-minute wind speed. Uses pEnv as 1010 hPa
     """
 
-    def maxSpeed(self):
+    def maximum(self):
         cP = metutils.convert(self.cP, 'Pa', 'hPa')
         return 3.04 * pow(1010.0 - cP, 0.644)
 
 
 class WindProfileModel(object):
 
-    def __init__(self, lat, lon, eP, cP, rMax):
+    def __init__(self, lat, lon, eP, cP, rMax, windSpeedModel):
         self.rho = 1.15  # density of air
         self.lat = lat
         self.lon = lon
         self.eP = eP
         self.cP = cP
         self.rMax = rMax
+        self.speed = windSpeedModel(self)
         self.f = metutils.coriolis(lat)
-        self.dP = eP - cP
+        self.vMax_ = None
+
+    @property
+    def dP(self):
+        return self.eP - self.cP
+
+    @property
+    def vMax(self):
+        if self.vMax_:
+            return self.vMax_
+        else:
+            return self.speed.maximum()
+
+    @vMax.setter
+    def vMax(self, value):
+        self.vMax_ = value
 
     def velocity(self, R):
         raise NotImplementedError
@@ -95,9 +115,8 @@ class JelesnianskiWindProfile(WindProfileModel):
     Jelesnianski model of the wind profile
     """
 
-    def __init__(self, lat, lon, eP, cP, rMax, windSpeed=WilloughbyWindSpeed):
-        WindProfileModel.__init__(self, lat, lon, eP, cP, rMax)
-        self.vMax = windSpeed(self).maximum()
+    def __init__(self, lat, lon, eP, cP, rMax, windSpeedModel=WilloughbyWindSpeed):
+        WindProfileModel.__init__(self, lat, lon, eP, cP, rMax, windSpeedModel)
 
     def velocity(self, R):
         V = 2 * self.vMax * self.rMax * R / (self.rMax ** 2 + R ** 2)
@@ -120,10 +139,9 @@ class HollandWindProfile(WindProfileModel):
     Kepert & Wang (2001).
     """
 
-    def __init__(self, lat, lon, eP, cP, rMax, beta, windSpeed=HollandWindSpeed):
-        WindProfileModel.__init__(self, lat, lon, eP, cP, rMax)
+    def __init__(self, lat, lon, eP, cP, rMax, beta, windSpeedModel=HollandWindSpeed):
+        WindProfileModel.__init__(self, lat, lon, eP, cP, rMax, windSpeedModel)
         self.beta = beta
-        self.vMax = windSpeed(self).maximum()
 
     def secondDerivative(self):
         """
@@ -198,14 +216,12 @@ class WilloughbyWindProfile(HollandWindProfile):
     Atlantic and Eastern Pacific cyclone data, not Australian data.
     """
 
-    def __init__(self, lat, lon, eP, cP, rMax, windSpeed=WilloughbyWindSpeed):
-        self.eP = eP
-        self.cP = cP
-        self.vMax = windSpeed(self).maximum()
+    def __init__(self, lat, lon, eP, cP, rMax, windSpeedModel=WilloughbyWindSpeed):
+        HollandWindProfile.__init__(self, lat, lon, eP, cP, rMax, 1.0, windSpeedModel)
         self.beta = 1.0036 + 0.0173 * self.vMax - 0.313 * np.log(rMax) + \
                     0.0087 * np.abs(lat)
-        HollandWindProfile.__init__(self, lat, lon, eP, cP, rMax,
-                self.beta, HollandWindSpeed)
+        self.speed = HollandWindSpeed(self)
+
 
 class RankineWindProfile(WindProfileModel):
 
@@ -214,9 +230,8 @@ class RankineWindProfile(WindProfileModel):
     the Willoughby & Rahn method.
     """
 
-    def __init__(self, lat, lon, eP, cP, rMax, windSpeed=WilloughbyWindSpeed):
-        WindProfileModel.__init__(self, lat, lon, eP, cP, rMax)
-        self.vMax = windSpeed(self).maximum()
+    def __init__(self, lat, lon, eP, cP, rMax, windSpeedModel=WilloughbyWindSpeed):
+        WindProfileModel.__init__(self, lat, lon, eP, cP, rMax, windSpeedModel)
         self.alpha = 0.5
 
     def velocity(self, R):
@@ -259,7 +274,7 @@ class DoubleHollandWindProfile(WindProfileModel):
     """
 
     def __init__(self, lat, lon, eP, cP, rMax, beta1, beta2, rMax2):
-        WindProfileModel.__init__(self, lat, lon, eP, cP, rMax)
+        WindProfileModel.__init__(self, lat, lon, eP, cP, rMax, WindSpeedModel)
 
         # Scale dp2 if dP is less than 800 Pa
 
@@ -443,3 +458,176 @@ class NewHollandWindModel(WindProfileModel):
         V = np.sign(self.f) * np.power((self.dP * Bs / self.rho) * delta * edelta, xx)
 
         return V
+
+
+class WindFieldModel(object):
+
+    def __init__(self, windProfileModel):
+        self.profile = windProfileModel
+        self.V = None
+        self.Z = None
+
+    @property
+    def rMax(self):
+        return self.profile.rMax
+
+    @property
+    def f(self):
+        return self.profile.f
+
+    def velocity(self, R):
+        if self.V is None:
+            return self.profile.velocity(R)
+        else:
+            return self.V
+
+    def vorticity(self, R):
+        if self.Z is None:
+            return self.profile.vorticity(R)
+        else:
+            return self.Z
+
+    def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
+        raise NotImplementedError
+
+
+class HubbertWindField(WindFieldModel):
+
+    """
+    Hubbert, G.D., G.J. Holland, L.M. Leslie and M.J. Manton, 1991:
+    A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
+    Weather and Forecasting, 6, 86-97
+    """
+
+    def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
+        V = self.velocity(R)
+
+        Km = .70
+        inflow = 25. * np.ones(np.shape(R))
+        core = np.where(R < self.rMax)
+        inflow[core] = 0
+        inflow = inflow*np.pi/180
+
+        thetaMaxAbsolute = thetaFm + thetaMax
+        asym = vFm*np.cos(thetaMaxAbsolute - lam+np.pi)
+        Vsf = Km*V + asym
+        phi = inflow - lam
+
+        Ux = Vsf*np.sin(phi)
+        Vy = Vsf*np.cos(phi)
+
+        return Ux, Vy
+
+
+class McConochieWindField(WindFieldModel):
+
+    """
+    McConochie, J.D., T.A. Hardy and L.B. Mason, 2004:
+    Modelling tropical cyclone over-water wind and pressure fields.
+    Ocean Engineering, 31, 1757-1782
+    """
+
+    def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
+        V = self.velocity(R)
+
+        inflow = 25.*np.ones(np.shape(R))
+        mid = np.where(R < 1.2*self.rMax)
+        inflow[mid] = 10. + 75.*(R[mid]/self.rMax-1.)
+        inner = np.where(R < self.rMax)
+        inflow[inner] = 10.*R[inner]/self.rMax
+        inflow = inflow*np.pi/180.
+
+        thetaMaxAbsolute = thetaFm + thetaMax
+        phi = inflow - lam
+
+        asym = 0.5*(1.+np.cos(thetaMaxAbsolute - lam))*vFm*(V/np.abs(V).max())
+        Vsf = V + asym
+
+        # Surface wind reduction factor:
+        swrf = 0.81*np.ones(np.shape(Vsf))
+        low = np.where(Vsf >= 6)
+        med = np.where(Vsf >= 19.5)
+        high = np.where(Vsf >= 45)
+        swrf[low] = 0.81-(2.93*(Vsf[low] - 6.)/1000.)
+        swrf[med] = 0.77-(4.31*(Vsf[med] - 19.5)/1000.)
+        swrf[high] = 0.66
+
+        Ux = swrf*Vsf*np.sin(phi)
+        Vy = swrf*Vsf*np.cos(phi)
+
+        return Ux, Vy
+
+
+class KepertWindField(WindFieldModel):
+
+    """
+    Kepert, J., 2001:
+    The Dynamics of Boundary Layer Jets within the Tropical Cyclone
+    Core. Part I: Linear Theory.
+    J. Atmos. Sci., 58, 2469-2484
+    """
+
+    def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
+        V = self.velocity(R)
+        Z = self.vorticity(R)
+        K = 50.    # Diffusivity
+        Cd = 0.002 # Constant drag coefficient
+
+        al = (2. * V / R + self.f) / (2.*K)
+        be = (self.f + Z) / (2.*K)
+        gam = V / (2.*K*R)
+        albe = np.sqrt(al/be)
+
+        ind = np.where(np.abs(gam) > np.sqrt(al*be))
+        chi = (Cd/K)*V / np.sqrt(np.sqrt(al*be))
+        eta = (Cd/K)*V / np.sqrt(np.sqrt(al*be) + np.abs(gam))
+        psi = (Cd/K)*V / np.sqrt(np.abs(np.sqrt(al*be) - gam))
+
+        i = complex(0.,1.)
+        A0 =  -chi*V*(1. + i*(1. + chi)) / (2.*chi**2. + 3.*chi + 2.)
+
+        # Symmetric surface wind component
+
+        u0s = albe * A0.real
+        v0s =        A0.imag
+
+        Am = -((1. + (1.+i)*eta)/albe + (2. + (1.+i)*eta))*psi*vFm / \
+                ((2. + 2.*i)*(1 + eta*psi) + 3.*psi + 3.*i*eta)
+
+        Am[ind] = -((1. + (1.+i)*eta[ind])/albe[ind] + \
+                    (2. + (1.+i)*eta[ind]))*psi[ind]*vFm \
+                  /(2. - 2.*i + 3.*(psi[ind] + eta[ind]) + \
+                    (2. + 2.*i)*eta[ind]*psi[ind])
+
+        # First asymmetric surface component
+
+        ums = albe * (Am * np.exp(-i*lam)).real
+        vms =        (Am * np.exp(-i*lam)).imag
+
+        Ap = -((1. + (1.+i)*psi)/albe - (2. + (1.+i)*psi))*eta*vFm \
+             / ((2. + 2.*i)*(1. + eta*psi) + 3.*eta + 3.*i*psi)
+        Ap[ind] = -((1. + (1.-i)*psi[ind])/albe[ind] - \
+                    (2. + (1.-i)*psi[ind]))*eta[ind]*vFm \
+                  /(2. + 2.*i + 3.*(eta[ind] + psi[ind]) + \
+                    (2. - 2.*i)*eta[ind]*psi[ind])
+
+        # Second asymmetric surface component
+
+        ups = albe * (Ap * np.exp(i*lam)).real
+        vps =        (Ap * np.exp(i*lam)).imag
+
+        # Total surface wind in (moving coordinate system)
+
+        us =          u0s + ups + ums
+        vs = self.V + v0s + vps + vms
+
+        usf = us + vFm*np.cos(lam-thetaFm)
+        vsf = vs - vFm*np.sin(lam-thetaFm)
+        phi = np.arctan2(usf,vsf)
+
+        # Surface winds, cartesian coordinates
+
+        Ux = (np.sqrt(usf**2.+vsf**2.)*np.sin(phi - lam))
+        Vy = (np.sqrt(usf**2.+vsf**2.)*np.cos(phi - lam))
+
+        return Ux, Vy
