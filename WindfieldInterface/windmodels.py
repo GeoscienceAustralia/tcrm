@@ -3,6 +3,11 @@ Wind Models
 
 """
 
+#pylint: disable=invalid-name
+#pylint: disable=too-many-instance-attributes
+#pylint: disable=too-many-arguments
+#pylint: disable=too-many-locals
+
 import numpy as np
 from math import exp, sqrt
 import Utilities.metutils as metutils
@@ -10,11 +15,21 @@ import Utilities.metutils as metutils
 
 class WindSpeedModel(object):
 
+    """
+    Abstract wind speed model.
+    """
+
     def __init__(self, windProfileModel):
+        """
+        Abstract wind speed model.
+        """
         self.profile = windProfileModel
 
     @property
     def eP(self):
+        """
+        Environment pressure.
+        """
         eP = self.profile.eP
         if eP < 10000:
             eP = metutils.convert(eP, 'hPa', 'Pa')
@@ -22,6 +37,9 @@ class WindSpeedModel(object):
 
     @property
     def cP(self):
+        """
+        Current pressure.
+        """
         cP = self.profile.cP
         if cP < 10000:
             cP = metutils.convert(cP, 'hPa', 'Pa')
@@ -29,9 +47,15 @@ class WindSpeedModel(object):
 
     @property
     def dP(self):
+        """
+        Pressure difference.
+        """
         return self.eP - self.cP
 
     def maximum(self):
+        """
+        Maximum wind speed.
+        """
         raise NotImplementedError
 
 
@@ -78,6 +102,10 @@ class AtkinsonWindSpeed(WindSpeedModel):
 
 class WindProfileModel(object):
 
+    """
+    Wind profile model.
+    """
+
     def __init__(self, lat, lon, eP, cP, rMax, windSpeedModel):
         self.rho = 1.15  # density of air
         self.lat = lat
@@ -91,10 +119,16 @@ class WindProfileModel(object):
 
     @property
     def dP(self):
+        """
+        Pressure difference.
+        """
         return self.eP - self.cP
 
     @property
     def vMax(self):
+        """
+        Maximum wind speed.
+        """
         if self.vMax_:
             return self.vMax_
         else:
@@ -102,12 +136,21 @@ class WindProfileModel(object):
 
     @vMax.setter
     def vMax(self, value):
+        """
+        Set the maximum wind speed.
+        """
         self.vMax_ = value
 
     def velocity(self, R):
+        """
+        Wind velocity at radiuses `R`.
+        """
         raise NotImplementedError
 
     def vorticity(self, R):
+        """
+        Wind vorticity at radiuses `R`.
+        """
         raise NotImplementedError
 
 
@@ -315,6 +358,9 @@ class DoubleHollandWindProfile(WindProfileModel):
             self.beta2 = 7.2 - self.cP / 16000.
 
     def secondDerivative(self):
+        """
+        Second derivative of the profile.
+        """
         beta1 = self.beta1
         beta2 = self.beta2
         rMax1 = self.rMax
@@ -521,6 +567,10 @@ class NewHollandWindProfile(WindProfileModel):
 
 class WindFieldModel(object):
 
+    """
+    Wind field model.
+    """
+
     def __init__(self, windProfileModel):
         self.profile = windProfileModel
         self.V = None
@@ -528,25 +578,44 @@ class WindFieldModel(object):
 
     @property
     def rMax(self):
+        """
+        Helper property to return the maximum radius from the
+        wind profile.
+        """
         return self.profile.rMax
 
     @property
     def f(self):
+        """
+        Helper property to return the coriolis force from the
+        wind profile.
+        """
         return self.profile.f
 
     def velocity(self, R):
+        """
+        Helper property to return the wind velocity at radiuses `R`
+        from the wind profile or the precalculated attribute.
+        """
         if self.V is None:
             return self.profile.velocity(R)
         else:
             return self.V
 
     def vorticity(self, R):
+        """
+        Helper property to return the wind vorticity at radiuses `R`
+        from the wind profile or the precalculated attribute.
+        """
         if self.Z is None:
             return self.profile.vorticity(R)
         else:
             return self.Z
 
     def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
+        """
+        The wind field.
+        """
         raise NotImplementedError
 
 
@@ -697,16 +766,26 @@ class KepertWindField(WindFieldModel):
 
         return Ux, Vy
 
+
 WIND_PROFILES = {k.__name__.replace('WindProfile', '').lower(): k
                  for k in vars()['WindProfileModel'].__subclasses__()}
+
 
 WIND_FIELDS = {k.__name__.replace('WindField', '').lower(): k
                for k in vars()['WindFieldModel'].__subclasses__()}
 
 
 def profile(name):
+    """
+    Helper function to return the appropriate wind profile
+    model given a `name`.
+    """
     return WIND_PROFILES[name]
 
 
 def field(name):
+    """
+    Helper function to return the appropriate wind field
+    model given a `name`.
+    """
     return WIND_FIELDS[name]
