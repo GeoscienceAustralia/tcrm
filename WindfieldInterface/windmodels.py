@@ -197,10 +197,12 @@ class HollandWindProfile(WindProfileModel):
 
         Z = (np.sign(self.f) * (np.sqrt((self.dP * beta / self.rho) *
              delta * edelta + (R * self.f / 2.) ** 2)) / R -
-             np.abs(self.f) + edelta * (2 * (beta ** 2) * self.dP *
-             (delta - 1) * delta + self.rho * edelta * (self.f * R)
-             ** 2) / (2 * self.rho * R * np.sqrt(4 * (beta * self.dP
-             / self.rho) * delta * edelta + (self.f * R) ** 2)))
+             np.abs(self.f) + edelta *
+             (2 * (beta ** 2) * self.dP * (delta - 1) * delta +
+              self.rho * edelta * (self.f * R) ** 2) /
+             (2 * self.rho * R *
+              np.sqrt(4 * (beta * self.dP / self.rho) * delta * edelta
+                      + (self.f * R) ** 2)))
 
         # Calculate first and second derivatives at R = Rmax:
         d2Vm = self.secondDerivative()
@@ -328,8 +330,8 @@ class DoubleHollandWindProfile(WindProfileModel):
         d2Vm = (-1 /
                 (8 *
                  (4 * beta1 * dp1 / (rho * E) +
-                 (4 * beta2 * dp2 / rho) * nu * exp(-nu) +
-                 (rMax1 * f) ** 2) ** 1.5)
+                  (4 * beta2 * dp2 / rho) * nu * exp(-nu) +
+                  (rMax1 * f) ** 2) ** 1.5)
                 * (-(4 * (beta1 ** 2) * dp1 / (rho * rMax1 * E)) +
                     (4 * (beta1 ** 2) * dp1 / (rho * rMax1 * E)) -
                     (4 * (beta2 ** 2) * dp2 / rho) *
@@ -650,8 +652,8 @@ class KepertWindField(WindFieldModel):
         v0s = A0.imag
 
         Am = (-((1. + (1. + i) * eta) / albe + (2. + (1. + i) * eta))
-              * psi * vFm / ((2. + 2. * i) * (1 + eta * psi) + 3.
-              * psi + 3. * i * eta))
+              * psi * vFm /
+              ((2. + 2. * i) * (1 + eta * psi) + 3. * psi + 3. * i * eta))
 
         Am[ind] = (-((1. + (1. + i) * eta[ind]) / albe[ind] +
                    (2. + (1. + i) * eta[ind])) * psi[ind] * vFm /
