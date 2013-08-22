@@ -2,9 +2,9 @@
 disable=W0511,W0142,I0011,E1101,E0611,F0401,E1103
 
 [BASIC]
-attr-rgx=[a-z_][a-zA-Z0-9]{0,30}$
+attr-rgx=[a-zA-Z_][a-zA-Z0-9]{0,30}[_]{0,1}$
 variable-rgx=[a-zA-Z0-9]{1,30}$
-const-rgx=[a-zA-Z0-9]{1,30}$
+const-rgx=[A-Z0-9_]{2,30}$
 argument-rgx=[a-zA-Z0-9]{1,30}$
 function-rgx=[a-z][a-zA-Z0-9]{2,30}$
 method-rgx=(([a-z_][a-zA-Z0-9]{1,50})|(setUp)|(tearDown)|(__.*__))$
