@@ -38,4 +38,4 @@ def getUnitTestDirectory():
     if is_frozen():
         return os.path.join(getRootDirectory())
     else:
-        return os.path.join(getRootDirectory(), 'unittests')
+        return os.path.join(getRootDirectory(), 'tests')
