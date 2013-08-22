@@ -17,7 +17,6 @@ calling the :meth: `run` with the location of a *configFile*::
     WindfieldInterface.run('cairns.ini')
 
 """
-#pylint: disable=invalid-name
 
 import numpy as np
 import logging as log
@@ -121,8 +120,6 @@ class Track(object):
 
 
 class WindfieldAroundTrack(object):
-    #pylint: disable=too-many-instance-attributes
-
     """
     The windfield around the tropical cyclone track.
 
@@ -171,7 +168,6 @@ class WindfieldAroundTrack(object):
                  beta=1.5, beta1=1.5, beta2=1.4, thetaMax=70.0,
                  margin=2.0, resolution=0.05, gustFactor=1.38,
                  gridLimit=None):
-        #pylint: disable=too-many-arguments
         self.track = track
         self.profileType = profileType
         self.windFieldType = windFieldType
@@ -321,8 +317,6 @@ class WindfieldAroundTrack(object):
         :type  timeStepCallback: function
         :param timeStepCallback: the function to be called on each time step.
         """
-        #pylint: disable=too-many-locals
-
         if len(self.track.data) > 0:
             envPressure = self.track.EnvPressure[0]
         else:
@@ -417,8 +411,6 @@ class WindfieldAroundTrack(object):
 
 
 class WindfieldGenerator(object):
-    #pylint: disable=too-many-instance-attributes
-
     """
     The wind field generator.
 
@@ -459,7 +451,6 @@ class WindfieldGenerator(object):
     def __init__(self, margin=2.0, resolution=0.05, profileType='powell',
                  windFieldType='kepert', beta=1.5, beta1=1.5, beta2=1.4,
                  thetaMax=70.0, gridLimit=None):
-        #pylint: disable=too-many-arguments
         self.margin = margin
         self.resolution = resolution
         self.profileType = profileType
@@ -500,9 +491,6 @@ class WindfieldGenerator(object):
         :type  trackfile: str
         :param trackfile: the file name of the trackfile.
         """
-        # pylint: disable=unused-variable
-        # pylint: disable=too-many-locals
-
         trackiter = loadTracks(trackfile)
         f = self.calculateExtremesFromTrack
 
@@ -531,7 +519,6 @@ class WindfieldGenerator(object):
         """
         result = self.calculateExtremesFromTrackfile(trackfile)
 
-        # pylint: disable=unused-variable
         gust, bearing, Vx, Vy, P, lon, lat = result
 
         dimensions = {
@@ -618,8 +605,6 @@ class WindfieldGenerator(object):
         :type  pressurefile: str
         :param pressurefile: the file name of the pressure image file to write.
         """
-        #pylint: disable=too-many-locals, unused-variable
-
         result = self.calculateExtremesFromTrackfile(trackfile)
 
         from PlotInterface.plotWindfield import plotWindfield
@@ -637,9 +622,6 @@ class WindfieldGenerator(object):
         Dump the maximum wind speeds (gusts) observed over a region to
         netcdf files. One file is created for every track file.
         """
-        # pylint: disable=unused-variable
-        # pylint: disable=too-many-locals
-
         results = itertools.imap(self.calculateExtremesFromTrack, trackiter)
 
         gusts = {}
@@ -880,8 +862,6 @@ def attemptParallel():
     Attempt to load Pypar globally as `pp`.  If pypar cannot be loaded then a
     dummy `pp` is created.
     """
-    # pylint: disable=global-variable-undefined, missing-docstring, no-self-use
-    # pylint: disable=redefined-outer-name, unused-variable
     global pp
 
     try:
@@ -911,7 +891,6 @@ def run(configFile):
     """
     Run the wind field calculations.
     """
-    #pylint: disable=too-many-locals
 
     log.info('Loading wind field calculation settings')
 
