@@ -17,12 +17,7 @@ calling the :meth: `run` with the location of a *configFile*::
     WindfieldInterface.run('cairns.ini')
 
 """
-
 #pylint: disable=invalid-name
-#fylint: disable=too-many-instance-attributes
-#fylint: disable=too-many-arguments
-#fylint: disable=too-many-locals
-
 
 import numpy as np
 import logging as log
@@ -60,13 +55,14 @@ TRACKFILE_FMTS = ('i', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f')
 TRACKFILE_CNVT = {
     0: lambda s: int(float(s.strip() or 0)),
     4: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[4], 'mps'),
-    5: lambda s: bearing2theta(float(s.strip() or 0)*np.pi/180.),
+    5: lambda s: bearing2theta(float(s.strip() or 0) * np.pi / 180.),
     6: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[6], 'Pa'),
     7: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[7], 'Pa'),
 }
 
 
 class Track(object):
+
     """
     A single tropical cyclone track.
 
@@ -124,8 +120,9 @@ class Track(object):
                 (np.max(self.Latitude) <= yMax))
 
 
-
 class WindfieldAroundTrack(object):
+    #pylint: disable=too-many-instance-attributes
+
     """
     The windfield around the tropical cyclone track.
 
@@ -174,6 +171,7 @@ class WindfieldAroundTrack(object):
                  beta=1.5, beta1=1.5, beta2=1.4, thetaMax=70.0,
                  margin=2.0, resolution=0.05, gustFactor=1.38,
                  gridLimit=None):
+        #pylint: disable=too-many-arguments
         self.track = track
         self.profileType = profileType
         self.windFieldType = windFieldType
@@ -323,6 +321,7 @@ class WindfieldAroundTrack(object):
         :type  timeStepCallback: function
         :param timeStepCallback: the function to be called on each time step.
         """
+        #pylint: disable=too-many-locals
 
         if len(self.track.data) > 0:
             envPressure = self.track.EnvPressure[0]
@@ -338,16 +337,16 @@ class WindfieldAroundTrack(object):
 
         # Setup a 'centidegree' integer grid for the region
 
-        gridMargin = int(100.*self.margin)
-        gridStep = int(100.*self.resolution)
+        gridMargin = int(100. * self.margin)
+        gridStep = int(100. * self.resolution)
 
-        minLat = int(100.*yMin)-gridMargin
-        maxLat = int(100.*yMax)+gridMargin
-        minLon = int(100.*xMin)-gridMargin
-        maxLon = int(100.*xMax)+gridMargin
+        minLat = int(100. * yMin) - gridMargin
+        maxLat = int(100. * yMax) + gridMargin
+        minLon = int(100. * xMin) - gridMargin
+        maxLon = int(100. * xMax) + gridMargin
 
-        latGrid = np.arange(minLat, maxLat+gridStep, gridStep, dtype=int)
-        lonGrid = np.arange(minLon, maxLon+gridStep, gridStep, dtype=int)
+        latGrid = np.arange(minLat, maxLat + gridStep, gridStep, dtype=int)
+        lonGrid = np.arange(minLon, maxLon + gridStep, gridStep, dtype=int)
 
         [cGridX, cGridY] = np.meshgrid(lonGrid, latGrid)
 
@@ -357,10 +356,10 @@ class WindfieldAroundTrack(object):
         VV = np.zeros_like(cGridY, dtype='f')
         bearing = np.zeros_like(cGridX, dtype='f')
         gust = np.zeros_like(cGridX, dtype='f')
-        pressure = np.ones_like(cGridX, dtype='f')*envPressure
+        pressure = np.ones_like(cGridX, dtype='f') * envPressure
 
-        lonCDegree = np.array(100.*self.track.Longitude, dtype=int)
-        latCDegree = np.array(100.*self.track.Latitude, dtype=int)
+        lonCDegree = np.array(100. * self.track.Longitude, dtype=int)
+        latCDegree = np.array(100. * self.track.Latitude, dtype=int)
 
         # We only consider the times when the TC track falls in the region
 
@@ -373,10 +372,10 @@ class WindfieldAroundTrack(object):
 
             # Map the local grid to the regional grid
 
-            jmin = int((latCDegree[i]-minLat-gridMargin)/gridStep)
-            jmax = int((latCDegree[i]-minLat+gridMargin)/gridStep)+1
-            imin = int((lonCDegree[i]-minLon-gridMargin)/gridStep)
-            imax = int((lonCDegree[i]-minLon+gridMargin)/gridStep)+1
+            jmin = int((latCDegree[i] - minLat - gridMargin) / gridStep)
+            jmax = int((latCDegree[i] - minLat + gridMargin) / gridStep) + 1
+            imin = int((lonCDegree[i] - minLon - gridMargin) / gridStep)
+            imax = int((lonCDegree[i] - minLon + gridMargin) / gridStep) + 1
 
             # Calculate the local wind speeds and pressure at time i
 
@@ -387,8 +386,8 @@ class WindfieldAroundTrack(object):
             Ux *= self.gustFactor
             Vy *= self.gustFactor
 
-            localGust = np.sqrt(Ux**2 + Vy**2)
-            localBearing = ((np.arctan2(-Ux, -Vy))*180./np.pi)
+            localGust = np.sqrt(Ux ** 2 + Vy ** 2)
+            localBearing = ((np.arctan2(-Ux, -Vy)) * 180. / np.pi)
 
             # Handover this time step to a callback if required
 
@@ -414,10 +413,12 @@ class WindfieldAroundTrack(object):
                 P < pressure[jmin:jmax, imin:imax],
                 P, pressure[jmin:jmax, imin:imax])
 
-        return gust, bearing, UU, VV, pressure, lonGrid/100., latGrid/100.
+        return gust, bearing, UU, VV, pressure, lonGrid / 100., latGrid / 100.
 
 
 class WindfieldGenerator(object):
+    #pylint: disable=too-many-instance-attributes
+
     """
     The wind field generator.
 
@@ -456,8 +457,9 @@ class WindfieldGenerator(object):
     """
 
     def __init__(self, margin=2.0, resolution=0.05, profileType='powell',
-            windFieldType='kepert', beta=1.5, beta1=1.5, beta2=1.4,
-            thetaMax=70.0, gridLimit=None):
+                 windFieldType='kepert', beta=1.5, beta1=1.5, beta2=1.4,
+                 thetaMax=70.0, gridLimit=None):
+        #pylint: disable=too-many-arguments
         self.margin = margin
         self.resolution = resolution
         self.profileType = profileType
@@ -477,14 +479,14 @@ class WindfieldGenerator(object):
         :param track: the tropical cyclone track.
         """
         wt = WindfieldAroundTrack(track,
-                profileType   = self.profileType,
-                windFieldType = self.windFieldType,
-                beta          = self.beta,
-                beta1         = self.beta1,
-                beta2         = self.beta2,
-                thetaMax      = self.thetaMax,
-                margin        = self.margin,
-                resolution    = self.resolution)
+                                  profileType=self.profileType,
+                                  windFieldType=self.windFieldType,
+                                  beta=self.beta,
+                                  beta1=self.beta1,
+                                  beta2=self.beta2,
+                                  thetaMax=self.thetaMax,
+                                  margin=self.margin,
+                                  resolution=self.resolution)
         return track, wt.regionalExtremes(self.gridLimit)
 
     def calculateExtremesFromTrackfile(self, trackfile):
@@ -498,8 +500,8 @@ class WindfieldGenerator(object):
         :type  trackfile: str
         :param trackfile: the file name of the trackfile.
         """
-        #pylint: disable=unused-variable
-        #pylint: disable=too-many-locals
+        # pylint: disable=unused-variable
+        # pylint: disable=too-many-locals
 
         trackiter = loadTracks(trackfile)
         f = self.calculateExtremesFromTrack
@@ -528,12 +530,82 @@ class WindfieldGenerator(object):
         :param dumpfile: the file name where to save the wind extremes.
         """
         result = self.calculateExtremesFromTrackfile(trackfile)
-        self._saveExtremesToFile(result, dumpfile)
 
-    def plotExtremesFromTrackfile(self, trackfile, windfieldfile, pressurefile):
+        # pylint: disable=unused-variable
+        gust, bearing, Vx, Vy, P, lon, lat = result
+
+        dimensions = {
+            0: {
+                'name': 'lat',
+                'values': lat,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Latitude',
+                    'units': 'degrees_north'
+                }
+            },
+            1: {
+                'name': 'lon',
+                'values': lon,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Longitude',
+                    'units': 'degrees_east'
+                }
+            }
+        }
+
+        variables = {
+            0: {
+                'name': 'vmax',
+                'dims': ('lat', 'lon'),
+                'values': gust,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Maximum 3-second gust wind speed',
+                    'units': 'm/s'
+                }
+            },
+            1: {
+                'name': 'ua',
+                'dims': ('lat', 'lon'),
+                'values': Vx,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Maximum eastward wind',
+                    'units': 'm/s'
+                }
+            },
+            2: {
+                'name': 'va',
+                'dims': ('lat', 'lon'),
+                'values': Vy,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Maximum northward wind',
+                    'units': 'm/s'
+                }
+            },
+            3: {
+                'name': 'psl',
+                'dims': ('lat', 'lon'),
+                'values': P,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Minimum air pressure at sea level',
+                    'units': 'hPa'
+                }
+            }
+        }
+
+        nctools.ncSaveGrid(dumpfile, dimensions, variables)
+
+
+    def plotExtremesFromTrackfile(self, trackfile, windfieldfile,
+                                  pressurefile):
         """
-        Helper method to calculate the wind extremes from a `trackfile` and
-        generate image files for the wind field and the pressure.
+        Helper method to calculate the wind extremes from a `trackfile`
+        and generate image files for the wind field and the pressure.
 
 
         :type  trackfile: str
@@ -546,23 +618,18 @@ class WindfieldGenerator(object):
         :type  pressurefile: str
         :param pressurefile: the file name of the pressure image file to write.
         """
-        result = self.calculateExtremesFromTrackfile(trackfile)
-        self._plotExtremesToFile(result, windfieldfile, pressurefile)
+        #pylint: disable=too-many-locals, unused-variable
 
-    def _plotExtremesToFile(self, result, windfieldfile, pressurefile):
-        """
-        Plot extremes to a file.
-        """
-        #pylint: disable=unused-variable
+        result = self.calculateExtremesFromTrackfile(trackfile)
 
         from PlotInterface.plotWindfield import plotWindfield
         from PlotInterface.plotWindfield import plotPressurefield
         gust, bearing, Vx, Vy, P, lon, lat = result
         [gridX, gridY] = np.meshgrid(lon, lat)
         plotWindfield(gridX, gridY, gust, title="Windfield",
-                fileName=windfieldfile)
-        plotPressurefield(gridX, gridY, pressure, title="Pressure field",
-                fileName=pressurefile)
+                      fileName=windfieldfile)
+        plotPressurefield(gridX, gridY, P, title="Pressure field",
+                          fileName=pressurefile)
 
     def dumpGustsFromTracks(self, trackiter, windfieldPath, filenameFormat,
                             progressCallback=None):
@@ -570,8 +637,8 @@ class WindfieldGenerator(object):
         Dump the maximum wind speeds (gusts) observed over a region to
         netcdf files. One file is created for every track file.
         """
-        #pylint: disable=unused-variable
-        #pylint: disable=too-many-locals
+        # pylint: disable=unused-variable
+        # pylint: disable=too-many-locals
 
         results = itertools.imap(self.calculateExtremesFromTrack, trackiter)
 
@@ -613,47 +680,47 @@ class WindfieldGenerator(object):
         inputFileDate = flModDate(trackfile)
 
         gatts = {
-            'history' : 'TCRM hazard simulation - synthetic event wind field',
-            'version' : flProgramVersion(),
-            'Python_ver' : sys.version,
-            'track_file' : '%s (modified %s)' % (trackfile, inputFileDate),
-            'radial_profile' : self.profileType,
-            'boundary_layer' : self.windFieldType,
-            'beta' : self.beta }
+            'history': 'TCRM hazard simulation - synthetic event wind field',
+            'version': flProgramVersion(),
+            'Python_ver': sys.version,
+            'track_file': '%s (modified %s)' % (trackfile, inputFileDate),
+            'radial_profile': self.profileType,
+            'boundary_layer': self.windFieldType,
+            'beta': self.beta}
 
         dimensions = {
-                    0: {
-                        'name'  : 'lat',
-                        'values': lat,
-                        'dtype' : 'f',
-                        'atts'  : {
-                            'long_name': 'Latitude',
-                            'units': 'degrees_north'
-                        }
-                    },
-                    1: {
-                        'name'  : 'lon',
-                        'values': lon,
-                        'dtype' : 'f',
-                        'atts'  : {
-                                'long_name': 'Longitude',
-                                'units': 'degrees_east'
-                        }
-                    }
+            0: {
+                'name': 'lat',
+                'values': lat,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Latitude',
+                    'units': 'degrees_north'
                 }
+            },
+            1: {
+                'name': 'lon',
+                'values': lon,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Longitude',
+                    'units': 'degrees_east'
+                }
+            }
+        }
 
         variables = {
-                    0: {
-                        'name'  : 'vmax',
-                        'dims'  : ('lat', 'lon'),
-                        'values': speed,
-                        'dtype' : 'f',
-                        'atts'  : {
-                            'long_name': 'Maximum 3-second gust wind speed',
-                            'units': 'm/s'
-                            }
-                        }
-                    }
+            0: {
+                'name': 'vmax',
+                'dims': ('lat', 'lon'),
+                'values': speed,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Maximum 3-second gust wind speed',
+                    'units': 'm/s'
+                }
+            }
+        }
 
         nctools.ncSaveGrid(filename, dimensions, variables, gatts=gatts)
 
@@ -682,37 +749,6 @@ class WindfieldGenerator(object):
         self.dumpGustsFromTracks(tracks, windfieldPath, filenameFormat,
                                  progressCallback=progressCallback)
 
-    def _saveExtremesToFile(self, result, filename):
-        #pylint: disable=unused-variable
-
-        gust, bearing, Vx, Vy, P, lon, lat = result
-
-        dimensions = {0:{'name':'lat', 'values':lat, 'dtype':'f',
-                             'atts':{'long_name':'Latitude',
-                                         'units':'degrees_north'} },
-                      1:{'name':'lon', 'values':lon, 'dtype':'f',
-                             'atts':{'long_name':'Longitude',
-                                         'units':'degrees_east'} } }
-
-        variables = {0:{'name':'vmax', 'dims':('lat', 'lon'),
-                        'values':gust, 'dtype':'f',
-                        'atts':{'long_name':'Maximum 3-second gust wind speed',
-                                'units':'m/s'} },
-                     1:{'name':'ua', 'dims':('lat', 'lon'),
-                        'values':Vx, 'dtype':'f',
-                        'atts':{'long_name':'Maximum eastward wind',
-                                'units':'m/s'} },
-                     2:{'name':'va', 'dims':('lat', 'lon'),
-                        'values':Vy, 'dtype':'f',
-                        'atts':{'long_name':'Maximum northward wind',
-                                'units':'m/s'} },
-                     3:{'name':'psl', 'dims':('lat', 'lon'),
-                        'values':P, 'dtype':'f',
-                        'atts':{'long_name':'Minimum air pressure at sea level',
-                                'units':'hPa'} } }
-
-        nctools.ncSaveGrid(filename, dimensions, variables)
-
 
 def readTrackData(trackfile):
     """
@@ -735,7 +771,7 @@ def readTrackData(trackfile):
                           'names': TRACKFILE_COLS,
                           'formats': TRACKFILE_FMTS},
                           converters=TRACKFILE_CNVT)
-    except:
+    except ValueError:
         # return an empty array with the appropriate `dtype` field names
         return np.empty(0, dtype={
                         'names': TRACKFILE_COLS,
@@ -755,7 +791,7 @@ def readMultipleTrackData(trackfile):
     data = readTrackData(trackfile)
     if len(data) > 0:
         cycloneId = data['CycloneNumber']
-        for i in range(1, np.max(cycloneId)+1):
+        for i in range(1, np.max(cycloneId) + 1):
             datas.append(data[cycloneId == i])
     else:
         datas.append(data)
@@ -779,7 +815,8 @@ def loadTracksFromFiles(trackfiles):
                        path to the file.
     """
     for f in balanced(trackfiles):
-        log.info('Calculating wind fields for tracks in %s' % f)
+        msg = 'Calculating wind fields for tracks in %s' % f
+        log.info(msg)
         tracks = loadTracks(f)
         for track in tracks:
             yield track
@@ -820,7 +857,8 @@ def loadTracksFromPath(path):
     """
     files = os.listdir(path)
     trackfiles = [pjoin(path, f) for f in files if f.startswith('tracks')]
-    log.info('Processing %d track files in %s' % (len(trackfiles), path))
+    msg = 'Processing %d track files in %s' % (len(trackfiles), path)
+    log.info(msg)
     return loadTracksFromFiles(sorted(trackfiles))
 
 
@@ -842,11 +880,12 @@ def attemptParallel():
     Attempt to load Pypar globally as `pp`.  If pypar cannot be loaded then a
     dummy `pp` is created.
     """
+    # pylint: disable=global-variable-undefined, missing-docstring, no-self-use
+    # pylint: disable=redefined-outer-name, unused-variable
     global pp
 
     try:
         # load pypar for everyone
-        #pylint: disable=redefined-outer-name
 
         import pypar as pp
 
@@ -855,9 +894,15 @@ def attemptParallel():
         # no pypar, create a dummy one
 
         class DummyPypar(object):
-            def size(self): return 1
-            def rank(self): return 0
-            def barrier(self): pass
+
+            def size(self):
+                return 1
+
+            def rank(self):
+                return 0
+
+            def barrier(self):
+                pass
 
         pp = DummyPypar()
 
@@ -866,6 +911,7 @@ def run(configFile):
     """
     Run the wind field calculations.
     """
+    #pylint: disable=too-many-locals
 
     log.info('Loading wind field calculation settings')
 
@@ -874,20 +920,18 @@ def run(configFile):
     config = ConfigParser()
     config.read(configFile)
 
-    outputPath      = config.get('Output', 'Path')
-    profileType     = config.get('WindfieldInterface', 'profileType')
-    windFieldType   = config.get('WindfieldInterface', 'windFieldType')
-    beta            = config.getfloat('WindfieldInterface', 'beta')
-    beta1           = config.getfloat('WindfieldInterface', 'beta1')
-    beta2           = config.getfloat('WindfieldInterface', 'beta2')
-    thetaMax        = config.getfloat('WindfieldInterface', 'thetaMax')
-    margin          = config.getfloat('WindfieldInterface', 'Margin')
-    resolution      = config.getfloat('WindfieldInterface', 'Resolution')
-    gridLimit       = config.geteval('Region', 'gridLimit')
-    plotOutput      = config.getboolean('WindfieldInterface', 'PlotOutput')
-    showProgessBar  = config.getboolean('Logging', 'ProgressBar')
-    windfieldPath   = pjoin(outputPath, 'windfield')
-    trackPath       = pjoin(outputPath, 'tracks')
+    outputPath = config.get('Output', 'Path')
+    profileType = config.get('WindfieldInterface', 'profileType')
+    windFieldType = config.get('WindfieldInterface', 'windFieldType')
+    beta = config.getfloat('WindfieldInterface', 'beta')
+    beta1 = config.getfloat('WindfieldInterface', 'beta1')
+    beta2 = config.getfloat('WindfieldInterface', 'beta2')
+    thetaMax = config.getfloat('WindfieldInterface', 'thetaMax')
+    margin = config.getfloat('WindfieldInterface', 'Margin')
+    resolution = config.getfloat('WindfieldInterface', 'Resolution')
+    gridLimit = config.geteval('Region', 'gridLimit')
+    windfieldPath = pjoin(outputPath, 'windfield')
+    trackPath = pjoin(outputPath, 'tracks')
     windfieldFormat = 'gust-%04d.nc'
 
     if config.has_option('WindfieldInterface', 'gridLimit'):
@@ -904,15 +948,15 @@ def run(configFile):
 
     log.info('Running windfield generator')
 
-    wfg = WindfieldGenerator(margin = margin,
-                      resolution    = resolution,
-                      profileType   = profileType,
-                      windFieldType = windFieldType,
-                      beta          = beta,
-                      beta1         = beta1,
-                      beta2         = beta2,
-                      thetaMax      = thetaMax,
-                      gridLimit     = gridLimit)
+    wfg = WindfieldGenerator(margin=margin,
+                             resolution=resolution,
+                             profileType=profileType,
+                             windFieldType=windFieldType,
+                             beta=beta,
+                             beta1=beta1,
+                             beta2=beta2,
+                             thetaMax=thetaMax,
+                             gridLimit=gridLimit)
 
     msg = 'Dumping gusts to %s' % windfieldPath
     log.info(msg)
@@ -923,7 +967,8 @@ def run(configFile):
     trackfiles = [pjoin(trackPath, f) for f in files if f.startswith('tracks')]
     nfiles = len(trackfiles)
 
-    log.info('Processing %d track files in %s' % (nfiles, trackPath))
+    msg = 'Processing %d track files in %s' % (nfiles, trackPath)
+    log.info(msg)
 
     # Do the work
 
