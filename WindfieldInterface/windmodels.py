@@ -457,29 +457,29 @@ class DoubleHollandWindProfile(WindProfileModel):
 
         dp1 = self.dP - dp2
 
-        chi_ = self.beta1 * dp1 / self.rho
-        psi_ = self.beta2 * dp2 / self.rho
+        chi = self.beta1 * dp1 / self.rho
+        psi = self.beta2 * dp2 / self.rho
 
-        delta_ = (self.rMax / R) ** self.beta1
-        gamma_ = (self.rMax2 / R) ** self.beta2
-        edelta_ = np.exp(-delta_)
-        egamma_ = np.exp(-gamma_)
+        delta = (self.rMax / R) ** self.beta1
+        gamma = (self.rMax2 / R) ** self.beta2
+        edelta = np.exp(-delta)
+        egamma = np.exp(-gamma)
 
         # Derivatives:
 
-        ddelta_ = (-self.beta1 * (self.rMax ** self.beta1) / (R **
+        ddelta = (-self.beta1 * (self.rMax ** self.beta1) / (R **
                   (self.beta1 + 1)))
-        dgamma_ = (-self.beta2 * (self.rMax2 ** self.beta2) / (R **
+        dgamma = (-self.beta2 * (self.rMax2 ** self.beta2) / (R **
                   (self.beta2 + 1)))
 
-        Z = (np.sign(self.f) * np.sqrt(chi_ * delta_ * edelta_ + psi_ *
-             gamma_ * egamma_ + (self.f * R / 2) ** 2) / R -
+        Z = (np.sign(self.f) * np.sqrt(chi * delta * edelta + psi *
+             gamma * egamma + (self.f * R / 2) ** 2) / R -
              np.abs(self.f) + (1 / 2) *
-             (chi_ * ddelta_ * edelta_ * (1 - delta_) +
-              psi_ * dgamma_ * egamma_ * (1 - gamma_) +
+             (chi * ddelta * edelta * (1 - delta) +
+              psi * dgamma * egamma * (1 - gamma) +
               R * self.f ** 2) /
-             np.sqrt(chi_ * delta_ * edelta_ + psi_ * gamma_ *
-                     egamma_ + (self.f * R / 2) ** 2))
+             np.sqrt(chi * delta * edelta + psi * gamma *
+                     egamma + (self.f * R / 2) ** 2))
 
         d2Vm = self.secondDerivative()
         aa = ((d2Vm / 2.0 - (-1.0 * np.sign(self.f) * self.vMax /
