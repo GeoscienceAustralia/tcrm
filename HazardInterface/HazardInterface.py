@@ -134,51 +134,51 @@ class HazardInterface:
                                           'YearsPerSimulation', 1)
 
         # Create dimensions for storing data:
-        dimensions = {0:{'name':'years', 'values':self.years, 'dtype':'d',
-                         'atts':{'long_name':'Return period','units':'years'} },
-                      1:{'name':'lat', 'values':self.lat, 'dtype':'d', 
-                         'atts':{'long_name':'Latitude','units':'degrees_north'} },
-                      2:{'name':'lon', 'values':self.lon, 'dtype':'d', 
-                         'atts':{'long_name':'Longitude','units':'degrees_east'} } }
+        dimensions = {0: {'name': 'years', 'values': self.years, 'dtype': 'd',
+                         'atts': {'long_name': 'Return period', 'units': 'years'} },
+                      1: {'name': 'lat', 'values': self.lat, 'dtype': 'd', 
+                         'atts': {'long_name': 'Latitude', 'units': 'degrees_north'} },
+                      2: {'name': 'lon', 'values': self.lon, 'dtype': 'd', 
+                         'atts': {'long_name': 'Longitude', 'units': 'degrees_east'} } }
                          
         # Create variables:
-        variables = {0:{'name':'loc', 'dims':('lat', 'lon'),
-                        'values':numpy.array(self.nodata), 'dtype':'d',
-                        'atts':{'long_name':'Location parameter for GEV distribution',
-                                'units':'m/s'} },
-                     1:{'name':'scale', 'dims':('lat', 'lon'),
-                        'values':numpy.array(self.nodata), 'dtype':'d',
-                        'atts':{'long_name':'Scale parameter for GEV distribution',
-                                'units':''} },
-                     2:{'name':'shp', 'dims':('lat', 'lon'),
-                        'values':numpy.array(self.nodata), 'dtype':'d',
-                        'atts':{'long_name':'Shape parameter for GEV distribution',
-                                'units':''} },
-                     3:{'name':'wspd', 'dims':('years', 'lat', 'lon'),
-                        'values':numpy.array(self.nodata), 'dtype':'d',
-                        'atts':{'long_name':'Return period wind speed',
-                                'units':'m/s'} },
-                     4:{'name':'wspdupper', 'dims':('years', 'lat', 'lon'),
-                        'values':numpy.array(self.nodata), 'dtype':'d',
-                        'atts':{'long_name':'Upper percentile return period wind speed',
-                                'units':'m/s',
-                                'percentile':95} },
-                     5:{'name':'wspdlower', 'dims':('years', 'lat', 'lon'),
-                        'values':numpy.array(self.nodata), 'dtype':'d',
-                        'atts':{'long_name':'Lower percentile return period wind speed',
-                                'units':'m/s',
-                                'percentile':5} } }
+        variables = {0: {'name': 'loc', 'dims': ('lat', 'lon'),
+                        'values': numpy.array(self.nodata), 'dtype': 'd',
+                        'atts': {'long_name': 'Location parameter for GEV distribution',
+                                'units': 'm/s'} },
+                     1: {'name': 'scale', 'dims': ('lat', 'lon'),
+                        'values': numpy.array(self.nodata), 'dtype': 'd',
+                        'atts': {'long_name': 'Scale parameter for GEV distribution',
+                                'units': ''} },
+                     2: {'name': 'shp', 'dims': ('lat', 'lon'),
+                        'values': numpy.array(self.nodata), 'dtype': 'd',
+                        'atts': {'long_name': 'Shape parameter for GEV distribution',
+                                'units': ''} },
+                     3: {'name': 'wspd', 'dims': ('years', 'lat', 'lon'),
+                        'values': numpy.array(self.nodata), 'dtype': 'd',
+                        'atts': {'long_name': 'Return period wind speed',
+                                'units': 'm/s'} },
+                     4: {'name': 'wspdupper', 'dims': ('years', 'lat', 'lon'),
+                        'values': numpy.array(self.nodata), 'dtype': 'd',
+                        'atts': {'long_name': 'Upper percentile return period wind speed',
+                                'units': 'm/s',
+                                'percentile': 95} },
+                     5: {'name': 'wspdlower', 'dims': ('years', 'lat', 'lon'),
+                        'values': numpy.array(self.nodata), 'dtype': 'd',
+                        'atts': {'long_name': 'Lower percentile return period wind speed',
+                                'units': 'm/s',
+                                'percentile': 5} } }
         # Create global attributes
-        gatts = {'history':'TCRM hazard simulation - return period wind speeds',
-                 'version':flProgramVersion( ),
-                 'Python_ver':sys.version,
-                 'extent':'Left: %f, Right: %f, Top: %f, Bottom: %f' %
+        gatts = {'history': 'TCRM hazard simulation - return period wind speeds',
+                 'version': flProgramVersion( ),
+                 'Python_ver': sys.version,
+                 'extent': 'Left: %f, Right: %f, Top: %f, Bottom: %f' %
                            (self.gL['xMin'], self.gL['xMax'],
                             self.gL['yMax'], self.gL['yMin']),
-                 'number_simulations':self.nsim,
-                 'minimum_records':self.minRecords}
+                 'number_simulations': self.nsim,
+                 'minimum_records': self.minRecords}
         # Create output file for return-period gust wind speeds and GEV parameters
-        self.nc_obj = nctools.ncSaveGrid(os.path.join(self.outputPath,'hazard.nc'),
+        self.nc_obj = nctools.ncSaveGrid(os.path.join(self.outputPath, 'hazard.nc'),
                                          dimensions, variables, nodata=self.nodata,
                                          datatitle='TCRM hazard simulation',
                                          gatts=gatts, writedata=False, 
@@ -227,11 +227,11 @@ class HazardInterface:
             loc_varobj[y1:y2, x1:x2] = loc2D
             scale_varobj[y1:y2, x1:x2] = scale2D
             shp_varobj[y1:y2, x1:x2] = shp2D
-            windspd_varobj[:, y1:y2, x1:x2] = Rp[:, :, :]
+            windspd_varobj[:, y1:y2, x1:x2] = Rp[:,:,:]
             
             if self.calcCI:
-                wspdupper_varobj[:, y1:y2, x1:x2] = RpUpper[:, :, :]
-                wspdlower_varobj[:, y1:y2, x1:x2] = RpLower[:, :, :]
+                wspdupper_varobj[:, y1:y2, x1:x2] = RpUpper[:,:,:]
+                wspdlower_varobj[:, y1:y2, x1:x2] = RpLower[:,:,:]
 
             # Report calculation progress
             percent_complete = int((k / float(no_subsets)) * 10) * 10
@@ -279,7 +279,7 @@ class HazardInterface:
                           i_lim[1] - i_lim[0] + 1), dtype='f')
 
         for n, f in enumerate(files):
-            Vr[n, :, :] = self._loadFile(f, i_lim, j_lim)
+            Vr[n,:,:] = self._loadFile(f, i_lim, j_lim)
 
         return Vr
 
@@ -312,7 +312,7 @@ class HazardInterface:
         for i in xrange(Vr_dim[1]):
             for j in xrange(Vr_dim[2]):
                 if Vr[:, i, j].max() > 0:
-                    w, loc, scale, shp = evd.estimate_EVD(Vr[:, i, j], 
+                    w, loc, scale, shp = evd.estimateEVD(Vr[:, i, j], 
                                                           self.years,
                                                           self.nodata,
                                                           self.minRecords,
@@ -347,14 +347,14 @@ class HazardInterface:
                         vn = numpy.array([random.choice(Vr[:, i, j]) 
                             for _ in Vr[:, i, j] ])
                         vn.sort()
-                        w[:, n], loc, scale, shp = evd.estimate_EVD(vn, self.years,
+                        w[:, n], loc, scale, shp = evd.estimateEVD(vn, self.years,
                                                                     self.nodata,
                                                                     self.minRecords,
                                                                     self.yrsPerSim)
                     for n in range(len(self.years)):
-                        w[n, :].sort()
-                        wUpper[n] = percentile(w[n, :], 95)
-                        wLower[n] = percentile(w[n, :], 5)
+                        w[n,:].sort()
+                        wUpper[n] = percentile(w[n,:], 95)
+                        wLower[n] = percentile(w[n,:], 5)
 
                     RpUpper[:, i, j] = wUpper
                     RpLower[:, i, j] = wLower
@@ -395,7 +395,7 @@ class HazardInterface:
                 each subsample, percentile range to calculate
         Output: Array of confidence interval return period wind speeds
         """
-        #pdb.set_trace()
+        # pdb.set_trace()
         # Set the upper and lower confidence levels, based on the percentile range:
         lower = ( 100 - pctile_range ) / 2.
         upper = 100 - lower
@@ -429,14 +429,14 @@ class HazardInterface:
 
                         vsub.sort()
                         if vsub.max( ) > 0.:
-                            #self.logger.debug( "Max value in subset array is: {0}".format(vsub.max()) )
-                            w[:, n], loc, scale, shp = evd.estimate_EVD(vsub, self.years,
+                            # self.logger.debug( "Max value in subset array is: {0}".format(vsub.max()) )
+                            w[:, n], loc, scale, shp = evd.estimateEVD(vsub, self.years,
                                                                         self.nodata, 
                                                                         self.minRecords/5,
                                                                         self.yrsPerSim )
                     for n in range( len( self.years ) ):
-                        wUpper[n] = percentile( w[n, :], upper )
-                        wLower[n] = percentile( w[n, :], lower )
+                        wUpper[n] = percentile( w[n,:], upper )
+                        wLower[n] = percentile( w[n,:], lower )
 
                     RpUpper[:, i, j] = wUpper
                     RpLower[:, i, j] = wLower

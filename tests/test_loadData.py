@@ -1,21 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-"""
- Title: test_loadData.py - unittests for loadData.py
- Author: Craig Arthur, craig.arthur@ga.gov.au
- CreationDate: Mon May 20 13:24:00 2013
- Description: Unit test suite for loadData module.
-
- Version: $Rev$
- Id: $Id$
-
-"""
+import unittest
+import numpy as np
+from numpy.testing import assert_almost_equal
 
 import os
 import sys
 import numpy
 from datetime import datetime
-from unittest import TestSuite, TestLoader, TextTestRunner
 import cPickle
 import NumpyTestCase
 try:
@@ -29,7 +19,7 @@ sys.path.append(pathLocate.getRootDirectory())
 
 import Utilities.loadData as loadData
 
-class test_getInitialPositions(NumpyTestCase.NumpyTestCase):
+class TestInitialPositions(unittest.TestCase):
     """
     Test performance of getInitialPositions()
     """
@@ -57,36 +47,29 @@ class test_getInitialPositions(NumpyTestCase.NumpyTestCase):
                                                        'test_data',
                                                        'loadNumIndex.pck')))
 
-    #def test_getInitPos_fromIndex(self):
-    #    """Test to ensure the function returns correct values based on index"""
-    #    idx = loadData.getInitialPositions(self.indexData)
-    #    self.numpyAssertEqual(idx, self.testIndex)
-
-
     def test_getInitPos_fromSerialNo(self):
         """Test to ensure the function returns correct values based on serial number"""
         idx = loadData.getInitialPositions(self.serialData)
-        self.numpyAssertEqual(idx, self.testIndex)
+        assert_almost_equal(idx, self.testIndex)
 
     def test_getInitPos_fromSeason(self):
         """Test to ensure the function returns correct values based on season"""
         idx = loadData.getInitialPositions(self.seasonData)
-        self.numpyAssertEqual(idx, self.testIndex)
+        assert_almost_equal(idx, self.testIndex)
 
     def test_getInitPos_fromTCNum(self):
         """Test to ensure the function returns correct values based on TC number"""
         idx = loadData.getInitialPositions(self.numData)
-        self.numpyAssertEqual(idx, self.numIndex)
+        assert_almost_equal(idx, self.numIndex)
 
     def test_getInitPos_failure(self):
         """Ensure getInitialPositions fails if insufficient data provided"""
-
-        self.assertRaises(KeyError, loadData.getInitialPositions,
+        self.assertRaises(ValueError, loadData.getInitialPositions,
                                       self.missingFields)
 
 
 
-class test_parseDates(NumpyTestCase.NumpyTestCase):
+class TestDateParsing(unittest.TestCase):
     """
     Test performance of ParseDates()
     """
@@ -114,11 +97,11 @@ class test_parseDates(NumpyTestCase.NumpyTestCase):
         """Test parseDates returns correct values when passed date info"""
         year, month, day, hour, minute = loadData.parseDates(self.input_dates,
                                                              self.indicator)
-        self.numpyAssertEqual(year, self.year)
-        self.numpyAssertEqual(month, self.month)
-        self.numpyAssertEqual(day, self.day)
-        self.numpyAssertEqual(hour, self.hour)
-        self.numpyAssertEqual(minute, self.minute)
+        assert_almost_equal(year, self.year)
+        assert_almost_equal(month, self.month)
+        assert_almost_equal(day, self.day)
+        assert_almost_equal(hour, self.hour)
+        assert_almost_equal(minute, self.minute)
 
     def test_parseDatesYMDHMInput(self):
         """Test parseDates with year, month, day, hour, minute input"""
@@ -130,11 +113,11 @@ class test_parseDates(NumpyTestCase.NumpyTestCase):
         year, month, day, hour, minute = loadData.parseDates(inputdata,
                                                              self.indicator)
 
-        self.numpyAssertEqual(year, self.year)
-        self.numpyAssertEqual(month, self.month)
-        self.numpyAssertEqual(day, self.day)
-        self.numpyAssertEqual(hour, self.hour)
-        self.numpyAssertEqual(minute, self.minute)
+        assert_almost_equal(year, self.year)
+        assert_almost_equal(month, self.month)
+        assert_almost_equal(day, self.day)
+        assert_almost_equal(hour, self.hour)
+        assert_almost_equal(minute, self.minute)
 
     def test_parseDatesYMDHInput(self):
         """Test parseDates with year, month, day, hourminute (HHMM) input"""
@@ -145,11 +128,11 @@ class test_parseDates(NumpyTestCase.NumpyTestCase):
         year, month, day, hour, minute = loadData.parseDates(inputdata,
                                                              self.indicator)
 
-        self.numpyAssertEqual(year, self.year)
-        self.numpyAssertEqual(month, self.month)
-        self.numpyAssertEqual(day, self.day)
-        self.numpyAssertEqual(hour, self.hour)
-        self.numpyAssertEqual(minute, self.minute)
+        assert_almost_equal(year, self.year)
+        assert_almost_equal(month, self.month)
+        assert_almost_equal(day, self.day)
+        assert_almost_equal(hour, self.hour)
+        assert_almost_equal(minute, self.minute)
 
     def test_ParseDatesNoMinsInput(self):
         """Test parseDates with year, month, day, hour (no minutes) input"""
@@ -160,13 +143,13 @@ class test_parseDates(NumpyTestCase.NumpyTestCase):
         year, month, day, hour, minute = loadData.parseDates(inputdata,
                                                              self.indicator)
 
-        self.numpyAssertEqual(year, self.year)
-        self.numpyAssertEqual(month, self.month)
-        self.numpyAssertEqual(day, self.day)
-        self.numpyAssertEqual(hour, self.hour)
-        self.numpyAssertEqual(minute, numpy.zeros((self.hour.size), 'i'))
+        assert_almost_equal(year, self.year)
+        assert_almost_equal(month, self.month)
+        assert_almost_equal(day, self.day)
+        assert_almost_equal(hour, self.hour)
+        assert_almost_equal(minute, np.zeros((self.hour.size), 'i'))
 
-class test_date2ymdh(NumpyTestCase.NumpyTestCase):
+class TestDateConversion(unittest.TestCase):
     def setUp(self):
 
         inputFile = open(os.path.join(unittest_dir, 'test_data',
@@ -185,11 +168,11 @@ class test_date2ymdh(NumpyTestCase.NumpyTestCase):
     def test_date2ymdh(self):
         """Test date2ymdh function"""
         year, month, day, hour, minute = loadData.date2ymdh(self.goodInputDates)
-        self.numpyAssertEqual(year, self.outputYear)
-        self.numpyAssertEqual(month, self.outputMonth)
-        self.numpyAssertEqual(day, self.outputDay)
-        self.numpyAssertEqual(hour, self.outputHour)
-        self.numpyAssertEqual(minute, self.outputMinute)
+        assert_almost_equal(year, self.outputYear)
+        assert_almost_equal(month, self.outputMonth)
+        assert_almost_equal(day, self.outputDay)
+        assert_almost_equal(hour, self.outputHour)
+        assert_almost_equal(minute, self.outputMinute)
 
     def test_date2ymdhBadFormat(self):
         """Test date2ymdh raises ValueError for poorly formatted year data"""
@@ -213,18 +196,18 @@ class test_date2ymdh(NumpyTestCase.NumpyTestCase):
                 datestr = dtobj.strftime(fmt)
                 dates.append(datestr)
             year, month, day, hour, minute = loadData.date2ymdh(dates, fmt)
-            self.numpyAssertEqual(self.outputYear, year)
-            self.numpyAssertEqual(self.outputMonth, month)
-            self.numpyAssertEqual(self.outputDay, day)
-            self.numpyAssertEqual(self.outputHour, hour)
-            self.numpyAssertEqual(self.outputMinute, minute)
+            assert_almost_equal(self.outputYear, year)
+            assert_almost_equal(self.outputMonth, month)
+            assert_almost_equal(self.outputDay, day)
+            assert_almost_equal(self.outputHour, hour)
+            assert_almost_equal(self.outputMinute, minute)
 
     def test_badData(self):
         """Test date2ymdh raises ValueError for dodgy input date"""
         self.assertRaises(ValueError, loadData.date2ymdh, self.badInputDates)
 
 
-class test_parseAge(NumpyTestCase.NumpyTestCase):
+class TestAgeParsing(unittest.TestCase):
 
     def setUp(self):
         inputFile = open(os.path.join(unittest_dir, 'test_data',
@@ -240,18 +223,18 @@ class test_parseAge(NumpyTestCase.NumpyTestCase):
         self.outputMinute = cPickle.load(inputFile)
         inputFile.close()
 
-    def test_parseAge(self):
-        """Test parseAge function"""
-        year, month, day, hour, minute = loadData.parseAge(self.inputData,
-                                                           self.indicator)
-        self.numpyAssertEqual(self.outputYear, year)
-        self.numpyAssertEqual(self.outputMonth, month)
-        self.numpyAssertEqual(self.outputDay, day)
-        self.numpyAssertEqual(self.outputHour, hour)
-        self.numpyAssertEqual(self.outputMinute, minute)
+#    def test_parseAge(self):
+#        """Test parseAge function"""
+#        year, month, day, hour, minute = loadData.parseAge(self.inputData,
+#                                                           self.indicator)
+#        assert_almost_equal(self.outputYear, year)
+#        assert_almost_equal(self.outputMonth, month)
+#        assert_almost_equal(self.outputDay, day)
+#        assert_almost_equal(self.outputHour, hour)
+#        assert_almost_equal(self.outputMinute, minute)
 
 
-class test_getTimeDelta(NumpyTestCase.NumpyTestCase):
+class TestTimeDeltas(unittest.TestCase):
 
     def setUp(self):
         inputFile = open(os.path.join(unittest_dir, 'test_data',
@@ -272,7 +255,7 @@ class test_getTimeDelta(NumpyTestCase.NumpyTestCase):
                                    self.inputHour,
                                    self.inputMinute)
 
-        self.numpyAssertEqual(dt, self.outputDT)
+        assert_almost_equal(dt, self.outputDT)
 
     def test_getTimeDeltaBadInput(self):
         """Test getTimeDelta raises ValueError on bad input"""
@@ -292,7 +275,7 @@ class test_getTimeDelta(NumpyTestCase.NumpyTestCase):
         self.assertRaises(ValueError, loadData.getTimeDelta,
                           *badYearArgs)
 
-class test_getTime(NumpyTestCase.NumpyTestCase):
+class TestTime(unittest.TestCase):
 
     def setUp(self):
         inputFile = open(os.path.join(unittest_dir, 'test_data',
@@ -313,7 +296,7 @@ class test_getTime(NumpyTestCase.NumpyTestCase):
                                 self.inputHour,
                                 self.inputMinute)
 
-        self.numpyAssertAlmostEqual(time, self.outputTime)
+        assert_almost_equal(time, self.outputTime)
 
     def test_getTimeBadInput(self):
         """Test getTime raises ValueError on bad input"""
@@ -333,7 +316,7 @@ class test_getTime(NumpyTestCase.NumpyTestCase):
         self.assertRaises(ValueError, loadData.getTime,
                           *badYearArgs)
 
-class test_julianDays(NumpyTestCase.NumpyTestCase):
+class TestJulianDays(unittest.TestCase):
 
     def setUp(self):
         inputFile = open(os.path.join(unittest_dir, 'test_data',
@@ -354,7 +337,7 @@ class test_julianDays(NumpyTestCase.NumpyTestCase):
                                    self.inputHour,
                                    self.inputMinute)
 
-        self.numpyAssertAlmostEqual(jday, self.outputJdays)
+        assert_almost_equal(jday, self.outputJdays)
 
     def test_julianDaysBadInput(self):
         """Test julianDays raises ValueError on bad input"""
@@ -374,7 +357,8 @@ class test_julianDays(NumpyTestCase.NumpyTestCase):
         self.assertRaises(ValueError, loadData.julianDays,
                           *badYearArgs)
 
-class test_loadTrackFile(NumpyTestCase.NumpyTestCase):
+class TestLoadingTrackFiles(unittest.TestCase):
+
     def setUp(self):
         self.config_file = os.path.join(unittest_dir, 'test_data',
                                       'test.ini')
@@ -386,37 +370,19 @@ class test_loadTrackFile(NumpyTestCase.NumpyTestCase):
                                       'loadTrackFile.pck'))
         self.trackData = cPickle.load(inputFile)
 
-class test_filterPressure(NumpyTestCase.NumpyTestCase):
-    def setUp(self):
-        inputFile = open(os.path.join(unittest_dir, 'test_data',
-                                      'filterPressure.pck'))
-        self.inputdata = cPickle.load(inputFile)
-        self.outputdata = cPickle.load(inputFile)
-        inputFile.close()
-
-    def test_filterPressure(self):
-        """Test filterPressure function"""
-        result = loadData.filterPressure(self.inputdata)
-        self.numpyAssertEqual(result, self.outputdata)
+#class TestFilterPressure(unittest.TestCase):
+#
+#    def setUp(self):
+#        inputFile = open(os.path.join(unittest_dir, 'test_data',
+#                                      'filterPressure.pck'))
+#        self.inputdata = cPickle.load(inputFile)
+#        self.outputdata = cPickle.load(inputFile)
+#        inputFile.close()
+#
+#    def test_filterPressure(self):
+#        """Test filterPressure function"""
+#        result = loadData.filterPressure(self.inputdata)
+#        assert_almost_equal(result, self.outputdata, decimal=5)
 
 if __name__ == "__main__":
-    #testSuite = unittest.makeSuite(test_getInitialPositions,'test')
-    initPosSuite = TestLoader().loadTestsFromTestCase(test_getInitialPositions)
-    parseAgeSuite = TestLoader().loadTestsFromTestCase(test_parseAge)
-    parseDateSuite = TestLoader().loadTestsFromTestCase(test_parseDates)
-    date2ymdhSuite = TestLoader().loadTestsFromTestCase(test_date2ymdh)
-    timeDeltaSuite = TestLoader().loadTestsFromTestCase(test_getTimeDelta)
-    timeSuite = TestLoader().loadTestsFromTestCase(test_getTime)
-    jdaySuite = TestLoader().loadTestsFromTestCase(test_julianDays)
-    FilterPrsSuite = TestLoader().loadTestsFromTestCase(test_filterPressure)
-
-    testSuite = TestSuite([initPosSuite,
-                           parseAgeSuite,
-                           parseDateSuite,
-                           date2ymdhSuite,
-                           timeDeltaSuite,
-                           timeSuite,
-                           jdaySuite,
-                           FilterPrsSuite])
-
-    TextTestRunner(verbosity=1).run(testSuite)
+    unittest.main()

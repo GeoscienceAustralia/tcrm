@@ -32,7 +32,7 @@ import itertools
 import numpy as np
 
 import Utilities.stats as stats
-import TrackGenerator.trackLandfall as trackLandfall
+import trackLandfall
 import Utilities.nctools as nctools
 import Utilities.Cmap as Cmap
 import Utilities.Cstats as Cstats

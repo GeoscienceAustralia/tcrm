@@ -29,9 +29,11 @@ from os.path import join as pjoin
 from collections import defaultdict
 
 from PressureInterface.pressureProfile import PrsProfile as PressureProfile
-from WindfieldInterface.windProfile import WindProfile
-from WindfieldInterface.windVorticity import WindVorticity
-from WindfieldInterface.windField import WindField
+
+from windProfile import WindProfile
+from windVorticity import WindVorticity
+from windField import WindField
+
 from Utilities.files import flModDate, flProgramVersion
 from Utilities.config import ConfigParser
 from Utilities.metutils import convert, coriolis

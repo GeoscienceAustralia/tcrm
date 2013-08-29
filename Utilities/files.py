@@ -17,6 +17,8 @@ __version__ = '$Id: files.py 685 2012-03-29 04:22:32Z carthur $'
 
 logger = logging.getLogger()
 
+if not getattr(__builtins__, "WindowsError", None):
+        class WindowsError(OSError): pass
 
 def flModulePath(level=1):
     """

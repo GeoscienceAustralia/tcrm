@@ -292,7 +292,7 @@ def getTime(year, month, day, hour, minute):
     """
     Calculate the number of days since 0001-01-01 00:00:00 UTC + 1
     """
-    dates = [dt.datetime(*x) for x in zip(year, month, day, hour, minute)]
+    dates = [datetime(*x) for x in zip(year, month, day, hour, minute)]
     return np.array([d.toordinal() + d.hour / 24. for d in dates], 'f')
 
 

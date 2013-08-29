@@ -91,6 +91,7 @@ class ConfigParser(RawConfigParser):
         return self._get(section, eval, option)
 
     def read(self, filename):
+        if filename is None: return
         if self.read_once: return
         RawConfigParser.read(self, filename)
         self.read_once = True
@@ -102,8 +103,7 @@ def cnfGetIniValue(configFile, section, option, default=None):
     old config parser.
     """
     config = ConfigParser()
-    if configFile:
-        config.read(configFile)
+    config.read(configFile)
     if not config.has_option(section, option):
         return default
     if default is None:
