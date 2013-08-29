@@ -7,4 +7,4 @@ extreme value distribution.
 
 ## Screenshot
 
-![screenshot](https://rawgithub.com/GeoscienceAustralia/tcrm/docs/screenshot.png)
+![screenshot](https://rawgithub.com/GeoscienceAustralia/tcrm/master/docs/screenshot.png)
