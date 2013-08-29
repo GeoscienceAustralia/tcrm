@@ -102,7 +102,8 @@ def cnfGetIniValue(configFile, section, option, default=None):
     old config parser.
     """
     config = ConfigParser()
-    config.read(configFile)
+    if configFile:
+        config.read(configFile)
     if not config.has_option(section, option):
         return default
     if default is None:
