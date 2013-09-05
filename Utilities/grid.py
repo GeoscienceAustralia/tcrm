@@ -42,7 +42,8 @@ Modification: Standardised function names
 
 $Id: grid.py 685 2012-03-29 04:22:32Z carthur $
 """
-import os, sys, pdb, logging
+import os, sys
+import logging as log
 
 import numpy
 import threading
@@ -145,7 +146,7 @@ def grdReadFromNetcdf(filename):
         data = ncdf.variables[dataname][:]
         ncdf.close()
 
-    logging.debug('Loaded filename %s, memory usage (bytes): lon %i lat %i data %i' % (filename, lon.nbytes, lat.nbytes, data.nbytes))
+    log.debug('Loaded filename %s, memory usage (bytes): lon %i lat %i data %i' % (filename, lon.nbytes, lat.nbytes, data.nbytes))
 
     return lon, lat, data
 
@@ -227,7 +228,7 @@ def grdRead(filename, delimiter=None):
             data[i,:] = row
         fh.close()
 
-    print('filename %s mem:: lon %i lat %i data %i' % (filename, lon.nbytes, lat.nbytes, data.nbytes))
+    log.debug('filename %s mem:: lon %i lat %i data %i' % (filename, lon.nbytes, lat.nbytes, data.nbytes))
 
     return lon, lat, data
 

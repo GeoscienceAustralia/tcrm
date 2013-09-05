@@ -104,11 +104,5 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
             self.numpyAssertEqual(press_check,press[nrec])
             self.numpyAssertEqual(temp_check,temp[nrec])
 
-    def test_ncLoadNonFile(self):
-        """Test ncLoadFile raises IOError when attempting to load non-file"""
-        self.assertRaises(IOError,nctools.ncLoadFile,'file')
-
 if __name__ == "__main__":
-    flStartLog('', 'CRITICAL', False)
-    testSuite = unittest.makeSuite(TestNetCDF,'test')
-    unittest.TextTestRunner(verbosity=2).run(testSuite)
+    unittest.main()

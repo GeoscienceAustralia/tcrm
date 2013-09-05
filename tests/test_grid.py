@@ -94,10 +94,5 @@ class TestGrid(NumpyTestCase.NumpyTestCase):
         value = self.ncgridobj.sampleGrid(self.ilon,self.ilat)
         self.assertAlmostEqual(pvalue,value)
 
-
-
-
 if __name__ == "__main__":
-    flStartLog('', 'CRITICAL', False)
-    testSuite = unittest.makeSuite(TestGrid,'test')
-    unittest.TextTestRunner(verbosity=2).run(testSuite)
+    unittest.main()

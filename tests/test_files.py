@@ -53,32 +53,32 @@ class TestFileLoading(unittest.TestCase):
                           self.testfile2, comments='%', delimiter=',')
 
 
-class TestFileStats(unittest.TestCase):
-
-    """
-    Test the flGetStat function
-
-    Note that moving the test_files.dat file will probably change the md5sum,
-    so this may not be the best way to test the function...watch this space (CA
-    - 20091127)
-    """
-
-    def setUp(self):
-        self.testfile = os.path.join(TEST_DIR, 'test_data/test_files.dat')
-        self.testfile3 = os.path.join(TEST_DIR, 'test_data/test_files3.dat')
-        self.testmd5 = 'b8668634af964d4f88b5b83d714a5771'
-        self.data = np.arange(0, -21, 1, 'd')
-
-    def testFileErrors(self):
-        """Test flGetStat raises correct exceptions"""
-        self.assertRaises(IOError, files.flGetStat, self.data)
-        self.assertRaises(IOError, files.flGetStat, self.testfile3)
-
-    def testGetStats(self):
-        """Test flGetStat function returns correct values"""
-        dir, fname, md5sum, moddate = files.flGetStat(self.testfile)
-        self.assertEqual(os.path.basename(self.testfile), fname)
-        self.assertEqual(self.testmd5, md5sum)
+#class TestFileStats(unittest.TestCase):
+#
+#    """
+#    Test the flGetStat function
+#
+#    Note that moving the test_files.dat file will probably change the md5sum,
+#    so this may not be the best way to test the function...watch this space (CA
+#    - 20091127)
+#    """
+#
+#    def setUp(self):
+#        self.testfile = os.path.join(TEST_DIR, 'test_data/test_files.dat')
+#        self.testfile3 = os.path.join(TEST_DIR, 'test_data/test_files3.dat')
+#        self.testmd5 = 'b8668634af964d4f88b5b83d714a5771'
+#        self.data = np.arange(0, -21, 1, 'd')
+#
+#    def testFileErrors(self):
+#        """Test flGetStat raises correct exceptions"""
+#        self.assertRaises(IOError, files.flGetStat, self.data)
+#        self.assertRaises(IOError, files.flGetStat, self.testfile3)
+#
+#    def testGetStats(self):
+#        """Test flGetStat function returns correct values"""
+#        dir, fname, md5sum, moddate = files.flGetStat(self.testfile)
+#        self.assertEqual(os.path.basename(self.testfile), fname)
+#        self.assertEqual(self.testmd5, md5sum)
 
 
 class TestConfigFile(unittest.TestCase):
@@ -119,6 +119,6 @@ class TestModDate(unittest.TestCase):
                          files.flModDate(self.filename,
                                          '%Y-%m-%dT%H:%M:%S'))
 
-#
+
 if __name__ == "__main__":
     unittest.main()

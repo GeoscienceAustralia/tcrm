@@ -60,7 +60,7 @@ class TestGenerateStats(NumpyTestCase.NumpyTestCase):
     def test_generateStats(self):
         """Testing generateStats (warning: will take about 2 mins to run)
         """
-        wP = generateStats.GenerateStats(self.configFile, self.parameter, self.lonLat, self.gridLimit,
+        wP = generateStats.GenerateStats(self.parameter, self.lonLat, self.gridLimit,
                                          self.gridSpace, self.gridInc, self.minSample, self.angular, 
                                          self.missingValue)
 
@@ -98,6 +98,4 @@ class TestGenerateStats(NumpyTestCase.NumpyTestCase):
         self.numpyAssertAlmostEqual(wP.coeffs.min, wP.coeffs.lmin)
 
 if __name__ == "__main__":
-    #flStartLog('', 'CRITICAL', False)
-    testSuite = unittest.makeSuite(TestGenerateStats,'test')
-    unittest.TextTestRunner(verbosity=2).run(testSuite)
+    unittest.main()
