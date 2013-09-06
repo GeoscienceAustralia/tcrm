@@ -1,0 +1,8 @@
+*.pyc
+*.o
+*.so
+*.dylib
+build
+output
+.DS_Store
+*.ini
