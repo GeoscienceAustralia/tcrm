@@ -1,5 +1,5 @@
 @echo off
 echo.
-python .\unittests\test_all.py
+python .\tests\run.py
 echo.
 pause
