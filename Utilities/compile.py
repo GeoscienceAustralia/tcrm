@@ -12,7 +12,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
+    You shoucc -bundle -undefined dynamic_lookuped a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Title: compile.py
@@ -41,11 +41,11 @@ pythonVersion = sys.version_info
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 if operatingSystem == 'Windows':
- 
+
     pythonIncludePath = '"' + os.path.join(pythonPath, 'include') + '"'
     pythonLibPath = '"' + os.path.join(pythonPath, 'libs') + '"'
     pythonLibFile = 'python' + str(pythonVersion[0]) + str(pythonVersion[1])
-   
+
     #build Cstats
     cmd1 = 'gcc -c Cstats.c -I' + pythonIncludePath + ' -o Cstats.o -Wall -O -std=c99'
     cmd2 = 'gcc -shared Cstats.o -L' + pythonLibPath + ' -l ' + pythonLibFile + ' -o Cstats.pyd'
@@ -53,8 +53,8 @@ if operatingSystem == 'Windows':
     os.system(cmd1)
     print cmd2
     os.system(cmd2)
-    
-    #build Cmap    
+
+    #build Cmap
     cmd1 = 'gcc -c Cmap.c -I' + pythonIncludePath + ' -o Cmap.o -Wall -O'
     cmd2 = 'gcc -shared Cmap.o -L' + pythonLibPath + ' -l ' + pythonLibFile + ' -o Cmap.pyd'
     print cmd1
@@ -71,10 +71,10 @@ if operatingSystem == 'Windows':
     os.system(cmd2)
 
 elif operatingSystem == 'Linux':
-    
+
     pythonIncludePath = os.path.join(pythonPath, 'include', 'python' + str(pythonVersion[0]) + '.' + str(pythonVersion[1]))
     pythonLibPath = os.path.join(pythonPath, 'lib', 'python' + str(pythonVersion[0]) + '.' + str(pythonVersion[1]))
-    
+
     #build Cstats
     cmd1 = 'gcc -c Cstats.c -I' + pythonIncludePath + ' -I' + pythonLibPath + ' -o Cstats.o -Wall -O -fPIC -std=c99'
     cmd2 = 'gcc -shared Cstats.o -o Cstats.so'
@@ -90,10 +90,36 @@ elif operatingSystem == 'Linux':
     os.system(cmd1)
     print cmd2
     os.system(cmd2)
-    
+
     #build KPDF
     cmd1 = 'gcc -c KPDF.c -I' + pythonIncludePath + ' -I' + pythonLibPath + ' -I' + numpyPath + ' -o KPDF.o -Wall -O -fPIC -std=c99'
     cmd2 = 'gcc -shared KPDF.o -o KPDF.so'
+    print cmd1
+    os.system(cmd1)
+    print cmd2
+    os.system(cmd2)
+
+elif operatingSystem == 'Darwin': # Apple OS X
+
+    #build Cstats
+    cmd1 = 'cc -c -std=c99 `python-config --cflags` -o Cstats.o CStats.c'
+    cmd2 = 'cc -bundle -undefined dynamic_lookup `python-config --ldflags` Cstats.o -o Cstats.so'
+    print cmd1
+    os.system(cmd1)
+    print cmd2
+    os.system(cmd2)
+
+    #build Cmap
+    cmd1 = 'cc -c -std=c99 `python-config --cflags` -o Cmap.o Cmap.c'
+    cmd2 = 'cc -bundle -undefined dynamic_lookup `python-config --ldflags` Cmap.o -o Cmap.so'
+    print cmd1
+    os.system(cmd1)
+    print cmd2
+    os.system(cmd2)
+
+    #build KPDF
+    cmd1 = 'cc -c -std=c99 `python-config --cflags` -I' + numpyPath + ' -o KPDF.o -std=c99 KPDF.c'
+    cmd2 = 'cc -bundle -undefined dynamic_lookup `python-config --ldflags` KPDF.o -o KPDF.so'
     print cmd1
     os.system(cmd1)
     print cmd2
