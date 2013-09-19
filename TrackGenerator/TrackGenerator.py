@@ -252,84 +252,6 @@ class TrackGenerator(object):
                                                    self.sizeStdDev,
                                                    maxrad=120.0)).T
 
-    def calculateCellStatistics(self, minSample=100):
-        """
-        Calculate the cell statistics for speed, bearing, pressure, and
-        pressure rate of change for all the grid cells in the domain.
-
-        The statistics calculated are mean, variance, and
-        autocorrelation.
-
-        The cell statistics are calculated on a grid defined by
-        :attr:`gridLimit`, :attr:`gridSpace` and :attr:`gridInc` using
-        an instance of
-        :class:`StatInterface.generateStats.GenerateStats`.
-
-        An optional :attr:`minSample` can be given which sets the
-        minimum number of observations in a given cell to calculate the
-        statistics.
-        """
-
-        def calculate(filename, angular=False):
-            """
-            Helper function to calculate the statistics.
-            """
-            return GenerateStats(
-                pjoin(self.processPath, filename),
-                pjoin(self.processPath, 'all_lon_lat'),
-                self.gridLimit,
-                self.gridSpace,
-                self.gridInc,
-                minSample=minSample,
-                angular=angular)
-
-        log.debug('Calculating cell statistics for speed')
-        self.vStats = calculate('all_speed')
-
-        log.debug('Calculating cell statistics for pressure')
-        self.pStats = calculate('all_pressure')
-
-        log.debug('Calculating cell statistics for bearing')
-        self.bStats = calculate('all_bearing', angular=True)
-
-        log.debug('Calculating cell statistics for pressure rate' +
-                  ' of change')
-        self.dpStats = calculate('pressure_rate')
-
-    def saveCellStatistics(self):
-        """
-        Save the cell statistics for speed, bearing, pressure, and
-        pressure rate of change to netcdf files.
-
-        This method can be used with :meth:`loadCellStatistics` to
-        avoid calculating the cell statistics each time the track
-        generation is performed.
-
-        This method saves the statistics to the files
-
-            speed_stats.nc
-            pressure_stats.nc
-            bearing_stats.nc
-            pressure_rate_stats.nc
-
-        in the :attr:`processPath` directory.
-        """
-
-        path = self.processPath
-
-        log.debug('Saving cell statistics for speed to netcdf file')
-        self.vStats.save(pjoin(path, 'speed_stats.nc'), 'speed')
-
-        log.debug('Saving cell statistics for bearing to netcdf file')
-        self.bStats.save(pjoin(path, 'bearing_stats.nc'), 'bearing')
-
-        log.debug('Saving cell statistics for pressure to netcdf file')
-        self.pStats.save(pjoin(path, 'pressure_stats.nc'), 'pressure')
-
-        log.debug('Saving cell statistics for pressure rate to netcdf file')
-        self.dpStats.save(
-            pjoin(path, 'pressure_rate_stats.nc'), 'pressure rate')
-
     def loadCellStatistics(self):
         """
         Load the cell statistics for speed, bearing, pressure, and pressure
@@ -1489,22 +1411,6 @@ class TrackGenerator(object):
                            dtype='f', writedata=True,
                            keepfileopen=False)
 
-    def calculateOrLoadCellStatistics(self):
-        """
-        Helper function to calculate the cell statistics if they have
-        not been previously calculated.
-        """
-        exists = os.path.exists
-        if (not exists(pjoin(self.processPath, 'speed_stats.nc'))
-            or not exists(pjoin(self.processPath, 'pressure_stats.nc'))
-            or not exists(pjoin(self.processPath, 'bearing_stats.nc'))
-            or not exists(pjoin(self.processPath,
-                                'pressure_rate_stats.nc'))):
-            self.calculateCellStatistics()
-            self.saveCellStatistics()
-        self.loadCellStatistics()
-
-
 def attemptParallel():
     """
     Attempt to load Pypar globally as `pp`.  If pypar cannot be loaded
@@ -1743,7 +1649,7 @@ def run(configFile):
                         maxTimeSteps=maxTimeSteps)
 
     tg.loadInitialConditionDistributions()
-    tg.calculateOrLoadCellStatistics()
+    tg.loadCellStatistics()
 
     # Hold until all processors are ready
 
