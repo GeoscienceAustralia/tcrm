@@ -273,16 +273,19 @@ class WindfieldAroundTrack(object):
         :type  i: int
         :param i: the time.
         """
-        cls = windmodels.profile(self.profileType)
-        params = windmodels.profileParams(self.profileType)
-        values = [getattr(self, p) for p in params if hasattr(self,p)]
-
         lat = self.track.Latitude[i]
         lon = self.track.Longitude[i]
         eP = self.track.EnvPressure[i]
         cP = self.track.CentralPressure[i]
         rMax = self.track.rMax[i]
+        vFm = self.track.Speed[i]
+        thetaFm = self.track.Bearing[i]
+        thetaMax = self.thetaMax
 
+        #FIXME: temporary way to do this
+        cls = windmodels.profile(self.profileType)
+        params = windmodels.profileParams(self.profileType)
+        values = [getattr(self, p) for p in params if hasattr(self,p)]
         profile = cls(lat, lon, eP, cP, rMax, *values)
 
         R, theta = self.polarGridAroundEye(i)
@@ -293,22 +296,13 @@ class WindfieldAroundTrack(object):
         P = self.pressureProfile(i, R)
         f = coriolis(self.track.Latitude[i])
 
+        #FIXME: temporary way to do this
         cls = windmodels.field(self.windFieldType)
         params = windmodels.fieldParams(self.windFieldType)
         values = [getattr(self, p) for p in params if hasattr(self,p)]
-
         windfield = cls(profile, *values)
 
-
-        wf = WindField(R, theta, self.track.rMax[i], f, V, Z,
-                       self.track.Speed[i],
-                       self.track.Bearing[i],
-                       self.thetaMax)
-        try:
-            field = getattr(wf, self.windFieldType)
-        except AttributeError:
-            msg = '%s not implemented in windField' % self.windFieldType
-            log.exception(msg)
+        Ux, Vy = windfield.field(R, theta, vFm, thetaFm,  thetaMax)
 
         Ux, Vy = field()
         return (Ux, Vy, P)
