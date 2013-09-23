@@ -762,12 +762,15 @@ class KepertWindField(WindFieldModel):
         return Ux, Vy
 
 
-WIND_PROFILES = {k.__name__.replace('WindProfile', '').lower(): k
-                 for k in vars()['WindProfileModel'].__subclasses__()}
+# Automatic discovery of models and required parameters
 
 
-WIND_FIELDS = {k.__name__.replace('WindField', '').lower(): k
-               for k in vars()['WindFieldModel'].__subclasses__()}
+def allSubclasses(cls):
+    """
+    Recursively find all subclasses of a given class.
+    """
+    return cls.__subclasses__() + \
+        [g for s in cls.__subclasses__() for g in allSubclasses(s)]
 
 
 def profile(name):
@@ -778,9 +781,38 @@ def profile(name):
     return WIND_PROFILES[name]
 
 
+def profileParams(name):
+    """
+    List of additional parameters required for a wind profile model.
+    """
+    from inspect import getargspec
+    std = getargspec(WindProfileModel.__init__)[0]
+    new = getargspec(profile(name).__init__)[0]
+    params = [p for p in new if p not in std]
+    return params
+
+
 def field(name):
     """
     Helper function to return the appropriate wind field
     model given a `name`.
     """
     return WIND_FIELDS[name]
+
+
+def fieldParams(name):
+    """
+    List of additional parameters required for a wind field model.
+    """
+     from inspect import getargspec
+    std = getargspec(WindFieldModel.__init__)[0]
+    new = getargspec(field(name).__init__)[0]
+    params = [p for p in new if p not in std]
+    return params
+
+
+WIND_PROFILES = {k.__name__.replace('WindProfile', '').lower(): k
+                 for k in allSubclasses(vars()['WindProfileModel'])}
+
+WIND_FIELDS = {k.__name__.replace('WindField', '').lower(): k
+               for k in allSubclasses(vars()['WindFieldModel'])}

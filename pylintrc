@@ -13,3 +13,8 @@ no-docstring-rgx=((__.*__)|([tT]est.*)|setUp|tearDown|([a-z]{2,10}))$
 
 [DESIGN]
 min-public-methods=1
+
+[REPORTS]
+msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
+include-ids=yes
+reports=no

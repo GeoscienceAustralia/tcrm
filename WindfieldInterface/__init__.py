@@ -30,6 +30,8 @@ from collections import defaultdict
 
 from PressureInterface.pressureProfile import PrsProfile as PressureProfile
 
+import windmodels
+
 from windProfile import WindProfile
 from windVorticity import WindVorticity
 from windField import WindField
@@ -200,54 +202,42 @@ class WindfieldAroundTrack(object):
         Calculate the wind profile at time i at the radiuses R
         around the tropical cyclone.
         """
-        p = WindProfile(R, self.track.EnvPressure[i],
-                        self.track.CentralPressure[i],
-                        self.track.rMax[i],
-                        self.track.Latitude[i],
-                        self.track.Longitude[i],
-                        self.beta, beta1=self.beta1,
-                        beta2=self.beta2)
-        try:
-            wind = getattr(p, self.profileType)
-        except AttributeError:
-            msg = '%s not implemented in windProfile' % self.profileType
-            log.exception(msg)
-        V = wind()
+        cls = windmodels.profile(self.profileType)
+        params = windmodels.profileParams(self.profileType)
+        values = [getattr(self, p) for p in params if hasattr(self,p)]
 
-        return V
+        lat = self.track.Latitude[i]
+        lon = self.track.Longitude[i]
+        eP = self.track.EnvPressure[i]
+        cP = self.track.CentralPressure[i]
+        rMax = self.track.rMax[i]
+
+        profile = cls(lat, lon, eP, cP, rMax, *values)
+        return profile.velocity(R)
 
     def windVorticity(self, i, R, maxAbsWindSpeed):
         """
         Calculate the wind vorticity at time `i` at the radiuses `R`
-        around the tropical cyclone that has maximum absolute wind
-        speed given by `maxAbsWindSpeed`.
-
+        around the tropical cyclone.
 
         :type  i: int
         :param i: the time.
 
         :type  R: float
         :param R: the radius around the tropical cyclone.
-
-        :type  maxAbsWindSpeed: float
-        :param maxAbsWindSpeed: the maximum absolute wind speed.
         """
-        v = WindVorticity(R, self.track.EnvPressure[i],
-                          self.track.CentralPressure[i],
-                          self.track.rMax[i],
-                          self.track.Latitude[i],
-                          self.track.Longitude[i],
-                          self.beta, beta1=self.beta1,
-                          beta2=self.beta2)
-        try:
-            vort = getattr(v, self.profileType)
-        except AttributeError:
-            msg = '%s not implemented in windVorticity' % self.profileType
-            log.exception(msg)
+        cls = windmodels.profile(self.profileType)
+        params = windmodels.profileParams(self.profileType)
+        values = [getattr(self, p) for p in params if hasattr(self,p)]
 
-        Z = vort(maxAbsWindSpeed)
+        lat = self.track.Latitude[i]
+        lon = self.track.Longitude[i]
+        eP = self.track.EnvPressure[i]
+        cP = self.track.CentralPressure[i]
+        rMax = self.track.rMax[i]
 
-        return Z
+        profile = cls(lat, lon, eP, cP, rMax, *values)
+        return profile.vorticity(R)
 
     def pressureProfile(self, i, R):
         """
@@ -283,21 +273,36 @@ class WindfieldAroundTrack(object):
         :type  i: int
         :param i: the time.
         """
+        lat = self.track.Latitude[i]
+        lon = self.track.Longitude[i]
+        eP = self.track.EnvPressure[i]
+        cP = self.track.CentralPressure[i]
+        rMax = self.track.rMax[i]
+        vFm = self.track.Speed[i]
+        thetaFm = self.track.Bearing[i]
+        thetaMax = self.thetaMax
+
+        #FIXME: temporary way to do this
+        cls = windmodels.profile(self.profileType)
+        params = windmodels.profileParams(self.profileType)
+        values = [getattr(self, p) for p in params if hasattr(self,p)]
+        profile = cls(lat, lon, eP, cP, rMax, *values)
+
         R, theta = self.polarGridAroundEye(i)
-        V = self.windProfile(i, R)
-        Z = self.windVorticity(i, R, np.absolute(V).max())
+
+        V = profile.velocity(R)
+        Z = profile.vorticity(R)
+
         P = self.pressureProfile(i, R)
         f = coriolis(self.track.Latitude[i])
 
-        wf = WindField(R, theta, self.track.rMax[i], f, V, Z,
-                       self.track.Speed[i],
-                       self.track.Bearing[i],
-                       self.thetaMax)
-        try:
-            field = getattr(wf, self.windFieldType)
-        except AttributeError:
-            msg = '%s not implemented in windField' % self.windFieldType
-            log.exception(msg)
+        #FIXME: temporary way to do this
+        cls = windmodels.field(self.windFieldType)
+        params = windmodels.fieldParams(self.windFieldType)
+        values = [getattr(self, p) for p in params if hasattr(self,p)]
+        windfield = cls(profile, *values)
+
+        Ux, Vy = windfield.field(R, theta, vFm, thetaFm,  thetaMax)
 
         Ux, Vy = field()
         return (Ux, Vy, P)
