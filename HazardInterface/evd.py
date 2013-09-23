@@ -43,9 +43,8 @@ def estimateEVD(v, years, missingValue=-9999., minRecords=50, yrspersim=10):
 
     if (v.max() > 0.):
         ii = np.flatnonzero(v)
-        # Only calculate l-moments for those grid points
-        # where the values are not all equal, and where
-        # there are 50 or more valid values.
+        # Only calculate l-moments for those grid points where the values are 
+        # not all equal, and where there are 50 or more valid values.
         if (v[ii].min() != v[ii].max()) and (len(ii) >= minRecords):
             l1, l2, l3 = lmom.samlmu(v[ii], 3)
             t3 = l3 / l2
@@ -54,8 +53,8 @@ def estimateEVD(v, years, missingValue=-9999., minRecords=50, yrspersim=10):
                 # or the ratio of the third to second is > 1.
                 log.debug("Invalid l-moments")
             else:
-                # Parameter estimation returns the location,
-                # scale and shape parameters
+                # Parameter estimation returns the location, scale and shape 
+                # parameters
                 xmom = [l1, l2, t3]
                 loc, scale, shp = np.array(lmom.pelgev(xmom))
                 # We only store the values if the first parameter is

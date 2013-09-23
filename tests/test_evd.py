@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 
 from numpy.testing import assert_almost_equal
-from HazardInterface import evd
+from HazardInterface.evd import estimateEVD
 
 
 class TestEvd(unittest.TestCase):
@@ -23,22 +23,22 @@ class TestEvd(unittest.TestCase):
 
     def testEVD(self):
         """Testing extreme value distribution"""
-        w, loc, scale, shp = evd.estimateEVD(self.v,
-                                             self.years,
-                                             missingValue=-9999,
-                                             minRecords=3,
-                                             yrspersim=10)
+        w, loc, scale, shp = estimateEVD(self.v,
+                                         self.years,
+                                         missingValue=-9999,
+                                         minRecords=3,
+                                         yrspersim=10)
 
         assert_almost_equal(w, self.w0, decimal=5)
         assert_almost_equal(loc, self.loc0, decimal=5)
         assert_almost_equal(scale, self.scale0, decimal=5)
         assert_almost_equal(shp, self.shp0, decimal=5)
 
-        w2, loc2, scale2, shp2 = evd.estimateEVD(self.v,
-                                                 self.years,
-                                                 missingValue=-9999,
-                                                 minRecords=50,
-                                                 yrspersim=10)
+        w2, loc2, scale2, shp2 = estimateEVD(self.v,
+                                             self.years,
+                                             missingValue=-9999,
+                                             minRecords=50,
+                                             yrspersim=10)
 
         assert_almost_equal(w2, np.ones(6) * self.missingValue, decimal=5)
         assert_almost_equal(loc2, self.missingValue, decimal=5)

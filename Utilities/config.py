@@ -41,6 +41,7 @@ GetRMWDistFromInputData=False
 
 [Input]
 LandMask=%(cwd)s/input/landmask.nc
+MSLPFile=%(cwd)s/MSLP/mslp_daily_ltm.nc
 
 [Output]
 Path=%(cwd)s/output
@@ -55,7 +56,7 @@ Verbose=False
 [StatInterface]
 kdeType=Gaussian
 
-[DEFAULT]
+[Source]
 FieldDelimiter=,
 NumberOfHeadingLines=0
 SpeedUnits=mps

@@ -63,7 +63,7 @@ $Id: HazardInterface.py 817 2012-03-15 03:56:14Z carthur $
 
 import os, sys, logging
 import random
-import numpy
+import numpy as np
 import Utilities.nctools as nctools
 import evd
 
@@ -101,9 +101,10 @@ class HazardInterface:
         self.calcCI = cnfGetIniValue(self.configFile, 'HazardInterface', 
                                      'CalculateCI', False)
                                      
-        self.inputPath = cnfGetIniValue(self.configFile, 'HazardInterface', 'InputPath',
-                                        os.path.join(cnfGetIniValue(self.configFile, 
-                                                                    'Output', 'Path'),
+        self.inputPath = cnfGetIniValue(self.configFile, 'HazardInterface', 
+                                        'InputPath',
+                                        pjoin(cnfGetIniValue(self.configFile, 
+                                                             'Output', 'Path'),
                                         'windfield'))
                                         
         self.fileList = os.listdir(self.inputPath)
@@ -126,7 +127,7 @@ class HazardInterface:
         self.lat = wf_lat[self.jmin:self.jmax+1]
         self.outputPath = os.path.join(cnfGetIniValue(self.configFile, 'Output', 'Path'),
                                        'hazard')
-        self.years = numpy.array(cnfGetIniValue(self.configFile, 'HazardInterface',
+        self.years = np.array(cnfGetIniValue(self.configFile, 'HazardInterface',
                                           'Years').split(',')).astype('f')
         self.minRecords = cnfGetIniValue(self.configFile, 'HazardInterface',
                                           'MinimumRecords', 50)
@@ -134,40 +135,101 @@ class HazardInterface:
                                           'YearsPerSimulation', 1)
 
         # Create dimensions for storing data:
-        dimensions = {0: {'name': 'years', 'values': self.years, 'dtype': 'd',
-                         'atts': {'long_name': 'Return period', 'units': 'years'} },
-                      1: {'name': 'lat', 'values': self.lat, 'dtype': 'd', 
-                         'atts': {'long_name': 'Latitude', 'units': 'degrees_north'} },
-                      2: {'name': 'lon', 'values': self.lon, 'dtype': 'd', 
-                         'atts': {'long_name': 'Longitude', 'units': 'degrees_east'} } }
+        dimensions = {
+            0: {
+                'name': 'years', 
+                'values': self.years, 
+                'dtype': 'd',
+                'atts': {
+                    'long_name' : 'Return period',
+                    'units' : 'years'
+                } 
+            },
+            1: {
+                'name': 'lat',
+                'values': self.lat,
+                'dtype': 'd',
+                'atts': {
+                    'long_name': 'Latitude',
+                    'units': 'degrees_north'
+                }
+            },
+            2: {
+                'name': 'lon',
+                'values': self.lon,
+                'dtype': 'd',
+                'atts': {
+                    'long_name': 'Longitude',
+                    'units': 'degrees_east'
+                }
+            }
+        }
                          
         # Create variables:
-        variables = {0: {'name': 'loc', 'dims': ('lat', 'lon'),
-                        'values': numpy.array(self.nodata), 'dtype': 'd',
-                        'atts': {'long_name': 'Location parameter for GEV distribution',
-                                'units': 'm/s'} },
-                     1: {'name': 'scale', 'dims': ('lat', 'lon'),
-                        'values': numpy.array(self.nodata), 'dtype': 'd',
-                        'atts': {'long_name': 'Scale parameter for GEV distribution',
-                                'units': ''} },
-                     2: {'name': 'shp', 'dims': ('lat', 'lon'),
-                        'values': numpy.array(self.nodata), 'dtype': 'd',
-                        'atts': {'long_name': 'Shape parameter for GEV distribution',
-                                'units': ''} },
-                     3: {'name': 'wspd', 'dims': ('years', 'lat', 'lon'),
-                        'values': numpy.array(self.nodata), 'dtype': 'd',
-                        'atts': {'long_name': 'Return period wind speed',
-                                'units': 'm/s'} },
-                     4: {'name': 'wspdupper', 'dims': ('years', 'lat', 'lon'),
-                        'values': numpy.array(self.nodata), 'dtype': 'd',
-                        'atts': {'long_name': 'Upper percentile return period wind speed',
-                                'units': 'm/s',
-                                'percentile': 95} },
-                     5: {'name': 'wspdlower', 'dims': ('years', 'lat', 'lon'),
-                        'values': numpy.array(self.nodata), 'dtype': 'd',
-                        'atts': {'long_name': 'Lower percentile return period wind speed',
-                                'units': 'm/s',
-                                'percentile': 5} } }
+        variables = {
+            0: {
+                'name': 'loc',
+                'dims': ('lat', 'lon'),
+                'values': np.array(self.nodata),
+                'dtype': 'd',
+                'atts': {
+                    'long_name': 'Location parameter for GEV distribution',
+                    'units': 'm/s'
+                }
+            },
+            1: {
+                'name': 'scale',
+                'dims': ('lat', 'lon'),
+                'values': np.array(self.nodata), 
+                'dtype': 'd',
+                'atts': {
+                    'long_name': 'Scale parameter for GEV distribution',
+                    'units': ''
+                }
+            },
+            2: {
+                'name': 'shp',
+                'dims': ('lat', 'lon'),
+                'values': np.array(self.nodata),
+                'dtype': 'd',
+                'atts': {
+                    'long_name': 'Shape parameter for GEV distribution',
+                    'units': ''
+                }
+            },
+            3: {
+                'name': 'wspd',
+                'dims': ('years', 'lat', 'lon'),
+                'values': np.array(self.nodata), 
+                'dtype': 'd',
+                'atts': {
+                    'long_name': 'Return period wind speed',
+                    'units': 'm/s'
+                } 
+            },
+            4: {
+                'name': 'wspdupper',
+                'dims': ('years', 'lat', 'lon'),
+                'values': np.array(self.nodata), 
+                'dtype': 'd',
+                'atts': {
+                    'long_name': 'Upper percentile return period wind speed',
+                    'units': 'm/s',
+                    'percentile': 95
+                } 
+            },
+            5: {
+                'name': 'wspdlower', 
+                'dims': ('years', 'lat', 'lon'),
+                'values': np.array(self.nodata), 
+                'dtype': 'd',
+                'atts': {
+                    'long_name': 'Lower percentile return period wind speed',
+                    'units': 'm/s',
+                    'percentile': 5
+                } 
+            } 
+        }
         # Create global attributes
         gatts = {'history': 'TCRM hazard simulation - return period wind speeds',
                  'version': flProgramVersion( ),
@@ -178,7 +240,7 @@ class HazardInterface:
                  'number_simulations': self.nsim,
                  'minimum_records': self.minRecords}
         # Create output file for return-period gust wind speeds and GEV parameters
-        self.nc_obj = nctools.ncSaveGrid(os.path.join(self.outputPath, 'hazard.nc'),
+        self.nc_obj = nctools.ncSaveGrid(pjoin(self.outputPath, 'hazard.nc'),
                                          dimensions, variables, nodata=self.nodata,
                                          datatitle='TCRM hazard simulation',
                                          gatts=gatts, writedata=False, 
@@ -191,9 +253,10 @@ class HazardInterface:
         self.logger.info("Calculating return period wind speeds and GEV distribution parameters" )
         if self.calcCI:
             self.logger.info("Confidence intervals for return period wind speeds will also be calculated")
-        x_start, x_end, y_start, y_end = self._return_subset_edges(self.imax - self.imin + 1,
-                                                                   self.jmax - self.jmin + 1,
-                                                                   x_step=20, y_step=20)
+        x_start, x_end, \
+        y_start, y_end = self._return_subset_edges(self.imax - self.imin + 1,
+                                                   self.jmax - self.jmin + 1,
+                                                   x_step=20, y_step=20)
 
         # Calculate wind hazard in spatial subsets (to prevent memory overload)
         no_subsets = len(x_start)
@@ -275,7 +338,7 @@ class HazardInterface:
         files = [pjoin(self.inputPath, f) for f in self.fileList]
         files = [f for f in files if os.path.isfile(f)]
 
-        Vr = numpy.empty((len(files), j_lim[1] - j_lim[0] + 1, 
+        Vr = np.empty((len(files), j_lim[1] - j_lim[0] + 1, 
                           i_lim[1] - i_lim[0] + 1), dtype='f')
 
         for n, f in enumerate(files):
@@ -302,12 +365,12 @@ class HazardInterface:
         Input: array of years to calculate return periods for
         Output: Array of return period wind fields
         """
-        Vr_dim = numpy.shape(Vr)
+        Vr_dim = np.shape(Vr)
         Vr.sort(axis=0)
-        Rp = self.nodata*numpy.ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
-        loc2D = self.nodata*numpy.ones((Vr_dim[1], Vr_dim[2]), dtype='f')
-        scale2D = self.nodata*numpy.ones((Vr_dim[1], Vr_dim[2]), dtype='f')
-        shp2D = self.nodata*numpy.ones((Vr_dim[1], Vr_dim[2]), dtype='f')
+        Rp = self.nodata*np.ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
+        loc2D = self.nodata*np.ones((Vr_dim[1], Vr_dim[2]), dtype='f')
+        scale2D = self.nodata*np.ones((Vr_dim[1], Vr_dim[2]), dtype='f')
+        shp2D = self.nodata*np.ones((Vr_dim[1], Vr_dim[2]), dtype='f')
         
         for i in xrange(Vr_dim[1]):
             for j in xrange(Vr_dim[2]):
@@ -333,18 +396,18 @@ class HazardInterface:
         Output: Array of return period wind fields
         """
 
-        Vr_dim = numpy.shape( Vr )
+        Vr_dim = np.shape( Vr )
 
-        RpUpper = self.nodata*numpy.ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
-        RpLower = self.nodata*numpy.ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
-        w = numpy.zeros((len(self.years), resamples), dtype='f')
-        wUpper = numpy.zeros( ( len( self.years ) ), dtype='f' )
-        wLower = numpy.zeros( ( len( self.years ) ), dtype='f' )
+        RpUpper = self.nodata*np.ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
+        RpLower = self.nodata*np.ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
+        w = np.zeros((len(self.years), resamples), dtype='f')
+        wUpper = np.zeros( ( len( self.years ) ), dtype='f' )
+        wLower = np.zeros( ( len( self.years ) ), dtype='f' )
         for i in xrange(Vr_dim[1]):
             for j in xrange(Vr_dim[2]):
                 if Vr[:, i, j].max() > 0:
                     for n in xrange(resamples):
-                        vn = numpy.array([random.choice(Vr[:, i, j]) 
+                        vn = np.array([random.choice(Vr[:, i, j]) 
                             for _ in Vr[:, i, j] ])
                         vn.sort()
                         w[:, n], loc, scale, shp = evd.estimateEVD(vn, self.years,
@@ -368,13 +431,13 @@ class HazardInterface:
         is used to prevent TCRM from exceeding the available memory when
         calculating wind hazard.
         """
-        subset_maxcols = int(numpy.ceil(x_dim/float(x_step)))
-        subset_maxrows = int(numpy.ceil(y_dim/float(y_step)))
+        subset_maxcols = int(np.ceil(x_dim/float(x_step)))
+        subset_maxrows = int(np.ceil(y_dim/float(y_step)))
         n_subsets = subset_maxcols * subset_maxrows
-        x_start = numpy.zeros(n_subsets, 'i')
-        x_end = numpy.zeros(n_subsets, 'i')
-        y_start = numpy.zeros(n_subsets, 'i')
-        y_end = numpy.zeros(n_subsets, 'i')
+        x_start = np.zeros(n_subsets, 'i')
+        x_end = np.zeros(n_subsets, 'i')
+        y_start = np.zeros(n_subsets, 'i')
+        y_end = np.zeros(n_subsets, 'i')
         k = 0
 
         for i in xrange(subset_maxcols):
@@ -399,7 +462,7 @@ class HazardInterface:
         # Set the upper and lower confidence levels, based on the percentile range:
         lower = ( 100 - pctile_range ) / 2.
         upper = 100 - lower
-        Vr_dim = numpy.shape( Vr )
+        Vr_dim = np.shape( Vr )
         
         # number of records in the input vector:
         nrecords = Vr_dim[0]
@@ -407,12 +470,12 @@ class HazardInterface:
         # Set the number of times to iterate over:
         nsamples = nrecords / subsample_size
 
-        RpUpper = self.nodata*numpy.ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
-        RpLower = self.nodata*numpy.ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
+        RpUpper = self.nodata*np.ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
+        RpLower = self.nodata*np.ones((len(self.years), Vr_dim[1], Vr_dim[2]), dtype='f')
 
-        w = numpy.zeros( ( len( self.years ), nsamples ), dtype='f' )
-        wUpper = numpy.zeros( (len( self.years ) ), dtype='f' )
-        wLower = numpy.zeros( (len( self.years ) ), dtype='f' )
+        w = np.zeros( ( len( self.years ), nsamples ), dtype='f' )
+        wUpper = np.zeros( (len( self.years ) ), dtype='f' )
+        wLower = np.zeros( (len( self.years ) ), dtype='f' )
         
         for i in xrange( Vr_dim[1] ):
             for j in xrange( Vr_dim[2] ):

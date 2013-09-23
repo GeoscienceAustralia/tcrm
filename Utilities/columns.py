@@ -1,5 +1,5 @@
 import numpy as np
-from config import ConfigParser
+from Utilities.config import ConfigParser
 
 def colReadCSV(configFile, dataFile, source):
     """
@@ -8,7 +8,6 @@ def colReadCSV(configFile, dataFile, source):
     """
     config = ConfigParser()
     config.read(configFile)
-
     delimiter = config.get(source, 'FieldDelimiter')
     numHeadingLines = config.getint(source, 'NumberOfHeadingLines')
     cols = config.get(source, 'Columns').split(delimiter)

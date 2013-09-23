@@ -162,6 +162,23 @@ def pelgev(XMOM):
     PARA[0] = XMOM[0]-PARA[1]*(1.0-GAM)/G
     return PARA
 
+def pelgpa(XMOM):
+    
+    PARA = numpy.zeros(3)
+    T3 = XMOM[2]
+    if XMOM[1] <= 0.0:
+        print ' *** ERROR *** ROUTINE PELGPA : L-MOMENTS INVALID'
+        return PARA
+    if numpy.abs(T3) >= 1.0:
+        print ' *** ERROR *** ROUTINE PELGPA : L-MOMENTS INVALID'
+        return PARA
+
+    G = (1.0 - 3.0 * T3) / (1.0 + T3)
+    PARA[2] = G
+    PARA[1] = (1.0 + G) * (2.0 + G) * XMOM[1]
+    PARA[0] = XMOM[0] - PARA[1] / (1.0 + G)
+
+    return PARA
 
 def samlmu(X, NMOM):
     #***********************************************************************

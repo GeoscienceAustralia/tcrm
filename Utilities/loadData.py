@@ -8,7 +8,7 @@ import interp3d
 
 from datetime import datetime
 from columns import colReadCSV
-from config import ConfigParser
+from Utilities.config import ConfigParser, cnfGetIniValue
 
 __version__ = "$Id$"
 
@@ -65,6 +65,7 @@ def maxWindSpeed(index, deltatime, lon, lat, pressure, penv,
     # Speed and bearing:
     speed, bearing = getSpeedBearing(index, lon, lat, deltatime)
     speed = metutils.convert(speed, 'kmh', 'mps')
+    np.putmask(speed, speed > 10e+3, 0)
 
     # Pressure deficit:
     deltap = penv - pressure
@@ -98,10 +99,10 @@ def maxWindSpeed(index, deltatime, lon, lat, pressure, penv,
     # 3-second gust: 1.11
 
     v = gustfactor * np.sqrt(deltap * 100 * beta / (rho * np.exp(1.)))
-
     np.putmask(v, (np.isnan(v) |
                    np.isinf(v) |
-              (pressure >= sys.maxint)), 0)
+                   (pressure >= 10e+7) | 
+                   (speed >= 10e+7)), 0)
 
     return v
 
@@ -401,8 +402,8 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
 
     """
     logger.debug("Loading %s" % trackFile)
-    inputData = colReadCSV(configFile, trackFile, source,
-                           nullValue=missingValue)
+    inputData = colReadCSV(configFile, trackFile, source) #,
+                          #nullValue=missingValue)
 
     config = ConfigParser()
     config.read(configFile)
@@ -449,7 +450,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         novalue_index = np.where(windspeed == sys.maxint)
         windspeed = metutils.convert(windspeed, inputSpeedUnits, "mps")
         windspeed[novalue_index] = sys.maxint
-    except KeyError:
+    except (ValueError,KeyError):
         logger.debug("No max wind speed data - all values will be zero")
         windspeed = np.zeros(indicator.size, 'f')
     assert lat.size == indicator.size
@@ -463,7 +464,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         rmax = metutils.convert(rmax, inputLengthUnits, "km")
         rmax[novalue_index] = sys.maxint
 
-    except KeyError:
+    except (ValueError,KeyError):
         logger.debug("No radius to max wind data - all values will be zero")
         rmax = np.zeros(indicator.size, 'f')
 

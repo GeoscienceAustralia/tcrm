@@ -3,8 +3,8 @@
  Title: evaluate.py
  Author: Craig Arthur, craig.arthur@ga.gov.au
  CreationDate: 11/03/11 12:56:PM
- Description: perform a series of analyses to qualitatively evaluate
- historic and synthetic TC datasets.
+ Description: perform a series of analyses to qualitatively evaluate historic
+ and synthetic TC track datasets.
 
  Version: $Rev: 803 $
 
@@ -19,6 +19,7 @@ import logging as log
 
 import numpy as np
 import numpy.ma as ma
+import matplotlib as mpl
 from matplotlib import pyplot, cm
 from matplotlib.dates import date2num
 from mpl_toolkits.basemap import Basemap
@@ -37,6 +38,12 @@ import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 __version__ = "$Id: evaluate.py 803 2013-08-13 22:10:19Z carthur $"
+
+
+# Set matplotlib defaults:
+mpl.rcParams['savefig.dpi'] = 200
+mpl.rcParams['xtick.direction'] = 'out'
+mpl.rcParams['ytick.direction'] = 'out'
 
 
 def ShowSyntax(exit_code=0):
@@ -84,22 +91,22 @@ def plotDensity(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
     else:
         xx = x
         yy = y
-    if llLon is not None:
+    if llLon:
         llcrnrlon = llLon
     else:
         llcrnrlon = x.min()
 
-    if llLat is not None:
+    if llLat:
         llcrnrlat = llLat
     else:
         llcrnrlat = y.min()
 
-    if urLon is not None:
+    if urLon:
         urcrnrlon = urLon
     else:
         urcrnrlon = x.max()
 
-    if urLat is not None:
+    if urLat:
         urcrnrlat = urLat
     else:
         urcrnrlat = y.max()
@@ -422,15 +429,6 @@ class EvalPressureDistribution(Evaluate):
         self.meanSynMin = np.mean(msynMin, axis=0)
         self.meanSynMed = np.mean(msynMed, axis=0)
 
-        """
-        for k in xrange(self.nx):
-            for l in xrange(self.ny):
-                self.synMeanUpper[k, l] = percentile(msynMean[:, k, l], per=self.upper)
-                self.synMeanLower[k, l] = percentile(msynMean[:, k, l], per=self.lower)
-                self.synMinUpper[k, l] = percentile(msynMin[:, k, l], per=self.upper)
-                self.synMinLower[k, l] = percentile(msynMin[:, k, l], per=self.lower)
-        """
-        
         self.synMeanUpper = percentile(msynMean, per=self.upper)
         self.synMeanLower = percentile(msynMean, per=self.lower)
         self.synMinUpper = percentile(msynMin, per=self.upper)
@@ -735,11 +733,6 @@ class EvalTrackDensity(Evaluate):
         [xx, yy] = np.meshgrid(self.x, self.y)
         outputFile = pjoin(self.plotPath, 'trackDensity.png')
 
-        #rcParams['figure.subplot.left'] = 0.05  # the left side of the subplots of the figure
-        #rcParams['figure.subplot.right'] = 0.95    # the right side of the subplots of the figure
-        #rcParams['figure.subplot.wspace'] = 0.05    # the amount of width reserved for blank space between subplots
-        #rcParams['figure.subplot.hspace'] = 0.05   # the amount of height reserved for white space between subplots
-
         log.info("Plotting data to {0}".format(self.plotPath))
         pyplot.figure()
         pyplot.clf()
@@ -771,10 +764,6 @@ class EvalTrackDensity(Evaluate):
         [xx, yy] = np.meshgrid(self.x, self.y)
         outputFile = pjoin(self.plotPath, 'synTrackDensityCI.png')
 
-        #rcParams['figure.subplot.left'] = 0.05  # the left side of the subplots of the figure
-        #rcParams['figure.subplot.right'] = 0.95    # the right side of the subplots of the figure
-        #rcParams['figure.subplot.wspace'] = 0.05    # the amount of width reserved for blank space between subplots
-        #rcParams['figure.subplot.hspace'] = 0.05   # the amount of height reserved for white space between subplots
         log.info("Plotting data to {0}".format(self.plotPath))
         pyplot.figure()
         ax1 = pyplot.subplot(211)
@@ -849,6 +838,7 @@ class EvalLongitudeCrossings(Evaluate):
 
     def historic(self):
         """Calculate historical rates of longitude crossing"""
+        
         log.debug("Processing historical tracks for longitude crossings")
         i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe = \
             loadTrackFile(self.configFile, 
@@ -862,6 +852,7 @@ class EvalLongitudeCrossings(Evaluate):
 
     def synthetic(self):
         """Calculate synthetic rates of longitude crossing"""
+        
         log.debug("Processing {0} synthetic events in {1}".format(self.synNumSimulations, self.synTrackPath))
         for n in xrange(self.synNumSimulations):
             trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n + 1))
@@ -882,6 +873,7 @@ class EvalLongitudeCrossings(Evaluate):
 
     def synStats(self):
         """Calculate statistics of synthetic event sets"""
+        
         log.debug("Calculating statistics for longitude crossings of synthetic events")
         if not hasattr(self, 'lonCrossingSyn'):
             log.critical("Synthetic event sets have not been processed!")
@@ -900,8 +892,6 @@ class EvalLongitudeCrossings(Evaluate):
                     self.lonCrossingSynLower[k, l] = percentile(self.lonCrossingSyn[:, k, l], per=self.lower)
                     self.lonCrossingSynEWLower[k, l] = percentile(self.lonCrossingSynEW[:, k, l], per=self.lower)
                     self.lonCrossingSynWELower[k, l] = percentile(self.lonCrossingSynWE[:, k, l], per=self.lower)
-                    
-            
 
         return True
 
@@ -1003,7 +993,8 @@ class EvalLongitudeCrossings(Evaluate):
                 'values': self.lonCrossingSynUpper / self.synNumYears,
                 'dtype': 'f',
                 'atts': {
-                    'long_name': 'Upper percentile synthetic longitudinal crossing rate',
+                    'long_name': ('Upper percentile synthetic longitudinal ',
+                                  'crossing rate' ),
                     'units': 'number of crossings per year',
                     'percentile': self.upper
                 }
@@ -1089,14 +1080,18 @@ class EvalLongitudeCrossings(Evaluate):
                      
             x1 = 2 * self.gateLons[i] - self.lonCrossingSynEWUpper[:, i]
             x2 = 2 * self.gateLons[i] - self.lonCrossingSynEWLower[:, i]
-            ax1.fill_betweenx(self.gateLats[:-1], x1, x2, color='0.5', alpha=0.5)
+            ax1.fill_betweenx(self.gateLats[:-1], x1, x2, 
+                              color='0.5', alpha=0.5)
 
-        pyplot.xlim(140, 380)
+        minLonLim = 2 * self.minLon
+        maxLonLim = 2 * self.maxLon + 20.
+        pyplot.xlim(minLonLim, maxLonLim)
         pyplot.xticks(2 * self.gateLons, self.gateLons.astype(int), fontsize=8)
         pyplot.xlabel("East-west crossings")
         pyplot.ylim(self.gateLats.min(), self.gateLats[-2])
         pyplot.yticks(fontsize=8)
         pyplot.ylabel('Latitude')
+        ax1.tick_params(direction='out', top='off', right='off')
         pyplot.grid(True)
 
         ax2 = pyplot.subplot(212)
@@ -1110,15 +1105,18 @@ class EvalLongitudeCrossings(Evaluate):
                      
             x1 = 2 * self.gateLons[i] + self.lonCrossingSynWEUpper[:, i]
             x2 = 2 * self.gateLons[i] + self.lonCrossingSynWELower[:, i]
-            ax2.fill_betweenx(self.gateLats[:-1], x1, x2, color='0.5', alpha=0.5)
+            ax2.fill_betweenx(self.gateLats[:-1], x1, x2, 
+                              color='0.5', alpha=0.5)
 
-        pyplot.xlim(140, 380)  #FIXME: hard-coded limits
+        pyplot.xlim(minLonLim, maxLonLim)  
         pyplot.xticks(2 * self.gateLons, self.gateLons.astype(int), fontsize=8)
+
         pyplot.xlabel("West-east crossings")
         pyplot.ylim(self.gateLats.min(), self.gateLats[-2])
         pyplot.yticks(fontsize=8)
         pyplot.ylabel('Latitude')
         pyplot.grid(True)
+        ax2.tick_params(direction='out', top='off', right='off')
         pyplot.savefig(pjoin(self.plotPath,'lon_crossing_syn.png'))
 
         return
