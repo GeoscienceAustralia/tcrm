@@ -804,7 +804,7 @@ def fieldParams(name):
     """
     List of additional parameters required for a wind field model.
     """
-     from inspect import getargspec
+    from inspect import getargspec
     std = getargspec(WindFieldModel.__init__)[0]
     new = getargspec(field(name).__init__)[0]
     params = [p for p in new if p not in std]
