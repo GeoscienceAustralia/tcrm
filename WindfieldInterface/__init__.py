@@ -192,48 +192,6 @@ class WindfieldAroundTrack(object):
                             self.margin, self.resolution)
         return R, theta
 
-    def windProfile(self, i, R):
-        """
-        Calculate the wind profile at time i at the radiuses R
-        around the tropical cyclone.
-        """
-        cls = windmodels.profile(self.profileType)
-        params = windmodels.profileParams(self.profileType)
-        values = [getattr(self, p) for p in params if hasattr(self, p)]
-
-        lat = self.track.Latitude[i]
-        lon = self.track.Longitude[i]
-        eP = self.track.EnvPressure[i]
-        cP = self.track.CentralPressure[i]
-        rMax = self.track.rMax[i]
-
-        profile = cls(lat, lon, eP, cP, rMax, *values)
-        return profile.velocity(R)
-
-    def windVorticity(self, i, R, maxAbsWindSpeed):
-        """
-        Calculate the wind vorticity at time `i` at the radiuses `R`
-        around the tropical cyclone.
-
-        :type  i: int
-        :param i: the time.
-
-        :type  R: float
-        :param R: the radius around the tropical cyclone.
-        """
-        cls = windmodels.profile(self.profileType)
-        params = windmodels.profileParams(self.profileType)
-        values = [getattr(self, p) for p in params if hasattr(self, p)]
-
-        lat = self.track.Latitude[i]
-        lon = self.track.Longitude[i]
-        eP = self.track.EnvPressure[i]
-        cP = self.track.CentralPressure[i]
-        rMax = self.track.rMax[i]
-
-        profile = cls(lat, lon, eP, cP, rMax, *values)
-        return profile.vorticity(R)
-
     def pressureProfile(self, i, R):
         """
         Calculate the pressure profile at time `i` at the radiuses `R`
