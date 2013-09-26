@@ -70,7 +70,7 @@ import os, sys, pdb, logging
 import Utilities.metutils as metutils
 
 import numpy
-import WindfieldInterface.vmax as vmax
+import wind.vmax as vmax
 import time
 
 

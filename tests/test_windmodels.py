@@ -4,7 +4,7 @@ import unittest
 import cPickle
 import NumpyTestCase
 
-from WindfieldInterface.windmodels import *
+from wind.windmodels import *
 
 try:
     import pathLocate

@@ -46,7 +46,7 @@ except:
 # Add parent folder to python path
 unittest_dir = pathLocate.getUnitTestDirectory()
 sys.path.append(pathLocate.getRootDirectory())
-import WindfieldInterface.vmax as vmax
+import wind.vmax as vmax
 from Utilities.files import flStartLog
 
 

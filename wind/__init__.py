@@ -1,5 +1,5 @@
 """
-:mod:`WindfieldInterface` -- Wind field calculation
+:mod:`wind` -- Wind field calculation
 ===================================================
 
 This module contains the core object for the wind field calculations.
@@ -10,11 +10,11 @@ Wind field calculations can be run in parallel using MPI if the
 
     mpirun -n 10 python main.py cairns.ini
 
-:class:`WindfieldInterface` can be correctly initialised and started by
+:class:`wind` can be correctly initialised and started by
 calling the :meth: `run` with the location of a *configFile*::
 
-    import WindfieldInterface
-    WindfieldInterface.run('cairns.ini')
+    import wind
+    wind.run('cairns.ini')
 
 """
 
@@ -29,7 +29,6 @@ import windmodels
 from os.path import join as pjoin
 from collections import defaultdict
 
-from PressureInterface.pressureProfile import PrsProfile as PressureProfile
 
 from Utilities.files import flModDate, flProgramVersion
 from Utilities.config import ConfigParser
@@ -204,6 +203,8 @@ class WindfieldAroundTrack(object):
         :type  R: :class:`numpy.ndarray`
         :param R: the radiuses around the tropical cyclone.
         """
+        from PressureInterface.pressureProfile import PrsProfile as PressureProfile
+
         p = PressureProfile(R, self.track.EnvPressure[i],
                             self.track.CentralPressure[i],
                             self.track.rMax[i],

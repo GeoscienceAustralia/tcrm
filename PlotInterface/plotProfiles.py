@@ -1,5 +1,5 @@
 import numpy as np
-import WindfieldInterface.windmodels as windmodels
+import wind.windmodels as windmodels
 from matplotlib.figure import Figure
 
 class WindProfileFigure(Figure):

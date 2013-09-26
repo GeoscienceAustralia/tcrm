@@ -125,8 +125,8 @@ def doWindfieldCalculations(configFile):
 
     log.info('Starting wind field calculations')
 
-    import WindfieldInterface
-    WindfieldInterface.run(configFile)
+    import wind
+    wind.run(configFile)
 
     log.info('Completed wind field calculations')
 
