@@ -24,17 +24,12 @@ import itertools
 import math
 import os
 import sys
+import windmodels
 
 from os.path import join as pjoin
 from collections import defaultdict
 
 from PressureInterface.pressureProfile import PrsProfile as PressureProfile
-
-import windmodels
-
-from windProfile import WindProfile
-from windVorticity import WindVorticity
-from windField import WindField
 
 from Utilities.files import flModDate, flProgramVersion
 from Utilities.config import ConfigParser
@@ -304,7 +299,6 @@ class WindfieldAroundTrack(object):
 
         Ux, Vy = windfield.field(R, theta, vFm, thetaFm,  thetaMax)
 
-        Ux, Vy = field()
         return (Ux, Vy, P)
 
     def regionalExtremes(self, gridLimit, timeStepCallback=None):
