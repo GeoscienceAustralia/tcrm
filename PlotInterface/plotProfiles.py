@@ -4,7 +4,7 @@ from matplotlib.figure import Figure
 
 class WindProfileFigure(Figure):
 
-    def __init__(self, lat, lon, eP, cP, rMax, beta):
+    def __init__(self, lat, lon, eP, cP, rMax, beta, beta1=1.5, beta2=1.4):
         Figure.__init__(self)
         self.R = np.array(range(1, 201), 'f')
         self.lat = lat
@@ -13,8 +13,8 @@ class WindProfileFigure(Figure):
         self.eP = eP
         self.cP = cP
         self.beta = beta
-        self.beta1 = beta
-        self.beta2 = beta
+        self.beta1 = beta1
+        self.beta2 = beta2
 
     def plot(self, profileType=None):
         profiles = []
@@ -38,7 +38,7 @@ class WindProfileFigure(Figure):
                               self.rMax, *values)
                 V = profile.velocity(self.R)
                 ax.plot(self.R, abs(V), linewidth=2)
-                legend.append(name)
+                legend.append(name.capitalize())
             except TypeError:
                 pass
 
@@ -53,6 +53,7 @@ class WindProfileFigure(Figure):
 
 def main():
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    from os.path import join as pjoin, dirname, normpath
 
     lat = -12.
     lon = 130.
@@ -60,14 +61,17 @@ def main():
     eP = 100700.
     cP = 95000.
     beta = 1.6
-    filename = 'windprofile.png'
+
+    filename = 'windprofiles.png'
+    path = pjoin(normpath(pjoin(dirname(__file__), '..', 'docs')), filename)
 
     fig = WindProfileFigure(lat, lon, eP, cP, rMax, beta)
     canvas = FigureCanvas(fig)
 
     fig.plot()
     
-    canvas.print_figure(filename)
+    print('saving wind profiles figure to %s' % path)
+    canvas.print_figure(path)
 
 if __name__ == "__main__":
     main()
