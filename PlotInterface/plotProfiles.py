@@ -1,8 +1,6 @@
 import numpy as np
 import WindfieldInterface.windmodels as windmodels
-
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 class WindProfileFigure(Figure):
 
@@ -54,6 +52,8 @@ class WindProfileFigure(Figure):
                       (self.cP/100., self.eP/100., self.rMax))
 
 def main():
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+
     lat = -12.
     lon = 130.
     rMax = 30.
