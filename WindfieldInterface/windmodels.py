@@ -778,7 +778,7 @@ def profile(name):
     Helper function to return the appropriate wind profile
     model given a `name`.
     """
-    return WIND_PROFILES[name]
+    return PROFILES[name]
 
 
 def profileParams(name):
@@ -797,7 +797,7 @@ def field(name):
     Helper function to return the appropriate wind field
     model given a `name`.
     """
-    return WIND_FIELDS[name]
+    return FIELDS[name]
 
 
 def fieldParams(name):
@@ -811,8 +811,8 @@ def fieldParams(name):
     return params
 
 
-WIND_PROFILES = {k.__name__.replace('WindProfile', '').lower(): k
-                 for k in allSubclasses(vars()['WindProfileModel'])}
+PROFILES = {k.__name__.replace('WindProfile', '').lower(): k
+            for k in allSubclasses(vars()['WindProfileModel'])}
 
-WIND_FIELDS = {k.__name__.replace('WindField', '').lower(): k
-               for k in allSubclasses(vars()['WindFieldModel'])}
+FIELDS = {k.__name__.replace('WindField', '').lower(): k
+          for k in allSubclasses(vars()['WindFieldModel'])}
