@@ -199,7 +199,7 @@ class WindfieldAroundTrack(object):
         """
         cls = windmodels.profile(self.profileType)
         params = windmodels.profileParams(self.profileType)
-        values = [getattr(self, p) for p in params if hasattr(self,p)]
+        values = [getattr(self, p) for p in params if hasattr(self, p)]
 
         lat = self.track.Latitude[i]
         lon = self.track.Longitude[i]
@@ -223,7 +223,7 @@ class WindfieldAroundTrack(object):
         """
         cls = windmodels.profile(self.profileType)
         params = windmodels.profileParams(self.profileType)
-        values = [getattr(self, p) for p in params if hasattr(self,p)]
+        values = [getattr(self, p) for p in params if hasattr(self, p)]
 
         lat = self.track.Latitude[i]
         lon = self.track.Longitude[i]
@@ -280,7 +280,7 @@ class WindfieldAroundTrack(object):
         #FIXME: temporary way to do this
         cls = windmodels.profile(self.profileType)
         params = windmodels.profileParams(self.profileType)
-        values = [getattr(self, p) for p in params if hasattr(self,p)]
+        values = [getattr(self, p) for p in params if hasattr(self, p)]
         profile = cls(lat, lon, eP, cP, rMax, *values)
 
         R, theta = self.polarGridAroundEye(i)
@@ -294,7 +294,7 @@ class WindfieldAroundTrack(object):
         #FIXME: temporary way to do this
         cls = windmodels.field(self.windFieldType)
         params = windmodels.fieldParams(self.windFieldType)
-        values = [getattr(self, p) for p in params if hasattr(self,p)]
+        values = [getattr(self, p) for p in params if hasattr(self, p)]
         windfield = cls(profile, *values)
 
         Ux, Vy = windfield.field(R, theta, vFm, thetaFm,  thetaMax)
