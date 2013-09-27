@@ -37,7 +37,6 @@ from Utilities.maputils import bearing2theta, makeGrid
 
 import Utilities.nctools as nctools
 
-
 # Trackfile .csv format.
 
 TRACKFILE_COLS = ('CycloneNumber', 'TimeElapsed', 'Longitude',
@@ -598,9 +597,8 @@ class WindfieldGenerator(object):
 
             gusts[track.trackfile] = (gust, bearing, Vx, Vy, P, lon, lat)
             done[track.trackfile] += [track.trackId]
-
             if len(done[track.trackfile]) >= done[track.trackfile][0][1]:
-                dumpfile = pjoin(windfieldPath, filenameFormat % i)
+                dumpfile = pjoin(windfieldPath, filenameFormat % (pp.rank(), i))
                 self._saveGustToFile(track.trackfile,
                                      (lat, lon, gust),
                                      dumpfile)
@@ -667,7 +665,7 @@ class WindfieldGenerator(object):
         nctools.ncSaveGrid(filename, dimensions, variables, gatts=gatts)
 
     def dumpGustsFromTrackfiles(self, trackfiles, windfieldPath,
-                                filenameFormat='gust-%04i.nc',
+                                filenameFormat='gust-%i-%04i.nc',
                                 progressCallback=None):
         """
         Helper method to dump the maximum wind speeds (gusts) observed over a
@@ -871,7 +869,7 @@ def run(configFile):
     gridLimit = config.geteval('Region', 'gridLimit')
     windfieldPath = pjoin(outputPath, 'windfield')
     trackPath = pjoin(outputPath, 'tracks')
-    windfieldFormat = 'gust-%04d.nc'
+    windfieldFormat = 'gust-%i-%04d.nc'
 
     if config.has_option('WindfieldInterface', 'gridLimit'):
         gridLimit = config.geteval('WindfieldInterface', 'gridLimit')
