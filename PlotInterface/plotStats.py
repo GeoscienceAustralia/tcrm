@@ -517,18 +517,21 @@ class PlotData:
         pyplot.rcdefaults()
 
 if __name__=="__main__":
+    from os.path import join as pjoin
+
     configFile = sys.argv[1]
     dataPath = config.cnfGetIniValue(configFile, 'Output', 'Path', os.getcwd())
-    outputPath = os.path.join(dataPath, 'plots')
+    inputPath = pjoin(dataPath, 'process')
+    outputPath = pjoin(dataPath, 'plots')
     pyplot.rcParams['figure.figsize'] = (7, 12)
 
-    pRateData = files.flLoadFile(os.path.join(dataPath, 'pressure_rate'))
-    pAllData = files.flLoadFile(os.path.join(dataPath, 'all_pressure'))
-    bRateData = files.flLoadFile(os.path.join(dataPath, 'bearing_rate'))
-    bAllData = files.flLoadFile(os.path.join(dataPath, 'all_bearing'))
-    sRateData = files.flLoadFile(os.path.join(dataPath, 'speed_rate'))
-    sAllData = files.flLoadFile(os.path.join(dataPath, 'all_speed'))
-    freq = files.flLoadFile(os.path.join(dataPath, 'frequency'))
+    pRateData = files.flLoadFile(pjoin(inputPath, 'pressure_rate'))
+    pAllData = files.flLoadFile(pjoin(inputPath, 'all_pressure'))
+    bRateData = files.flLoadFile(pjoin(inputPath, 'bearing_rate'))
+    bAllData = files.flLoadFile(pjoin(inputPath, 'all_bearing'))
+    sRateData = files.flLoadFile(pjoin(inputPath, 'speed_rate'))
+    sAllData = files.flLoadFile(pjoin(inputPath, 'all_speed'))
+    freq = files.flLoadFile(pjoin(inputPath, 'frequency'))
     years = freq[:, 0]
     frequency = freq[:, 1]
 
