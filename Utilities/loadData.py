@@ -6,7 +6,7 @@ import maputils
 import nctools
 import interp3d
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from columns import colReadCSV
 from Utilities.config import ConfigParser, cnfGetIniValue
 
@@ -241,32 +241,32 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
 
     return year, month, day, hour, minute
 
-# NOTE: commented out so that matplotlib can be disabled
-#
-# def parseAge(data, indicator):
-#    """
-#    Parse the TC age information to get a proxy date record. Assumes every TC
-#    starts at 2000-01-01 00:00 and calculates year, month, day, hour and
-#    minute values based on the age field.
-#    """
-#
-#    start_time = date2num(datetime(2000, 1, 1, 0, 0))
-#    times_ = start_time + data['age']/24.
-#    d = num2date(times_)
-#    year = 2000*np.ones(indicator.size, 'i')
-#    month = np.ones(indicator.size, 'i')
-#    day = np.ones(indicator.size, 'i')
-#    hour = 12*np.ones(indicator.size, 'i')
-#    minute = np.zeros(indicator.size, 'i')
-#
-#    for i in xrange(len(d)):
-#        year[i] = d[i].year
-#        month[i] = d[i].month
-#        day[i] = d[i].day
-#        hour[i] = d[i].hour
-#        minute[i] = d[i].minute
-#
-#    return year, month, day, hour, minute
+def parseAge(data, indicator):
+    """
+    Parse the TC age information to get a proxy date record. Assumes every TC
+    starts at 2000-01-01 00:00 and calculates year, month, day, hour and
+    minute values based on the age field.
+
+    Assumes the age is given in hours since the initial timestep
+    """
+
+    start_time = datetime(2000, 1, 1, 0, 0)
+    delta = np.array([timedelta(i) for i in data['age']/24.])
+    times_ = start_time + delta
+    year = np.ones(indicator.size, 'i')
+    month = np.ones(indicator.size, 'i')
+    day = np.ones(indicator.size, 'i')
+    hour = np.ones(indicator.size, 'i')
+    minute = np.zeros(indicator.size, 'i')
+
+    for i, dt in enumerate(times_):
+        year[i] = dt.year
+        month[i] = dt.month
+        day[i] = dt.day
+        hour[i] = dt.hour
+        minute[i] = dt.minute
+
+    return year, month, day, hour, minute
 
 
 def getTimeDelta(year, month, day, hour, minute):
@@ -417,7 +417,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     indicator = getInitialPositions(inputData)
 
     # Sort date/time information
-    if 'age' in inputData:
+    if 'age' in inputData.dtype.names:
         year, month, day, hour, minute = parseAge(inputData, indicator)
     else:
         year, month, day, hour, minute = parseDates(inputData, indicator,
@@ -468,7 +468,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         logger.debug("No radius to max wind data - all values will be zero")
         rmax = np.zeros(indicator.size, 'f')
 
-    if 'penv' in inputData:
+    if 'penv' in inputData.dtype.names:
         penv = np.array(inputData['penv'], 'd')
     else:
         logger.info("No ambient MSLP data in this input file")
