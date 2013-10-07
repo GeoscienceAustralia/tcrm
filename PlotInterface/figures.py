@@ -3,11 +3,13 @@ import numpy as np
 import scipy.stats as stats
 import wind.windmodels as windmodels
 from matplotlib.figure import Figure
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 class WindProfileFigure(Figure):
 
     def __init__(self, lat, lon, eP, cP, rMax, beta, beta1=1.5, beta2=1.4):
+
         Figure.__init__(self)
         self.R = np.array(range(1, 201), 'f')
         self.lat = lat
@@ -55,39 +57,79 @@ class WindProfileFigure(Figure):
                     (self.cP / 100., self.eP / 100., self.rMax))
 
 
+class ScatterHistogramFigure(Figure):
+
+    def __init__(self):
+        Figure.__init__(self)
+
+    def render(self, axes, x, y):
+        color = axes._get_lines.color_cycle
+
+        axes.scatter(x, y, color=color.next(), s=3)
+        axes.set_aspect('equal')
+
+        divider = make_axes_locatable(axes)
+        axesTop = divider.append_axes('top', 1.2, pad=0.1, sharex=axes)
+        axesRight = divider.append_axes('right', 1.2, pad=0.2, sharey=axes)
+
+        axesTop.hist(x, fc='k', ec=None)
+        axesRight.hist(y, fc='k', ec=None, orientation='horizontal')
+
+    def plot(self, xdata, ydata):
+        i = np.where((xdata < sys.maxint) & (ydata < sys.maxint))[0]
+        x = xdata[i]
+        y = ydata[i]
+
+        axes = self.add_subplot(1, 1, 1)
+        self.render(axes, x, y)
+
+
 class RegressionFigure(Figure):
 
     def __init__(self):
         Figure.__init__(self)
         self.subfigures = []
 
-    def add(self, data, label='x', title='x', transform=lambda x: x):
-        self.subfigures.append((data, label, title, transform))
+    def add(self, xdata, ydata, xlabel='x', ylabel='y',
+        title='x', transform=lambda x: x):
+        self.subfigures.append((xdata, ydata, xlabel, ylabel, title, transform))
 
-    def prepareData(self, data, transform):
-        z = data
-        i = np.where((z[0, :] < sys.maxint) & (z[1, :] < sys.maxint))[0]
-        z = transform(z[:, i])
-        return z
+    def prepareData(self, xdata, ydata, transform):
+        i = np.where((xdata < sys.maxint) & (ydata < sys.maxint))[0]
+        xdata, ydata = transform(xdata), transform(ydata)
+        return xdata[i], ydata[i]
 
-    def subplot(self, axes, data, label='x', title='x', transform=lambda x: x):
-        color = axes._get_lines.color_cycle
-
-        z = self.prepareData(data, transform)
-
-        k = color.next()
-        axes.plot(z[0,:], z[1,:], '.', alpha=0.8, color=k)
-
+    def formatAxes(self, axes, xdata, ydata):
         def filterOutliers(data, m=12.):
             d = np.abs(data - np.median(data))
             mdev = np.median(d)
             s  = d/mdev if mdev else 0
             return data[s<m]
 
-        xmin = filterOutliers(z[0,:]).min()
-        xmax = filterOutliers(z[0,:]).max()
+        xmin = filterOutliers(xdata).min()
+        xmax = filterOutliers(xdata).max()
+        ymin = filterOutliers(ydata).min()
+        ymax = filterOutliers(ydata).max()
 
-        m, c, r, p, e = stats.linregress(z)
+        axes.set_xlim(xmin, xmax)
+        axes.set_ylim(ymin, ymax)
+        axes.set_xticks(np.linspace(xmin, xmax, 7))
+        axes.set_yticks(np.linspace(ymin, ymax, 7))
+
+        return xmin, xmax
+
+    def subplot(self, axes, subfigure):
+        xdata, ydata, xlabel, ylabel, title, transform = subfigure
+        color = axes._get_lines.color_cycle
+
+        xdata, ydata = self.prepareData(xdata, ydata, transform)
+
+        k = color.next()
+        axes.plot(xdata, ydata, '.', alpha=0.8, color=k)
+
+        xmin, xmax = self.formatAxes(axes, xdata, ydata)
+
+        m, c, r, p, e = stats.linregress(np.array([xdata, ydata]))
         x = np.array([xmin, xmax])
         y = m * x + c
 
@@ -97,16 +139,9 @@ class RegressionFigure(Figure):
         k = color.next()
         axes.plot(x, y, '-', color=k, label='r = %5.3f' % r)
 
-        axes.set_xlim(xmin, xmax)
-        axes.set_ylim(xmin, xmax)
-        axes.set_xticks(np.linspace(xmin, xmax, 7))
-        axes.set_yticks(np.linspace(xmin, xmax, 7))
-
-        axes.set_ylabel('$' + label + '(t)$')
-        axes.set_xlabel('$' + label + '(t-1)$')
+        axes.set_xlabel(xlabel)
+        axes.set_ylabel(ylabel)
         axes.set_title(title)
-
-        axes.set_aspect('equal')
 
         legend = axes.legend(loc=2)
         legend.get_frame().set_alpha(0.5)
@@ -117,16 +152,22 @@ class RegressionFigure(Figure):
         self.set_size_inches(w, n*h)
         for i, subfigure in enumerate(reversed(self.subfigures)):
             axes = self.add_subplot(n, 1, i)
-            self.subplot(axes, *subfigure)
+            self.subplot(axes, subfigure)
 
 
 class LaggedRegressionFigure(RegressionFigure):
 
-    def prepareData(self, data, transform):
-        z = np.array([data[1:], data[:-1]])
-        i = np.where((z[0, :] < sys.maxint) & (z[1, :] < sys.maxint))[0]
-        z = transform(z[:, i])
-        return z
+    def add(self, data, label='x', title='x', transform=lambda x: x):
+        super(LaggedRegressionFigure, self).add(data[1:],
+                                                data[:-1],
+                                                r'$' + label + r'(t-1)$',
+                                                r'$' + label + r'(t)$',
+                                                title,
+                                                transform)
+
+    def subplot(self, axes, subfigure):
+        super(LaggedRegressionFigure, self).subplot(axes, subfigure)
+        axes.set_aspect('equal')
 
 
 class PressureFigure(LaggedRegressionFigure):
@@ -159,8 +200,7 @@ class BearingFigure(LaggedRegressionFigure):
 class FrequencyFigure(RegressionFigure):
 
     def plot(self, years, frequency):
-        data = np.array([years, frequency])
-        self.add(data, '', 'Annual Frequency')
+        self.add(np.array(years, int), frequency, 'Year', 'Frequency', 'Annual Frequency')
         super(FrequencyFigure, self).plot()
 
 
@@ -183,11 +223,13 @@ def savePressureFigure(pressures, pressureRates, filename='docs/prs_corr.png'):
     saveFigure(fig, filename)
 
 
-def saveSpeedFigure(pressures, pressureRates, filename='docs/spd_corr.png'):
+def saveSpeedFigures(speeds, speedRates):
     fig = SpeedFigure()
-    fig.plot(pressures, pressureRates)
-    saveFigure(fig, filename)
-
+    fig.plot(speeds, speedRates)
+    saveFigure(fig, 'docs/spd_corr.png')
+    fig = ScatterHistogramFigure()
+    fig.plot(speeds[1:], speeds[:-1])
+    saveFigure(fig, 'docs/speedsh.png')
 
 def saveBearingFigure(bearings, bearingRates, filename='docs/bear_corr.png'):
     fig = BearingFigure()
@@ -195,7 +237,7 @@ def saveBearingFigure(bearings, bearingRates, filename='docs/bear_corr.png'):
     saveFigure(fig, filename)
 
 
-def saveFrequencyFigure(years, frequency, filename='docs/bear_corr.png'):
+def saveFrequencyFigure(years, frequency, filename='docs/freq_corr.png'):
     fig = FrequencyFigure()
     fig.plot(years, frequency)
     saveFigure(fig, filename)
@@ -215,11 +257,14 @@ def main():
 
     speedRates = files.flLoadFile(pjoin(inputPath, 'speed_rate'))
     speeds = files.flLoadFile(pjoin(inputPath, 'all_speed'))
-    saveSpeedFigure(speeds, speedRates)
+    saveSpeedFigures(speeds, speedRates)
 
     bearingRates = files.flLoadFile(pjoin(inputPath, 'bearing_rate'))
     bearings = files.flLoadFile(pjoin(inputPath, 'all_bearing'))
     saveBearingFigure(bearings, bearingRates)
+
+    freq = files.flLoadFile(pjoin(inputPath, 'frequency'))
+    saveFrequencyFigure(np.array(freq[:,0],int), freq[:,1])
 
 if __name__ == "__main__":
     main()
