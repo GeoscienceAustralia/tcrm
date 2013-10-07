@@ -20,18 +20,19 @@ import logging as log
 import numpy as np
 import numpy.ma as ma
 import matplotlib as mpl
+
 from matplotlib import pyplot, cm
 from matplotlib.dates import date2num
 from mpl_toolkits.basemap import Basemap
 from scipy.stats import scoreatpercentile as percentile
 from datetime import datetime
+
 from Utilities.files import flConfigFile, flStartLog
 from Utilities.config import cnfGetIniValue, ConfigParser
-
 from Utilities.loadData import loadTrackFile
 from Utilities.nctools import ncSaveGrid
-import Utilities.Intersections as Int
 
+import Utilities.Intersections as Int
 import Utilities.colours as colours
 
 import warnings
@@ -40,7 +41,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 __version__ = "$Id: evaluate.py 803 2013-08-13 22:10:19Z carthur $"
 
 
-# Set matplotlib defaults:
+# FIXME Set matplotlib defaults - upgrade to use matplotlibrc file
 mpl.rcParams['savefig.dpi'] = 200
 mpl.rcParams['xtick.direction'] = 'out'
 mpl.rcParams['ytick.direction'] = 'out'
@@ -136,28 +137,22 @@ def plotDensity(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
             log.debug("Maskoceans module unavailable, skipping this command")
         else:
             datam = maskoceans(xx, yy, data, inlands=False)
-            m.pcolormesh(xx, yy, datam, edgecolors='None', vmin=datarange[0],
-                         vmax=datarange[1], cmap=cmap)
+            m.pcolormesh(xx, yy, datam, edgecolors='None', 
+                         vmin=datarange[0], vmax=datarange[1], 
+                         cmap=cmap)
     else:
-        m.pcolormesh(xx, yy, data, edgecolors='None', vmin=datarange[0],
-                     vmax=datarange[1], cmap=cmap)
-
-    cb = pyplot.colorbar(shrink=0.5, aspect=30,  orientation='horizontal',
-                         extend='max', pad=0.1)
-
-    if cb.orientation == 'horizontal':
-        for t in cb.ax.get_xticklabels():
-            t.set_fontsize(8)
-
-    if clabel:
-        cb.set_label(clabel)
+        m.pcolormesh(xx, yy, data, edgecolors='None', 
+                     vmin=datarange[0], vmax=datarange[1], 
+                     cmap=cmap)
 
     m.drawcoastlines(linewidth=0.5)
     if maskland:
         m.fillcontinents(color='white')
 
-    m.drawparallels(parallels, labels=[1, 0, 0, 0], fontsize=7.5, linewidth=0.2)
-    m.drawmeridians(meridians, labels=[0, 0, 0, 1], fontsize=7.5, linewidth=0.2)
+    m.drawparallels(parallels, labels=[1, 0, 0, 0], 
+                    fontsize=7.5, linewidth=0.2)
+    m.drawmeridians(meridians, labels=[0, 0, 0, 1], 
+                    fontsize=7.5, linewidth=0.2)
     if ylab:
         pyplot.ylabel(ylab, fontsize=7.5)
     if xlab:
@@ -167,6 +162,17 @@ def plotDensity(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
         
     pyplot.grid(True)
     pyplot.tick_params(direction='out', right='off', top='off')
+
+    cb = pyplot.colorbar(shrink=0.5, aspect=30,  
+                         orientation='horizontal',
+                         extend='max', pad=0.1)
+
+    if cb.orientation == 'horizontal':
+        for t in cb.ax.get_xticklabels():
+            t.set_fontsize(8)
+
+    if clabel:
+        cb.set_label(clabel)
 
     return
 
@@ -193,6 +199,7 @@ class Evaluate:
         self.percentile = kwargs.get('Percentile', 90)
         self.lower = (100 - self.percentile)/ 2.
         self.upper = 100 - self.lower
+
         # We default to Australian region:
         self.minLon = kwargs.get('MinLongitude', 60.)
         self.maxLon = kwargs.get('MaxLongitude', 180.)
@@ -210,7 +217,6 @@ class Evaluate:
         # Longitude crossing gates:
         self.gateLons = np.arange(self.minLon, self.maxLon, 10.)
         self.gateLats = np.arange(self.minLat, self.maxLat + 0.5, 2.5)
-
 
         # location to store output:
         self.plotPath = kwargs.get('PlotPath')
@@ -400,7 +406,7 @@ class EvalPressureDistribution(Evaluate):
         self.synMinCP = np.empty((self.synNumSimulations,) + self.histShape)
 
         for n in xrange(self.synNumSimulations):
-            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n + 1))
+            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n))
             log.debug("Processing {0}".format(trackFile))
             try:
                 i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe = \
@@ -617,7 +623,7 @@ class EvalTrackDensity(Evaluate):
         log.info("Processing {0} synthetic events in {1}".format(self.synNumSimulations, self.synTrackPath))
         self.synHist = np.empty(((self.synNumSimulations,) + self.hist2DShape))
         for n in xrange(self.synNumSimulations):
-            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n + 1))
+            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n))
             log.debug("Processing {0}".format(trackFile))
             try:
                 i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe = \
@@ -855,7 +861,7 @@ class EvalLongitudeCrossings(Evaluate):
         
         log.debug("Processing {0} synthetic events in {1}".format(self.synNumSimulations, self.synTrackPath))
         for n in xrange(self.synNumSimulations):
-            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n + 1))
+            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n))
             log.debug("Processing {0}".format(trackFile))
             try:
                 i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe = \
@@ -1156,7 +1162,7 @@ class EvalAgeDistribution(Evaluate):
                                                                       self.synTrackPath))
 
         for n in xrange(self.synNumSimulations):
-            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n + 1))
+            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n))
             log.debug("Processing {0}".format(trackFile))
             try:
                 i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe = \
@@ -1205,47 +1211,26 @@ class EvalAgeDistribution(Evaluate):
 
         pyplot.savefig(pjoin(self.plotPath, 'tcAgeDistribution.png'))
 
-def main(argv):
-    """Main process to read the config settings and process the data"""
+def run(config_file):
+    """Run the process"""
+    
 
-    verbose = False
-    gConfigFile = flConfigFile()
-    try:
-        opts, args = getopt.getopt(argv, 'c:hv', ['config=', 'help', 'verbose'])
-    except getopt.GetoptError:
-        ShowSyntax(2)
-    except IndexError:
-        ShowSyntax(2)
-    else:
-        for opt, arg in opts:
-            if opt in ("-h", "--help"):
-                ShowSyntax()
-            elif opt in ("-c", "--config"):
-                gConfigFile = arg
-            elif opt in ("-v", "--verbose"):
-                verbose = True
-
-    log = flStartLog(cnfGetIniValue(gConfigFile, 'Logging', 'LogFile', flConfigFile('.log')),
-                     cnfGetIniValue(gConfigFile, 'Logging', 'LogLevel', 'DEBUG'),
-                     cnfGetIniValue(gConfigFile, 'Logging', 'Verbose', True),
-                     cnfGetIniValue(gConfigFile, 'Logging', 'DateStamp', False))
-
-    args = dict(configFile        = gConfigFile,
-                historicTrackFile = cnfGetIniValue(gConfigFile, 'Input', 'HistoricTrackFile'),
-                historicFormat    = cnfGetIniValue(gConfigFile, 'Input', 'HistoricFormat'),
-                historicNumYears  = cnfGetIniValue(gConfigFile, 'Input', 'HistoricNumYears'),
-                synTrackPath      = cnfGetIniValue(gConfigFile, 'Input', 'SyntheticTrackPath'),
-                synFormat         = cnfGetIniValue(gConfigFile, 'Input', 'SyntheticFormat'),
-                synNumSimulations = cnfGetIniValue(gConfigFile, 'Input', 'NumSyntheticEvents', 100),
-                synNumYears       = cnfGetIniValue(gConfigFile, 'Input', 'SyntheticNumYears', 1),
-                MinLongitude      = cnfGetIniValue(gConfigFile, 'Region', 'MinimumLongitude', 60.),
-                MaxLongitude      = cnfGetIniValue(gConfigFile, 'Region', 'MaximumLongitude', 180.),
-                MinLatitude       = cnfGetIniValue(gConfigFile, 'Region', 'MinimumLatitude', -40.),
-                MaxLatitude       = cnfGetIniValue(gConfigFile, 'Region', 'MaximumLatitude', 0.),
-                GridSize          = cnfGetIniValue(gConfigFile, 'Region', 'GridSize', 1.0),
-                PlotPath          = cnfGetIniValue(gConfigFile, 'Output', 'PlotPath', os.getcwd()),
-                DataPath          = cnfGetIniValue(gConfigFile, 'Output', 'DataPath', os.getcwd()),
-                ColourMap         = cnfGetIniValue(gConfigFile, 'Output', 'ColourMap','hot_r'))
+    args = dict(configFile        = config_file,
+                historicTrackFile = cnfGetIniValue(config_file, 'Input', 'HistoricTrackFile'),
+                historicFormat    = cnfGetIniValue(config_file, 'Input', 'HistoricSource'),
+                historicNumYears  = cnfGetIniValue(config_file, 'Input', 'HistoricNumYears'),
+                synTrackPath      = cnfGetIniValue(config_file, 'Input', 'SyntheticTrackPath'),
+                synFormat         = cnfGetIniValue(config_file, 'Input', 'SyntheticSource'),
+                synNumSimulations = cnfGetIniValue(config_file, 'Input', 'NumSyntheticEvents', 100),
+                synNumYears       = cnfGetIniValue(config_file, 'Input', 'SyntheticNumYears', 1),
+                MinLongitude      = cnfGetIniValue(config_file, 'Region', 'MinimumLongitude', 60.),
+                MaxLongitude      = cnfGetIniValue(config_file, 'Region', 'MaximumLongitude', 180.),
+                MinLatitude       = cnfGetIniValue(config_file, 'Region', 'MinimumLatitude', -40.),
+                MaxLatitude       = cnfGetIniValue(config_file, 'Region', 'MaximumLatitude', 0.),
+                GridSize          = cnfGetIniValue(config_file, 'Region', 'GridSize', 1.0),
+                PlotPath          = cnfGetIniValue(config_file, 'Output', 'PlotPath', os.getcwd()),
+                DataPath          = cnfGetIniValue(config_file, 'Output', 'DataPath', os.getcwd()),
+                ColourMap         = cnfGetIniValue(config_file, 'Output', 'ColourMap','hot_r'))
 
     log.info("Processing track density information")
     tD = EvalTrackDensity(**args)
@@ -1280,8 +1265,35 @@ def main(argv):
     aD.synStats()
     aD.plotAgeDistribution()
 
+def process_args(argv):
+    """Main process to read the config settings and process the data"""
+
+    verbose = False
+    gConfigFile = flConfigFile()
+    try:
+        opts, args = getopt.getopt(argv, 'c:hv', ['config=', 'help', 'verbose'])
+    except getopt.GetoptError:
+        ShowSyntax(2)
+    except IndexError:
+        ShowSyntax(2)
+    else:
+        for opt, arg in opts:
+            if opt in ("-h", "--help"):
+                ShowSyntax()
+            elif opt in ("-c", "--config"):
+                gConfigFile = arg
+            elif opt in ("-v", "--verbose"):
+                verbose = True
+
+    
+    log = flStartLog(cnfGetIniValue(gConfigFile, 'Logging', 'LogFile', flConfigFile('.log')),
+                     cnfGetIniValue(gConfigFile, 'Logging', 'LogLevel', 'DEBUG'),
+                     cnfGetIniValue(gConfigFile, 'Logging', 'Verbose', True),
+                     cnfGetIniValue(gConfigFile, 'Logging', 'DateStamp', False)) 
+           
+    run(gConfigFile)
+
     log.info("Completed {0}".format(sys.argv[0]))
 
-
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    process_args(sys.argv[1:])
