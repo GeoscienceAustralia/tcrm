@@ -197,6 +197,7 @@ class Evaluate:
         self.synFormat = kwargs.get('synFormat') 
         self.synNumYears = float(kwargs.get('synNumYears'))
         self.synNumSimulations = kwargs.get('synNumSimulations')
+        self.timeStep = 1.0
         self.percentile = kwargs.get('Percentile', 90)
         self.lower = (100 - self.percentile)/ 2.
         self.upper = 100 - self.lower
@@ -381,7 +382,7 @@ class EvalPressureDistribution(Evaluate):
             [i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe] = \
                 interpolateTracks.parseTracks(self.configFile,
                                               self.historicTrackFile,
-                                              self.historicFormat, 6.0)
+                                              self.historicFormat, self.timeStep)
         except (TypeError, IOError, ValueError):
             log.critical("Cannot load historical track file: {0}".format(self.historicTrackFile))
             return False
@@ -611,7 +612,7 @@ class EvalTrackDensity(Evaluate):
             [i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe] = \
                 interpolateTracks.parseTracks(self.configFile,
                                               self.historicTrackFile,
-                                              self.historicFormat, 6.0)
+                                              self.historicFormat, self.timeStep)
         except (TypeError, IOError, ValueError):
             log.critical("Cannot load historic track file: {0}".\
                             format(self.historicTrackFile))
@@ -854,7 +855,7 @@ class EvalLongitudeCrossings(Evaluate):
         [i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe] = \
                 interpolateTracks.parseTracks(self.configFile,
                                               self.historicTrackFile,
-                                              self.historicFormat, 6.0)
+                                              self.historicFormat, self.timeStep)
                                   
         self.lonCrossingHist, self.lonCrossingEWHist, \
             self.lonCrossingWEHist = self.findCrossings(i, lon, lat)
@@ -1160,7 +1161,7 @@ class EvalAgeDistribution(Evaluate):
         [i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe] = \
                 interpolateTracks.parseTracks(self.configFile,
                                               self.historicTrackFile,
-                                              self.historicFormat, 6.0)
+                                              self.historicFormat, self.timeStep)
                                               
         self.histAgeDist = self.calculateAge(i, y, m, d, h, mn)
         return True

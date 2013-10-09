@@ -55,6 +55,9 @@ def interpolate(number, year, month, day, hour, minute, lon, lat, pressure, spee
     newdates = num2date(_newtime)
     nid = number * np.ones(newtime.size)
     
+    # FIXME: Need to address the issue when the time between obs is less 
+    # than delta (e.g. two obs 5 hrs apart, but delta = 6 hrs). 
+
     if len(year) <= 2:
         # Use linear interpolation only (only a start and end point given):
         nLon = interp1d(timestep, lon, kind='linear')(newtime)
@@ -88,6 +91,8 @@ def interpolate(number, year, month, day, hour, minute, lon, lat, pressure, spee
         nwSpd = interp1d(timestep, windspeed, kind='linear')(newtime)
         npEnv = interp1d(timestep, penv, kind='linear')(newtime)
         nrMax = interp1d(timestep, rmax, kind='linear')(newtime)
+
+
 
     bear_, dist_ = latLon2Azi(nLat, nLon, 1, azimuth=0)
     nthetaFm = np.zeros(newtime.size, 'f')
