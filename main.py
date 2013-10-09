@@ -6,6 +6,7 @@ import os
 import sys
 import logging as log
 import traceback
+import time
 
 from os.path import join as pjoin, realpath, isdir, exists, dirname
 
@@ -18,6 +19,19 @@ from Utilities.files import flStartLog, flLoadFile
 if pathLocator.is_frozen():
     os.environ['BASEMAPDATA'] = pjoin(
         pathLocator.getRootDirectory(), 'mpl-data', 'data')
+
+def timer(func):
+    """
+    Basic timing functions for entire process
+    """
+    def wrapper(*arg):
+        t1 = time.time()
+        res = func(*arg)
+        t2 = time.time()
+        log.info("%s took %0.0f s"%(func.func_name, (t2 - t1) ) )
+        return res
+
+    return wrapper
 
 def attemptParallel():
     """
@@ -300,7 +314,7 @@ def doHazardPlotting(configFile):
     plotter = AutoPlotHazard(configFile, progressbar=pbar)
     plotter.plot()
 
-
+@timer
 def main(configFile='main.ini'):
     """
     Main interface of TCRM that allows control and interaction with the
