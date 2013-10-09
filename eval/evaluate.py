@@ -27,6 +27,7 @@ from mpl_toolkits.basemap import Basemap
 from scipy.stats import scoreatpercentile as percentile
 from datetime import datetime
 
+import interpolateTracks 
 from Utilities.files import flConfigFile, flStartLog
 from Utilities.config import cnfGetIniValue, ConfigParser
 from Utilities.loadData import loadTrackFile
@@ -377,10 +378,10 @@ class EvalPressureDistribution(Evaluate):
     def historic(self):
         log.info("Processing historical tracks for pressure distribution")
         try:
-            i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe = \
-                loadTrackFile(self.configFile,
-                              self.historicTrackFile,
-                              self.historicFormat)
+            [i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe] = \
+                interpolateTracks.parseTracks(self.configFile,
+                                              self.historicTrackFile,
+                                              self.historicFormat, 6.0)
         except (TypeError, IOError, ValueError):
             log.critical("Cannot load historical track file: {0}".format(self.historicTrackFile))
             return False
@@ -607,12 +608,13 @@ class EvalTrackDensity(Evaluate):
     def historic(self):
         log.info("Processing historic tracks...")
         try:
-            i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe = \
-                loadTrackFile(self.configFile, 
-                              self.historicTrackFile, 
-                              self.historicFormat)
+            [i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe] = \
+                interpolateTracks.parseTracks(self.configFile,
+                                              self.historicTrackFile,
+                                              self.historicFormat, 6.0)
         except (TypeError, IOError, ValueError):
-            log.critical("Cannot load historic track file: {0}".format(self.historicTrackFile))
+            log.critical("Cannot load historic track file: {0}".\
+                            format(self.historicTrackFile))
             return False
         else:
             self.hist, x, y = self.calc2DHistogram(lon, lat)
@@ -620,7 +622,9 @@ class EvalTrackDensity(Evaluate):
         return True
 
     def synthetic(self):
-        log.info("Processing {0} synthetic events in {1}".format(self.synNumSimulations, self.synTrackPath))
+        log.info("Processing {0} synthetic events in {1}".\
+                    format(self.synNumSimulations, self.synTrackPath))
+                    
         self.synHist = np.empty(((self.synNumSimulations,) + self.hist2DShape))
         for n in xrange(self.synNumSimulations):
             trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n))
@@ -631,7 +635,8 @@ class EvalTrackDensity(Evaluate):
                                   trackFile, 
                                   self.synFormat)
             except (TypeError, IOError, ValueError):
-                log.critical("Cannot load synthetic track file: {0}".format(trackFile))
+                log.critical("Cannot load synthetic track file: {0}".\
+                                format(trackFile))
                 return False
             else:
                 self.synHist[n, :, :], x, y = self.calc2DHistogram(lon, lat)
@@ -846,11 +851,11 @@ class EvalLongitudeCrossings(Evaluate):
         """Calculate historical rates of longitude crossing"""
         
         log.debug("Processing historical tracks for longitude crossings")
-        i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe = \
-            loadTrackFile(self.configFile, 
-                          self.historicTrackFile, 
-                          self.historicFormat)
-                          
+        [i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe] = \
+                interpolateTracks.parseTracks(self.configFile,
+                                              self.historicTrackFile,
+                                              self.historicFormat, 6.0)
+                                  
         self.lonCrossingHist, self.lonCrossingEWHist, \
             self.lonCrossingWEHist = self.findCrossings(i, lon, lat)
 
@@ -859,7 +864,8 @@ class EvalLongitudeCrossings(Evaluate):
     def synthetic(self):
         """Calculate synthetic rates of longitude crossing"""
         
-        log.debug("Processing {0} synthetic events in {1}".format(self.synNumSimulations, self.synTrackPath))
+        log.debug("Processing {0} synthetic events in {1}".\
+                    format(self.synNumSimulations, self.synTrackPath))
         for n in xrange(self.synNumSimulations):
             trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n))
             log.debug("Processing {0}".format(trackFile))
@@ -869,7 +875,8 @@ class EvalLongitudeCrossings(Evaluate):
                                 trackFile, 
                                 self.synFormat)
             except (TypeError, IOError, ValueError):
-                log.critical("Cannot load synthetic track file: {0}".format(trackFile))
+                log.critical("Cannot load synthetic track file: {0}".\
+                                format(trackFile))
                 return False
             else:
                 self.lonCrossingSyn[n, :], self.lonCrossingSynEW[n, :], \
@@ -1150,16 +1157,17 @@ class EvalAgeDistribution(Evaluate):
     def historic(self):
         """Calculate historical rates of longitude crossing"""
         log.debug("Processing historical tracks for age distribution")
-        i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe = \
-            loadTrackFile(self.configFile,
-                          self.historicTrackFile,
-                          self.historicFormat)
+        [i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe] = \
+                interpolateTracks.parseTracks(self.configFile,
+                                              self.historicTrackFile,
+                                              self.historicFormat, 6.0)
+                                              
         self.histAgeDist = self.calculateAge(i, y, m, d, h, mn)
         return True
 
     def synthetic(self):
-        log.debug("Processing {0} synthetic events in {1}".format(self.synNumSimulations,
-                                                                      self.synTrackPath))
+        log.debug("Processing {0} synthetic events in {1}".\
+                    format(self.synNumSimulations, self.synTrackPath))
 
         for n in xrange(self.synNumSimulations):
             trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n))
@@ -1170,7 +1178,8 @@ class EvalAgeDistribution(Evaluate):
                                   trackFile,
                                   self.synFormat)
             except (TypeError, IOError, ValueError):
-                log.critical("Cannot load synthetic track file: {0}".format(trackFile))
+                log.critical("Cannot load synthetic track file: {0}".\
+                                format(trackFile))
                 return False
             else:
                 self.synAgeDist[n, :] = self.calculateAge(i, y, m, d, h, mn)

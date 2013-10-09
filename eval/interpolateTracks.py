@@ -109,7 +109,7 @@ def interpolate(number, year, month, day, hour, minute, lon, lat, pressure, spee
             npCentre, nvFm, nthetaFm, nwSpd, nrMax, npEnv)
 
 
-def parseTracks(configFile, trackFile, source, delta, outputFile):
+def parseTracks(configFile, trackFile, source, delta, outputFile=None):
     """
     Load a track dataset, then interpolate to some time delta (given in
     hours). Events with only a single record are not altered.
@@ -137,7 +137,7 @@ def parseTracks(configFile, trackFile, source, delta, outputFile):
     """
 
     if delta < 0.0:
-        raise ValueError "Time step for interpolation must be positive"
+        raise ValueError("Time step for interpolation must be positive")
     
     i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe = \
                 loadTrackFile(configFile, trackFile, source)
@@ -162,16 +162,19 @@ def parseTracks(configFile, trackFile, source, delta, outputFile):
             
         # Then save:
         results.append(track)
-
-    header = ( 'TCID,Year,Month,Day,Hour,Minute,Longitude,'
-               'Latitude,CentralPressure,Speed,Bearing,Windspeed,'
-               'rMax,EnvPressure\n' )
-                 
-    fmt = '%i,%i,%i,%i,%i,%i,%8.3f,%8.3f,%7.2f,%6.2f,%6.2f,%6.2f,%6.2f,%7.2f'
+        
     newTracks = np.hstack([np.vstack(r) for r in results]).T
+    
+    if outputFile:
+        header = ( 'TCID,Year,Month,Day,Hour,Minute,Longitude,'
+                   'Latitude,CentralPressure,Speed,Bearing,Windspeed,'
+                   'rMax,EnvPressure\n' )
+                 
+        fmt = '%i,%i,%i,%i,%i,%i,%8.3f,%8.3f,%7.2f,%6.2f,%6.2f,%6.2f,%6.2f,%7.2f'
 
-    # Save record
-    with open(outputFile, 'w') as fid:
-        fid.write('%' + header)
-        if len(newTracks) > 0:
-            np.savetxt(fid, newTracks, fmt=fmt)
+        with open(outputFile, 'w') as fid:
+            fid.write('%' + header)
+            if len(newTracks) > 0:
+                np.savetxt(fid, newTracks, fmt=fmt)
+
+    return newTracks.T
