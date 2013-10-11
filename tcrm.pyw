@@ -48,7 +48,7 @@ class Observable(object):
     def addCallback(self, callback):
         self.callbacks.append(callback)
 
-    def _fire(self, value):
+    def notify(self, value):
         for callback in self.callbacks:
              callback(value)
 
@@ -61,7 +61,7 @@ class ObservableDict(Observable):
 
     def __setitem__(self, key, value):
         self.theDict.__setitem__(key, value)
-        self._fire(self.theDict)
+        self.notify(self.theDict)
 
     def __getitem__(self, key):
         return self.theDict.__getitem__(key)
@@ -79,7 +79,13 @@ class ObservableVariable(Observable):
         self.variable.trace('w', self.changed)
 
     def changed(self, *args):
-        self._fire(self.variable.get())
+        self.notify(self.get())
+
+    def set(self, value):
+        self.variable.set(value)
+
+    def get(self):
+        return self.variable.get()
 
 
 class LineFigure(ttk.Frame):
@@ -211,9 +217,10 @@ class ObservableEntry(ttk.Frame, ObservableVariable):
     def __init__(self, parent, *args, **kwargs):
         name = kwargs.pop('name', '')
         width = kwargs.pop('width', 10)
+        value = kwargs.pop('value', '')
 
         ttk.Frame.__init__(self, parent)
-        ObservableVariable.__init__(self, value='')
+        ObservableVariable.__init__(self, value=value)
 
         self.label = ttk.Label(self, width=width, text=name+':')
         self.label.grid(column=0, row=0, sticky='NSEW')
@@ -301,66 +308,122 @@ class ObservableCombobox(ttk.Frame, ObservableVariable):
         self.rowconfigure(0, weight=1)
 
 
-class ObservableRegionSelector(ttk.Frame, ObservableVariable):
+class MapView(View):
 
     def __init__(self, parent, *args, **kwargs):
+        figSize = kwargs.pop('figSize', (4, 2.5))
+
         ttk.Frame.__init__(self, parent)
-        ObservableVariable.__init__(self, value='')
 
         bgColor = '#%02x%02x%02x' % tuple([c/255 for c in \
             parent.winfo_rgb('SystemButtonFace')])
+        figure = MatplotlibFigure(figsize=figSize, facecolor=bgColor)
 
-        figure = MatplotlibFigure(facecolor=bgColor)
         self.axes = figure.add_subplot(111, aspect='auto')
 
-        m = Basemap(llcrnrlon=0, llcrnrlat=-80, urcrnrlon=360, urcrnrlat=80,
-                    projection='mill', ax=self.axes)
-        m.drawcoastlines(linewidth=0.5)
-        m.fillcontinents(color='0.8')
+        self.basemap = Basemap(llcrnrlon=0, llcrnrlat=-80, urcrnrlon=360,
+                               urcrnrlat=80, projection='mill', ax=self.axes)
+        self.basemap.drawcoastlines(linewidth=0.5)
+        self.basemap.fillcontinents(color='0.8')
 
         self.axes.set_aspect('auto')
         figure.tight_layout(pad=0)
 
         self.canvas = FigureCanvasTkAgg(figure, master=self)
-
         widget = self.canvas.get_tk_widget()
         widget.config(highlightthickness=0)
-        widget.config(background=bgColor)
+        widget.config(background=bgColor, relief=tk.GROOVE, borderwidth=1)
         widget.grid(column=0, row=0, sticky='NSEW')
-
-        self.entry = ttk.Entry(self)
-        self.entry.config(textvariable=self.variable)
-        self.entry.grid(column=0, row=1, sticky='EW')
 
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
-        self.rowconfigure(1, weight=0)
+
+
+class MapRegionSelector(MapView, ObservableVariable):
+
+    def __init__(self, parent, *args, **kwargs):
+        value = kwargs.pop('value', 0)
+
+        MapView.__init__(self, parent, args, kwargs)
+        ObservableVariable.__init__(self, value=value)
 
         self.selector = RectangleSelector(self.axes, self.onSelected,
                                      drawtype='box', useblit=True,
-                                     minspanx=5, minspany=5, 
+                                     minspanx=5, minspany=5,
                                      spancoords='pixels')
+        self.addCallback(self.onValueChanged)
+        self.region = None
 
-        self.canvas.show()
+    def drawRegion(self, xMin, xMax, yMin, yMax):
+        x0, y0 = self.basemap(xMin, yMin)
+        x1, y1 = self.basemap(xMax, yMax)
+        w, h = (x1 - x0), (y1 - y0)
+        if self.region is not None:
+            self.region.remove()
+        self.region = Rectangle((x0, y0), w, h, ec='black', fc='yellow', alpha=0.5)
+        self.axes.add_patch(self.region)
+        self.canvas.draw()
 
-        self.basemap = m
-        self.r = None
+    def onValueChanged(self, value):
+        try:
+            limits = eval(value)
+        except SyntaxError:
+            return
+        xMin = limits['xMin']
+        xMax = limits['xMax']
+        yMin = limits['yMin']
+        yMax = limits['yMax']
+        self.drawRegion(xMin, xMax, yMin, yMax)
 
     def onSelected(self, eclick, erelease):
         x1, y1 = eclick.xdata, eclick.ydata
         x2, y2 = erelease.xdata, erelease.ydata
-        x, y = min(x1, x2), min(y1, y2)
-        w, h = abs(x2-x1), abs(y2-y1)
-        if self.r is not None:
-            self.r.remove()
-        self.r = Rectangle((x, y), w, h, color='yellow', alpha=0.5)
-        self.axes.add_patch(self.r)
-        self.canvas.draw()
-        xMin, yMin = self.basemap(x, max(y1, y2), inverse=True)
-        xMax, yMax = self.basemap(max(x1, x2), y, inverse=True)
-        gridLimits = {'xMin':xMin, 'xMax':xMax, 'yMin':yMin, 'yMax':yMax}
-        self.variable.set(str(gridLimits))
+        xMin, yMin = self.basemap(min(x1,x2), min(y1, y2), inverse=True)
+        xMax, yMax = self.basemap(max(x1,x2), max(y1, y2), inverse=True)
+        self.set(str({'xMin':xMin, 'xMax':xMax, 'yMin':yMin, 'yMax':yMax}))
 
+
+class MapRegionGrid(MapView):
+
+    def __init__(self, parent, *args, **kwargs):
+        MapView.__init__(self, parent, args, kwargs)
+        self.region = None
+        self.step = None
+
+    def set(self, limits, step):
+        self.setRegionLimits(limits)
+        self.setGridStep(step)
+        self.canvas.draw()
+
+    def setRegionLimits(self, limits):
+        print('region')
+        xMin = limits['xMin']
+        xMax = limits['xMax']
+        yMin = limits['yMin']
+        yMax = limits['yMax']
+        region = (xMin, yMin, xMax, yMax)
+        if self.region != region:
+            self.region = region
+            x0, y0 = self.basemap(xMin, yMin)
+            x1, y1 = self.basemap(xMax, yMax)
+            self.axes.set_xlim((x0, x1))
+            self.axes.set_ylim((y0, y1))
+
+    def setGridStep(self, step):
+        print('grid')
+        if step < 1.0:
+            return
+        if self.step != step:
+            self.step = step
+            xMin, yMin, xMax, yMax = self.region
+            xs = np.arange(min(xMin, xMax), max(xMin, xMax), step)
+            ys = np.arange(min(yMin, yMax), max(yMin, yMax), step)
+            xs, ys = self.basemap(*np.meshgrid(xs,ys))
+            self.axes.xaxis.set_ticks(xs.flatten())
+            self.axes.yaxis.set_ticks(ys.flatten())
+            self.axes.xaxis.set_ticklabels([])
+            self.axes.yaxis.set_ticklabels([])
+            self.axes.grid(True, which='both', linestyle='-', color='0.6')
 
 class GridSettingsView(View):
 
@@ -374,10 +437,14 @@ class GridSettingsView(View):
         self.foo = ObservableCombobox(self, name='Location')
         self.foo.grid(column=0, row=2, sticky='EW', padx=2, pady=2)
 
-        self.region = ObservableRegionSelector(self)
-        self.region.grid(column=0, row=3, sticky='EW', padx=2, pady=2)
+        self.region = MapRegionSelector(self)
+        self.region.grid(column=0, row=3, sticky='NEW', padx=2, pady=2)
 
-        self.columnconfigure(0, weight=1)
+        self.view = MapRegionGrid(self, figSize=(7,5))
+        self.view.grid(column=1, row=0, rowspan=4, sticky='NSEW', padx=2, pady=2)
+
+        self.columnconfigure(0, weight=0)
+        self.columnconfigure(1, weight=1)
         self.rowconfigure(0, weight=0)
         self.rowconfigure(1, weight=0)
         self.rowconfigure(2, weight=0)
@@ -397,29 +464,42 @@ class Controller(tk.Tk):
         self.title('Tropical Cyclone Risk Model')
         self.tk.call('wm', 'iconphoto', self._w, tk.PhotoImage(data=ICON))
 
-        self.settings = ObservableDict({}) # Model
-        self.settings.addCallback(self.settingsChanged)
+        self.settings = ObservableDict({
+            'GRID_LIMITS': {'xMin': 113, 'xMax': 116, 'yMin': 10.5, 'yMax': -25},
+            'GRID_STEP': 20.
+        }) # Model
 
         self.view = Main(self)
-        self.view.gridSettings.limits.addCallback(self.gridLimitsChanged)
-        self.view.gridSettings.step.addCallback(self.gridStepChanged)
+
+        self.settings.addCallback(self.onSettingsChanged)
+
+        self.view.gridSettings.limits.addCallback(self.onGridLimitsChanged)
+        self.view.gridSettings.region.addCallback(self.onGridLimitsChanged)
+
+        self.view.gridSettings.step.addCallback(self.onGridStepChanged)
 
         self.view.pack(fill='both', expand=True)
 
-    def settingsChanged(self, settings):
-        print('settings: %s' % settings)
+        self.onSettingsChanged(self.settings)
 
-    def gridLimitsChanged(self, limits):
+    def onSettingsChanged(self, settings):
+        self.view.gridSettings.limits.set(str(settings['GRID_LIMITS']))
+        self.view.gridSettings.region.set(str(settings['GRID_LIMITS']))
+        self.view.gridSettings.step.set(settings['GRID_STEP'])
+
+        self.view.gridSettings.view.set(settings['GRID_LIMITS'], settings['GRID_STEP'])
+
+    def onGridLimitsChanged(self, limits):
         try:
             lst = eval(limits)
             self.settings['GRID_LIMITS'] = lst
         except SyntaxError:
             pass
 
-    def gridStepChanged(self, step):
-        print('step: %s' % step)
-
-
-
+    def onGridStepChanged(self, step):
+        try:
+            self.settings['GRID_STEP'] = eval(step)
+        except SyntaxError:
+            pass
 
 Controller().mainloop()
