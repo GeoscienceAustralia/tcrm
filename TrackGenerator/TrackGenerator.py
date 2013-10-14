@@ -50,7 +50,6 @@ from DataProcess.CalcFrequency import CalcFrequency
 from DataProcess.CalcTrackDomain import CalcTrackDomain
 from Utilities.config import ConfigParser
 
-
 class TrackGenerator(object):
 
     """
@@ -737,9 +736,9 @@ class TrackGenerator(object):
         self.dp = 0.0
         self.ds = 0.0
 
-        # Initialise the landfall tolerance
+        # Initialise the landfall time over land (`tol`)
 
-        tolerance = 0.0
+        tol = 0.0
 
         # Generate the track
 
@@ -793,13 +792,13 @@ class TrackGenerator(object):
             # Calculate the central pressure
 
             if onLand:
-                tolerance += float(self.dt)
-                deltaP = self.offshorePressure - penv[i]
+                tol += float(self.dt)
+                deltaP = penv[i] - self.offshorePressure
                 alpha = 0.008 + 0.0008 * deltaP + normal(0, 0.001)
                 pressure[i] = (penv[i] - deltaP *
-                               np.exp(-alpha * tolerance))
+                               np.exp(-alpha * tol))
 
-                log.debug('Central pressure: %7.2f', pressure[i])
+                log.debug('Central pressure after landfall: %7.2f', pressure[i])
             else:
                 pstat = self.pStats.coeffs
                 pressure[i] = pressure[i - 1] + self.dp * self.dt
