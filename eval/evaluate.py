@@ -47,6 +47,36 @@ mpl.rcParams['savefig.dpi'] = 200
 mpl.rcParams['xtick.direction'] = 'out'
 mpl.rcParams['ytick.direction'] = 'out'
 
+DEFAULTS = """
+[Input]
+HistoricTrackFile=%(cwd)s/input/Allstorms.ibtracs_wmo.v03r04.csv
+SyntheticTrackPath=%(cwd)s/output/tracks/
+HistoricSource=IBTrACS
+HistoricNumYears=40
+SyntheticSource=TCRM
+NumSyntheticEvents=50
+SyntheticNumYears=40
+MSLPFile=%(cwd)s/MSLP/mslp_daily_ltm.nc
+
+[Region]
+MinimumLongitude=90.
+MaximumLongitude=180.
+MinimumLatitude=-30.
+MaximumLatitude=0.
+GridSize=1.0
+
+[Output]
+SaveData=True
+DataPath=%(cwd)s/output/process/
+PlotPath=%(cwd)s/output/plots/stats/
+
+[Logging]
+LogFile=evaluate.log
+LogLevel=INFO
+Verbose=False
+Datestamp=True
+""" % {'cwd': os.getcwd()}
+
 
 def ShowSyntax(exit_code=0):
     """Documentation function to describe how to use this funtion"""
@@ -378,11 +408,14 @@ class EvalPressureDistribution(Evaluate):
 
     def historic(self):
         log.info("Processing historical tracks for pressure distribution")
+        path, base = os.path.split(self.historicTrackFile)
+        interpHistFile = pjoin(path, "interp_tracks.csv")
         try:
             [i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe] = \
                 interpolateTracks.parseTracks(self.configFile,
                                               self.historicTrackFile,
-                                              self.historicFormat, self.timeStep)
+                                              self.historicFormat, self.timeStep,
+                                              interpHistFile)
         except (TypeError, IOError, ValueError):
             log.critical("Cannot load historical track file: {0}".format(self.historicTrackFile))
             return False
@@ -1143,8 +1176,11 @@ class EvalAgeDistribution(Evaluate):
         end = np.empty(len(start))
         end[:-1] = start[1:] - 1
         end[-1] = len(index) - 1
-        startDT = [datetime(yr[i], mon[i], day[i], hr[i], mn[i]) for i in start ]
-        endDT = [datetime(yr[i], mon[i], day[i], hr[i], mn[i]) for i in end ]
+        startDT = [datetime(int(yr[i]), int(mon[i]), int(day[i]),\
+                                int(hr[i]), int(mn[i])) for i in start ]
+
+        endDT = [datetime(int(yr[i]), int(mon[i]), int(day[i]),\
+                              int(hr[i]), int(mn[i])) for i in end ]
 
         startDN = date2num(startDT)
         endDN = date2num(endDT)

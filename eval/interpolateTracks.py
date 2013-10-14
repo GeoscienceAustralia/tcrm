@@ -37,6 +37,7 @@ def interpolate(number, year, month, day, hour, minute, lon, lat, pressure, spee
                                of interpolation used for the locations (i.e.
                                longitude and latitude) of the records.
 
+    # FIXME: Need to address masking values. 
     """
     
     day_ = [datetime(year[i], month[i], day[i], hour[i], minute[i])
@@ -56,7 +57,7 @@ def interpolate(number, year, month, day, hour, minute, lon, lat, pressure, spee
     nid = number * np.ones(newtime.size)
     
     # FIXME: Need to address the issue when the time between obs is less 
-    # than delta (e.g. two obs 5 hrs apart, but delta = 6 hrs). 
+    # than delta (e.g. only two obs 5 hrs apart, but delta = 6 hrs). 
 
     if len(year) <= 2:
         # Use linear interpolation only (only a start and end point given):
@@ -149,11 +150,12 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None):
 
     results = []
     idx = np.flatnonzero(i)
+
     for n in xrange(len(idx)):
         if n != (len(idx) - 1):
-            j = range(idx[n], idx[n+1])
+            j = range(idx[n], idx[n + 1])
         else:
-            j = range(idx[n], len(i)-1)
+            j = range(idx[n], len(i) - 1)
             
         if len(j) == 1:
             # Save record directly:
