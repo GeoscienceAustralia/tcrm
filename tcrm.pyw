@@ -206,14 +206,14 @@ class ObservableEntry(ttk.Frame, ObservableVariable):
         ObservableVariable.__init__(self, value=value)
 
         self.label = ttk.Label(self, text=name+':')
-        self.label.grid(column=0, row=0, sticky='EW')
+        self.label.grid(column=0, row=0, sticky='W', padx=2)
 
         self.entry = ttk.Entry(self, **kwargs)
-        self.entry.grid(column=1, row=0, sticky='EW')
+        self.entry.grid(column=1, row=0, sticky='E', padx=2)
         self.entry.config(textvariable=self.variable)
 
-        self.columnconfigure(0, weight=0)
-        self.columnconfigure(1, weight=0)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
         self.rowconfigure(0, weight=1)
 
 
@@ -522,9 +522,9 @@ class TrackSettingsView(LabeledView):
 
     def __init__(self, parent):
         super(TrackSettingsView, self).__init__(parent, name='Track Settings')
-        self.nSims = ObservableEntry(self, name='Number of simulations',
+        self.nSims = ObservableEntry(self, name='Simulations',
                 width=5, justify='center')
-        self.nYears = ObservableEntry(self, name='Years per simulation',
+        self.nYears = ObservableEntry(self, name='Years per sim',
                 width=5, justify='center')
         self.gridSpace = DictEntry(self, name='Grid space', keys=('x', 'y'),
                 width=5, justify='center')
@@ -537,9 +537,9 @@ class TrackSettingsView(LabeledView):
 
         for i, control in enumerate([self.nSims, self.nYears, self.gridSpace, self.gridInc,
             self.seasonSeed, self.trackSeed]):
-            control.grid(column=0, row=i, sticky='W', padx=2, pady=2)
-            self.rowconfigure(i, weight=0)
-        self.columnconfigure(0, weight=0)
+            control.grid(column=0, row=i, sticky='WE', padx=4, pady=4)
+            self.rowconfigure(i, weight=1)
+        self.columnconfigure(0, weight=1)
 
 class Main(View):
 
@@ -550,7 +550,7 @@ class Main(View):
         self.gridSettings.grid(column=0, row=0, sticky='NSEW', padx=2, pady=2)
 
         self.track = TrackSettingsView(self)
-        self.track.grid(column=0, row=1, sticky='NSEW', padx=2, pady=2)
+        self.track.grid(column=0, row=1, sticky='W', padx=2, pady=2)
 
         self.view = MapRegionGrid(self, figSize=(7,5),
                 continentColor='#cdcbc1', coastlineWidth=0.8)
@@ -559,7 +559,7 @@ class Main(View):
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
         self.rowconfigure(0, weight=0)
-        self.rowconfigure(1, weight=1)
+        self.rowconfigure(1, weight=0)
  
 class Controller(tk.Tk):
 
