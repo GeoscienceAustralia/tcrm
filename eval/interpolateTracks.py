@@ -8,29 +8,41 @@ from scipy.interpolate import interp1d, splev, splrep
 from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile
 
-def interpolate(number, year, month, day, hour, minute, lon, lat, pressure, speed,
-                bearing, windspeed, rmax, penv, delta, interpolation_type=None):
+TRACKFILE_COLS = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
+                  'Day', 'Hour', 'Minute', 'TimeElapsed', 'Longitude',
+                  'Latitude', 'Speed', 'Bearing', 'CentralPressure',
+                  'WindSpeed', 'rMax', 'EnvPressure')
+
+TRACKFILE_FMTS = ('i', 'i', 'i', 'i', 
+                  'i', 'i', 'i', 'f', 
+                  'f', 'f', 'f', 'f', 'f', 
+                  'f', 'f', 'f')
+
+TRACKFILE_OUTFMT = ('%i,%i,%i,%i,' 
+                    '%i,%i,%i,%5.1f,'
+                    '%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,'
+                    '%6.2f,%6.2f,%7.2f')
+
+
+class Track(object):
+    def __init__(self, data):
+        self.data = data
+        self.trackId = None
+        self.trackfile = None
+
+    def __getattr__(self, key):
+        if key.startswith('__') and key.endswith('__'):
+            return super(Track, self).__getattr__(key)
+        return self.data[key] 
+
+
+def interpolate(track, delta, interpolation_type=None):
     """
     Interpolate the records in time to have a uniform time difference between
     records. Each of the input arrays represent the values for a single TC
     event. 
     
-    :param number: `int` unique number for the TC to be interpolated.
-    :param year: :class:`numpy.array` containing year of record
-    :param month: :class:`numpy.array` containing month of record 
-    :param day: :class:`numpy.array` containing day of record 
-    :param hour: :class:`numpy.array` containing hour of record
-    :param minute: :class:`numpy.array` containing minute of record
-    :param lon: :class:`numpy.array` containing longitude of record
-    :param lat: :class:`numpy.array` containing latitude of record
-    :param pressure: :class:`numpy.array` containing central pressure of record
-    :param speed: :class:`numpy.array` containing forward speed of TC of record
-    :param bearing: :class:`numpy.array` containing bearing of record
-    :param windspeed: :class:`numpy.array` containing maximum wind speed of
-                      record
-    :param rmax: :class:`numpy.array` containing radius of max winds of record
-    :param penv: :class:`numpy.array` containing environmental pressure of
-                 record
+    :param track: :class:`Track` object containing all data for the track.
     :param delta: `float` time difference to interpolate the dataset to. Must be
                   positive.
     :param interpolation_type: Optional ['linear', 'akima'], specify the type
@@ -40,33 +52,57 @@ def interpolate(number, year, month, day, hour, minute, lon, lat, pressure, spee
     # FIXME: Need to address masking values. 
     """
     
-    day_ = [datetime(year[i], month[i], day[i], hour[i], minute[i])
-            for i in xrange(year.size)]
-    time_ = date2num(day_)
-    dt_ = 24.0*np.diff(time_)
-    dt = np.empty(hour.size, 'f')
+    day_ = [datetime(*x) for x in zip(track.Year, track.Month, 
+                                      track.Day, track.Hour, 
+                                      track.Minute)]
+
+    time_ = np.array([d.toordinal() + d.hour / 24. for d in day_], 'f') 
+    dt_ = 24.0 * np.diff(time_)
+    dt = np.empty(track.Hour.size, 'f')
     dt[1:] = dt_
 
     # Convert all times to a time after initial observation:
     timestep = 24.0*(time_ - time_[0])
 
-    newtime = np.arange(timestep[0], timestep[-1]+.01, delta)
+    newtime = np.arange(timestep[0], timestep[-1] + .01, delta)
     newtime[-1] = timestep[-1]
-    _newtime = (newtime/24.) + time_[0]
+    _newtime = (newtime / 24.) + time_[0]
     newdates = num2date(_newtime)
-    nid = number * np.ones(newtime.size)
+    nid = track.trackId[0] * np.ones(newtime.size)
+
+    # Find the indices of valid pressure observations:
+    validIdx = np.where(track.CentralPressure < sys.maxint)[0]
+
     
     # FIXME: Need to address the issue when the time between obs is less 
     # than delta (e.g. only two obs 5 hrs apart, but delta = 6 hrs). 
 
-    if len(year) <= 2:
+    if len(track.data) <= 2:
         # Use linear interpolation only (only a start and end point given):
-        nLon = interp1d(timestep, lon, kind='linear')(newtime)
-        nLat = interp1d(timestep, lat, kind='linear')(newtime)
-        npCentre = interp1d(timestep, pressure, kind='linear')(newtime)
-        npEnv = interp1d(timestep, penv, kind='linear')(newtime)
-        nrMax = interp1d(timestep, rmax, kind='linear')(newtime)
-        nwSpd = interp1d(timestep, windspeed, kind='linear')(newtime)
+        nLon = interp1d(timestep, track.Longitude, kind='linear')(newtime)
+        nLat = interp1d(timestep, track.Latitude, kind='linear')(newtime)
+
+        if len(validIdx) == 2:
+            npCentre = interp1d(timestep, 
+                                track.CentralPressure, 
+                                kind='linear')(newtime)
+            nwSpd = interp1d(timestep, 
+                             track.WindSpeed, 
+                             kind='linear')(newtime)
+
+        elif len(validIdx) == 1:
+            # If one valid observation, assume no change and 
+            # apply value to all times
+            npCentre = np.ones(len(newtime)) * track.CentralPressure[validIdx]
+            nwSpd = np.ones(len(newtime)) * track.WindSpeed[validIdx]
+
+        else:
+            npCentre = np.zeros(len(newtime))
+            nwSpd = np.zeros(len(newtime))
+
+        npEnv = interp1d(timestep, track.EnvPressure, kind='linear')(newtime)
+        nrMax = interp1d(timestep, track.rMax, kind='linear')(newtime)
+        
     else:
         if interpolation_type=='akima':
             # Use the Akima interpolation method:
@@ -75,23 +111,57 @@ def interpolate(number, year, month, day, hour, minute, lon, lat, pressure, spee
             except ImportError:
                 logger.exception( ("Akima interpolation module unavailable "
                                     " - default to scipy.interpolate") )
-                nLon = splev(newtime, splrep(timestep, lon, s=0), der=0)
-                nLat = splev(newtime, splrep(timestep, lat, s=0), der=0)
+                nLon = splev(newtime, splrep(timestep, track.Longitude, s=0), der=0)
+                nLat = splev(newtime, splrep(timestep, track.Latitude, s=0), der=0)
+
             else:
-                nLon = _akima.interpolate(timestep, lon, newtime)
-                nLat = _akima.interpolate(timestep, lat, newtime)
+                nLon = _akima.interpolate(timestep, track.Longitude, newtime)
+                nLat = _akima.interpolate(timestep, track.Latitude, newtime)
                 
         elif interpolation_type=='linear':
-            nLon = interp1d(timestep, lon, kind='linear')(newtime)
-            nLat = interp1d(timestep, lat, kind='linear')(newtime)
-        else:
-            nLon = splev(newtime, splrep(timestep, lon, s=0), der=0)
-            nLat = splev(newtime, splrep(timestep, lat, s=0), der=0)
+            nLon = interp1d(timestep, track.Longitude, kind='linear')(newtime)
+            nLat = interp1d(timestep, track.Latitude, kind='linear')(newtime)
 
-        npCentre = interp1d(timestep, pressure, kind='linear')(newtime)
-        nwSpd = interp1d(timestep, windspeed, kind='linear')(newtime)
-        npEnv = interp1d(timestep, penv, kind='linear')(newtime)
-        nrMax = interp1d(timestep, rmax, kind='linear')(newtime)
+        else:
+            nLon = splev(newtime, splrep(timestep, track.Longitude, s=0), der=0)
+            nLat = splev(newtime, splrep(timestep, track.Latitude, s=0), der=0)
+
+        if len(validIdx) >= 2:
+            # No valid data at the final new time,
+            # would require extrapolation:
+            firsttime = np.where(newtime >= timestep[validIdx[0]])[0][0]
+            lasttime = np.where(newtime <= timestep[validIdx[-1]])[0][-1]
+
+            if firsttime == lasttime:
+                # only one valid observation:
+                npCentre = np.zeros(len(newtime))
+                nwSpd = np.zeros(len(newtime))
+                npCentre[firsttime] = track.CentralPressure[validIdx[0]]
+                nwSpd[firsttime] = track.WindSpeed[validIdx[0]]
+
+            else:
+                npCentre = np.zeros(len(newtime))
+                nwSpd = np.zeros(len(newtime))
+                _npCentre = interp1d(timestep[validIdx], 
+                                     track.CentralPressure[validIdx], 
+                                     kind='linear')(newtime[firsttime:lasttime])
+
+                _nwSpd = interp1d(timestep[validIdx], 
+                                  track.WindSpeed[validIdx], 
+                                  kind='linear')(newtime[firsttime:lasttime])
+
+                npCentre[firsttime:lasttime] = _npCentre
+                nwSpd[firsttime:lasttime] = _nwSpd
+
+        elif len(validIdx) == 1:
+            npCentre = np.ones(len(newtime)) * track.CentralPressure[validIdx]
+            nwSpd = np.ones(len(newtime)) * track.WindSpeed[validIdx]
+        else:
+            npCentre = np.zeros(len(newtime))
+            nwSpd = np.zeros(len(newtime))
+
+        npEnv = interp1d(timestep, track.EnvPressure, kind='linear')(newtime)
+        nrMax = interp1d(timestep, track.rMax, kind='linear')(newtime)
 
 
 
@@ -102,17 +172,35 @@ def interpolate(number, year, month, day, hour, minute, lon, lat, pressure, spee
     dist = np.zeros(newtime.size, 'f')
     dist[:-1] = dist_
     dist[-1] = dist_[-1]
-    nvFm = dist/delta
+    nvFm = dist / delta
 
     nYear = [date.year for date in newdates]
     nMonth = [date.month for date in newdates]
     nDay = [date.day for date in newdates]
     nHour = [date.hour for date in newdates]
     nMin = [date.minute for date in newdates]
-    np.putmask(npCentre, npCentre > 10e+6, 0)
-    
-    return (nid, nYear, nMonth, nDay, nHour, nMin, nLon, nLat,
-            npCentre, nvFm, nthetaFm, nwSpd, nrMax, npEnv)
+    np.putmask(npCentre, npCentre > 10e+6, sys.maxint)
+    np.putmask(npCentre, npCentre < 700, sys.maxint)
+
+    newindex = np.zeros(len(newtime))
+    newindex[0] = 1
+    newTCID = np.ones(len(newtime)) * track.trackId[0]
+
+    newdata = np.empty(len(newtime), 
+                        dtype={
+                               'names': TRACKFILE_COLS,
+                               'formats': TRACKFILE_FMTS
+                               } )
+    for key, val in zip(TRACKFILE_COLS, 
+                        [newindex, newTCID, nYear, nMonth, nDay, nHour, nMin, 
+                           newtime, nLon, nLat, nvFm, nthetaFm, npCentre, 
+                           nwSpd, nrMax, npEnv]):
+        newdata[key] = val
+    newtrack = Track(newdata)
+    newtrack.trackId = track.trackId
+    newtrack.trackfile = track.trackfile
+
+    return newtrack
 
 
 def parseTracks(configFile, trackFile, source, delta, outputFile=None):
@@ -139,49 +227,43 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None):
     :type  outputFile: string
     :param outputFile: Path to the destination of output, if it is to
                        be saved.
+
+    :type  results: `list` of :class:`Track` objects containing the
+                    interpolated track data
                        
     """
 
     if delta < 0.0:
         raise ValueError("Time step for interpolation must be positive")
-    
-    i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe = \
-                loadTrackFile(configFile, trackFile, source)
 
+    data = loadTrackFile(configFile, trackFile, source)
+    
+    tracks = []
+    
+    if len(data) > 0:
+        TCID = data['CycloneNumber']
+        n = np.max(TCID)
+        for i in range(1, n + 1):
+            track = Track(data[TCID == i])
+            track.trackId = (i, n)
+            track.trackfile = trackFile
+            tracks.append(track)
+    
     results = []
-    idx = np.flatnonzero(i)
 
-    for n in xrange(len(idx)):
-        if n != (len(idx) - 1):
-            j = range(idx[n], idx[n + 1])
+    for track in tracks:
+        if len(track.data) == 1:
+            results.append(track)
         else:
-            j = range(idx[n], len(i) - 1)
-            
-        if len(j) == 1:
-            # Save record directly:
-            track = (n, y[j], m[j], d[j], h[j], mn[j], lon[j], lat[j],
-                     p[j], s[j], b[j], w[j], r[j], pe[j])
-        else:
-            #Do an interpolation:
-            track = interpolate(n, y[j], m[j], d[j], h[j], mn[j], lon[j],
-                        lat[j], p[j], s[j], b[j], w[j], r[j],
-                        pe[j], delta, 'linear')
-            
-        # Then save:
-        results.append(track)
-        
-    newTracks = np.hstack([np.vstack(r) for r in results]).T
-    
+            newtrack = interpolate(track, delta, interpolation_type='linear')
+            results.append(newtrack)
+  
     if outputFile:
-        header = ( 'TCID,Year,Month,Day,Hour,Minute,Longitude,'
-                   'Latitude,CentralPressure,Speed,Bearing,Windspeed,'
-                   'rMax,EnvPressure\n' )
-                 
-        fmt = '%i,%i,%i,%i,%i,%i,%8.3f,%8.3f,%7.2f,%6.2f,%6.2f,%6.2f,%6.2f,%7.2f'
-
+        # Save data to file:
+        newTracks = np.hstack([r.data.T for r in results]).T
         with open(outputFile, 'w') as fid:
-            fid.write('%' + header)
+            fid.write('%' + ','.join(TRACKFILE_COLS) + '\n')
             if len(newTracks) > 0:
-                np.savetxt(fid, newTracks, fmt=fmt)
+                np.savetxt(fid, newTracks, fmt=TRACKFILE_OUTFMT)
 
-    return newTracks.T
+    return results

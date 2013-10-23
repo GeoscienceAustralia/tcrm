@@ -32,9 +32,14 @@ from Utilities.files import flConfigFile, flStartLog
 from Utilities.config import cnfGetIniValue, ConfigParser
 from Utilities.loadData import loadTrackFile
 from Utilities.nctools import ncSaveGrid
+from Utilities.metutils import convert
+from Utilities.maputils import bearing2theta
+from Utilities.stats import between
 
 import Utilities.Intersections as Int
 import Utilities.colours as colours
+
+import pdb
 
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -77,6 +82,23 @@ Verbose=False
 Datestamp=True
 """ % {'cwd': os.getcwd()}
 
+TRACKFILE_COLS = ('CycloneNumber', 'TimeElapsed', 'Longitude',
+                  'Latitude', 'Speed', 'Bearing', 'CentralPressure',
+                  'EnvPressure', 'rMax')
+
+TRACKFILE_UNIT = ('', 'hr', 'degree', 'degree', 'kph', 'degrees',
+                  'hPa', 'hPa', 'km')
+
+TRACKFILE_FMTS = ('i', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f')
+
+TRACKFILE_CNVT = {
+    0: lambda s: int(float(s.strip() or 0)),
+    4: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[4], 'mps'),
+    5: lambda s: bearing2theta(float(s.strip() or 0) * np.pi / 180.),
+    6: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[6], 'Pa'),
+    7: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[7], 'Pa'),
+}
+
 
 def ShowSyntax(exit_code=0):
     """Documentation function to describe how to use this funtion"""
@@ -94,7 +116,8 @@ def ShowSyntax(exit_code=0):
         print "the 5th and 95th percentiles) of the range of synthetic events"
         print ""
         print "Input:"
-        print "Configuration file: {0}, or as specified by the -c switch".format(flConfigFile())
+        print "Configuration file: {0}, or as specified by the -c switch".\
+            format(flConfigFile())
         print ""
         print "Output:"
         print "A series of images comparing the track density of the"
@@ -206,6 +229,147 @@ def plotDensity(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
         cb.set_label(clabel)
 
     return
+
+
+class Track(object):
+
+    """
+    A single tropical cyclone track.
+
+    The object exposes the track data through the object attributes.
+    For example, If `data` contains the tropical cyclone track data
+    (`numpy.array`) loaded with the :meth:`readTrackData` function,
+    then the central pressure column can be printed out with the
+    code::
+
+        t = Track(data)
+        print(t.CentralPressure)
+
+
+    :type  data: numpy.ndarray
+    :param data: the tropical cyclone track data.
+    """
+
+    def __init__(self, data):
+        self.data = data
+        self.trackId = None
+        self.trackfile = None
+
+    def __getattr__(self, key):
+        """
+        Get the `key` from the `data` object.
+
+        :type  key: str
+        :param key: the key to lookup in the `data` object.
+        """
+        if key.startswith('__') and key.endswith('__'):
+            return super(Track, self).__getattr__(key)
+        return self.data[key]
+
+def readTrackData(trackfile):
+    """
+    Read a track .csv file into a numpy.ndarray.
+
+    The track format and converters are specified with the global variables
+
+        TRACKFILE_COLS -- The column names
+        TRACKFILE_FMTS -- The entry formats
+        TRACKFILE_CNVT -- The column converters
+
+    :type  trackfile: str
+    :param trackfile: the track data filename.
+    """
+    try:
+        return np.loadtxt(trackfile,
+                          comments='%',
+                          delimiter=',',
+                          dtype={
+                          'names': TRACKFILE_COLS,
+                          'formats': TRACKFILE_FMTS},
+                          converters=TRACKFILE_CNVT)
+    except ValueError:
+        # return an empty array with the appropriate `dtype` field names
+        return np.empty(0, dtype={
+                        'names': TRACKFILE_COLS,
+                        'formats': TRACKFILE_FMTS})
+
+def readMultipleTrackData(trackfile):
+    """
+    Reads all the track datas from a .csv file into a list of numpy.ndarrays.
+    The tracks are seperated based in their cyclone id. This function calls
+    `readTrackData` to read the data from the file.
+
+    :type  trackfile: str
+    :param trackfile: the track data filename.
+    """
+    datas = []
+    data = readTrackData(trackfile)
+    if len(data) > 0:
+        cycloneId = data['CycloneNumber']
+        for i in range(1, np.max(cycloneId) + 1):
+            datas.append(data[cycloneId == i])
+    else:
+        datas.append(data)
+    return datas
+
+def loadTracks(trackfile):
+    """
+    Read tracks from a track .csv file and return a list of :class:`Track`
+    objects.
+
+    This calls the function `readMultipleTrackData` to parse the track .csv
+    file.
+
+    :type  trackfile: str
+    :param trackfile: the track data filename.
+    """
+    tracks = []
+    datas = readMultipleTrackData(trackfile)
+    n = len(datas)
+    for i, data in enumerate(datas):
+        track = Track(data)
+        track.trackfile = trackfile
+        track.trackId = (i, n)
+        tracks.append(track)
+    return tracks
+
+def loadTracksFromPath(path):
+    """
+    Helper function to obtain a generator that yields :class:`Track` objects
+    from a directory containing track .csv files.
+
+    This function calls `loadTracksFromFiles` to obtain the generator and track
+    filenames are processed in alphabetical order.
+
+    :type  path: str
+    :param path: the directory path.
+    """
+    files = os.listdir(path)
+    trackfiles = [pjoin(path, f) for f in files if f.startswith('tracks')]
+    msg = 'Processing %d track files in %s' % (len(trackfiles), path)
+    log.info(msg)
+    return loadTracksFromFiles(sorted(trackfiles))
+
+def loadTracksFromFiles(trackfiles):
+    """
+    Generator that yields :class:`Track` objects from a list of track
+    filenames.
+
+    When run in parallel, the list `trackfiles` is distributed across the MPI
+    processors using the `balanced` function. Track files are loaded in a lazy
+    fashion to reduce memory consumption. The generator returns individual
+    tracks (recall: a trackfile can contain multiple tracks) and only moves on
+    to the next file once all the tracks from the current file have been
+    returned.
+
+    :type  trackfiles: list of strings
+    :param trackfiles: list of track filenames. The filenames must include the
+                       path to the file.
+    """
+    for f in trackfiles:
+        tracks = loadTracks(f)
+        for track in tracks:
+            yield track
 
 
 class Evaluate:
@@ -393,9 +557,11 @@ class EvalPressureDistribution(Evaluate):
         minpressure = 1030.
         minCP = np.zeros(index.sum())
         event = 0
-        
+        idx = np.ones(len(index))
+        idx[1:] = np.diff(index)
+
         for i in xrange(len(index) - 1):
-            if index[i + 1] == 1:
+            if idx[i + 1] == 1:
                 minCP[event] = minpressure
                 event += 1
                 minpressure = 1030.
@@ -411,11 +577,12 @@ class EvalPressureDistribution(Evaluate):
         path, base = os.path.split(self.historicTrackFile)
         interpHistFile = pjoin(path, "interp_tracks.csv")
         try:
-            [i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe] = \
-                interpolateTracks.parseTracks(self.configFile,
-                                              self.historicTrackFile,
-                                              self.historicFormat, self.timeStep,
-                                              interpHistFile)
+            tracks = interpolateTracks.parseTracks(self.configFile,
+                                                   self.historicTrackFile,
+                                                   self.historicFormat, 
+                                                   self.timeStep,
+                                                   interpHistFile)
+
         except (TypeError, IOError, ValueError):
             log.critical("Cannot load historical track file: {0}".format(self.historicTrackFile))
             return False
@@ -439,6 +606,17 @@ class EvalPressureDistribution(Evaluate):
         self.synMinUpper = np.empty(self.hist2DShape)
         self.synMinLower = np.empty(self.hist2DShape)
         self.synMinCP = np.empty((self.synNumSimulations,) + self.histShape)
+
+        #synMinCP = []
+        #n = 0
+        #trackiter = loadTracksFromPath(self.synTrackPath)
+        #for i, track in enumerate(trackiter):
+        #    synMinCP.append(track.CentralPressure.min())
+        #    if track.trackId[0]==track.trackId[1]:
+        #        h, n = self.calcHistogram(synMinCP, self.minCpRange)
+        #        self.synMinCp[n,:] = h
+        #        n += 1
+        #        synMinCP = []
 
         for n in xrange(self.synNumSimulations):
             trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n))
@@ -1169,10 +1347,14 @@ class EvalLongitudeCrossings(Evaluate):
         return
 
 class EvalAgeDistribution(Evaluate):
+
     def calculateAge(self, index, yr, mon, day, hr, mn):
         """Calculate the age of all TC events in the input dataset"""
+        
+        idx = np.ones(len(index))
+        idx[1:] = np.diff(index)
 
-        start = np.where(index == 1)[0]
+        start = np.where(idx == 1)[0]
         end = np.empty(len(start))
         end[:-1] = start[1:] - 1
         end[-1] = len(index) - 1
@@ -1277,6 +1459,9 @@ def run(config_file):
                 PlotPath          = cnfGetIniValue(config_file, 'Output', 'PlotPath', os.getcwd()),
                 DataPath          = cnfGetIniValue(config_file, 'Output', 'DataPath', os.getcwd()),
                 ColourMap         = cnfGetIniValue(config_file, 'Output', 'ColourMap','hot_r'))
+
+    #log.info("Loading synthetic tracks")
+    #synTracks = loadSyntheticTracks(**args)
 
     log.info("Processing track density information")
     tD = EvalTrackDensity(**args)
