@@ -14,6 +14,56 @@ __version__ = "$Id$"
 
 logger = logging.getLogger(__name__)
 
+TRACKFILE_COLS = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
+                  'Day', 'Hour', 'Minute', 'TimeElapsed', 'Longitude',
+                  'Latitude', 'Speed', 'Bearing', 'CentralPressure',
+                  'WindSpeed', 'rMax', 'EnvPressure')
+
+TRACKFILE_FMTS = ('i', 'i', 'i', 'i', 
+                  'i', 'i', 'i', 'f', 
+                  'f', 'f', 'f', 'f', 'f', 
+                  'f', 'f', 'f')
+
+TRACKFILE_OUTFMT = ('%i,%i,%i,%i,' 
+                    '%i,%i,%i,%5.1f,'
+                    '%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,'
+                    '%6.2f,%6.2f,%7.2f')
+
+class Track(object):
+
+    """
+    A single tropical cyclone track.
+
+    The object exposes the track data through the object attributes.
+    For example, If `data` contains the tropical cyclone track data
+    (`numpy.array`) loaded with the :meth:`readTrackData` function,
+    then the central pressure column can be printed out with the
+    code::
+
+        t = Track(data)
+        print(t.CentralPressure)
+
+
+    :type  data: numpy.ndarray
+    :param data: the tropical cyclone track data.
+    """
+
+    def __init__(self, data):
+        self.data = data
+        self.trackId = None
+        self.trackfile = None
+
+    def __getattr__(self, key):
+        """
+        Get the `key` from the `data` object.
+
+        :type  key: str
+        :param key: the key to lookup in the `data` object.
+        """
+        if key.startswith('__') and key.endswith('__'):
+            return super(Track, self).__getattr__(key)
+        return self.data[key]
+    
 
 def getSpeedBearing(index, lon, lat, deltatime, ieast=1):
     """
@@ -288,6 +338,23 @@ def getTimeDelta(year, month, day, hour, minute):
     diffs = [d1 - d0 for d0, d1 in zip(dates[:-1], dates[1:])]
     return np.array([0.0] + [round(d.days * 24. + d.seconds / 3600.) for d in diffs], 'f')
 
+def getTimeElapsed(indicator, year, month, day, hour, minute):
+    """
+    Calculate the age in hours of each event
+    """
+    dates = [datetime(*x) for x in zip(year, month, day, hour, minute)]
+
+    timeElapsed = []
+    for i, d in zip(indicator, dates):
+        if i == 1:
+            start = d
+            timeElapsed.append(0.0)
+        else:
+            delta = d - start
+            timeElapsed.append(delta.total_seconds()/3600.)
+            
+    return np.array(timeElapsed)
+
 
 def getTime(year, month, day, hour, minute):
     """
@@ -419,10 +486,12 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     # Sort date/time information
     if 'age' in inputData.dtype.names:
         year, month, day, hour, minute = parseAge(inputData, indicator)
+        timeElapsed = inputData['age']
     else:
         year, month, day, hour, minute = parseDates(inputData, indicator,
                                                     inputDateFormat)
-
+        timeElapsed = getTimeElapsed(indicator, year, month, day, hour, minute)
+        
     # Time between observations:
     dt = getTimeDelta(year, month, day, hour, minute)
 
@@ -491,5 +560,30 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     if calculateWindSpeed:
         windspeed = maxWindSpeed(indicator, dt, lon, lat, pressure, penv)
 
-    return indicator, year, month, day, hour, minute, lon, lat, pressure, \
-        speed, bearing, windspeed, rmax, penv
+    TCID = np.cumsum(indicator)
+
+    data = np.empty(len(indicator), 
+                        dtype={
+                               'names': TRACKFILE_COLS,
+                               'formats': TRACKFILE_FMTS
+                               } )
+    for key, value in zip(TRACKFILE_COLS, [indicator, TCID, year, month,
+                                           day, hour, minute, timeElapsed,
+                                           lon, lat, speed, bearing,
+                                           pressure, windspeed, rmax, penv]):
+        data[key] = value
+        
+    #'Indicator', 'CycloneNumber', 'Year', 'Month', 
+    # 'Day', 'Hour', 'Minute', 'TimeElapsed', 'Longitude',
+    #  'Latitude', 'Speed', 'Bearing', 'CentralPressure',
+    #   'WindSpeed', 'rMax', 'EnvPressure'
+
+    tracks = []
+    n = np.max(TCID)
+    for i in range(1, n + 1):
+        track = Track(data[TCID == i])
+        track.trackId = (i, n)
+        track.trackfile = trackFile
+        tracks.append(track)
+
+    return tracks

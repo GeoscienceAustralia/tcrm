@@ -236,19 +236,8 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None):
     if delta < 0.0:
         raise ValueError("Time step for interpolation must be positive")
 
-    data = loadTrackFile(configFile, trackFile, source)
-    
-    tracks = []
-    
-    if len(data) > 0:
-        TCID = data['CycloneNumber']
-        n = np.max(TCID)
-        for i in range(1, n + 1):
-            track = Track(data[TCID == i])
-            track.trackId = (i, n)
-            track.trackfile = trackFile
-            tracks.append(track)
-    
+    tracks = loadTrackFile(configFile, trackFile, source)
+
     results = []
 
     for track in tracks:
