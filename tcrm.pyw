@@ -1,4 +1,7 @@
 #!/usr/bin/env pythonw
+"""
+TCRM User Interface
+"""
 
 import matplotlib as mp
 import Tkinter as tk
@@ -40,7 +43,11 @@ llJpqACaWXAByQSSZpeHkllGWOeUCbBgwJ5ZhzYvmmnW2WCUAABuxpAJ+AAtDnn4Pyqeeb
 gBoQEAA7
 """
 
+
 class Observable(object):
+    """
+    Base class for observable objects.
+    """
 
     def __init__(self):
         self.callbacks = []
@@ -50,7 +57,7 @@ class Observable(object):
 
     def notify(self, value):
         for callback in self.callbacks:
-             callback(value)
+            callback(value)
 
 
 class ObservableDict(Observable):
@@ -90,7 +97,7 @@ class ObservableVariable(Observable):
     def get(self):
         value = self.variable.get()
         try:
-            return eval(value, {'__builtins__':None}, {})
+            return eval(value, {'__builtins__': None}, {})
         except SyntaxError:
             return self.vartype(value)
 
@@ -141,7 +148,7 @@ class MainWindow(View):
         rf = ttk.Labelframe(p, text=right)
         p.add(lf)
         p.add(rf)
-        return (lf,rf)
+        return (lf, rf)
 
     def _initModelConfigControls(self, parent):
         notebook = ttk.Notebook(parent)
@@ -177,7 +184,8 @@ class MainWindow(View):
         parent.columnconfigure(0, weight=1)
 
         self.combo = tk.StringVar()
-        combo = ttk.Combobox(parent, textvariable=self.combo, state='readonly')
+        combo = ttk.Combobox(parent, textvariable=self.combo, 
+                             state='readonly')
         combo['values'] = ('one', 'two', 'three')
         combo.current(0)
         combo.grid(column=0, row=2, sticky='EW')
@@ -190,10 +198,8 @@ class MainWindow(View):
         button = ttk.Button(parent, text=u'Ok', command=self.onOkClicked)
         button.grid(column=0, row=1)
 
-
     def onOkClicked(self):
         self.entry1.set('Ok pressed.')
-
 
 
 class ObservableEntry(ttk.Frame, ObservableVariable):
@@ -205,7 +211,7 @@ class ObservableEntry(ttk.Frame, ObservableVariable):
         ttk.Frame.__init__(self, parent)
         ObservableVariable.__init__(self, value=value)
 
-        self.label = ttk.Label(self, text=name+':')
+        self.label = ttk.Label(self, text=name + ':')
         self.label.grid(column=0, row=0, sticky='W', padx=2)
 
         self.entry = ttk.Entry(self, **kwargs)
@@ -229,7 +235,7 @@ class ObservableSpinbox(ttk.Frame, ObservableVariable):
         ttk.Frame.__init__(self, parent)
         ObservableVariable.__init__(self, value)
 
-        self.label = ttk.Label(self, width=width, text=name+':')
+        self.label = ttk.Label(self, width=width, text=name + ':')
         self.label.grid(column=0, row=0, sticky='NSEW')
 
         self.spinbox = tk.Spinbox(self, from_=lower, to=upper, increment=10)
@@ -245,7 +251,6 @@ class ObservableScale(ttk.Frame, ObservableVariable):
 
     def __init__(self, parent, **kwargs):
         name = kwargs.pop('name', '')
-        width = kwargs.pop('width', 10)
         lower = kwargs.pop('lower', 0)
         upper = kwargs.pop('upper', 100)
         value = kwargs.pop('value', 0)
@@ -253,22 +258,26 @@ class ObservableScale(ttk.Frame, ObservableVariable):
         ttk.Frame.__init__(self, parent)
         ObservableVariable.__init__(self, value)
 
-        self.label = ttk.Label(self, width=width, text=name+':')
-        self.label.grid(column=0, row=0, sticky='NSEW')
+        self.label = ttk.Label(self, text=name + ':')
+        self.label.grid(column=0, row=0, sticky='EW',  padx=2)
 
-        self.value = ttk.Entry(self, width=8, textvariable=self.variable)
-        self.value.grid(column=1, row=0, sticky='NSEW')
+        self.value = ttk.Entry(self, textvariable=self.variable, **kwargs)
+        self.value.grid(column=1, row=0, sticky='W', padx=2)
 
-        self.scale = ttk.Scale(self, from_=lower, to=upper, value=value)
-        self.scale.grid(column=2, row=0, sticky='NSEW', padx=2)
-        self.scale.config(variable=self.variable)
+        self.scale = ttk.Scale(self, from_=lower, to=upper, value=value,
+                               length=50)
+        self.scale.grid(column=2, row=0, sticky='EW', padx=2)
+        self.scale.config(variable=self.variable, command=self.format)
 
-        self.columnconfigure(0, weight=0)
-        self.columnconfigure(1, weight=0)
-        self.columnconfigure(2, weight=2)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=1)
         self.rowconfigure(0, weight=1)
 
         self.noPendingNotification = True
+
+    def format(self, *args):
+        self.set('%.2f' % self.get())
 
     def changed(self, *args):
         if self.noPendingNotification:
@@ -278,19 +287,19 @@ class ObservableScale(ttk.Frame, ObservableVariable):
     def doNotify(self, *args):
         self.notify(self.get())
         self.noPendingNotification = True
- 
+
 
 class ObservableCombobox(ttk.Frame, ObservableVariable):
 
     def __init__(self, parent, **kwargs):
         name = kwargs.pop('name', '')
         width = kwargs.pop('width', 10)
-        values = kwargs.pop('values', ['a','b','c'])
+        values = kwargs.pop('values', ['a', 'b', 'c'])
 
         ttk.Frame.__init__(self, parent)
         ObservableVariable.__init__(self, value='')
 
-        self.label = ttk.Label(self, width=width, text=name+':')
+        self.label = ttk.Label(self, width=width, text=name + ':')
         self.label.grid(column=0, row=0, sticky='NSEW')
 
         self.combo = ttk.Combobox(self, values=values)
@@ -305,8 +314,9 @@ class ObservableCombobox(ttk.Frame, ObservableVariable):
 class MapView(View):
 
     def __init__(self, parent, **kwargs):
-        bgColor = '#%02x%02x%02x' % tuple([c/255 for c in \
-            parent.winfo_rgb('SystemButtonFace')])
+        bgColor = '#%02x%02x%02x' % \
+                  tuple([c / 255 for c in
+                         parent.winfo_rgb('SystemButtonFace')])
         figSize = kwargs.pop('figSize', (3, 1.3))
         continentColor = kwargs.pop('continentColor', '0.8')
         coastlineWidth = kwargs.pop('coastlineWidth', 0.3)
@@ -347,9 +357,9 @@ class MapRegionSelector(MapView, ObservableVariable):
         ObservableVariable.__init__(self, value=value)
 
         self.selector = RectangleSelector(self.axes, self.onSelected,
-                                     drawtype='box', useblit=True,
-                                     minspanx=5, minspany=5,
-                                     spancoords='pixels')
+                                          drawtype='box', useblit=True,
+                                          minspanx=5, minspany=5,
+                                          spancoords='pixels')
         self.addCallback(self.onValueChanged)
         self.region = None
 
@@ -359,7 +369,7 @@ class MapRegionSelector(MapView, ObservableVariable):
         w, h = (x1 - x0), (y1 - y0)
         if self.region is not None:
             self.region.remove()
-        self.region = Rectangle((x0, y0), w, h, ec=self.regionEdgeColor, 
+        self.region = Rectangle((x0, y0), w, h, ec=self.regionEdgeColor,
                                 fc=self.regionFaceColor, alpha=self.regionAlpha)
         self.axes.add_patch(self.region)
         self.canvas.draw()
@@ -375,18 +385,18 @@ class MapRegionSelector(MapView, ObservableVariable):
     def onSelected(self, eclick, erelease):
         x1, y1 = eclick.xdata, eclick.ydata
         x2, y2 = erelease.xdata, erelease.ydata
-        xMin, yMin = self.basemap(min(x1,x2), min(y1, y2), inverse=True)
-        xMax, yMax = self.basemap(max(x1,x2), max(y1, y2), inverse=True)
+        xMin, yMin = self.basemap(min(x1, x2), min(y1, y2), inverse=True)
+        xMax, yMax = self.basemap(max(x1, x2), max(y1, y2), inverse=True)
         text = '{"xMin": %.2f, "xMax": %.2f, "yMin": %.2f, "yMax": %.2f}'
         self.set(text % (xMin, xMax, yMin, yMax))
 
     def get(self):
-        limits = eval(self.variable.get(),  {'__builtins__':None}, {})
+        limits = eval(self.variable.get(),  {'__builtins__': None}, {})
         xMin = float(limits['xMin'])
         xMax = float(limits['xMax'])
         yMin = float(limits['yMin'])
         yMax = float(limits['yMax'])
-        return {'xMin':xMin, 'xMax':xMax, 'yMin':yMin, 'yMax':yMax}
+        return {'xMin': xMin, 'xMax': xMax, 'yMin': yMin, 'yMax': yMax}
 
 
 class GridLimitsEntry(ObservableEntry):
@@ -395,12 +405,12 @@ class GridLimitsEntry(ObservableEntry):
         super(GridLimitsEntry, self).__init__(parent, **kwargs)
 
     def get(self):
-        limits = eval(self.variable.get(), {'__builtins__':None}, {})
+        limits = eval(self.variable.get(), {'__builtins__': None}, {})
         xMin = float(limits['xMin'])
         xMax = float(limits['xMax'])
         yMin = float(limits['yMin'])
         yMax = float(limits['yMax'])
-        return {'xMin':xMin, 'xMax':xMax, 'yMin':yMin, 'yMax':yMax}
+        return {'xMin': xMin, 'xMax': xMax, 'yMin': yMin, 'yMax': yMax}
 
 
 class DictEntry(ttk.Labelframe, ObservableVariable):
@@ -413,8 +423,8 @@ class DictEntry(ttk.Labelframe, ObservableVariable):
         ObservableVariable.__init__(self, value='')
 
         self.keys = kwargs.pop('keys', None)
-        self.entries = {key:ObservableEntry(self, name=key, **kwargs) for key in
-                        self.keys}
+        self.entries = {key: ObservableEntry(self, name=key, **kwargs)
+                        for key in self.keys}
         for i, key in enumerate(self.keys):
             c, r = i % columns, i / columns
             entry = self.entries[key]
@@ -458,9 +468,11 @@ class MapRegionGrid(MapView):
         if (self.region != limits) or (self.step != step):
             self.setRegionLimits(limits)
             self.region = limits
+            self.axes.grid(False)
+            self.canvas.draw()
             self.setGridStep(step)
             self.step = step
-            self.canvas.draw()
+            self.after_idle(self.canvas.draw)
 
     def setRegionLimits(self, limits):
         xMin = limits['xMin']
@@ -473,6 +485,7 @@ class MapRegionGrid(MapView):
         self.axes.set_ylim((y0, y1))
 
     def setGridStep(self, step):
+        print('setGridStep')
         if step < 0.5 or self.region is None:
             return
         xMin = self.region['xMin']
@@ -481,86 +494,97 @@ class MapRegionGrid(MapView):
         yMax = self.region['yMax']
         xs = np.arange(min(xMin, xMax), max(xMin, xMax), step)
         ys = np.arange(min(yMin, yMax), max(yMin, yMax), step)
-        xs, ys = self.basemap(*np.meshgrid(xs,ys))
+        xs, ys = self.basemap(*np.meshgrid(xs, ys))
         self.axes.xaxis.set_ticks(xs.flatten())
         self.axes.yaxis.set_ticks(ys.flatten())
         self.axes.xaxis.set_ticklabels([])
         self.axes.yaxis.set_ticklabels([])
-        self.axes.grid(True, which='both', linestyle=self.gridStyle, color=self.gridColor)
+        self.axes.grid(True, which='both', linestyle=self.gridStyle, 
+                       color=self.gridColor)
+        print('setGridStep end')
 
 
-class GridSettingsView(LabeledView):
+class GridSettingsView(ttk.Frame):
 
     def __init__(self, parent):
-        super(GridSettingsView, self).__init__(parent, name='Grid Settings')
+        ttk.Frame.__init__(self, parent)
 
-        self.limits = GridLimitsEntry(self, name='Grid limits')
-        self.limits.grid(column=0, row=0, sticky='EW', padx=2, pady=2)
+        #self.limits = GridLimitsEntry(self, name='Grid limits')
+        #self.limits.grid(column=0, row=1, sticky='EW', padx=2, pady=2)
 
-        self.region = MapRegionSelector(self, figSize=(3, 1.3))
-        self.region.grid(column=0, row=1, padx=2, pady=2, sticky='NEW')
-
-        self.step = ObservableScale(self, name='Grid step')
-        self.step.grid(column=0, row=2, padx=2, pady=2)
-
-        self.foo = ObservableCombobox(self, name='Location')
-        self.foo.grid(column=0, row=3, padx=2, pady=2)
+        #self.foo = ObservableCombobox(self, name='Location')
+        #self.foo.grid(column=0, row=3, padx=2, pady=2)
 
         self.bar = DictEntry(self, keys=('xMin', 'xMax', 'yMin', 'yMax'),
-                name='Grid limits', width=5, justify='center')
-        self.bar.grid(column=0, row=4, padx=2, pady=2, sticky='W')
+                             name='Grid limits', width=5, justify='center')
+        self.bar.grid(column=0, row=0, padx=2, pady=2, sticky='W')
+
+        self.step = ObservableScale(self, name='Grid step', width=5,
+                                    justify='center')
+        self.step.grid(column=0, row=1, padx=2, pady=2, sticky='NEW')
 
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=0)
         self.rowconfigure(1, weight=1)
-        self.rowconfigure(2, weight=0)
-        self.rowconfigure(3, weight=0)
-        self.rowconfigure(4, weight=0)
+        #self.rowconfigure(2, weight=0)
+        #self.rowconfigure(3, weight=0)
+        #self.rowconfigure(4, weight=0)
 
 
-class TrackSettingsView(LabeledView):
+class TrackSettingsView(ttk.Frame):
 
     def __init__(self, parent):
-        super(TrackSettingsView, self).__init__(parent, name='Track Settings')
+        #super(TrackSettingsView, self).__init__(parent, name='Track Settings')
+        ttk.Frame.__init__(self, parent)
         self.nSims = ObservableEntry(self, name='Simulations',
-                width=5, justify='center')
+                                     width=7, justify='center')
         self.nYears = ObservableEntry(self, name='Years per sim',
-                width=5, justify='center')
+                                      width=7, justify='center')
         self.gridSpace = DictEntry(self, name='Grid space', keys=('x', 'y'),
-                width=5, justify='center')
+                                   width=7, justify='center')
         self.gridInc = DictEntry(self, name='Grid increment', keys=('x', 'y'),
-                width=5, justify='center')
-        self.seasonSeed = ObservableEntry(self, name='Season seed', width=5,
-                justify='center')
-        self.trackSeed = ObservableEntry(self, name='Track seed', width=5,
-                justify='center')
-
-        for i, control in enumerate([self.nSims, self.nYears, self.gridSpace, self.gridInc,
-            self.seasonSeed, self.trackSeed]):
+                                 width=7, justify='center')
+        self.seasonSeed = ObservableEntry(self, name='Season seed', width=7,
+                                          justify='center')
+        self.trackSeed = ObservableEntry(self, name='Track seed', width=7,
+                                         justify='center')
+        for i, control in enumerate([self.gridSpace, self.gridInc, self.nSims, 
+                                     self.nYears, self.seasonSeed, 
+                                     self.trackSeed]):
             control.grid(column=0, row=i, sticky='WE', padx=4, pady=4)
             self.rowconfigure(i, weight=1)
         self.columnconfigure(0, weight=1)
+
 
 class Main(View):
 
     def __init__(self, parent):
         super(Main, self).__init__(parent)
 
-        self.gridSettings = GridSettingsView(self)
-        self.gridSettings.grid(column=0, row=0, sticky='NSEW', padx=2, pady=2)
+        self.region = MapRegionSelector(self, figSize=(3, 1.3))
+        self.region.grid(column=0, row=0, padx=2, pady=2, sticky='NEW')
 
-        self.track = TrackSettingsView(self)
-        self.track.grid(column=0, row=1, sticky='W', padx=2, pady=2)
+        notebook = ttk.Notebook(self)
+        notebook.grid(column=0, row=1, sticky='NW', padx=2, pady=2)
 
-        self.view = MapRegionGrid(self, figSize=(7,5),
-                continentColor='#cdcbc1', coastlineWidth=0.8)
-        self.view.grid(column=1, row=0, rowspan=2, sticky='NSEW', padx=2, pady=2)
+        self.gridSettings = GridSettingsView(notebook)
+        self.track = TrackSettingsView(notebook)
+
+        notebook.add(self.gridSettings, text='Region')
+        notebook.add(self.track, text='Simulation')
+
+        self.view = MapRegionGrid(self, figSize=(7, 5), 
+                                  continentColor='#cdcbc1', 
+                                  coastlineWidth=0.8)
+        self.view.grid(column=1, row=0, rowspan=2, sticky='NSEW', 
+                       padx=2, pady=2)
 
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
         self.rowconfigure(0, weight=0)
-        self.rowconfigure(1, weight=0)
- 
+        self.rowconfigure(1, weight=1)
+
+
 class Controller(tk.Tk):
 
     def __init__(self):
@@ -572,14 +596,14 @@ class Controller(tk.Tk):
         self.settings = ObservableDict({
             'GRID_LIMITS': {'xMin': 113, 'xMax': 116, 'yMin': 10.5, 'yMax': -25},
             'GRID_STEP': 20.
-        }) # Model
+        })  # Model
 
         self.view = Main(self)
 
         self.settings.addCallback(self.onSettingsChanged)
 
-        self.view.gridSettings.limits.addCallback(self.onGridLimitsChanged)
-        self.view.gridSettings.region.addCallback(self.onGridLimitsChanged)
+        #self.view.gridSettings.limits.addCallback(self.onGridLimitsChanged)
+        self.view.region.addCallback(self.onGridLimitsChanged)
         self.view.gridSettings.bar.addCallback(self.onGridLimitsChanged)
         self.view.gridSettings.step.addCallback(self.onGridStepChanged)
 
@@ -590,8 +614,8 @@ class Controller(tk.Tk):
         self.after_idle(self.show)
 
     def onSettingsChanged(self, settings):
-        self.view.gridSettings.limits.set(settings['GRID_LIMITS'])
-        self.view.gridSettings.region.set(settings['GRID_LIMITS'])
+        #self.view.gridSettings.limits.set(settings['GRID_LIMITS'])
+        self.view.region.set(settings['GRID_LIMITS'])
         self.view.gridSettings.bar.set(settings['GRID_LIMITS'])
         self.view.gridSettings.step.set(settings['GRID_STEP'])
         self.view.view.set(settings['GRID_LIMITS'], settings['GRID_STEP'])
