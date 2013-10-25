@@ -52,6 +52,8 @@ class Track(object):
         self.data = data
         self.trackId = None
         self.trackfile = None
+        self.trackMinPressure = None
+        self.trackMaxWind = None
 
     def __getattr__(self, key):
         """
@@ -65,7 +67,8 @@ class Track(object):
         return self.data[key]
     
 
-def getSpeedBearing(index, lon, lat, deltatime, ieast=1):
+def getSpeedBearing(index, lon, lat, deltatime, ieast=1,
+                    missingValue=sys.maxint):
     """
     Calculate the speed and bearing of a TC based on the position and time
     difference between observations.
@@ -75,15 +78,15 @@ def getSpeedBearing(index, lon, lat, deltatime, ieast=1):
     assert dist_.size == index.size - 1
     bearing = np.zeros(index.size, 'f')
     bearing[1:] = bear_
-    np.putmask(bearing, index, sys.maxint)
+    np.putmask(bearing, index, missingValue)
 
     dist = np.zeros(index.size, 'f')
     dist[1:] = dist_
     speed = dist / deltatime
     # Delete speeds less than 0, greated than 200,
     # or where indicator == 1.
-    np.putmask(speed, (speed < 0) | (speed > 200) | index, sys.maxint)
-    np.putmask(speed, np.isnan(speed), sys.maxint)
+    np.putmask(speed, (speed < 0) | (speed > 200) | index, missingValue)
+    np.putmask(speed, np.isnan(speed), missingValue)
 
     return speed, bearing
 
@@ -151,7 +154,8 @@ def maxWindSpeed(index, deltatime, lon, lat, pressure, penv,
     v = gustfactor * np.sqrt(deltap * 100 * beta / (rho * np.exp(1.)))
     np.putmask(v, (np.isnan(v) |
                    np.isinf(v) |
-                   (pressure >= 10e+7) | 
+                   (pressure >= 10e+7) |
+                   (pressure < 0) |
                    (speed >= 10e+7)), 0)
 
     return v
@@ -419,22 +423,39 @@ def ltmPressure(jdays, time, lon, lat, ncfile):
     return penv
 
 
-def filterPressure(pressure, inputPressureUnits='hPa'):
+def filterPressure(pressure, inputPressureUnits='hPa',
+                   missingValue=sys.maxint):
     """
     Filter pressure values to remove any non-physical values
     """
 
-    novalue_index = np.where(pressure == sys.maxint)
+    novalue_index = np.where(pressure == missingValue)
     pressure = metutils.convert(pressure, inputPressureUnits, "hPa")
-    pressure[novalue_index] = sys.maxint
+    pressure[novalue_index] = missingValue
 
     # Convert any non-physical central pressure values to maximum integer
     # This is required because IBTrACS has a mix of missing value codes
     # (i.e. -999, 0, 9999) in the same global dataset.
     pressure = np.where((pressure < 600) | (pressure > 1100),
-                        sys.maxint, pressure)
+                        missingValue, pressure)
     return pressure
 
+def getMinPressure(track, missingValue=sys.maxint):
+
+    p = track.CentralPressure
+    if np.all(p==missingValue):
+        track.trackMinPressure = missingValue
+    else:
+        track.trackMinPressure = p[p != missingValue].min()
+
+def getMaxWind(track, missingValue=sys.maxint):
+
+    w = track.WindSpeed
+    if np.all(w==missingValue):
+        track.trackMaxWind = missingValue
+    else:
+        track.trackMaxWind = w[w != missingValue].max()
+        
 
 def loadTrackFile(configFile, trackFile, source, missingValue=0,
                   calculateWindSpeed=True):
@@ -513,12 +534,12 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     indicator[np.where(delta_lat > 5)[0] + 1] = 1
 
     pressure = filterPressure(np.array(inputData['pressure'], 'd'),
-                              inputPressureUnits)
+                              inputPressureUnits, missingValue)
     try:
         windspeed = np.array(inputData['vmax'], 'd')
         novalue_index = np.where(windspeed == sys.maxint)
         windspeed = metutils.convert(windspeed, inputSpeedUnits, "mps")
-        windspeed[novalue_index] = sys.maxint
+        windspeed[novalue_index] = missingValue
     except (ValueError,KeyError):
         logger.debug("No max wind speed data - all values will be zero")
         windspeed = np.zeros(indicator.size, 'f')
@@ -529,9 +550,9 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
 
     try:
         rmax = np.array(inputData['rmax'])
-        novalue_index = np.where(rmax == sys.maxint)
+        novalue_index = np.where(rmax == sys.maxint | rmax == missingValue)
         rmax = metutils.convert(rmax, inputLengthUnits, "km")
-        rmax[novalue_index] = sys.maxint
+        rmax[novalue_index] = missingValue
 
     except (ValueError,KeyError):
         logger.debug("No radius to max wind data - all values will be zero")
@@ -555,7 +576,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         time = getTime(year, month, day, hour, minute)
         penv = ltmPressure(jdays, time, lon, lat, ncfile)
 
-    speed, bearing = getSpeedBearing(indicator, lon, lat, dt)
+    speed, bearing = getSpeedBearing(indicator, lon, lat, dt, missingValue=missingValue)
 
     if calculateWindSpeed:
         windspeed = maxWindSpeed(indicator, dt, lon, lat, pressure, penv)
@@ -584,6 +605,8 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         track = Track(data[TCID == i])
         track.trackId = (i, n)
         track.trackfile = trackFile
+        getMinPressure(track, missingValue)
+        getMaxWind(track, missingValue)
         tracks.append(track)
 
     return tracks
