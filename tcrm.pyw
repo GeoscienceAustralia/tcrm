@@ -8,12 +8,15 @@ import Tkinter as tk
 import ttk
 import numpy as np
 import collections
+import json
 
 from matplotlib.widgets import RectangleSelector
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure as MatplotlibFigure
 from matplotlib.patches import Rectangle
 from mpl_toolkits.basemap import Basemap
+
+#json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
 
 ICON = """
 R0lGODlhIAAgAPcAAAAAAAAAMwAAZgAAmQAAzAAA/wArAAArMwArZgArmQArzAAr/wBVAA
@@ -45,61 +48,106 @@ gBoQEAA7
 
 
 class Observable(object):
+
     """
     Base class for observable objects.
     """
 
     def __init__(self):
+        """
+        Initialise the class.
+        """
         self.callbacks = []
 
     def addCallback(self, callback):
+        """
+        Add a function to be called when the 'notify' event occurs.
+        """
         self.callbacks.append(callback)
 
     def notify(self, value):
+        """
+        Notify all subscribed callback functions. This function is
+        typically called by subclasses of this object when they wish
+        to notify that their state has changed. All registered
+        callbacks are called with 'value' as their argument.
+        """
         for callback in self.callbacks:
             callback(value)
 
 
 class ObservableDict(Observable):
 
-    def __init__(self, theDict):
+    """
+    An observable dictionary object.
+    """
+
+    def __init__(self, theDict=None):
+        """
+        Construct an observable dictionary from `theDict`. If `theDict`
+        is not provided then a new `dict` is created.
+        """
         super(ObservableDict, self).__init__()
-        self.theDict = theDict
+        self.theDict = theDict or {}
 
     def __setitem__(self, key, value):
+        """
+        Set an item in the dict with `dict[key] = value`.
+        """
         prev = self.theDict.get(key)
         if value != prev:
             self.theDict[key] = value
             self.notify(self.theDict)
 
     def __getitem__(self, key):
+        """
+        Get an item in the dict with `dict[key]`.
+        """
         return self.theDict.get(key)
 
     def __repr__(self):
+        """
+        Return a string representation of the dictionary.
+        """
         return self.theDict.__repr__(self)
 
 
 class ObservableVariable(Observable):
 
+    """
+    An observable variable. The `variable` is internally stored as a
+    tk.StringVar object so that it can be used by Tk controls. Basic
+    python objects are serialised to JSON format so that they can be
+    easily edited through Tk controls as well.
+    """
+
     def __init__(self, value):
+        """
+        Construct a variable with initial value `value`.
+        """
         super(ObservableVariable, self).__init__()
         self.variable = tk.StringVar()
         self.set(value)
         self.variable.trace('w', self.changed)
 
     def changed(self, *args):
+        """
+        Automatically called when the variable changes.
+        """
         self.notify(self.get())
 
     def set(self, value):
-        self.vartype = type(value)
-        self.variable.set(value)
+        """
+        Helper function to set the value of the variable.
+        """
+        self.variable.set(json.dumps(value))
 
     def get(self):
+        """
+        Helper function to get the value of the variable.
+        """
         value = self.variable.get()
-        try:
-            return eval(value, {'__builtins__': None}, {})
-        except SyntaxError:
-            return self.vartype(value)
+        return json.loads(value)
 
 
 class Model(object):
@@ -112,97 +160,29 @@ class Simulation(Model):
 
 class View(object, ttk.Frame):
 
+    """
+    An abstract view.
+    """
+
     def __init__(self, parent, **kwargs):
         ttk.Frame.__init__(self, parent)
 
 
 class LabeledView(object, ttk.Labelframe):
 
+    """
+    A labeled view.
+    """
+
     def __init__(self, parent, name='', **kwargs):
         ttk.Labelframe.__init__(self, parent, text=name)
 
 
-class MainWindow(View):
-
-    def init(self):
-        lf, rf = self._initSideBySidePanes(self,
-                                           left='Model Configuration',
-                                           right='Graphics')
-        self._initModelConfigControls(lf)
-
-        figure = LineFigure(rf)
-        figure.grid(sticky='NSEW')
-        rf.columnconfigure(0, weight=1)
-        rf.rowconfigure(0, weight=1)
-
-        # self.columnconfigure(0, weight=0)
-        # self.columnconfigure(1, weight=1)
-        # self.rowconfigure(0, weight=1)
-
-    def _initSideBySidePanes(self, parent, left='', right=''):
-        p = ttk.Panedwindow(parent, orient=tk.HORIZONTAL)
-        p.grid(sticky='NSEW', padx=3, pady=3)
-        parent.columnconfigure(0, weight=1)
-        parent.rowconfigure(0, weight=1)
-        lf = ttk.Labelframe(p, text=left)
-        rf = ttk.Labelframe(p, text=right)
-        p.add(lf)
-        p.add(rf)
-        return (lf, rf)
-
-    def _initModelConfigControls(self, parent):
-        notebook = ttk.Notebook(parent)
-        notebook.grid(sticky='NSEW')
-
-        dataProcessFrame = ttk.Frame(notebook)
-        self._initDataProcessingControls(dataProcessFrame)
-        notebook.add(dataProcessFrame, text='Data')
-
-        calibrationFrame = ttk.Frame(notebook)
-        self._initCalibrationControls(calibrationFrame)
-        notebook.add(calibrationFrame, text='Calibration')
-
-        progress = ttk.Progressbar(parent,
-                                   orient=tk.HORIZONTAL,
-                                   mode='determinate')
-        progress.grid(row=1, column=0, sticky='EW', padx=20)
-
-        button = ttk.Button(parent, text=u'Ok', command=self.onOkClicked)
-        button.grid(row=2, column=0)
-
-        progress['value'] = 50
-
-        parent.columnconfigure(0, weight=1)
-        parent.rowconfigure(0, weight=1)
-
-        return notebook
-
-    def _initDataProcessingControls(self, parent):
-        self.entry1 = tk.StringVar()
-        entry = ttk.Entry(parent, textvariable=self.entry1)
-        entry.grid(column=0, row=0, sticky='EW')
-        parent.columnconfigure(0, weight=1)
-
-        self.combo = tk.StringVar()
-        combo = ttk.Combobox(parent, textvariable=self.combo, 
-                             state='readonly')
-        combo['values'] = ('one', 'two', 'three')
-        combo.current(0)
-        combo.grid(column=0, row=2, sticky='EW')
-
-    def _initCalibrationControls(self, parent):
-        self.entry2 = tk.StringVar()
-        entry = ttk.Entry(parent, textvariable=self.entry2)
-        entry.grid(column=0, row=0, sticky='NEW')
-
-        button = ttk.Button(parent, text=u'Ok', command=self.onOkClicked)
-        button.grid(column=0, row=1)
-
-    def onOkClicked(self):
-        self.entry1.set('Ok pressed.')
-
-
 class ObservableEntry(ttk.Frame, ObservableVariable):
+
+    """
+    An observable entry control.
+    """
 
     def __init__(self, parent, **kwargs):
         name = kwargs.pop('name', '')
@@ -387,17 +367,7 @@ class MapRegionSelector(MapView, ObservableVariable):
         x2, y2 = erelease.xdata, erelease.ydata
         xMin, yMin = self.basemap(min(x1, x2), min(y1, y2), inverse=True)
         xMax, yMax = self.basemap(max(x1, x2), max(y1, y2), inverse=True)
-        text = '{"xMin": %.2f, "xMax": %.2f, "yMin": %.2f, "yMax": %.2f}'
-        self.set(text % (xMin, xMax, yMin, yMax))
-
-    def get(self):
-        limits = eval(self.variable.get(),  {'__builtins__': None}, {})
-        xMin = float(limits['xMin'])
-        xMax = float(limits['xMax'])
-        yMin = float(limits['yMin'])
-        yMax = float(limits['yMax'])
-        return {'xMin': xMin, 'xMax': xMax, 'yMin': yMin, 'yMax': yMax}
-
+        self.set({'xMin': xMin, 'xMax': xMax, 'yMin': yMin, 'yMax': yMax})
 
 class GridLimitsEntry(ObservableEntry):
 
@@ -499,7 +469,7 @@ class MapRegionGrid(MapView):
         self.axes.yaxis.set_ticks(ys.flatten())
         self.axes.xaxis.set_ticklabels([])
         self.axes.yaxis.set_ticklabels([])
-        self.axes.grid(True, which='both', linestyle=self.gridStyle, 
+        self.axes.grid(True, which='both', linestyle=self.gridStyle,
                        color=self.gridColor)
         print('setGridStep end')
 
@@ -548,13 +518,91 @@ class TrackSettingsView(ttk.Frame):
                                           justify='center')
         self.trackSeed = ObservableEntry(self, name='Track seed', width=7,
                                          justify='center')
-        for i, control in enumerate([self.gridSpace, self.gridInc, self.nSims, 
-                                     self.nYears, self.seasonSeed, 
+        for i, control in enumerate([self.gridSpace, self.gridInc, self.nSims,
+                                     self.nYears, self.seasonSeed,
                                      self.trackSeed]):
             control.grid(column=0, row=i, sticky='WE', padx=4, pady=4)
             self.rowconfigure(i, weight=1)
         self.columnconfigure(0, weight=1)
 
+class MainWindow(View):
+
+    def init(self):
+        lf, rf = self._initSideBySidePanes(self,
+                                           left='Model Configuration',
+                                           right='Graphics')
+        self._initModelConfigControls(lf)
+
+        figure = LineFigure(rf)
+        figure.grid(sticky='NSEW')
+        rf.columnconfigure(0, weight=1)
+        rf.rowconfigure(0, weight=1)
+
+        # self.columnconfigure(0, weight=0)
+        # self.columnconfigure(1, weight=1)
+        # self.rowconfigure(0, weight=1)
+
+    def _initSideBySidePanes(self, parent, left='', right=''):
+        p = ttk.Panedwindow(parent, orient=tk.HORIZONTAL)
+        p.grid(sticky='NSEW', padx=3, pady=3)
+        parent.columnconfigure(0, weight=1)
+        parent.rowconfigure(0, weight=1)
+        lf = ttk.Labelframe(p, text=left)
+        rf = ttk.Labelframe(p, text=right)
+        p.add(lf)
+        p.add(rf)
+        return (lf, rf)
+
+    def _initModelConfigControls(self, parent):
+        notebook = ttk.Notebook(parent)
+        notebook.grid(sticky='NSEW')
+
+        dataProcessFrame = ttk.Frame(notebook)
+        self._initDataProcessingControls(dataProcessFrame)
+        notebook.add(dataProcessFrame, text='Data')
+
+        calibrationFrame = ttk.Frame(notebook)
+        self._initCalibrationControls(calibrationFrame)
+        notebook.add(calibrationFrame, text='Calibration')
+
+        progress = ttk.Progressbar(parent,
+                                   orient=tk.HORIZONTAL,
+                                   mode='determinate')
+        progress.grid(row=1, column=0, sticky='EW', padx=20)
+
+        button = ttk.Button(parent, text=u'Ok', command=self.onOkClicked)
+        button.grid(row=2, column=0)
+
+        progress['value'] = 50
+
+        parent.columnconfigure(0, weight=1)
+        parent.rowconfigure(0, weight=1)
+
+        return notebook
+
+    def _initDataProcessingControls(self, parent):
+        self.entry1 = tk.StringVar()
+        entry = ttk.Entry(parent, textvariable=self.entry1)
+        entry.grid(column=0, row=0, sticky='EW')
+        parent.columnconfigure(0, weight=1)
+
+        self.combo = tk.StringVar()
+        combo = ttk.Combobox(parent, textvariable=self.combo,
+                             state='readonly')
+        combo['values'] = ('one', 'two', 'three')
+        combo.current(0)
+        combo.grid(column=0, row=2, sticky='EW')
+
+    def _initCalibrationControls(self, parent):
+        self.entry2 = tk.StringVar()
+        entry = ttk.Entry(parent, textvariable=self.entry2)
+        entry.grid(column=0, row=0, sticky='NEW')
+
+        button = ttk.Button(parent, text=u'Ok', command=self.onOkClicked)
+        button.grid(column=0, row=1)
+
+    def onOkClicked(self):
+        self.entry1.set('Ok pressed.')
 
 class Main(View):
 
@@ -573,10 +621,10 @@ class Main(View):
         notebook.add(self.gridSettings, text='Region')
         notebook.add(self.track, text='Simulation')
 
-        self.view = MapRegionGrid(self, figSize=(7, 5), 
-                                  continentColor='#cdcbc1', 
+        self.view = MapRegionGrid(self, figSize=(7, 5),
+                                  continentColor='#cdcbc1',
                                   coastlineWidth=0.8)
-        self.view.grid(column=1, row=0, rowspan=2, sticky='NSEW', 
+        self.view.grid(column=1, row=0, rowspan=2, sticky='NSEW',
                        padx=2, pady=2)
 
         self.columnconfigure(0, weight=0)
@@ -602,7 +650,7 @@ class Controller(tk.Tk):
 
         self.settings.addCallback(self.onSettingsChanged)
 
-        #self.view.gridSettings.limits.addCallback(self.onGridLimitsChanged)
+        # self.view.gridSettings.limits.addCallback(self.onGridLimitsChanged)
         self.view.region.addCallback(self.onGridLimitsChanged)
         self.view.gridSettings.bar.addCallback(self.onGridLimitsChanged)
         self.view.gridSettings.step.addCallback(self.onGridStepChanged)
@@ -614,7 +662,7 @@ class Controller(tk.Tk):
         self.after_idle(self.show)
 
     def onSettingsChanged(self, settings):
-        #self.view.gridSettings.limits.set(settings['GRID_LIMITS'])
+        # self.view.gridSettings.limits.set(settings['GRID_LIMITS'])
         self.view.region.set(settings['GRID_LIMITS'])
         self.view.gridSettings.bar.set(settings['GRID_LIMITS'])
         self.view.gridSettings.step.set(settings['GRID_STEP'])
