@@ -257,7 +257,7 @@ class ObservableScale(ttk.Frame, ObservableVariable):
         self.noPendingNotification = True
 
     def format(self, *args):
-        self.set('%.2f' % self.get())
+        self.set(self.get())
 
     def changed(self, *args):
         if self.noPendingNotification:
