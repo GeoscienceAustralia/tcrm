@@ -550,7 +550,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
 
     try:
         rmax = np.array(inputData['rmax'])
-        novalue_index = np.where(rmax == sys.maxint | rmax == missingValue)
+        novalue_index = np.where(rmax == missingValue)
         rmax = metutils.convert(rmax, inputLengthUnits, "km")
         rmax[novalue_index] = missingValue
 

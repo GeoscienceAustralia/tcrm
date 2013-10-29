@@ -23,6 +23,11 @@ TRACKFILE_OUTFMT = ('%i,%i,%i,%i,'
                     '%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,'
                     '%6.2f,%6.2f,%7.2f')
 
+OUTPUT_COLS = ('CycloneNumber', 'TimeElapsed', 'Longitude',
+                  'Latitude', 'Speed', 'Bearing', 'CentralPressure',
+                  'EnvPressure', 'rMax')
+
+OUTPUT_FMTS = ('%i,%5.1f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f')
 
 class Track(object):
     def __init__(self, data):
@@ -49,7 +54,8 @@ def interpolate(track, delta, interpolation_type=None):
                                of interpolation used for the locations (i.e.
                                longitude and latitude) of the records.
 
-    # FIXME: Need to address masking values. 
+    # FIXME: Need to address masking values - scipy.interpolate.interp1d
+    handles numpy.ma masked arrays. 
     """
     
     day_ = [datetime(*x) for x in zip(track.Year, track.Month, 
@@ -164,7 +170,6 @@ def interpolate(track, delta, interpolation_type=None):
         nrMax = interp1d(timestep, track.rMax, kind='linear')(newtime)
 
 
-
     bear_, dist_ = latLon2Azi(nLat, nLon, 1, azimuth=0)
     nthetaFm = np.zeros(newtime.size, 'f')
     nthetaFm[:-1] = bear_
@@ -202,6 +207,21 @@ def interpolate(track, delta, interpolation_type=None):
 
     return newtrack
 
+def saveTracks(tracks, outputFile):
+    """
+    Save the data to a TCRM-format track file
+    """
+    
+    output = []
+    for track in tracks:
+        r = [getattr(track, col).T for col in OUTPUT_COLS]
+        output.append(r)
+    data = np.hstack([r for r in output]).T
+    
+    with open(outputFile, 'w') as fid:
+        fid.write('%' + ','.join(OUTPUT_COLS) + '\n')
+        if len(data) > 0:
+            np.savetxt(fid, data, fmt=OUTPUT_FMTS)
 
 def parseTracks(configFile, trackFile, source, delta, outputFile=None):
     """
@@ -249,10 +269,12 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None):
   
     if outputFile:
         # Save data to file:
+        saveTracks(results, outputFile)
+        """
         newTracks = np.hstack([r.data.T for r in results]).T
         with open(outputFile, 'w') as fid:
             fid.write('%' + ','.join(TRACKFILE_COLS) + '\n')
             if len(newTracks) > 0:
                 np.savetxt(fid, newTracks, fmt=TRACKFILE_OUTFMT)
-
+        """
     return results
