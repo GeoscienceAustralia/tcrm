@@ -1,8 +1,6 @@
 import sys
 import numpy as np
 
-import pdb
-
 from datetime import datetime
 from matplotlib.dates import date2num, num2date
 from scipy.interpolate import interp1d, splev, splrep
@@ -81,7 +79,6 @@ def interpolate(track, delta, interpolation_type=None):
     # Find the indices of valid pressure observations:
     validIdx = np.where(track.CentralPressure < sys.maxint)[0]
 
-    pdb.set_trace()
     # FIXME: Need to address the issue when the time between obs is less 
     # than delta (e.g. only two obs 5 hrs apart, but delta = 6 hrs). 
 
@@ -173,7 +170,6 @@ def interpolate(track, delta, interpolation_type=None):
         npEnv = interp1d(timestep, track.EnvPressure, kind='linear')(newtime)
         nrMax = interp1d(timestep, track.rMax, kind='linear')(newtime)
 
-    pdb.set_trace()
     bear_, dist_ = latLon2Azi(nLat, nLon, 1, azimuth=0)
     nthetaFm = np.zeros(newtime.size, 'f')
     nthetaFm[:-1] = bear_
