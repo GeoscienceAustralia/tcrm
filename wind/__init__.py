@@ -420,6 +420,20 @@ class WindfieldGenerator(object):
         self.thetaMax = thetaMax
         self.gridLimit = gridLimit
 
+    def setGridLimit(self, track):
+        
+        track_limits = {'xMin':9999,'xMax':-9999,'yMin':9999,'yMax':-9999}
+        track_limits['xMin'] = min(track_limits['xMin'], track.Longitude.min())
+        track_limits['xMax'] = max(track_limits['xMax'], track.Longitude.max())
+        track_limits['yMin'] = min(track_limits['yMin'], track.Latitude.min())
+        track_limits['yMax'] = max(track_limits['yMax'], track.Latitude.max())
+        self.gridLimit = {}
+        self.gridLimit['xMin'] = np.floor(track_limits['xMin'])
+        self.gridLimit['xMax'] = np.ceil(track_limits['xMax'])
+        self.gridLimit['yMin'] = np.floor(track_limits['yMin'])
+        self.gridLimit['yMax'] = np.ceil(track_limits['yMax'])
+        
+        
     def calculateExtremesFromTrack(self, track):
         """
         Calculate the wind extremes given a single tropical cyclone track.
@@ -437,7 +451,12 @@ class WindfieldGenerator(object):
                                   thetaMax=self.thetaMax,
                                   margin=self.margin,
                                   resolution=self.resolution)
+        
+        if self.gridLimit is None:
+            self.setGridLimit(track)
+            
         return track, wt.regionalExtremes(self.gridLimit)
+            
 
     def calculateExtremesFromTrackfile(self, trackfile):
         """
@@ -866,11 +885,15 @@ def run(configFile):
     thetaMax = config.getfloat('WindfieldInterface', 'thetaMax')
     margin = config.getfloat('WindfieldInterface', 'Margin')
     resolution = config.getfloat('WindfieldInterface', 'Resolution')
-    gridLimit = config.geteval('Region', 'gridLimit')
+    
     windfieldPath = pjoin(outputPath, 'windfield')
     trackPath = pjoin(outputPath, 'tracks')
     windfieldFormat = 'gust-%i-%04d.nc'
 
+    gridLimit = None
+    if config.has_section('Region'):
+        gridLimit = config.geteval('Region', 'gridLimit')
+    
     if config.has_option('WindfieldInterface', 'gridLimit'):
         gridLimit = config.geteval('WindfieldInterface', 'gridLimit')
 
@@ -884,7 +907,7 @@ def run(configFile):
     attemptParallel()
 
     log.info('Running windfield generator')
-
+    
     wfg = WindfieldGenerator(margin=margin,
                              resolution=resolution,
                              profileType=profileType,
