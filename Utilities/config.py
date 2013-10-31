@@ -20,8 +20,6 @@ YearsPerSimulation=10
 NumTimeSteps=360
 TimeStep=1.0
 Format=csv
-SeasonSeed=1
-TrackSeed=1
 gridSpace={'x':1.0,'y':1.0}
 gridInc={'x':1.0,'y':0.5}
 
