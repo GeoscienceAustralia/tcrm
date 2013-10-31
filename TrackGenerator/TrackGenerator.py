@@ -492,7 +492,7 @@ class TrackGenerator(object):
             :return: True if a valid pressure. False, otherwise.
             """
             index, age, lon, lat, speed, bearing, P, eP, rmax = track
-            return all(P < eP)
+            return all(np.round(P, 2) < np.round(eP, 2))
 
         # Filter the generated tracks based on certain criteria
 
