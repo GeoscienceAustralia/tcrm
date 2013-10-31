@@ -16,7 +16,7 @@ from matplotlib.figure import Figure as MatplotlibFigure
 from matplotlib.patches import Rectangle
 from mpl_toolkits.basemap import Basemap
 
-#json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
+json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
 
 ICON = """
 R0lGODlhIAAgAPcAAAAAAAAAMwAAZgAAmQAAzAAA/wArAAArMwArZgArmQArzAAr/wBVAA
@@ -134,20 +134,27 @@ class ObservableVariable(Observable):
         """
         Automatically called when the variable changes.
         """
-        self.notify(self.get())
+        try:
+            # only notify on valid JSON parse
+            self.notify(self.get())
+        except ValueError:
+            pass
 
     def set(self, value):
         """
-        Helper function to set the value of the variable.
+        Set the value of the variable.
         """
-        self.variable.set(json.dumps(value))
+        if isinstance(value, str):
+            text = value
+        else:
+            text = json.dumps(value)
+        self.variable.set(text)
 
     def get(self):
         """
-        Helper function to get the value of the variable.
+        Get the value of the variable.
         """
-        value = self.variable.get()
-        return json.loads(value)
+        return json.loads(self.variable.get())
 
 
 class Model(object):
@@ -181,7 +188,17 @@ class LabeledView(object, ttk.Labelframe):
 class ObservableEntry(ttk.Frame, ObservableVariable):
 
     """
-    An observable entry control.
+    An observable entry box control with an associated label
+    to the left of the control.
+
+    :type  parent: object
+    :param parent: the parent gui control.
+
+    :type  name: str
+    :param name: the name of the variable to put in the text label.
+
+    :type  value: str
+    :param value: the initial value to put in the entry box.
     """
 
     def __init__(self, parent, **kwargs):
@@ -204,6 +221,11 @@ class ObservableEntry(ttk.Frame, ObservableVariable):
 
 
 class ObservableSpinbox(ttk.Frame, ObservableVariable):
+
+    """
+    An observable spin box control with an associated label
+    to the left of the control.
+    """
 
     def __init__(self, parent, **kwargs):
         name = kwargs.pop('name', '')
@@ -229,11 +251,35 @@ class ObservableSpinbox(ttk.Frame, ObservableVariable):
 
 class ObservableScale(ttk.Frame, ObservableVariable):
 
+    """
+    An observable entry box and scale control with an associated label
+    to the left.
+
+    :type  parent: object
+    :param parent: the parent gui control.
+
+    :type  name: str
+    :param name: the name of the variable to put in the text label.
+
+    :type  value: int
+    :param value: the initial value to put in the entry box.
+
+    :type  lower: int
+    :param lower: the lower value limit for the scale control.
+
+    :type  upper: int
+    :param upper: the upper value limit for the scale control.
+
+    :type  delay: int
+    :param delay: the amount of time to delay the 'notify' event.
+    """
+
     def __init__(self, parent, **kwargs):
         name = kwargs.pop('name', '')
         lower = kwargs.pop('lower', 0)
         upper = kwargs.pop('upper', 100)
         value = kwargs.pop('value', 0)
+        delay = kwargs.pop('delay', 1000)
 
         ttk.Frame.__init__(self, parent)
         ObservableVariable.__init__(self, value)
@@ -255,16 +301,32 @@ class ObservableScale(ttk.Frame, ObservableVariable):
         self.rowconfigure(0, weight=1)
 
         self.noPendingNotification = True
+        self.delay = delay
 
     def format(self, *args):
-        self.set(self.get())
+        """
+        Format the variable by rounding it to 2 decimal places. This is
+        called automatically when the scale control changes the
+        variable. Subclasses can overwrite this to provide custom
+        formatting.
+        """
+        self.set(round(self.get(), 2))
 
     def changed(self, *args):
+        """
+        Delays the 'notify' event by `self.delay` milliseconds. This is
+        automatically called by the superclass when the variable is
+        changed.
+        """
         if self.noPendingNotification:
-            self.after(1000, self.doNotify)
+            self.after(self.delay, self.doNotify)
             self.noPendingNotification = False
 
     def doNotify(self, *args):
+        """
+        Perform a notify event. Called by the `changed` method to
+        trigger the actual `notify` event.
+        """
         self.notify(self.get())
         self.noPendingNotification = True
 
@@ -291,16 +353,23 @@ class ObservableCombobox(ttk.Frame, ObservableVariable):
         self.rowconfigure(0, weight=1)
 
 
-class MapView(View):
+class MapView(ttk.Frame):
+    
+    """
+    A Map view control.
+    """
 
     def __init__(self, parent, **kwargs):
+        drawCoastlines = kwargs.pop('drawCoastlines', True)
+        fillContinents = kwargs.pop('fillContinents', True)
+        continentColor = kwargs.pop('continentColor', '0.8')
+        coastlineWidth = kwargs.pop('coastlineWidth', 0.3)
+        projection = kwargs.pop('projection', 'mill')
+        figSize = kwargs.pop('figSize', (3, 1.3))
         bgColor = '#%02x%02x%02x' % \
                   tuple([c / 255 for c in
                          parent.winfo_rgb('SystemButtonFace')])
-        figSize = kwargs.pop('figSize', (3, 1.3))
-        continentColor = kwargs.pop('continentColor', '0.8')
-        coastlineWidth = kwargs.pop('coastlineWidth', 0.3)
-
+ 
         ttk.Frame.__init__(self, parent)
 
         figure = MatplotlibFigure(figsize=figSize, facecolor=bgColor)
@@ -308,9 +377,13 @@ class MapView(View):
         self.axes = figure.add_subplot(111, aspect='auto')
 
         self.basemap = Basemap(llcrnrlon=0, llcrnrlat=-80, urcrnrlon=360,
-                               urcrnrlat=80, projection='mill', ax=self.axes)
-        self.basemap.drawcoastlines(linewidth=coastlineWidth)
-        self.basemap.fillcontinents(color=continentColor)
+                               urcrnrlat=80, projection=projection, 
+                               ax=self.axes)
+        if drawCoastlines:
+            self.basemap.drawcoastlines(linewidth=coastlineWidth)
+
+        if fillContinents:
+            self.basemap.fillcontinents(color=continentColor)
 
         self.axes.set_aspect('auto')
         figure.tight_layout(pad=0)
@@ -326,6 +399,10 @@ class MapView(View):
 
 
 class MapRegionSelector(MapView, ObservableVariable):
+
+    """
+    A map region selection widget.
+    """
 
     def __init__(self, parent, **kwargs):
         value = kwargs.pop('value', 0)
@@ -362,40 +439,31 @@ class MapRegionSelector(MapView, ObservableVariable):
         yMax = limits['yMax']
         self.drawRegion(xMin, xMax, yMin, yMax)
 
-    def onSelected(self, eclick, erelease):
-        x1, y1 = eclick.xdata, eclick.ydata
-        x2, y2 = erelease.xdata, erelease.ydata
+    def onSelected(self, click, release):
+        x1, y1 = click.xdata, click.ydata
+        x2, y2 = release.xdata, release.ydata
         xMin, yMin = self.basemap(min(x1, x2), min(y1, y2), inverse=True)
         xMax, yMax = self.basemap(max(x1, x2), max(y1, y2), inverse=True)
         self.set({'xMin': xMin, 'xMax': xMax, 'yMin': yMin, 'yMax': yMax})
 
-class GridLimitsEntry(ObservableEntry):
-
-    def __init__(self, parent, **kwargs):
-        super(GridLimitsEntry, self).__init__(parent, **kwargs)
-
-    def get(self):
-        limits = eval(self.variable.get(), {'__builtins__': None}, {})
-        xMin = float(limits['xMin'])
-        xMax = float(limits['xMax'])
-        yMin = float(limits['yMin'])
-        yMax = float(limits['yMax'])
-        return {'xMin': xMin, 'xMax': xMax, 'yMin': yMin, 'yMax': yMax}
-
 
 class DictEntry(ttk.Labelframe, ObservableVariable):
+
+    """
+    A control for editing dictionaries.
+    """
 
     def __init__(self, parent, **kwargs):
         name = kwargs.pop('name', '')
         columns = kwargs.pop('columns', 2)
+        keys = kwargs.pop('keys', None)
 
         ttk.Labelframe.__init__(self, parent, text=name)
         ObservableVariable.__init__(self, value='')
 
-        self.keys = kwargs.pop('keys', None)
         self.entries = {key: ObservableEntry(self, name=key, **kwargs)
-                        for key in self.keys}
-        for i, key in enumerate(self.keys):
+                        for key in keys}
+        for i, key in enumerate(keys):
             c, r = i % columns, i / columns
             entry = self.entries[key]
             entry.addCallback(self.changed)
@@ -403,6 +471,7 @@ class DictEntry(ttk.Labelframe, ObservableVariable):
             self.rowconfigure(r, weight=1)
             self.columnconfigure(c, weight=1)
 
+        self.keys = keys
         self.allowNotify = False
 
     def changed(self, *args):
@@ -427,6 +496,10 @@ class DictEntry(ttk.Labelframe, ObservableVariable):
 
 class MapRegionGrid(MapView):
 
+    """
+    A widget that shows the current region and the current grid.
+    """
+
     def __init__(self, parent, **kwargs):
         self.gridStyle = kwargs.pop('gridStyle', '-')
         self.gridColor = kwargs.pop('gridColor', '0.7')
@@ -434,15 +507,18 @@ class MapRegionGrid(MapView):
         self.region = None
         self.step = None
 
-    def set(self, limits, step):
-        if (self.region != limits) or (self.step != step):
-            self.setRegionLimits(limits)
-            self.region = limits
-            self.axes.grid(False)
-            self.canvas.draw()
-            self.setGridStep(step)
-            self.step = step
-            self.after_idle(self.canvas.draw)
+    def set(self, value):
+        if isinstance(value, dict):
+            if (self.region != value):
+                self.setRegionLimits(limits)
+                self.axes.grid(False)
+                self.canvas.draw()
+                self.region = value
+        else:
+            if self.step != step:
+                self.setGridStep(step)
+                self.step = step
+                self.after_idle(self.canvas.draw)
 
     def setRegionLimits(self, limits):
         xMin = limits['xMin']
@@ -455,7 +531,6 @@ class MapRegionGrid(MapView):
         self.axes.set_ylim((y0, y1))
 
     def setGridStep(self, step):
-        print('setGridStep')
         if step < 0.5 or self.region is None:
             return
         xMin = self.region['xMin']
@@ -471,7 +546,6 @@ class MapRegionGrid(MapView):
         self.axes.yaxis.set_ticklabels([])
         self.axes.grid(True, which='both', linestyle=self.gridStyle,
                        color=self.gridColor)
-        print('setGridStep end')
 
 
 class GridSettingsView(ttk.Frame):
@@ -504,7 +578,6 @@ class GridSettingsView(ttk.Frame):
 class TrackSettingsView(ttk.Frame):
 
     def __init__(self, parent):
-        #super(TrackSettingsView, self).__init__(parent, name='Track Settings')
         ttk.Frame.__init__(self, parent)
         self.nSims = ObservableEntry(self, name='Simulations',
                                      width=7, justify='center')
@@ -648,25 +721,44 @@ class Controller(tk.Tk):
 
         self.view = Main(self)
 
-        self.settings.addCallback(self.onSettingsChanged)
+        mappings = [(self.view.region, 'GRID_LIMITS'),
+                    (self.view.gridSettings.bar, 'GRID_LIMITS'),
+                    (self.view.gridSettings.step, 'GRID_STEP'),
+                    (self.view.view, 'GRID_LIMITS'),
+                    (self.view.view, 'GRID_STEP')]
 
         # self.view.gridSettings.limits.addCallback(self.onGridLimitsChanged)
-        self.view.region.addCallback(self.onGridLimitsChanged)
-        self.view.gridSettings.bar.addCallback(self.onGridLimitsChanged)
-        self.view.gridSettings.step.addCallback(self.onGridStepChanged)
+        #self.view.region.addCallback(self.onGridLimitsChanged)
+        #self.view.gridSettings.bar.addCallback(self.onGridLimitsChanged)
+        #self.view.gridSettings.step.addCallback(self.onGridStepChanged)
 
-        self.view.pack(fill='both', expand=True)
+        self.notifyWhom = {}
+        for control, key in mappings:
+            controls = self.notifyWhom.setdefault(key, [])
+            controls.append(control)
+            control.addCallback(lambda x: self.onControlChanged(x, key))
+
+        self.settings.addCallback(self.onSettingsChanged)
 
         self.onSettingsChanged(self.settings)
-
+        self.view.pack(fill='both', expand=True)
         self.after_idle(self.show)
 
     def onSettingsChanged(self, settings):
-        # self.view.gridSettings.limits.set(settings['GRID_LIMITS'])
-        self.view.region.set(settings['GRID_LIMITS'])
-        self.view.gridSettings.bar.set(settings['GRID_LIMITS'])
-        self.view.gridSettings.step.set(settings['GRID_STEP'])
-        self.view.view.set(settings['GRID_LIMITS'], settings['GRID_STEP'])
+        for key, controls in self.notifyWhom.items():
+            for control in controls:
+                print(control, key, settings[key])
+                control.set(settings[key])
+
+    def onControlChanged(self, value, key):
+        self.settings[key] = value
+
+#    def onSettingsChanged(self, settings):
+#        # self.view.gridSettings.limits.set(settings['GRID_LIMITS'])
+#        self.view.region.set(settings['GRID_LIMITS'])
+#        self.view.gridSettings.bar.set(settings['GRID_LIMITS'])
+#        self.view.gridSettings.step.set(settings['GRID_STEP'])
+#        self.view.view.set(settings['GRID_LIMITS'], settings['GRID_STEP'])
 
     def onGridLimitsChanged(self, limits):
         self.settings['GRID_LIMITS'] = limits
