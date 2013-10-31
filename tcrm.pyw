@@ -510,14 +510,14 @@ class MapRegionGrid(MapView):
     def set(self, value):
         if isinstance(value, dict):
             if (self.region != value):
-                self.setRegionLimits(limits)
+                self.setRegionLimits(value)
                 self.axes.grid(False)
                 self.canvas.draw()
                 self.region = value
         else:
-            if self.step != step:
-                self.setGridStep(step)
-                self.step = step
+            if self.step != value:
+                self.setGridStep(value)
+                self.step = value
                 self.after_idle(self.canvas.draw)
 
     def setRegionLimits(self, limits):
@@ -727,7 +727,7 @@ class Controller(tk.Tk):
                     (self.view.view, 'GRID_LIMITS'),
                     (self.view.view, 'GRID_STEP')]
 
-        # self.view.gridSettings.limits.addCallback(self.onGridLimitsChanged)
+        #self.view.gridSettings.limits.addCallback(self.onGridLimitsChanged)
         #self.view.region.addCallback(self.onGridLimitsChanged)
         #self.view.gridSettings.bar.addCallback(self.onGridLimitsChanged)
         #self.view.gridSettings.step.addCallback(self.onGridStepChanged)
@@ -736,18 +736,18 @@ class Controller(tk.Tk):
         for control, key in mappings:
             controls = self.notifyWhom.setdefault(key, [])
             controls.append(control)
-            control.addCallback(lambda x: self.onControlChanged(x, key))
+            if hasattr(control, 'addCallback'):
+                control.addCallback(lambda x: self.onControlChanged(x, key))
 
         self.settings.addCallback(self.onSettingsChanged)
-
         self.onSettingsChanged(self.settings)
+
         self.view.pack(fill='both', expand=True)
         self.after_idle(self.show)
 
     def onSettingsChanged(self, settings):
         for key, controls in self.notifyWhom.items():
             for control in controls:
-                print(control, key, settings[key])
                 control.set(settings[key])
 
     def onControlChanged(self, value, key):
