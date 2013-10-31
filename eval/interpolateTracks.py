@@ -27,7 +27,7 @@ OUTPUT_COLS = ('CycloneNumber', 'TimeElapsed', 'Longitude',
                   'Latitude', 'Speed', 'Bearing', 'CentralPressure',
                   'EnvPressure', 'rMax')
 
-OUTPUT_FMTS = ('%i,%5.1f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f')
+OUTPUT_FMTS = ('%i,%7.3f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f')
 
 class Track(object):
     def __init__(self, data):
