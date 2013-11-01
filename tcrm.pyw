@@ -7,7 +7,6 @@ import matplotlib as mp
 import Tkinter as tk
 import ttk
 import numpy as np
-import collections
 import json
 
 from matplotlib.widgets import RectangleSelector
