@@ -97,7 +97,7 @@ class ObservableDict(Observable):
         prev = self.theDict.get(key)
         if value != prev:
             self.theDict[key] = value
-            self.notify(self.theDict)
+            self.notify(self)
 
     def __getitem__(self, key):
         """
@@ -109,7 +109,10 @@ class ObservableDict(Observable):
         """
         Return a string representation of the dictionary.
         """
-        return self.theDict.__repr__(self)
+        return self.theDict.__repr__()
+
+    def items(self):
+        return self.theDict.items()
 
 
 class ObservableVariable(Observable):
@@ -129,16 +132,39 @@ class ObservableVariable(Observable):
         self.variable = tk.StringVar()
         self.set(value)
         self.variable.trace('w', self.changed)
+        self.delay = 1000
+        self.noPendingNotification = True
+
+    # def changed(self, *args):
+    #     """
+    #     Automatically called when the variable changes.
+    #     """
+    #     try:
+    #         # only notify on valid JSON parse
+    #         self.notify(self.get())
+    #     except ValueError:
+    #         pass
 
     def changed(self, *args):
         """
-        Automatically called when the variable changes.
+        Delays the 'notify' event by `self.delay` milliseconds. This is
+        automatically called by the superclass when the variable is
+        changed.
+        """
+        if self.noPendingNotification:
+            self.after_idle(self.doNotify)
+            self.noPendingNotification = False
+
+    def doNotify(self, *args):
+        """
+        Perform a notify event. Called by the `changed` method to
+        trigger the actual `notify` event.
         """
         try:
-            # only notify on valid JSON parse
             self.notify(self.get())
         except ValueError:
             pass
+        self.noPendingNotification = True
 
     def set(self, value):
         """
@@ -148,7 +174,9 @@ class ObservableVariable(Observable):
             text = value
         else:
             text = json.dumps(value)
-        self.variable.set(text)
+        prev = self.variable.get()
+        if text != prev:
+            self.variable.set(text)
 
     def get(self):
         """
@@ -327,7 +355,10 @@ class ObservableScale(ttk.Frame, ObservableVariable):
         Perform a notify event. Called by the `changed` method to
         trigger the actual `notify` event.
         """
-        self.notify(self.get())
+        try:
+            self.notify(self.get())
+        except ValueError:
+            pass
         self.noPendingNotification = True
 
 
@@ -354,7 +385,7 @@ class ObservableCombobox(ttk.Frame, ObservableVariable):
 
 
 class MapView(ttk.Frame):
-    
+
     """
     A Map view control.
     """
@@ -369,7 +400,7 @@ class MapView(ttk.Frame):
         bgColor = '#%02x%02x%02x' % \
                   tuple([c / 255 for c in
                          parent.winfo_rgb('SystemButtonFace')])
- 
+
         ttk.Frame.__init__(self, parent)
 
         figure = MatplotlibFigure(figsize=figSize, facecolor=bgColor)
@@ -377,7 +408,7 @@ class MapView(ttk.Frame):
         self.axes = figure.add_subplot(111, aspect='auto')
 
         self.basemap = Basemap(llcrnrlon=0, llcrnrlat=-80, urcrnrlon=360,
-                               urcrnrlat=80, projection=projection, 
+                               urcrnrlat=80, projection=projection,
                                ax=self.axes)
         if drawCoastlines:
             self.basemap.drawcoastlines(linewidth=coastlineWidth)
@@ -485,6 +516,7 @@ class DictEntry(ttk.Labelframe, ObservableVariable):
                 entry = self.entries[key]
                 entry.set(value[key])
             self.allowNotify = True
+            self.changed()
 
     def get(self):
         value = {}
@@ -509,15 +541,20 @@ class MapRegionGrid(MapView):
 
     def set(self, value):
         if isinstance(value, dict):
-            if (self.region != value):
-                self.setRegionLimits(value)
+            region = value
+            step = self.step
+        else:
+            region = self.region
+            step = value
+        if (self.region != region) or (self.step != step):
+            if region:
+                self.setRegionLimits(region)
                 self.axes.grid(False)
                 self.canvas.draw()
-                self.region = value
-        else:
-            if self.step != value:
-                self.setGridStep(value)
-                self.step = value
+                self.region = region
+            if step:
+                self.setGridStep(step)
+                self.step = step
                 self.after_idle(self.canvas.draw)
 
     def setRegionLimits(self, limits):
@@ -708,6 +745,10 @@ class Main(View):
 
 class Controller(tk.Tk):
 
+    """
+    Controller.
+    """
+
     def __init__(self):
         tk.Tk.__init__(self)
         self.withdraw()
@@ -717,54 +758,40 @@ class Controller(tk.Tk):
         self.settings = ObservableDict({
             'GRID_LIMITS': {'xMin': 113, 'xMax': 116, 'yMin': 10.5, 'yMax': -25},
             'GRID_STEP': 20.
-        })  # Model
+        }) # Model
 
-        self.view = Main(self)
+        view = Main(self)
 
-        mappings = [(self.view.region, 'GRID_LIMITS'),
-                    (self.view.gridSettings.bar, 'GRID_LIMITS'),
-                    (self.view.gridSettings.step, 'GRID_STEP'),
-                    (self.view.view, 'GRID_LIMITS'),
-                    (self.view.view, 'GRID_STEP')]
+        mappings = [(view.region, 'GRID_LIMITS'),
+                    (view.gridSettings.bar, 'GRID_LIMITS'),
+                    (view.gridSettings.step, 'GRID_STEP'),
+                    (view.view, 'GRID_LIMITS'),
+                    (view.view, 'GRID_STEP')]
 
-        #self.view.gridSettings.limits.addCallback(self.onGridLimitsChanged)
-        #self.view.region.addCallback(self.onGridLimitsChanged)
-        #self.view.gridSettings.bar.addCallback(self.onGridLimitsChanged)
-        #self.view.gridSettings.step.addCallback(self.onGridStepChanged)
+        def makeCallback(key):
+            return lambda x: self.onControlChanged(x, key)
 
         self.notifyWhom = {}
         for control, key in mappings:
             controls = self.notifyWhom.setdefault(key, [])
             controls.append(control)
             if hasattr(control, 'addCallback'):
-                control.addCallback(lambda x: self.onControlChanged(x, key))
+                control.addCallback(makeCallback(key))
 
-        self.settings.addCallback(self.onSettingsChanged)
         self.onSettingsChanged(self.settings)
+        self.settings.addCallback(self.onSettingsChanged)
 
-        self.view.pack(fill='both', expand=True)
+        view.pack(fill='both', expand=True)
         self.after_idle(self.show)
 
     def onSettingsChanged(self, settings):
-        for key, controls in self.notifyWhom.items():
+        for key, value in settings.items():
+            controls = self.notifyWhom[key]
             for control in controls:
-                control.set(settings[key])
+                control.set(value)
 
     def onControlChanged(self, value, key):
         self.settings[key] = value
-
-#    def onSettingsChanged(self, settings):
-#        # self.view.gridSettings.limits.set(settings['GRID_LIMITS'])
-#        self.view.region.set(settings['GRID_LIMITS'])
-#        self.view.gridSettings.bar.set(settings['GRID_LIMITS'])
-#        self.view.gridSettings.step.set(settings['GRID_STEP'])
-#        self.view.view.set(settings['GRID_LIMITS'], settings['GRID_STEP'])
-
-    def onGridLimitsChanged(self, limits):
-        self.settings['GRID_LIMITS'] = limits
-
-    def onGridStepChanged(self, step):
-        self.settings['GRID_STEP'] = step
 
     def show(self):
         self.update()
