@@ -666,7 +666,7 @@ class Controller(tk.Tk):
         view = Main(self)
 
         mappings = [(view.region, 'GRID_LIMITS'),
-                    (view.gridSettings.bar, 'GRID_LIMITS'),
+                    (view.gridSettings.region, 'GRID_LIMITS'),
                     (view.gridSettings.step, 'GRID_STEP'),
                     (view.view, 'GRID_LIMITS'),
                     (view.view, 'GRID_STEP')]
