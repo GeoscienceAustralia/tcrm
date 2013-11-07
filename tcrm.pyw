@@ -5,15 +5,19 @@ TCRM User Interface
 
 import matplotlib as mp
 import Tkinter as tk
-import ttk
 import numpy as np
+import logging
 import json
+import ttk
 
-from matplotlib.widgets import RectangleSelector
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure as MatplotlibFigure
+from matplotlib.widgets import RectangleSelector
 from matplotlib.patches import Rectangle
 from mpl_toolkits.basemap import Basemap
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
 
 json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
 
@@ -45,6 +49,17 @@ llJpqACaWXAByQSSZpeHkllGWOeUCbBgwJ5ZhzYvmmnW2WCUAABuxpAJ+AAtDnn4Pyqeeb
 gBoQEAA7
 """
 
+# tk or ttk?
+Frame = ttk.Frame
+Labelframe = ttk.Labelframe
+Entry = ttk.Entry
+Scale = ttk.Scale
+Label = ttk.Label
+Notebook = ttk.Notebook
+Combobox = ttk.Combobox
+Checkbutton = ttk.Checkbutton
+Text = tk.Text
+Scrollbar = tk.Scrollbar
 
 class Observable(object):
 
@@ -177,27 +192,27 @@ class ObservableVariable(Observable):
         return json.loads(self.variable.get())
 
 
-class View(object, ttk.Frame):
+class View(object, Frame):
 
     """
     An abstract view.
     """
 
     def __init__(self, parent, **kwargs):
-        ttk.Frame.__init__(self, parent)
+        Frame.__init__(self, parent)
 
 
-class LabeledView(object, ttk.Labelframe):
+class LabeledView(object, Labelframe):
 
     """
     A labeled view.
     """
 
     def __init__(self, parent, name='', **kwargs):
-        ttk.Labelframe.__init__(self, parent, text=name)
+        Labelframe.__init__(self, parent, text=name)
 
 
-class ObservableEntry(ttk.Frame, ObservableVariable):
+class ObservableEntry(Frame, ObservableVariable):
 
     """
     An observable entry box control with an associated label
@@ -217,13 +232,13 @@ class ObservableEntry(ttk.Frame, ObservableVariable):
         name = kwargs.pop('name', '')
         value = kwargs.pop('value', '')
 
-        ttk.Frame.__init__(self, parent)
+        Frame.__init__(self, parent)
         ObservableVariable.__init__(self, value=value)
 
-        self.label = ttk.Label(self, text=name + ':')
+        self.label = Label(self, text=name + ':')
         self.label.grid(column=0, row=0, sticky='W', padx=2)
 
-        self.entry = ttk.Entry(self, **kwargs)
+        self.entry = Entry(self, **kwargs)
         self.entry.grid(column=1, row=0, sticky='E', padx=2)
         self.entry.config(textvariable=self.variable)
 
@@ -232,7 +247,7 @@ class ObservableEntry(ttk.Frame, ObservableVariable):
         self.rowconfigure(0, weight=1)
 
 
-class ObservableSpinbox(ttk.Frame, ObservableVariable):
+class ObservableSpinbox(Frame, ObservableVariable):
 
     """
     An observable spin box control with an associated label
@@ -246,10 +261,10 @@ class ObservableSpinbox(ttk.Frame, ObservableVariable):
         upper = kwargs.pop('upper', 100)
         value = kwargs.pop('value', 0)
 
-        ttk.Frame.__init__(self, parent)
+        Frame.__init__(self, parent)
         ObservableVariable.__init__(self, value)
 
-        self.label = ttk.Label(self, width=width, text=name + ':')
+        self.label = Label(self, width=width, text=name + ':')
         self.label.grid(column=0, row=0, sticky='NSEW')
 
         self.spinbox = tk.Spinbox(self, from_=lower, to=upper, increment=10)
@@ -261,7 +276,7 @@ class ObservableSpinbox(ttk.Frame, ObservableVariable):
         self.rowconfigure(0, weight=1)
 
 
-class ObservableScale(ttk.Frame, ObservableVariable):
+class ObservableScale(Frame, ObservableVariable):
 
     """
     An observable entry box and scale control with an associated label
@@ -293,17 +308,16 @@ class ObservableScale(ttk.Frame, ObservableVariable):
         value = kwargs.pop('value', 0)
         delay = kwargs.pop('delay', 1000)
 
-        ttk.Frame.__init__(self, parent)
+        Frame.__init__(self, parent)
         ObservableVariable.__init__(self, value)
 
-        self.label = ttk.Label(self, text=name + ':')
+        self.label = Label(self, text=name + ':')
         self.label.grid(column=0, row=0, sticky='EW',  padx=2)
 
-        self.value = ttk.Entry(self, textvariable=self.variable, **kwargs)
+        self.value = Entry(self, textvariable=self.variable, **kwargs)
         self.value.grid(column=1, row=0, sticky='W', padx=2)
 
-        self.scale = ttk.Scale(self, from_=lower, to=upper, value=value,
-                               length=50)
+        self.scale = Scale(self, from_=lower, to=upper, value=value, length=50)
         self.scale.grid(column=2, row=0, sticky='EW', padx=2)
         self.scale.config(variable=self.variable, command=self.format)
 
@@ -346,20 +360,20 @@ class ObservableScale(ttk.Frame, ObservableVariable):
         self.noPendingNotification = True
 
 
-class ObservableCombobox(ttk.Frame, ObservableVariable):
+class ObservableCombobox(Frame, ObservableVariable):
 
     def __init__(self, parent, **kwargs):
         name = kwargs.pop('name', '')
         width = kwargs.pop('width', 10)
         values = kwargs.pop('values', ['a', 'b', 'c'])
 
-        ttk.Frame.__init__(self, parent)
+        Frame.__init__(self, parent)
         ObservableVariable.__init__(self, value='')
 
-        self.label = ttk.Label(self, width=width, text=name + ':')
+        self.label = Label(self, width=width, text=name + ':')
         self.label.grid(column=0, row=0, sticky='NSEW')
 
-        self.combo = ttk.Combobox(self, values=values)
+        self.combo = Combobox(self, values=values)
         self.combo.grid(column=1, row=0, sticky='NSEW')
         self.combo.config(textvariable=self.variable)
 
@@ -368,7 +382,39 @@ class ObservableCombobox(ttk.Frame, ObservableVariable):
         self.rowconfigure(0, weight=1)
 
 
-class MapView(ttk.Frame):
+class ObservableCheckbutton(Frame, ObservableVariable):
+
+    """
+    An observable check button control. 
+
+    :type  parent: object
+    :param parent: the parent gui control.
+
+    :type  name: str
+    :param name: the name of the variable to put in the text label.
+
+    :type  value: bool
+    :param value: the initial state.
+    """
+
+    def __init__(self, parent, **kwargs):
+        value = kwargs.pop('value', True)
+
+        Frame.__init__(self, parent)
+        ObservableVariable.__init__(self, value=value)
+
+        self.button = Checkbutton(self, **kwargs)
+        self.button.grid(column=1, row=0, sticky='E', padx=2)
+        if not (kwargs.has_key('offvalue') and kwargs.has_key('onvalue')):
+            self.button.config(offvalue=False, onvalue=True)
+        self.button.config(variable=self.variable)
+
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.rowconfigure(0, weight=1)
+
+
+class MapView(Frame):
 
     """
     A Map view control.
@@ -385,7 +431,7 @@ class MapView(ttk.Frame):
                   tuple([c / 255 for c in
                          parent.winfo_rgb('SystemButtonFace')])
 
-        ttk.Frame.__init__(self, parent)
+        Frame.__init__(self, parent)
 
         figure = MatplotlibFigure(figsize=figSize, facecolor=bgColor)
 
@@ -442,7 +488,8 @@ class MapRegionSelector(MapView, ObservableVariable):
         if self.region is not None:
             self.region.remove()
         self.region = Rectangle((x0, y0), w, h, ec=self.regionEdgeColor,
-                                fc=self.regionFaceColor, alpha=self.regionAlpha)
+                                fc=self.regionFaceColor,
+                                alpha=self.regionAlpha)
         self.axes.add_patch(self.region)
         self.canvas.draw()
 
@@ -462,7 +509,7 @@ class MapRegionSelector(MapView, ObservableVariable):
         self.set({'xMin': xMin, 'xMax': xMax, 'yMin': yMin, 'yMax': yMax})
 
 
-class DictEntry(ttk.Labelframe, ObservableVariable):
+class DictEntry(Labelframe, ObservableVariable):
 
     """
     A control for editing dictionaries.
@@ -473,7 +520,7 @@ class DictEntry(ttk.Labelframe, ObservableVariable):
         columns = kwargs.pop('columns', 2)
         keys = kwargs.pop('keys', None)
 
-        ttk.Labelframe.__init__(self, parent, text=name)
+        Labelframe.__init__(self, parent, text=name)
         ObservableVariable.__init__(self, value='')
 
         self.entries = {key: ObservableEntry(self, name=key, **kwargs)
@@ -569,10 +616,40 @@ class MapRegionGrid(MapView):
                        color=self.gridColor)
 
 
-class GridSettingsView(ttk.Frame):
+class LogView(logging.Handler, Frame):
+
+    def __init__(self, parent, **kwargs):
+        logging.Handler.__init__(self)
+        Frame.__init__(self, parent)
+
+        self.console = Text(self, **kwargs)
+        self.console.config(state=tk.DISABLED, wrap='none')
+        self.console.config(font=('Helvetica', 8))
+
+        self.scroll = Scrollbar(self, orient=tk.VERTICAL)
+        self.scroll.config(command=self.console.yview)
+
+        self.console.config(yscrollcommand=self.scroll.set)
+
+        self.console.grid(column=0, row=0, sticky='NSEW', padx=2, pady=2)
+        self.scroll.grid(column=0, row=0, sticky='NSEW')
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+
+        self.setFormatter(logging.Formatter('%(asctime)s: %(message)s\n'))
+        log.addHandler(self)
+
+    def emit(self, message):
+        self.console.config(state=tk.NORMAL)
+        self.console.insert(tk.END, self.format(message))
+        self.console.config(state=tk.DISABLED)
+        self.console.see(tk.END)
+
+
+class GridSettingsView(Frame):
 
     def __init__(self, parent):
-        ttk.Frame.__init__(self, parent)
+        Frame.__init__(self, parent)
 
         self.region = DictEntry(self, keys=('xMin', 'xMax', 'yMin', 'yMax'),
                                 name='Region', width=5, justify='center')
@@ -587,10 +664,10 @@ class GridSettingsView(ttk.Frame):
         self.rowconfigure(1, weight=1)
 
 
-class TrackSettingsView(ttk.Frame):
+class TrackSettingsView(Frame):
 
     def __init__(self, parent):
-        ttk.Frame.__init__(self, parent)
+        Frame.__init__(self, parent)
 
         self.gridSpace = DictEntry(self, name='Grid space', keys=('x', 'y'),
                                    width=7, justify='center')
@@ -612,6 +689,28 @@ class TrackSettingsView(ttk.Frame):
         self.columnconfigure(0, weight=1)
 
 
+class StageProgressView(Frame):
+
+    def __init__(self, parent):
+        Frame.__init__(self, parent)
+
+        self.calibrate = ObservableCheckbutton(self, text='Calibrate',
+                                               takefocus=False)
+        self.trackSim = ObservableCheckbutton(self, text='Track simulation',
+                                              takefocus=False)
+        self.windFields = ObservableCheckbutton(self, text='Windfields',
+                                                takefocus=False)
+
+        self.calibrate.grid(column=0, row=0, sticky='NWE', padx=4, pady=4)
+        self.trackSim.grid(column=1, row=0, sticky='NWE', padx=4, pady=4)
+        self.windFields.grid(column=2, row=0, sticky='NWE', padx=4, pady=4)
+
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=1)
+        self.rowconfigure(0, weight=1)
+ 
+
 class Main(View):
 
     def __init__(self, parent):
@@ -620,7 +719,7 @@ class Main(View):
         self.region = MapRegionSelector(self, figSize=(3, 1.3))
         self.region.grid(column=0, row=0, padx=2, pady=2, sticky='NEW')
 
-        notebook = ttk.Notebook(self)
+        notebook = Notebook(self)
         notebook.grid(column=0, row=1, sticky='NW', padx=2, pady=2)
 
         self.gridSettings = GridSettingsView(notebook)
@@ -629,16 +728,23 @@ class Main(View):
         notebook.add(self.gridSettings, text='Region')
         notebook.add(self.track, text='Simulation')
 
+        self.stage = StageProgressView(self)
+        self.stage.grid(column=0, row=2, sticky='EW', padx=2, pady=2)
+
         self.view = MapRegionGrid(self, figSize=(7, 5),
                                   continentColor='#cdcbc1',
                                   coastlineWidth=0.8)
         self.view.grid(column=1, row=0, rowspan=2, sticky='NSEW',
                        padx=2, pady=2)
 
+        self.log = LogView(self, width=80, height=3)
+        self.log.grid(column=1, row=2, sticky='EW', padx=2, pady=2)
+
         self.columnconfigure(0, weight=0)
         self.columnconfigure(1, weight=1)
         self.rowconfigure(0, weight=0)
         self.rowconfigure(1, weight=1)
+        self.rowconfigure(2, weight=1)
 
 
 class Controller(tk.Tk):
@@ -688,6 +794,7 @@ class Controller(tk.Tk):
         self.after_idle(self.show)
 
     def onSettingsChanged(self, settings):
+        log.info('Settings changed')
         for key, value in settings.items():
             controls = self.notifyWhom[key]
             for control in controls:
