@@ -385,7 +385,7 @@ class ObservableCombobox(Frame, ObservableVariable):
 class ObservableCheckbutton(Frame, ObservableVariable):
 
     """
-    An observable check button control. 
+    An observable check button control.
 
     :type  parent: object
     :param parent: the parent gui control.
@@ -709,7 +709,42 @@ class StageProgressView(Frame):
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, weight=1)
         self.rowconfigure(0, weight=1)
- 
+
+
+class SubprocessOutput(Observable):
+
+    def __init__(self, cmd):
+        self.process = sub.Popen(cmd, stdout=sub.PIPE)
+        self.alarmId = None
+
+    def getUpdate(self):
+        src = self.process.stdout
+        line = src.readline()
+        if not line:
+            src.close()
+        self.notify(line)
+        self.alarmId = ROOT.after(500, self.getUpdate)
+
+    def quit(self):
+        if self.alarmId is not None:
+            ROOT.after_cancel(self.alarmId)
+        self.process.terminate()
+        def pollSubprocess(attempt):
+            if self.process.poll() is None:
+                if attempt <= 0:
+                    self.process.kill()
+                    self.process.wait()
+                    return
+                else:
+                    ROOT.after(1000, lambda: pollSubprocess(attempt - 1))
+        poll_subprocess(5)
+
+
+class TCRM(object):
+
+    def __init__(self):
+        pass
+
 
 class Main(View):
 
@@ -807,4 +842,5 @@ class Controller(tk.Tk):
         self.update()
         self.deiconify()
 
-Controller().mainloop()
+ROOT = Controller()
+ROOT.mainloop()
