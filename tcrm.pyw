@@ -6,15 +6,21 @@ TCRM User Interface
 import matplotlib as mp
 import Tkinter as tk
 import numpy as np
+import subprocess
+import threading
 import logging
+import time
 import json
 import ttk
+import sys
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure as MatplotlibFigure
 from matplotlib.widgets import RectangleSelector
 from matplotlib.patches import Rectangle
 from mpl_toolkits.basemap import Basemap
+from Queue import Queue, Empty
+from contextlib import closing
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -49,6 +55,8 @@ llJpqACaWXAByQSSZpeHkllGWOeUCbBgwJ5ZhzYvmmnW2WCUAABuxpAJ+AAtDnn4Pyqeeb
 gBoQEAA7
 """
 
+ON_POSIX = 'posix' in sys.builtin_module_names
+
 # tk or ttk?
 Frame = ttk.Frame
 Labelframe = ttk.Labelframe
@@ -60,6 +68,7 @@ Combobox = ttk.Combobox
 Checkbutton = ttk.Checkbutton
 Text = tk.Text
 Scrollbar = tk.Scrollbar
+Button = ttk.Button
 
 class Observable(object):
 
@@ -701,55 +710,92 @@ class StageProgressView(Frame):
         self.windFields = ObservableCheckbutton(self, text='Windfields',
                                                 takefocus=False)
 
-        self.calibrate.grid(column=0, row=0, sticky='NWE', padx=4, pady=4)
-        self.trackSim.grid(column=1, row=0, sticky='NWE', padx=4, pady=4)
-        self.windFields.grid(column=2, row=0, sticky='NWE', padx=4, pady=4)
+        self.calibrate.grid(column=0, row=0, sticky='NW', padx=4, pady=4)
+        self.trackSim.grid(column=0, row=1, sticky='NW', padx=4, pady=4)
+        self.windFields.grid(column=0, row=2, sticky='NW', padx=4, pady=4)
 
         self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=1)
-        self.columnconfigure(2, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.rowconfigure(2, weight=1)
+
+
+class SubprocessOutputView(Observable, Frame):
+
+    def __init__(self, parent, **kwargs):
+        Observable.__init__(self)
+        Frame.__init__(self, parent)
+
+        self.console = Text(self, **kwargs)
+        self.console.config(state=tk.DISABLED, wrap='none')
+        self.console.config(font=('Helvetica', 8))
+
+        self.scroll = Scrollbar(self, orient=tk.VERTICAL)
+        self.scroll.config(command=self.console.yview)
+
+        self.console.config(yscrollcommand=self.scroll.set)
+
+        self.console.grid(column=0, row=0, sticky='NSEW', padx=2, pady=2)
+        self.scroll.grid(column=0, row=0, sticky='NSE')
+        self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
 
+        self.alarm = None
+        self.poll()
 
-class SubprocessOutput(Observable):
+    def emit(self, message):
+        self.console.config(state=tk.NORMAL)
+        self.console.insert(tk.END, message)
+        self.console.config(state=tk.DISABLED)
+        self.console.see(tk.END)
 
-    def __init__(self, cmd):
-        self.process = sub.Popen(cmd, stdout=sub.PIPE)
-        self.alarmId = None
-
-    def getUpdate(self):
-        src = self.process.stdout
-        line = src.readline()
-        if not line:
-            src.close()
-        self.notify(line)
-        self.alarmId = ROOT.after(500, self.getUpdate)
-
-    def quit(self):
-        if self.alarmId is not None:
-            ROOT.after_cancel(self.alarmId)
-        self.process.terminate()
-        def pollSubprocess(attempt):
-            if self.process.poll() is None:
-                if attempt <= 0:
-                    self.process.kill()
-                    self.process.wait()
-                    return
-                else:
-                    ROOT.after(1000, lambda: pollSubprocess(attempt - 1))
-        poll_subprocess(5)
+    def poll(self):
+        self.notify(self)
+        self.alarm = self.after(1000, lambda: self.poll())
 
 
-class TCRM(object):
+class TropicalCycloneRiskModel(object):
 
     def __init__(self):
-        pass
+        self.output = Queue()
+        self.process = None
+        self.monitorThread = None
+
+    def run(self):
+        if self.process is None:
+            self.process = subprocess.Popen(['python', 'test.py'],
+                                            shell=True,
+                                            stdout=subprocess.PIPE,
+                                            close_fds=ON_POSIX)
+            self.monitorThread = threading.Thread(target=self.enqueueOutput,
+                                                  args=[self.process, self.output])
+            self.monitorThread.daemon = True
+            self.monitorThread.start()
+
+    def enqueueOutput(self, proc, queue):
+        print('enqueue')
+        with closing(proc.stdout) as out:
+            for line in iter(out.readline, b''):
+                queue.put(line)
+
+    def sendUpdate(self, control):
+        while True:
+            try:
+                line = self.output.get_nowait()
+                control.emit(line)
+            except Empty:
+                control.emit('.')
+                break
+
+    def quit(self):
+        if self.process is not None:
+            self.process.terminate()
 
 
-class Main(View):
+class MainView(View):
 
     def __init__(self, parent):
-        super(Main, self).__init__(parent)
+        super(MainView, self).__init__(parent)
 
         self.region = MapRegionSelector(self, figSize=(3, 1.3))
         self.region.grid(column=0, row=0, padx=2, pady=2, sticky='NEW')
@@ -764,22 +810,26 @@ class Main(View):
         notebook.add(self.track, text='Simulation')
 
         self.stage = StageProgressView(self)
-        self.stage.grid(column=0, row=2, sticky='EW', padx=2, pady=2)
+        self.stage.grid(column=0, row=2, sticky='NEW', padx=2, pady=2)
+
+        self.run = Button(self, text='Run')
+        self.run.grid(column=0, row=3, padx=2, pady=2)
 
         self.view = MapRegionGrid(self, figSize=(7, 5),
                                   continentColor='#cdcbc1',
                                   coastlineWidth=0.8)
-        self.view.grid(column=1, row=0, rowspan=2, sticky='NSEW',
+        self.view.grid(column=1, row=0, rowspan=3, sticky='NSEW',
                        padx=2, pady=2)
 
-        self.log = LogView(self, width=80, height=3)
-        self.log.grid(column=1, row=2, sticky='EW', padx=2, pady=2)
+        self.output = SubprocessOutputView(self, width=80, height=3)
+        self.output.grid(column=1, row=2, rowspan=2, sticky='NSEW', padx=2, pady=2)
 
-        self.columnconfigure(0, weight=0)
+        self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.rowconfigure(0, weight=0)
         self.rowconfigure(1, weight=1)
         self.rowconfigure(2, weight=1)
+        self.rowconfigure(3, weight=0)
 
 
 class Controller(tk.Tk):
@@ -794,6 +844,14 @@ class Controller(tk.Tk):
         self.title('Tropical Cyclone Risk Model')
         self.tk.call('wm', 'iconphoto', self._w, tk.PhotoImage(data=ICON))
 
+        #self.protocol('WM_DELETE_WINDOW', self.onQuit)
+
+        view = MainView(self)
+        tcrm = TropicalCycloneRiskModel()
+
+        view.run.config(command=self.onRun)
+        view.output.addCallback(tcrm.sendUpdate)
+
         self.settings = ObservableDict({
             'GRID_LIMITS': {
                 'xMin': 113,
@@ -803,8 +861,6 @@ class Controller(tk.Tk):
             },
             'GRID_STEP': 20.
         }) # Model
-
-        view = Main(self)
 
         mappings = [(view.region, 'GRID_LIMITS'),
                     (view.gridSettings.region, 'GRID_LIMITS'),
@@ -828,6 +884,9 @@ class Controller(tk.Tk):
         view.pack(fill='both', expand=True)
         self.after_idle(self.show)
 
+        self.view = view
+        self.tcrm = tcrm
+
     def onSettingsChanged(self, settings):
         log.info('Settings changed')
         for key, value in settings.items():
@@ -838,9 +897,16 @@ class Controller(tk.Tk):
     def onControlChanged(self, value, key):
         self.settings[key] = value
 
+    def onRun(self):
+        print('onRun')
+        self.tcrm.run()
+
+    def onQuit(self):
+        self.tcrm.quit()
+        self.quit()
+
     def show(self):
         self.update()
         self.deiconify()
 
-ROOT = Controller()
-ROOT.mainloop()
+Controller().mainloop()
