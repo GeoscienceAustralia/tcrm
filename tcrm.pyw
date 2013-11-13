@@ -22,7 +22,7 @@ from mpl_toolkits.basemap import Basemap
 from Queue import Queue, Empty
 from contextlib import closing
 
-log = logging.getLogger(__name__)
+log = logging.getLogger()
 log.setLevel(logging.INFO)
 
 json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
@@ -662,15 +662,15 @@ class GridSettingsView(Frame):
 
         self.region = DictEntry(self, keys=('xMin', 'xMax', 'yMin', 'yMax'),
                                 name='Region', width=5, justify='center')
-        self.region.grid(column=0, row=0, padx=2, pady=2, sticky='W')
+        self.region.grid(column=0, row=0, padx=2, pady=2, sticky='N')
 
         self.step = ObservableScale(self, name='Grid step', width=5,
                                     justify='center')
-        self.step.grid(column=0, row=1, padx=2, pady=2, sticky='NEW')
+        self.step.grid(column=0, row=1, padx=2, pady=2, sticky='N')
 
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=0)
-        self.rowconfigure(1, weight=1)
+        self.rowconfigure(1, weight=0)
 
 
 class TrackSettingsView(Frame):
@@ -729,25 +729,34 @@ class SubprocessOutputView(Observable, Frame):
         self.console = Text(self, **kwargs)
         self.console.config(state=tk.DISABLED, wrap='none')
         self.console.config(font=('Helvetica', 8))
+        self.console.config(yscrollcommand=self.onScroll)
 
         self.scroll = Scrollbar(self, orient=tk.VERTICAL)
         self.scroll.config(command=self.console.yview)
-
-        self.console.config(yscrollcommand=self.scroll.set)
 
         self.console.grid(column=0, row=0, sticky='NSEW', padx=2, pady=2)
         self.scroll.grid(column=0, row=0, sticky='NSE')
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
 
+        self.lockScroll = True
         self.alarm = None
+
         self.poll()
+
+    def onScroll(self, *args):
+        if args[1] == '1.0':
+            self.lockScroll = True
+        else:
+            self.lockScroll = False
+        self.scroll.set(*args)
 
     def emit(self, message):
         self.console.config(state=tk.NORMAL)
         self.console.insert(tk.END, message)
         self.console.config(state=tk.DISABLED)
-        self.console.see(tk.END)
+        if self.lockScroll:
+            self.console.see(tk.END)
 
     def poll(self):
         self.notify(self)
@@ -763,33 +772,52 @@ class TropicalCycloneRiskModel(object):
 
     def run(self):
         if self.process is None:
-            self.process = subprocess.Popen(['python', 'test.py'],
-                                            shell=True,
+            self.process = subprocess.Popen(['python', '-u', 'test.py'],
                                             stdout=subprocess.PIPE,
-                                            close_fds=ON_POSIX)
-            self.monitorThread = threading.Thread(target=self.enqueueOutput,
-                                                  args=[self.process, self.output])
+                                            shell=True,
+                                            bufsize=1)
+            self.monitorThread = threading.Thread(target=self.enqueueOutput)
             self.monitorThread.daemon = True
             self.monitorThread.start()
 
-    def enqueueOutput(self, proc, queue):
-        print('enqueue')
-        with closing(proc.stdout) as out:
+    def enqueueOutput(self):
+        with closing(self.process.stdout) as out:
             for line in iter(out.readline, b''):
-                queue.put(line)
+                self.output.put(line)
 
-    def sendUpdate(self, control):
+    def getOutput(self):
+        lines = []
         while True:
             try:
                 line = self.output.get_nowait()
-                control.emit(line)
+                lines.append(line)
             except Empty:
-                control.emit('.')
                 break
+        return ''.join(lines)
 
     def quit(self):
-        if self.process is not None:
-            self.process.terminate()
+        if self.process is None:
+            return True
+
+        self.process.terminate()
+
+        for i in range(5):
+            if self.process.poll() is None:
+                self.process.kill()
+                self.process.wait()
+                time.sleep(1)
+            else:
+                break
+
+class VerticalSplit(View):
+
+    def __init__(self, parent, controls):
+        super(VerticalSplit, self).__init__(parent)
+        self.pane = ttk.PanedWindow(self, orient=tk.VERTICAL)
+        upperPane = Frame(self.pane)
+        lowerRightPane = Frame(rightWindow)
+        rightWindow.add(upperRightPane)
+        rightWindow.add(lowerRightPane)
 
 
 class MainView(View):
@@ -797,11 +825,21 @@ class MainView(View):
     def __init__(self, parent):
         super(MainView, self).__init__(parent)
 
-        self.region = MapRegionSelector(self, figSize=(3, 1.3))
+        window = ttk.PanedWindow(self, orient=tk.HORIZONTAL)
+        window.grid(column=0, row=0, sticky='NSEW')
+        window.columnconfigure(0, weight=1)
+        window.rowconfigure(0, weight=1)
+
+        leftPane = Frame(window)
+        rightPane = Frame(window)
+        window.add(leftPane)
+        window.add(rightPane)
+
+        self.region = MapRegionSelector(leftPane, figSize=(2, 1.3))
         self.region.grid(column=0, row=0, padx=2, pady=2, sticky='NEW')
 
-        notebook = Notebook(self)
-        notebook.grid(column=0, row=1, sticky='NW', padx=2, pady=2)
+        notebook = Notebook(leftPane)
+        notebook.grid(column=0, row=1, sticky='N', padx=2, pady=2)
 
         self.gridSettings = GridSettingsView(notebook)
         self.track = TrackSettingsView(notebook)
@@ -809,29 +847,26 @@ class MainView(View):
         notebook.add(self.gridSettings, text='Region')
         notebook.add(self.track, text='Simulation')
 
-        self.stage = StageProgressView(self)
+        self.stage = StageProgressView(leftPane)
         self.stage.grid(column=0, row=2, sticky='NEW', padx=2, pady=2)
 
-        self.run = Button(self, text='Run')
-        self.run.grid(column=0, row=3, padx=2, pady=2)
+        self.run = Button(leftPane, text='Run')
+        self.run.grid(column=0, row=3, sticky='WN', padx=2, pady=2)
 
-        self.view = MapRegionGrid(self, figSize=(7, 5),
+        leftPane.columnconfigure(0, weight=1)
+        leftPane.rowconfigure(1, weight=0)
+
+        self.view = MapRegionGrid(upperRightPane, figSize=(7, 5),
                                   continentColor='#cdcbc1',
                                   coastlineWidth=0.8)
-        self.view.grid(column=1, row=0, rowspan=3, sticky='NSEW',
-                       padx=2, pady=2)
+        self.view.grid(column=0, row=0, sticky='NSEW', padx=2, pady=2)
 
-        self.output = SubprocessOutputView(self, width=80, height=3)
-        self.output.grid(column=1, row=2, rowspan=2, sticky='NSEW', padx=2, pady=2)
+        self.output = SubprocessOutputView(lowerRightPane, width=80, height=3)
+        self.output.grid(column=0, row=0, sticky='NSEW', padx=2, pady=2)
 
         self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=1)
-        self.rowconfigure(0, weight=0)
-        self.rowconfigure(1, weight=1)
-        self.rowconfigure(2, weight=1)
-        self.rowconfigure(3, weight=0)
-
-
+        self.rowconfigure(0, weight=1)
+        
 class Controller(tk.Tk):
 
     """
@@ -844,13 +879,13 @@ class Controller(tk.Tk):
         self.title('Tropical Cyclone Risk Model')
         self.tk.call('wm', 'iconphoto', self._w, tk.PhotoImage(data=ICON))
 
-        #self.protocol('WM_DELETE_WINDOW', self.onQuit)
+        self.protocol('WM_DELETE_WINDOW', self.onQuit)
 
         view = MainView(self)
         tcrm = TropicalCycloneRiskModel()
 
         view.run.config(command=self.onRun)
-        view.output.addCallback(tcrm.sendUpdate)
+        view.output.addCallback(self.onWantOutput)
 
         self.settings = ObservableDict({
             'GRID_LIMITS': {
@@ -897,13 +932,17 @@ class Controller(tk.Tk):
     def onControlChanged(self, value, key):
         self.settings[key] = value
 
+    def onWantOutput(self, control):
+        output = self.tcrm.getOutput()
+        control.emit(output)
+
     def onRun(self):
         print('onRun')
         self.tcrm.run()
 
     def onQuit(self):
         self.tcrm.quit()
-        self.quit()
+        self.destroy()
 
     def show(self):
         self.update()
