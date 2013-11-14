@@ -56,6 +56,7 @@ gBoQEAA7
 """
 
 ON_POSIX = 'posix' in sys.builtin_module_names
+POLL_INTERVAL = 1000
 
 # tk or ttk?
 Frame = ttk.Frame
@@ -69,6 +70,8 @@ Checkbutton = ttk.Checkbutton
 Text = tk.Text
 Scrollbar = tk.Scrollbar
 Button = ttk.Button
+PanedWindow = ttk.PanedWindow
+Canvas = tk.Canvas
 
 class Observable(object):
 
@@ -698,7 +701,7 @@ class TrackSettingsView(Frame):
         self.columnconfigure(0, weight=1)
 
 
-class StageProgressView(Frame):
+class StageProgressViewOld(Frame):
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -720,11 +723,30 @@ class StageProgressView(Frame):
         self.rowconfigure(2, weight=1)
 
 
-class SubprocessOutputView(Observable, Frame):
+class StageProgressView(Canvas):
+
+    def __init__(self, parent):
+        Canvas.__init__(self, parent, width=200, height=100, borderwidth=0)
+        self.bind("<Configure>", self.resize)
+        self.config(offset='3,3')
+
+        #self.render(200, 100)
+
+    def resize(self, event):
+        w, h = event.width, event.height
+        print(w,h)
+        self.render(w, h)
+
+    def render(self, w, h):
+        x = 3
+        self.create_rectangle(x, x, w-x, h-x)
+
+
+class SubprocessOutputView(Frame,Observable):
 
     def __init__(self, parent, **kwargs):
-        Observable.__init__(self)
         Frame.__init__(self, parent)
+        Observable.__init__(self)
 
         self.console = Text(self, **kwargs)
         self.console.config(state=tk.DISABLED, wrap='none')
@@ -760,7 +782,60 @@ class SubprocessOutputView(Observable, Frame):
 
     def poll(self):
         self.notify(self)
-        self.alarm = self.after(1000, lambda: self.poll())
+        self.alarm = self.after(POLL_INTERVAL, lambda: self.poll())
+
+class MainView(Frame):
+
+    def __init__(self, parent):
+        Frame.__init__(self)
+
+        paned = PanedWindow(self, orient=tk.HORIZONTAL)
+        paned.pack(fill=tk.BOTH, expand=True)
+
+        # Left
+
+        frame = Frame(paned)
+        paned.add(frame)
+
+        self.region = MapRegionSelector(frame, figSize=(2, 1.3))
+        self.region.grid(column=0, row=0, padx=2, pady=2, sticky='NEW')
+
+        notebook = Notebook(frame)
+        notebook.grid(column=0, row=1, sticky='N', padx=2, pady=2)
+
+        self.gridSettings = GridSettingsView(notebook)
+        self.track = TrackSettingsView(notebook)
+
+        notebook.add(self.gridSettings, text='Region')
+        notebook.add(self.track, text='Simulation')
+
+        self.stage = StageProgressView(frame)
+        self.stage.grid(column=0, row=2, sticky='N', padx=2, pady=2)
+
+        self.run = Button(frame, text='Run')
+        self.run.grid(column=0, row=3, sticky='WN', padx=2, pady=2)
+
+        frame.columnconfigure(0, weight=1)
+        frame.rowconfigure(0, weight=0)
+        frame.rowconfigure(1, weight=0)
+        frame.rowconfigure(2, weight=0)
+        frame.rowconfigure(3, weight=0)
+
+        # Right
+
+        right = Frame(paned)
+        paned.add(right)
+
+        rightPane = PanedWindow(right, orient=tk.VERTICAL)
+        rightPane.pack(fill=tk.BOTH, expand=True)
+
+        self.view = MapRegionGrid(rightPane, figSize=(7, 5),
+                                  continentColor='#cdcbc1',
+                                  coastlineWidth=0.8)
+        rightPane.add(self.view)
+
+        self.output = SubprocessOutputView(right, width=80, height=3)
+        rightPane.add(self.output)
 
 
 class TropicalCycloneRiskModel(object):
@@ -809,64 +884,7 @@ class TropicalCycloneRiskModel(object):
             else:
                 break
 
-class VerticalSplit(View):
 
-    def __init__(self, parent, controls):
-        super(VerticalSplit, self).__init__(parent)
-        self.pane = ttk.PanedWindow(self, orient=tk.VERTICAL)
-        upperPane = Frame(self.pane)
-        lowerRightPane = Frame(rightWindow)
-        rightWindow.add(upperRightPane)
-        rightWindow.add(lowerRightPane)
-
-
-class MainView(View):
-
-    def __init__(self, parent):
-        super(MainView, self).__init__(parent)
-
-        window = ttk.PanedWindow(self, orient=tk.HORIZONTAL)
-        window.grid(column=0, row=0, sticky='NSEW')
-        window.columnconfigure(0, weight=1)
-        window.rowconfigure(0, weight=1)
-
-        leftPane = Frame(window)
-        rightPane = Frame(window)
-        window.add(leftPane)
-        window.add(rightPane)
-
-        self.region = MapRegionSelector(leftPane, figSize=(2, 1.3))
-        self.region.grid(column=0, row=0, padx=2, pady=2, sticky='NEW')
-
-        notebook = Notebook(leftPane)
-        notebook.grid(column=0, row=1, sticky='N', padx=2, pady=2)
-
-        self.gridSettings = GridSettingsView(notebook)
-        self.track = TrackSettingsView(notebook)
-
-        notebook.add(self.gridSettings, text='Region')
-        notebook.add(self.track, text='Simulation')
-
-        self.stage = StageProgressView(leftPane)
-        self.stage.grid(column=0, row=2, sticky='NEW', padx=2, pady=2)
-
-        self.run = Button(leftPane, text='Run')
-        self.run.grid(column=0, row=3, sticky='WN', padx=2, pady=2)
-
-        leftPane.columnconfigure(0, weight=1)
-        leftPane.rowconfigure(1, weight=0)
-
-        self.view = MapRegionGrid(upperRightPane, figSize=(7, 5),
-                                  continentColor='#cdcbc1',
-                                  coastlineWidth=0.8)
-        self.view.grid(column=0, row=0, sticky='NSEW', padx=2, pady=2)
-
-        self.output = SubprocessOutputView(lowerRightPane, width=80, height=3)
-        self.output.grid(column=0, row=0, sticky='NSEW', padx=2, pady=2)
-
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
-        
 class Controller(tk.Tk):
 
     """
