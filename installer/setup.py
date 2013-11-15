@@ -26,26 +26,23 @@ if 'py2exe' in sys.argv:
                      'scipy',
                      'matplotlib.backends',
                      'matplotlib.backends.backend_tkagg',
+                     'mpl_toolkits.basemap',
                      'scipy.sparse.csgraph._validation',
                      'scipy.io.matlab.streams'],
         'excludes': ['_gtkagg',
-                     '_ssl',
                      'wx',
                      'PyQt4',
                      'nose',
                      'curses',
-                     'email',
-                     'doctest',
-                     'pdb',
-                     'difflib'],
+                     'email'],
         'dll_excludes': ['MSVCP90.DLL'],
-        'ascii': True
+        'bundle_files': 3
         }
     }
 
     py2exe = {
         'console': ['main.py'],
-        'windows': ['tcrm.pyw']
+        'windows': ['tcrm.pyw'],
     }
     
 exts = [
@@ -65,8 +62,12 @@ exts = [
               extra_compile_args=['-std=c99'])
 ]
 
+data = [glob.glob(r'C:\Python27\Lib\site-packages\mpl_toolkits\basemap\data\*.*'))] + \
+        matplotlib.get_py2exe_datafiles()
+
 setup(name='tcrm',
       version='1.0',
       options=opts,
       ext_modules=exts,
+      data_files=data,
       **py2exe)
