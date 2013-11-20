@@ -8,18 +8,19 @@ To build C extensions in-place:
 """
 import matplotlib
 import numpy
-import glob
 import sys
 
 from distutils.core import setup, Extension
+from distutils.sysconfig import get_python_lib
 from os.path import join as pjoin
+from glob import glob
 
 opts = {}
 py2exe = {}
 
 if 'py2exe' in sys.argv:
     import py2exe
-    
+
     opts = {
         'py2exe': {
         'includes': ['numpy',
@@ -44,7 +45,7 @@ if 'py2exe' in sys.argv:
         'console': ['main.py'],
         'windows': ['tcrm.pyw'],
     }
-    
+
 exts = [
     Extension('Utilities.Cmap',
               sources=[pjoin('Utilities', 'Cmap.c')],
@@ -62,8 +63,7 @@ exts = [
               extra_compile_args=['-std=c99'])
 ]
 
-data = [glob.glob(r'C:\Python27\Lib\site-packages\mpl_toolkits\basemap\data\*.*'))] + \
-        matplotlib.get_py2exe_datafiles()
+data = [glob(pjoin(get_python_lib(), 'mpl_toolkits', 'basemap', 'data', '*.*'))] + matplotlib.get_py2exe_datafiles()
 
 setup(name='tcrm',
       version='1.0',
