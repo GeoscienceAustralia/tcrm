@@ -12,7 +12,7 @@ import sys
 
 from distutils.core import setup, Extension
 from distutils.sysconfig import get_python_lib
-from os.path import join as pjoin
+from os.path import join as pjoin, split as psplit
 from glob import glob
 
 opts = {}
@@ -63,7 +63,7 @@ exts = [
               extra_compile_args=['-std=c99'])
 ]
 
-data = [glob(pjoin(get_python_lib(), 'mpl_toolkits', 'basemap', 'data', '*.*'))] + matplotlib.get_py2exe_datafiles()
+data = matplotlib.get_py2exe_datafiles()
 
 setup(name='tcrm',
       version='1.0',
@@ -71,3 +71,14 @@ setup(name='tcrm',
       ext_modules=exts,
       data_files=data,
       **py2exe)
+
+if 'py2exe' in sys.argv:
+    # place basemap data into library.zip
+    libdir = pjoin('mpl_toolkits', 'basemap', 'data')
+    srcdir = pjoin(get_python_lib(), libdir)
+
+    from zipfile import ZipFile as zipfile
+    with zipfile(pjoin('dist', 'library.zip'), 'a') as libzip:
+        for f in glob(pjoin(srcdir, '*.*')):
+            base, fn = psplit(f)
+            libzip.write(f, pjoin(libdir, fn))
