@@ -8,15 +8,15 @@ set DEST=dist
 @echo You must run build.bat from within the root directory
 :continue
 
-cd installer
+@cd installer
 
-copy setup.py ..
-copy setup.cfg ..
+@copy setup.py ..
+@copy setup.cfg ..
 
-cd ..
+@cd ..
 
-del /F /S /Q build
-del /F /S /Q %DEST%
+@del /F /S /Q build
+@del /F /S /Q %DEST%
 
 %PYTHON%\python.exe setup.py py2exe
 @if errorlevel 1 goto error
@@ -29,12 +29,12 @@ del /F /S /Q %DEST%
 @rem if errorlevel 1 goto error
 
 @rem cleanup
-del setup.py
-del setup.cfg
-del /F /S /Q build
+@del setup.py
+@del setup.cfg
+@del /F /S /Q build
 
 @rem comment out the next line if you do not want example data included.
-xcopy input\*.* %DEST%\input\
+@rem xcopy input\*.* %DEST%\input\
 
 @goto done
 
