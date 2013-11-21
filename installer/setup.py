@@ -68,7 +68,8 @@ basemapData = pjoin('mpl_toolkits', 'basemap', 'data')
 data = matplotlib.get_py2exe_datafiles() + \
        [(basemapData, glob(pjoin(get_python_lib(), basemapData, '*')))] + \
        [('input', glob(pjoin('input', '*')))] + \
-       [('MSLP', glob(pjoin('MSLP', '*.nc')))]
+       [('MSLP', glob(pjoin('MSLP', '*.nc')))] + \
+       [('', 'matplotlibrc')]
 
 setup(name='tcrm',
       version='1.0',
