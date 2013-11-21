@@ -459,7 +459,7 @@ class MapView(Frame):
             self.basemap.fillcontinents(color=continentColor)
 
         self.axes.set_aspect('auto')
-        figure.tight_layout(pad=0)
+        figure.set_tight_layout(True)
 
         self.canvas = FigureCanvasTkAgg(figure, master=self)
         widget = self.canvas.get_tk_widget()
