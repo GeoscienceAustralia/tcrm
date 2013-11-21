@@ -459,6 +459,7 @@ class MapView(Frame):
 
         self.axes.set_aspect('auto')
         figure.set_tight_layout(True)
+        figure.tight_layout(pad=0.0)
 
         self.canvas = FigureCanvasTkAgg(figure, master=self)
         widget = self.canvas.get_tk_widget()
