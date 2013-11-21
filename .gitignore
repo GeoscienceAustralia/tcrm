@@ -3,6 +3,7 @@
 *.so
 *.dylib
 build
+dist
 output
 .DS_Store
 *.ini
