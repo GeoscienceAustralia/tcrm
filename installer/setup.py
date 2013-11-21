@@ -79,6 +79,6 @@ if 'py2exe' in sys.argv:
 
     from zipfile import ZipFile as zipfile
     with zipfile(pjoin('dist', 'library.zip'), 'a') as libzip:
-        for f in glob(pjoin(srcdir, '*.*')):
+        for f in glob(pjoin(srcdir, '*')):
             base, fn = psplit(f)
             libzip.write(f, pjoin(libdir, fn))
