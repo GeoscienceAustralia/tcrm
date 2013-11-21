@@ -65,7 +65,7 @@ exts = [
 ]
 
 basemapData = pjoin('mpl_toolkits', 'basemap', 'data')
-data = matplotlib.get_py2exe_datafiles() + \ 
+data = matplotlib.get_py2exe_datafiles() + \
        [(basemapData, glob(pjoin(get_python_lib(), basemapData, '*')))] + \
        [('input', glob('input', '*'))] + \
        [('MSLP', glob('MSLP', '*.nc'))]
