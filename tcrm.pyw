@@ -445,6 +445,8 @@ class MapView(Frame):
         Frame.__init__(self, parent)
 
         figure = MatplotlibFigure(figsize=figSize, facecolor=bgColor)
+        self.canvas = FigureCanvasTkAgg(figure, master=self)
+        figure.set_canvas(self.canvas)
 
         self.axes = figure.add_subplot(111, aspect='auto')
 
@@ -461,7 +463,6 @@ class MapView(Frame):
         figure.set_tight_layout(True)
         figure.tight_layout(pad=0.0)
 
-        self.canvas = FigureCanvasTkAgg(figure, master=self)
         widget = self.canvas.get_tk_widget()
         widget.config(highlightthickness=0)
         widget.config(background=bgColor, relief=tk.GROOVE, borderwidth=1)
