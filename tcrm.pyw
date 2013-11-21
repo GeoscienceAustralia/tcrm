@@ -21,8 +21,8 @@ from mpl_toolkits.basemap import Basemap
 from Queue import Queue, Empty
 from contextlib import closing
 
+logging.basicConfig()
 log = logging.getLogger(__name__)
-log.basicConfig()
 log.setLevel(logging.INFO)
 
 json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
