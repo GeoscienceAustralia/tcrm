@@ -37,7 +37,8 @@ if 'py2exe' in sys.argv:
                      'curses',
                      'email'],
         'dll_excludes': ['MSVCP90.DLL'],
-        'bundle_files': 3
+#        'bundle_files': 3
+        'skip_archive': True
         }
     }
 
@@ -63,7 +64,9 @@ exts = [
               extra_compile_args=['-std=c99'])
 ]
 
-data = matplotlib.get_py2exe_datafiles()
+basemapData = pjoin('mpl_toolkits', 'basemap', 'data')
+data = matplotlib.get_py2exe_datafiles() + \ 
+       [(basemapData, glob(pjoin(get_python_lib(), basemapData)))]
 
 setup(name='tcrm',
       version='1.0',
@@ -72,13 +75,13 @@ setup(name='tcrm',
       data_files=data,
       **py2exe)
 
-if 'py2exe' in sys.argv:
-    # place basemap data into library.zip
-    libdir = pjoin('mpl_toolkits', 'basemap', 'data')
-    srcdir = pjoin(get_python_lib(), libdir)
-
-    from zipfile import ZipFile as zipfile
-    with zipfile(pjoin('dist', 'library.zip'), 'a') as libzip:
-        for f in glob(pjoin(srcdir, '*')):
-            base, fn = psplit(f)
-            libzip.write(f, pjoin(libdir, fn))
+#if 'py2exe' in sys.argv:
+#    # place basemap data into library.zip
+#    libdir = pjoin('mpl_toolkits', 'basemap', 'data')
+#    srcdir = pjoin(get_python_lib(), libdir)
+#
+#    from zipfile import ZipFile as zipfile
+#    with zipfile(pjoin('dist', 'library.zip'), 'a') as libzip:
+#        for f in glob(pjoin(srcdir, '*')):
+#            base, fn = psplit(f)
+#            libzip.write(f, pjoin(libdir, fn))
