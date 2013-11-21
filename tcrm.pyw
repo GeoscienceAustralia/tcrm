@@ -2,16 +2,12 @@
 """
 TCRM User Interface
 """
-import logging
-
-log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
-
 import matplotlib as mp
 import Tkinter as tk
 import numpy as np
 import subprocess
 import threading
+import logging
 import time
 import json
 import ttk
@@ -24,6 +20,10 @@ from matplotlib.patches import Rectangle
 from mpl_toolkits.basemap import Basemap
 from Queue import Queue, Empty
 from contextlib import closing
+
+log = logging.getLogger(__name__)
+log.basicConfig()
+log.setLevel(logging.INFO)
 
 json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
 
