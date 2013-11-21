@@ -446,9 +446,13 @@ class MapView(Frame):
 
         figure = MatplotlibFigure(figsize=figSize, facecolor=bgColor)
         self.canvas = FigureCanvasTkAgg(figure, master=self)
-        figure.set_canvas(self.canvas)
 
-        self.axes = figure.add_subplot(111, aspect='auto')
+        self.axes = figure.add_subplot(111)
+        self.axes.set_aspect('auto')
+
+        figure.set_canvas(self.canvas)
+        figure.set_tight_layout(True)
+        figure.tight_layout(pad=0.0)
 
         self.basemap = Basemap(llcrnrlon=0, llcrnrlat=-80, urcrnrlon=360,
                                urcrnrlat=80, projection=projection,
@@ -459,9 +463,6 @@ class MapView(Frame):
         if fillContinents:
             self.basemap.fillcontinents(color=continentColor)
 
-        self.axes.set_aspect('auto')
-        figure.set_tight_layout(True)
-        figure.tight_layout(pad=0.0)
 
         widget = self.canvas.get_tk_widget()
         widget.config(highlightthickness=0)
