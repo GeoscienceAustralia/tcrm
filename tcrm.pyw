@@ -12,12 +12,14 @@ import time
 import json
 import ttk
 import sys
+import os
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure as MatplotlibFigure
 from matplotlib.widgets import RectangleSelector
 from matplotlib.patches import Rectangle
 from mpl_toolkits.basemap import Basemap
+from os.path import join as pjoin
 from Queue import Queue, Empty
 from contextlib import closing
 
@@ -55,7 +57,7 @@ gBoQEAA7
 """
 
 ON_POSIX = 'posix' in sys.builtin_module_names
-POLL_INTERVAL = 1000
+POLL_INTERVAL = 1000 # ms
 
 # tk or ttk?
 Frame = ttk.Frame
@@ -843,26 +845,80 @@ class MainView(Frame):
 class TropicalCycloneRiskModel(object):
 
     def __init__(self):
+        self.cmd = ['./test.py']
         self.output = Queue()
+        self.newFiles = Queue()
         self.process = None
         self.monitorThread = None
+        self.outputDirectories = ['.', 'output']
 
     def run(self):
+        """
+        Start TCRM.
+        """
         if self.process is None:
-            self.process = subprocess.Popen(['python', '-u', 'test.py'],
+            # create the subprocess that runs TCRM and redirect stdout
+            self.process = subprocess.Popen(self.cmd,
                                             stdout=subprocess.PIPE,
                                             shell=True,
                                             bufsize=1)
-            self.monitorThread = threading.Thread(target=self.enqueueOutput)
+            # monitor the process by a thread
+            self.monitorThread = threading.Thread(target=self.monitor)
             self.monitorThread.daemon = True
             self.monitorThread.start()
 
+    def monitor(self):
+        """
+        Monitor function. Run in a thread and continuously steps
+        coroutines to check for output, new files, etc.
+
+        The logic here is that if there is a new line of output from
+        TCRM then there is a chance that there are some new output files
+        created. This seems better than polling every x number of
+        seconds.
+        """
+        lineOfOutput = self.enqueueOutput()
+        additionOfFiles = self.enqueueFileAdditions()
+        try:
+            while True:
+                next(lineOfOutput)
+                next(additionOfFiles)
+        except StopIteration:
+            # the thread was probably killed so exit nicely
+            pass
+
     def enqueueOutput(self):
+        """
+        Coroutine to enqueue new output.
+        """
         with closing(self.process.stdout) as out:
             for line in iter(out.readline, b''):
                 self.output.put(line)
+                yield
+
+    def enqueueFileAdditions(self):
+        """
+        Coroutine to enqueue new files.
+        """
+        def files():
+            lst = []
+            for directory in self.outputDirectories:
+                fns = os.listdir(directory)
+                lst.extend([pjoin(directory, fn) for fn in fns])
+            return lst
+
+        prev = files()
+
+        while True:
+            now = files()
+            self.newFiles.put([f for f in now if not f in prev])
+            prev = now
+            yield
 
     def getOutput(self):
+        """
+        Get all new process output since last call.
+        """
         lines = []
         while True:
             try:
@@ -872,7 +928,23 @@ class TropicalCycloneRiskModel(object):
                 break
         return ''.join(lines)
 
+    def getFileAdditions(self):
+        """
+        Get all new file additions since last call.
+        """
+        additions = []
+        while True:
+            try:
+                files = self.newFiles.get_nowait()
+                additions.extend(files)
+            except Empty:
+                break
+        return additions
+
     def quit(self):
+        """
+        Nicely kill the TCRM process.
+        """
         if self.process is None:
             return True
 
@@ -885,7 +957,6 @@ class TropicalCycloneRiskModel(object):
                 time.sleep(1)
             else:
                 break
-
 
 class Controller(tk.Tk):
 
@@ -955,6 +1026,9 @@ class Controller(tk.Tk):
     def onWantOutput(self, control):
         output = self.tcrm.getOutput()
         control.emit(output)
+        added = self.tcrm.getFileAdditions()
+        for f in added:
+            control.emit('new file: %s' % f)
 
     def onRun(self):
         print('onRun')
