@@ -22,6 +22,7 @@ from mpl_toolkits.basemap import Basemap
 from os.path import join as pjoin
 from Queue import Queue, Empty
 from contextlib import closing
+from itertools import tee, izip
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -59,6 +60,7 @@ gBoQEAA7
 ON_POSIX = 'posix' in sys.builtin_module_names
 POLL_INTERVAL = 1000 # ms
 
+
 # tk or ttk?
 Frame = ttk.Frame
 Labelframe = ttk.Labelframe
@@ -73,6 +75,13 @@ Scrollbar = tk.Scrollbar
 Button = ttk.Button
 PanedWindow = ttk.PanedWindow
 Canvas = tk.Canvas
+
+
+def pairwise(iterable):
+    a, b = tee(iterable)
+    next(b, None)
+    return izip(a, b)
+
 
 class Observable(object):
 
@@ -439,7 +448,7 @@ class MapView(Frame):
         continentColor = kwargs.pop('continentColor', '0.8')
         coastlineWidth = kwargs.pop('coastlineWidth', 0.3)
         projection = kwargs.pop('projection', 'mill')
-        figSize = kwargs.pop('figSize', (3, 1.3))
+        figSize = kwargs.pop('figSize', (2, 1.3))
         bgColor = '#%02x%02x%02x' % \
                   tuple([c / 255 for c in
                          parent.winfo_rgb('SystemButtonFace')])
@@ -730,11 +739,12 @@ class StageProgressViewOld(Frame):
 class StageProgressView(Canvas):
 
     def __init__(self, parent):
-        Canvas.__init__(self, parent, width=200, height=100, borderwidth=0)
+        Canvas.__init__(self, parent, height=30, borderwidth=0,
+                        highlightthickness=0, selectborderwidth=0)
         self.bind("<Configure>", self.resize)
-        self.config(offset='3,3')
-
-        #self.render(200, 100)
+        self.stages = ['one', 'two', 'three']
+        self.stageCompleted = [True, False, False]
+        self.colors = ['#fb0', '#f50', '#05f']
 
     def resize(self, event):
         w, h = event.width, event.height
@@ -742,9 +752,12 @@ class StageProgressView(Canvas):
         self.render(w, h)
 
     def render(self, w, h):
-        x = 3
-        self.create_rectangle(x, x, w-x, h-x)
-
+        n = len(self.stages)
+        xs = np.linspace(0, w-1-5, n+1)
+        for pts, color in zip(pairwise(xs), self.colors):
+            x0, x1 = pts
+            polygon = [x0+5, h/2, x0, 0, x1, 0, x1+5, h/2, x1, h-1, x0, h-1]
+            self.create_polygon(polygon, fill=color)
 
 class SubprocessOutputView(Frame,Observable):
 
@@ -788,6 +801,7 @@ class SubprocessOutputView(Frame,Observable):
         self.notify(self)
         self.alarm = self.after(POLL_INTERVAL, lambda: self.poll())
 
+
 class MainView(Frame):
 
     def __init__(self, parent):
@@ -817,7 +831,7 @@ class MainView(Frame):
         self.stage.grid(column=0, row=2, sticky='N', padx=2, pady=2)
 
         self.run = Button(frame, text='Run')
-        self.run.grid(column=0, row=3, sticky='WN', padx=2, pady=2)
+        self.run.grid(column=0, row=3, sticky='N', padx=2, pady=2)
 
         frame.columnconfigure(0, weight=1)
         frame.rowconfigure(0, weight=0)
