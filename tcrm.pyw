@@ -23,6 +23,7 @@ from os.path import join as pjoin
 from Queue import Queue, Empty
 from contextlib import closing
 from itertools import tee, izip
+from Utilities.config import ConfigParser
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -671,7 +672,7 @@ class LogView(logging.Handler, Frame):
         self.console.see(tk.END)
 
 
-class GridSettingsView(Frame):
+class RegionSettingsView(Frame):
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -684,9 +685,49 @@ class GridSettingsView(Frame):
                                     justify='center')
         self.step.grid(column=0, row=1, padx=2, pady=2, sticky='N')
 
+        # Locality
+
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=0)
         self.rowconfigure(1, weight=0)
+
+
+class CalibrationSettingsView(Frame):
+
+    def __init__(self, parent):
+        Frame.__init__(self, parent)
+
+        # Data
+
+        self.source = ObservableCombobox(self, name = 'Data Source')
+        self.source.grid(column=0, row=0, padx=2, pady=2, sticky='N')
+
+        self.start = ObservableEntry(self, name = 'Season Start Year')
+        self.start.grid(column=0, row=1, padx=2, pady=2, sticky='N')
+
+        # Stats
+
+        self.kdeKernel = ObservableCombobox(self, name = 'KDE Kernel')
+        self.kdeKernel.grid(column=0, row=2, padx=2, pady=2, sticky='N')
+
+        self.kde2DKernel = ObservableCombobox(self, name = 'KDE 2D Kernel')
+        self.kde2DKernel.grid(column=0, row=3, padx=2, pady=2, sticky='N')
+
+        self.kdeStep = ObservableEntry(self, name = 'KDE Step')
+        self.kdeStep.grid(column=0, row=4, padx=2, pady=2, sticky='N')
+
+        self.gridSpace = DictEntry(self, keys=('x', 'y'),
+                                   name='Grid Space', width=5,
+                                   justify='center')
+        self.gridSpace.grid(column=0, row=5, padx=2, pady=2, sticky='N')
+
+        self.gridInc = DictEntry(self, keys=('x', 'y'), name='Grid Increment',
+                                 width=5, justify='center')
+        self.gridInc.grid(column=0, row=6, padx=2, pady=2, sticky='N')
+
+        self.columnconfigure(0, weight=0)
+        for i in range(6):
+            self.rowconfigure(i, weight=0)
 
 
 class TrackSettingsView(Frame):
@@ -694,17 +735,17 @@ class TrackSettingsView(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent)
 
-        self.gridSpace = DictEntry(self, name='Grid space', keys=('x', 'y'),
+        self.gridSpace = DictEntry(self, name='Grid Space', keys=('x', 'y'),
                                    width=7, justify='center')
-        self.gridInc = DictEntry(self, name='Grid increment', keys=('x', 'y'),
+        self.gridInc = DictEntry(self, name='Grid Increment', keys=('x', 'y'),
                                  width=7, justify='center')
         self.nSims = ObservableEntry(self, name='Simulations',
                                      width=7, justify='center')
-        self.nYears = ObservableEntry(self, name='Years per sim',
+        self.nYears = ObservableEntry(self, name='Years Per Sim',
                                       width=7, justify='center')
-        self.seasonSeed = ObservableEntry(self, name='Season seed', width=7,
+        self.seasonSeed = ObservableEntry(self, name='Season Seed', width=7,
                                           justify='center')
-        self.trackSeed = ObservableEntry(self, name='Track seed', width=7,
+        self.trackSeed = ObservableEntry(self, name='Track Seed', width=7,
                                          justify='center')
         for i, control in enumerate([self.gridSpace, self.gridInc, self.nSims,
                                      self.nYears, self.seasonSeed,
@@ -712,6 +753,34 @@ class TrackSettingsView(Frame):
             control.grid(column=0, row=i, sticky='WE', padx=4, pady=4)
             self.rowconfigure(i, weight=1)
         self.columnconfigure(0, weight=1)
+
+
+class WindfieldSettingsView(Frame):
+
+    def __init__(self, parent):
+        Frame.__init__(self, parent)
+
+        self.margin = ObservableEntry(self, name = 'Margin')
+        self.margin.grid(column=0, row=1, padx=2, pady=2, sticky='N')
+
+        self.resolution = ObservableEntry(self, name = 'Resolution')
+        self.resolution.grid(column=0, row=1, padx=2, pady=2, sticky='N')
+
+        self.profileType = ObservableCombobox(self, name = 'Profile Type')
+        self.profileType.grid(column=0, row=2, padx=2, pady=2, sticky='N')
+
+        self.windfieldType = ObservableCombobox(self, name = 'Windfield Type')
+        self.windfieldType.grid(column=0, row=3, padx=2, pady=2, sticky='N')
+
+        self.modelParams = ObservableEntry(self, name='Model Parameters')
+        self.modelParams.grid(column=0, row=4, padx=2, pady=2, sticky='N')
+
+        self.thetaMax = ObservableEntry(self, name = 'KDE Step')
+        self.thetaMax.grid(column=0, row=4, padx=2, pady=2, sticky='N')
+
+        self.columnconfigure(0, weight=0)
+        for i in range(6):
+            self.rowconfigure(i, weight=0)
 
 
 class StageProgressViewOld(Frame):
@@ -739,7 +808,10 @@ class StageProgressViewOld(Frame):
 class StageProgressView(Canvas):
 
     def __init__(self, parent):
-        Canvas.__init__(self, parent, height=30, borderwidth=0,
+        bgColor = '#%02x%02x%02x' % \
+          tuple([c / 255 for c in
+                 parent.winfo_rgb('SystemButtonFace')])
+        Canvas.__init__(self, parent, bg=bgColor, height=30, borderwidth=0,
                         highlightthickness=0, selectborderwidth=0)
         self.bind("<Configure>", self.resize)
         self.stages = ['one', 'two', 'three']
@@ -754,10 +826,11 @@ class StageProgressView(Canvas):
     def render(self, w, h):
         n = len(self.stages)
         xs = np.linspace(0, w-1-5, n+1)
-        for pts, color in zip(pairwise(xs), self.colors):
+        for stage, pts, color in zip(self.stages, pairwise(xs), self.colors):
             x0, x1 = pts
             polygon = [x0+5, h/2, x0, 0, x1, 0, x1+5, h/2, x1, h-1, x0, h-1]
             self.create_polygon(polygon, fill=color)
+            self.create_text((x0+x1)/2, h/2, text=stage)
 
 class SubprocessOutputView(Frame,Observable):
 
@@ -767,7 +840,7 @@ class SubprocessOutputView(Frame,Observable):
 
         self.console = Text(self, **kwargs)
         self.console.config(state=tk.DISABLED, wrap='none')
-        self.console.config(font=('Helvetica', 8))
+        self.console.config(font=('Helvetica', 10))
         self.console.config(yscrollcommand=self.onScroll)
 
         self.scroll = Scrollbar(self, orient=tk.VERTICAL)
@@ -821,11 +894,15 @@ class MainView(Frame):
         notebook = Notebook(frame)
         notebook.grid(column=0, row=1, sticky='N', padx=2, pady=2)
 
-        self.gridSettings = GridSettingsView(notebook)
+        self.regionSettings = RegionSettingsView(notebook)
+        self.calibration = CalibrationSettingsView(notebook)
         self.track = TrackSettingsView(notebook)
+        self.wind = WindfieldSettingsView(notebook)
 
-        notebook.add(self.gridSettings, text='Region')
-        notebook.add(self.track, text='Simulation')
+        notebook.add(self.regionSettings, text='Region')
+        notebook.add(self.calibration, text='Calibration')
+        notebook.add(self.track, text='Tracks')
+        notebook.add(self.wind, text='Windfields')
 
         self.stage = StageProgressView(frame)
         self.stage.grid(column=0, row=2, sticky='N', padx=2, pady=2)
@@ -968,7 +1045,7 @@ class TropicalCycloneRiskModel(object):
             if self.process.poll() is None:
                 self.process.kill()
                 self.process.wait()
-                time.sleep(1)
+                time.sleep(0.5)
             else:
                 break
 
@@ -992,6 +1069,8 @@ class Controller(tk.Tk):
         view.run.config(command=self.onRun)
         view.output.addCallback(self.onWantOutput)
 
+        self.loadSettings()
+
         self.settings = ObservableDict({
             'GRID_LIMITS': {
                 'xMin': 113,
@@ -1003,8 +1082,8 @@ class Controller(tk.Tk):
         }) # Model
 
         mappings = [(view.region, 'GRID_LIMITS'),
-                    (view.gridSettings.region, 'GRID_LIMITS'),
-                    (view.gridSettings.step, 'GRID_STEP'),
+                    (view.regionSettings.region, 'GRID_LIMITS'),
+                    (view.regionSettings.step, 'GRID_STEP'),
                     (view.view, 'GRID_LIMITS'),
                     (view.view, 'GRID_STEP')]
 
@@ -1026,6 +1105,20 @@ class Controller(tk.Tk):
 
         self.view = view
         self.tcrm = tcrm
+
+    def loadSettings(self, configFile=None):
+        config = ConfigParser()
+        if configFile:
+            config.read(configFile)
+
+        flatConfig = {}
+        for section in config.sections():
+            for name, value in config.items(section):
+                flatConfig['%s_%s' % (section, name)] = value
+
+        from pprint import pprint
+        pprint(flatConfig)
+
 
     def onSettingsChanged(self, settings):
         log.info('Settings changed')
