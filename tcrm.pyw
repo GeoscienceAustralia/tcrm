@@ -834,6 +834,7 @@ class StageProgressView(Canvas):
             self.create_polygon(polygon, fill=color)
             self.create_text((x0+x1)/2, h/2, text=stage)
 
+
 class SubprocessOutputView(Frame,Observable):
 
     def __init__(self, parent, **kwargs):
@@ -1071,23 +1072,18 @@ class Controller(tk.Tk):
         view.run.config(command=self.onRun)
         view.output.addCallback(self.onWantOutput)
 
-        self.loadSettings()
+        self.loadSettings('solomon.ini')
 
-        self.settings = ObservableDict({
-            'GRID_LIMITS': {
-                'xMin': 113,
-                'xMax': 116,
-                'yMin': 10.5,
-                'yMax': -25
-            },
-            'GRID_STEP': 20.
-        }) # Model
-
-        mappings = [(view.region, 'GRID_LIMITS'),
-                    (view.regionSettings.region, 'GRID_LIMITS'),
-                    (view.regionSettings.step, 'GRID_STEP'),
-                    (view.view, 'GRID_LIMITS'),
-                    (view.view, 'GRID_STEP')]
+        mappings = [(view.region, 'Region_gridlimit'),
+                    (view.regionSettings.region, 'Region_gridlimit'),
+                    # (view.calibration.source, 'GRID_LIMITS'),
+                    (view.calibration.start, 'DataProcess_startseason'),
+                    (view.calibration.kdeKernel, 'StatInterface_kdetype'),
+                    (view.calibration.kde2DKernel, 'StatInterface_kde2dtype'),
+                    (view.calibration.kdeStep, 'StatInterface_kdestep'),
+                    (view.calibration.gridSpace, 'StatInterface_gridspace'),
+                    (view.calibration.gridInc, 'StatInterface_gridinc')
+                    ]
 
         def makeCallback(key):
             return lambda x: self.onControlChanged(x, key)
@@ -1121,13 +1117,17 @@ class Controller(tk.Tk):
         from pprint import pprint
         pprint(flatConfig)
 
+        self.settings = ObservableDict(flatConfig)
 
     def onSettingsChanged(self, settings):
         log.info('Settings changed')
         for key, value in settings.items():
-            controls = self.notifyWhom[key]
-            for control in controls:
-                control.set(value)
+            try:
+                controls = self.notifyWhom[key]
+                for control in controls:
+                    control.set(value)
+            except KeyError:
+                pass
 
     def onControlChanged(self, value, key):
         self.settings[key] = value
