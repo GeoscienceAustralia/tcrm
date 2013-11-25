@@ -644,6 +644,10 @@ class MapRegionGrid(MapView):
 
 class LogView(logging.Handler, Frame):
 
+    """
+    Log view.
+    """
+
     def __init__(self, parent, **kwargs):
         logging.Handler.__init__(self)
         Frame.__init__(self, parent)
@@ -674,6 +678,10 @@ class LogView(logging.Handler, Frame):
 
 class RegionSettingsView(Frame):
 
+    """
+    Region settings.
+    """
+
     def __init__(self, parent):
         Frame.__init__(self, parent)
 
@@ -693,6 +701,10 @@ class RegionSettingsView(Frame):
 
 
 class CalibrationSettingsView(Frame):
+
+    """
+    Model calibration settings.
+    """
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -732,6 +744,10 @@ class CalibrationSettingsView(Frame):
 
 class TrackSettingsView(Frame):
 
+    """
+    Track settings.
+    """
+
     def __init__(self, parent):
         Frame.__init__(self, parent)
 
@@ -756,6 +772,10 @@ class TrackSettingsView(Frame):
 
 
 class WindfieldSettingsView(Frame):
+
+    """
+    Wind field settings.
+    """
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
@@ -783,29 +803,11 @@ class WindfieldSettingsView(Frame):
             self.rowconfigure(i, weight=0)
 
 
-class StageProgressViewOld(Frame):
-
-    def __init__(self, parent):
-        Frame.__init__(self, parent)
-
-        self.calibrate = ObservableCheckbutton(self, text='Calibrate',
-                                               takefocus=False)
-        self.trackSim = ObservableCheckbutton(self, text='Track simulation',
-                                              takefocus=False)
-        self.windFields = ObservableCheckbutton(self, text='Windfields',
-                                                takefocus=False)
-
-        self.calibrate.grid(column=0, row=0, sticky='NW', padx=4, pady=4)
-        self.trackSim.grid(column=0, row=1, sticky='NW', padx=4, pady=4)
-        self.windFields.grid(column=0, row=2, sticky='NW', padx=4, pady=4)
-
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
-        self.rowconfigure(1, weight=1)
-        self.rowconfigure(2, weight=1)
-
-
 class StageProgressView(Canvas):
+
+    """
+    Stage progress view.
+    """
 
     def __init__(self, parent):
         bgColor = '#%02x%02x%02x' % \
