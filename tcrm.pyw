@@ -737,8 +737,11 @@ class CalibrationSettingsView(Frame):
                                  width=5, justify='center')
         self.gridInc.grid(column=0, row=6, padx=2, pady=2, sticky='N')
 
+        self.minSamples = ObservableEntry(self, name = 'Min Cell Samples')
+        self.minSamples.grid(column=0, row=7, padx=2, pady=2, sticky='N')
+
         self.columnconfigure(0, weight=0)
-        for i in range(6):
+        for i in range(7):
             self.rowconfigure(i, weight=0)
 
 
@@ -1076,13 +1079,21 @@ class Controller(tk.Tk):
 
         mappings = [(view.region, 'Region_gridlimit'),
                     (view.regionSettings.region, 'Region_gridlimit'),
+                    (view.view, 'Region_gridlimit'),
                     # (view.calibration.source, 'GRID_LIMITS'),
                     (view.calibration.start, 'DataProcess_startseason'),
                     (view.calibration.kdeKernel, 'StatInterface_kdetype'),
                     (view.calibration.kde2DKernel, 'StatInterface_kde2dtype'),
                     (view.calibration.kdeStep, 'StatInterface_kdestep'),
                     (view.calibration.gridSpace, 'StatInterface_gridspace'),
-                    (view.calibration.gridInc, 'StatInterface_gridinc')
+                    (view.calibration.gridInc, 'StatInterface_gridinc'),
+                    (view.calibration.minSamples, 'StatInterface_minsamplescell'),
+                    (view.track.gridSpace, 'TrackGenerator_gridspace'),
+                    (view.track.gridInc, 'TrackGenerator_gridinc'),
+                    (view.track.nSims, 'TrackGenerator_numsimulations'),
+                    (view.track.nYears, 'TrackGenerator_yearspersimulation'),
+                    (view.track.seasonSeed, 'TrackGenerator_seasonseed'),
+                    (view.track.trackSeed, 'TrackGenerator_trackseed')
                     ]
 
         def makeCallback(key):

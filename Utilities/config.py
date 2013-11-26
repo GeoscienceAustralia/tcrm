@@ -1,6 +1,78 @@
 import os, io
 from ConfigParser import RawConfigParser
 
+def parseGrid(txt):
+    return eval('[' + txt + ']')
+
+def parseColumns(txt):
+    return txt.split(',')
+
+PARSERS = {
+    'Actions_dataprocess': bool,
+    'Actions_executehazard': bool,
+    'Actions_executestat': bool,
+    'Actions_executetrackgenerator': bool,
+    'Actions_executewindfield': bool,
+    'Actions_plotdata': bool,
+    'Actions_plothazard': bool,
+    'DataProcess_inputfile': str,
+    'DataProcess_source': str,
+    'DataProcess_startseason': int,
+    'HazardInterface_calculateci': bool,
+    'HazardInterface_inputpath': str,
+    'HazardInterface_minimumrecords': int,
+    'HazardInterface_numsim': int,
+    'HazardInterface_plotspeedunits': str,
+    'HazardInterface_resolution': float,
+    'HazardInterface_years': tuple,
+    'HazardInterface_yearspersimulation': int,
+    'Input_landmask': str,
+    'Input_mslpgrid': parseGrid,
+    'Logging_logfile': str,
+    'Logging_loglevel': str,
+    'Logging_progressbar': bool,
+    'Logging_verbose': bool,
+    'Output_path': str,
+    'Process_datfile': str,
+    'Process_excludepastprocessed': bool,
+    'RMW_getrmwdistfrominputdata': bool,
+    'RMW_mean': float,
+    'RMW_sigma': float,
+    'Region_gridlimit': eval,
+    'Region_localityid': int,
+    'Region_localityname': str,
+    'StatInterface_gridinc': eval,
+    'StatInterface_gridspace': eval,
+    'StatInterface_kde2dtype': str,
+    'StatInterface_kdestep': float,
+    'StatInterface_kdetype': str,
+    'StatInterface_minsamplescell': int,
+    'TCRM_columns': parseColumns,
+    'TCRM_fielddelimiter': str,
+    'TCRM_numberofheadinglines': int,
+    'TCRM_pressureunits': str,
+    'TCRM_speedunits': str,
+    'TrackGenerator_gridinc': eval,
+    'TrackGenerator_gridspace': eval,
+    'TrackGenerator_numsimulations': int,
+    'TrackGenerator_seasonseed': int,
+    'TrackGenerator_trackseed': int,
+    'TrackGenerator_yearspersimulation': int,
+    'TrackGenerator_numtimesteps': int,
+    'TrackGenerator_timestep': float,
+    'WindfieldInterface_beta': float,
+    'WindfieldInterface_beta1': float,
+    'WindfieldInterface_beta2': float,
+    'WindfieldInterface_margin': float,
+    'WindfieldInterface_numberoffiles': int,
+    'WindfieldInterface_profiletype': str,
+    'WindfieldInterface_resolution': float,
+    'WindfieldInterface_source': str,
+    'WindfieldInterface_thetamax': float,
+    'WindfieldInterface_trackfile': str,
+    'WindfieldInterface_trackpath': str,
+    'WindfieldInterface_windfieldtype': str}
+
 DEFAULTS = """
 [Actions]
 DataProcess=False
@@ -94,6 +166,17 @@ class ConfigParser(RawConfigParser):
         if self.read_once: return
         RawConfigParser.read(self, filename)
         self.read_once = True
+
+    def items(self, section):
+        raw = RawConfigParser.items(self, section)
+        parsed = {}
+        for name, value in raw:
+            try:
+                parse = PARSERS['%s_%s' % (section, name)]
+                parsed[name] = parse(value)
+            except KeyError:
+                parsed[name] = value
+        return parsed.items()
 
 
 def cnfGetIniValue(configFile, section, option, default=None):
