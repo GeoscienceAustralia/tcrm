@@ -497,22 +497,28 @@ class MapView(Frame):
         continentColor = kwargs.pop('continentColor', '0.8')
         coastlineWidth = kwargs.pop('coastlineWidth', 0.3)
         projection = kwargs.pop('projection', 'mill')
-        figSize = kwargs.pop('figSize', (3, 1.5))
+        figSize = kwargs.pop('figSize', (1.5, 1))
         bgColor = '#%02x%02x%02x' % \
                   tuple([c / 255 for c in
                          parent.winfo_rgb('SystemButtonFace')])
 
         Frame.__init__(self, parent)
 
-        figure = MatplotlibFigure(figsize=figSize, facecolor=bgColor)
-        self.canvas = FigureCanvasTkAgg(figure, master=self)
+        def foo(event):
+            print event.width, event.height
 
-        self.axes = figure.add_subplot(111)
-        self.axes.set_aspect('auto')
+        figure = MatplotlibFigure()
+        print figure.bbox.bounds, figure.dpi
+        self.canvas = FigureCanvasTkAgg(figure, master=self, resize_callback=foo)
 
-        figure.set_canvas(self.canvas)
-        figure.set_tight_layout(True)
-        figure.tight_layout(pad=1.0)
+        # self.axes = figure.add_subplot(111)
+        self.axes = figure.add_axes([0,0,1,1],aspect='auto')
+        self.axes.set_xmargin(0.0)
+        # self.axes.set_aspect('auto')
+
+        # figure.set_canvas(self.canvas)
+        # figure.set_tight_layout(True)
+        # figure.tight_layout()
 
         self.basemap = Basemap(llcrnrlon=0, llcrnrlat=-80, urcrnrlon=360,
                                urcrnrlat=80, projection=projection,
@@ -523,14 +529,13 @@ class MapView(Frame):
         if fillContinents:
             self.basemap.fillcontinents(color=continentColor)
 
-
         widget = self.canvas.get_tk_widget()
-        widget.config(highlightthickness=0)
-        widget.config(background=bgColor, relief=tk.GROOVE, borderwidth=1)
-        widget.grid(column=0, row=0, sticky='NSEW')
-
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
+        print ('x', widget.winfo_reqwidth(), widget.winfo_reqheight())
+        widget.config(highlightthickness=0, relief=tk.GROOVE, borderwidth=1)
+        widget.pack(fill='both', expand=True)
+        # widget.grid(column=0, row=0, sticky='NSEW')
+        # self.columnconfigure(0, weight=0)
+        # self.rowconfigure(0, weight=0)
 
 
 class MapRegionSelector(MapView, ObservableVariable):
@@ -872,7 +877,7 @@ class StageProgressView(Canvas):
         bgColor = '#%02x%02x%02x' % \
           tuple([c / 255 for c in
                  parent.winfo_rgb('SystemButtonFace')])
-        Canvas.__init__(self, parent, bg=bgColor, height=30, borderwidth=0,
+        Canvas.__init__(self, parent, bg=bgColor, height=30, width=200, borderwidth=0,
                         highlightthickness=0, selectborderwidth=0)
         self.bind("<Configure>", self.resize)
         self.stages = ['one', 'two', 'three']
