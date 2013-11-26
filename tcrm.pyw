@@ -182,7 +182,7 @@ class ObservableVariable(Observable):
         changed.
         """
         if self.noPendingNotification:
-            self.after_idle(self.doNotify)
+            self.after_idle(self.doNotify) #FIXME
             self.noPendingNotification = False
 
     def doNotify(self, *args):
@@ -223,6 +223,24 @@ class View(object, Frame):
 
     def __init__(self, parent, **kwargs):
         Frame.__init__(self, parent)
+
+
+class GriddedView(object):
+
+    def __init__(self, parent, **kwargs):
+        self.parent = parent
+
+    def grid(self, *args, **kwargs):
+        column, row = kwargs['column'], kwargs['row']
+        self.label.grid(column=column, row=row, sticky='W', padx=2)
+        self.control.grid(column=column+1, row=row, sticky='E', padx=0)
+
+    def rowconfigure(self, *args, **kwargs):
+        row = kwargs.pop('row')
+        self.parent.rowconfigure(row=row, **kwargs)
+
+    def after_idle(self, func):
+        self.parent.after_idle(func)
 
 
 class LabeledView(object, Labelframe):
@@ -387,22 +405,52 @@ class ObservableCombobox(Frame, ObservableVariable):
 
     def __init__(self, parent, **kwargs):
         name = kwargs.pop('name', '')
-        width = kwargs.pop('width', 10)
+        width = kwargs.pop('width', 15)
         values = kwargs.pop('values', ['a', 'b', 'c'])
 
         Frame.__init__(self, parent)
         ObservableVariable.__init__(self, value='')
 
         self.label = Label(self, width=width, text=name + ':')
-        self.label.grid(column=0, row=0, sticky='NSEW')
+        self.label.grid(column=0, row=0, sticky='W')
 
-        self.combo = Combobox(self, values=values)
-        self.combo.grid(column=1, row=0, sticky='NSEW')
+        self.combo = Combobox(self, width=width, values=values)
+        self.combo.grid(column=1, row=0, sticky='E')
         self.combo.config(textvariable=self.variable)
 
-        self.columnconfigure(0, weight=0)
-        self.columnconfigure(1, weight=2)
-        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.rowconfigure(0, weight=0)
+
+    def grid(self, *args, **kwargs):
+        print('grid', kwargs['column'], kwargs['row'])
+        Frame.grid(self, *args, **kwargs)
+
+
+class GriddedCombobox(GriddedView, ObservableVariable):
+
+    def __init__(self, parent, **kwargs):
+        name = kwargs.pop('name', '')
+
+        GriddedView.__init__(self, parent)
+        ObservableVariable.__init__(self, value='')
+
+        self.label = Label(parent, text=name + ':')
+        self.control = Combobox(parent, textvariable=self.variable, width=9,
+                                **kwargs)
+
+class GriddedEntry(GriddedView, ObservableVariable):
+
+    def __init__(self, parent, **kwargs):
+        name = kwargs.pop('name', '')
+        value = kwargs.pop('value', '')
+
+        GriddedView.__init__(self, parent)
+        ObservableVariable.__init__(self, value=value)
+
+        self.label = Label(parent, text=name + ':')
+        self.control = Entry(parent, textvariable=self.variable, width=11,
+                             **kwargs)
 
 
 class ObservableCheckbutton(Frame, ObservableVariable):
@@ -449,7 +497,7 @@ class MapView(Frame):
         continentColor = kwargs.pop('continentColor', '0.8')
         coastlineWidth = kwargs.pop('coastlineWidth', 0.3)
         projection = kwargs.pop('projection', 'mill')
-        figSize = kwargs.pop('figSize', (2, 1.3))
+        figSize = kwargs.pop('figSize', (3, 1.5))
         bgColor = '#%02x%02x%02x' % \
                   tuple([c / 255 for c in
                          parent.winfo_rgb('SystemButtonFace')])
@@ -464,7 +512,7 @@ class MapView(Frame):
 
         figure.set_canvas(self.canvas)
         figure.set_tight_layout(True)
-        figure.tight_layout(pad=0.0)
+        figure.tight_layout(pad=1.0)
 
         self.basemap = Basemap(llcrnrlon=0, llcrnrlat=-80, urcrnrlon=360,
                                urcrnrlat=80, projection=projection,
@@ -555,8 +603,8 @@ class DictEntry(Labelframe, ObservableVariable):
             c, r = i % columns, i / columns
             entry = self.entries[key]
             entry.addCallback(self.changed)
-            entry.grid(row=r, column=c, sticky='EW', padx=2, pady=2)
-            self.rowconfigure(r, weight=1)
+            entry.grid(row=r, column=c, sticky='N', padx=2)
+            self.rowconfigure(r, weight=0)
             self.columnconfigure(c, weight=1)
 
         self.keys = keys
@@ -711,36 +759,38 @@ class CalibrationSettingsView(Frame):
 
         # Data
 
-        self.source = ObservableCombobox(self, name = 'Data Source')
-        self.source.grid(column=0, row=0, padx=2, pady=2, sticky='N')
+        self.source = GriddedCombobox(self, name = 'Data Source')
+        self.source.grid(column=0, row=0, sticky='N')
 
-        self.start = ObservableEntry(self, name = 'Season Start Year')
-        self.start.grid(column=0, row=1, padx=2, pady=2, sticky='N')
+        self.start = GriddedEntry(self, name = 'Season Start Year')
+        self.start.grid(column=0, row=1, sticky='N')
 
         # Stats
 
-        self.kdeKernel = ObservableCombobox(self, name = 'KDE Kernel')
-        self.kdeKernel.grid(column=0, row=2, padx=2, pady=2, sticky='N')
+        self.kdeKernel = GriddedCombobox(self, name = 'KDE Kernel')
+        self.kdeKernel.grid(column=0, row=2, sticky='N')
 
-        self.kde2DKernel = ObservableCombobox(self, name = 'KDE 2D Kernel')
-        self.kde2DKernel.grid(column=0, row=3, padx=2, pady=2, sticky='N')
+        self.kde2DKernel = GriddedCombobox(self, name = 'KDE 2D Kernel')
+        self.kde2DKernel.grid(column=0, row=3, sticky='N')
 
-        self.kdeStep = ObservableEntry(self, name = 'KDE Step')
-        self.kdeStep.grid(column=0, row=4, padx=2, pady=2, sticky='N')
+        self.kdeStep = GriddedEntry(self, name = 'KDE Step')
+        self.kdeStep.grid(column=0, row=4, sticky='N')
+
+        self.minSamples = GriddedEntry(self, name = 'Min Cell Samples')
+        self.minSamples.grid(column=0, row=5, sticky='N')
 
         self.gridSpace = DictEntry(self, keys=('x', 'y'),
                                    name='Grid Space', width=5,
                                    justify='center')
-        self.gridSpace.grid(column=0, row=5, padx=2, pady=2, sticky='N')
+        self.gridSpace.grid(column=0, columnspan=2, row=6, sticky='N')
 
         self.gridInc = DictEntry(self, keys=('x', 'y'), name='Grid Increment',
                                  width=5, justify='center')
-        self.gridInc.grid(column=0, row=6, padx=2, pady=2, sticky='N')
+        self.gridInc.grid(column=0, columnspan=2, row=7, sticky='N')
 
-        self.minSamples = ObservableEntry(self, name = 'Min Cell Samples')
-        self.minSamples.grid(column=0, row=7, padx=2, pady=2, sticky='N')
 
-        self.columnconfigure(0, weight=0)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
         for i in range(7):
             self.rowconfigure(i, weight=0)
 
@@ -755,23 +805,27 @@ class TrackSettingsView(Frame):
         Frame.__init__(self, parent)
 
         self.gridSpace = DictEntry(self, name='Grid Space', keys=('x', 'y'),
-                                   width=7, justify='center')
+                                   justify='center', width=5)
         self.gridInc = DictEntry(self, name='Grid Increment', keys=('x', 'y'),
-                                 width=7, justify='center')
-        self.nSims = ObservableEntry(self, name='Simulations',
-                                     width=7, justify='center')
-        self.nYears = ObservableEntry(self, name='Years Per Sim',
-                                      width=7, justify='center')
-        self.seasonSeed = ObservableEntry(self, name='Season Seed', width=7,
-                                          justify='center')
-        self.trackSeed = ObservableEntry(self, name='Track Seed', width=7,
-                                         justify='center')
-        for i, control in enumerate([self.gridSpace, self.gridInc, self.nSims,
-                                     self.nYears, self.seasonSeed,
+                                 justify='center', width=5)
+        self.nSims = GriddedEntry(self, name='Simulations', justify='center')
+        self.nYears = GriddedEntry(self, name='Years Per Sim', justify='center')
+        self.seasonSeed = GriddedEntry(self, name='Season Seed', justify='center')
+        self.trackSeed = GriddedEntry(self, name='Track Seed', justify='center')
+
+        for i, control in enumerate([self.nSims, self.nYears, self.seasonSeed,
                                      self.trackSeed]):
-            control.grid(column=0, row=i, sticky='WE', padx=4, pady=4)
-            self.rowconfigure(i, weight=1)
+            control.grid(column=0, row=i)
+            self.rowconfigure(i, weight=0)
+
+        self.gridSpace.grid(column=0, columnspan=2, row=5, sticky='N')
+        self.gridInc.grid(column=0, columnspan=2, row=6, sticky='N')
+
+        self.rowconfigure(5, weight=0)
+        self.rowconfigure(6, weight=0)
+
         self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
 
 
 class WindfieldSettingsView(Frame):
@@ -782,27 +836,29 @@ class WindfieldSettingsView(Frame):
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
+        width = 10
 
-        self.margin = ObservableEntry(self, name = 'Margin')
-        self.margin.grid(column=0, row=1, padx=2, pady=2, sticky='N')
+        self.margin = GriddedEntry(self, name = 'Margin')
+        self.margin.grid(column=0, row=1, sticky='N')
 
-        self.resolution = ObservableEntry(self, name = 'Resolution')
-        self.resolution.grid(column=0, row=1, padx=2, pady=2, sticky='N')
+        self.resolution = GriddedEntry(self, name = 'Resolution')
+        self.resolution.grid(column=0, row=1, sticky='N')
 
-        self.profileType = ObservableCombobox(self, name = 'Profile Type')
-        self.profileType.grid(column=0, row=2, padx=2, pady=2, sticky='N')
+        self.profileType = GriddedCombobox(self, name = 'Profile Type')
+        self.profileType.grid(column=0, row=2, sticky='N')
 
-        self.windfieldType = ObservableCombobox(self, name = 'Windfield Type')
-        self.windfieldType.grid(column=0, row=3, padx=2, pady=2, sticky='N')
+        self.windfieldType = GriddedCombobox(self, name = 'Windfield Type')
+        self.windfieldType.grid(column=0, row=3, sticky='N')
 
-        self.modelParams = ObservableEntry(self, name='Model Parameters')
-        self.modelParams.grid(column=0, row=4, padx=2, pady=2, sticky='N')
+        self.modelParams = GriddedEntry(self, name='Model Parameters')
+        self.modelParams.grid(column=0, row=4, sticky='N')
 
-        self.thetaMax = ObservableEntry(self, name = 'KDE Step')
-        self.thetaMax.grid(column=0, row=4, padx=2, pady=2, sticky='N')
+        self.thetaMax = GriddedEntry(self, name = 'KDE Step')
+        self.thetaMax.grid(column=0, row=5, sticky='N')
 
         self.columnconfigure(0, weight=0)
-        for i in range(6):
+        self.columnconfigure(1, weight=1)
+        for i in range(5):
             self.rowconfigure(i, weight=0)
 
 
@@ -900,12 +956,12 @@ class MainView(Frame):
         notebook = Notebook(frame)
         notebook.grid(column=0, row=1, sticky='N', padx=2, pady=2)
 
-        self.regionSettings = RegionSettingsView(notebook)
+        # self.regionSettings = RegionSettingsView(notebook)
         self.calibration = CalibrationSettingsView(notebook)
         self.track = TrackSettingsView(notebook)
         self.wind = WindfieldSettingsView(notebook)
 
-        notebook.add(self.regionSettings, text='Region')
+        # notebook.add(self.regionSettings, text='Region')
         notebook.add(self.calibration, text='Calibration')
         notebook.add(self.track, text='Tracks')
         notebook.add(self.wind, text='Windfields')
@@ -1077,24 +1133,30 @@ class Controller(tk.Tk):
 
         self.loadSettings('solomon.ini')
 
-        mappings = [(view.region, 'Region_gridlimit'),
-                    (view.regionSettings.region, 'Region_gridlimit'),
-                    (view.view, 'Region_gridlimit'),
-                    # (view.calibration.source, 'GRID_LIMITS'),
-                    (view.calibration.start, 'DataProcess_startseason'),
-                    (view.calibration.kdeKernel, 'StatInterface_kdetype'),
-                    (view.calibration.kde2DKernel, 'StatInterface_kde2dtype'),
-                    (view.calibration.kdeStep, 'StatInterface_kdestep'),
-                    (view.calibration.gridSpace, 'StatInterface_gridspace'),
-                    (view.calibration.gridInc, 'StatInterface_gridinc'),
-                    (view.calibration.minSamples, 'StatInterface_minsamplescell'),
-                    (view.track.gridSpace, 'TrackGenerator_gridspace'),
-                    (view.track.gridInc, 'TrackGenerator_gridinc'),
-                    (view.track.nSims, 'TrackGenerator_numsimulations'),
-                    (view.track.nYears, 'TrackGenerator_yearspersimulation'),
-                    (view.track.seasonSeed, 'TrackGenerator_seasonseed'),
-                    (view.track.trackSeed, 'TrackGenerator_trackseed')
-                    ]
+        mappings = [
+            (view.region, 'Region_gridlimit'),
+            # (view.regionSettings.region, 'Region_gridlimit'),
+            (view.view, 'Region_gridlimit'),
+            # (view.calibration.source, 'GRID_LIMITS'),
+            (view.calibration.start, 'DataProcess_startseason'),
+            (view.calibration.kdeKernel, 'StatInterface_kdetype'),
+            (view.calibration.kde2DKernel, 'StatInterface_kde2dtype'),
+            (view.calibration.kdeStep, 'StatInterface_kdestep'),
+            (view.calibration.gridSpace, 'StatInterface_gridspace'),
+            (view.calibration.gridInc, 'StatInterface_gridinc'),
+            (view.calibration.minSamples, 'StatInterface_minsamplescell'),
+            (view.track.gridSpace, 'TrackGenerator_gridspace'),
+            (view.track.gridInc, 'TrackGenerator_gridinc'),
+            (view.track.nSims, 'TrackGenerator_numsimulations'),
+            (view.track.nYears, 'TrackGenerator_yearspersimulation'),
+            (view.track.seasonSeed, 'TrackGenerator_seasonseed'),
+            (view.track.trackSeed, 'TrackGenerator_trackseed'),
+            (view.wind.margin, 'WindfieldInterface_margin'),
+            (view.wind.resolution, 'WindfieldInterface_resolution'),
+            (view.wind.profileType, 'WindfieldInterface_profiletype'),
+            (view.wind.windfieldType, 'WindfieldInterface_windfieldtype'),
+            (view.wind.thetaMax, 'WindfieldInterface_thetamax'),
+            ]
 
         def makeCallback(key):
             return lambda x: self.onControlChanged(x, key)
