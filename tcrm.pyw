@@ -503,26 +503,14 @@ class MapView(Frame):
                          parent.winfo_rgb('SystemButtonFace')])
 
         Frame.__init__(self, parent)
+        figure = MatplotlibFigure(figsize=figSize)
+        self.canvas = FigureCanvasTkAgg(figure, master=self)
 
-        def foo(event):
-            print event.width, event.height
-
-        figure = MatplotlibFigure()
-        print figure.bbox.bounds, figure.dpi
-        self.canvas = FigureCanvasTkAgg(figure, master=self, resize_callback=foo)
-
-        # self.axes = figure.add_subplot(111)
         self.axes = figure.add_axes([0,0,1,1],aspect='auto')
-        self.axes.set_xmargin(0.0)
-        # self.axes.set_aspect('auto')
-
-        # figure.set_canvas(self.canvas)
-        # figure.set_tight_layout(True)
-        # figure.tight_layout()
 
         self.basemap = Basemap(llcrnrlon=0, llcrnrlat=-80, urcrnrlon=360,
                                urcrnrlat=80, projection=projection,
-                               ax=self.axes)
+                               ax=self.axes, fix_aspect=False)
         if drawCoastlines:
             self.basemap.drawcoastlines(linewidth=coastlineWidth)
 
@@ -530,13 +518,8 @@ class MapView(Frame):
             self.basemap.fillcontinents(color=continentColor)
 
         widget = self.canvas.get_tk_widget()
-        print ('x', widget.winfo_reqwidth(), widget.winfo_reqheight())
         widget.config(highlightthickness=0, relief=tk.GROOVE, borderwidth=1)
-        widget.pack(fill='both', expand=True)
-        # widget.grid(column=0, row=0, sticky='NSEW')
-        # self.columnconfigure(0, weight=0)
-        # self.rowconfigure(0, weight=0)
-
+        widget.pack(fill='both', expand=False)
 
 class MapRegionSelector(MapView, ObservableVariable):
 
@@ -886,7 +869,6 @@ class StageProgressView(Canvas):
 
     def resize(self, event):
         w, h = event.width, event.height
-        print(w,h)
         self.render(w, h)
 
     def render(self, w, h):
@@ -1192,8 +1174,8 @@ class Controller(tk.Tk):
             for name, value in config.items(section):
                 flatConfig['%s_%s' % (section, name)] = value
 
-        from pprint import pprint
-        pprint(flatConfig)
+        # from pprint import pprint
+        # pprint(flatConfig)
 
         self.settings = ObservableDict(flatConfig)
 
