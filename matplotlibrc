@@ -1,4 +1,4 @@
-# TCRM Plotting Configuration 
+# TCRM Plotting Configuration
 backend: TkAgg
 lines.linewidth: 2.0
 lines.markersize: 1
@@ -8,7 +8,6 @@ text.antialiased: True
 axes.titlesize: large
 axes.labelsize: large
 axes.labelcolor: black
-axes.color_cycle: k, b, g, r, c, m, y  
+axes.color_cycle: k, b, g, r, c, m, y
 legend.fancybox: True
 legend.frameon: True
-figure.autolayout: True
