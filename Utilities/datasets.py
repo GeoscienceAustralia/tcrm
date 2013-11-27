@@ -41,7 +41,7 @@ class DataSet(object):
 
         data.seek(0)
 
-        if self.compression == 'gz': 
+        if self.compression == 'gz':
             from gzip import GzipFile
             data = GzipFile(fileobj=data)
 
