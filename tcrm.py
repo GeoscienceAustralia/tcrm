@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Tropical Cyclone Risk Model
 Copyright (c) 2013 Commonwealth of Australia (Geoscience Australia)
