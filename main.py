@@ -379,8 +379,6 @@ def main(configFile='main.ini'):
     log.info('Completed TCRM')
 
 def startup():
-    print __doc__
-
     parser = argparse.ArgumentParser()
     parser.add_argument('configFile', help='the configuration file')
     args = parser.parse_args()
