@@ -37,7 +37,7 @@ class DataSet(object):
             data.write(buf)
             done += len(buf)
             if callback is not None:
-                callback(fn, done, size)
+                callback(self.filename, done, size)
 
         data.seek(0)
 

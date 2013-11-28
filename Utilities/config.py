@@ -15,6 +15,7 @@ PARSERS = {
     'Actions_executewindfield': bool,
     'Actions_plotdata': bool,
     'Actions_plothazard': bool,
+    'Actions_downloaddata': bool,
     'DataProcess_inputfile': str,
     'DataProcess_source': str,
     'DataProcess_startseason': int,
@@ -82,6 +83,7 @@ ExecuteWindfield=False
 ExecuteHazard=False
 PlotData=False
 PlotHazard=False
+DownloadData=True
 
 [DataProcess]
 StartSeason=1981

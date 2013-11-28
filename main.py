@@ -91,6 +91,32 @@ def disableOnWorkers(f):
 
 
 @disableOnWorkers
+def doDataDownload(configFile):
+    """
+    Download the data files.
+    """
+    log.info('Checking input data sets')
+
+    config = ConfigParser()
+    config.read(configFile)
+
+    showProgressBar = config.get('Logging', 'ProgressBar')
+
+    for dataset in datasets.DATASETS:
+        if not dataset.isDownloaded():
+            log.info('Input file %s is not available' % dataset.filename)
+            log.info('Attempting to download %s' % dataset.filename)
+
+            pbar = ProgressBar('Downloading file %s' % dataset.filename,
+                               showProgressBar)
+
+            def status(fn, done, size):
+                pbar.update(float(done)/size)
+
+            dataset.download(status)
+
+
+@disableOnWorkers
 def doOutputDirectoryCreation(configFile):
     """
     Create all the necessary output folders.
@@ -338,6 +364,11 @@ def main(configFile='main.ini'):
 
     config = ConfigParser()
     config.read(configFile)
+
+    pp.barrier()
+
+    if config.getboolean('Actions', 'DownloadData'):
+        doDataDownload(configFile)
 
     pp.barrier()
 
