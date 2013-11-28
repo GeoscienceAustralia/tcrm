@@ -112,6 +112,7 @@ def doDataDownload(configFile):
                 pbar.update(float(done)/size)
 
             dataset.download(status)
+            log.info('Download successful')
 
 
 @disableOnWorkers
