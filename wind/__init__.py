@@ -594,7 +594,7 @@ class WindfieldGenerator(object):
         plotPressurefield(gridX, gridY, P, title="Pressure field",
                           fileName=pressurefile)
 
-    def dumpGustsFromTracks(self, trackiter, windfieldPath, filenameFormat,
+    def dumpGustsFromTracks(self, trackiter, windfieldPath, fnFormat,
                             progressCallback=None):
         """
         Dump the maximum wind speeds (gusts) observed over a region to
@@ -617,7 +617,7 @@ class WindfieldGenerator(object):
             gusts[track.trackfile] = (gust, bearing, Vx, Vy, P, lon, lat)
             done[track.trackfile] += [track.trackId]
             if len(done[track.trackfile]) >= done[track.trackfile][0][1]:
-                dumpfile = pjoin(windfieldPath, filenameFormat % (pp.rank(), i))
+                dumpfile = pjoin(windfieldPath, fnFormat % (pp.rank(), i))
                 self._saveGustToFile(track.trackfile,
                                      (lat, lon, gust),
                                      dumpfile)
@@ -684,7 +684,7 @@ class WindfieldGenerator(object):
         nctools.ncSaveGrid(filename, dimensions, variables, gatts=gatts)
 
     def dumpGustsFromTrackfiles(self, trackfiles, windfieldPath,
-                                filenameFormat='gust-%i-%04i.nc',
+                                filenameFormat='gust-%02i-%04i.nc',
                                 progressCallback=None):
         """
         Helper method to dump the maximum wind speeds (gusts) observed over a
