@@ -110,11 +110,12 @@ PlotOutput=False
 GetRMWDistFromInputData=False
 
 [Input]
-LandMask=%(cwd)s/input/landmask.nc
-MSLPFile=%(cwd)s/MSLP/mslp_daily_ltm.nc
+LandMask=input/landmask.nc
+MSLPFile=MSLP/mslp_daily_ltm.nc
+Datasets=IBTRACS
 
 [Output]
-Path=%(cwd)s/output
+Path=output
 Format=txt
 
 [Logging]
@@ -132,7 +133,18 @@ NumberOfHeadingLines=0
 SpeedUnits=mps
 PressureUnits=hPa
 LengthUnits=km
-""" % {'cwd': os.getcwd()}
+
+[IBTRACS]
+URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
+location=input
+Columns=tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
+FieldDelimiter=,
+NumberOfHeadingLines=3
+PressureUnits=hPa
+LengthUnits=km
+DateFormat=%Y-%m-%d %H:%M:%S
+SpeedUnits=kph
+"""
 
 def singleton(cls):
     instances = {}
