@@ -94,9 +94,9 @@ def disableOnWorkers(f):
 @disableOnWorkers
 def doDataDownload(configFile):
     """
-    Download the data files.
+    Check and download the data files.
     """
-    log.info('Checking input data sets')
+    log.info('Checking availability of input data sets')
 
     config = ConfigParser()
     config.read(configFile)
