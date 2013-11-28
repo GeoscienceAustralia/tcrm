@@ -105,7 +105,7 @@ def doDataDownload(configFile):
             log.info('Input file %s is not available', dataset.filename)
             log.info('Attempting to download %s', dataset.filename)
 
-            pbar = ProgressBar('Downloading file %s', dataset.filename,
+            pbar = ProgressBar('Downloading file %s' % dataset.filename,
                                showProgressBar)
 
             def status(fn, done, size):
