@@ -4,21 +4,18 @@ Tropical Cyclone Risk Model
 Copyright (c) 2013 Commonwealth of Australia (Geoscience Australia)
 """
 
-import os
-import sys
+import Utilities.datasets as datasets
 import logging as log
 import traceback
-import time
 import argparse
+import time
+import os
 
-import Utilities.datasets as datasets
-
-from os.path import join as pjoin, realpath, isdir, exists, dirname
-
-from Utilities import pathLocator
+from os.path import join as pjoin, realpath, isdir, dirname
 from Utilities.progressbar import SimpleProgressBar as ProgressBar
-from Utilities.config import ConfigParser
 from Utilities.files import flStartLog, flLoadFile
+from Utilities.config import ConfigParser
+from Utilities import pathLocator
 
 # Set Basemap data path if compiled with py2exe
 if pathLocator.is_frozen():
@@ -33,7 +30,7 @@ def timer(func):
         t1 = time.time()
         res = func(*arg)
         t2 = time.time()
-        log.info("%s took %0.0f s"%(func.func_name, (t2 - t1) ) )
+        log.debug("%s took %0.0f s", func.func_name, t2 - t1)
         return res
 
     return wrapper
@@ -105,10 +102,10 @@ def doDataDownload(configFile):
 
     for dataset in datasets.DATASETS:
         if not dataset.isDownloaded():
-            log.info('Input file %s is not available' % dataset.filename)
-            log.info('Attempting to download %s' % dataset.filename)
+            log.info('Input file %s is not available', dataset.filename)
+            log.info('Attempting to download %s', dataset.filename)
 
-            pbar = ProgressBar('Downloading file %s' % dataset.filename,
+            pbar = ProgressBar('Downloading file %s', dataset.filename,
                                showProgressBar)
 
             def status(fn, done, size):
@@ -425,7 +422,7 @@ def startup():
 
     logfile = config.get('Logging', 'LogFile')
     logdir = dirname(realpath(logfile))
-    
+
     # If log file directory does not exist, create it
     if not isdir(logdir):
         try:
