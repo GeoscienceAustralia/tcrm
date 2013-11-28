@@ -1,5 +1,6 @@
 """
-TCRM
+Tropical Cyclone Risk Model
+Copyright (c) 2013 Commonwealth of Australia (Geoscience Australia)
 """
 
 import os
@@ -7,11 +8,14 @@ import sys
 import logging as log
 import traceback
 import time
+import argparse
+
+import Utilities.datasets as datasets
 
 from os.path import join as pjoin, realpath, isdir, exists, dirname
 
 from Utilities import pathLocator
-from Utilities.progressbar import ProgressBar
+from Utilities.progressbar import SimpleProgressBar as ProgressBar
 from Utilities.config import ConfigParser
 from Utilities.files import flStartLog, flLoadFile
 
@@ -375,16 +379,13 @@ def main(configFile='main.ini'):
     log.info('Completed TCRM')
 
 def startup():
-    try:
-        configFile = sys.argv[1]
-    except IndexError:
-        configFile = 'main.ini'
-        if not exists(configFile):
-            raise IOError("No configuration file specified, please" +
-                          " type: python main.py {config filename}.ini")
-    if not exists(configFile):
-        raise IOError("Configuration file '" + configFile +
-                      "' not found")
+    print __doc__
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('configFile', help='the configuration file')
+    args = parser.parse_args()
+
+    configFile = args.configFile
 
     rootdir = pathLocator.getRootDirectory()
     os.chdir(rootdir)
@@ -394,6 +395,7 @@ def startup():
 
     logfile = config.get('Logging', 'LogFile')
     logdir = dirname(realpath(logfile))
+    
     # If log file directory does not exist, create it
     if not isdir(logdir):
         try:

@@ -1,42 +1,20 @@
-#!/usr/bin/env python
-"""
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Title: progressbar.py
-Author: Nicholas Summons, nicholas.summons@ga.gov.au
-CreationDate: 2011-10-14
-Description: Draws progress bar on terminal window
-"""
-import os, sys, pdb, logging
 import time
+import sys
 
-class ProgressBar():
+class ProgressBar(object):
+
     def __init__(self, modname, showbar=True):
-        if not (sys.stderr.isatty() and sys.stdin.isatty()): 
-            self.showbar = False
-        else:
-            self.showbar = showbar
         self.modname = modname + " "
+        self.showbar = False
         self.lastPercentage = None
         self.screenWidth = 79
         self.barWidth = self.screenWidth - len(self.modname) - len(self._getTimeStr()) - 8
         self.start_time = time.time()
+        self.secondsElapsed = 0
         self.update(0.0)
-
+        if (sys.stderr.isatty() and sys.stdin.isatty()): 
+            self.showbar = showbar
+ 
     def update(self, progress, startPos=0, endPos=1):
         if self.showbar:
             prg = progress * (endPos - startPos) + startPos
@@ -62,3 +40,11 @@ class ProgressBar():
         else:
             return 'Time remaining: %s' % self._formatTime(secondsElapsed / prg - secondsElapsed)
 
+
+class SimpleProgressBar(ProgressBar):
+
+    def update(self, progress, startPos=0, endPos=1):
+        self.secondsElapsed = time.time() - self.start_time
+        if self.showbar:
+            prg = progress * (endPos - startPos) + startPos
+            print >> sys.stderr, '********* ' + self.modname + self._percentage(prg)
