@@ -47,4 +47,6 @@ class SimpleProgressBar(ProgressBar):
         self.secondsElapsed = time.time() - self.start_time
         if self.showbar:
             prg = progress * (endPos - startPos) + startPos
-            print >> sys.stderr, '********* ' + self.modname + self._percentage(prg)
+            print >> sys.stderr, ('********* ' + self.modname.strip() + ' ' +
+                                  self._percentage(prg).strip() +
+                                  ' complete.')
