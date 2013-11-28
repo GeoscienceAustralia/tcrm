@@ -59,7 +59,7 @@ gBoQEAA7
 """
 
 ON_POSIX = 'posix' in sys.builtin_module_names
-POLL_INTERVAL = 1000 # ms
+POLL_INTERVAL = 1000  # ms
 
 
 # tk or ttk?
@@ -182,7 +182,7 @@ class ObservableVariable(Observable):
         changed.
         """
         if self.noPendingNotification:
-            self.after_idle(self.doNotify) #FIXME
+            self.after_idle(self.doNotify)  # FIXME
             self.noPendingNotification = False
 
     def doNotify(self, *args):
@@ -233,7 +233,7 @@ class GriddedView(object):
     def grid(self, *args, **kwargs):
         column, row = kwargs['column'], kwargs['row']
         self.label.grid(column=column, row=row, sticky='W', padx=2)
-        self.control.grid(column=column+1, row=row, sticky='E', padx=0)
+        self.control.grid(column=column + 1, row=row, sticky='E', padx=0)
 
     def rowconfigure(self, *args, **kwargs):
         row = kwargs.pop('row')
@@ -358,7 +358,8 @@ class ObservableScale(Frame, ObservableVariable):
         self.value = Entry(self, textvariable=self.variable, **kwargs)
         self.value.grid(column=1, row=0, sticky='W', padx=2)
 
-        self.scale = Scale(self, from_=lower, to=upper, value=value, length=50)
+        self.scale = Scale(self, from_=lower, to=upper, value=value, 
+                           length=50)
         self.scale.grid(column=2, row=0, sticky='EW', padx=2)
         self.scale.config(variable=self.variable, command=self.format)
 
@@ -439,6 +440,7 @@ class GriddedCombobox(GriddedView, ObservableVariable):
         self.control = Combobox(parent, textvariable=self.variable, width=9,
                                 **kwargs)
 
+
 class GriddedEntry(GriddedView, ObservableVariable):
 
     def __init__(self, parent, **kwargs):
@@ -506,7 +508,7 @@ class MapView(Frame):
         figure = MatplotlibFigure(figsize=figSize)
         self.canvas = FigureCanvasTkAgg(figure, master=self)
 
-        self.axes = figure.add_axes([0,0,1,1],aspect='auto')
+        self.axes = figure.add_axes([0, 0, 1, 1], aspect='auto')
 
         self.basemap = Basemap(llcrnrlon=0, llcrnrlat=-80, urcrnrlon=360,
                                urcrnrlat=80, projection=projection,
@@ -520,6 +522,7 @@ class MapView(Frame):
         widget = self.canvas.get_tk_widget()
         widget.config(highlightthickness=0, relief=tk.GROOVE, borderwidth=1)
         widget.pack(fill='both', expand=False)
+
 
 class MapRegionSelector(MapView, ObservableVariable):
 
@@ -747,24 +750,24 @@ class CalibrationSettingsView(Frame):
 
         # Data
 
-        self.source = GriddedCombobox(self, name = 'Data Source')
+        self.source = GriddedCombobox(self, name='Data Source')
         self.source.grid(column=0, row=0, sticky='N')
 
-        self.start = GriddedEntry(self, name = 'Season Start Year')
+        self.start = GriddedEntry(self, name='Season Start Year')
         self.start.grid(column=0, row=1, sticky='N')
 
         # Stats
 
-        self.kdeKernel = GriddedCombobox(self, name = 'KDE Kernel')
+        self.kdeKernel = GriddedCombobox(self, name='KDE Kernel')
         self.kdeKernel.grid(column=0, row=2, sticky='N')
 
-        self.kde2DKernel = GriddedCombobox(self, name = 'KDE 2D Kernel')
+        self.kde2DKernel = GriddedCombobox(self, name='KDE 2D Kernel')
         self.kde2DKernel.grid(column=0, row=3, sticky='N')
 
-        self.kdeStep = GriddedEntry(self, name = 'KDE Step')
+        self.kdeStep = GriddedEntry(self, name='KDE Step')
         self.kdeStep.grid(column=0, row=4, sticky='N')
 
-        self.minSamples = GriddedEntry(self, name = 'Min Cell Samples')
+        self.minSamples = GriddedEntry(self, name='Min Cell Samples')
         self.minSamples.grid(column=0, row=5, sticky='N')
 
         self.gridSpace = DictEntry(self, keys=('x', 'y'),
@@ -775,7 +778,6 @@ class CalibrationSettingsView(Frame):
         self.gridInc = DictEntry(self, keys=('x', 'y'), name='Grid Increment',
                                  width=5, justify='center')
         self.gridInc.grid(column=0, columnspan=2, row=7, sticky='N')
-
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
@@ -797,9 +799,12 @@ class TrackSettingsView(Frame):
         self.gridInc = DictEntry(self, name='Grid Increment', keys=('x', 'y'),
                                  justify='center', width=5)
         self.nSims = GriddedEntry(self, name='Simulations', justify='center')
-        self.nYears = GriddedEntry(self, name='Years Per Sim', justify='center')
-        self.seasonSeed = GriddedEntry(self, name='Season Seed', justify='center')
-        self.trackSeed = GriddedEntry(self, name='Track Seed', justify='center')
+        self.nYears = GriddedEntry(
+            self, name='Years Per Sim', justify='center')
+        self.seasonSeed = GriddedEntry(
+            self, name='Season Seed', justify='center')
+        self.trackSeed = GriddedEntry(
+            self, name='Track Seed', justify='center')
 
         for i, control in enumerate([self.nSims, self.nYears, self.seasonSeed,
                                      self.trackSeed]):
@@ -826,22 +831,22 @@ class WindfieldSettingsView(Frame):
         Frame.__init__(self, parent)
         width = 10
 
-        self.margin = GriddedEntry(self, name = 'Margin')
+        self.margin = GriddedEntry(self, name='Margin')
         self.margin.grid(column=0, row=1, sticky='N')
 
-        self.resolution = GriddedEntry(self, name = 'Resolution')
+        self.resolution = GriddedEntry(self, name='Resolution')
         self.resolution.grid(column=0, row=1, sticky='N')
 
-        self.profileType = GriddedCombobox(self, name = 'Profile Type')
+        self.profileType = GriddedCombobox(self, name='Profile Type')
         self.profileType.grid(column=0, row=2, sticky='N')
 
-        self.windfieldType = GriddedCombobox(self, name = 'Windfield Type')
+        self.windfieldType = GriddedCombobox(self, name='Windfield Type')
         self.windfieldType.grid(column=0, row=3, sticky='N')
 
         self.modelParams = GriddedEntry(self, name='Model Parameters')
         self.modelParams.grid(column=0, row=4, sticky='N')
 
-        self.thetaMax = GriddedEntry(self, name = 'KDE Step')
+        self.thetaMax = GriddedEntry(self, name='KDE Step')
         self.thetaMax.grid(column=0, row=5, sticky='N')
 
         self.columnconfigure(0, weight=0)
@@ -858,10 +863,11 @@ class StageProgressView(Canvas):
 
     def __init__(self, parent):
         bgColor = '#%02x%02x%02x' % \
-          tuple([c / 255 for c in
-                 parent.winfo_rgb('SystemButtonFace')])
-        Canvas.__init__(self, parent, bg=bgColor, height=30, width=200, borderwidth=0,
-                        highlightthickness=0, selectborderwidth=0)
+            tuple([c / 255 for c in
+                   parent.winfo_rgb('SystemButtonFace')])
+        Canvas.__init__(self, parent, bg=bgColor, height=30, width=200, 
+                        borderwidth=0, highlightthickness=0, 
+                        selectborderwidth=0)
         self.bind("<Configure>", self.resize)
         self.stages = ['one', 'two', 'three']
         self.stageCompleted = [True, False, False]
@@ -873,15 +879,16 @@ class StageProgressView(Canvas):
 
     def render(self, w, h):
         n = len(self.stages)
-        xs = np.linspace(0, w-1-5, n+1)
+        xs = np.linspace(0, w - 1 - 5, n + 1)
         for stage, pts, color in zip(self.stages, pairwise(xs), self.colors):
             x0, x1 = pts
-            polygon = [x0+5, h/2, x0, 0, x1, 0, x1+5, h/2, x1, h-1, x0, h-1]
+            polygon = [x0 + 5, h / 2, x0, 0, x1, 0, x1 + 5, h / 2, x1, h - 1,
+                       x0, h - 1]
             self.create_polygon(polygon, fill=color)
-            self.create_text((x0+x1)/2, h/2, text=stage)
+            self.create_text((x0 + x1) / 2, h / 2, text=stage)
 
 
-class SubprocessOutputView(Frame,Observable):
+class SubprocessOutputView(Frame, Observable):
 
     def __init__(self, parent, **kwargs):
         Frame.__init__(self, parent)
@@ -1098,6 +1105,7 @@ class TropicalCycloneRiskModel(object):
             else:
                 break
 
+
 class Controller(tk.Tk):
 
     """
@@ -1143,7 +1151,7 @@ class Controller(tk.Tk):
             (view.wind.profileType, 'WindfieldInterface_profiletype'),
             (view.wind.windfieldType, 'WindfieldInterface_windfieldtype'),
             (view.wind.thetaMax, 'WindfieldInterface_thetamax'),
-            ]
+        ]
 
         def makeCallback(key):
             return lambda x: self.onControlChanged(x, key)
