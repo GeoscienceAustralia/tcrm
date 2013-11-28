@@ -39,7 +39,7 @@ goto StartMainpy
 echo.
 echo.
 echo ---------  Starting Hazard Simulation  ---------
-python -Wignore main.py %configfile%
+python -Wignore tcrm.py %configfile%
 echo ------------------------------------------------
 echo.
 echo TCRM has finished running.
