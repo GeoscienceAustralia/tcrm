@@ -2,7 +2,6 @@
 """
 TCRM User Interface
 """
-import matplotlib as mp
 import Tkinter as tk
 import numpy as np
 import subprocess
@@ -87,18 +86,24 @@ def pairwise(iterable):
 
 def colorGenerator(saturation=0.5):
     def hsvToRgb(h, s, v):
-        hi = int(h*6)
-        f = h*6 - hi
+        hi = int(h * 6)
+        f = h * 6 - hi
         p = v * (1 - s)
-        q = v * (1 - f*s)
+        q = v * (1 - f * s)
         t = v * (1 - (1 - f) * s)
-        if hi==0: r, g, b = v, t, p 
-        if hi==1: r, g, b = q, v, p 
-        if hi==2: r, g, b = p, v, t 
-        if hi==3: r, g, b = p, q, v 
-        if hi==4: r, g, b = t, p, v 
-        if hi==5: r, g, b = v, p, q 
-        return (int(r*256), int(g*256), int(b*256))
+        if hi == 0:
+            r, g, b = v, t, p
+        if hi == 1:
+            r, g, b = q, v, p
+        if hi == 2:
+            r, g, b = p, v, t
+        if hi == 3:
+            r, g, b = p, q, v
+        if hi == 4:
+            r, g, b = t, p, v
+        if hi == 5:
+            r, g, b = v, p, q
+        return (int(r * 256), int(g * 256), int(b * 256))
 
     golden = 0.618033988749895
     h = 0.1
@@ -109,6 +114,7 @@ def colorGenerator(saturation=0.5):
         rgb = hsvToRgb(h, saturation, 0.90)
         txt = '#%02x%02x%02x' % rgb
         yield txt
+
 
 class Observable(object):
 
@@ -382,7 +388,7 @@ class ObservableScale(Frame, ObservableVariable):
         ObservableVariable.__init__(self, value)
 
         self.label = Label(self, text=name + ':')
-        self.label.grid(column=0, row=0, sticky='EW',  padx=2)
+        self.label.grid(column=0, row=0, sticky='EW', padx=2)
 
         self.value = Entry(self, textvariable=self.variable, **kwargs)
         self.value.grid(column=1, row=0, sticky='W', padx=2)
@@ -506,7 +512,7 @@ class ObservableCheckbutton(Frame, ObservableVariable):
 
         self.button = Checkbutton(self, **kwargs)
         self.button.grid(column=1, row=0, sticky='E', padx=2)
-        if not (kwargs.has_key('offvalue') and kwargs.has_key('onvalue')):
+        if not ('offvalue' in kwargs and 'onvalue' in kwargs):
             self.button.config(offvalue=False, onvalue=True)
         self.button.config(variable=self.variable)
 
@@ -528,9 +534,6 @@ class MapView(Frame):
         coastlineWidth = kwargs.pop('coastlineWidth', 0.3)
         projection = kwargs.pop('projection', 'mill')
         figSize = kwargs.pop('figSize', (1.3, 1))
-        bgColor = '#%02x%02x%02x' % \
-                  tuple([c / 255 for c in
-                         parent.winfo_rgb('SystemButtonFace')])
 
         Frame.__init__(self, parent)
         figure = MatplotlibFigure(figsize=figSize)
@@ -862,7 +865,6 @@ class WindfieldSettingsView(Frame):
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
-        width = 10
 
         self.margin = GriddedEntry(self, name='Margin', justify='center')
         self.margin.grid(column=0, row=1, sticky='N')
@@ -933,6 +935,7 @@ class StageProgressView(Canvas, ObservableVariable):
             self.create_text((x0 + x1) / 2 + 2.5, h / 2, text=stage,
                              font=('Helvetica', 10))
         self.addtag_all('all')
+
 
 class SubprocessOutputView(Frame, Observable):
 
@@ -1279,6 +1282,7 @@ class Controller(tk.Tk):
     def toggleRun(self):
         if self.running:
             self.tcrm.quit()
+
             def flipStatus():
                 self.view.run.config(text='Start')
                 self.view.output.emit('TCRM STOPPED', ('important'))
