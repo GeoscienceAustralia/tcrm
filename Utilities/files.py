@@ -208,10 +208,11 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
         # Assume that the second handler is a StreamHandler for verbose
         # logging. This ensures we do not create multiple StreamHandler
         # instances that will *each* print to STDOUT
-        if verbose and sys.stdout.isatty():
+        #if verbose and sys.stdout.isatty():
+        if verbose:
             # If set to true, all logging calls will also be printed to the
             # console (i.e. STDOUT)
-            console = logging.StreamHandler()
+            console = logging.StreamHandler(sys.stdout)
             console.setLevel(getattr(logging, logLevel))
             formatter = logging.Formatter('%(asctime)s: %(message)s',
                                           '%H:%M:%S', )

@@ -908,7 +908,7 @@ class SubprocessOutputView(Frame, Observable):
 
         self.console = Text(self, **kwargs)
         self.console.config(state=tk.DISABLED, wrap='none')
-        self.console.config(font=('Helvetica', 10))
+        self.console.config(font=('Helvetica', 11))
         self.console.config(yscrollcommand=self.onScroll)
 
         self.scroll = Scrollbar(self, orient=tk.VERTICAL)
@@ -1004,7 +1004,7 @@ class MainView(Frame):
 class TropicalCycloneRiskModel(object):
 
     def __init__(self):
-        self.cmd = ['./test.py']
+        self.cmd = [sys.executable, '-u', 'tcrm.py', 'default.ini']
         self.output = Queue()
         self.newFiles = Queue()
         self.process = None
@@ -1017,8 +1017,9 @@ class TropicalCycloneRiskModel(object):
         """
         if self.process is None:
             # create the subprocess that runs TCRM and redirect stdout
-            self.process = subprocess.Popen(self.cmd,
+            self.process = subprocess.Popen(' '.join(self.cmd),
                                             stdout=subprocess.PIPE,
+                                            stderr=subprocess.PIPE,
                                             shell=True,
                                             bufsize=1)
             # monitor the process by a thread
@@ -1229,7 +1230,7 @@ class Controller(tk.Tk):
     def onRun(self):
         print('onRun')
         self.tcrm.saveFlatConfig(self.settings)
-        # self.tcrm.run()
+        self.tcrm.run()
 
     def onQuit(self):
         self.tcrm.quit()
