@@ -19,6 +19,7 @@ from matplotlib.figure import Figure as MatplotlibFigure
 from matplotlib.widgets import RectangleSelector
 from matplotlib.patches import Rectangle
 from mpl_toolkits.basemap import Basemap
+from collections import OrderedDict
 from os.path import join as pjoin
 from Queue import Queue, Empty
 from contextlib import closing
@@ -892,38 +893,46 @@ class WindfieldSettingsView(Frame):
             self.rowconfigure(i, weight=0)
 
 
-class StageProgressView(Canvas):
+class StageProgressView(Canvas, ObservableVariable):
 
     """
     Stage progress view.
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, stages):
         bgColor = '#%02x%02x%02x' % \
             tuple([c / 255 for c in
                    parent.winfo_rgb('SystemButtonFace')])
-        Canvas.__init__(self, parent, bg=bgColor, height=30, width=200,
+
+        Canvas.__init__(self, parent, bg=bgColor, height=30,
                         borderwidth=0, highlightthickness=0,
                         selectborderwidth=0)
+        ObservableVariable.__init__(self, value='')
+
+        self.stages = OrderedDict()
+        self.colors = []
+        for stage, color in zip(stages, colorGenerator()):
+            self.stages[stage] = ObservableVariable(False)
+            self.colors.append(color)
+
         self.bind("<Configure>", self.resize)
-        self.stages = ['one', 'two', 'three']
-        self.stageCompleted = [True, False, False]
-        self.colors = colorGenerator()
 
     def resize(self, event):
-        w, h = event.width, event.height
-        self.render(w, h)
+        self.render(event.width, event.height)
 
     def render(self, w, h):
+        self.delete('all')
         n = len(self.stages)
-        xs = np.linspace(0, w - 1 - 5, n + 1)
-        for stage, pts, color in zip(self.stages, pairwise(xs), self.colors):
+        xs = np.linspace(5, w - 1 - 10, n + 1)
+        stages = self.stages.keys()
+        for stage, pts, color in zip(stages, pairwise(xs), self.colors):
             x0, x1 = pts
-            polygon = [x0 + 5, h / 2, x0, 0, x1, 0, x1 + 5, h / 2, x1, h - 1,
-                       x0, h - 1]
-            self.create_polygon(polygon, fill=color)
-            self.create_text((x0 + x1) / 2, h / 2, text=stage)
-
+            poly = [x0 + 5, h / 2, x0, 0, x1, 0, x1 + 5, h / 2, x1, h - 1, x0,
+                    h - 1]
+            self.create_polygon(poly, fill=color)
+            self.create_text((x0 + x1) / 2 + 2.5, h / 2, text=stage,
+                             font=('Helvetica', 10))
+        self.addtag_all('all')
 
 class SubprocessOutputView(Frame, Observable):
 
@@ -1005,8 +1014,9 @@ class MainView(Frame):
         notebook.add(self.track, text='Tracks')
         notebook.add(self.wind, text='Windfields')
 
-        self.stage = StageProgressView(frame)
-        self.stage.grid(column=0, row=2, sticky='N', padx=2, pady=2)
+        self.stage = StageProgressView(frame,
+                                       ['Calibration', 'Tracks', 'Windfields'])
+        self.stage.grid(column=0, row=2, sticky='NWE', padx=2, pady=2)
 
         self.run = Button(frame, text='Start')
         self.run.grid(column=0, row=3, sticky='N', padx=2, pady=2)
@@ -1014,7 +1024,7 @@ class MainView(Frame):
         frame.columnconfigure(0, weight=1)
         frame.rowconfigure(0, weight=0)
         frame.rowconfigure(1, weight=0)
-        frame.rowconfigure(2, weight=0)
+        frame.rowconfigure(2, weight=1)
         frame.rowconfigure(3, weight=0)
 
         # Right
