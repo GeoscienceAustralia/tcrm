@@ -358,7 +358,7 @@ class ObservableScale(Frame, ObservableVariable):
         self.value = Entry(self, textvariable=self.variable, **kwargs)
         self.value.grid(column=1, row=0, sticky='W', padx=2)
 
-        self.scale = Scale(self, from_=lower, to=upper, value=value, 
+        self.scale = Scale(self, from_=lower, to=upper, value=value,
                            length=50)
         self.scale.grid(column=2, row=0, sticky='EW', padx=2)
         self.scale.config(variable=self.variable, command=self.format)
@@ -424,7 +424,6 @@ class ObservableCombobox(Frame, ObservableVariable):
         self.rowconfigure(0, weight=0)
 
     def grid(self, *args, **kwargs):
-        print('grid', kwargs['column'], kwargs['row'])
         Frame.grid(self, *args, **kwargs)
 
 
@@ -499,7 +498,7 @@ class MapView(Frame):
         continentColor = kwargs.pop('continentColor', '0.8')
         coastlineWidth = kwargs.pop('coastlineWidth', 0.3)
         projection = kwargs.pop('projection', 'mill')
-        figSize = kwargs.pop('figSize', (1.5, 1))
+        figSize = kwargs.pop('figSize', (1.3, 1))
         bgColor = '#%02x%02x%02x' % \
                   tuple([c / 255 for c in
                          parent.winfo_rgb('SystemButtonFace')])
@@ -750,24 +749,29 @@ class CalibrationSettingsView(Frame):
 
         # Data
 
-        self.source = GriddedCombobox(self, name='Data Source')
+        self.source = GriddedCombobox(self, name='Data Source',
+                                      justify='center')
         self.source.grid(column=0, row=0, sticky='N')
 
-        self.start = GriddedEntry(self, name='Season Start Year')
+        self.start = GriddedEntry(self, name='Season Start Year',
+                                  justify='center')
         self.start.grid(column=0, row=1, sticky='N')
 
         # Stats
 
-        self.kdeKernel = GriddedCombobox(self, name='KDE Kernel')
+        self.kdeKernel = GriddedCombobox(self, name='KDE Kernel',
+                                         justify='center')
         self.kdeKernel.grid(column=0, row=2, sticky='N')
 
-        self.kde2DKernel = GriddedCombobox(self, name='KDE 2D Kernel')
+        self.kde2DKernel = GriddedCombobox(self, name='KDE 2D Kernel',
+                                           justify='center')
         self.kde2DKernel.grid(column=0, row=3, sticky='N')
 
-        self.kdeStep = GriddedEntry(self, name='KDE Step')
+        self.kdeStep = GriddedEntry(self, name='KDE Step', justify='center')
         self.kdeStep.grid(column=0, row=4, sticky='N')
 
-        self.minSamples = GriddedEntry(self, name='Min Cell Samples')
+        self.minSamples = GriddedEntry(self, name='Min Cell Samples',
+                                       justify='center')
         self.minSamples.grid(column=0, row=5, sticky='N')
 
         self.gridSpace = DictEntry(self, keys=('x', 'y'),
@@ -799,12 +803,12 @@ class TrackSettingsView(Frame):
         self.gridInc = DictEntry(self, name='Grid Increment', keys=('x', 'y'),
                                  justify='center', width=5)
         self.nSims = GriddedEntry(self, name='Simulations', justify='center')
-        self.nYears = GriddedEntry(
-            self, name='Years Per Sim', justify='center')
-        self.seasonSeed = GriddedEntry(
-            self, name='Season Seed', justify='center')
-        self.trackSeed = GriddedEntry(
-            self, name='Track Seed', justify='center')
+        self.nYears = GriddedEntry(self, name='Years Per Sim',
+                                   justify='center')
+        self.seasonSeed = GriddedEntry(self, name='Season Seed',
+                                       justify='center')
+        self.trackSeed = GriddedEntry(self, name='Track Seed',
+                                      justify='center')
 
         for i, control in enumerate([self.nSims, self.nYears, self.seasonSeed,
                                      self.trackSeed]):
@@ -831,22 +835,27 @@ class WindfieldSettingsView(Frame):
         Frame.__init__(self, parent)
         width = 10
 
-        self.margin = GriddedEntry(self, name='Margin')
+        self.margin = GriddedEntry(self, name='Margin', justify='center')
         self.margin.grid(column=0, row=1, sticky='N')
 
-        self.resolution = GriddedEntry(self, name='Resolution')
+        self.resolution = GriddedEntry(self, name='Resolution',
+                                       justify='center')
         self.resolution.grid(column=0, row=1, sticky='N')
 
-        self.profileType = GriddedCombobox(self, name='Profile Type')
+        self.profileType = GriddedCombobox(self, name='Profile Type',
+                                           justify='center')
         self.profileType.grid(column=0, row=2, sticky='N')
 
-        self.windfieldType = GriddedCombobox(self, name='Windfield Type')
+        self.windfieldType = GriddedCombobox(self, name='Windfield Type',
+                                             justify='center')
         self.windfieldType.grid(column=0, row=3, sticky='N')
 
-        self.modelParams = GriddedEntry(self, name='Model Parameters')
+        self.modelParams = GriddedEntry(self, name='Model Parameters',
+                                        justify='center')
         self.modelParams.grid(column=0, row=4, sticky='N')
 
-        self.thetaMax = GriddedEntry(self, name='KDE Step')
+        self.thetaMax = GriddedEntry(self, name='Max Theta',
+                                     justify='center')
         self.thetaMax.grid(column=0, row=5, sticky='N')
 
         self.columnconfigure(0, weight=0)
@@ -865,8 +874,8 @@ class StageProgressView(Canvas):
         bgColor = '#%02x%02x%02x' % \
             tuple([c / 255 for c in
                    parent.winfo_rgb('SystemButtonFace')])
-        Canvas.__init__(self, parent, bg=bgColor, height=30, width=200, 
-                        borderwidth=0, highlightthickness=0, 
+        Canvas.__init__(self, parent, bg=bgColor, height=30, width=200,
+                        borderwidth=0, highlightthickness=0,
                         selectborderwidth=0)
         self.bind("<Configure>", self.resize)
         self.stages = ['one', 'two', 'three']
