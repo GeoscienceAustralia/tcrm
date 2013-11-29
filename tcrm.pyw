@@ -84,6 +84,31 @@ def pairwise(iterable):
     return izip(a, b)
 
 
+def colorGenerator(saturation=0.5):
+    def hsvToRgb(h, s, v):
+        hi = int(h*6)
+        f = h*6 - hi
+        p = v * (1 - s)
+        q = v * (1 - f*s)
+        t = v * (1 - (1 - f) * s)
+        if hi==0: r, g, b = v, t, p 
+        if hi==1: r, g, b = q, v, p 
+        if hi==2: r, g, b = p, v, t 
+        if hi==3: r, g, b = p, q, v 
+        if hi==4: r, g, b = t, p, v 
+        if hi==5: r, g, b = v, p, q 
+        return (int(r*256), int(g*256), int(b*256))
+
+    golden = 0.618033988749895
+    h = 0.1
+
+    while True:
+        h += golden
+        h %= 1
+        rgb = hsvToRgb(h, saturation, 0.90)
+        txt = '#%02x%02x%02x' % rgb
+        yield txt
+
 class Observable(object):
 
     """
@@ -883,7 +908,7 @@ class StageProgressView(Canvas):
         self.bind("<Configure>", self.resize)
         self.stages = ['one', 'two', 'three']
         self.stageCompleted = [True, False, False]
-        self.colors = ['#fb0', '#f50', '#05f']
+        self.colors = colorGenerator()
 
     def resize(self, event):
         w, h = event.width, event.height
