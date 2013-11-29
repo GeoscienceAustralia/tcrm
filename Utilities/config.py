@@ -1,42 +1,52 @@
-import os, io
+import os
+import io
 from ConfigParser import RawConfigParser
 
-def parseGrid(txt):
-    return eval('[' + txt + ']')
 
-def parseColumns(txt):
+def parseBool(txt):
+    return txt == 'True'
+
+def parseList(txt):
     return txt.split(',')
 
+def formatList(lst):
+    return ','.join(map(str, lst))
+
+FORMATERS = {
+    'Input_mslpgrid': formatList,
+    'TCRM_columns': formatList
+}
+
 PARSERS = {
-    'Actions_dataprocess': bool,
-    'Actions_executehazard': bool,
-    'Actions_executestat': bool,
-    'Actions_executetrackgenerator': bool,
-    'Actions_executewindfield': bool,
-    'Actions_plotdata': bool,
-    'Actions_plothazard': bool,
-    'Actions_downloaddata': bool,
+    'Actions_dataprocess': parseBool,
+    'Actions_executehazard': parseBool,
+    'Actions_executestat': parseBool,
+    'Actions_executetrackgenerator': parseBool,
+    'Actions_executewindfield': parseBool,
+    'Actions_plotdata': parseBool,
+    'Actions_plothazard': parseBool,
+    'Actions_downloaddata': parseBool,
     'DataProcess_inputfile': str,
     'DataProcess_source': str,
     'DataProcess_startseason': int,
-    'HazardInterface_calculateci': bool,
+    'HazardInterface_calculateci': parseBool,
     'HazardInterface_inputpath': str,
     'HazardInterface_minimumrecords': int,
     'HazardInterface_numsim': int,
     'HazardInterface_plotspeedunits': str,
     'HazardInterface_resolution': float,
-    'HazardInterface_years': tuple,
+    'HazardInterface_years': parseList,
     'HazardInterface_yearspersimulation': int,
     'Input_landmask': str,
-    'Input_mslpgrid': parseGrid,
+    'Input_mslpgrid': parseList,
     'Logging_logfile': str,
     'Logging_loglevel': str,
-    'Logging_progressbar': bool,
-    'Logging_verbose': bool,
+    'Logging_progressbar': parseBool,
+    'Logging_verbose': parseBool,
     'Output_path': str,
     'Process_datfile': str,
-    'Process_excludepastprocessed': bool,
-    'RMW_getrmwdistfrominputdata': bool,
+    'Process_excludepastprocessed': parseBool,
+    'RMW_getrmwdistfrominputdata': parseBool,
     'RMW_mean': float,
     'RMW_sigma': float,
     'Region_gridlimit': eval,
@@ -48,7 +58,7 @@ PARSERS = {
     'StatInterface_kdestep': float,
     'StatInterface_kdetype': str,
     'StatInterface_minsamplescell': int,
-    'TCRM_columns': parseColumns,
+    'TCRM_columns': parseList,
     'TCRM_fielddelimiter': str,
     'TCRM_numberofheadinglines': int,
     'TCRM_pressureunits': str,
@@ -148,16 +158,20 @@ DateFormat=%Y-%m-%d %H:%M:%S
 SpeedUnits=kph
 """
 
+
 def singleton(cls):
     instances = {}
+
     def getinstance():
         if cls not in instances:
             instances[cls] = cls()
         return instances[cls]
     return getinstance
 
+
 @singleton
 class ConfigParser(RawConfigParser):
+
     """
     A configuration file parser that extends
     :class:`ConfigParser.RawConfigParser` with a few helper functions
@@ -176,8 +190,10 @@ class ConfigParser(RawConfigParser):
         return self._get(section, eval, option)
 
     def read(self, filename):
-        if filename is None: return
-        if self.read_once: return
+        if filename is None:
+            return
+        if self.read_once:
+            return
         RawConfigParser.read(self, filename)
         self.read_once = True
 
@@ -191,6 +207,14 @@ class ConfigParser(RawConfigParser):
             except KeyError:
                 parsed[name] = value
         return parsed.items()
+
+    def set(self, section, option, value):
+        try:
+            formatter = FORMATERS['%s_%s' % (section, option)]
+            newvalue = formatter(value)
+        except KeyError:
+            newvalue = value
+        RawConfigParser.set(self, section, option, newvalue)
 
 
 def cnfGetIniValue(configFile, section, option, default=None):

@@ -154,6 +154,9 @@ class ObservableDict(Observable):
     def items(self):
         return self.theDict.items()
 
+    def keys(self):
+        return self.theDict.keys()
+
 
 class ObservableVariable(Observable):
 
@@ -1097,6 +1100,16 @@ class TropicalCycloneRiskModel(object):
                 break
         return additions
 
+    def saveFlatConfig(self, flatConfig, destFile='default.ini'):
+        with open(destFile, 'w') as dest:
+            config = ConfigParser()
+
+            for key, value in flatConfig.items():
+                section, option = key.split('_')
+                config.set(section, option, value)
+
+            config.write(dest)
+
     def quit(self):
         """
         Nicely kill the TCRM process.
@@ -1191,9 +1204,6 @@ class Controller(tk.Tk):
             for name, value in config.items(section):
                 flatConfig['%s_%s' % (section, name)] = value
 
-        # from pprint import pprint
-        # pprint(flatConfig)
-
         self.settings = ObservableDict(flatConfig)
 
     def onSettingsChanged(self, settings):
@@ -1218,7 +1228,8 @@ class Controller(tk.Tk):
 
     def onRun(self):
         print('onRun')
-        self.tcrm.run()
+        self.tcrm.saveFlatConfig(self.settings)
+        # self.tcrm.run()
 
     def onQuit(self):
         self.tcrm.quit()
