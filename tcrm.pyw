@@ -911,6 +911,8 @@ class SubprocessOutputView(Frame, Observable):
         self.console.config(font=('Helvetica', 11))
         self.console.config(yscrollcommand=self.onScroll)
 
+        self.console.tag_config('important', background='yellow')
+
         self.scroll = Scrollbar(self, orient=tk.VERTICAL)
         self.scroll.config(command=self.console.yview)
 
@@ -931,12 +933,18 @@ class SubprocessOutputView(Frame, Observable):
             self.lockScroll = False
         self.scroll.set(*args)
 
-    def emit(self, message):
+    def emit(self, message, *tags):
         self.console.config(state=tk.NORMAL)
-        self.console.insert(tk.END, message)
+        self.console.insert(tk.END, message, *tags)
         self.console.config(state=tk.DISABLED)
         if self.lockScroll:
             self.console.see(tk.END)
+
+    def clear(self):
+        self.console.config(state=tk.NORMAL)
+        self.console.delete(1.0, tk.END)
+        self.console.config(state=tk.DISABLED)
+        self.console.see(tk.END)
 
     def poll(self):
         self.notify(self)
@@ -975,7 +983,7 @@ class MainView(Frame):
         self.stage = StageProgressView(frame)
         self.stage.grid(column=0, row=2, sticky='N', padx=2, pady=2)
 
-        self.run = Button(frame, text='Run')
+        self.run = Button(frame, text='Start')
         self.run.grid(column=0, row=3, sticky='N', padx=2, pady=2)
 
         frame.columnconfigure(0, weight=1)
@@ -1128,6 +1136,10 @@ class TropicalCycloneRiskModel(object):
             else:
                 break
 
+        self.monitorThread.shutdown = True
+        self.monitorThread.join()
+        self.process = None
+
 
 class Controller(tk.Tk):
 
@@ -1143,10 +1155,12 @@ class Controller(tk.Tk):
 
         self.protocol('WM_DELETE_WINDOW', self.onQuit)
 
+        self.running = False
+
         view = MainView(self)
         tcrm = TropicalCycloneRiskModel()
 
-        view.run.config(command=self.onRun)
+        view.run.config(command=self.toggleRun)
         view.output.addCallback(self.onWantOutput)
 
         self.loadSettings('solomon.ini')
@@ -1227,10 +1241,20 @@ class Controller(tk.Tk):
         for f in added:
             control.emit('new file: %s' % f)
 
-    def onRun(self):
-        print('onRun')
-        self.tcrm.saveFlatConfig(self.settings)
-        self.tcrm.run()
+    def toggleRun(self):
+        if self.running:
+            self.tcrm.quit()
+            def flipStatus():
+                self.view.run.config(text='Start')
+                self.view.output.emit('TCRM STOPPED', ('important'))
+                self.running = False
+            self.after(3, flipStatus)
+        else:
+            self.view.output.clear()
+            self.tcrm.saveFlatConfig(self.settings)
+            self.tcrm.run()
+            self.view.run.config(text='Stop')
+            self.running = True
 
     def onQuit(self):
         self.tcrm.quit()
