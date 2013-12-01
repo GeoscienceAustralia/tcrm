@@ -43,7 +43,7 @@ if 'py2exe' in sys.argv:
     }
 
     py2exe = {
-        'console': ['main.py'],
+        'console': ['tcrm.py'],
         'windows': ['tcrm.pyw'],
     }
 
