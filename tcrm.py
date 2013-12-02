@@ -491,6 +491,10 @@ def startup():
     if args.verbose:
         verbose = True
 
+    if not verbose:
+        logLevel = 'ERROR'
+        verbose = True
+
     attemptParallel()
 
     if pp.size() > 1 and pp.rank() > 0:
