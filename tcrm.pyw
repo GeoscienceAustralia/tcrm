@@ -1360,16 +1360,17 @@ class Controller(tk.Tk):
         self.settings[key] = value
 
     def onWantOutput(self, control):
-        output = self.tcrm.getOutput()
-        control.emit(output)
-        added = self.tcrm.getFileAdditions()
-        for f in added:
-            control.emit('new file: %s' % f)
+        if self.running:
+            output = self.tcrm.getOutput()
+            control.emit(output)
+            added = self.tcrm.getFileAdditions()
+            for f in added:
+                control.emit('new file: %s' % f)
 
     def onCheckAlive(self, control):
-        if (not self.tcrm.isAlive()) and self.running:
-            self.view.run.config(text='Start')
+        if self.running and (not self.tcrm.isAlive()):
             self.running = False
+            self.view.run.config(text='Start')
 
     def doFlushAndReset(self):
         self.view.run.config(text='Start')
