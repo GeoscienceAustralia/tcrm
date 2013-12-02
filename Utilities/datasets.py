@@ -1,4 +1,4 @@
-from urllib2 import urlopen
+from urllib2 import urlopen, URLError
 from cStringIO import StringIO
 from Utilities.config import ConfigParser
 from os.path import isfile, splitext, join as pjoin
@@ -24,33 +24,37 @@ class DataSet(object):
         if self.isDownloaded():
             return
 
-        urlfile = urlopen(self.url, timeout=3)
-        meta = urlfile.info()
-        data = StringIO()
+        try:
+            urlfile = urlopen(self.url, timeout=3)
+            meta = urlfile.info()
+            data = StringIO()
 
-        size = int(meta.getheaders('Content-Length')[0])
-        done = 0
-        while True:
-            buf = urlfile.read(8192)
-            if not buf:
-                break
-            data.write(buf)
-            done += len(buf)
-            if callback is not None:
-                callback(self.filename, done, size)
+            size = int(meta.getheaders('Content-Length')[0])
+            done = 0
+            while True:
+                buf = urlfile.read(8192)
+                if not buf:
+                    break
+                data.write(buf)
+                done += len(buf)
+                if callback is not None:
+                    callback(self.filename, done, size)
 
-        data.seek(0)
+            data.seek(0)
 
-        if self.compression == 'gz':
-            from gzip import GzipFile
-            data = GzipFile(fileobj=data)
+            if self.compression == 'gz':
+                from gzip import GzipFile
+                data = GzipFile(fileobj=data)
 
-        if self.compression == 'zip':
-            from zipfile import ZipFile
-            data = ZipFile(data)
+            if self.compression == 'zip':
+                from zipfile import ZipFile
+                data = ZipFile(data)
 
-        with open(self.filename, 'wb') as outfile:
-            outfile.write(data.read())
+            with open(self.filename, 'wb') as outfile:
+                outfile.write(data.read())
+
+        except URLError:
+            raise IOError('Cannot download file')
 
     def isDownloaded(self):
         return isfile(self.filename)

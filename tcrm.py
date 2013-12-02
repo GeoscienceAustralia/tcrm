@@ -114,7 +114,7 @@ def doDataDownload(configFile):
 
                 dataset.download(status)
                 log.info('Download successful')
-            except URLError:
+            except IOError:
                 log.error('Unable to download %s. Maybe a proxy problem?',
                           dataset.filename)
 
