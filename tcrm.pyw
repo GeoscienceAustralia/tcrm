@@ -19,7 +19,7 @@ from matplotlib.widgets import RectangleSelector
 from matplotlib.patches import Rectangle
 from mpl_toolkits.basemap import Basemap
 from collections import OrderedDict
-from os.path import join as pjoin
+from os.path import join as pjoin, isdir
 from Queue import Queue, Empty
 from contextlib import closing
 from itertools import tee, izip
@@ -1051,23 +1051,25 @@ class TropicalCycloneRiskModel(object):
 
     def __init__(self):
         self.cmd = [sys.executable, '-u', 'tcrm.py', 'default.ini']
+        self.running = False
         self.output = Queue()
         self.newFiles = Queue()
         self.process = None
         self.monitorThread = None
-        self.outputDirectories = ['.', 'output']
+        self.outputDirectories = []
 
     def run(self):
         """
         Start TCRM.
         """
-        if self.process is None:
+        if not self.running:
             # create the subprocess that runs TCRM and redirect stdout
             self.process = subprocess.Popen(' '.join(self.cmd),
                                             stdout=subprocess.PIPE,
                                             stderr=subprocess.PIPE,
                                             shell=True,
                                             bufsize=1)
+            
             # monitor the process by a thread
             self.monitorThread = threading.Thread(target=self.monitor)
             self.monitorThread.daemon = True
@@ -1109,8 +1111,9 @@ class TropicalCycloneRiskModel(object):
         def files():
             lst = []
             for directory in self.outputDirectories:
-                fns = os.listdir(directory)
-                lst.extend([pjoin(directory, fn) for fn in fns])
+                if isdir(directory):
+                    fns = os.listdir(directory)
+                    lst.extend([pjoin(directory, fn) for fn in fns])
             return lst
 
         prev = files()
@@ -1161,8 +1164,8 @@ class TropicalCycloneRiskModel(object):
         """
         Nicely kill the TCRM process.
         """
-        if self.process is None:
-            return True
+        if not self.running:
+            return
 
         self.process.terminate()
 
@@ -1177,6 +1180,7 @@ class TropicalCycloneRiskModel(object):
         self.monitorThread.shutdown = True
         self.monitorThread.join()
         self.process = None
+        self.running = False
 
 
 class Controller(tk.Tk):
@@ -1251,6 +1255,9 @@ class Controller(tk.Tk):
         config = ConfigParser()
         if configFile:
             config.read(configFile)
+
+        outputPath = config.get('Output', 'Path')
+        self.tcrm.outputDirectories.append(outputPath)
 
         flatConfig = {}
         for section in config.sections():
