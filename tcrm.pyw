@@ -1110,7 +1110,7 @@ class MainView(Frame):
         # Right
 
 
-        self.view = MapRegionGrid(rightPane, figSize=(7, 5),
+        self.view = MapRegionGrid(paned, figSize=(7, 5),
                                   continentColor='#cdcbc1',
                                   coastlineWidth=0.8)
         paned.add(self.view)
