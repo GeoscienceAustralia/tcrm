@@ -1078,7 +1078,7 @@ class MainView(Frame):
         frame = Frame(paned)
         paned.add(frame)
 
-        self.region = MapRegionSelector(frame, figSize=(2, 1.3))
+        self.region = MapRegionSelector(frame, figSize=(1.3, 1.0))
         self.region.grid(column=0, row=0, padx=2, pady=2, sticky='NEW')
 
         notebook = Notebook(frame)
@@ -1104,7 +1104,7 @@ class MainView(Frame):
         frame.columnconfigure(0, weight=1)
         frame.rowconfigure(0, weight=0)
         frame.rowconfigure(1, weight=0)
-        frame.rowconfigure(2, weight=1)
+        frame.rowconfigure(2, weight=0)
         frame.rowconfigure(3, weight=0)
 
         # Right
