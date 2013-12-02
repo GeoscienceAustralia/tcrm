@@ -1367,8 +1367,9 @@ class Controller(tk.Tk):
             control.emit('new file: %s' % f)
 
     def onCheckAlive(self, control):
-        if not self.tcrm.isAlive() and self.running:
-            self.after(1, self.doFlushAndReset)
+        if (not self.tcrm.isAlive()) and self.running:
+            self.view.run.config(text='Start')
+            self.running = False
 
     def doFlushAndReset(self):
         self.view.run.config(text='Start')
