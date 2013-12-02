@@ -1520,7 +1520,7 @@ class Simulation(object):
         self.outfile = outfile
 
 
-def run(configFile):
+def run(configFile, callback=None):
     """
     Run the tropical cyclone track generation.
 
@@ -1662,6 +1662,8 @@ def run(configFile):
         log.debug('Simulating tropical cyclone tracks:' +
                   ' %3.0f percent complete' % (sim.index / float(N)
                                                * 100.))
+        if callback is not None:
+            callback(sim.index, N)
 
         if sim.seed:
             PRNG.seed(sim.seed)

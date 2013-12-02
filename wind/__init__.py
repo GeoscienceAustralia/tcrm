@@ -628,7 +628,7 @@ class WindfieldGenerator(object):
                 i += 1
 
                 if progressCallback:
-                    progressCallback((track.trackfile, dumpfile))
+                    progressCallback(i)
 
     def _saveGustToFile(self, trackfile, result, filename):
         """
@@ -864,7 +864,7 @@ def attemptParallel():
         pp = DummyPypar()
 
 
-def run(configFile):
+def run(configFile, callback=None):
     """
     Run the wind field calculations.
     """
@@ -927,6 +927,9 @@ def run(configFile):
     trackfiles = [pjoin(trackPath, f) for f in files if f.startswith('tracks')]
     nfiles = len(trackfiles)
 
+    def progress(i):
+        callback(i, nfiles)
+
     msg = 'Processing %d track files in %s' % (nfiles, trackPath)
     log.info(msg)
 
@@ -934,7 +937,8 @@ def run(configFile):
 
     pp.barrier()
 
-    wfg.dumpGustsFromTrackfiles(trackfiles, windfieldPath, windfieldFormat)
+    wfg.dumpGustsFromTrackfiles(trackfiles, windfieldPath, windfieldFormat,
+                                progress)
 
     pp.barrier()
 

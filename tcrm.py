@@ -105,7 +105,7 @@ def doDataDownload(configFile):
             log.info('Input file %s is not available', dataset.filename)
             log.info('Attempting to download %s', dataset.filename)
 
-            pbar = ProgressBar('Downloading file %s' % dataset.filename,
+            pbar = ProgressBar('Downloading file %s: ' % dataset.filename,
                                showProgressBar)
 
             def status(fn, done, size):
@@ -153,9 +153,20 @@ def doTrackGeneration(configFile):
 
     log.info('Starting track generation')
 
-    import TrackGenerator
-    TrackGenerator.run(configFile)
+    config = ConfigParser()
+    config.read(configFile)
 
+    showProgressBar = config.get('Logging', 'ProgressBar')
+
+    pbar = ProgressBar('Simulating cyclone tracks: ', showProgressBar)
+
+    def status(done, total):
+        pbar.update(float(done)/total)
+
+    import TrackGenerator
+    TrackGenerator.run(configFile, status)
+
+    pbar.update(1.0)
     log.info('Completed track generation')
 
 
@@ -168,9 +179,20 @@ def doWindfieldCalculations(configFile):
 
     log.info('Starting wind field calculations')
 
-    import wind
-    wind.run(configFile)
+    config = ConfigParser()
+    config.read(configFile)
 
+    showProgressBar = config.get('Logging', 'ProgressBar')
+
+    pbar = ProgressBar('Calculating wind fields: ', showProgressBar)
+
+    def status(done, total):
+        pbar.update(float(done)/total)
+
+    import wind
+    wind.run(configFile, status)
+
+    pbar.update(1.0)
     log.info('Completed wind field calculations')
 
 
@@ -186,7 +208,7 @@ def doDataProcessing(configFile):
 
     showProgressBar = config.get('Logging', 'ProgressBar')
 
-    pbar = ProgressBar('(1/6) Processing data files: ', showProgressBar)
+    pbar = ProgressBar('Processing data files: ', showProgressBar)
 
     log.info('Running Data Processing')
 
@@ -208,6 +230,9 @@ def doDataPlotting(configFile):
 
     config = ConfigParser()
     config.read(configFile)
+
+    showProgressBar = config.get('Logging', 'ProgressBar')
+    pbar = ProgressBar('Plotting results: ', showProgressBar)
 
     outputPath = config.get('Output', 'Path')
 
@@ -231,6 +256,7 @@ def doDataPlotting(configFile):
     plotting = PlotData(statsPlotPath, "png")
 
     log.info('Plotting pressure data')
+    pbar.update(0.05)
 
     plotting.plotPressure(pAllData, pRateData)
     plotting.scatterHistogram(
@@ -240,25 +266,31 @@ def doDataPlotting(configFile):
     plotting.minPressureHist(indicator, pAllData)
     plotting.minPressureLat(pAllData, latData)
 
+
     log.info('Plotting bearing data')
+    pbar.update(0.15)
 
     plotting.plotBearing(bAllData, bRateData)
 
     log.info('Plotting speed data')
+    pbar.update(0.25)
 
     plotting.plotSpeed(sAllData, sRateData)
 
     log.info('Plotting longitude and lattitude data')
+    pbar.update(0.45)
 
     plotting.plotLonLat(lonData, latData, indicator)
 
     log.info('Plotting quantiles for pressure, bearing, and speed')
+    pbar.update(0.65)
 
     plotting.quantile(pRateData, "Pressure")
     plotting.quantile(bRateData, "Bearing")
     plotting.quantile(sRateData, "Speed")
 
     log.info('Plotting frequency data')
+    pbar.update(0.85)
 
     try:
         freq = flLoadFile(pjoin(processPath, 'frequency'))
@@ -268,6 +300,7 @@ def doDataPlotting(configFile):
     except IOError:
         log.warning("No frequency file available - skipping this stage")
 
+    pbar.update(1.0)
 
 @disableOnWorkers
 def doStatistics(configFile):
@@ -284,25 +317,32 @@ def doStatistics(configFile):
                                                 'GetRMWDistFromInputData')
 
     log.info('Running StatInterface')
+    pbar = ProgressBar('Calibrating model: ', showProgressBar)
+    
     # Auto-calculate track generator domain
-    pbar = ProgressBar('(2/6) Calculating statistics:', showProgressBar)
     CalcTD = CalcTrackDomain(configFile)
     domain = CalcTD.calcDomainFromFile()
 
+    pbar.update(0.05)
+
     from StatInterface import StatInterface
     statInterface = StatInterface.StatInterface(configFile,
-                                                autoCalc_gridLimit=domain,
-                                                progressbar=pbar)
+                                                autoCalc_gridLimit=domain)
     statInterface.kdeGenesisDate()
     pbar.update(0.4)
+
     statInterface.kdeOrigin()
     pbar.update(0.5)
+
     statInterface.cdfCellBearing()
     pbar.update(0.6)
+
     statInterface.cdfCellSpeed()
     pbar.update(0.7)
+
     statInterface.cdfCellPressure()
     pbar.update(0.8)
+
     statInterface.calcCellStatistics()
 
     if getRMWDistFromInputData:
@@ -318,11 +358,19 @@ def doHazard(configFile):
     Do the hazard calculations.
     """
     log.info('Running HazardInterface')
+
+    config = ConfigParser()
+    config.read(configFile)
+
+    showProgressBar = config.get('Logging', 'ProgressBar')
+    pbar = ProgressBar('Performing hazard calculations: ', showProgressBar)
+
     from HazardInterface.HazardInterface import HazardInterface
     hzdinterface = HazardInterface(configFile)
     hzdinterface.calculateWindHazard()
-    log.info('Completed HazardInterface')
 
+    log.info('Completed HazardInterface')
+    pbar.update(1.0)
 
 @disableOnWorkers
 def doHazardPlotting(configFile):
@@ -335,13 +383,17 @@ def doHazardPlotting(configFile):
     config = ConfigParser()
     config.read(configFile)
 
-    showProgressBar = config.get('Logging', 'ProgressBar')
-
     log.info('Plotting Hazard Maps')
-    pbar = ProgressBar('(6/6) Plotting results:      ', showProgressBar)
+
+    showProgressBar = config.get('Logging', 'ProgressBar')
+    pbar = ProgressBar('Plotting hazard maps: ', showProgressBar)
+    pbar.update(0.0)
+
     from PlotInterface.AutoPlotHazard import AutoPlotHazard
     plotter = AutoPlotHazard(configFile, progressbar=pbar)
     plotter.plot()
+
+    pbar.update(1.0)
 
 @timer
 def main(configFile='main.ini'):
@@ -411,6 +463,8 @@ def main(configFile='main.ini'):
 def startup():
     parser = argparse.ArgumentParser()
     parser.add_argument('configFile', help='the configuration file')
+    parser.add_argument('-v', '--verbose', help='verbose output',
+                        action='store_true')
     args = parser.parse_args()
 
     configFile = args.configFile
@@ -434,11 +488,16 @@ def startup():
     logLevel = config.get('Logging', 'LogLevel')
     verbose = config.getboolean('Logging', 'Verbose')
 
+    if args.verbose:
+        verbose = True
+
     attemptParallel()
 
     if pp.size() > 1 and pp.rank() > 0:
         logfile += '-' + str(pp.rank())
         verbose = False  # to stop output to console
+    else:
+        print __doc__
 
     flStartLog(logfile, logLevel, verbose)
 
