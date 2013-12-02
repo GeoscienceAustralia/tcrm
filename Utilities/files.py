@@ -218,7 +218,6 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
 
     logger.info('Started log file %s (detail level %s)' % (logFile, logLevel))
     logger.info('Running %s (pid %d)' % (sys.argv[0], os.getpid()))
-    logger.info('Version %s' % (flProgramVersion()))
     return logger
 
 
