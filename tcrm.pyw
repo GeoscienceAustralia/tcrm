@@ -1139,7 +1139,7 @@ class TropicalCycloneRiskModel(object):
         """
         Start TCRM.
         """
-        if not self.running:
+        if (not self.running) and (self.process is None):
             # create the subprocess that runs TCRM and redirect stdout
             self.process = subprocess.Popen(' '.join(self.cmd),
                                             stdout=subprocess.PIPE,
@@ -1151,6 +1151,7 @@ class TropicalCycloneRiskModel(object):
             self.monitorThread = threading.Thread(target=self.monitor)
             self.monitorThread.daemon = True
             self.monitorThread.start()
+
             self.running = True
 
     def monitor(self):
@@ -1247,7 +1248,7 @@ class TropicalCycloneRiskModel(object):
         """
         Nicely kill the TCRM process.
         """
-        if not self.running:
+        if self.process is None:
             return
 
         self.process.terminate()
@@ -1262,6 +1263,7 @@ class TropicalCycloneRiskModel(object):
 
         self.monitorThread.shutdown = True
         self.monitorThread.join()
+
         self.process = None
         self.running = False
 
@@ -1373,11 +1375,10 @@ class Controller(tk.Tk):
     def onCheckAlive(self, control):
         if self.running:
             if not self.tcrm.isAlive():
-                self.doFlushAndReset()
+                self.after(3, self.doFlushAndReset)
 
     def doFlushAndReset(self):
         self.view.run.config(text='Start')
-        self.onWantOutput(self.view.output)
         self.view.output.emit('TCRM STOPPED', ('important'))
         self.running = False
 
