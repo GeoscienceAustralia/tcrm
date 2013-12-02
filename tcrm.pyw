@@ -983,7 +983,7 @@ class StageProgressView(Canvas, ObservableVariable):
             tuple([c / 255 for c in
                    parent.winfo_rgb('SystemButtonFace')])
 
-        Canvas.__init__(self, parent, bg=bgColor, height=30,
+        Canvas.__init__(self, parent, bg=bgColor, height=30, width=200,
                         borderwidth=0, highlightthickness=0,
                         selectborderwidth=0)
         ObservableVariable.__init__(self, value='')
@@ -1071,7 +1071,7 @@ class MainView(Frame):
         Frame.__init__(self)
 
         paned = PanedWindow(self, orient=tk.HORIZONTAL)
-        paned.pack(fill=tk.BOTH, expand=True)
+        paned.grid(column=0, row=0, sticky='NSEW')
 
         # Left
 
@@ -1120,8 +1120,13 @@ class MainView(Frame):
                                   coastlineWidth=0.8)
         rightPane.add(self.view)
 
-        self.output = SubprocessOutputView(right, width=80, height=3)
-        rightPane.add(self.output)
+        self.output = SubprocessOutputView(self, width=80, height=5)
+        self.output.grid(column=0, row=1, sticky='NSEW')
+
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+
 
 
 class TropicalCycloneRiskModel(object):
