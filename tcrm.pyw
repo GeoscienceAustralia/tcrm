@@ -1151,6 +1151,7 @@ class TropicalCycloneRiskModel(object):
             self.monitorThread = threading.Thread(target=self.monitor)
             self.monitorThread.daemon = True
             self.monitorThread.start()
+            self.running = True
 
     def monitor(self):
         """
