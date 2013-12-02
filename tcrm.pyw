@@ -85,8 +85,6 @@ ExecuteStat=True
 ExecuteTrackGenerator=True
 ExecuteWindfield=True
 PlotData=True
-ExecuteHazard=False
-PlotHazard=False
 
 [DataProcess]
 InputFile=input/Allstorms.ibtracs_wmo.v03r05.csv
@@ -94,9 +92,7 @@ Source=IBTRACS
 StartSeason=1981
 
 [Region]
-gridLimit={'xMin':154.0,'xMax':165.0,'yMin':-25.0,'yMax':-4.0}
-LocalityID=290049995
-LocalityName=Honiara, Honiara, Solomon Islands.
+gridLimit={'xMin':112.0,'xMax':160.0,'yMin':-47.0,'yMax':16.0}
 
 [StatInterface]
 kdeType=Biweight
@@ -117,7 +113,6 @@ TrackSeed=1111
 [WindfieldInterface]
 NumberofFiles=1024
 TrackPath=output/tracks
-TrackFile=output/tracks/tracks.0001.csv
 Margin=2.0
 Resolution=0.05
 Source=TCRM
@@ -127,10 +122,6 @@ beta=1.5
 beta1=1.5
 beta2=1.4
 thetaMax=70.0
-
-[Input]
-MSLPGrid=1,2,3,4,5,6,7,8,9,10,11,12
-LandMask=input/landmask.nc
 
 [Output]
 Path=output
@@ -151,25 +142,12 @@ mean=50.0
 sigma=0.6
 
 [TCRM]
-; Output track files settings
 Columns=index,age,lon,lat,speed,bearing,pressure,penv,rmax
 FieldDelimiter=,
 NumberOfHeadingLines=1
 SpeedUnits=kph
 PressureUnits=hPa
-
-[IBTRACS]
-URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
-location=input
-Columns=tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
-FieldDelimiter=,
-NumberOfHeadingLines=3
-PressureUnits=hPa
-LengthUnits=km
-DateFormat=%Y-%m-%d %H:%M:%S
-SpeedUnits=kph
 """
-
 
 
 def pairwise(iterable):
@@ -361,8 +339,9 @@ class GriddedView(object):
 
     def grid(self, *args, **kwargs):
         column, row = kwargs['column'], kwargs['row']
-        self.label.grid(column=column, row=row, sticky='W', padx=2)
-        self.control.grid(column=column + 1, row=row, sticky='E', padx=0)
+        self.label.grid(column=column, row=row, sticky='W', padx=2, pady=2)
+        self.control.grid(column=column + 1, row=row, sticky='E', padx=2,
+                          pady=2)
 
     def rowconfigure(self, *args, **kwargs):
         row = kwargs.pop('row')
@@ -1039,7 +1018,7 @@ class SubprocessOutputView(Frame, Observable):
 
         self.console = Text(self, **kwargs)
         self.console.config(state=tk.DISABLED, wrap='none')
-        self.console.config(font=('Helvetica', 11))
+        self.console.config(font=('Helvetica', 10))
         self.console.config(yscrollcommand=self.onScroll)
 
         self.console.tag_config('important', background='yellow')
