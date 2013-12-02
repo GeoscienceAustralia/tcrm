@@ -117,6 +117,7 @@ def doDataDownload(configFile):
             except IOError:
                 log.error('Unable to download %s. Maybe a proxy problem?',
                           dataset.filename)
+                sys.exit(1)
 
 
 @disableOnWorkers
