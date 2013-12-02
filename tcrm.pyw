@@ -1172,6 +1172,9 @@ class TropicalCycloneRiskModel(object):
             # the thread was probably killed so exit nicely
             pass
 
+    def isAlive(self):
+        return self.running and (self.process.poll() is None)
+
     def enqueueOutput(self):
         """
         Coroutine to enqueue new output.
@@ -1282,6 +1285,7 @@ class Controller(tk.Tk):
 
         view.run.config(command=self.toggleRun)
         view.output.addCallback(self.onWantOutput)
+        view.output.addCallback(self.onCheckAlive)
 
         self.loadSettings()
 
@@ -1344,7 +1348,6 @@ class Controller(tk.Tk):
         self.settings = ObservableDict(flatConfig)
 
     def onSettingsChanged(self, settings):
-        log.info('Settings changed')
         for key, value in settings.items():
             try:
                 controls = self.notifyWhom[key]
@@ -1363,15 +1366,19 @@ class Controller(tk.Tk):
         for f in added:
             control.emit('new file: %s' % f)
 
+    def onCheckAlive(self, control):
+        if not self.tcrm.isAlive() and self.running:
+            self.doFlipStatus()
+
+    def doFlipStatus(self):
+        self.view.run.config(text='Start')
+        self.view.output.emit('TCRM STOPPED', ('important'))
+        self.running = False
+
     def toggleRun(self):
         if self.running:
             self.tcrm.quit()
-
-            def flipStatus():
-                self.view.run.config(text='Start')
-                self.view.output.emit('TCRM STOPPED', ('important'))
-                self.running = False
-            self.after(3, flipStatus)
+            self.after(3, self.doFlipStatus)
         else:
             self.view.output.clear()
             self.tcrm.saveFlatConfig(self.settings)
