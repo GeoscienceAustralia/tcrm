@@ -12,6 +12,7 @@ import json
 import ttk
 import sys
 import os
+import io
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure as MatplotlibFigure
@@ -28,7 +29,25 @@ from Utilities.config import ConfigParser
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
+# tk or ttk?
+Frame = ttk.Frame
+Labelframe = ttk.Labelframe
+Entry = ttk.Entry
+Scale = ttk.Scale
+Label = ttk.Label
+Notebook = ttk.Notebook
+Combobox = ttk.Combobox
+Checkbutton = ttk.Checkbutton
+Text = tk.Text
+Scrollbar = tk.Scrollbar
+Button = ttk.Button
+PanedWindow = ttk.PanedWindow
+Canvas = tk.Canvas
+
 json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
+
+ON_POSIX = 'posix' in sys.builtin_module_names
+POLL_INTERVAL = 1000  # ms
 
 ICON = """
 R0lGODlhIAAgAPcAAAAAAAAAMwAAZgAAmQAAzAAA/wArAAArMwArZgArmQArzAAr/wBVAA
@@ -58,24 +77,99 @@ llJpqACaWXAByQSSZpeHkllGWOeUCbBgwJ5ZhzYvmmnW2WCUAABuxpAJ+AAtDnn4Pyqeeb
 gBoQEAA7
 """
 
-ON_POSIX = 'posix' in sys.builtin_module_names
-POLL_INTERVAL = 1000  # ms
+DEFAULTS = """
+[Actions]
+DownloadData=True
+DataProcess=True
+ExecuteStat=True
+ExecuteTrackGenerator=True
+ExecuteWindfield=True
+PlotData=True
+ExecuteHazard=False
+PlotHazard=False
 
+[DataProcess]
+InputFile=input/Allstorms.ibtracs_wmo.v03r05.csv
+Source=IBTRACS
+StartSeason=1981
 
-# tk or ttk?
-Frame = ttk.Frame
-Labelframe = ttk.Labelframe
-Entry = ttk.Entry
-Scale = ttk.Scale
-Label = ttk.Label
-Notebook = ttk.Notebook
-Combobox = ttk.Combobox
-Checkbutton = ttk.Checkbutton
-Text = tk.Text
-Scrollbar = tk.Scrollbar
-Button = ttk.Button
-PanedWindow = ttk.PanedWindow
-Canvas = tk.Canvas
+[Region]
+gridLimit={'xMin':154.0,'xMax':165.0,'yMin':-25.0,'yMax':-4.0}
+LocalityID=290049995
+LocalityName=Honiara, Honiara, Solomon Islands.
+
+[StatInterface]
+kdeType=Biweight
+kde2DType=Gaussian
+kdeStep=0.2
+gridSpace={'x':1.0,'y':1.0}
+gridInc={'x':1.0,'y':0.5}
+minSamplesCell=40
+
+[TrackGenerator]
+NumSimulations=1024
+YearsPerSimulation=1
+gridSpace={'x':1.0,'y':1.0}
+gridInc={'x':1.0,'y':0.5}
+SeasonSeed=2
+TrackSeed=1111
+
+[WindfieldInterface]
+NumberofFiles=1024
+TrackPath=output/tracks
+TrackFile=output/tracks/tracks.0001.csv
+Margin=2.0
+Resolution=0.05
+Source=TCRM
+profileType=powell
+windFieldType=kepert
+beta=1.5
+beta1=1.5
+beta2=1.4
+thetaMax=70.0
+
+[Input]
+MSLPGrid=1,2,3,4,5,6,7,8,9,10,11,12
+LandMask=input/landmask.nc
+
+[Output]
+Path=output
+
+[Logging]
+LogFile=output/log/default.log
+LogLevel=INFO
+Verbose=True
+ProgressBar=False
+
+[Process]
+DatFile=output/process/dat/default.dat
+ExcludePastProcessed=False
+
+[RMW]
+GetRMWDistFromInputData=False
+mean=50.0
+sigma=0.6
+
+[TCRM]
+; Output track files settings
+Columns=index,age,lon,lat,speed,bearing,pressure,penv,rmax
+FieldDelimiter=,
+NumberOfHeadingLines=1
+SpeedUnits=kph
+PressureUnits=hPa
+
+[IBTRACS]
+URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
+location=input
+Columns=tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
+FieldDelimiter=,
+NumberOfHeadingLines=3
+PressureUnits=hPa
+LengthUnits=km
+DateFormat=%Y-%m-%d %H:%M:%S
+SpeedUnits=kph
+"""
+
 
 
 def pairwise(iterable):
@@ -1253,6 +1347,8 @@ class Controller(tk.Tk):
         config = ConfigParser()
         if configFile:
             config.read(configFile)
+        else:
+            config.readfp(io.BytesIO(DEFAULTS))
 
         outputPath = config.get('Output', 'Path')
         self.tcrm.outputDirectories.append(outputPath)
