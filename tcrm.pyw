@@ -47,7 +47,8 @@ Canvas = tk.Canvas
 
 ON_POSIX = 'posix' in sys.builtin_module_names
 POLL_INTERVAL = 1000  # ms
-TEXT_FONT = nameToFont('TkTextFont')
+#TEXT_FONT = nameToFont('TkTextFont')
+TEXT_FONT = ('Helvetica', '10')
 
 ICON = """
 R0lGODlhIAAgAPcAAAAAAAAAMwAAZgAAmQAAzAAA/wArAAArMwArZgArmQArzAAr/wBVAA
