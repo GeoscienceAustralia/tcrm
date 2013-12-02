@@ -151,6 +151,14 @@ SpeedUnits=kph
 PressureUnits=hPa
 """
 
+CHOICES = {
+    'dataSources': ['IBTRACS'],
+    'kdeKernel': ['Biweight'],
+    'kde2DKernel': ['Gaussian'],
+    'profileType': ['Powell'],
+    'windfieldType': ['Kepert']
+}
+
 json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
 #TEXT_FONT.configure(size=TEXT_FONT['size'] - 2)
 
@@ -550,7 +558,10 @@ class GriddedCombobox(GriddedView, ObservableVariable):
 
         self.label = Label(parent, text=name + ':')
         self.control = Combobox(parent, textvariable=self.variable, width=9,
-                                **kwargs)
+                                state='readonly', **kwargs)
+
+    def setValues(self, values):
+        self.control.config(values=values)
 
 
 class GriddedEntry(GriddedView, ObservableVariable):
@@ -1298,7 +1309,7 @@ class Controller(tk.Tk):
             (view.region, 'Region_gridlimit'),
             # (view.regionSettings.region, 'Region_gridlimit'),
             (view.view, 'Region_gridlimit'),
-            # (view.calibration.source, 'GRID_LIMITS'),
+            (view.calibration.source, 'DataProcess_source'),
             (view.calibration.start, 'DataProcess_startseason'),
             (view.calibration.kdeKernel, 'StatInterface_kdetype'),
             (view.calibration.kde2DKernel, 'StatInterface_kde2dtype'),
@@ -1328,6 +1339,17 @@ class Controller(tk.Tk):
             controls.append(control)
             if hasattr(control, 'addCallback'):
                 control.addCallback(makeCallback(key))
+
+        comboboxes = [
+            (view.calibration.source, 'dataSources'),
+            (view.calibration.kdeKernel, 'kdeKernel'),
+            (view.calibration.kde2DKernel, 'kde2DKernel'),
+            (view.wind.profileType, 'profileType'),
+            (view.wind.windfieldType, 'windfieldType')
+        ]
+        for control, key in comboboxes:
+            values = CHOICES[key]
+            control.setValues(values)
 
         self.onSettingsChanged(self.settings)
         self.settings.addCallback(self.onSettingsChanged)
