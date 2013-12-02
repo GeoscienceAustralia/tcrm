@@ -1198,14 +1198,15 @@ class Controller(tk.Tk):
         self.protocol('WM_DELETE_WINDOW', self.onQuit)
 
         self.running = False
+        self.view = MainView(self)
+        self.tcrm = TropicalCycloneRiskModel()
 
-        view = MainView(self)
-        tcrm = TropicalCycloneRiskModel()
+        view = self.view
 
         view.run.config(command=self.toggleRun)
         view.output.addCallback(self.onWantOutput)
 
-        self.loadSettings('solomon.ini')
+        self.loadSettings()
 
         mappings = [
             (view.region, 'Region_gridlimit'),
@@ -1247,9 +1248,6 @@ class Controller(tk.Tk):
 
         view.pack(fill='both', expand=True)
         self.after_idle(self.show)
-
-        self.view = view
-        self.tcrm = tcrm
 
     def loadSettings(self, configFile=None):
         config = ConfigParser()
