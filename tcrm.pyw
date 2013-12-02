@@ -16,15 +16,16 @@ import io
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure as MatplotlibFigure
+from tkFont import Font, nametofont as nameToFont
 from matplotlib.widgets import RectangleSelector
+from Utilities.config import ConfigParser
 from matplotlib.patches import Rectangle
 from mpl_toolkits.basemap import Basemap
-from collections import OrderedDict
 from os.path import join as pjoin, isdir
+from collections import OrderedDict
+from itertools import tee, izip
 from Queue import Queue, Empty
 from contextlib import closing
-from itertools import tee, izip
-from Utilities.config import ConfigParser
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -44,11 +45,9 @@ Button = ttk.Button
 PanedWindow = ttk.PanedWindow
 Canvas = tk.Canvas
 
-json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
-
 ON_POSIX = 'posix' in sys.builtin_module_names
 POLL_INTERVAL = 1000  # ms
-TEXT_FONT_SIZE = 10
+TEXT_FONT = nameToFont('TkTextFont')
 
 ICON = """
 R0lGODlhIAAgAPcAAAAAAAAAMwAAZgAAmQAAzAAA/wArAAArMwArZgArmQArzAAr/wBVAA
@@ -149,6 +148,9 @@ NumberOfHeadingLines=1
 SpeedUnits=kph
 PressureUnits=hPa
 """
+
+json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
+TEXT_FONT.configure(size=TEXT_FONT['size'] - 2)
 
 
 def pairwise(iterable):
@@ -798,7 +800,7 @@ class LogView(logging.Handler, Frame):
 
         self.console = Text(self, **kwargs)
         self.console.config(state=tk.DISABLED, wrap='none')
-        self.console.config(size=TEXT_FONT_SIZE)
+        self.console.config(font=TEXT_FONT)
 
         self.scroll = Scrollbar(self, orient=tk.VERTICAL)
         self.scroll.config(command=self.console.yview)
@@ -1007,7 +1009,7 @@ class StageProgressView(Canvas, ObservableVariable):
                     h - 1]
             self.create_polygon(poly, fill=color)
             self.create_text((x0 + x1) / 2 + 2.5, h / 2, text=stage,
-                             size=TEXT_FONT_SIZE)
+                             font=TEXT_FONT)
         self.addtag_all('all')
 
 
@@ -1019,7 +1021,7 @@ class SubprocessOutputView(Frame, Observable):
 
         self.console = Text(self, **kwargs)
         self.console.config(state=tk.DISABLED, wrap='none')
-        self.console.config(size=TEXT_FONT_SIZE)
+        self.console.config(font=TEXT_FONT)
         self.console.config(yscrollcommand=self.onScroll)
 
         self.console.tag_config('important', background='yellow')
