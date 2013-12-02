@@ -1050,7 +1050,7 @@ class MainView(Frame):
 class TropicalCycloneRiskModel(object):
 
     def __init__(self):
-        self.cmd = [sys.executable, '-u', 'tcrm.py', 'default.ini']
+        self.cmd = [sys.executable, '-u', 'tcrm.py', '-v', 'default.ini']
         self.running = False
         self.output = Queue()
         self.newFiles = Queue()
