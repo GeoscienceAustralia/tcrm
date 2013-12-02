@@ -983,7 +983,7 @@ class StageProgressView(Canvas, ObservableVariable):
             tuple([c / 255 for c in
                    parent.winfo_rgb('SystemButtonFace')])
 
-        Canvas.__init__(self, parent, bg=bgColor, height=30, width=200,
+        Canvas.__init__(self, parent, bg=bgColor, height=30, width=250,
                         borderwidth=0, highlightthickness=0,
                         selectborderwidth=0)
         ObservableVariable.__init__(self, value='')
@@ -1109,16 +1109,11 @@ class MainView(Frame):
 
         # Right
 
-        right = Frame(paned)
-        paned.add(right)
-
-        rightPane = PanedWindow(right, orient=tk.VERTICAL)
-        rightPane.pack(fill=tk.BOTH, expand=True)
 
         self.view = MapRegionGrid(rightPane, figSize=(7, 5),
                                   continentColor='#cdcbc1',
                                   coastlineWidth=0.8)
-        rightPane.add(self.view)
+        paned.add(self.view)
 
         self.output = SubprocessOutputView(self, width=80, height=5)
         self.output.grid(column=0, row=1, sticky='NSEW')
