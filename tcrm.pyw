@@ -1368,17 +1368,18 @@ class Controller(tk.Tk):
 
     def onCheckAlive(self, control):
         if not self.tcrm.isAlive() and self.running:
-            self.doFlipStatus()
+            self.doFlushAndReset()
 
-    def doFlipStatus(self):
+    def doFlushAndReset(self):
         self.view.run.config(text='Start')
+        self.onWantOutput(self.view.output)
         self.view.output.emit('TCRM STOPPED', ('important'))
         self.running = False
 
     def toggleRun(self):
         if self.running:
             self.tcrm.quit()
-            self.after(3, self.doFlipStatus)
+            self.after(3, self.doFlushAndReset)
         else:
             self.view.output.clear()
             self.tcrm.saveFlatConfig(self.settings)
