@@ -48,6 +48,7 @@ json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
 
 ON_POSIX = 'posix' in sys.builtin_module_names
 POLL_INTERVAL = 1000  # ms
+TEXT_FONT_SIZE = 10
 
 ICON = """
 R0lGODlhIAAgAPcAAAAAAAAAMwAAZgAAmQAAzAAA/wArAAArMwArZgArmQArzAAr/wBVAA
@@ -797,7 +798,7 @@ class LogView(logging.Handler, Frame):
 
         self.console = Text(self, **kwargs)
         self.console.config(state=tk.DISABLED, wrap='none')
-        self.console.config(font=('Helvetica', 8))
+        self.console.config(size=TEXT_FONT_SIZE)
 
         self.scroll = Scrollbar(self, orient=tk.VERTICAL)
         self.scroll.config(command=self.console.yview)
@@ -1006,7 +1007,7 @@ class StageProgressView(Canvas, ObservableVariable):
                     h - 1]
             self.create_polygon(poly, fill=color)
             self.create_text((x0 + x1) / 2 + 2.5, h / 2, text=stage,
-                             font=('Helvetica', 10))
+                             size=TEXT_FONT_SIZE)
         self.addtag_all('all')
 
 
@@ -1018,7 +1019,7 @@ class SubprocessOutputView(Frame, Observable):
 
         self.console = Text(self, **kwargs)
         self.console.config(state=tk.DISABLED, wrap='none')
-        self.console.config(font=('Helvetica', 10))
+        self.console.config(size=TEXT_FONT_SIZE)
         self.console.config(yscrollcommand=self.onScroll)
 
         self.console.tag_config('important', background='yellow')
