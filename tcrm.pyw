@@ -1368,7 +1368,7 @@ class Controller(tk.Tk):
 
     def onCheckAlive(self, control):
         if not self.tcrm.isAlive() and self.running:
-            self.doFlushAndReset()
+            self.after(1, self.doFlushAndReset)
 
     def doFlushAndReset(self):
         self.view.run.config(text='Start')
