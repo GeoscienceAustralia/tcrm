@@ -1174,7 +1174,7 @@ class TropicalCycloneRiskModel(object):
             pass
 
     def isAlive(self):
-        return self.running and (self.process.poll() is None)
+        return self.running
 
     def enqueueOutput(self):
         """
@@ -1184,6 +1184,8 @@ class TropicalCycloneRiskModel(object):
             for line in iter(out.readline, b''):
                 self.output.put(line)
                 yield
+
+        self.running = False
 
     def enqueueFileAdditions(self):
         """
@@ -1369,9 +1371,9 @@ class Controller(tk.Tk):
                 control.emit('new file: %s' % f)
 
     def onCheckAlive(self, control):
-        if self.running and (not self.tcrm.isAlive()):
-            self.running = False
-            self.view.run.config(text='Start')
+        if self.running:
+            if not self.tcrm.isAlive():
+                self.doFlushAndReset()
 
     def doFlushAndReset(self):
         self.view.run.config(text='Start')
