@@ -48,7 +48,7 @@ Canvas = tk.Canvas
 ON_POSIX = 'posix' in sys.builtin_module_names
 POLL_INTERVAL = 1000  # ms
 #TEXT_FONT = nameToFont('TkTextFont')
-TEXT_FONT = Font(family='Helvetica', size='10')
+TEXT_FONT = ('Helvetica', '10')
 
 ICON = """
 R0lGODlhIAAgAPcAAAAAAAAAMwAAZgAAmQAAzAAA/wArAAArMwArZgArmQArzAAr/wBVAA
@@ -151,7 +151,7 @@ PressureUnits=hPa
 """
 
 json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
-TEXT_FONT.configure(size=TEXT_FONT['size'] - 2)
+#TEXT_FONT.configure(size=TEXT_FONT['size'] - 2)
 
 
 def pairwise(iterable):
