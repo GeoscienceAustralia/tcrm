@@ -7,6 +7,7 @@ import numpy as np
 import subprocess
 import threading
 import logging
+import signal
 import time
 import json
 import ttk
@@ -1144,9 +1145,9 @@ class TropicalCycloneRiskModel(object):
             self.process = subprocess.Popen(' '.join(self.cmd),
                                             stdout=subprocess.PIPE,
                                             stderr=subprocess.PIPE,
-                                            shell=True,
+                                            shell=False,
                                             bufsize=1)
-            
+                                            
             # monitor the process by a thread
             self.monitorThread = threading.Thread(target=self.monitor)
             self.monitorThread.daemon = True
@@ -1252,11 +1253,10 @@ class TropicalCycloneRiskModel(object):
             return
 
         self.process.terminate()
-
+        
         for i in range(5):
             if self.process.poll() is None:
                 self.process.kill()
-                self.process.wait()
                 time.sleep(0.5)
             else:
                 break
@@ -1267,7 +1267,7 @@ class TropicalCycloneRiskModel(object):
         self.process = None
         self.running = False
 
-
+        
 class Controller(tk.Tk):
 
     """
@@ -1375,12 +1375,13 @@ class Controller(tk.Tk):
     def onCheckAlive(self, control):
         if self.running:
             if not self.tcrm.isAlive():
-                self.after(3, self.doFlushAndReset)
+                self.doFlushAndReset()
 
     def doFlushAndReset(self):
-        self.view.run.config(text='Start')
-        self.view.output.emit('TCRM STOPPED', ('important'))
-        self.running = False
+        if self.running:
+            self.running = False
+            self.view.run.config(text='Start')
+            self.view.output.emit('TCRM STOPPED', ('important'))
 
     def toggleRun(self):
         if self.running:
