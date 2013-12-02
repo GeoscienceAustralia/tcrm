@@ -153,10 +153,12 @@ PressureUnits=hPa
 
 CHOICES = {
     'dataSources': ['IBTRACS'],
-    'kdeKernel': ['Biweight'],
-    'kde2DKernel': ['Gaussian'],
-    'profileType': ['Powell'],
-    'windfieldType': ['Kepert']
+    'kdeKernel': ['Biweight', 'Epanechnikov', 'Triangular', 'Gaussian'],
+    'kde2DKernel': ['Epanechnikov', 'Gaussian'],
+    'profileType': ['Jelesnianski', 'Holland', 'Willoughby',
+                    'Rankine', 'Schloemer', 'DoubleHolland', 'Powell',
+                    'NewHolland'],
+    'windfieldType': ['Hubbert', 'McConochie', 'Kepert']
 }
 
 json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
@@ -1349,7 +1351,7 @@ class Controller(tk.Tk):
         ]
         for control, key in comboboxes:
             values = CHOICES[key]
-            control.setValues(values)
+            control.setValues([v.lower() for v in values])
 
         self.onSettingsChanged(self.settings)
         self.settings.addCallback(self.onSettingsChanged)
