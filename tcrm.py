@@ -103,16 +103,20 @@ def doDataDownload(configFile):
     for dataset in datasets.DATASETS:
         if not dataset.isDownloaded():
             log.info('Input file %s is not available', dataset.filename)
-            log.info('Attempting to download %s', dataset.filename)
+            try:
+                log.info('Attempting to download %s', dataset.filename)
 
-            pbar = ProgressBar('Downloading file %s: ' % dataset.filename,
-                               showProgressBar)
+                pbar = ProgressBar('Downloading file %s: ' % dataset.filename,
+                                   showProgressBar)
 
-            def status(fn, done, size):
-                pbar.update(float(done)/size)
+                def status(fn, done, size):
+                    pbar.update(float(done)/size)
 
-            dataset.download(status)
-            log.info('Download successful')
+                dataset.download(status)
+                log.info('Download successful')
+            except URLError:
+                log.error('Unable to download %s. Maybe a proxy problem?',
+                          dataset.filename)
 
 
 @disableOnWorkers

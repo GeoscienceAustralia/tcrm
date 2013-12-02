@@ -24,7 +24,7 @@ class DataSet(object):
         if self.isDownloaded():
             return
 
-        urlfile = urlopen(self.url)
+        urlfile = urlopen(self.url, timeout=3)
         meta = urlfile.info()
         data = StringIO()
 
