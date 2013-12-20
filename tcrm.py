@@ -6,6 +6,7 @@ Copyright (c) 2013 Commonwealth of Australia (Geoscience Australia)
 
 import Utilities.datasets as datasets
 import logging as log
+import subprocess
 import traceback
 import argparse
 import time
@@ -23,6 +24,22 @@ if pathLocator.is_frozen():
     os.environ['BASEMAPDATA'] = pjoin(
         pathLocator.getRootDirectory(), 'mpl-data', 'data')
 
+
+UPDATE_MSG = """
+----------------------------------------------------------
+Your TCRM version is not up-to-date. The last 3 things that
+have been fixed are:
+
+%s
+
+To update your version of TCRM, try running:
+
+git pull
+
+----------------------------------------------------------
+"""
+
+
 def timer(func):
     """
     Basic timing functions for entire process
@@ -35,6 +52,32 @@ def timer(func):
         return res
 
     return wrapper
+
+
+def status():
+    """
+    Check status TCRM of code.
+    """
+    msg = ''
+
+    def git(command):
+        with open(os.devnull) as devnull:
+            return subprocess.check_output(['git ' + command],
+                                           shell=True,
+                                           stderr=devnull)
+
+    try:
+        git('fetch')  # update status of remote
+        behind = int(git('rev-list HEAD...origin/master --count'))
+        recent = git('log --pretty=format:" - %s (%ad)" --date=relative ' +
+                     'origin/master HEAD~3..HEAD')
+        if behind != 0:
+            msg = UPDATE_MSG % recent
+    except subprocess.CalledProcessError:
+        pass
+
+    return msg
+
 
 def attemptParallel():
     """
@@ -401,6 +444,7 @@ def doHazardPlotting(configFile):
 
     pbar.update(1.0)
 
+
 @timer
 def main(configFile='main.ini'):
     """
@@ -466,6 +510,7 @@ def main(configFile='main.ini'):
 
     log.info('Completed TCRM')
 
+
 def startup():
     parser = argparse.ArgumentParser()
     parser.add_argument('configFile', help='the configuration file')
@@ -507,7 +552,8 @@ def startup():
         logfile += '-' + str(pp.rank())
         verbose = False  # to stop output to console
     else:
-        print __doc__
+        codeStatus = status()
+        print __doc__ + codeStatus
 
     flStartLog(logfile, logLevel, verbose)
 
@@ -521,11 +567,12 @@ def startup():
 
     try:
         main(configFile)
-    except Exception: # pylint: disable=W0703
+    except Exception:  # pylint: disable=W0703
         # Catch any exceptions that occur and log them (nicely):
         tblines = traceback.format_exc().splitlines()
         for line in tblines:
             log.critical(line.lstrip())
+
 
 if __name__ == "__main__":
     startup()
