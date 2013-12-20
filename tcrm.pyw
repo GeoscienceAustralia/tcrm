@@ -7,7 +7,6 @@ import numpy as np
 import subprocess
 import threading
 import logging
-import signal
 import time
 import json
 import ttk
@@ -17,7 +16,6 @@ import io
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure as MatplotlibFigure
-from tkFont import Font, nametofont as nameToFont
 from matplotlib.widgets import RectangleSelector
 from Utilities.config import ConfigParser
 from matplotlib.patches import Rectangle
@@ -48,7 +46,6 @@ Canvas = tk.Canvas
 
 ON_POSIX = 'posix' in sys.builtin_module_names
 POLL_INTERVAL = 1000  # ms
-#TEXT_FONT = nameToFont('TkTextFont')
 TEXT_FONT = ('Helvetica', '10')
 
 ICON = """
@@ -162,7 +159,6 @@ CHOICES = {
 }
 
 json.encoder.FLOAT_REPR = lambda f: ('%.2f' % f)
-#TEXT_FONT.configure(size=TEXT_FONT['size'] - 2)
 
 
 def pairwise(iterable):
