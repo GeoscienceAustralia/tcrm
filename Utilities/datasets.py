@@ -12,13 +12,12 @@ class DataSet(object):
         self.name = name
         self.url = url
         self.path = path
-        self.filename = filename or pjoin(path, url.split('/')[-1])
         self.compression = None
 
-        base, ext = splitext(self.filename)
+        base, ext = splitext(url.split('/')[-1])
         if ext in ['.gz', '.zip']:
             self.compression = ext[1:]
-            self.filename = base
+            self.filename = filename or base
 
     def download(self, callback=None):
         if self.isDownloaded():
@@ -50,14 +49,14 @@ class DataSet(object):
                 from zipfile import ZipFile
                 data = ZipFile(data)
 
-            with open(self.filename, 'wb') as outfile:
+            with open(pjoin(self.path, self.filename), 'wb') as outfile:
                 outfile.write(data.read())
 
         except URLError:
             raise IOError('Cannot download file')
 
     def isDownloaded(self):
-        return isfile(self.filename)
+        return isfile(pjoin(self.path, self.filename))
 
 
 def loadDatasets():
@@ -77,7 +76,7 @@ def loadDatasets():
 
 def checkAndDownload(callback=None):
     for dataset in DATASETS:
-        dataset.download()
+        dataset.download(callback)
 
 
 loadDatasets()
