@@ -8,11 +8,11 @@ DATASETS = []
 
 class DataSet(object):
 
-    def __init__(self, name, url, path):
+    def __init__(self, name, url, path, filename=None):
         self.name = name
         self.url = url
         self.path = path
-        self.filename = pjoin(path, url.split('/')[-1])
+        self.filename = filename or pjoin(path, url.split('/')[-1])
         self.compression = None
 
         base, ext = splitext(self.filename)
@@ -60,15 +60,18 @@ class DataSet(object):
         return isfile(self.filename)
 
 
-
 def loadDatasets():
     config = ConfigParser()
     datasets = config.get('Input', 'Datasets').split(',')
     global DATASETS
     for dataset in datasets:
         url = config.get(dataset, 'URL')
-        path = config.get(dataset, 'location')
-        data = DataSet(dataset, url, path)
+        path = config.get(dataset, 'path')
+        if config.has_option(dataset, 'filename'):
+            filename = config.get(dataset, 'filename')
+        else:
+            filename = None
+        data = DataSet(dataset, url, path, filename)
         DATASETS.append(data)
 
 

@@ -165,7 +165,16 @@ class DataProcess:
         config.read(self.configFile)
 
         self.logger.info("Running %s" % flModuleName())
-        inputFile = config.get('DataProcess', 'InputFile')
+
+        if config.has_option('DataProcess', 'InputFile'):
+            inputFile = config.get('DataProcess', 'InputFile')
+
+        if config.has_option('DataProcess', 'Source'):
+            source = config.get('DataProcess', 'Source')
+            self.logger.info('Loading %s dataset', source)
+            fn = config.get(source, 'filename')
+            path = config.get(source, 'location')
+            inputFile = pjoin(path, fn)
 
         # If input file has no path information, default to tcrm input folder
         if len(os.path.dirname(inputFile)) == 0:

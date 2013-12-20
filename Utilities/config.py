@@ -1,4 +1,3 @@
-import os
 import io
 from ConfigParser import RawConfigParser
 
@@ -6,11 +5,14 @@ from ConfigParser import RawConfigParser
 def parseBool(txt):
     return txt == 'True'
 
+
 def parseList(txt):
     return txt.split(',')
 
+
 def formatList(lst):
     return ','.join(map(str, lst))
+
 
 FORMATERS = {
     'Input_mslpgrid': formatList,
@@ -148,7 +150,8 @@ LengthUnits=km
 
 [IBTRACS]
 URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
-location=input
+path=input
+filename=Allstorms.ibtracs_wmo.v03r05.csv
 Columns=tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
 FieldDelimiter=,
 NumberOfHeadingLines=3
