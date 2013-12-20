@@ -173,7 +173,7 @@ class DataProcess:
             source = config.get('DataProcess', 'Source')
             self.logger.info('Loading %s dataset', source)
             fn = config.get(source, 'filename')
-            path = config.get(source, 'location')
+            path = config.get(source, 'path')
             inputFile = pjoin(path, fn)
 
         # If input file has no path information, default to tcrm input folder
