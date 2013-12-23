@@ -1119,14 +1119,20 @@ class MainView(Frame):
 
         # Right
 
+        rightFrame = Frame(paned)
+        paned.add(rightFrame)
 
-        self.view = MapRegionGrid(paned, figSize=(7, 5),
+        self.view = MapRegionGrid(rightFrame, figSize=(7, 7),
                                   continentColor='#cdcbc1',
                                   coastlineWidth=0.8)
-        paned.add(self.view)
+        self.view.grid(column=0, row=0, sticky='NSEW')
 
-        self.output = SubprocessOutputView(self, width=80, height=5)
+        self.output = SubprocessOutputView(rightFrame, width=80, height=5)
         self.output.grid(column=0, row=1, sticky='NSEW')
+
+        rightFrame.columnconfigure(0, weight=1)
+        rightFrame.rowconfigure(0, weight=2)
+        rightFrame.rowconfigure(1, weight=1)
 
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
@@ -1154,7 +1160,7 @@ class TropicalCycloneRiskModel(object):
             self.process = subprocess.Popen(' '.join(self.cmd),
                                             stdout=subprocess.PIPE,
                                             stderr=subprocess.PIPE,
-                                            shell=False,
+                                            shell=True,
                                             bufsize=1)
                                             
             # monitor the process by a thread
