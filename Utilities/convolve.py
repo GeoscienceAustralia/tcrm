@@ -114,7 +114,7 @@ def getKernel(d,m,r=25.,h=5.):
 
 
 
-def convolve(im, dir, m="terrain", res=25.,height=5.):
+def convolve(im, direction, m="terrain", res=25.,height=5.):
     """
     Smooth a 2D array im by convolving with a kernel of size n
     Input:
@@ -132,6 +132,6 @@ def convolve(im, dir, m="terrain", res=25.,height=5.):
 
     Example: arr = convolve(im, 'NW', 'terrain', 25., 5. )
     """
-    g = getKernel(dir,m,res,height)
+    g = getKernel(direction,m,res,height)
     improc = signal.convolve2d(im, g, mode='same', boundary='fill',fillvalue=1.0)
     return(improc)

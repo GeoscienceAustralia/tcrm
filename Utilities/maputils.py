@@ -498,31 +498,31 @@ def makeGrid(cLon, cLat, margin=2, resolution=0.01, minLon=None, maxLon=None,
     if type(cLon)==list or type(cLat)==list or type(cLon)==numpy.ndarray or type(cLat)==numpy.ndarray:
         raise TypeError, "Input values must be scalar values"
 
-    gridSize = int(resolution*100)
+    gridSize = int(resolution*1000)
 
     if minLon:
-        minLon_ = int(100*(minLon)) - int(100*margin)
+        minLon_ = int(1000*(minLon)) - int(1000*margin)
     else:
-        minLon_ = int(100*(cLon)) - int(100*margin)
+        minLon_ = int(1000*(cLon)) - int(1000*margin)
     if maxLon:
-        maxLon_ = int(100*(maxLon)) + int(100*margin) + 1
+        maxLon_ = int(1000*(maxLon)) + int(1000*margin) + 1
     else:
-        maxLon_ = int(100*(cLon)) + int(100*margin) + 1
+        maxLon_ = int(1000*(cLon)) + int(1000*margin) + 1
     if minLat:
-        minLat_ = int(100*(minLat)) - int(100*margin)
+        minLat_ = int(1000*(minLat)) - int(1000*margin)
     else:
-        minLat_= int(100*(cLat)) - int(100*margin)
+        minLat_= int(1000*(cLat)) - int(1000*margin)
     if maxLat:
-        maxLat_ = int(100*(maxLat)) + int(100*margin) + 1
+        maxLat_ = int(1000*(maxLat)) + int(1000*margin) + 1
     else:
-        maxLat_= int(100*(cLat)) + int(100*margin) + 1
+        maxLat_= int(1000*(cLat)) + int(1000*margin) + 1
 
     xGrid = numpy.array(numpy.arange(minLon_, maxLon_, gridSize), dtype=int)
     yGrid = numpy.array(numpy.arange(minLat_, maxLat_, gridSize), dtype=int)
 
-    R = gridLatLonDist(cLon, cLat, xGrid/100., yGrid/100.)
+    R = gridLatLonDist(cLon, cLat, xGrid/1000., yGrid/1000.)
     numpy.putmask(R, R==0, 1e-30)
-    theta = numpy.pi/2. - gridLatLonBear(cLon, cLat, xGrid/100., yGrid/100.)
+    theta = numpy.pi/2. - gridLatLonBear(cLon, cLat, xGrid/1000., yGrid/1000.)
 
     return R, theta
 
@@ -538,18 +538,18 @@ def makeGridDomain(cLon, cLat, minLon, maxLon, minLat, maxLat, margin=2, resolut
     if (type(cLon)==list or type(cLat)==list or 
         type(cLon)==numpy.ndarray or type(cLat)==numpy.ndarray):
         raise TypeError, "Input values must be scalar values"
-    gridSize = int(resolution*100)
-    minLon_ = int(100*(minLon)) - int(100*margin)
-    maxLon_ = int(100*(maxLon)) + int(100*margin) + 1
-    minLat_ = int(100*(minLat)) - int(100*margin)
-    maxLat_ = int(100*(maxLat)) + int(100*margin) + 1
+    gridSize = int(resolution*1000)
+    minLon_ = int(1000*(minLon)) - int(1000*margin)
+    maxLon_ = int(1000*(maxLon)) + int(1000*margin) + 1
+    minLat_ = int(1000*(minLat)) - int(1000*margin)
+    maxLat_ = int(1000*(maxLat)) + int(1000*margin) + 1
 
     xGrid = numpy.array(numpy.arange(minLon_, maxLon_, gridSize), dtype=int)
     yGrid = numpy.array(numpy.arange(minLat_, maxLat_, gridSize), dtype=int)
 
-    R = gridLatLonDist(cLon, cLat, xGrid/100., yGrid/100.)
+    R = gridLatLonDist(cLon, cLat, xGrid/1000., yGrid/1000.)
     numpy.putmask(R, R==0, 1e-30)
-    theta = numpy.pi/2. - gridLatLonBear(cLon, cLat, xGrid/100., yGrid/100.)
+    theta = numpy.pi/2. - gridLatLonBear(cLon, cLat, xGrid/1000., yGrid/1000.)
     return R, theta
 
 def meshLatLon(cLon, cLat, margin=2, resolution=0.01):
@@ -559,35 +559,35 @@ def meshLatLon(cLon, cLat, margin=2, resolution=0.01):
     if (type(cLon)==list or type(cLat)==list or 
         type(cLon)==numpy.ndarray or type(cLat)==numpy.ndarray):
         raise TypeError, "Input values must be scalar values"
-    gridSize = int(100*resolution)
+    gridSize = int(1000*resolution)
 
-    minLon = int(100*(cLon-margin))
-    maxLon = int(100*(cLon+margin))+gridSize
-    minLat = int(100*(cLat-margin))
-    maxLat = int(100*(cLat+margin))+gridSize
+    minLon = int(1000*(cLon-margin))
+    maxLon = int(1000*(cLon+margin))+gridSize
+    minLat = int(1000*(cLat-margin))
+    maxLat = int(1000*(cLat+margin))+gridSize
 
     xx = numpy.array(numpy.arange(minLon, maxLon, gridSize))
     yy = numpy.array(numpy.arange(minLat, maxLat, gridSize))
 
     xGrid,yGrid = numpy.meshgrid(xx, yy)
-    return xGrid/100., yGrid/100.
+    return xGrid/1000., yGrid/1000.
 
 def meshLatLonDomain(minLon, maxLon, minLat, maxLat, margin=2, resolution=0.01):
     """
     Create a meshgrid of the lon/lat grid.
     """
-    gridSize = int(100*resolution)
+    gridSize = int(1000*resolution)
 
-    minLon_ = int(100*(minLon-margin))
-    maxLon_ = int(100*(maxLon+margin))+gridSize
-    minLat_ = int(100*(minLat-margin))
-    maxLat_ = int(100*(maxLat+margin))+gridSize
+    minLon_ = int(1000*(minLon-margin))
+    maxLon_ = int(1000*(maxLon+margin))+gridSize
+    minLat_ = int(1000*(minLat-margin))
+    maxLat_ = int(1000*(maxLat+margin))+gridSize
 
     xx = numpy.array(numpy.arange(minLon_, maxLon_, gridSize))
     yy = numpy.array(numpy.arange(minLat_, maxLat_, gridSize))
 
     xGrid,yGrid = numpy.meshgrid(xx, yy)
-    return xGrid/100., yGrid/100.
+    return xGrid/1000., yGrid/1000.
 
 def dist2GC(cLon1, cLat1, cLon2, cLat2, lonArray, latArray, units="km"):
     """

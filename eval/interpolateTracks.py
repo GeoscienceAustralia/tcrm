@@ -223,7 +223,8 @@ def saveTracks(tracks, outputFile):
         if len(data) > 0:
             np.savetxt(fid, data, fmt=OUTPUT_FMTS)
 
-def parseTracks(configFile, trackFile, source, delta, outputFile=None):
+def parseTracks(configFile, trackFile, source, delta, outputFile=None,
+                interpolation_type=None):
     """
     Load a track dataset, then interpolate to some time delta (given in
     hours). Events with only a single record are not altered.
@@ -264,7 +265,7 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None):
         if len(track.data) == 1:
             results.append(track)
         else:
-            newtrack = interpolate(track, delta, interpolation_type='linear')
+            newtrack = interpolate(track, delta, interpolation_type)
             results.append(newtrack)
   
     if outputFile:

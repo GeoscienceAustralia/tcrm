@@ -619,7 +619,7 @@ class WindfieldGenerator(object):
             if len(done[track.trackfile]) >= done[track.trackfile][0][1]:
                 dumpfile = pjoin(windfieldPath, fnFormat % (pp.rank(), i))
                 self._saveGustToFile(track.trackfile,
-                                     (lat, lon, gust),
+                                     (lat, lon, gust, Vx, Vy, P),
                                      dumpfile)
 
                 del done[track.trackfile]
@@ -634,7 +634,7 @@ class WindfieldGenerator(object):
         """
         Save gusts to a file.
         """
-        lat, lon, speed = result
+        lat, lon, speed, Vx, Vy, P = result
 
         inputFileDate = flModDate(trackfile)
 
@@ -677,6 +677,36 @@ class WindfieldGenerator(object):
                 'atts': {
                     'long_name': 'Maximum 3-second gust wind speed',
                     'units': 'm/s'
+                }
+            },
+            1: {
+                'name': 'ua',
+                'dims': ('lat', 'lon'),
+                'values': Vx,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Maximum eastward wind',
+                    'units': 'm/s'
+                }
+            },
+            2: {
+                'name': 'va',
+                'dims': ('lat', 'lon'),
+                'values': Vy,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Maximum northward wind',
+                    'units': 'm/s'
+                }
+            },
+            3: {
+                'name': 'psl',
+                'dims': ('lat', 'lon'),
+                'values': P,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Minimum air pressure at sea level',
+                    'units': 'hPa'
                 }
             }
         }

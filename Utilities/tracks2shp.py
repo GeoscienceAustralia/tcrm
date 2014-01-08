@@ -38,8 +38,11 @@ def tracks2point(tracks, outputFile):
         for x, y, rec in zip(track.Longitude, track.Latitude, track.data):
             sf.point(x, y)
             sf.record(*rec)
-            
-    sf.save(outputFile)
+
+    try:
+        sf.save(outputFile)
+    except shapefile.ShapefileException:
+        raise
 
     return
 
@@ -72,12 +75,17 @@ def tracks2line(tracks, outputFile, dissolve=False):
             if len(track.data) > 1:
                 dlon = np.diff(track.Longitude)
                 if dlon.min() < -180:
-                    # Split track into multiple parts:
+                    # Track crosses 0E longitude - split track
+                    # into multiple parts:
                     idx = np.argmin(dlon)
                     parts = []
-                    lines = izip(track.Longitude[:idx], track.Latitude[:idx])
+                    lines = izip(track.Longitude[:idx],
+                                 track.Latitude[:idx])
+                    
                     parts.append(lines)
-                    lines = izip(track.Longitude[idx+1:], track.Latitude[idx+1:])
+                    lines = izip(track.Longitude[idx+1:],
+                                 track.Latitude[idx+1:])
+                    
                     parts.append(lines)
                     sf.line(parts)
                 else:
@@ -124,6 +132,9 @@ def tracks2line(tracks, outputFile, dissolve=False):
                 sf.line([[[track.Longitude[n + 1], track.Latitude[n + 1]],
                               [track.Longitude[n + 1], track.Latitude[n + 1]]]])
                 sf.record(*track.data[n+1])
-        
-    sf.save(outputFile)
+
+    try:
+        sf.save(outputFile)
+    except shapefile.ShapefileException:
+        raise
 
