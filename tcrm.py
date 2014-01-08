@@ -47,8 +47,13 @@ def timer(func):
     def wrapper(*arg):
         t1 = time.time()
         res = func(*arg)
-        t2 = time.time()
-        log.debug("%s took %0.0f s", func.func_name, t2 - t1)
+        
+        tottime = time.time() - t1
+        msg = "%02d:%02d:%02d " % \
+          reduce(lambda ll, b : divmod(ll[0], b) + ll[1:],
+                        [(tottime,), 60, 60])
+
+        log.info("Time for %s: %s"%(func.func_name, msg) )
         return res
 
     return wrapper
