@@ -322,12 +322,17 @@ def convert(value, input, output):
     K = {"C":1.}
 
     # Pressures:
-    kPa = {"hPa":10., "Pa":1000., "inHg":0.295299831, "mmHg":7.500615613}
-    hPa = {"kPa":0.1, "Pa":100., "inHg":0.02953, "mmHg":0.750061561}
-    Pa = {"kPa":0.001, "hPa":0.01, "inHg":0.0002953, "mmHg":0.007500616}
+    kPa = {"hPa":10., "Pa":1000., "inHg":0.295299831, "mmHg":7.500615613, 
+           "Pascals":1000.}
+    hPa = {"kPa":0.1, "Pa":100., "inHg":0.02953, "mmHg":0.750061561,
+           "Pascals":100.}
+    Pa = {"kPa":0.001, "hPa":0.01, "inHg":0.0002953, "mmHg":0.007500616, 
+          "Pascals":1.0}
     inHg = {"kPa":3.386388667, "hPa":33.863886667, "Pa":3386.388666667,
             "mmHg":25.4}
     mmHg = {"kPa":0.13332239, "hPa":1.3332239, "Pa":133.32239, "inHg":0.0394}
+    Pascals = {"kPa":0.001, "hPa":0.01, "inHg":0.0002953, "mmHg":0.007500616, 
+          "Pa":1.0}
 
     # Lengths:
     km = {"m":0.001,"mi":0.621371192, "deg":0.00899886, "nm":0.539957,
@@ -349,6 +354,7 @@ def convert(value, input, output):
              "kPa":kPa,
              "hPa":hPa,
              "Pa":Pa,
+             "Pascals":Pascals,
              "inHg":inHg,
              "mmHg":mmHg,
              "C":C,
