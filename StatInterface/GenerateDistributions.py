@@ -53,14 +53,16 @@ Constraints:
 $Id: GenerateDistributions.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
-import os, sys, pdb, logging
+import os
+import sys
+import logging
+from os.path import join as pjoin
 
 import Utilities.stats as stats
 import KDEParameters
-from scipy import array, arange, where, size, transpose, concatenate
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile, flSaveFile, flStartLog
-from Utilities.AsyncRun import AsyncRun
+#from Utilities.AsyncRun import AsyncRun
 
 from scipy.io.netcdf import netcdf_file
 import numpy as np
@@ -159,7 +161,8 @@ class GenerateDistributions:
         each cell of the grid over the area of investigation.'
 
     def allDistributions(self, lonLat, parameterList, parameterName=None,
-                         kdeStep=0.1, angular=False, plotParam=False):
+                         kdeStep=0.1, angular=False, periodic=False,
+                         plotParam=False):
         """
         Calculate a distribution for each individual cell and store in a
         file or return
@@ -171,14 +174,14 @@ class GenerateDistributions:
 
         if type(lonLat) is str:
             self.logger.debug("Loading lat/lon data from file")
-            self.lonLat = array(flLoadFile(lonLat, delimiter=','))
+            self.lonLat = np.array(flLoadFile(lonLat, delimiter=','))
         else:
             self.lonLat = lonLat
 
         if type(parameterList) is str:
             self.logger.debug("Loading parameter data from file: %s" %
                           parameterList)
-            self.pList = array(flLoadFile(parameterList))
+            self.pList = np.array(flLoadFile(parameterList))
         else:
             self.pList = parameterList
 
@@ -198,7 +201,8 @@ class GenerateDistributions:
             # Estimate cyclone parameter data using KDE
             # The returned array contains the grid, the PDF and the CDF
             cdf = self.kdeParameter.generateKDE(self.parameter, kdeStep,
-                                                angular=angular)
+                                                angular=angular,
+                                                periodic=periodic)
             if plotParam:
                 self._plotParameter(cellNum, kdeStep)
             self.logger.debug('size of parameter array = %d: size of cdf array = %d'
@@ -208,12 +212,12 @@ class GenerateDistributions:
             for i in range(len(cdf)):
                 cellNumlist.append(cellNum)
             if cellNum == 0:
-                results = transpose(array([cellNumlist, cdf[:,0], cdf[:,2]]))
+                results = np.transpose(np.array([cellNumlist, cdf[:,0], cdf[:,2]]))
             else:
                 self.logger.debug('size of results array = %s'%str(results.size))
-                results = concatenate((results, transpose(array([cellNumlist,
-                                                                 cdf[:,0],
-                                                                 cdf[:,2]]))))
+                results = np.concatenate((results, np.transpose(np.array([cellNumlist,
+                                                                          cdf[:,0],
+                                                                     cdf[:,2]]))))
 
         if parameterName == None:
             self.logger.debug("Returning CDF dataset for all individual cell numbers")
@@ -221,11 +225,12 @@ class GenerateDistributions:
         else:
             cdfHeader = "Cell_Number, CDF_" + self.pName + "_x, CDF_" + \
                         self.pName + "_y"
-            allCellCdfOutput = os.path.join(self.outputPath,
-                                            'process',
-                                            'all_cell_cdf_' + self.pName)
+            allCellCdfOutput = pjoin(self.outputPath, 'process',
+                                     'all_cell_cdf_' + self.pName)
+                                     
             args = {"filename":allCellCdfOutput, "data":results,
                     "header":cdfHeader, "delimiter":",", "fmt":"%f"}
+                    
             self.logger.debug("Writing CDF dataset for all individual cell numbers into files")
             flSaveFile(**args)
 
@@ -269,13 +274,13 @@ class GenerateDistributions:
         nLat = cellLat
         sLat = cellLat - self.gridSpace['y']
 
-        indij = where(((lat >= sLat) & (lat < nLat)) &
-                      (lon >= wLon) & (lon < eLon))
+        indij = np.where(((lat >= sLat) & (lat < nLat)) &
+                          (lon >= wLon) & (lon < eLon))
         parameter_ = self.pList[indij]
-        self.parameter = stats.statRemoveNum(array(parameter_),
+        self.parameter = stats.statRemoveNum(np.array(parameter_),
                                              self.missingValue)
 
-        while size(self.parameter) <= self.minSamplesCell:
+        while np.size(self.parameter) <= self.minSamplesCell:
             self.logger.debug("Insufficient samples. Increasing the size of the cell")
             wLon_last = wLon
             eLon_last = eLon
@@ -286,13 +291,14 @@ class GenerateDistributions:
             if (wLon == wLon_last) & (eLon == eLon_last) & (nLat == nLat_last) & (sLat == sLat_last):
                 errMsg = "Insufficient grid points in selected domain to " \
                        + "estimate storm statistics - please select a larger " \
-                       + "domain. Samples = %i / %i" % (size(self.parameter), self.minSamplesCell)
+                       + "domain. Samples = %i / %i" % (np.size(self.parameter), 
+                                                        self.minSamplesCell)
                 self.logger.critical(errMsg)
                 raise StopIteration, errMsg
-            indij = where(((lat >= sLat) & (lat < nLat)) &
-                          ((lon >= wLon) & (lon < eLon)))
+            indij = np.where(((lat >= sLat) & (lat < nLat)) &
+                              ((lon >= wLon) & (lon < eLon)))
             parameter_ = self.pList[indij]
-            self.parameter = stats.statRemoveNum(array(parameter_),
+            self.parameter = stats.statRemoveNum(np.array(parameter_),
                                                  self.missingValue)
 
         # Check to see if all values in the array are the same. If the
@@ -310,13 +316,13 @@ class GenerateDistributions:
                 errMsg = "Insufficient grid points in selected domain to estimate storm statistics - please select a larger domain."
                 self.logger.critical(errMsg)
                 raise StopIteration, errMsg
-            indij = where(((lat >= sLat) & (lat < nLat)) &
-                          ((lon >= wLon) & (lon < eLon)))
+            indij = np.where(((lat >= sLat) & (lat < nLat)) &
+                              ((lon >= wLon) & (lon < eLon)))
             parameter_ = self.pList[indij]
-            self.parameter = stats.statRemoveNum(array(parameter_),
+            self.parameter = stats.statRemoveNum(np.array(parameter_),
                                                  self.missingValue)
         self.logger.debug("Number of valid observations in cell %s : %s" %
-                      (str(cellNum), str(size(self.parameter))))
+                      (str(cellNum), str(np.size(self.parameter))))
 
 
     def _plotParameter(self, cellNum, kdeStep):
@@ -324,7 +330,7 @@ class GenerateDistributions:
         self.logger.debug("Plotting %s"%self.pName)
         pMin = self.parameter.min()
         pMax = self.parameter.max()
-        rng = arange(pMin, pMax, kdeStep)
+        rng = np.arange(pMin, pMax, kdeStep)
         if len(rng) < 10:
             rng = 10
         pylab.clf()
@@ -398,35 +404,30 @@ if __name__ == "__main__":
                                   minSamplesCell, missingValue)
 
 
-#    gDist.allDistributions(path+'all_lon_lat', path+'bearing_rate', 'bearing_rate', 5.)
-#    gDist.allDistributions(path+'all_lon_lat', path+'pressure_rate', 'pressure_rate',kdeStep)
-#    gDist.allDistributions(path+'all_lon_lat', path+'speed_rate', 'speed_rate',kdeStep)
-#    gDist.allDistributions(path+'all_lon_lat', path+'rmax_rate', 'rmax_rate',kdeStep)
-
-    gDist.allDistributions(os.path.join(path, 'init_lon_lat'),
-                           os.path.join(path, 'init_bearing'),
+    gDist.allDistributions(pjoin(path, 'init_lon_lat'),
+                           pjoin(path, 'init_bearing'),
                            'init_bearing', 5.)
-    gDist.allDistributions(os.path.join(path, 'origin_lon_lat'),
-                           os.path.join(path, 'init_pressure'),
+    gDist.allDistributions(pjoin(path, 'origin_lon_lat'),
+                           pjoin(path, 'init_pressure'),
                            'init_pressure', kdeStep)
-    gDist.allDistributions(os.path.join(path, 'init_lon_lat'),
-                           os.path.join(path, 'init_speed'),
+    gDist.allDistributions(pjoin(path, 'init_lon_lat'),
+                           pjoin(path, 'init_speed'),
                            'init_speed', kdeStep)
 
-    gDist.allDistributions(os.path.join(path, 'origin_lon_lat'),
-                           os.path.join(path, 'init_rmax'),
+    gDist.allDistributions(pjoin(path, 'origin_lon_lat'),
+                           pjoin(path, 'init_rmax'),
                            'init_rmax', kdeStep)
-    gDist.allDistributions(os.path.join(path, 'all_lon_lat'),
-                           os.path.join(path, 'all_bearing'),
+    gDist.allDistributions(pjoin(path, 'all_lon_lat'),
+                           pjoin(path, 'all_bearing'),
                            'bearing', 5.)
-    gDist.allDistributions(os.path.join(path, 'all_lon_lat'),
-                           os.path.join(path, 'all_pressure'),
+    gDist.allDistributions(pjoin(path, 'all_lon_lat'),
+                           pjoin(path, 'all_pressure'),
                            'pressure', kdeStep)
-    gDist.allDistributions(os.path.join(path, 'all_lon_lat'),
-                           os.path.join(path, 'all_speed'),
+    gDist.allDistributions(pjoin(path, 'all_lon_lat'),
+                           pjoin(path, 'all_speed'),
                            'speed', kdeStep)
 
-    gDist.allDistributions(os.path.join(path, 'all_lon_lat'),
-                           os.path.join(path, 'all_rmax'),
+    gDist.allDistributions(pjoin(path, 'all_lon_lat'),
+                           pjoin(path, 'all_rmax'),
                            'rmax', kdeStep)
     logging.shutdown()

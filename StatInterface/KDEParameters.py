@@ -50,8 +50,8 @@ $Id: KDEParameters.py 810 2012-02-21 07:52:50Z nsummons $
 
 import os, sys, pdb, logging
 
-from scipy import array, arange, transpose
-import numpy
+#from scipy import array, arange, transpose
+import numpy as np
 import Utilities.stats as stats
 import Utilities.KPDF as KPDF
 
@@ -113,7 +113,7 @@ class KDEParameters:
                 kernel density estimation technique"
 
     def generateKDE(self, parameters, kdeStep, kdeParameters=None,
-                    cdfParameters=None, angular=False,
+                    cdfParameters=None, angular=False, periodic=False,
                     missingValue=sys.maxint):
         """
         Generate a PDF and CDF for a given parameter set using the
@@ -135,29 +135,47 @@ class KDEParameters:
         if angular:
             xmin = 0.0
             xmax = 360.0
+        elif periodic:
+            xmin = 0.0
+            xmax = periodic
         else:
             xmin = self.parameters.min()
             xmax = self.parameters.max()
+
         self.logger.debug("xmin=%7.3f, xmax=%7.3f, kdeStep=%7.3f" %
-                           (xmin, xmax,kdeStep))
-        self.grid = arange(xmin, xmax, kdeStep)
+                           (xmin, xmax, kdeStep))
+        if periodic:
+            x = np.arange(1, periodic + 1, kdeStep)
+            self.grid = np.concatenate( [x - periodic, x, x + periodic] )
+            self.parameters = np.concatenate([self.parameters - periodic, 
+                                              self.parameters, 
+                                              self.parameters + periodic])
+        else:
+            self.grid = np.arange(xmin, xmax, kdeStep)
+
         if self.grid.size<2:
             self.logger.critical("Grid for CDF generation is a single value")
             self.logger.critical("xmin=%7.3f, xmax=%7.3f, kdeStep=%7.3f" %
                                   (xmin, xmax,kdeStep))
             raise ValueError
+
         bw = KPDF.UPDFOptimumBandwidth(self.parameters)
         self.pdf = self._generatePDF(self.grid, bw, self.parameters)
+        
+        if periodic:
+            self.pdf = 3.0*self.pdf[(periodic/kdeStep):2*(periodic/kdeStep)]
+            self.grid = self.grid[(periodic/kdeStep):2*(periodic/kdeStep)]
+            
         self.cy = stats.cdf(self.grid, self.pdf)
         if kdeParameters is None:
-            return transpose(array([self.grid, self.pdf, self.cy]))
+            return np.transpose(np.array([self.grid, self.pdf, self.cy]))
         else:
             # Assume both kdeParameters and cdfParameters are defined as files:
             self.logger.debug("Saving KDE and CDF data to files")
-            flSaveFile(kdeParameters, transpose(array([self.grid, self.pdf])))
-            flSaveFile(cdfParameters, transpose(array([self.grid, self.cy])))
+            flSaveFile(kdeParameters, np.transpose(np.array([self.grid, self.pdf])))
+            flSaveFile(cdfParameters, np.transpose(np.array([self.grid, self.cy])))
 
-    def generateGenesisDateCDF( self, genDays, bw=None, genesisKDE=None ):
+    def generateGenesisDateCDF(self, genDays, lonLat, bw=None, genesisKDE=None):
         """
         Calculate the PDF of genesis day using KDEs.
         Since the data is periodic, we use a simple method to include the 
@@ -168,9 +186,9 @@ class KDEParameters:
         """
 
         data = flLoadFile( genDays )
-        days = arange( 1, 366 )
-        ndays = numpy.concatenate( [days - 365, days, days + 365] )
-        ndata = numpy.concatenate( [data - 365, data, data + 365] )
+        days = np.arange( 1, 366 )
+        ndays = np.concatenate( [days - 365, days, days + 365] )
+        ndata = np.concatenate( [data - 365, data, data + 365] )
 
         if bw is None:
             bw = KPDF.UPDFOptimumBandwidth( ndata ) 
@@ -185,12 +203,12 @@ class KDEParameters:
         apdf = 3.0*pdf[365:730]
         cy = stats.cdf(days, apdf)
         if genesisKDE is None:
-            return transpose(array(numpy.concatenate( [days, apdf, cy] ) ))
+            return np.transpose(np.array(np.concatenate( [days, apdf, cy] ) ))
         else:
             # Assume both kdeParameters and cdfParameters are defined as files:
             self.logger.debug("Saving KDE and CDF data to files")
-            flSaveFile(genesisKDE, transpose(numpy.concatenate([days, pdf])))
-            #flSaveFile(cdfParameters, transpose(array([days, cy])))
+            #flSaveFile(genesisKDE, transpose(numpy.concatenate([days, pdf])))
+            flSaveFile(genesisKDE, np.transpose(np.array([days, cy])))
         
 
     def _generatePDF(self, grid, bw, dataset):

@@ -136,11 +136,14 @@ class StatInterface(object):
         log.info('Generating CDFs for TC genesis day')
         log.debug('Reading data from %s',
                   pjoin(self.processPath, 'jdays'))
-        jdays = pjoin(self.processPath, 'jdays')
+        pList = pjoin(self.processPath, 'jdays')
+        lonLat = pjoin(self.processPath, 'init_lon_lat')
         kde = KDEParameters.KDEParameters(self.kdeType)
-        kde.generateGenesisDateCDF(jdays, bw=14,
-                                   genesisKDE=pjoin(self.processPath,
-                                                    'cdfGenesisDays'))
+        #kde.generateGenesisDateCDF(jdays, lonLat, bw=14,
+        #                           genesisKDE=pjoin(self.processPath,
+        #                                            'cdfGenesisDays'))
+        self.generateDist.allDistributions(lonLat, pList, 'init_day', 
+                                           kdeStep=0.25, periodic=365)
 
     def cdfCellBearing(self):
         """
