@@ -7,7 +7,6 @@ import numpy as np
 from math import exp, sqrt
 import Utilities.metutils as metutils
 
-
 class WindSpeedModel(object):
 
     """
@@ -218,14 +217,13 @@ class HollandWindProfile(WindProfileModel):
         delta = (self.rMax / R) ** self.beta
         edelta = np.exp(-delta)
 
-        V = (np.sign(self.f) * np.sqrt((self.dP * self.beta / self.rho)
+        V = ( np.sqrt((self.dP * self.beta / self.rho)
              * delta * edelta + (R * self.f / 2.) ** 2) - R *
              np.abs(self.f) / 2.)
 
         icore = np.where(R <= self.rMax)
-        V[icore] = (np.sign(self.f) * R[icore] * (R[icore] * (R[icore]
-                    * aa + bb) + cc))
-
+        V[icore] = (R[icore] * (R[icore] * (R[icore] * aa + bb) + cc))
+        V = np.sign(self.f) * V
         return V
 
     def vorticity(self, R):
@@ -233,7 +231,7 @@ class HollandWindProfile(WindProfileModel):
         delta = (self.rMax / R) ** beta
         edelta = np.exp(-delta)
 
-        Z = (np.sign(self.f) * (np.sqrt((self.dP * beta / self.rho) *
+        Z = ((np.sqrt((self.dP * beta / self.rho) *
              delta * edelta + (R * self.f / 2.) ** 2)) / R -
              np.abs(self.f) + edelta *
              (2 * (beta ** 2) * self.dP * (delta - 1) * delta +
@@ -244,14 +242,14 @@ class HollandWindProfile(WindProfileModel):
 
         # Calculate first and second derivatives at R = Rmax:
         d2Vm = self.secondDerivative()
-        aa = ((d2Vm / 2 - (-1.0 * np.sign(self.f) * self.vMax /
+        aa = ((d2Vm / 2 - (-1.0 *  self.vMax /
               self.rMax) / self.rMax) / self.rMax)
         bb = (d2Vm - 6 * aa * self.rMax) / 2
         cc = -3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
 
         icore = np.where(R <= self.rMax)
         Z[icore] = R[icore] * (R[icore] * 4 * aa + 3 * bb) + 2 * cc
-
+        Z = np.sign(self.f) * Z
         return Z
 
 
@@ -299,12 +297,13 @@ class RankineWindProfile(WindProfileModel):
         return V
 
     def vorticity(self, R):
-        Z = (np.sign(self.f) * self.vMax * ((self.rMax / R) **
+        Z = (self.vMax * ((self.rMax / R) **
              self.alpha) / R - self.alpha * self.vMax * (self.rMax **
              self.alpha) / (R ** self.alpha))
         icore = np.where(R <= self.rMax)
-        Z[icore] = (np.sign(self.f) * (self.vMax * (R[icore] /
+        Z[icore] = ((self.vMax * (R[icore] /
                     self.rMax) + self.vMax / self.rMax))
+        Z = np.sign(self.f) * Z
         return Z
 
 
@@ -328,9 +327,10 @@ class DoubleHollandWindProfile(WindProfileModel):
     configurations).
     """
 
-    def __init__(self, lat, lon, eP, cP, rMax, beta1, beta2, rMax2):
+    def __init__(self, lat, lon, eP, cP, rMax, beta1, beta2, rMax2=150.,
+                 windSpeedModel=HollandWindSpeed):
         WindProfileModel.__init__(self, lat, lon, eP, cP, rMax,
-                                  WindSpeedModel)
+                                  windSpeedModel)
 
         # Scale dp2 if dP is less than 800 Pa
 
@@ -342,6 +342,7 @@ class DoubleHollandWindProfile(WindProfileModel):
 
         self.dp1 = self.dP - self.dp2
 
+        self.beta = beta1
         self.beta1 = beta1
         self.beta2 = beta2
         self.rMax2 = rMax2
@@ -695,17 +696,24 @@ class KepertWindField(WindFieldModel):
         Z = self.vorticity(R)
         K = 50.  # Diffusivity
         Cd = 0.002  # Constant drag coefficient
-
-        al = (2. * V / R + self.f) / (2. * K)
+        
+        Vt = vFm * np.ones(V.shape)
+        
+        core = np.where(R > 4. * self.rMax)
+        Vt[core] = vFm * np.exp(-((R[core] / self.rMax) - 4.) ** 2. )
+        
+        al = ((2. * V / R ) + self.f) / (2. * K)
         be = (self.f + Z) / (2. * K)
         gam = V / (2. * K * R)
+        if self.f > 0:
+            gam *= -1.
         albe = np.sqrt(al / be)
 
         ind = np.where(np.abs(gam) > np.sqrt(al * be))
         chi = (Cd / K) * V / np.sqrt(np.sqrt(al * be))
         eta = (Cd / K) * V / np.sqrt(np.sqrt(al * be) + np.abs(gam))
         psi = (Cd / K) * V / np.sqrt(np.abs(np.sqrt(al * be) - gam))
-
+        
         i = complex(0., 1.)
         A0 = (-chi * V * (1. + i * (1. + chi)) / (2. * chi ** 2. + 3.
               * chi + 2.))
@@ -715,31 +723,49 @@ class KepertWindField(WindFieldModel):
         u0s = albe * A0.real
         v0s = A0.imag
 
-        Am = (-((1. + (1. + i) * eta) / albe + (2. + (1. + i) * eta))
-              * psi * vFm /
-              ((2. + 2. * i) * (1 + eta * psi) + 3. * psi + 3. * i * eta))
+        Am = (-(psi * (1. + 2. * albe + (1. + i) * (1. + albe) * eta))
+              * Vt /
+             ( albe * ((2. + 2. * i) * (1 + eta * psi) + 
+              3. * psi + 3. * i * eta)) )
 
-        Am[ind] = (-((1. + (1. + i) * eta[ind]) / albe[ind] +
-                   (2. + (1. + i) * eta[ind])) * psi[ind] * vFm /
-                   (2. - 2. * i + 3. * (psi[ind] + eta[ind])
-                    + (2. + 2. * i) * eta[ind] * psi[ind]))
+        #Am[ind] = (-((1. + (1. + i) * eta[ind]) / albe[ind] +
+        #           (2. + (1. + i) * eta[ind])) * psi[ind] * vFm /
+        #           (2. - 2. * i + 3. * (psi[ind] + eta[ind])
+        #            + (2. + 2. * i) * eta[ind] * psi[ind]))
+                    
+        AmIII = (-(psi * (1. + 2. * albe + (1. + i) * (1. + albe) * eta) 
+                * Vt) / 
+                ( albe * (2. - 2. * i + 3. * (eta + psi) + (2. + 2. * i) * 
+                eta * psi)))
+                
+        Am[ind] = AmIII[ind]
 
         # First asymmetric surface component
 
-        ums = albe * (Am * np.exp(-i * lam)).real
-        vms = (Am * np.exp(-i * lam)).imag
+        ums = albe * (Am * np.exp(-(i * lam))).real
+        vms = (Am * np.exp(-(i * lam))).imag
 
-        Ap = (-((1. + (1. + i) * psi) / albe - (2. + (1. + i) * psi)) *
-              eta * vFm /
-              ((2. + 2. * i) * (1. + eta * psi) + 3. * eta +
-               3. * i * psi))
+        #Ap = (-((1. + (1. + i) * psi) / albe - (2. + (1. + i) * psi)) *
+        #      eta * vFm /
+        #      ((2. + 2. * i) * (1. + eta * psi) + 3. * eta +
+        #       3. * i * psi))
+               
+        Ap = (-(eta * (1. - 2. * albe + (1. + i) * (1. - albe) * psi)) * Vt /
+                (albe * ((2. + 2. * i) * (1. + eta * psi) + 
+                3. * eta + 3. * i * psi)))               
 
-        Ap[ind] = (-((1. + (1. - i) * psi[ind]) / albe[ind] -
-                     (2. + (1. - i) * psi[ind])) *
-                   eta[ind] * vFm /
-                   (2. + 2. * i + 3. * (eta[ind] + psi[ind]) +
-                    (2. - 2. * i) * eta[ind] * psi[ind]))
-
+        #Ap[ind] = (-((1. + (1. - i) * psi[ind]) / albe[ind] -
+        #             (2. + (1. - i) * psi[ind])) *
+        #           eta[ind] * vFm /
+        #           (2. + 2. * i + 3. * (eta[ind] + psi[ind]) +
+        #            (2. - 2. * i) * eta[ind] * psi[ind]))
+                    
+        ApIII = (-(eta * (1. - 2. * albe + (1. - i) * (1. - albe) * psi) * Vt) / 
+                (albe * (2. + 2. * i + 3. * (eta + psi) 
+                + (2. - 2. * i) * eta * psi)))
+                
+        Ap[ind] = ApIII[ind]
+                  
         # Second asymmetric surface component
 
         ups = albe * (Ap * np.exp(i * lam)).real
@@ -750,8 +776,8 @@ class KepertWindField(WindFieldModel):
         us = u0s + ups + ums
         vs = V + v0s + vps + vms
 
-        usf = us + vFm * np.cos(lam - thetaFm)
-        vsf = vs - vFm * np.sin(lam - thetaFm)
+        usf = us + Vt * np.cos(lam - thetaFm)
+        vsf = vs - Vt * np.sin(lam - thetaFm)
         phi = np.arctan2(usf, vsf)
 
         # Surface winds, cartesian coordinates
