@@ -18,13 +18,15 @@ class DataSet(object):
         if ext in ['.gz', '.zip']:
             self.compression = ext[1:]
             self.filename = filename or base
+        else:
+            self.filename = filename or url.split('/')[-1]
 
     def download(self, callback=None):
         if self.isDownloaded():
             return
 
         try:
-            urlfile = urlopen(self.url, timeout=3)
+            urlfile = urlopen(self.url, timeout=5)
             meta = urlfile.info()
             data = StringIO()
 
@@ -62,6 +64,7 @@ class DataSet(object):
 def loadDatasets():
     config = ConfigParser()
     datasets = config.get('Input', 'Datasets').split(',')
+    
     global DATASETS
     for dataset in datasets:
         url = config.get(dataset, 'URL')

@@ -125,8 +125,8 @@ GetRMWDistFromInputData=False
 
 [Input]
 LandMask=input/landmask.nc
-MSLPFile=MSLP/mslp_daily_ltm.nc
-Datasets=IBTRACS
+MSLPFile=MSLP/slp.day.ltm.nc
+Datasets=IBTRACS,LTMSLP
 
 [Output]
 Path=output
@@ -159,6 +159,13 @@ PressureUnits=hPa
 LengthUnits=km
 DateFormat=%Y-%m-%d %H:%M:%S
 SpeedUnits=kph
+
+[LTMSLP]
+URL=ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.derived/surface/slp.day.1981-2010.ltm.nc
+path=MSLP
+filename=slp.day.ltm.nc
+
+
 """
 
 
