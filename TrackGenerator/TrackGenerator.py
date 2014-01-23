@@ -37,9 +37,10 @@ import Utilities.nctools as nctools
 import Utilities.Cmap as Cmap
 import Utilities.Cstats as Cstats
 import Utilities.maputils as maputils
-
+import Utilities.metutils as metutils
 from os.path import join as pjoin
 from scipy.io.netcdf import netcdf_file
+from scipy.ndimage.interpolation import spline_filter
 
 from StatInterface.generateStats import GenerateStats
 from StatInterface.SamplingOrigin import SamplingOrigin
@@ -49,6 +50,22 @@ from MSLP.mslp_seasonal_clim import MSLPGrid
 from DataProcess.CalcFrequency import CalcFrequency
 from DataProcess.CalcTrackDomain import CalcTrackDomain
 from Utilities.config import ConfigParser
+from Utilities.interp3d import interp3d
+
+class SamplePressure(object):
+    def __init__(self, mslp_file):
+        ncobj = nctools.ncLoadFile(mslp_file)
+        data = nctools.ncGetData(ncobj, 'slp')
+        slpunits = getattr(ncobj.variables['slp'],'units')
+
+        data = metutils.convert(data, slpunits, 'hPa')
+        self.data = spline_filter(data)
+        
+    def get_pressure(self, coords):
+        scale = [365., 180., 360.]
+        offset = [0., -90., 0.]
+        mslp = interp3d(self.data, coords, scale, offset, prefilter=False)
+        return mslp
 
 class TrackGenerator(object):
 
@@ -238,6 +255,9 @@ class TrackGenerator(object):
 
         self.allCDFInitPressure = \
             load(pjoin(path, 'all_cell_cdf_init_pressure'))
+            
+        self.allCDFInitDay = \
+            load(pjoin(path, 'all_cell_cdf_init_day'))
 
         try:
             self.allCDFInitSize = load(pjoin(path,
@@ -298,7 +318,7 @@ class TrackGenerator(object):
     def generateTracks(self, nTracks, initLon=None, initLat=None,
                        initSpeed=None, initBearing=None,
                        initPressure=None, initEnvPressure=None,
-                       initRmax=None):
+                       initRmax=None, initDay=None):
         """
         Generate tropical cyclone tracks from a single genesis point.
 
@@ -390,13 +410,35 @@ class TrackGenerator(object):
             else:
                 genesisSpeed = initSpeed
 
+            # Sample an initial maximum radius if none is provided
+
+            if not initRmax:
+                if not self.allCDFInitSize:
+                    cdfSize = self.cdfSize[:, [0, 2]]
+                else:
+                    ind = self.allCDFInitSize[:, 0] == initCellNum
+                    cdfSize = self.allCDFInitSize[ind, 1:3]
+                genesisRmax = ppf(uniform(), cdfSize)
+            else:
+                genesisRmax = initRmax
+                
+            # Sample an initial day if none is provided
+
+            if not initDay:
+                ind = self.allCDFInitDay[:,0] == initCellNum
+                cdfInitDay = self.allCDFInitDay[ind, 1:3]
+                genesisDay = ppf(uniform(), cdfInitDay)
+            else:
+                genesisDay = initDay
+                
             # Sample an initial environment pressure if none is
-            # provided
+            # provided - dependent on initial day of year:
 
             if not initEnvPressure:
-                initEnvPressure = self.mslp.sampleGrid(genesisLon,
-                                                       genesisLat)
-
+                initEnvPressure = self.mslp.get_pressure(np.array([[genesisDay],
+                                                          [genesisLat],
+                                                          [genesisLon]]))
+                                                       
             # Sample an initial pressure if none is provided
 
             if not initPressure:
@@ -410,19 +452,7 @@ class TrackGenerator(object):
                                       cdfInitPressure)
             else:
                 genesisPressure = initPressure
-
-            # Sample an initial maximum radius if none is provided
-
-            if not initRmax:
-                if not self.allCDFInitSize:
-                    cdfSize = self.cdfSize[:, [0, 2]]
-                else:
-                    ind = self.allCDFInitSize[:, 0] == initCellNum
-                    cdfSize = self.allCDFInitSize[ind, 1:3]
-                genesisRmax = ppf(uniform(), cdfSize)
-            else:
-                genesisRmax = initRmax
-
+                                                       
             # Do not generate tracks from this genesis point if we are
             # going to exit the domain on the first step
 
@@ -453,7 +483,7 @@ class TrackGenerator(object):
             track = self._singleTrack(j, genesisLon, genesisLat,
                                       genesisSpeed, genesisBearing,
                                       genesisPressure, initEnvPressure,
-                                      genesisRmax)
+                                      genesisRmax, genesisDay)
 
             results.append(track)
 
@@ -516,17 +546,20 @@ class TrackGenerator(object):
             log.debug('Removed %i tracks that do not pass inside' +
                       ' domain.', nbefore - len(results))
 
-        # Return the tracks as an stacked array
-
+        # Return the tracks as a stacked array
+        
         if len(results) > 1:
             return np.hstack([np.vstack(r) for r in results]).T
         else:
             return np.array(results).T
-
+            
+        return results
+        
     def generateTracksToFile(self, outputFile, nTracks, initLon=None,
                              initLat=None, initSpeed=None,
                              initBearing=None, initPressure=None,
-                             initEnvPressure=None, initRmax=None):
+                             initEnvPressure=None, initRmax=None,
+                             initDay=None):
         """
         Generate tropical cyclone tracks from a single genesis point
         and save the tracks to a file.
@@ -546,7 +579,7 @@ class TrackGenerator(object):
             initSpeed=initSpeed, initBearing=initBearing,
             initPressure=initPressure,
             initEnvPressure=initEnvPressure,
-            initRmax=initRmax)
+            initRmax=initRmax, initDay=initDay)
 
         if outputFile.endswith("shp"):
             from Utilities.shptools import shpSaveTrackFile
@@ -652,7 +685,7 @@ class TrackGenerator(object):
 
     def _singleTrack(self, cycloneNumber, initLon, initLat, initSpeed,
                      initBearing, initPressure, initEnvPressure,
-                     initRmax):
+                     initRmax, initDay):
         """
         Generate a single tropical cyclone track from a genesis point.
 
@@ -682,6 +715,9 @@ class TrackGenerator(object):
         :type  initRmax: float
         :param initRmax: the initial maximum radius of the tropical
                          cyclone.
+                         
+        :type  initDay: float
+        :param initDay: the initial day of year of the tropical cyclone.
 
         :return: a tuple of :class:`numpy.ndarray`'s
                  The tuple consists of::
@@ -699,6 +735,7 @@ class TrackGenerator(object):
 
         index = np.ones(self.maxTimeSteps, 'f') * cycloneNumber
         age = np.empty(self.maxTimeSteps, 'i')
+        jday = np.empty(self.maxTimeSteps, 'f')
         lon = np.empty(self.maxTimeSteps, 'f')
         lat = np.empty(self.maxTimeSteps, 'f')
         speed = np.empty(self.maxTimeSteps, 'f')
@@ -712,6 +749,7 @@ class TrackGenerator(object):
         # Initialise the track
 
         age[0] = 0
+        jday[0] = initDay
         lon[0] = initLon
         lat[0] = initLat
         speed[0] = initSpeed
@@ -752,9 +790,16 @@ class TrackGenerator(object):
                                               lon[i - 1],
                                               lat[i - 1])
 
+            age[i] = age[i - 1] + self.dt
+            jday[i] = jday[i - 1] + self.dt/24.
+            jday[i] = np.mod(jday[i], 365)
+
             # Sample the environment pressure
 
-            penv[i] = self.mslp.sampleGrid(lon[i], lat[i])
+            #penv[i] = self.mslp.sampleGrid(lon[i], lat[i])
+            penv[i] = self.mslp.get_pressure(np.array([[jday[i]],
+                                                      [lat[i]],
+                                                      [lon[i]]]))            
 
             # Terminate and return the track if it steps out of the
             # domain
@@ -764,9 +809,9 @@ class TrackGenerator(object):
                 lat[i] <= self.gridLimit['yMin'] or
                     lat[i] > self.gridLimit['yMax']):
 
-                log.debug('TC stepped out of grid at point ' +
+                log.debug('TC exited domain at point ' +
                           '(%.2f %.2f) and time %i', lon[i], lat[i], i)
-
+                
                 return (index[:i], age[:i], lon[:i], lat[:i],
                         speed[:i], bearing[:i], pressure[:i],
                         penv[:i], rmax[:i])
@@ -833,7 +878,6 @@ class TrackGenerator(object):
             # Update the distance and the age of the cyclone
 
             dist[i] = self.dt * speed[i]
-            age[i] = age[i - 1] + self.dt
 
             # Terminate the track if it doesn't satisfy certain criteria
 
@@ -1549,11 +1593,13 @@ def run(configFile, callback=None):
     gridInc = config.geteval('TrackGenerator', 'GridInc')
     gridLimit = config.geteval('Region', 'gridLimit')
     mslpGrid = config.get('Input', 'MSLPGrid')
+    mslpFile = config.get('Input', 'MSLPFile')
     seasonSeed = None
     trackSeed = None
     trackPath = pjoin(outputPath, 'tracks')
     processPath = pjoin(outputPath, 'process')
-    trackFilename = 'tracks.%04i.' + fmt
+    #trackFilename = 'tracks.%05i-%%04i.' + fmt
+    trackFilename = 'tracks.%05i.' + fmt
 
     if config.has_option('TrackGenerator', 'gridLimit'):
         gridLimit = config.geteval('TrackGenerator', 'gridLimit')
@@ -1587,16 +1633,18 @@ def run(configFile, callback=None):
 
     # Parse the MSLP setting
 
-    monthSel = set(mslpGrid.strip('[]{}() ').replace(',', ' ').split(' '))
-    monthSel.discard('')
-    if monthSel.issubset([str(k) for k in range(1, 13)]):
-        monthSelInt = [int(k) for k in monthSel]
-        log.info("Generating MSLP seasonal average")
-        mslp = MSLPGrid(monthSelInt)
-    else:
-        log.info("Loading MSLP seasonal average from file")
-        mslp = SampleGrid(mslpGrid)
+    #monthSel = set(mslpGrid.strip('[]{}() ').replace(',', ' ').split(' '))
+    #monthSel.discard('')
+    #if monthSel.issubset([str(k) for k in range(1, 13)]):
+    #    monthSelInt = [int(k) for k in monthSel]
+    #    log.info("Generating MSLP seasonal average")
+    #    mslp = MSLPGrid(monthSelInt)
+    #else:
+    #    log.info("Loading MSLP seasonal average from file")
+    #    mslp = SampleGrid(mslpGrid)
 
+    mslp = SamplePressure(mslpFile)
+    
     # Initialise the landfall tracking
 
     landfall = trackLandfall.LandfallDecay(configFile, dt)
@@ -1627,7 +1675,7 @@ def run(configFile, callback=None):
     # should jump ahead in the PRNG stream to ensure that it is
     # independent of all other simulations.
 
-    maxRvsPerTrack = 4 * (maxTimeSteps + 1)
+    maxRvsPerTrack = 5 * (maxTimeSteps + 1)
     jumpAhead = np.hstack([[0],
                           np.cumsum(nCyclones * maxRvsPerTrack)[:-1]])
 
@@ -1677,7 +1725,15 @@ def run(configFile, callback=None):
                  'Latitude(degree),Speed(km/hr),Bearing(degrees),' + \
                  'CentralPressure(hPa),EnvPressure(hPa),rMax(km)\n'
         fmt = '%i,%7.3f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f'
-
+        
+        """
+        for i, track in enumerate(tracks):
+            trackFile = pjoin(trackPath, sim.outfile % (i + 1))
+            with open (trackFile, 'w') as fp:
+                fp.write('%' + header)
+                if len(track) > 0:
+                    np.savetxt(fp, np.array(track).T, fmt=fmt)
+        """            
         with open(trackFile, 'w') as fp:
             fp.write('%' + header)
             if len(tracks) > 0:
