@@ -90,6 +90,9 @@ InputFile=input/Allstorms.ibtracs_wmo.v03r05.csv
 Source=IBTRACS
 StartSeason=1981
 
+[Input]
+MSLPGrid=MSLP/mslp_annual_climatology.nc
+
 [Region]
 gridLimit={'xMin':112.0,'xMax':160.0,'yMin':-47.0,'yMax':16.0}
 
@@ -620,6 +623,7 @@ class MapView(Frame):
         continentColor = kwargs.pop('continentColor', '0.8')
         coastlineWidth = kwargs.pop('coastlineWidth', 0.3)
         projection = kwargs.pop('projection', 'mill')
+        resolution = kwargs.pop('resolution', 'c')
         figSize = kwargs.pop('figSize', (1.3, 1))
 
         Frame.__init__(self, parent)
@@ -630,6 +634,7 @@ class MapView(Frame):
 
         self.basemap = Basemap(llcrnrlon=0, llcrnrlat=-80, urcrnrlon=360,
                                urcrnrlat=80, projection=projection,
+                               resolution=resolution,
                                ax=self.axes, fix_aspect=False)
         if drawCoastlines:
             self.basemap.drawcoastlines(linewidth=coastlineWidth)
@@ -1088,7 +1093,7 @@ class MainView(Frame):
         frame = Frame(paned)
         paned.add(frame)
 
-        self.region = MapRegionSelector(frame, figSize=(1.3, 1.0))
+        self.region = MapRegionSelector(frame, figSize=(1.3, 1.2))
         self.region.grid(column=0, row=0, padx=2, pady=2, sticky='NEW')
 
         notebook = Notebook(frame)
@@ -1124,7 +1129,8 @@ class MainView(Frame):
 
         self.view = MapRegionGrid(rightFrame, figSize=(7, 7),
                                   continentColor='#cdcbc1',
-                                  coastlineWidth=0.8)
+                                  coastlineWidth=0.8,
+                                  resolution='i')
         self.view.grid(column=0, row=0, sticky='NSEW')
 
         self.output = SubprocessOutputView(rightFrame, width=80, height=5)
