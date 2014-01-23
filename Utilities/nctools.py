@@ -193,10 +193,10 @@ def ncGetData(ncobj, var, missingValue=0.0):
     # Data = var*scale_factor + add_offset
     if hasattr(varobj, 'scale_factor'):
         scale = getattr(varobj, 'scale_factor')
-        data = data*scale[0]
+        data = data*scale #[0]
     if hasattr(varobj, 'add_offset'):
         offset = getattr(varobj, 'add_offset')
-        data = data + offset[0]
+        data = data + offset #[0]
 
     # Fix to replace NaN values:
     ind = numpy.where(numpy.isnan(data))
@@ -435,8 +435,8 @@ def ncSaveGrid(filename, dimensions, variables,
 
 
     ncobj = ncCreateFile(filename,op='w')
-
-    # Create dimensions:
+ 
+   # Create dimensions:
     dims = ()
     for i in dimensions.iterkeys():
         name = dimensions[i]['name']
