@@ -26,7 +26,7 @@ import os
 import sys
 import windmodels
 
-from os.path import join as pjoin
+from os.path import join as pjoin, split as psplit, splitext as psplitext
 from collections import defaultdict
 
 
@@ -36,6 +36,8 @@ from Utilities.metutils import convert, coriolis
 from Utilities.maputils import bearing2theta, makeGrid
 
 import Utilities.nctools as nctools
+
+import pdb
 
 # Trackfile .csv format.
 
@@ -243,8 +245,8 @@ class WindfieldAroundTrack(object):
 
         R, theta = self.polarGridAroundEye(i)
 
-        V = profile.velocity(R)
-        Z = profile.vorticity(R)
+        #V = profile.velocity(R)
+        #Z = profile.vorticity(R)
 
         P = self.pressureProfile(i, R)
         f = coriolis(self.track.Latitude[i])
@@ -617,7 +619,12 @@ class WindfieldGenerator(object):
             gusts[track.trackfile] = (gust, bearing, Vx, Vy, P, lon, lat)
             done[track.trackfile] += [track.trackId]
             if len(done[track.trackfile]) >= done[track.trackfile][0][1]:
-                dumpfile = pjoin(windfieldPath, fnFormat % (pp.rank(), i))
+                path, basename = psplit(track.trackfile)
+                base, ext = psplitext(basename)
+                dumpfile = pjoin(windfieldPath, 
+                                 base.replace('tracks', 'gust') + '.nc')
+                                 
+                #dumpfile = pjoin(windfieldPath, fnFormat % (pp.rank(), i))
                 self._saveGustToFile(track.trackfile,
                                      (lat, lon, gust, Vx, Vy, P),
                                      dumpfile)
@@ -706,7 +713,7 @@ class WindfieldGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Minimum air pressure at sea level',
-                    'units': 'hPa'
+                    'units': 'Pa'
                 }
             }
         }
@@ -728,7 +735,7 @@ class WindfieldGenerator(object):
 
         :type  filenameFormat: str
         :param filenameFormat: the format string for the output file names. The
-                               default is set to 'gust-%04i.nc'.
+                               default is set to 'gust-%02i-%04i.nc'.
 
         :type  progressCallback: function
         :param progressCallback: optional function to be called after a file is
@@ -931,7 +938,7 @@ def run(configFile, callback=None):
         trackPath = config.get('WindfieldInterface', 'TrackPath')
 
     thetaMax = math.radians(thetaMax)
-
+    
     # Attempt to start the track generator in parallel
 
     attemptParallel()
