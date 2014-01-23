@@ -14,6 +14,7 @@ import sys
 import os
 
 from os.path import join as pjoin, realpath, isdir, dirname
+from functools import wraps
 from Utilities.progressbar import SimpleProgressBar as ProgressBar
 from Utilities.files import flStartLog, flLoadFile
 from Utilities.config import ConfigParser
@@ -44,9 +45,10 @@ def timer(func):
     """
     Basic timing functions for entire process
     """
-    def wrapper(*arg):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
         t1 = time.time()
-        res = func(*arg)
+        res = func(*args, **kwargs)
         
         tottime = time.time() - t1
         msg = "%02d:%02d:%02d " % \
