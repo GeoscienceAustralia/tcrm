@@ -48,7 +48,7 @@ TRACKFILE_COLS = ('CycloneNumber', 'TimeElapsed', 'Longitude',
 TRACKFILE_UNIT = ('', 'hr', 'degree', 'degree', 'kph', 'degrees',
                   'hPa', 'hPa', 'km')
 
-TRACKFILE_FMTS = ('i', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f')
+TRACKFILE_FMTS = ('i', 'f', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
 
 TRACKFILE_CNVT = {
     0: lambda s: int(float(s.strip() or 0)),
@@ -102,8 +102,8 @@ class Track(object):
         :param gridLimit: the region to check.
                           The :class:`dict` should contain the keys
                           :attr:`xMin`, :attr:`xMax`, :attr:`yMin` and
-                          :attr:`yMax`. The *x* variable bounds the
-                          latitude and the *y* variable bounds the
+                          :attr:`yMax`. The *y* variable bounds the
+                          latitude and the *x* variable bounds the
                           longitude.
 
         """
@@ -157,8 +157,8 @@ class WindfieldAroundTrack(object):
     :param gridLimit: the domain where the tracks will be generated.
                       The :class:`dict` should contain the keys
                       :attr:`xMin`, :attr:`xMax`, :attr:`yMin` and
-                      :attr:`yMax`. The *x* variable bounds the
-                      latitude and the *y* variable bounds the
+                      :attr:`yMax`. The *y* variable bounds the
+                      latitude and the *x* variable bounds the
                       longitude.
 
     """
@@ -245,9 +245,6 @@ class WindfieldAroundTrack(object):
 
         R, theta = self.polarGridAroundEye(i)
 
-        #V = profile.velocity(R)
-        #Z = profile.vorticity(R)
-
         P = self.pressureProfile(i, R)
         f = coriolis(self.track.Latitude[i])
 
@@ -272,8 +269,8 @@ class WindfieldAroundTrack(object):
         :param gridLimit: the domain where the tracks will be considered.
                           The :class:`dict` should contain the keys
                           :attr:`xMin`, :attr:`xMax`, :attr:`yMin` and
-                          :attr:`yMax`. The *x* variable bounds the
-                          latitude and the *y* variable bounds the longitude.
+                          :attr:`yMax`. The *y* variable bounds the
+                          latitude and the *x* variable bounds the longitude.
 
         :type  timeStepCallback: function
         :param timeStepCallback: the function to be called on each time step.
@@ -290,7 +287,7 @@ class WindfieldAroundTrack(object):
         yMin = gridLimit['yMin']
         yMax = gridLimit['yMax']
 
-        # Setup a 'centidegree' integer grid for the region
+        # Setup a 'millidegree' integer grid for the region
 
         gridMargin = int(100. * self.margin)
         gridStep = int(100. * self.resolution)
@@ -403,8 +400,8 @@ class WindfieldGenerator(object):
     :type  gridLimit: :class:`dict`
     :param gridLimit: the domain where the tracks will be generated.
                       The :class:`dict` should contain the keys :attr:`xMin`,
-                      :attr:`xMax`, :attr:`yMin` and :attr:`yMax`. The *x*
-                      variable bounds the latitude and the *y* variable bounds
+                      :attr:`xMax`, :attr:`yMin` and :attr:`yMax`. The *y*
+                      variable bounds the latitude and the *x* variable bounds
                       the longitude.
 
     """
@@ -481,6 +478,8 @@ class WindfieldGenerator(object):
         for result in results:
             gust1, bearing1, Vx1, Vy1, P1, lon1, lat1 = result
             gust = np.where(gust1 > gust, gust1, gust)
+            Vx = np.where(gust1 > gust, Vx1, Vx)
+            Vy = np.where(gust1 > gust, Vy1, Vy)
             P = np.where(P1 < P, P1, P)
 
         return (gust, bearing, Vx, Vy, P, lon, lat)
@@ -530,7 +529,8 @@ class WindfieldGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Maximum 3-second gust wind speed',
-                    'units': 'm/s'
+                    'units': 'm/s',
+                    'actual_range':(np.min(gust), np.max(gust))
                 }
             },
             1: {
@@ -540,7 +540,8 @@ class WindfieldGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Maximum eastward wind',
-                    'units': 'm/s'
+                    'units': 'm/s',
+                    'actual_range':(np.min(Vx), np.max(Vx))
                 }
             },
             2: {
@@ -550,22 +551,24 @@ class WindfieldGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Maximum northward wind',
-                    'units': 'm/s'
+                    'units': 'm/s',
+                    'actual_range':(np.min(Vy), np.max(Vy))
                 }
             },
             3: {
-                'name': 'psl',
+                'name': 'slp',
                 'dims': ('lat', 'lon'),
                 'values': P,
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Minimum air pressure at sea level',
-                    'units': 'hPa'
+                    'units': 'Pa',
+                    'actual_range':(np.min(P), np.max(P))
                 }
             }
         }
 
-        nctools.ncSaveGrid(dumpfile, dimensions, variables)
+        nctools._ncSaveGrid(dumpfile, dimensions, variables)
 
 
     def plotExtremesFromTrackfile(self, trackfile, windfieldfile,
@@ -615,6 +618,9 @@ class WindfieldGenerator(object):
                 gust1, bearing1, Vx1, Vy1, P1, lon1, lat1 = \
                     gusts[track.trackfile]
                 gust = np.where(gust > gust1, gust, gust1)
+                Vx = np.where(gust > gust1, Vx, Vx1)
+                Vy = np.where(gust > gust1, Vy, Vy1)
+                P = np.where(P1 < P, P1, P)
 
             gusts[track.trackfile] = (gust, bearing, Vx, Vy, P, lon, lat)
             done[track.trackfile] += [track.trackId]
@@ -646,7 +652,7 @@ class WindfieldGenerator(object):
         inputFileDate = flModDate(trackfile)
 
         gatts = {
-            'history': 'TCRM hazard simulation - synthetic event wind field',
+            'title': 'TCRM hazard simulation - synthetic event wind field',
             'version': flProgramVersion(),
             'Python_ver': sys.version,
             'track_file': '%s (modified %s)' % (trackfile, inputFileDate),
@@ -661,7 +667,9 @@ class WindfieldGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Latitude',
-                    'units': 'degrees_north'
+                    'standard_name': 'latitude',
+                    'units': 'degrees_north',
+                    'axis': 'Y'
                 }
             },
             1: {
@@ -670,7 +678,9 @@ class WindfieldGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Longitude',
-                    'units': 'degrees_east'
+                    'standard_name': 'longitude',
+                    'units': 'degrees_east',
+                    'axis': 'X'
                 }
             }
         }
@@ -683,7 +693,12 @@ class WindfieldGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Maximum 3-second gust wind speed',
-                    'units': 'm/s'
+                    'standard_name': 'wind_speed_of_gust',
+                    'units': 'm/s',
+                    'actual_range': (np.min(speed), np.max(speed)),
+                    'valid_range': (0.0, 200.),
+                    'cell_methods': ('time: maximum over lifetime '
+                                     'time: maximum (interval: 3 seconds)')
                 }
             },
             1: {
@@ -692,8 +707,11 @@ class WindfieldGenerator(object):
                 'values': Vx,
                 'dtype': 'f',
                 'atts': {
-                    'long_name': 'Maximum eastward wind',
-                    'units': 'm/s'
+                    'long_name': 'Eastward component of maximum wind speed',
+                    'standard_name': 'eastward_wind',
+                    'units': 'm/s',
+                    'actual_range':(np.min(Vx), np.max(Vx)),
+                    'valid_range': (-200., 200.)
                 }
             },
             2: {
@@ -702,18 +720,25 @@ class WindfieldGenerator(object):
                 'values': Vy,
                 'dtype': 'f',
                 'atts': {
-                    'long_name': 'Maximum northward wind',
-                    'units': 'm/s'
+                    'long_name': 'Northward component of maximim wind speed',
+                    'standard_name': 'northward_wind',
+                    'units': 'm/s',
+                    'actual_range':(np.min(Vy), np.max(Vy)),
+                    'valid_range': (-200., 200.)
                 }
             },
             3: {
-                'name': 'psl',
+                'name': 'slp',
                 'dims': ('lat', 'lon'),
                 'values': P,
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Minimum air pressure at sea level',
-                    'units': 'Pa'
+                    'standard_name': 'air_pressure_at_sea_level',
+                    'units': 'Pa',
+                    'actual_range':(np.min(P), np.max(P)),
+                    'valid_range': (70000., 115000.),
+                    'cell_methods': 'time: minimum over lifetime'
                 }
             }
         }
