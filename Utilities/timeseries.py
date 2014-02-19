@@ -29,15 +29,22 @@
 
  $Id: timeseries.py 686 2012-03-29 04:24:59Z carthur $
 """
-import os, sys, pdb, logging, traceback
+import os
+import sys
+import pdb
+import logging
+import traceback
+
 filename = os.environ.get('PYTHONSTARTUP')
 if filename and os.path.isfile(filename):
     execfile(filename)
 
 import datetime
-import numpy
+import numpy as np
 
-from config import cnfGetIniValue
+from os.path import join as pjoin
+
+from config import ConfigParser, cnfGetIniValue
 from files import flLoadFile, flSaveFile, flLogFatalError
 from matplotlib.dates import num2date
 from shptools import *
@@ -46,7 +53,16 @@ __version__ = '$Id: timeseries.py 686 2012-03-29 04:24:59Z carthur $'
 
 ISO_FORMAT = "%Y-%m-%d %H:%M"
 
-class timeseries:
+OUTPUT_NAMES = ('Time', 'Longitude', 'Latitude',
+                'Speed', 'UU', 'VV', 'Bearing',
+                'Pressure')
+
+CONFIG_DEFAULTS = """
+[Timeseries]
+StationID=None
+"""
+
+class timeseries(object):
     """timeseries:
 
     Description:
@@ -58,20 +74,31 @@ class timeseries:
     """
 
     def __init__(self, configFile, stnFile=None, outputPath=None):
+        """
+        Read configuration settings, load station data and set up
+        output recarrays
+        """
+        config = ConfigParser()
+        config.read(configFile)
         self.configFile = configFile
         self.logger = logging.getLogger()
         self.meta = False
         if stnFile is None:
-            stnFile = cnfGetIniValue(self.configFile, 'Timeseries', 'StationFile')
+            stnFile = config.get('Timeseries', 'StationFile')
 
         if outputPath is None:
-            self.outputPath = os.path.join(cnfGetIniValue(self.configFile, 'Output', 'Path'), 'timeseries')
+            self.outputPath = pjoin(config.get('Output', 'Path'), 'timeseries')
         else:
             self.outputPath = outputPath
         self.logger.debug("Loading stations from %s"%stnFile)
         self.logger.debug("Timeseries data will be written into %s"%self.outputPath)
         if stnFile.endswith("shp"):
-            vertices = shpGetVertices(stnFile, keyName=cnfGetIniValue( self.configFile, 'Timeseries', 'StationID', None ) )
+            try:
+                keyName = config.get('Timeseries', 'StationID')
+            except ConfigParser.NoOptionError:
+                keyName = None
+                
+            vertices = shpGetVertices(stnFile, keyName=keyName)
             self.stnid = vertices.keys()
             self.stnlon = []
             self.stnlat = []
@@ -139,7 +166,7 @@ class timeseries:
         if header:
             fh.write( '%' + header + '\n' )
 
-        X = numpy.asarray( data )
+        X = np.asarray( data )
         origShape = None
 
         if len( X.shape ) == 1:
@@ -177,7 +204,7 @@ class timeseries:
             # Set these values to zero:
             for i in xrange(len(self.stnid)):
                 if self.meta:
-                    self.data[self.stnid[i]].append(list(numpy.concatenate(([dt,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs],self.metadata[i,:]))))
+                    self.data[self.stnid[i]].append(list(np.concatenate(([dt,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs],self.metadata[i,:]))))
                 else:
                     self.data[self.stnid[i]].append([dt,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs])
 
@@ -191,7 +218,7 @@ class timeseries:
                     #self.logger.debug("Station %s (%8.4f, %8.4f) is outside of windfield grid" % \
                     #                   (repr(self.stnid[i]), float(self.stnlon[i]), float(self.stnlat[i])))
                     if self.meta:
-                        self.data[self.stnid[i]].append(list(numpy.concatenate(([dt,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs[0,0]],self.metadata[i,:]))))
+                        self.data[self.stnid[i]].append(list(np.concatenate(([dt,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs[0,0]],self.metadata[i,:]))))
                     else:
                         self.data[self.stnid[i]].append([dt,self.stnlon[i],self.stnlat[i],0.0,0.0,0.0,0.0,prs[0,0]])
                 else:
@@ -202,10 +229,10 @@ class timeseries:
                     s = spd[y,x]
                     u = uu[y,x]
                     v = vv[y,x]
-                    b = numpy.mod((180./numpy.pi)*numpy.arctan2(-u,-v), 360.)
+                    b = np.mod((180./np.pi)*np.arctan2(-u,-v), 360.)
                     p = prs[y,x]
                     if self.meta:
-                        self.data[self.stnid[i]].append(list(numpy.concatenate(([dt,self.stnlon[i], self.stnlat[i],s,u,v,b,p],self.metadata[i,:]))))
+                        self.data[self.stnid[i]].append(list(np.concatenate(([dt,self.stnlon[i], self.stnlat[i],s,u,v,b,p],self.metadata[i,:]))))
                     else:
                         self.data[self.stnid[i]].append([dt,self.stnlon[i],self.stnlat[i],s,u,v,b,p])
                     if s > self.maxdata[self.stnid[i]][4]:
@@ -222,14 +249,14 @@ class timeseries:
         header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
         maxheader = 'Station,Longitude,Latitude,Time,Speed,UU,VV,Bearing,Pressure'
         for stn in self.stnid:
-            if numpy.any(numpy.array(self.data[stn])[:,3]>0.0):
-                tmpdata = numpy.array(self.data[stn])
-                fname = os.path.join(self.outputPath, 'ts.%s.csv'%str(stn))
-                tmpdata[:,0] = numpy.array([tmpdata[i,0].strftime(ISO_FORMAT) for i in xrange(tmpdata[:,0].size)])
-                self._write(fname, numpy.array(tmpdata), header, ',', 
+            if np.any(np.array(self.data[stn])[:,3]>0.0):
+                tmpdata = np.array(self.data[stn])
+                fname = pjoin(self.outputPath, 'ts.%s.csv'%str(stn))
+                tmpdata[:,0] = np.array([tmpdata[i,0].strftime(ISO_FORMAT) for i in xrange(tmpdata[:,0].size)])
+                self._write(fname, np.array(tmpdata), header, ',', 
                             ['%s','%7.3f','%7.3f','%6.2f','%6.2f','%6.2f','%6.2f','%7.2f'])
         
-        maxfname = os.path.join(self.outputPath, 'maxwind.csv' )
+        maxfname = pjoin(self.outputPath, 'maxwind.csv' )
         mindata = []
         maxdata = []
         for stn in self.stnid:
@@ -243,11 +270,11 @@ class timeseries:
             else:
                 pass
 
-        self._write( maxfname, numpy.array(maxdata), maxheader, ',', fmt='%s' )
+        self._write( maxfname, np.array(maxdata), maxheader, ',', fmt='%s' )
                      #['%s','%7.3f','%7.3f','%s','%6.2f','%6.2f','%6.2f','%6.2f','%7.2f'] )
-        minfname = os.path.join(self.outputPath,'minpressure.csv')
+        minfname = pjoin(self.outputPath,'minpressure.csv')
 
-        self._write( minfname, numpy.array(mindata), maxheader, ',',fmt='%s') 
+        self._write( minfname, np.array(mindata), maxheader, ',',fmt='%s') 
                      #['%s','%7.3f','%7.3f','%s','%6.2f','%6.2f','%6.2f','%6.2f','%7.2f'] )
         self.logger.info("Station data written to file")
 
