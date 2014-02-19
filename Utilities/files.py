@@ -3,8 +3,7 @@ import sys
 import logging
 import datetime
 import numpy as np
-import csv
-from time import time, ctime, localtime, strftime
+from time import ctime, localtime, strftime
 
 try:
     import hashlib
@@ -21,8 +20,7 @@ if not getattr(__builtins__, "WindowsError", None):
         class WindowsError(OSError): pass
 
 def flModulePath(level=1):
-    """
-    Get the path of the module <level> levels above this function
+    """Get the path of the module <level> levels above this function
 
     Input: level - level in the stack of the module calling this function
            (default = 1, function calling flModulePath)
@@ -34,13 +32,11 @@ def flModulePath(level=1):
     filename = os.path.realpath(sys._getframe(level).f_code.co_filename)
     path, fname = os.path.split(filename)
     base, ext = os.path.splitext(fname)
-    path = path.replace(os.path.sep, '/')
     return path, base, ext
 
 
 def flModuleName(level=1):
-    """
-    Get the name of the module <level> levels above this function
+    """Get the name of the module <level> levels above this function
 
     Input: level - level in the stack of the module calling this function
            (default = 1, function calling flModuleName)
@@ -52,16 +48,16 @@ def flModuleName(level=1):
 
 
 def flProgramVersion(level=None):
-    """
-    Function to return the __version__ string from the parent
-    program, where it is defined.
+    """Return the __version__ string from the top-level program, where defined.
+    
     If it is not defined, return an empty string.
 
     Input: level - level in the stack of the main script
            (default = maximum level in the stack)
     Output: version string (defined as the __version__ global variable)
 
-    Example: my_program_version = flProgramVersion( )
+    Example: my_program_version = flProgramVersion()
+    
     """
     if not level:
         import inspect
@@ -79,7 +75,13 @@ def flLoadFile(filename, comments='%', delimiter=',', skiprows=0):
 
 
 def flSaveFile(filename, data, header='', delimiter=',', fmt='%.18e'):
+    """Save data to a file.
 
+    Does some basic checks to ensure the path exists before attempting 
+    to write the file.
+
+    """    
+    
     directory, fname = os.path.split(filename)
     if not os.path.isdir(directory):
         os.makedirs(directory)
@@ -155,7 +157,6 @@ def flConfigFile(extension='.ini', prefix='', level=None):
 
     path, base, ext = flModulePath(level)
     config_file = os.path.join(path, prefix + base + extension)
-    config_file = config_file.replace(os.path.sep, '/')
     return config_file
 
 
@@ -244,7 +245,7 @@ def flModDate(filename, dateformat='%Y-%m-%d %H:%M:%S'):
     """
     try:
         si = os.stat(filename)
-    except IOError:
+    except (IOError, WindowsError):
         logger.exception('Input file is not a valid file: %s' % (filename))
         raise IOError('Input file is not a valid file: %s' % (filename))
     moddate = localtime(si.st_mtime)
@@ -262,12 +263,9 @@ def flSize(filename):
     """
     try:
         si = os.stat(filename)
-    except WindowsError:
+    except (IOError, WindowsError):
         logger.exception('Input file is not a valid file: %s' % (filename))
-        raise IOError('Input file is not a valid file: %s' % (filename))
-    except IOError:
-        logger.exception('Input file is not a valid file: %s' % (filename))
-        raise IOError('Input file is not a valid file: %s' % (filename))
+        raise OSError('Input file is not a valid file: %s' % (filename))
     else:
         size = si.st_size
 
