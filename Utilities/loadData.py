@@ -9,10 +9,16 @@ import interp3d
 from datetime import datetime, timedelta
 from columns import colReadCSV
 from Utilities.config import ConfigParser, cnfGetIniValue
+from Utilities.track import Track, trackFields, trackTypes
 
 __version__ = "$Id$"
 
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+ 
+
 logger = logging.getLogger(__name__)
+"""
 
 TRACKFILE_COLS = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
                   'Day', 'Hour', 'Minute', 'TimeElapsed', 'Longitude',
@@ -31,7 +37,7 @@ TRACKFILE_OUTFMT = ('%i,%i,%i,%i,'
 
 class Track(object):
 
-    """
+    ""
     A single tropical cyclone track.
 
     The object exposes the track data through the object attributes.
@@ -46,7 +52,7 @@ class Track(object):
 
     :type  data: numpy.ndarray
     :param data: the tropical cyclone track data.
-    """
+    ""
 
     def __init__(self, data):
         self.data = data
@@ -56,16 +62,16 @@ class Track(object):
         self.trackMaxWind = None
 
     def __getattr__(self, key):
-        """
+        ""
         Get the `key` from the `data` object.
 
         :type  key: str
         :param key: the key to lookup in the `data` object.
-        """
+        ""
         if key.startswith('__') and key.endswith('__'):
             return super(Track, self).__getattr__(key)
         return self.data[key]
-    
+"""
 
 def getSpeedBearing(index, lon, lat, deltatime, ieast=1,
                     missingValue=sys.maxint):
@@ -413,9 +419,12 @@ def ltmPressure(jdays, time, lon, lat, ncfile):
 
     logger.debug("Sampling data from MSLP data in {0}".format(ncfile))
     ncobj = nctools.ncLoadFile(ncfile)
-    data = nctools.ncGetData(ncobj, 'mslp')
+    slpunits = getattr(ncobj.variables['slp'], 'units')
+
+    data = nctools.ncGetData(ncobj, 'slp')
     # Get the MSLP by interpolating to the location of the TC:
     penv = interp3d.interp3d(data, coords)
+    penv = metutils.convert(penv, slpunits, 'hPa')
     del data
     ncobj.close()
     del ncobj
@@ -554,7 +563,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         rmax = metutils.convert(rmax, inputLengthUnits, "km")
         rmax[novalue_index] = missingValue
 
-    except (ValueError,KeyError):
+    except (ValueError, KeyError):
         logger.debug("No radius to max wind data - all values will be zero")
         rmax = np.zeros(indicator.size, 'f')
 
@@ -585,10 +594,10 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
 
     data = np.empty(len(indicator), 
                         dtype={
-                               'names': TRACKFILE_COLS,
-                               'formats': TRACKFILE_FMTS
+                               'names': trackFields,
+                               'formats': trackTypes
                                } )
-    for key, value in zip(TRACKFILE_COLS, [indicator, TCID, year, month,
+    for key, value in zip(trackFields, [indicator, TCID, year, month,
                                            day, hour, minute, timeElapsed,
                                            lon, lat, speed, bearing,
                                            pressure, windspeed, rmax, penv]):
