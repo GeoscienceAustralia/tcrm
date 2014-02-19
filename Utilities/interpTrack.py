@@ -44,7 +44,6 @@ from matplotlib.dates import date2num, num2date
 from files import flConfigFile, flModuleName, flSaveFile, flStartLog
 from config import cnfGetIniValue, logger
 from columns import colReadCSV
-from grid import SampleGrid
 from loadData import loadTrackFile
 
 

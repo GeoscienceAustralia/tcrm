@@ -45,7 +45,6 @@ from scipy.ndimage.interpolation import spline_filter
 from StatInterface.generateStats import GenerateStats
 from StatInterface.SamplingOrigin import SamplingOrigin
 from Utilities.files import flLoadFile, flSaveFile
-from Utilities.grid import SampleGrid
 from MSLP.mslp_seasonal_clim import MSLPGrid
 from DataProcess.CalcFrequency import CalcFrequency
 from DataProcess.CalcTrackDomain import CalcTrackDomain
