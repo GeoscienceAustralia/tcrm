@@ -1,52 +1,44 @@
 #!/usr/bin/env python
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod: `nctools` -- NetCDF utility functions
+===========================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+This modlue contains basic utilities for manipulating
+netCDF format files. It relies on the netCDF4 module
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- Title: nctools.py
- Author: Craig Arthur, craig.arthur@ga.gov.au
- CreationDate: 2007-05-15
- Description: Tools to interrogate a netcdf file. Largely written to read CF-compliant netcdf files
- (specifically NCEP/NCAR Reanalysis files).
- Reference: CF-conventions - http://cf-pcmdi.llnl.gov/
-            NetCDF Interface to Python - http://gfesuite.noaa.gov/developer/netCDFPythonInterface.html
- SeeAlso:
- Constraints:
+Author: Craig Arthur, craig.arthur@ga.gov.au
+CreationDate: 2007-05-15
+Description: Tools to interrogate a netcdf file. Largely written to read CF-compliant netcdf files
+(specifically NCEP/NCAR Reanalysis files).
+Reference: CF-conventions - http://cf-pcmdi.llnl.gov/
+           NetCDF Interface to Python - http://gfesuite.noaa.gov/developer/netCDFPythonInterface.html
 
- Version: 132
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate: 2008-04-08
- Modification: Added additional wrapper functions to raise appropriate errors and eliminate
-               missing values that were causing errors in subsequent programs
+SeeAlso:
+Constraints:
 
- Version: 187
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate: 2009-11-27 9:35:AM
- Modification: Conversion of print statements to logging module calls
+Version: 132
+ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
+ModifiedDate: 2008-04-08
+Modification: Added additional wrapper functions to raise appropriate errors and eliminate
+              missing values that were causing errors in subsequent programs
 
- Version: 323
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate: 2009-12-10 8:57:AM
- Modification: No longer relies on the old Numeric module - uses numpy for
-               all array manipulation
+Version: 187
+ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
+ModifiedDate: 2009-11-27 9:35:AM
+Modification: Conversion of print statements to logging module calls
 
- Version: 420
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate: 2010-09-23 9:42:AM
- Modification: Updated ncSaveGrid to permit writing of multiple variables with
+Version: 323
+ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
+ModifiedDate: 2009-12-10 8:57:AM
+Modification: No longer relies on the old Numeric module - uses numpy for
+              all array manipulation
+
+Version: 420
+ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
+ModifiedDate: 2010-09-23 9:42:AM
+Modification: Updated ncSaveGrid to permit writing of multiple variables with
                different dimensions to a single file. This increases the
                capabilities of ncSaveGrid to allow 3- and 4-D data to
                be written to file. Retains existing functionality to
@@ -55,24 +47,28 @@
                ensure the dimension and variable metadata are structured
                appropriately.
 
- Version: $Rev: 642 $
- ModifiedBy: Nicholas Summons, nicholas.summons@ga.gov.au
- ModifiedDate: 06/10/11 2:09:PM
- Modification: Replaced ScientificPython netcdf library with SciPy equivalent
+Version: $Rev: 642 $
+ModifiedBy: Nicholas Summons, nicholas.summons@ga.gov.au
+ModifiedDate: 06/10/11 2:09:PM
+Modification: Replaced ScientificPython netcdf library with SciPy equivalent
                (Note: SciPy added netcdf writing support in version 0.9.0).
                This is necessary as ScientificPython does not work with
                latest versions of NumPy. Also allows fall-back to
                ScientificPython if SciPy version lacks netcdf writing
                support.
- $Id: nctools.py 642 2012-02-21 07:54:04Z nsummons $
+
+$Id: nctools.py 642 2012-02-21 07:54:04Z nsummons $
+
 """
-import os, sys, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
+
+import os
+import sys 
+import logging
+
 from scipy.io.netcdf import netcdf_file
-import numpy
-import math
+#from netCDF4 import Dataset as netcdf_file
+from netCDF4 import Dataset
+import numpy as np
 import time
 import getpass
 
@@ -88,25 +84,123 @@ if not hasattr(netcdf_file, 'createVariable'):
 __version__ = '$Id: nctools.py 642 2012-02-21 07:54:04Z nsummons $'
 ISO_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-def ncLoadFile(filename):
+def _ncLoadFile(filename):
+    """
+    Load a netCDF file and return a :class:`scipy.io.netcdf.netcdf_file`
+    object.
+
+    Parameters
+    ----------
+
+    filename : string
+        Path to the netCDF file to open.
+
+    Returns
+    -------
+
+    ncobj : :class:`netCDF4.Dataset` object
+
+    """
     logger.debug("Opening netCDF file %s for reading"%filename)
+    
     try:
         ncobj = netcdf_file(filename, 'r')
     except IOError:
         logger.exception("Cannot open %s"%filename)
-        raise
+        raise IOError
+    
     return ncobj
 
-def ncCreateFile(filename,op='w'):
-    logger.debug("Opening netCDF file %s for writing"%filename)
+def ncLoadFile(filename):
+    """
+    Load a netCDF file and return a :class:`netCDF4.Dataset` object.
+
+    Parameters
+    ----------
+
+    filename : string
+        Path to the netCDF file to open.
+
+    Returns
+    -------
+
+    ncobj : :class:`netCDF4.Dataset` object
+
+    """
+    logger.debug("Opening netCDF file %s for reading"%filename)
+    
     try:
-       ncobj = netcdf_file(filename,op)
+        ncobj = Dataset(filename, 'r')
     except IOError:
-        logger.exception("Failed to open %s for writing"%filename)
-        raise
+        logger.exception("Cannot open %s" % filename)
+        raise IOError
+    
     return ncobj
 
-def ncFileInfo(ncobj):
+
+def _ncCreateFile(filename, op='w'):
+    """
+    Open a netCDF file for writing.
+
+    Parameters
+    ----------
+
+    filename : string
+        Path to the netCDF file to create.
+
+    op : string, default 'w'
+        Type of operation, 'w' for writing, 'a' for append
+
+    Returns
+    -------
+
+    ncobj : :class:`netCDF4.Dataset`
+        A new :class:`netCDF4.Dataset` object ready for populating
+        with dimensions, variables and attributes.
+
+    """
+    logger.debug("Opening netCDF file %s for writing" % filename)
+    
+    try:
+       ncobj = netcdf_file(filename, op)
+    except IOError:
+        logger.exception("Failed to open %s for writing" % filename)
+        raise IOError("Failed to open %s for writing" % filename)
+    
+    return ncobj
+
+def ncCreateFile(filename, op='w'):
+    """
+    Open a :class:`netCDF4` file for writing.
+
+    Parameters
+    ----------
+
+    filename : string
+        Path to the netCDF file to create.
+
+    op : string, default 'w'
+        Type of operation, 'w' for writing, 'a' for append
+
+    Returns
+    -------
+
+    ncobj : :class:`netCDF4.Dataset`
+        A new :class:`netCDF4.Dataset` object ready for populating
+        with dimensions, variables and attributes.
+
+    """
+    logger.debug("Opening netCDF file %s for writing" % filename)
+    
+    try:
+       ncobj = Dataset(filename, op)
+    except IOError:
+        logger.exception("Failed to open %s for writing" % filename)
+        raise IOError("Failed to open %s for writing" % filename)
+    
+    return ncobj
+
+def _ncFileInfo(ncobj):
     """
     A short helper function to display the contents of a netCDF file
     This should be adapted to allow testing for required attributes.
@@ -137,30 +231,75 @@ def ncFileInfo(ncobj):
                        'flush','sync']:
             value = getattr(ncobj, att)
             if type(value) is str:
-                print att+": %s"%value
+                print att + ": %s"%value
             elif type(value) is int:
-                print att+": %d"%value
+                print att + ": %d"%value
             elif type(value) is float:
-                print att+": %d"%value
+                print att + ": %d"%value
 
-def ncGetDims(ncobj, dim):
+def ncFileInfo(filename, group=None, variable=None, dimension=None):
+    """Print summary information about a netCDF file.
+
+    Based on ncinfo (https://code.google.com/p/netcdf4-python/source/browse/trunk/utils/ncinfo)
+    """
+    def getgrp(g, p):
+        import posixpath
+        grps = p.split("/")
+        for gname in grps:
+            if gname == "": continue
+            g = g.groups[gname]
+        return g
+
+    f = Dataset(filename)
+    if group is None:
+        if variable is None and dimension is None:
+            print(f)
+        else:
+            if var is not None:
+                print(f.variables[variable])
+            if dim is not None:
+                print(f.dimensions[dimension])
+    else:
+        if variable is None and dimension is None:
+            print(getgrp(f, group))
+        else:
+            g = getgrp(f, group)
+            if variable is not None:
+                print(g.variables[variable])
+            if dim is not None:
+                print(g.dimensions[variable])
+    f.close()
+    
+
+def ncGetDims(ncobj, dim, dtype=float):
     """
     Extract the value of a dimension from a netCDF file. This function
     assumes the file is written following the CF convention, with the
     values of the dimension stored in a 1-d variable with the same name.
-    Input: ncobj - netCDF file object created by netcdf_file()
-           dim - string name of the desired dimenstion
-    Output: data - numpy array of the requested dimension.
+
+    Parameters
+    ----------
+    
+    ncobj : :class:`netCDF4.Dataset` object
+       
+    dim : string
+       Name of the desired dimension.
+
+    Returns
+    -------
+
+    data : :class:`numpy.ndarray` of the requested dimension.
 
     """
     try:
         data = ncobj.variables[dim][:]
     except KeyError:
-        logger.exception( "Dimension %s not in file"%dim )
+        logger.exception( "Dimension %s not in file" % dim )
         raise
-    return numpy.array(data,copy=True,dtype=float)
+    
+    return np.array(data, copy=True, dtype=dtype)
 
-def ncGetData(ncobj, var, missingValue=0.0):
+def _ncGetData(ncobj, var, missingValue=0.0):
     """
     Extract the data values from a variable in a netCDF file.
     Note that the variable object is a better way to manipulate
@@ -183,9 +322,10 @@ def ncGetData(ncobj, var, missingValue=0.0):
     except KeyError:
         logger.exception("File does not contain variable %s"%(var))
         raise
+    
     # Get the data:
     d = varobj[:]
-    data = numpy.array(d,copy=True,dtype=float)
+    data = np.array(d,copy=True,dtype=float)
 
     # Get the attributes to determine offsets and scale factors:
     # We make a slightly dangerous assumption that the scale and offset
@@ -199,57 +339,162 @@ def ncGetData(ncobj, var, missingValue=0.0):
         data = data + offset #[0]
 
     # Fix to replace NaN values:
-    ind = numpy.where(numpy.isnan(data))
+    ind = np.where(np.isnan(data))
     data[ind] = missingValue
-    ind = numpy.where(numpy.isinf(data))
+    ind = np.where(np.isinf(data))
     data[ind] = missingValue
 
     return data
 
-def ncGetVar(ncobj, var):
-    """
-    Return a netCDF variable object. The returned object includes
-    functions (getValue, assignValue) to either extract the data values
-    or assign data values, in addition to the attributes of the variable.
-    Input:
-    ncobj - netCDF file object created by netcdf_file()
-    var - string name of the desired variable
+def ncGetData(ncobj, var, missingValue=-9999.):
+    """Extract data values from a variable in a netCDF file.
+    
+    Note that the variable object is a better way to manipulate
+    the variables, as the object includes all attributes (e.g. units,
+    range, long_name, etc) - use `ncGetVar` for that purpose.
 
-    Output:
-    varobj - netCDF variable object
+    Parameters
+    ----------
+
+    ncobj : :class:`NetCDF4.Dataset` object.
+
+    var : str
+        Name of the variable in the dataset to extract.
+
+    missingValue : float or int, optional
+        Value to assign to missing data, default is -9999.
+
+    Returns
+    -------
+
+    data : :class:`numpy.ndarray`
+        Array containing the data of the variable, with missing values
+        replaced by `missingValue`.
+
+    Raises
+    ------
+
+    KeyError : if variable does not exist in the given file.
+    
+    """
+    
+    try:
+        varobj = ncobj.variables[var]
+    except KeyError:
+        logger.exception("File does not contain variable %s"%(var))
+        raise
+
+    # FIXME: Automatic conversion of masked values and unpacking
+    #varobj.set_auto_maskandscale(True)
+    
+    # Get the data:
+    d = varobj[:]
+    
+    data = np.array(d, copy=True, dtype=varobj.dtype)
+
+    return data
+
+def ncGetVar(ncobj, var):
+    """Return a `netCDF4.variable` object.
+    
+    Parameters
+    ----------
+    
+    ncobj : :class:`netCDF.Group` or `netCDF.Dataset` instance.
+    
+    var : string
+        name of the desired variable.
+
+    Returns
+    -------
+    
+    varobj : :class:`netCDF.Variable` instance
     """
     try:
         varobj = ncobj.variables[var]
     except KeyError:
         logger.exception("File does not contain variable %s"%(var))
         raise
+    
     return varobj
 
-def ncGetTimes(ncobj, descriptor='time'):
+def _ncGetTimes(ncobj, descriptor='time'):
     """
     Get the time data from the file
-    Input:
-    ncobj - netCDF file object created by netcdf_file()
-    descriptor - string name of the time variable (default is 'time' -
-                 following CF convention)
 
-    Output:
-    times - numpy array of time dimension values
+    Parameters
+    ----------
+
+    ncobj : :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance
+        :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance
+        
+    descriptor : str, default 'time'
+        Name of the time variable.
+
+    Returns
+    -------
+    
+    times : :class:`numpy.ndarray`
+        Array of time dimension values.
 
     """
+    
     if hasattr(ncobj, 'Convention'):
         if getattr(ncobj, 'Convention') == "COARDS":
-        # COARDS Compliant file - makes examining the data easier.
-        # All times are stored in hours since the start of the analysis
-           times = ncobj.variables['time'][:]
+            # COARDS Compliant file - makes examining the data easier.
+            times = ncobj.variables['time'][:]
     elif descriptor in ncobj.dimensions:
         times = ncobj.variables[descriptor][:]
     else:
         logger.debug( "Unknown time descriptor" )
 
-    return numpy.copy(times)
+    return np.copy(times)
 
-def ncCreateDim(ncobj, dimName, values, dtype, atts=None):
+def ncGetTimes(ncobj, descriptor='time'):
+    """
+    Get the time data from the file
+
+    Parameters
+    ----------
+
+    ncobj : :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance
+        :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance
+        
+    descriptor : str, default 'time'
+        Name of the time variable.
+
+    Returns
+    -------
+    
+    times : :class:`numpy.ndarray` of :class:`datetime` objects
+        Array of time dimension values as :class:`datetime` objects.
+
+    """
+    
+    from datetime import datetime
+    from netCDF4 import num2date
+    
+    if hasattr(ncobj, 'Convention'):
+        if getattr(ncobj, 'Convention') == "COARDS":
+            # COARDS Compliant file - makes examining the data easier.
+            times = ncobj.variables['time']
+    elif descriptor in ncobj.dimensions:
+        times = ncobj.variables[descriptor]
+    else:
+        logger.debug( "Unknown time descriptor" )
+
+    if hasattr(times, 'units'):
+        units = times.units
+    if hasattr(times, 'calendar'):
+        calendar = times.calendar
+    else:
+        calendar ='standard'
+        
+    dates = num2date(times[:], units, calendar)
+
+    return np.array(dates, dtype=datetime)
+
+def _ncCreateDim(ncobj, dimName, values, dtype, atts=None):
     """
     Create a dimension in a netcdf object. Also adds the dimensions data
     to the appropriately named variable.
@@ -262,15 +507,50 @@ def ncCreateDim(ncobj, dimName, values, dtype, atts=None):
     dtype - string data type (e.g. 'f', 'd', 'i','l','c','b')
     atts - optional dictionary of attributes to assign to the dimension
     """
-    ncobj.createDimension(dimName, numpy.size(values))
+    ncobj.createDimension(dimName, np.size(values))
     varDim = (dimName,)
     dimension = ncCreateVar(ncobj, dimName, varDim, dtype)
-    dimension[:] = numpy.array(values,dtype=dtype)
+    dimension[:] = np.array(values,dtype=dtype)
     if atts:
         for key,value in atts.items():
             _setattr(dimension, key, value)
 
-def ncCreateVar(ncobj, varName, varDims, dtype, data=None, atts=None):
+def ncCreateDim(ncobj, name, values, dtype, atts=None):
+    """
+    Create a `dimension` instance in a :class:`netcdf4.Dataset` or
+    :class:`netcdf4.Group` instance.
+
+    Parameters
+    ----------
+
+    ncobj : :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance
+
+    name : str
+        Name of the dimension
+
+    values : :class:`numpy.ndarray`
+        Dimension values
+
+    dtype : :class:`numpy.dtype`
+        Data type of the dimension
+
+    atts : :dict:, optional
+        Attributes to assign to the dimension instance
+
+    Returns
+    -------
+
+    None
+
+    """
+    ncobj.createDimension(name, np.size(values))
+    varDim = (name,)
+    dimension = ncCreateVar(ncobj, name, varDim, dtype)
+    dimension[:] = np.array(values, dtype=dtype)
+    if atts:
+        dimension.setncatts(atts)
+
+def _ncCreateVar(ncobj, varName, varDims, dtype, data=None, atts=None):
     """
     Create a variable in a netcdf object
     The atts variable is a dictionary of additional attribute names and
@@ -285,89 +565,82 @@ def ncCreateVar(ncobj, varName, varDims, dtype, data=None, atts=None):
 
     Output:
     var - netCDF variable object
+    
     """
+    
     logger.debug("Creating variable %s"%varName)
     var = ncobj.createVariable(varName, dtype, varDims)
+    
     if data != None:
-       var[:] = numpy.array(data,dtype=dtype)
+       var[:] = np.array(data,dtype=dtype)
     if atts:
         for key,value in atts.items():
             _setattr(var, key, value)
+            
     return var
 
+def ncCreateVar(ncobj, name, dimensions, dtype, data=None, atts=None,
+                 zlib=True, complevel=4, lsd=2, nodata=-9999.,):
+    """
+    Create a `Variable` instance in a :class:`netCDF4.Dataset` or
+    :class:`netCDF4.Group` instance.
 
+    Parameters
+    ----------
+    ncobj : :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance
+        where the variable will be stored
 
-def __ncSaveGrid(filename, lon, lat, data, varname, units,
-                 lonunits='degrees_east', latunits='degrees_north',
-                 nodata=-9999,longname=None,datatitle=None,dtype='f',
-                 writedata=True, keepfileopen=False):
+    name : str
+        Name of the variable to be created.
+
+    dimensions : :tuple: of dimension names that define the structure
+        of the variable
+
+    dtype : `numpy.dtype` data type
+
+    data : :class:`numpy.ndarray`, optional
+        array holding the data to be stored. 
+        
+    atts : :dict:, optional
+        dict of attributes to assign to the variable
+
+    zlib : bool, default `True`
+         If true, compresses data in variables using gzip compression.
+
+    complevel : integer, default 4
+         Value between 1 and 9, describing level of compression desired.
+         Ignored if zlib=False
+    
+    lsd : integer, default 2
+        Variable data will be truncated to this number of significant digits.    
+    nodata : float or int, default -9999.
+         Value representing missing data
+    
+    Returns
+    -------
+
+    var : :class:`netCDF4.Variable` instance
 
     """
-    Save a gridded dataset to a netCDF file.
-    Input:
-    filename - full path to the file
-    lon - array of the longitude points in the grid
-    lat - array of the latitude points in the grid
-    data - 2D array of the data to be stored. Initially, only 1 record
-           is stored in the file
-    varname - string which will be the short name of the variable
-    units - string describing the units the data is stored in
+    logger.debug("Creating variable %s" % name)
+    
+    var = ncobj.createVariable(name, dtype, dimensions,
+                               zlib=zlib,
+                               complevel=complevel,
+                               least_significant_digit=lsd,
+                               fill_value=nodata)
+    if data:
+        var[:] = np.array(data, dtype=dtype)
+            
+    if atts:
+        var.setncatts(atts)
+            
+    return var
 
-    Output:
-    None
-    """
-    nodata = numpy.array(nodata, dtype=dtype)
-    created_time = time.strftime(ISO_FORMAT, time.localtime())
-    created_by = getpass.getuser()
-    ncobj = ncCreateFile(filename,op='w')
-    latrange = [min(lat), max(lat)]
-    lonrange = [min(lon), max(lon)]
-    datarange = [data.min(),data.max()]
-
-    # Define attributes for the dimensions:
-    lat_atts = {'units':latunits,
-                'long_name':'latitude',
-                'actual_range': latrange}
-    lon_atts = {'units':lonunits,
-                'long_name':'longitude',
-                'actual_range': lonrange}
-
-    # Create dimensions:
-    ncCreateDim(ncobj, 'lat', lat,'f',lat_atts)
-    ncCreateDim(ncobj, 'lon', lon,'f',lon_atts)
-
-    # The order of these is significant under the CF conventions
-    dims = ('lat','lon',)
-
-    # Create the variable:
-    var = ncCreateVar(ncobj, varname, dims, 'f')
-    if writedata:
-        var[:] = numpy.array(data,dtype=dtype)
-
-    # Add the attributes to the variable:
-    _setattr(var,'units',units)
-    _setattr(var,'_FillValue', nodata)
-    _setattr(var,'actual_range', datarange)
-    if longname:
-        _setattr(var,'long_name',longname)
-
-    # Add global attributes:
-    _setattr(ncobj,'created_by', created_by)
-    _setattr(ncobj,'created_on', created_time)
-    if datatitle:
-        _setattr(ncobj,'title',datatitle)
-
-    # Finally, set the convention attribute:
-    _setattr(ncobj,'Conventions','CF-1.4')
-    if not keepfileopen:
-        ncobj.close()
-    else:
-        return ncobj
-
-def ncSaveGrid(filename, dimensions, variables,
-                 nodata=-9999,datatitle=None,gatts=None,
-                 dtype='f',writedata=True, 
-                 keepfileopen=False,packed=False):
+def _ncSaveGrid(filename, dimensions, variables,
+                 nodata=-9999, datatitle=None, gatts=None,
+                 dtype='f', writedata=True, 
+                 keepfileopen=False):
 
     """
     Save a gridded dataset to a netCDF file.
@@ -385,10 +658,7 @@ def ncSaveGrid(filename, dimensions, variables,
     keepfileopen - boolean. If true, return a netcdf object and keep the
                 file open, so that data can be written by the calling program
                 Otherwise, flush data to disk and close the file.
-    packed - boolean. If true, attempts to pack the data according to
-             recommended best practices
-            (http://www.unidata.ucar.edu/software/netcdf/docs/BestPractices.html)
-            At this time, not implemented in working form.
+
     Output:
     Netcdf object (if keepfileopen=True)
 
@@ -396,7 +666,7 @@ def ncSaveGrid(filename, dimensions, variables,
     to insert multiple dimensions.
     dimesions = {0:{'name':
                     'values':
-                    'type':
+                    'dtype':
                     'atts':{'long_name':
                             'units':  ...} },
                  1:{'name':
@@ -429,7 +699,7 @@ def ncSaveGrid(filename, dimensions, variables,
     The value for the 'dims' key must be a tuple that is a subset of
     the dimensions specified above.
     """
-    nodata = numpy.array(nodata, dtype=dtype)
+    nodata = np.array(nodata, dtype=dtype)
     created_time = time.strftime(ISO_FORMAT, time.localtime())
     created_by = getpass.getuser()
 
@@ -459,33 +729,15 @@ def ncSaveGrid(filename, dimensions, variables,
         except:
             pass
         var = ncCreateVar(ncobj, name, dims, datatype)
-        """
-        if packed:
-            var = ncCreateVar(ncobj, name, dims, 'i')
-        else:
-            var = ncCreateVar(ncobj, name, dims, datatype)
-        """
+
         try:
-            datarange = [values.min(),values.max()]
+            datarange = (values.min(),values.max())
         except AttributeError:
-            datarange = [-1*sys.maxint,sys.maxint]
+            datarange = (-1*sys.maxint,sys.maxint)
 
         if writedata:
-            var[:] = numpy.array(values,dtype=datatype)
-            """
-            if packed:
-                # Pack the data using a standard packing algorithm:
-                n = 8
-                scale = (values.max() - values.min())/((2**n)-1)
-                offset = values.min() #+ scale*(2**(n-1))
-                packdata =((values - offset)/scale).astype(int)
-                #pdb.set_trace()
-                var[:] = numpy.array(packdata,dtype=int)
-                _setattr(var, 'scale_factor', scale)
-                _setattr(var, 'add_offset', offset)
-            else:
-                var[:] = numpy.array(values,dtype=datatype)
-            """
+            var[:] = np.array(values,dtype=datatype)
+            
         # Add the attributes to the variable:
         _setattr(var,'_FillValue', nodata)
         _setattr(var,'actual_range', datarange)
@@ -504,8 +756,9 @@ def ncSaveGrid(filename, dimensions, variables,
         for name,value in gatts.iteritems():
             _setattr(ncobj,name,value)
 
-    # Finally, set the convention attribute:
-    _setattr(ncobj,'Conventions','CF-1.4')
+    # Finally, set the Conventions attribute:
+    _setattr(ncobj, 'Conventions', 'CF-1.6')
+    
     if not keepfileopen:
         ncobj.close()
     else:
@@ -522,3 +775,163 @@ def _setattr(var, key, value):
     if value == '':
         value = 'None'
     setattr(var, key, value)
+
+
+def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
+                datatitle=None, gatts={}, dtype='f', writedata=True, 
+                keepfileopen=False, zlib=True, complevel=4, lsd=2):
+    """
+    Save a gridded dataset to a netCDF file using NetCDF4.
+    
+    Parameters
+    ----------
+
+    filename : :class:`str`
+        Full path to the file to write to    
+    dimensions : :class:`dict`
+        The input dict 'dimensions' has a strict structure, to
+        permit insertion of multiple dimensions. The dimensions should be keyed
+        with the slowest varying dimension as dimension 0.
+
+        ::
+    
+            dimesions = {0:{'name':
+                            'values':
+                            'dtype':
+                            'atts':{'long_name':
+                                    'units':  ...} },
+                         1:{'name':
+                            'values':
+                            'type':
+                            'atts':{'long_name':
+                                    'units':  ...} },
+                                  ...}
+
+    variables : :class:`dict`
+        The input dict 'variables' similarly requires a strict structure:
+
+        ::
+    
+            variables = {0:{'name':
+                            'dims':
+                            'values':
+                            'dtype':
+                            'atts':{'long_name':
+                                    'units':
+                                    ...} },
+                         1:{'name':
+                            'dims':
+                            'values':
+                            'dtype':
+                            'atts':{'long_name':
+                                    'units':
+                                    ...} },
+                             ...}
+    
+        The value for the 'dims' key must be a tuple that is a subset of
+        the dimensions specified above.
+    
+    nodata : float, optional
+        Value to assign to missing data, default is -9999.
+
+    datatitle : str, optional
+        Optional title to give the stored dataset
+    
+    gatts : :class:`dict`, optional
+        Optional dictionary of global attributes to include in the file.
+    
+    dtype : dtype, optional
+        The data type of the missing value. If not given, infer from other
+        input arguments.
+    
+    writedata : bool, default `True`
+        If true, then the function will write the provided data
+        (passed in via the variables dict) to the file. Otherwise, no data is
+        written.
+    
+    keepfileopen : bool, default `False`
+        If true, return a netcdf object and keep the file open, so that data
+        can be written by the calling program. Otherwise, flush data to disk
+        and close the file.
+    
+    zlib : bool, default `True`
+         If true, compresses data in variables using gzip compression.
+
+    complevel : integer, default 4
+         Value between 1 and 9, describing level of compression desired.
+         Ignored if zlib=False
+    
+    lsd : integer, default 2
+        Variable data will be truncated to this number of significant digits.
+    
+    Returns:
+    --------
+    
+    NetCDF4 :class:`Dataset` object (if keepfileopen=True)
+
+    """
+
+    try:
+        ncobj = Dataset(filename, 'w', format='NETCDF4', clobber=True)
+    except IOError:
+        raise IOError("Cannot open {0} for writing".format(filename))
+
+    # Dict keys required for dimensions and variables
+    dimkeys = set(['name', 'values', 'dtype', 'atts'])
+    varkeys = set(['name', 'values', 'dtype', 'dims', 'atts'])
+    
+    dims = ()
+    for i, d in dimensions.iteritems():
+        missingkeys = [x for x in dimkeys if x not in d.keys()]
+        if len(missingkeys) > 0:
+            ncobj.close()
+            raise KeyError("Dimension dict missing key '{0}'".format(missingkeys))
+        
+        name = d['name']
+        values = d['values']
+        datatype = d['dtype']
+        atts = d['atts']
+        ncCreateDim(ncobj, name, values, datatype, atts)
+        dims = dims + (name,)
+
+    for i, v in variables.iteritems():
+        missingkeys = [x for x in varkeys if x not in v.keys()]
+        if len(missingkeys) > 0:
+            ncobj.close()
+            raise KeyError("Dimension dict missing key '{0}'".format(missingkeys))
+        name = v['name']
+        values = v['values']
+        datatype = v['dtype']
+        atts = v['atts']
+        dimensions = v['dims']
+
+        if len(dimensions) != len(values.shape):
+            ncobj.close()
+            raise ValueError("Mismatch between shape of variable and dimensions")
+        
+        var = ncobj.createVariable(name, datatype, dimensions,
+                                   zlib=zlib,
+                                   complevel=complevel,
+                                   least_significant_digit=lsd,
+                                   fill_value=nodata)
+
+        if writedata:
+            var[:] = np.array(values, dtype=datatype)
+    
+        var.setncatts(atts)
+
+    # Additional global attributes:
+    gatts['created_on'] = time.strftime(ISO_FORMAT, time.localtime())
+    gatts['created_by'] = getpass.getuser()
+    gatts['Conventions'] = 'CF-1.6'
+       
+    ncobj.setncatts(gatts)
+
+    if datatitle:
+        ncobj.setncattr('title', datatitle)
+        
+    if keepfileopen:
+        return ncobj
+    else:
+        ncobj.close()
+        return

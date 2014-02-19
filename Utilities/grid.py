@@ -131,14 +131,14 @@ def grdReadFromNetcdf(filename):
     Usage:
     longitude, latitude, data = grdRead(filename, [delimiter])
     """
-    from scipy.io.netcdf import netcdf_file
+    from netCDF4 import Dataset
 
     lon = None
     lat = None
     data = None
 
     if filename.endswith('nc'):
-        ncdf = netcdf_file(filename, 'r')
+        ncdf = Dataset(filename, 'r')
         lon = ncdf.variables['lon'][:]
         lat = ncdf.variables['lat'][:]
         dataname = (set(ncdf.variables.keys()) -

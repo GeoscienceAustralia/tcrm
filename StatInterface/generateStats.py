@@ -315,8 +315,8 @@ class GenerateStats:
 
     def load(self, filename):
         self.logger.debug('Loading statistics from %s' % filename)
-        from scipy.io.netcdf import netcdf_file
-        ncdf = netcdf_file(filename, 'r')
+        from netCDF4 import Dataset
+        ncdf = Dataset(filename, 'r')
         for var in ncdf.variables.keys():
             setattr(self.coeffs, var, ncdf.variables[var][:].flatten())
         #TODO: maybe save and check grid settings?
@@ -393,6 +393,7 @@ class GenerateStats:
         import Utilities.nctools as nctools
 
         nctools.ncSaveGrid(filename, dimensions, variables,
-                           nodata=self.missingValue,datatitle=None,dtype='f',
+                           nodata=self.missingValue,
+                           datatitle=None, dtype='f',
                            writedata=True, keepfileopen=False)
 

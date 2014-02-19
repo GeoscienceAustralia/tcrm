@@ -62,9 +62,8 @@ import Utilities.stats as stats
 import KDEParameters
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile, flSaveFile, flStartLog
-#from Utilities.AsyncRun import AsyncRun
 
-from scipy.io.netcdf import netcdf_file
+from netCDF4 import Dataset as netcdf_file
 import numpy as np
 
 class GenerateDistributions:

@@ -39,7 +39,7 @@ import Utilities.Cstats as Cstats
 import Utilities.maputils as maputils
 import Utilities.metutils as metutils
 from os.path import join as pjoin
-from scipy.io.netcdf import netcdf_file
+from netCDF4 import Dataset as netcdf_file
 from scipy.ndimage.interpolation import spline_filter
 
 from StatInterface.generateStats import GenerateStats
