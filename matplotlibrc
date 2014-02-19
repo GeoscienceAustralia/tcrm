@@ -11,3 +11,5 @@ axes.labelcolor: black
 axes.color_cycle: k, b, g, r, c, m, y
 legend.fancybox: True
 legend.frameon: True
+xtick.direction: out
+ytick.direction: out
