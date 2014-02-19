@@ -1,32 +1,34 @@
 
 import shapefile
-
-from loadData import loadTrackFile
 from itertools import izip
 import numpy as np
 
-import pdb
+
 # For all observation points/line segments:
 OBSFIELD_NAMES = ('Indicator', 'TCID', 'Year', 'Month',
                   'Day', 'Hour', 'Minute', 'TimeElapsed', 'Longitude',
                   'Latitude', 'Speed', 'Bearing', 'CentralPressure',
                   'WindSpeed', 'rMax', 'EnvPressure')
 OBSFIELD_TYPES = ('N',)*16
-OBSFIELD_WIDTH = (1,6,4,2,2,2,2,6,7,7,6,6,7,6,6,7)
-OBSFIELD_PREC =  (0,0,0,0,0,0,0,2,2,2,1,1,1,1,1,1)
+OBSFIELD_WIDTH = (1, 6, 4, 2, 2, 2, 2, 6, 7, 7, 6, 6, 7, 6, 6, 7)
+OBSFIELD_PREC =  (0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 1)
 
-OBSFIELDS = [[n,t,w,p] for n,t,w,p in zip(OBSFIELD_NAMES, OBSFIELD_TYPES,
-                                          OBSFIELD_WIDTH, OBSFIELD_PREC)]
+OBSFIELDS = [[n, t, w, p] for n, t, w, p in zip(OBSFIELD_NAMES,
+                                                OBSFIELD_TYPES,
+                                                OBSFIELD_WIDTH,
+                                                OBSFIELD_PREC)]
 
 # For storing events as a single polyline:
 EVENTFIELD_NAMES = ('TCID', 'Year', 'Month', 'Day', 'Hour', 'Minute', 'Age',
                     'MinPressure', 'MaxWindSpeed' )
 EVENTFIELD_TYPES = ('N',)*9
-EVENTFIELD_WIDTH = (6,4,2,2,2,2,6,7,7)
-EVENTFIELD_PREC =  (0,0,0,0,0,0,2,2,1)
+EVENTFIELD_WIDTH = (6, 4, 2, 2, 2, 2, 6, 7, 7)
+EVENTFIELD_PREC =  (0, 0, 0, 0, 0, 0, 2, 2, 1)
 
-EVENTFIELDS = [[n,t,w,p] for n,t,w,p in zip(EVENTFIELD_NAMES, EVENTFIELD_TYPES,
-                                            EVENTFIELD_WIDTH, EVENTFIELD_PREC)]
+EVENTFIELDS = [[n, t, w, p] for n, t, w, p in zip(EVENTFIELD_NAMES,
+                                                  EVENTFIELD_TYPES,
+                                                  EVENTFIELD_WIDTH,
+                                                  EVENTFIELD_PREC)]
 
 
 def tracks2point(tracks, outputFile):
@@ -100,6 +102,7 @@ def tracks2line(tracks, outputFile, dissolve=False):
             maxWind = track.trackMaxWind
             
             age = track.TimeElapsed.max()
+            
             startYear = track.Year[0]
             startMonth = track.Month[0]
             startDay = track.Day[0]
