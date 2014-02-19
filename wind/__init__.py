@@ -653,8 +653,8 @@ class WindfieldGenerator(object):
 
         gatts = {
             'title': 'TCRM hazard simulation - synthetic event wind field',
-            'version': flProgramVersion(),
-            'Python_ver': sys.version,
+            'tcrm_version': flProgramVersion(),
+            'python_version': sys.version,
             'track_file': '%s (modified %s)' % (trackfile, inputFileDate),
             'radial_profile': self.profileType,
             'boundary_layer': self.windFieldType,
