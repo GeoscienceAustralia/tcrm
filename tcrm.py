@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Tropical Cyclone Risk Model
-Copyright (c) 2013 Commonwealth of Australia (Geoscience Australia)
+Copyright (c) 2014 Commonwealth of Australia (Geoscience Australia)
 """
 
 import Utilities.datasets as datasets
@@ -25,7 +25,6 @@ if pathLocator.is_frozen():
     os.environ['BASEMAPDATA'] = pjoin(
         pathLocator.getRootDirectory(), 'mpl-data', 'data')
 
-
 UPDATE_MSG = """
 ----------------------------------------------------------
 Your TCRM version is not up-to-date. The last 3 things that
@@ -41,24 +40,24 @@ git pull
 """
 
 
-def timer(func):
+def timer(f):
     """
     Basic timing functions for entire process
     """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
+    @wraps(f)
+    def wrap(*args, **kwargs):
         t1 = time.time()
-        res = func(*args, **kwargs)
+        res = f(*args, **kwargs)
         
         tottime = time.time() - t1
         msg = "%02d:%02d:%02d " % \
           reduce(lambda ll, b : divmod(ll[0], b) + ll[1:],
                         [(tottime,), 60, 60])
 
-        log.info("Time for %s: %s"%(func.func_name, msg) )
+        log.info("Time for %s: %s"%(f.func_name, msg) )
         return res
 
-    return wrapper
+    return wrap
 
 
 def status():
@@ -69,7 +68,7 @@ def status():
 
     def git(command):
         with open(os.devnull) as devnull:
-            return subprocess.check_output(['git ' + command],
+            return subprocess.check_output('git ' + command,
                                            shell=True,
                                            stderr=devnull)
 
@@ -85,6 +84,26 @@ def status():
 
     return msg
 
+def version():
+    """
+    Check version of TCRM code.
+    """
+    
+    vers = ''
+    def git(command):
+        with open(os.devnull) as devnull:
+                  return subprocess.check_output('git ' + command,
+                                                 shell=True,
+                                                 stderr=devnull)
+    try:
+        vers = git('log -1 --date=iso --pretty=format:"%ad %H"')
+    except subprocess.CalledProcessError:
+        raise
+    
+    return vers
+
+# Set global version string (for output metadata purposes):
+__version__  = version()
 
 def attemptParallel():
     """
@@ -131,6 +150,7 @@ def disableOnWorkers(f):
     Disable function calculation on workers. Function will
     only be evaluated on the master.
     """
+    @wraps(f)
     def wrap(*args, **kwargs):
         if pp.size() > 1 and pp.rank() > 0:
             return
@@ -520,12 +540,14 @@ def main(configFile='main.ini'):
 
 def startup():
     parser = argparse.ArgumentParser()
-    parser.add_argument('configFile', help='the configuration file')
-    parser.add_argument('-v', '--verbose', help='verbose output',
+    parser.add_argument('-c', '--config_file', help='The configuration file')
+    parser.add_argument('-v', '--verbose', help='Verbose output',
+                        action='store_true')
+    parser.add_argument('-d', '--debug', help='Allow pdb traces',
                         action='store_true')
     args = parser.parse_args()
 
-    configFile = args.configFile
+    configFile = args.config_file
 
     rootdir = pathLocator.getRootDirectory()
     os.chdir(rootdir)
@@ -541,10 +563,11 @@ def startup():
         try:
             os.makedirs(logdir)
         except OSError:
-            logfile = pjoin(os.getcwd(), 'main.log')
+            logfile = pjoin(os.getcwd(), 'tcrm.log')
 
     logLevel = config.get('Logging', 'LogLevel')
     verbose = config.getboolean('Logging', 'Verbose')
+    debug = False
 
     if args.verbose:
         verbose = True
@@ -552,6 +575,9 @@ def startup():
     if not verbose:
         logLevel = 'ERROR'
         verbose = True
+
+    if args.debug:
+        debug = True
 
     attemptParallel()
 
@@ -571,14 +597,19 @@ def startup():
     warnings.filterwarnings("ignore", category=UserWarning, module="numpy")
     warnings.filterwarnings("ignore", category=UserWarning,
                             module="matplotlib")
-
-    try:
+    
+    warnings.filterwarnings("ignore", category=RuntimeWarning)
+    
+    if debug:
         main(configFile)
-    except Exception:  # pylint: disable=W0703
-        # Catch any exceptions that occur and log them (nicely):
-        tblines = traceback.format_exc().splitlines()
-        for line in tblines:
-            log.critical(line.lstrip())
+    else:
+        try:
+            main(configFile)
+        except Exception:  # pylint: disable=W0703
+            # Catch any exceptions that occur and log them (nicely):
+            tblines = traceback.format_exc().splitlines()
+            for line in tblines:
+                log.critical(line.lstrip())
 
 
 if __name__ == "__main__":
