@@ -45,7 +45,7 @@ from scipy.ndimage.interpolation import spline_filter
 from StatInterface.generateStats import GenerateStats
 from StatInterface.SamplingOrigin import SamplingOrigin
 from Utilities.files import flLoadFile, flSaveFile
-from MSLP.mslp_seasonal_clim import MSLPGrid
+
 from DataProcess.CalcFrequency import CalcFrequency
 from DataProcess.CalcTrackDomain import CalcTrackDomain
 from Utilities.config import ConfigParser
@@ -97,9 +97,6 @@ class TrackGenerator(object):
                     :class:`StatInterface.GenerateStats` when
                     insufficient observations exist in the cell being
                     analysed.
-
-    :type  mslp: :class:`MSLPGrid` or :class:`SampleGrid`
-    :param mslp: the MSLP grid to use.
 
     :type  landfall: :class:`LandfallDecay`
     :param landfall: the object that calculates the decay rate of a
@@ -1591,7 +1588,6 @@ def run(configFile, callback=None):
     gridSpace = config.geteval('TrackGenerator', 'GridSpace')
     gridInc = config.geteval('TrackGenerator', 'GridInc')
     gridLimit = config.geteval('Region', 'gridLimit')
-    mslpGrid = config.get('Input', 'MSLPGrid')
     mslpFile = config.get('Input', 'MSLPFile')
     seasonSeed = None
     trackSeed = None
@@ -1629,18 +1625,6 @@ def run(configFile, callback=None):
         log.critical('TrackSeed and GenesisSeed are needed' +
                      ' for parallel runs!')
         sys.exit(1)
-
-    # Parse the MSLP setting
-
-    #monthSel = set(mslpGrid.strip('[]{}() ').replace(',', ' ').split(' '))
-    #monthSel.discard('')
-    #if monthSel.issubset([str(k) for k in range(1, 13)]):
-    #    monthSelInt = [int(k) for k in monthSel]
-    #    log.info("Generating MSLP seasonal average")
-    #    mslp = MSLPGrid(monthSelInt)
-    #else:
-    #    log.info("Loading MSLP seasonal average from file")
-    #    mslp = SampleGrid(mslpGrid)
 
     mslp = SamplePressure(mslpFile)
     
