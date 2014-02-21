@@ -9,7 +9,8 @@
 
  Id: $Id$
 """
-import os, sys, pdb, logging
+import os
+import sys
 import unittest
 import cPickle
 import NumpyTestCase
@@ -42,24 +43,30 @@ class TestInterp3d(NumpyTestCase.NumpyTestCase):
         self.offset = [0., 90., 0.]
 
         # Load data 
-        pfile = open(os.path.join(unittest_dir, 'test_data','testinterp3d.pck'),'rb')
+        pfile = open(os.path.join(unittest_dir, 'test_data',
+                                  'testinterp3d.pck'), 'rb')
         self.xlon = cPickle.load(pfile)
         self.ylat = cPickle.load(pfile)
         self.ztime = cPickle.load(pfile)
         self.values = cPickle.load(pfile)
         pfile.close()
-        self.coords = numpy.array([self.ztime,self.ylat,self.xlon])
+        self.coords = numpy.array([self.ztime, self.ylat, self.xlon])
         
         
     def test_interp3d(self):
         """Test interp3d returns expected values"""
-        output = interp3d.interp3d(self.data,self.coords,self.scale,self.offset)
+        output = interp3d.interp3d(self.data, self.coords, 
+                                   self.scale, self.offset)
         self.numpyAssertAlmostEqual(output, self.values)
 
     def test_interp3d_2dinput(self):
         """Test interp3d raises ValueError if input_array is 2D"""
-        self.assertRaises(ValueError,interp3d.interp3d,
-                          self.data[1,:,:],self.coords,self.scale,self.offset)
+        self.assertRaises(ValueError,
+                          interp3d.interp3d,
+                          self.data[1, :, :],
+                          self.coords,
+                          self.scale,
+                          self.offset)
        
 
 

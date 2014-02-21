@@ -55,8 +55,8 @@ def interp3d(input_array, coords,
 
     values = map_coordinates(input_array, indices, mode='wrap',
                              prefilter=prefilter)
-
-    return values
+    dtype = input_array.dtype
+    return np.array(values, dtype)
 
 def _interp(data, coords, scale=[360., 180.], offset=[0., -90.]):
     """
