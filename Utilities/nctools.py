@@ -9,8 +9,6 @@ netCDF format files. It relies on the netCDF4 module
 
 """
 
-import os
-import sys 
 import logging
 
 from netCDF4 import Dataset
@@ -18,7 +16,8 @@ import numpy as np
 import time
 import getpass
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 ISO_FORMAT = '%Y-%m-%d %H:%M:%S'
 
@@ -70,7 +69,6 @@ def ncFileInfo(filename, group=None, variable=None, dimension=None):
     
     """
     def getgrp(g, p):
-        import posixpath
         grps = p.split("/")
         for gname in grps:
             if gname == "": continue
@@ -82,9 +80,9 @@ def ncFileInfo(filename, group=None, variable=None, dimension=None):
         if variable is None and dimension is None:
             print(f)
         else:
-            if var is not None:
+            if variable is not None:
                 print(f.variables[variable])
-            if dim is not None:
+            if dimension is not None:
                 print(f.dimensions[dimension])
     else:
         if variable is None and dimension is None:
@@ -93,7 +91,7 @@ def ncFileInfo(filename, group=None, variable=None, dimension=None):
             g = getgrp(f, group)
             if variable is not None:
                 print(g.variables[variable])
-            if dim is not None:
+            if dimension is not None:
                 print(g.dimensions[variable])
     f.close()
     
@@ -126,7 +124,7 @@ def ncGetDims(ncobj, dim, dtype=float):
     
     return np.array(data, copy=True, dtype=dtype)
 
-def ncGetData(ncobj, var, missingValue=-9999.):
+def ncGetData(ncobj, var):
     """Extract data values from a variable in a netCDF file.
     
     Note that the variable object is a better way to manipulate
@@ -141,15 +139,12 @@ def ncGetData(ncobj, var, missingValue=-9999.):
     var : str
         Name of the variable in the dataset to extract.
 
-    missingValue : float or int, optional
-        Value to assign to missing data, default is -9999.
-
     Returns
     -------
 
     data : :class:`numpy.ndarray`
-        Array containing the data of the variable, with missing values
-        replaced by `missingValue`.
+        :class:`numpy.masked_array` containing the data of the variable,
+        with missing values masked.
 
     Raises
     ------
@@ -236,7 +231,7 @@ def ncGetTimes(ncobj, name='time'):
     if hasattr(times, 'calendar'):
         calendar = times.calendar
     else:
-        calendar ='standard'
+        calendar = 'standard'
         
     dates = num2date(times[:], units, calendar)
 
@@ -336,7 +331,7 @@ def ncCreateVar(ncobj, name, dimensions, dtype, data=None, atts=None,
     return var
 
 def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
-                datatitle=None, gatts={}, dtype='f', writedata=True, 
+                datatitle=None, gatts={}, writedata=True, 
                 keepfileopen=False, zlib=True, complevel=4, lsd=2):
     """
     Save a gridded dataset to a netCDF file using NetCDF4.
@@ -448,44 +443,39 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
     varkeys = set(['name', 'values', 'dtype', 'dims', 'atts'])
     
     dims = ()
-    for i, d in dimensions.iteritems():
+    for d in dimensions.itervalues():
         missingkeys = [x for x in dimkeys if x not in d.keys()]
         if len(missingkeys) > 0:
             ncobj.close()
-            raise KeyError("Dimension dict missing key '{0}'".format(missingkeys))
+            raise KeyError("Dimension dict missing key '{0}'".
+                           format(missingkeys))
         
-        name = d['name']
-        values = d['values']
-        datatype = d['dtype']
-        atts = d['atts']
-        ncCreateDim(ncobj, name, values, datatype, atts)
-        dims = dims + (name,)
+        ncCreateDim(ncobj, d['name'], d['values'], d['dtype'], d['atts'])
+        dims = dims + (d['name'],)
 
-    for i, v in variables.iteritems():
+    for v in variables.itervalues():
         missingkeys = [x for x in varkeys if x not in v.keys()]
         if len(missingkeys) > 0:
             ncobj.close()
-            raise KeyError("Dimension dict missing key '{0}'".format(missingkeys))
-        name = v['name']
-        values = v['values']
-        datatype = v['dtype']
-        atts = v['atts']
-        dimensions = v['dims']
-
-        if len(dimensions) != len(values.shape):
+            raise KeyError("Dimension dict missing key '{0}'".
+                           format(missingkeys))
+ 
+        if len(v['dims']) != len(v['values'].shape):
             ncobj.close()
-            raise ValueError("Mismatch between shape of variable and dimensions")
+            raise ValueError("Mismatch between shape of "
+                             "variable and dimensions")
         
-        var = ncobj.createVariable(name, datatype, dimensions,
+        var = ncobj.createVariable(v['name'], v['dtype'],
+                                   v['dims'],
                                    zlib=zlib,
                                    complevel=complevel,
                                    least_significant_digit=lsd,
                                    fill_value=nodata)
 
         if writedata:
-            var[:] = np.array(values, dtype=datatype)
+            var[:] = np.array(v['values'], dtype=v['dtype'])
     
-        var.setncatts(atts)
+        var.setncatts(v['atts'])
 
     # Additional global attributes:
     gatts['created_on'] = time.strftime(ISO_FORMAT, time.localtime())
