@@ -6,6 +6,10 @@ Wind Models
 import numpy as np
 from math import exp, sqrt
 import Utilities.metutils as metutils
+import logging
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 class WindSpeedModel(object):
 
@@ -204,7 +208,11 @@ class HollandWindProfile(WindProfileModel):
                  + (f * rMax) ** 2) * (4 * beta * dP * rMax ** 2 / rho
                  + E * (f * rMax ** 2) ** 2)))
 
-        assert d2Vm < 0.0
+        try:
+            assert d2Vm < 0.0
+        except AssertionError:
+            log.critical("Pressure deficit: %f, RMW: %f" % (dP, rMax))
+            raise
 
         return d2Vm
 
