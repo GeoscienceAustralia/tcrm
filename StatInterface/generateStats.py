@@ -394,6 +394,6 @@ class GenerateStats:
 
         nctools.ncSaveGrid(filename, dimensions, variables,
                            nodata=self.missingValue,
-                           datatitle=None, dtype='f',
-                           writedata=True, keepfileopen=False)
+                           datatitle=None, writedata=True, 
+                           keepfileopen=False)
 

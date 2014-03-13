@@ -63,7 +63,7 @@ import KDEParameters
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile, flSaveFile, flStartLog
 
-from netCDF4 import Dataset as netcdf_file
+from netCDF4 import Dataset
 import numpy as np
 
 class GenerateDistributions:
@@ -237,7 +237,7 @@ class GenerateDistributions:
 
             filename = allCellCdfOutput + '.nc'
 
-            ncdf = netcdf_file(filename, 'w')
+            ncdf = Dataset(filename, 'w')
             
             ncdf.createDimension('cell', len(results[:,0]))
             cell = ncdf.createVariable('cell', 'i', ('cell',))
