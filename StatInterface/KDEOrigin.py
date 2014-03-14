@@ -206,13 +206,41 @@ class KDEOrigin:
 
         if save:
             outputFile = os.path.join(self.processPath, 'originPDF.nc')
-            dimensions = {0:{'name':'lat','values':self.y,'dtype':'f','atts':{'long_name':'Latitude','units':'degrees_north'} },
-                          1:{'name':'lon','values':self.x,'dtype':'f','atts':{'long_name':'Longitude','units':'degrees_east'} } }
-            variables =  {0:{'name':'gpdf','dims':('lat','lon'),
-                             'values':numpy.array(pdf),'dtype':'f',
-                             'atts':{'long_name':'TC Genesis probability distribution',
-                                      'units':''} } }
-            ncSaveGrid(outputFile, dimensions, variables)
+            dimensions = {
+                0: {
+                    'name': 'lat',
+                    'values': self.y,
+                    'dtype': 'f',
+                    'atts': { 
+                        'long_name':' Latitude',
+                        'units': 'degrees_north'
+                        } 
+                    },
+                1: {
+                    'name': 'lon',
+                    'values': self.x,
+                    'dtype': 'f',
+                    'atts': {
+                        'long_name': 'Longitude',
+                        'units': 'degrees_east'
+                        } 
+                    } 
+                }
+
+            variables = {
+                0: {
+                    'name': 'gpdf',
+                    'dims': ('lat', 'lon'),
+                    'values': numpy.array(pdf),
+                    'dtype': 'f',
+                    'atts': {
+                        'long_name': 'TC Genesis probability distribution',
+                        'units': ''
+                        } 
+                    } 
+                }
+
+            ncSaveGrid(outputFile, dimensions, variables, lsd=7)
 
         if plot:
             from Utilities.plotField import plotField
