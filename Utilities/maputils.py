@@ -84,10 +84,8 @@ import time
 #from scipy import weave
 #from scipy.weave import converters
 
-__version__ = '$Id: maputils.py 686 2012-03-29 04:24:59Z carthur $'
-logger = logging.getLogger('maptools')
-#class MapToolError(Exception): pass
-#class ArrayMismatch(MapToolError): pass
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 def xy2r(x, y):
     """
