@@ -406,9 +406,10 @@ class WindfieldGenerator(object):
 
     """
 
-    def __init__(self, margin=2.0, resolution=0.05, profileType='powell',
+    def __init__(self, config, margin=2.0, resolution=0.05, profileType='powell',
                  windFieldType='kepert', beta=1.5, beta1=1.5, beta2=1.4,
                  thetaMax=70.0, gridLimit=None):
+        self.config = config
         self.margin = margin
         self.resolution = resolution
         self.profileType = profileType
@@ -568,7 +569,7 @@ class WindfieldGenerator(object):
             }
         }
 
-        nctools._ncSaveGrid(dumpfile, dimensions, variables)
+        nctools.ncSaveGrid(dumpfile, dimensions, variables)
 
 
     def plotExtremesFromTrackfile(self, trackfile, windfieldfile,
@@ -659,6 +660,13 @@ class WindfieldGenerator(object):
             'radial_profile': self.profileType,
             'boundary_layer': self.windFieldType,
             'beta': self.beta}
+        
+        # Add configuration settings to global attributes:
+        for section in self.config.sections():
+            for option in self.config.options(section):
+                key = "{0}_{1}".format(section, option)
+                value = self.config.get(section, option)
+                gatts[key] = value
 
         dimensions = {
             0: {
@@ -697,7 +705,7 @@ class WindfieldGenerator(object):
                     'units': 'm/s',
                     'actual_range': (np.min(speed), np.max(speed)),
                     'valid_range': (0.0, 200.),
-                    'cell_methods': ('time: maximum over lifetime '
+                    'cell_methods': ('time: maximum '
                                      'time: maximum (interval: 3 seconds)')
                 }
             },
@@ -738,7 +746,7 @@ class WindfieldGenerator(object):
                     'units': 'Pa',
                     'actual_range':(np.min(P), np.max(P)),
                     'valid_range': (70000., 115000.),
-                    'cell_methods': 'time: minimum over lifetime'
+                    'cell_methods': 'time: minimum'
                 }
             }
         }
@@ -970,7 +978,8 @@ def run(configFile, callback=None):
 
     log.info('Running windfield generator')
     
-    wfg = WindfieldGenerator(margin=margin,
+    wfg = WindfieldGenerator(config=config,
+                             margin=margin,
                              resolution=resolution,
                              profileType=profileType,
                              windFieldType=windFieldType,
