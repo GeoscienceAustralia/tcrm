@@ -280,6 +280,45 @@ class KDEOrigin:
             self.logger.debug("Saving origin CDF to file")
             grdSave(self.processPath+'originCDF.txt', self.cz, self.x,
                     self.y, self.kdeStep)
+                    
+        if save:
+            outputFile = os.path.join(self.processPath, 'originCDF.nc')
+            dimensions = {
+            0: {
+                'name': 'lat',
+                'values': self.y,
+                'dtype': 'f',
+                'atts': { 
+                    'long_name': 'Latitude',
+                    'units': 'degrees_north'
+                    } 
+                },
+            1: { 
+                'name': 'lon',
+                'values': self.x,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Longitude',
+                    'units':'degrees_east'
+                    } 
+                } 
+            }
+            
+            variables =  {
+                0: {
+                    'name': 'gcdf',
+                    'dims': ('lat','lon'),
+                    'values': numpy.array(self.cz),
+                    'dtype': 'f',
+                    'atts': {
+                        'long_name': ('TC Genesis cumulative '
+                                        'distribution'),
+                        'units': '' 
+                        } 
+                    } 
+                }
+
+            ncSaveGrid(outputFile, dimensions, variables)
         else:
             return self.cz
 
