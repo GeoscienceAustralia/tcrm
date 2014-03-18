@@ -273,7 +273,7 @@ def ncCreateDim(ncobj, name, values, dtype, atts=None):
         dimension.setncatts(atts)
 
 def ncCreateVar(ncobj, name, dimensions, dtype, data=None, atts=None,
-                 zlib=True, complevel=4, lsd=2, nodata=-9999.,):
+                 zlib=True, complevel=4, lsd=None, nodata=-9999.,):
     """
     Create a `Variable` instance in a :class:`netCDF4.Dataset` or
     :class:`netCDF4.Group` instance.
@@ -305,7 +305,8 @@ def ncCreateVar(ncobj, name, dimensions, dtype, data=None, atts=None,
          Ignored if zlib=False
     
     lsd : integer, default 2
-        Variable data will be truncated to this number of significant digits.    
+        Variable data will be truncated to this number of significant digits.
+    
     nodata : float or int, default -9999.
          Value representing missing data
     
@@ -332,7 +333,7 @@ def ncCreateVar(ncobj, name, dimensions, dtype, data=None, atts=None,
 
 def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
                 datatitle=None, gatts={}, writedata=True, 
-                keepfileopen=False, zlib=True, complevel=4, lsd=2):
+                keepfileopen=False, zlib=True, complevel=4, lsd=None):
     """
     Save a gridded dataset to a netCDF file using NetCDF4.
     

@@ -240,7 +240,7 @@ class KDEOrigin:
                     } 
                 }
 
-            ncSaveGrid(outputFile, dimensions, variables, lsd=7)
+            ncSaveGrid(outputFile, dimensions, variables)
 
         if plot:
             from Utilities.plotField import plotField
