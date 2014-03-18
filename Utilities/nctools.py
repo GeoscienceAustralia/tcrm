@@ -232,7 +232,7 @@ def ncGetTimes(ncobj, name='time'):
         calendar = times.calendar
     else:
         calendar = 'standard'
-        
+    
     dates = num2date(times[:], units, calendar)
 
     return np.array(dates, dtype=datetime)
@@ -460,14 +460,14 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
             ncobj.close()
             raise KeyError("Dimension dict missing key '{0}'".
                            format(missingkeys))
- 
-        if len(v['dims']) != len(v['values'].shape):
-            ncobj.close()
-            raise ValueError("Mismatch between shape of "
-                             "variable and dimensions")
+        if v['values']:
+            if len(v['dims']) != len(v['values'].shape):
+                ncobj.close()
+                raise ValueError("Mismatch between shape of "
+                                 "variable and dimensions")
         
         var = ncobj.createVariable(v['name'], v['dtype'],
-                                   v['dims'],
+                                   v['dims'], 
                                    zlib=zlib,
                                    complevel=complevel,
                                    least_significant_digit=lsd,
