@@ -68,7 +68,7 @@ import Utilities.nctools as nctools
 import evd
 
 from os.path import join as pjoin
-from Utilities.config import cnfGetIniValue
+from Utilities.config import ConfigParser, cnfGetIniValue
 from Utilities.files import flProgramVersion
 from scipy.stats import scoreatpercentile as percentile
 from Utilities.progressbar import ProgressBar
@@ -90,22 +90,20 @@ class HazardInterface:
         """
         self.nodata = -9999
         self.configFile = configFile
-        show_progress_bar = cnfGetIniValue( self.configFile, 'Logging', 
-                                           'ProgressBar', True)
+        config = ConfigParser()
+        config.read(configFile)
+
+        show_progress_bar = config.get('Logging', 'ProgressBar')
         self.pbar = ProgressBar('(5/6) Calculating hazard:    ', 
                                 show_progress_bar)
+
         self.logger = logging.getLogger()
         self.logger.info("Initiating HazardInterface")
-        self.gL = eval(cnfGetIniValue(self.configFile, 'Region', 'gridLimit'))
-        self.nsim = cnfGetIniValue(self.configFile, 'HazardInterface', 'NumSim', 1000)
-        self.calcCI = cnfGetIniValue(self.configFile, 'HazardInterface', 
-                                     'CalculateCI', False)
+        self.gL = config.geteval('Region', 'gridLimit')
+        self.nsim = config.getint('HazardInterface', 'NumSim')
+        self.calcCI = config.getboolean('HazardInterface', 'CalculateCI')
                                      
-        self.inputPath = cnfGetIniValue(self.configFile, 'HazardInterface', 
-                                        'InputPath',
-                                        pjoin(cnfGetIniValue(self.configFile, 
-                                                             'Output', 'Path'),
-                                        'windfield'))
+        self.inputPath = pjoin(config.get('Output', 'Path'), 'windfield')
                                         
         self.fileList = os.listdir(self.inputPath)
 
@@ -125,14 +123,13 @@ class HazardInterface:
         self.jmax = jj[-1]
         self.lon = wf_lon[self.imin:self.imax+1]
         self.lat = wf_lat[self.jmin:self.jmax+1]
-        self.outputPath = os.path.join(cnfGetIniValue(self.configFile, 'Output', 'Path'),
-                                       'hazard')
-        self.years = np.array(cnfGetIniValue(self.configFile, 'HazardInterface',
-                                          'Years').split(',')).astype('f')
-        self.minRecords = cnfGetIniValue(self.configFile, 'HazardInterface',
-                                          'MinimumRecords', 50)
-        self.yrsPerSim = cnfGetIniValue(self.configFile, 'HazardInterface',
-                                          'YearsPerSimulation', 1)
+        self.outputPath = pjoin(config.get('Output', 'Path'), 'hazard')
+
+        self.years = np.array(config.get('HazardInterface', 
+                                         'Years').split(',')).astype('f')
+
+        self.minRecords = config.get('HazardInterface', 'MinimumRecords')
+        self.yrsPerSim = config.get('HazardInterface', 'YearsPerSimulation')
 
         # Create dimensions for storing data:
         dimensions = {
@@ -170,7 +167,7 @@ class HazardInterface:
             0: {
                 'name': 'loc',
                 'dims': ('lat', 'lon'),
-                'values': np.array(self.nodata),
+                'values': None,
                 'dtype': 'd',
                 'atts': {
                     'long_name': 'Location parameter for GEV distribution',
@@ -180,7 +177,7 @@ class HazardInterface:
             1: {
                 'name': 'scale',
                 'dims': ('lat', 'lon'),
-                'values': np.array(self.nodata), 
+                'values': None, 
                 'dtype': 'd',
                 'atts': {
                     'long_name': 'Scale parameter for GEV distribution',
@@ -190,7 +187,7 @@ class HazardInterface:
             2: {
                 'name': 'shp',
                 'dims': ('lat', 'lon'),
-                'values': np.array(self.nodata),
+                'values': None,
                 'dtype': 'd',
                 'atts': {
                     'long_name': 'Shape parameter for GEV distribution',
@@ -200,7 +197,7 @@ class HazardInterface:
             3: {
                 'name': 'wspd',
                 'dims': ('years', 'lat', 'lon'),
-                'values': np.array(self.nodata), 
+                'values': None, 
                 'dtype': 'd',
                 'atts': {
                     'long_name': 'Return period wind speed',
@@ -210,7 +207,7 @@ class HazardInterface:
             4: {
                 'name': 'wspdupper',
                 'dims': ('years', 'lat', 'lon'),
-                'values': np.array(self.nodata), 
+                'values': None, 
                 'dtype': 'd',
                 'atts': {
                     'long_name': 'Upper percentile return period wind speed',
@@ -221,7 +218,7 @@ class HazardInterface:
             5: {
                 'name': 'wspdlower', 
                 'dims': ('years', 'lat', 'lon'),
-                'values': np.array(self.nodata), 
+                'values': None, 
                 'dtype': 'd',
                 'atts': {
                     'long_name': 'Lower percentile return period wind speed',
@@ -232,19 +229,28 @@ class HazardInterface:
         }
         # Create global attributes
         gatts = {'history': 'TCRM hazard simulation - return period wind speeds',
-                 'version': flProgramVersion( ),
+                 'version': flProgramVersion(),
                  'Python_ver': sys.version,
                  'extent': 'Left: %f, Right: %f, Top: %f, Bottom: %f' %
                            (self.gL['xMin'], self.gL['xMax'],
                             self.gL['yMax'], self.gL['yMin']),
                  'number_simulations': self.nsim,
                  'minimum_records': self.minRecords}
+
+        # Add configuration settings to global attributes:
+        for section in config.sections():
+            for option in config.options(section):
+                key = "{0}_{1}".format(section, option)
+                value = config.get(section, option)
+                gatts[key] = value
+
+
         # Create output file for return-period gust wind speeds and GEV parameters
         self.nc_obj = nctools.ncSaveGrid(pjoin(self.outputPath, 'hazard.nc'),
                                          dimensions, variables, nodata=self.nodata,
                                          datatitle='TCRM hazard simulation',
                                          gatts=gatts, writedata=False, 
-                                         dtype='d', keepfileopen=True)
+                                         keepfileopen=True)
 
     def calculateWindHazard(self):
         """
@@ -256,7 +262,7 @@ class HazardInterface:
         x_start, x_end, \
         y_start, y_end = self._return_subset_edges(self.imax - self.imin + 1,
                                                    self.jmax - self.jmin + 1,
-                                                   x_step=20, y_step=20)
+                                                   x_step=100, y_step=100)
 
         # Calculate wind hazard in spatial subsets (to prevent memory overload)
         no_subsets = len(x_start)
