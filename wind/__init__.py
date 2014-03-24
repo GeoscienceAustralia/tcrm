@@ -8,7 +8,7 @@ Wind field calculations can be run in parallel using MPI if the
 :term:`pypar` library is found and TCRM is run using the
 :term:`mpirun` command. For example, to run with 10 processors::
 
-    mpirun -n 10 python main.py cairns.ini
+    mpirun -n 10 python tcrm.py cairns.ini
 
 :class:`wind` can be correctly initialised and started by
 calling the :meth: `run` with the location of a *configFile*::
