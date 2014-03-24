@@ -26,17 +26,18 @@ except ImportError:
     log.debug('LMOMENTS package not found - reverting to slower python' +
               'version of code')
 
+import pdb
 
-def estimateEVD(v, years, missingValue=-9999., minRecords=50, yrspersim=10):
+def estimateEVD(v, years, missingValue=-9999., minRecords=50, yrspersim=1):
     """
     Calculate extreme value distribution parameters using the Lmoments module
     """
     # Convert to float to prevent integer division & ensure consistent data
     # types for output variables
-    yrspersim = np.array(yrspersim)
-    missingValue = np.array(missingValue)
+    yrspersim = float(yrspersim)
+    missingValue = float(missingValue)
     years = np.array(years)
-
+     
     # Initialise variables:
     loc, scale, shp = [missingValue, missingValue, missingValue]
     w = missingValue * np.ones(len(years))
@@ -45,23 +46,24 @@ def estimateEVD(v, years, missingValue=-9999., minRecords=50, yrspersim=10):
         ii = np.flatnonzero(v)
         # Only calculate l-moments for those grid points where the values are 
         # not all equal, and where there are 50 or more valid values.
-        if (v[ii].min() != v[ii].max()) and (len(ii) >= minRecords):
-            l1, l2, l3 = lmom.samlmu(v[ii], 3)
-            t3 = l3 / l2
-            if (l2 <= 0.) or (np.abs(t3) >= 1.):
-                # Reject points where the second l-moment is negative
-                # or the ratio of the third to second is > 1.
-                log.debug("Invalid l-moments")
-            else:
-                # Parameter estimation returns the location, scale and shape 
-                # parameters
-                xmom = [l1, l2, t3]
-                loc, scale, shp = np.array(lmom.pelgev(xmom))
-                # We only store the values if the first parameter is
-                # finite (i.e. the location parameter is finite)
-                if not np.isfinite(loc):
-                    loc, scale, shp = [
-                        missingValue, missingValue, missingValue]
+        if v[ii].min() != v[ii].max():
+            if len(ii) >= minRecords:
+                l1, l2, l3 = lmom.samlmu(v[ii], 3)
+                t3 = l3 / l2
+                if (l2 <= 0.) or (np.abs(t3) >= 1.):
+                    # Reject points where the second l-moment is negative
+                    # or the ratio of the third to second is > 1.
+                    log.debug("Invalid l-moments")
+                else:
+                    # Parameter estimation returns the location, scale and shape 
+                    # parameters
+                    xmom = [l1, l2, t3]
+                    loc, scale, shp = np.array(lmom.pelgev(xmom))
+                    # We only store the values if the first parameter is
+                    # finite (i.e. the location parameter is finite)
+                    if not np.isfinite(loc):
+                        loc, scale, shp = [
+                            missingValue, missingValue, missingValue]
 
     for i, t in enumerate(years):
         if shp == -9999:

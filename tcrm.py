@@ -428,7 +428,7 @@ def doStatistics(configFile):
     log.info('Completed StatInterface')
 
 
-@disableOnWorkers
+#@disableOnWorkers
 def doHazard(configFile):
     """
     Do the hazard calculations.
@@ -441,9 +441,12 @@ def doHazard(configFile):
     showProgressBar = config.get('Logging', 'ProgressBar')
     pbar = ProgressBar('Performing hazard calculations: ', showProgressBar)
 
-    from HazardInterface.HazardInterface import HazardInterface
-    hzdinterface = HazardInterface(configFile)
-    hzdinterface.calculateWindHazard()
+    import hazard
+    hazard.run(configFile)
+
+    #from HazardInterface.HazardInterface import HazardInterface
+    #hzdinterface = HazardInterface(configFile)
+    #hzdinterface.calculateWindHazard()
 
     log.info('Completed HazardInterface')
     pbar.update(1.0)
@@ -572,9 +575,9 @@ def startup():
     if args.verbose:
         verbose = True
 
-    if not verbose:
-        logLevel = 'ERROR'
-        verbose = True
+    #if not verbose:
+    #    logLevel = 'ERROR'
+    #    verbose = True
 
     if args.debug:
         debug = True
