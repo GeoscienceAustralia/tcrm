@@ -199,7 +199,7 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
 
     def test_ncCreateFile(self):
         """Test nctools creates a file successfully"""
-        ncobj = nctools.ncCreateFile(self.ncfile)
+        ncobj = netCDF4.Dataset(self.ncfile, 'w', format='NETCDF4', clobber=True)
         # output data.
         press_out = 900. + np.arange(self.nlevs*self.nlats*self.nlons, dtype='f') # 1d array
         press_out.shape = (self.nlevs, self.nlats, self.nlons) # reshape to 2d array
