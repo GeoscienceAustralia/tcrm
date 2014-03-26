@@ -59,18 +59,21 @@ def timer(f):
 
     return wrap
 
+def git(command):
+    """
+    Run a git command and return the output
+    """
+
+    with open(os.devnull) as devnull:
+        return subprocess.check_output('git ' + command,
+                                       shell=True,
+                                       stderr=devnull)
 
 def status():
     """
     Check status TCRM of code.
     """
     msg = ''
-
-    def git(command):
-        with open(os.devnull) as devnull:
-            return subprocess.check_output('git ' + command,
-                                           shell=True,
-                                           stderr=devnull)
 
     try:
         git('fetch')  # update status of remote
@@ -90,11 +93,7 @@ def version():
     """
     
     vers = ''
-    def git(command):
-        with open(os.devnull) as devnull:
-                  return subprocess.check_output('git ' + command,
-                                                 shell=True,
-                                                 stderr=devnull)
+
     try:
         vers = git('log -1 --date=iso --pretty=format:"%ad %H"')
     except subprocess.CalledProcessError:
@@ -440,6 +439,9 @@ def doHazard(configFile):
 
     showProgressBar = config.get('Logging', 'ProgressBar')
     pbar = ProgressBar('Performing hazard calculations: ', showProgressBar)
+
+    def status(done, total):
+        pbar.update(float(done)/total)
 
     import hazard
     hazard.run(configFile)

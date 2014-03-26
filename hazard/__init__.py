@@ -33,6 +33,7 @@ from Utilities.config import ConfigParser
 import Utilities.nctools as nctools
 import evd
 
+import pdb
 
 def setDomain(inputPath):
     """
@@ -72,6 +73,25 @@ def disableOnWorkers(f):
         else:
             return f(*args, **kwargs)
     return wrap
+
+class Tile(object):
+    """
+    Tile object.
+    
+    Because there is a buffer region around the outer edge of 
+    the :class:`dict` gridLimit, the indices where data is pulled from
+    (the wind field files) are different from those where the data is 
+    stored (the output hazard array). 
+    
+    This object holds the index ranges for teh input array and output array,
+    to indicate this relationship.
+
+    """
+
+    def __init__(self, number, input_limits, output_limits):
+        self.input_limits = input_limits
+        self.output_limits = output_limits
+        self.number = number
 
 class TileGrid(object):
     """
@@ -118,12 +138,17 @@ class TileGrid(object):
 
         """
         
-        ii, = ((wf_lon >= gridLimit['xMin']) & 
-               (wf_lon <= gridLimit['xMax'])).nonzero()
+        
+        ii, = ((np.round(wf_lon*1000).astype(int) >= 
+                int(gridLimit['xMin']*1000)) & 
+               (np.round(wf_lon*1000).astype(int) <= 
+                int(gridLimit['xMax']*1000))).nonzero()
         
 
-        jj, = ((wf_lat >= gridLimit['yMin']) & 
-               (wf_lat <= gridLimit['yMax'])).nonzero()
+        jj, = ((np.round(wf_lat*1000).astype(int) >= 
+                int(gridLimit['yMin']*1000)) & 
+               (np.round(wf_lat*1000).astype(int) <= 
+                int(gridLimit['yMax']*1000))).nonzero()
 
         self.imin = ii[0]
         self.imax = ii[-1]
@@ -137,7 +162,7 @@ class TileGrid(object):
         self.ystep = ystep
         self.wf_lon = wf_lon
         self.wf_lat = wf_lat
-
+        
         self.tileGrid()
 
     def tileGrid(self):
@@ -157,10 +182,12 @@ class TileGrid(object):
 
         for i in xrange(subset_maxcols):
             for j in xrange(subset_maxrows):
-                self.x_start[k] = i * self.xstep
-                self.x_end[k] = min((i + 1) * self.xstep, self.xdim) - 1
-                self.y_start[k] = j * self.ystep
-                self.y_end[k] = min((j + 1) * self.ystep, self.ydim) - 1
+                self.x_start[k] = i * self.xstep + self.imin
+                self.x_end[k] = min((i + 1) * self.xstep + self.imin, 
+                                    self.xdim + self.imin) - 1
+                self.y_start[k] = j * self.ystep + self.jmin
+                self.y_end[k] = min((j + 1) * self.ystep + self.jmin, 
+                                    self.ydim + self.jmin) - 1
                 k += 1
     
 
@@ -208,7 +235,7 @@ class TileGrid(object):
 
         lon = self.wf_lon[self.imin:self.imax + 1]
         lat = self.wf_lat[self.jmin:self.jmax + 1]
-
+        
         return lon, lat
 
 
@@ -274,12 +301,13 @@ class HazardCalculator(object):
         """
 
         Vr = loadFilesFromPath(self.inputPath, tilelimits)
+        
         Rp, loc, scale, shp = calculate(Vr, self.years, self.nodata, 
                                         self.minRecords, self.yrsPerSim)
 
         return (tilelimits, Rp, loc, scale, shp)
 
-    def dumpHazardFromTiles(self, tileiter):
+    def dumpHazardFromTiles(self, tiles, progressCallback=None):
         """
         Iterate over tiles to calculate return period hazard levels
 
@@ -295,7 +323,7 @@ class HazardCalculator(object):
         if (pp.rank() == 0) and (pp.size() > 1):
             w = 0
             for d in range(1, pp.size()):
-                pp.send(tileiter[w], destination=d, tag = work_tag)
+                pp.send(tiles[w], destination=d, tag = work_tag)
                 w += 1
 
             terminated = 0
@@ -305,7 +333,14 @@ class HazardCalculator(object):
                                              return_status=True)
                 limits, Rp, loc, scale, shp = result
 
+                
+                # Reset the min/max bounds for the output array:
                 (xmin, xmax, ymin, ymax) = limits
+                xmin -= self.tilegrid.imin
+                xmax -= self.tilegrid.imin
+                ymin -= self.tilegrid.jmin
+                ymax -= self.tilegrid.jmin
+
                 self.loc[ymin:ymax, xmin:xmax] = loc
                 self.scale[ymin:ymax, xmin:xmax] = scale
                 self.shp[ymin:ymax, xmin:xmax] = shp
@@ -316,12 +351,15 @@ class HazardCalculator(object):
 
                 d = status.source
 
-                if w < len(tileiter):
-                    pp.send(tileiter[w], destination=d, tag=work_tag)
+                if w < len(tiles):
+                    pp.send(tiles[w], destination=d, tag=work_tag)
                     w += 1
                 else:
                     pp.send(None, destination=d, tag=work_tag)
                     terminated += 1
+
+                if progressCallback:
+                    progressCallback(w)
 
         elif (pp.size() > 1) and (pp.rank() != 0):
             while(True):
@@ -333,15 +371,24 @@ class HazardCalculator(object):
 
         elif pp.size() == 1 and pp.rank() == 0:
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
-            for tile in tileiter:
+            for i, tile in enumerate(tiles):
                 result = self.calculateHazard(tile)
                 limits, Rp, loc, scale, shp = result
-
+                
+                # Reset the min/max bounds for the output array:
                 (xmin, xmax, ymin, ymax) = limits
+                xmin -= self.tilegrid.imin
+                xmax -= self.tilegrid.imin
+                ymin -= self.tilegrid.jmin
+                ymax -= self.tilegrid.jmin
+
                 self.loc[ymin:ymax, xmin:xmax] = loc
                 self.scale[ymin:ymax, xmin:xmax] = scale
                 self.shp[ymin:ymax, xmin:xmax] = shp
                 self.Rp[:, ymin:ymax, xmin:xmax] = Rp[:, :, :]
+
+                if progressCallback:
+                    progressCallback(i)
 
 
     @disableOnWorkers
@@ -354,6 +401,7 @@ class HazardCalculator(object):
         log.info("Saving hazard data file")
         # FIXME: need to ensure CF-1.6 and OGC compliance in output files.
         lon, lat = self.tilegrid.getDomainExtent()
+        
         dimensions = {
             0: {
                 'name': 'years', 
@@ -706,6 +754,7 @@ def run(configFile, callback=None):
     
     outputPath = config.get('Output', 'Path')
     gridLimit = config.geteval('Region', 'gridLimit')
+    margin = config.get('WindfieldInterface', 'Margin')
     numsimulations = config.getint('HazardInterface', 'NumSim')
     calculate_confidence = config.getboolean('HazardInterface', 'CalculateCI')
     
@@ -727,6 +776,10 @@ def run(configFile, callback=None):
     log.info("Running hazard calculations")
     TG = TileGrid(gridLimit, wf_lon, wf_lat)
     tiles = getTiles(TG)
+
+    #def progress(i):
+    #    callback(i, len(tiles))
+             
     pp.barrier()
     hc = HazardCalculator(configFile, TG, 
                           numsimulations, 
@@ -737,7 +790,7 @@ def run(configFile, callback=None):
 
     
 
-    hc.dumpHazardFromTiles(tiles)
+    hc.dumpHazardFromTiles(tiles) 
 
     pp.barrier()
 
