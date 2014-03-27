@@ -793,9 +793,9 @@ def run(configFile, callback=None):
     hc.dumpHazardFromTiles(tiles) 
 
     pp.barrier()
-
+    
     hc.saveHazard()
+
     log.info("Completed hazard calculation")
-    pp.finalize()
     
     
