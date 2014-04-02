@@ -33,8 +33,6 @@ from Utilities.config import ConfigParser
 import Utilities.nctools as nctools
 import evd
 
-import pdb
-
 def setDomain(inputPath):
     """
     Establish the full extent of input wind field files

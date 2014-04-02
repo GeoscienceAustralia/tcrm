@@ -37,8 +37,6 @@ from Utilities.maputils import bearing2theta, makeGrid
 
 import Utilities.nctools as nctools
 
-import pdb
-
 # Trackfile .csv format.
 
 TRACKFILE_COLS = ('CycloneNumber', 'TimeElapsed', 'Longitude',
