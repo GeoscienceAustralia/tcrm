@@ -590,8 +590,9 @@ def startup():
         logfile += '-' + str(pp.rank())
         verbose = False  # to stop output to console
     else:
-        codeStatus = status()
-        print __doc__ + codeStatus
+        pass
+        #codeStatus = status()
+        #print __doc__ + codeStatus
 
     flStartLog(logfile, logLevel, verbose)
 
