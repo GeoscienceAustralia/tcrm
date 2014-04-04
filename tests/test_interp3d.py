@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
  Title: test_interp3d.py
  Author: Craig Arthur, craig.arthur@ga.gov.au

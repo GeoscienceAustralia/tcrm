@@ -384,6 +384,9 @@ class HazardCalculator(object):
                 self.scale[ymin:ymax, xmin:xmax] = scale
                 self.shp[ymin:ymax, xmin:xmax] = shp
                 self.Rp[:, ymin:ymax, xmin:xmax] = Rp[:, :, :]
+                #if self.calcCI:
+                #    self.RPupper[:, ymin:ymax, xmin:xmax] = RpUpper[:, :, :]
+                #    self.RPlower[:, ymin:ymax, xmin:xmax] = RpLower[:, :, :]
 
                 if progressCallback:
                     progressCallback(i)

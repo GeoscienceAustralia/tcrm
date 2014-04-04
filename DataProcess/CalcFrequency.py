@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 :mod:`CalcFrequency` -- Calculate annual genesis frequency
 ==========================================================

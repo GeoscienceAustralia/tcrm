@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 
  Version: $Rev: 733 $

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 :mod: `nctools` -- NetCDF utility functions
 ===========================================

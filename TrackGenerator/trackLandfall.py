@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
     Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
@@ -54,8 +53,6 @@ import numpy
 from Utilities.grid import SampleGrid
 from Utilities import pathLocator
 from Utilities.config import ConfigParser
-
-__version__ = '$Id: trackLandfall.py 810 2012-02-21 07:52:50Z nsummons $'
 
 class LandfallDecay:
     """

@@ -1662,7 +1662,7 @@ def run(configFile, callback=None):
     jumpAhead = np.hstack([[0],
                           np.cumsum(nCyclones * maxRvsPerTrack)[:-1]])
 
-    log.debug('Generating %i total tracks from %i genesis locations',
+    log.info('Generating %i total tracks from %i genesis locations',
               sum(nCyclones), nGenesisPoints)
 
     # Setup the simulation parameters

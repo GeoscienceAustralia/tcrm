@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Title: interp3d.py - interpolate to a set of points in 3-dimensional space
 Author: Craig Arthur, craig.arthur@ga.gov.au

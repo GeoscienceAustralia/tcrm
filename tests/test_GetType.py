@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
     Copyright (C) 2011  Geoscience Australia

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 :mod: CalcTrackDomain - calculate track generation domain
 =========================================================

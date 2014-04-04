@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
  Title: evaluate.py
  Author: Craig Arthur, craig.arthur@ga.gov.au
