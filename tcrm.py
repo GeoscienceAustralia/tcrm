@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Tropical Cyclone Risk Model
 Copyright (c) 2014 Commonwealth of Australia (Geoscience Australia)
@@ -427,7 +426,6 @@ def doStatistics(configFile):
     log.info('Completed StatInterface')
 
 
-#@disableOnWorkers
 def doHazard(configFile):
     """
     Do the hazard calculations.
@@ -445,10 +443,6 @@ def doHazard(configFile):
 
     import hazard
     hazard.run(configFile)
-
-    #from HazardInterface.HazardInterface import HazardInterface
-    #hzdinterface = HazardInterface(configFile)
-    #hzdinterface.calculateWindHazard()
 
     log.info('Completed HazardInterface')
     pbar.update(1.0)
