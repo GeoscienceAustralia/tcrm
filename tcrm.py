@@ -111,7 +111,9 @@ def attemptParallel():
     MPI exits cleanly.
 
     If pypar cannot be loaded then a dummy `pp` is created.
+    
     """
+
     # pylint: disable=W0621,W0601,C0111,C0103,C0321,R0201
     global pp
 
@@ -161,7 +163,11 @@ def disableOnWorkers(f):
 def doDataDownload(configFile):
     """
     Check and download the data files.
+
+    :param str configFile: Name of configuration file.
+    
     """
+    
     log.info('Checking availability of input data sets')
 
     config = ConfigParser()
@@ -193,7 +199,12 @@ def doDataDownload(configFile):
 def doOutputDirectoryCreation(configFile):
     """
     Create all the necessary output folders.
+    
+    :param str configFile: Name of configuration file.
+    :raises OSError: If the directory tree cannot be created.
+    
     """
+    
     config = ConfigParser()
     config.read(configFile)
 
@@ -223,6 +234,9 @@ def doTrackGeneration(configFile):
     Do the tropical cyclone track generation.
 
     The track generation settings are read from *configFile*.
+    
+    :param str configFile: Name of configuration file.
+    
     """
 
     log.info('Starting track generation')
@@ -246,9 +260,11 @@ def doTrackGeneration(configFile):
 
 def doWindfieldCalculations(configFile):
     """
-    Do the wind field calculations.
+    Do the wind field calculations. The wind field settings are read
+    from *configFile*.
 
-    The wind field settings are read from *configFile*.
+    :param str configFile: Name of configuration file.
+
     """
 
     log.info('Starting wind field calculations')
@@ -275,6 +291,9 @@ def doDataProcessing(configFile):
     """
     Parse the input data and turn it into the necessary format
     for the model calibration step.
+
+    :param str configFile: Name of configuration file.
+    
     """
 
     config = ConfigParser()
@@ -298,6 +317,9 @@ def doDataProcessing(configFile):
 def doDataPlotting(configFile):
     """
     Plot the data.
+
+    :param str configFile: Name of configuration file.
+    
     """
     import matplotlib
     matplotlib.use('Agg')  # Use matplotlib backend
@@ -380,6 +402,9 @@ def doDataPlotting(configFile):
 def doStatistics(configFile):
     """
     Calibrate the model.
+
+    :param str configFile: Name of configuration file.
+    
     """
     from DataProcess.CalcTrackDomain import CalcTrackDomain
 
@@ -429,7 +454,11 @@ def doStatistics(configFile):
 def doHazard(configFile):
     """
     Do the hazard calculations.
+
+    :param str configFile: Name of configuration file.
+    
     """
+    
     log.info('Running HazardInterface')
 
     config = ConfigParser()
@@ -451,7 +480,11 @@ def doHazard(configFile):
 def doHazardPlotting(configFile):
     """
     Do the hazard plots.
+
+    :param str configFile: Name of configuration file.
+    
     """
+    
     import matplotlib
     matplotlib.use('Agg')  # Use matplotlib backend
 
@@ -478,10 +511,8 @@ def main(configFile='main.ini'):
     5 interfaces: DataProcess, StatInterface, TrackGenerator,
     WindfieldInterface and HazardInterface
 
-    Input: configFile  - file containing configuration
-                         settings for running TCRM
-    Output: None
-    Example: main('main.ini')
+    :param str configFile: Name of file containing configuration settings for running TCRM
+
     """
 
     log.info("Starting TCRM")
