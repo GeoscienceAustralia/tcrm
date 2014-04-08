@@ -25,11 +25,13 @@ if 'py2exe' in sys.argv:
         'py2exe': {
         'includes': ['numpy',
                      'scipy',
+                     'netCDF4',
                      'matplotlib.backends',
                      'matplotlib.backends.backend_tkagg',
                      'mpl_toolkits.basemap',
                      'scipy.sparse.csgraph._validation',
-                     'scipy.io.matlab.streams'],
+                     'scipy.io.matlab.streams',
+                     'netCDF4_utils'],
         'excludes': ['_gtkagg',
                      'wx',
                      'PyQt4',
@@ -44,7 +46,6 @@ if 'py2exe' in sys.argv:
 
     py2exe = {
         'console': ['tcrm.py'],
-        'windows': ['tcrm.pyw'],
     }
 
 exts = [
