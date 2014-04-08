@@ -24,18 +24,12 @@ def ncLoadFile(filename):
     """
     Load a netCDF file and return a :class:`netCDF4.Dataset` object.
 
-    Parameters
-    ----------
-
-    filename : string
-        Path to the netCDF file to open.
-
-    Returns
-    -------
-
-    ncobj : :class:`netCDF4.Dataset` object
-
+    :param str filename: Path to the netCDF file to open.
+    :return: :class:`netCDF4.Dataset` object
+    :rtype: :class:`netCDF4.Dataset`
+    
     """
+    
     logger.debug("Opening netCDF file %s for reading"%filename)
     
     try:
@@ -51,22 +45,13 @@ def ncFileInfo(filename, group=None, variable=None, dimension=None):
 
     Based on ncinfo (https://code.google.com/p/netcdf4-python/source/browse/trunk/utils/ncinfo)
 
-    Parameters
-    ----------
-
-    filename : str
-        Path to valid netCDF file.
-
-    group : str, optional
-        Name of a `netCDF4.Group` instance to describe.
-
-    variable: str, optional
-        Name of a `netCDF4.Variable` instance to describe.
-
-    dimension : str, optional
-        Name of a `netCDF4.Dimension` instance to describe.
+    :param str filename: Path to valid netCDF file.
+    :param str group: Name of a `netCDF4.Group` instance to describe.
+    :param str variable: Name of a `netCDF4.Variable` instance to describe.
+    :param str dimension: Name of a `netCDF4.Dimension` instance to describe.
     
     """
+    
     def getgrp(g, p):
         grps = p.split("/")
         for gname in grps:
@@ -100,19 +85,14 @@ def ncGetDims(ncobj, dim, dtype=float):
     Extract the value of a dimension from a netCDF file. This function
     assumes the file is written following the CF convention, with the
     values of the dimension stored in a 1-d variable with the same name.
-
-    Parameters
-    ----------
     
-    ncobj : :class:`netCDF4.Dataset` object
-       
-    dim : string
-       Name of the desired dimension.
+    :param ncobj: :class:`netCDF4.Dataset` object
+    :type ncobj: :class:`netCDF4.Dataset`
+    :param str dim: Name of the desired dimension.
+    :param dtype: Data type of the dimension
+    :type dtype: :class:`numpy.dtype`
 
-    Returns
-    -------
-
-    data : :class:`numpy.ndarray` of the requested dimension.
+    :return: :class:`numpy.ndarray` of the requested dimension.
 
     """
     try:
@@ -130,25 +110,14 @@ def ncGetData(ncobj, var):
     the variables, as the object includes all attributes (e.g. units,
     range, long_name, etc) - use `ncGetVar` for that purpose.
 
-    Parameters
-    ----------
+    :param ncobj: :class:`NetCDF4.Dataset` object.
+    :type ncobj::class:`NetCDF4.Dataset` 
+    :param str var: Name of the variable in the dataset to extract.
 
-    ncobj : :class:`NetCDF4.Dataset` object.
+    :return: `numpy.masked_array` containing the data of the variable, with missing values masked.
+    :rtype: `numpy.ndarray`
 
-    var : str
-        Name of the variable in the dataset to extract.
-
-    Returns
-    -------
-
-    data : :class:`numpy.ndarray`
-        :class:`numpy.masked_array` containing the data of the variable,
-        with missing values masked.
-
-    Raises
-    ------
-
-    KeyError : if variable does not exist in the given file.
+    :raise KeyError: If variable does not exist in the given file.
     
     """
     
@@ -171,18 +140,13 @@ def ncGetData(ncobj, var):
 def ncGetVar(ncobj, name):
     """Return a `netCDF4.variable` object.
     
-    Parameters
-    ----------
-    
-    ncobj : :class:`netCDF.Group` or `netCDF.Dataset` instance.
-    
-    name : string
-        name of the desired variable.
+    :param ncobj: :class:`netCDF.Group` or `netCDF.Dataset` instance.
+    :type ncobj: :class:`netCDF.Group` or :class:`netCDF.Dataset
+    :param str name: Name of the desired variable.
 
-    Returns
-    -------
+    :return varobj: :class:`netCDF.Variable` instance
+    :rtype: :class:`netCDF.Variable`
     
-    varobj : :class:`netCDF.Variable` instance
     """
     try:
         varobj = ncobj.variables[name]
@@ -194,22 +158,13 @@ def ncGetVar(ncobj, name):
 
 def ncGetTimes(ncobj, name='time'):
     """
-    Get the time data from the file
+    Get the time data from a netcdf file. 
 
-    Parameters
-    ----------
+    :param  ncobj: :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance.
+    :param str name: Name of the time variable.
 
-    ncobj : :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance
-        :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance
-        
-    descriptor : str, default 'time'
-        Name of the time variable.
-
-    Returns
-    -------
-    
-    times : :class:`numpy.ndarray` of :class:`datetime` objects
-        Array of time dimension values as :class:`datetime` objects.
+    :return times: Array of time dimension values as :class:`datetime` objects.
+    :rtype: :class:`numpy.ndarray` of :class:`datetime` objects
 
     """
     
@@ -238,32 +193,17 @@ def ncGetTimes(ncobj, name='time'):
 
 def ncCreateDim(ncobj, name, values, dtype, atts=None):
     """
-    Create a `dimension` instance in a :class:`netcdf4.Dataset` or
-    :class:`netcdf4.Group` instance.
-
-    Parameters
-    ----------
-
-    ncobj : :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance
-
-    name : str
-        Name of the dimension
-
-    values : :class:`numpy.ndarray`
-        Dimension values
-
-    dtype : :class:`numpy.dtype`
-        Data type of the dimension
-
-    atts : :dict:, optional
-        Attributes to assign to the dimension instance
-
-    Returns
-    -------
-
-    None
-
+    Create a `dimension` instance in a :class:`netcdf4.Dataset` or :class:`netcdf4.Group` instance.
+    
+    :param ncobj: :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance.
+    :param str name: Name of the dimension.
+    :param `numpy.ndarray` values: Dimension values.
+    :param `numpy.dtype` dtype: Data type of the dimension.
+    :param atts: Attributes to assign to the dimension instance
+    :type atts: dict or None
+    
     """
+    
     ncobj.createDimension(name, np.size(values))
     varDim = (name,)
     dimension = ncCreateVar(ncobj, name, varDim, dtype)
@@ -277,43 +217,25 @@ def ncCreateVar(ncobj, name, dimensions, dtype, data=None, atts=None,
     Create a `Variable` instance in a :class:`netCDF4.Dataset` or
     :class:`netCDF4.Group` instance.
 
-    Parameters
-    ----------
-    ncobj : :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance
-        where the variable will be stored
 
-    name : str
-        Name of the variable to be created.
-
-    dimensions : :tuple: of dimension names that define the structure
-        of the variable
-
-    dtype : `numpy.dtype` data type
-
-    data : :class:`numpy.ndarray`, optional
-        array holding the data to be stored. 
-        
-    atts : :dict:, optional
-        dict of attributes to assign to the variable
-
-    zlib : bool, default `True`
-         If true, compresses data in variables using gzip compression.
-
-    complevel : integer, default 4
-         Value between 1 and 9, describing level of compression desired.
+    :param ncobj: :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance where the variable will be stored.
+    :type ncobj: :class:`netCDF4.Dataset` or :class:`netCDF4.Group`
+    :param str name: Name of the variable to be created.
+    :param tuple dimensions: dimension names that define the structure of the variable.
+    :param dtype: :class:`numpy.dtype` data type.
+    :type dtype: :class:`numpy.dtype` 
+    :param data: :class:`numpy.ndarray` Array holding the data to be stored. 
+    :type data: :class:`numpy.ndarray` or None.
+    :param dict atts: Dict of attributes to assign to the variable.
+    :param bool zlib: If true, compresses data in variables using gzip compression.
+    :param int complevel: Value between 1 and 9, describing level of compression desired.
          Ignored if zlib=False
-    
-    lsd : integer, default 2
-        Variable data will be truncated to this number of significant digits.
-    
-    nodata : float or int, default -9999.
-         Value representing missing data
-    
-    Returns
-    -------
+    :param int lsd: Variable data will be truncated to this number of significant digits.
+    :param nodata: Value representing missing data
+    :type nodata: `float` or `int`
 
-    var : :class:`netCDF4.Variable` instance
-
+    :return: :class:`netCDF4.Variable` instance
+    :rtype: :class:`netCDF4.Variable` 
     """
     logger.debug("Creating variable %s" % name)
     
@@ -336,12 +258,8 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
     """
     Save a gridded dataset to a netCDF file using NetCDF4.
     
-    Parameters
-    ----------
-
-    filename : :class:`str`
-        Full path to the file to write to    
-    dimensions : :class:`dict`
+    :param str filename: Full path to the file to write to.
+    :param dimensions: :class:`dict`
         The input dict 'dimensions' has a strict structure, to
         permit insertion of multiple dimensions. The dimensions should be keyed
         with the slowest varying dimension as dimension 0.
@@ -360,7 +278,7 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
                                     'units':  ...} },
                                   ...}
 
-    variables : :class:`dict`
+    :param variables: :class:`dict`
         The input dict 'variables' similarly requires a strict structure:
 
         ::
@@ -384,53 +302,33 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
         The value for the 'dims' key must be a tuple that is a subset of
         the dimensions specified above.
     
-    nodata : float, optional
-        Value to assign to missing data, default is -9999.
-
-    datatitle : str, optional
-        Optional title to give the stored dataset
-    
-    gatts : :class:`dict`, optional
-        Optional dictionary of global attributes to include in the file.
-    
-    dtype : dtype, optional
-        The data type of the missing value. If not given, infer from other
-        input arguments.
-    
-    writedata : bool, default `True`
-        If true, then the function will write the provided data
+    :param float nodata: Value to assign to missing data, default is -9999.
+    :param str datatitle: Optional title to give the stored dataset.
+    :param gatts: Optional dictionary of global attributes to include in the file.
+    :type gatts: `dict` or None
+    :param dtype: The data type of the missing value. If not given, infer from other input arguments.
+    :type dtype: :class:`numpy.dtype`
+    :param bool writedata: If true, then the function will write the provided data
         (passed in via the variables dict) to the file. Otherwise, no data is
         written.
     
-    keepfileopen : bool, default `False`
-        If true, return a netcdf object and keep the file open, so that data
-        can be written by the calling program. Otherwise, flush data to disk
-        and close the file.
+    :param bool keepfileopen:  If True, return a netcdf object and keep the file open, so that data
+        can be written by the calling program. Otherwise, flush data to disk and close the file.
+
+    :param bool zlib: If true, compresses data in variables using gzip compression.
+
+    :param integer complevel: Value between 1 and 9, describing level of compression desired.
+         Ignored if zlib=False.
+
+    :param integer lsd: Variable data will be truncated to this number of significant digits.
+
+    :return: `netCDF4.Dataset` object (if keepfileopen=True)
+    :rtype: :class:`netCDF4.Dataset`
+
+    :raises KeyError: If input dimension or variable dicts do not have required keys.
+    :raises IOError: If output file cannot be created.
+    :raises ValueError: if there is a mismatch between dimensions and shape of values to write.
     
-    zlib : bool, default `True`
-         If true, compresses data in variables using gzip compression.
-
-    complevel : integer, default 4
-         Value between 1 and 9, describing level of compression desired.
-         Ignored if zlib=False
-    
-    lsd : integer, default 2
-        Variable data will be truncated to this number of significant digits.
-    
-    Returns
-    -------
-    
-    :class:`netCDF4.Dataset` object (if keepfileopen=True)
-
-    Raises
-    ------
-
-    KeyError : if input dimension or variable dicts do not have required keys.
-
-    IOError : if output file cannot be created.
-
-    ValueError : if there is a mismatch between dimensions and shape of values
-                 to write.
     """
 
     try:
