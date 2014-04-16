@@ -32,7 +32,15 @@ EVENTFIELDS = [[n, t, w, p] for n, t, w, p in zip(EVENTFIELD_NAMES,
 
 
 def tracks2point(tracks, outputFile):
+    """
+    Writes tracks to a shapefile as a collection of point features
 
+    :type  tracks: list of :class:`Track` objects
+    :param tracks: :class:`Track` features to store in a shape file
+
+    :param str outputFile: Path to output file destination
+
+    """
     sf = shapefile.Writer(shapefile.POINT)
     sf.fields = OBSFIELDS
     
@@ -57,7 +65,7 @@ def tracks2line(tracks, outputFile, dissolve=False):
     stored as a separate feature.
 
     :type  tracks: list of :class:`Track` objects
-    :param tracks: Track features to store in a shape file
+    :param tracks: :class:`Track` features to store in a shape file
 
     :type  outputFile: str
     :param outputFile: Path to output file destination

@@ -342,7 +342,8 @@ class WindfieldAroundTrack(object):
             # Handover this time step to a callback if required
 
             if timeStepCallback:
-                timeStepCallback(i, localGust, Ux, Vy, P)
+                timeStepCallback(i, localGust, Ux, Vy, P,
+                                 lonGrid / 100., latGrid / 100.)
 
             # Retain when there is a new maximum gust
 
@@ -432,13 +433,18 @@ class WindfieldGenerator(object):
         self.gridLimit['yMax'] = np.ceil(track_limits['yMax'])
         
         
-    def calculateExtremesFromTrack(self, track):
+    def calculateExtremesFromTrack(self, track, callback=None):
         """
         Calculate the wind extremes given a single tropical cyclone track.
 
 
         :type  track: :class:`Track`
         :param track: the tropical cyclone track.
+        
+        :type  callback: function
+        :param callback: optional function to be called at each timestep to 
+                         extract point values for specified locations.
+                         
         """
         wt = WindfieldAroundTrack(track,
                                   profileType=self.profileType,
@@ -453,10 +459,10 @@ class WindfieldGenerator(object):
         if self.gridLimit is None:
             self.setGridLimit(track)
             
-        return track, wt.regionalExtremes(self.gridLimit)
+        return track, wt.regionalExtremes(self.gridLimit, callback)
             
 
-    def calculateExtremesFromTrackfile(self, trackfile):
+    def calculateExtremesFromTrackfile(self, trackfile, callback=None):
         """
         Calculate the wind extremes from a `trackfile` that might contain a
         number of tropical cyclone tracks. The wind extremes are calculated
@@ -466,11 +472,16 @@ class WindfieldGenerator(object):
 
         :type  trackfile: str
         :param trackfile: the file name of the trackfile.
+        
+        :type  callback: function
+        :param callback: optional function to be called at each timestep to 
+                         extract point values for specified locations.
+                         
         """
         trackiter = loadTracks(trackfile)
         f = self.calculateExtremesFromTrack
 
-        results = (f(track)[1] for track in trackiter)
+        results = (f(track, callback)[1] for track in trackiter)
 
         gust, bearing, Vx, Vy, P, lon, lat = results.next()
 
@@ -483,7 +494,7 @@ class WindfieldGenerator(object):
 
         return (gust, bearing, Vx, Vy, P, lon, lat)
 
-    def dumpExtremesFromTrackfile(self, trackfile, dumpfile):
+    def dumpExtremesFromTrackfile(self, trackfile, dumpfile, callback=None):
         """
         Helper method to calculate the wind extremes from a `trackfile` and
         save them to a file called `dumpfile`.
@@ -494,8 +505,12 @@ class WindfieldGenerator(object):
 
         :type  dumpfile: str
         :param dumpfile: the file name where to save the wind extremes.
+        
+        :type  callback: function
+        :param callback: optional function to be called at each timestep to 
+                         extract point values for specified locations.
         """
-        result = self.calculateExtremesFromTrackfile(trackfile)
+        result = self.calculateExtremesFromTrackfile(trackfile, callback)
 
         gust, bearing, Vx, Vy, P, lon, lat = result
 
@@ -571,7 +586,7 @@ class WindfieldGenerator(object):
 
 
     def plotExtremesFromTrackfile(self, trackfile, windfieldfile,
-                                  pressurefile):
+                                  pressurefile, callback=None):
         """
         Helper method to calculate the wind extremes from a `trackfile`
         and generate image files for the wind field and the pressure.
@@ -586,8 +601,12 @@ class WindfieldGenerator(object):
 
         :type  pressurefile: str
         :param pressurefile: the file name of the pressure image file to write.
+        
+        :type  callback: function
+        :param callback: optional function to be called at each timestep to 
+                         extract point values for specified locations.
         """
-        result = self.calculateExtremesFromTrackfile(trackfile)
+        result = self.calculateExtremesFromTrackfile(trackfile, callback)
 
         from PlotInterface.plotWindfield import plotWindfield
         from PlotInterface.plotWindfield import plotPressurefield
@@ -599,12 +618,36 @@ class WindfieldGenerator(object):
                           fileName=pressurefile)
 
     def dumpGustsFromTracks(self, trackiter, windfieldPath, fnFormat,
-                            progressCallback=None):
+                            progressCallback=None, timeStepCallback=None):
         """
         Dump the maximum wind speeds (gusts) observed over a region to
         netcdf files. One file is created for every track file.
+        
+        :type  trackiter: list of :class:`Track` objects
+        :param trackiter: a list of :class:`Track` objects.
+
+        :type  windfieldPath: str
+        :param windfieldPath: the path where to store the gust output files.
+
+        :type  filenameFormat: str
+        :param filenameFormat: the format string for the output file names. The
+                               default is set to 'gust-%02i-%04i.nc'.
+
+        :type  progressCallback: function
+        :param progressCallback: optional function to be called after a file is
+                                 saved. This can be used to track progress.
+                                 
+        :type  timeStepCallBack: function
+        :param timeStepCallback: optional function to be called at each 
+                                 timestep to extract point values for 
+                                 specified locations.
         """
-        results = itertools.imap(self.calculateExtremesFromTrack, trackiter)
+        
+        if timeStepCallback:
+            results = itertools.imap(self.calculateExtremesFromTrack, trackiter,
+                                     itertools.cycle(timeStepCallback)) 
+        else:
+            results = itertools.imap(self.calculateExtremesFromTrack, trackiter)
 
         gusts = {}
         done = defaultdict(list)
@@ -753,7 +796,8 @@ class WindfieldGenerator(object):
 
     def dumpGustsFromTrackfiles(self, trackfiles, windfieldPath,
                                 filenameFormat='gust-%02i-%04i.nc',
-                                progressCallback=None):
+                                progressCallback=None,
+                                timeStepCallback=None):
         """
         Helper method to dump the maximum wind speeds (gusts) observed over a
         region to netcdf files. One file is created for every track file.
@@ -771,10 +815,17 @@ class WindfieldGenerator(object):
         :type  progressCallback: function
         :param progressCallback: optional function to be called after a file is
                                  saved. This can be used to track progress.
+                                 
+        :type  timeStepCallBack: function
+        :param timeStepCallback: optional function to be called at each 
+                                 timestep to extract point values for 
+                                 specified locations.
+
         """
         tracks = loadTracksFromFiles(sorted(trackfiles))
         self.dumpGustsFromTracks(tracks, windfieldPath, filenameFormat,
-                                 progressCallback=progressCallback)
+                                 progressCallback=progressCallback,
+                                 timeStepCallback=timeStepCallback)
 
 
 def readTrackData(trackfile):
@@ -787,9 +838,10 @@ def readTrackData(trackfile):
         TRACKFILE_FMTS -- The entry formats
         TRACKFILE_CNVT -- The column converters
 
-    :type  trackfile: str
-    :param trackfile: the track data filename.
+    :param str trackfile: the track data filename.
+
     """
+
     try:
         return np.loadtxt(trackfile,
                           comments='%',
@@ -811,9 +863,10 @@ def readMultipleTrackData(trackfile):
     The tracks are seperated based in their cyclone id. This function calls
     `readTrackData` to read the data from the file.
 
-    :type  trackfile: str
-    :param trackfile: the track data filename.
+    :param str trackfile: the track data filename.
+
     """
+
     datas = []
     data = readTrackData(trackfile)
     if len(data) > 0:
@@ -857,9 +910,10 @@ def loadTracks(trackfile):
     This calls the function `readMultipleTrackData` to parse the track .csv
     file.
 
-    :type  trackfile: str
-    :param trackfile: the track data filename.
+    :param str trackfile: the track data filename.
+    
     """
+
     tracks = []
     datas = readMultipleTrackData(trackfile)
     n = len(datas)

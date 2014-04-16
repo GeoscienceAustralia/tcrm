@@ -1,48 +1,215 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`shptools` - helper functions for manipulating shape files
+===============================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+A collection of useful functions to manipulate shapefiles. Uses the `shapefile`
+library <http://code.google.com/p/pyshp/>
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- Title: shptools.py
- Author: Craig Arthur, craig.arthur@ga.gov.au
- CreationDate: 05/30/08 8:54:AM
- Description: A collection of useful functions to handle shapefiles.
- Uses the shapelib library,  normally provided with matplotlib v0.99 and
- higher.
-
- Version :$Rev: 686 $
-
- $Id: shptools.py 686 2012-03-29 04:24:59Z carthur $
 """
-import os, sys, pdb, logging
 
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
+import logging
 
-try:
-    import shapelib
-    import dbflib
-except ImportError:
-    logging.warning('Could not import shapelib')
+import shapefile
+import numpy as np
+from itertools import izip
 
-__version__ = '$Id: shptools.py 686 2012-03-29 04:24:59Z carthur $'
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
-logger = logging.getLogger()
 
-def shpGetVertices(shpFile, keyName=None):
+# For all observation points/line segments:
+OBSFIELD_NAMES = ('Indicator', 'TCID', 'Year', 'Month',
+                  'Day', 'Hour', 'Minute', 'TimeElapsed', 'Longitude',
+                  'Latitude', 'Speed', 'Bearing', 'CentralPressure',
+                  'WindSpeed', 'rMax', 'EnvPressure')
+OBSFIELD_TYPES = ('N',)*16
+OBSFIELD_WIDTH = (1, 6, 4, 2, 2, 2, 2, 6, 7, 7, 6, 6, 7, 6, 6, 7)
+OBSFIELD_PREC =  (0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 1)
+
+OBSFIELDS = [[n, t, w, p] for n, t, w, p in zip(OBSFIELD_NAMES,
+                                                OBSFIELD_TYPES,
+                                                OBSFIELD_WIDTH,
+                                                OBSFIELD_PREC)]
+
+# For storing events as a single polyline:
+EVENTFIELD_NAMES = ('TCID', 'Year', 'Month', 'Day', 'Hour', 'Minute', 'Age',
+                    'MinPressure', 'MaxWindSpeed' )
+EVENTFIELD_TYPES = ('N',)*9
+EVENTFIELD_WIDTH = (6, 4, 2, 2, 2, 2, 6, 7, 7)
+EVENTFIELD_PREC =  (0, 0, 0, 0, 0, 0, 2, 2, 1)
+
+EVENTFIELDS = [[n, t, w, p] for n, t, w, p in zip(EVENTFIELD_NAMES,
+                                                  EVENTFIELD_TYPES,
+                                                  EVENTFIELD_WIDTH,
+                                                  EVENTFIELD_PREC)]
+
+
+
+
+def parseData(data):
+    """
+    Parse a dict of dicts to generate a list of lists describing
+    the fields, and an array of the corresponding data records
+    :param dict data: a dict of dicts with field names as keys, and each 
+                      sub-dict containing keys of 'Type', 'Length', 
+                      'Precision' and 'Data'. 
+                      
+    :returns: fields, records
+    :rtype: list
+    """
+    fields = []
+    records = []
+    for k in data.keys():
+        t = data[k]['Type']
+        l = data[k]['Length']
+        if t == 0:
+            nt = 'C'
+            p = 0
+        elif t == 1:
+            nt = 'N'
+            p = 0
+        elif t == 2:
+            nt = 'N'
+            p = data[k]['Precision']
+        else:
+            nt = t
+            p = 0
+
+        fields.append([k, nt, l, p])
+        records.append([data[k]['Data']])
+
+    return fields, records
+
+
+def shpCreateFile(outputFile, shapes, data, shpType):
+    """
+    Create a shapefile of the give type, containing the given fields.
+    
+    :param str outputFile: full path (excluding extension!) to the shapefile
+                           to create.
+    :param shapes: Collection of shape objects representing the geometry of 
+                   features.
+    :type shapes: :class:`shapefile._Shape`
+    
+    :param int shptype: :class:`shapefile` object type (these are integer
+                        values, but you can also use the shapelib.SHPT_ value).
+    :param dict fields: a dictionary of dictionaries with field names as
+                        keys, and each sub-dictionary containing keys of 'Type',
+                        'Length','Precision' and 'Data':
+                        'Type' must be one of the following integer values:
+                        0 - strings
+                        1 - integers
+                        2 - doubles
+                        4 - Invalid
+
+    """
+    fields, records = parseData(data)
+
+    log.info("Writing data to {0}.shp".format(outputFile))
+    w = shapefile.Writer(shpType)
+    # Set the fields:
+    for f in fields:
+        w.field(*f)
+
+    # Add shapes and records:
+    for r, s in zip(records, shapes):
+        if len(s.parts) > 1:
+            start = 0
+            new_parts = []
+            for p in s.parts[1:]:
+                new_parts.append(list(s.points[start:p - 1]))
+                start = p
+            new_parts.append(list(s.points[p:-1]))
+            w.poly(parts=new_parts)
+        else:
+            w.poly(parts=[s.points])
+        w.record(*r)
+
+    try:
+        w.save(outputFile)
+    except shapefile.ShapefileException:
+        log.exception("Unable to save data to {0}".format(outputFile) )
+
+    return
+
+def shpSaveTrackFile(outputFile, tracks, fmt="point"):
+    """
+    Save track data to shapefile. The fields are sorted using the same
+    function as in shpCreateFile, so the fields should be in the correct
+    order.
+    
+    :param str outputFile: name for the output shapefile, excluding extension.
+    :param tracks: collection of track features.
+    :type tracks: :class:`Track` object
+    :param format: Type of features to save. "point" will save each record as a
+                   single point. "lines" will save each individual TC track as 
+                   a single (POLYLINE) feature. "segments" will save each 
+                   segment of a track to a line feature between consecutive 
+                   observations.
+                   
+    """
+    
+    if fmt == "points":
+        tracks2point(tracks, outputFile)
+    elif fmt == "lines":
+        tracks2line(tracks, outputFile, dissolve=True)
+    elif fmt == "segments":
+        tracks2line(tracks, outputFile, dissolve=False)
+    else:
+        log.critical(("Unknown output format - must be one of 'points', "
+                        "'lines' or 'segments'"))
+        return 
+
+
+
+def shpWriteShapeFile(outputFile, shpType, fields, shapes, records):
+    """
+    Save data to a shapefile. The fields are sorted using the same
+    function as in shpCreateFile, so the fields should be in the correct
+    order.
+    Input: outputFile - dbf file object created by shpCreateFile
+           shpType -
+           data - a dictionary of dictionaries with field names as
+           keys, and each sub-dictionary containing keys of 'Type',
+           'Length','Precision' and 'Data'
+           'Type' must be one of the following integer values:
+           0 - strings
+           1 - integers
+           2 - doubles
+           4 - Invalid
+
+
+    Output: None
+    """
+    log.info("Writing data to {0}.shp".format(outputFile))
+    w = shapefile.Writer(shpType)
+
+    # Set the fields:
+    for f in fields:
+        w.field(*f)
+
+    # Add shapes and records:
+    for rec, shp in zip(records, shapes):
+        if len(shp.parts) > 1:
+            start = 0
+            new_parts = []
+            for p in shp.parts[1:]:
+                new_parts.append(list(shp.points[start:p-1]))
+                start = p
+            new_parts.append(list(shp.points[p:-1]))
+            w.poly(parts=new_parts)
+        else:
+            w.poly(parts=[shp.points])
+        w.record(*rec)
+
+    try:
+        w.save(outputFile)
+    except shapefile.ShapefileException:
+        log.exception("Unable to save data to {0}".format(outputFile) )
+
+    return
+
+def shpGetVertices(shape_file, key_name=None):
     """
     Returns a dictionary of arrays containing coordinate pairs
     representing vertices contained in the shapefile.
@@ -56,331 +223,254 @@ def shpGetVertices(shpFile, keyName=None):
     If any records share the same value for the chosen key, then only
     one record will be retained in the returned values.
 
-    As yet untested on MULTIPOINT shapefiles (polylines, polygons).
+    Input: 
+    :type  shape_file: str 
+    :param shape_file: path to a shape file, excluding the extension
 
-    Input: shpFile - path to a shapefile, excluding the extension
-           (shapelib/dbflib automatically append the correct extension)
-           keyName - (optional) name of a field in the dbf file that
+    :type  key_name: optional str
+    :param key_name: name of a field in the shape file that
                      acts as a key for the dictionary of returned
                      vertices
-    Output: dictionary keyed by object id number or optionally a field
+
+    :return: dict keyed by object id number or optionally a field
             name, with values being arrays of vertices of the
             corresponding shape object.
-    Example: vertices = shpGetVertices(shpFile,keyName)
+    :rtype: dict
+
+    Example: vertices = shpGetVertices('/foo/bar/baz/shp', 'FIELD1')
+
+    This function is retained for backwards compatibility.
+    We recommend using the shapefile interface directly for extracting 
+    shapes and records.
+
     """
-    try:
-        shpfh = shapelib.open(shpFile)
-    except IOError:
-        logger.warn("Cannot open %s"%shpFile)
-        raise
-    try:
-        dbffh = dbflib.open(shpFile)
-    except IOError:
-        logger.warn("Cannot open %s.dbf"%shpFile)
-        raise
-    vertices = {}
-    nshapes = shpfh.info()[0]
-    nfields = dbffh.field_count()
 
-    for oid in xrange(nshapes):
-        shpdata = shpfh.read_object(oid)
-        dbfdata = dbffh.read_record(oid)
-        nparts = len(shpdata.vertices())
-        v = []
-        for p in xrange(nparts):
-            v.append(shpdata.vertices()[p])
-        if keyName and dbfdata.has_key(keyName):
-            vertices[dbfdata[keyName]] = v
-        else:
-            vertices[oid] = v
+    try:
+        sf = shapefile.Reader(shape_file, "rb")
 
-    shpfh.close()
-    dbffh.close()
+    except shapefile.ShapefileException:
+        log.exception("Cannot open {0} for reading".format(shape_file))
+        raise
+
+    else:
+        fields = sf.fields[1:] # Drop first field (DeletionFlag)
+
+        field_names = [fields[i][0] for i in range(len(fields))]
+        if key_name and (key_name in field_names):
+            keyIndex = field_names.index(key_name)
+        
+        vertices = {}
+
+        for i, shprec in enumerate(sf.shapeRecords()):
+            if key_name and (key_name in field_names):
+                recValue = shprec.record[keyIndex]
+                vertices[recValue] = shprec.shape.points
+            else:
+                vertices[i] = shprec.shape.points
+
     return vertices
 
-def shpGetField(shpFile, fieldName=None):
+def shpGetField(shape_file, field_name, dtype=float):
     """
-Return an array containing the specified field (if it is contained
-within the corresponding dbf file). If no field name is specified,
-return all fields.
+    Extract from the records the value of the field corresponding
+    to fieldname.
+
+    :type  shpFile: str
+    :param shpFile: path to a valid shape file
+
+    :type  fieldname: str
+    :param fieldname: name of a field in the attribute table of the
+                      shape file (.dbf)
+
+    :type  dtype: `dtype`
+    :param dtype: type of values in the requested field. Default is 
+                  float
+                  
+    :return: the value of the given field for each feature
+    :rtype: array or list (if :var:`dtype` is a string)
+
     """
 
+    log.debug("Extracting {0} from records".format(field_name))
+
     try:
-        dbffh = dbflib.open(shpFile)
-    except IOError:
-        logger.warn("Cannot open %s.dbf"%shpFile)
+        sf = shapefile.Reader(shape_file, "rb")
+
+    except shapefile.ShapefileException:
+        log.exception("Cannot read {0}for ".format(shape_file))
         raise
-    nrecs = dbffh.record_count()
-    nfields = dbffh.field_count()
-    data = {}
-    for f in xrange(nfields):
-        fname = dbffh.field_info(f)[1]
-        data[fname]=[]
-    for rec in xrange(nrecs):
-        recdata = dbffh.read_record(rec)
-        for key in recdata.keys():
-            data[key].append(recdata[key])
-    if fieldName:
-        if data.has_key(fieldName):
-            returnData = data[fieldName]
-        else:
-            logger.warn("%s.dbf does not contain a field called %s - returning all data" \
-                         % (shpFile,fieldName))
-            returnData = data
+
     else:
-        returnData = data
-    return returnData
+        fields = sf.fields[1:] # Drop first field (DeletionFlag)
 
-def shpType(shpFile):
+        field_names = [fields[i][0] for i in range(len(fields))]
+        if field_name not in field_names:
+            log.warn("No field '{0}' in the list of fieldnames" .
+                    format(field_name))
+            log.warn("Unable to proceed with processing")
+        raise ValueError
+
+    records = sf.records()
+    nrecords = len(records)
+
+    # Get the index of the required field name:
+    idx = field_names.index(field_name)
+
+    if dtype != str:
+        # For non-string data, return a numpy array:
+        output = np.array([records[rec][idx] for rec in xrange(nrecords)],
+                              dtype=dtype)
+
+    else:
+        # Otherwise, return a list:
+        output = [records[rec][idx] for rec in xrange(nrecords)]
+
+
+    return output
+
+def shpReadShapeFile(shape_file):
     """
-Return the type of objects contained in the shapefile as a string
+    Return the vertices and records for the given shape file
+    
+    :param str shape_file: path of input shape file.
+    
+    :return: vertices
+    :rtype: dict
+    :return: records
+    :rtype: dict
+
     """
+
     try:
-        shpfh = shapelib.open(shpFile)
-    except IOError:
-        logger.warn("Cannot open %s"%shpFile)
+        sf = shapefile.Reader(shape_file,"rb")
+    except shapefile.ShapefileException:
+        log.exception("Cannot read {0}".format(shape_file))
         raise
 
-    shp_type = shapelib.type_name(shpfh.info()[1])
-    shpfh.close()
-    return shp_type
+    else:
+        records = sf.records()
+        vertices = shpGetVertices(shape_file)
 
-def shpExtents(shpFile):
+    return vertices, records
+    
+def tracks2point(tracks, outputFile):
     """
-    Return the extents of the objects in the shapefile
-    """
-    pass
+    Writes tracks to a shapefile as a collection of point features
 
-def shpCreatePoint(lon, lat):
-    """
-    Create shape object of point type.
-    Input: lon - longitude of point
-           lat - latitude of point
-    Output: shpObj shapelib point object
-    """
-    coord = lon, lat
-    shp_coord = [coord]
-    shp_point = [shp_coord]
-    shpObj = shapelib.SHPObject(shapelib.SHPT_POINT, 1, shp_point)
+    :type  tracks: list of :class:`Track` objects
+    :param tracks: :class:`Track` features to store in a shape file
 
-    return shpObj
+    :param str outputFile: Path to output file destination
 
-def shpCreateLine(lons, lats):
     """
-    Create a shape object of line type.
-    Input: lons - array of longitudes of line segment
-           lats - array of latitudes of line segment
-    Output: shpObj shapelib line object.
-    """
-    coords = []
-    for lon, lat in zip(lons, lats):
-        coords.append( (lon, lat) )
-    shp_coords = [coords]
-    shpObj = shapelib.SHPObject( shapelib.SHPT_ARC, 1, shp_coords )
-    return shpObj
+    sf = shapefile.Writer(shapefile.POINT)
+    sf.fields = OBSFIELDS
+    
+    for track in tracks:
+        for x, y, rec in zip(track.Longitude, track.Latitude, track.data):
+            sf.point(x, y)
+            sf.record(*rec)
 
-def shpCreateFile(fileName, shptype, fields):
-    """
-    Create a shapefile (and a corresponding dbf file) of the give type,
-    containing the given fields.
-    Input: fileName - full path (excluding extension!) to the shapefile
-           to create.
-           shptype - shapelib object type (these are integer
-           values, but you can also use the shapelib.SHPT_ value).
-           fields - a dictionary of dictionaries with field names as
-           keys, and each sub-dictionary containing keys of 'Type',
-           'Length','Precision' and 'Data':
-           'Type' must be one of the following integer values:
-                    0 - strings
-                    1 - integers
-                    2 - doubles
-                    4 - Invalid
-    Output: shapefile and dbffile objects
-    """
     try:
-        fshp = shapelib.create(fileName,shptype)
-    except IOError:
-        logger.critical("Failed to create shapefile: %s.shp"%fileName)
-        raise IOError
-    try:
-        fdbf = dbflib.create(fileName)
-    except IOError:
-        logger.critical("Failed to create dbffile: %s.dbf"%fileName)
-        raise IOError
-    fieldNames = fields.keys()
-    for f in sorted(fieldNames):
-        fieldType = fields[f]['Type']
-        fieldLength = fields[f]['Length']
-        # Force the precision to be zero unless the field is a double
-        if fieldType==2:
-            fieldPrec = fields[f]['Precision']
-        else:
-            fieldPrec = 0
-        fdbf.add_field(f, fieldType, fieldLength, fieldPrec)
+        sf.save(outputFile)
+    except shapefile.ShapefileException:
+        raise
 
-    return fshp, fdbf
-
-def shpSaveTrackFile(filename, lon, lat, fields):
-    """
-    Save track data to shapefile. The fields are sorted using the same
-    function as in shpCreateFile, so the fields should be in the correct
-    order.
-    Input: fshp - shapefile object created by shpCreateFile
-           fdbf - dbf file object created by shpCreateFile
-           lon - array of longitudes of TC track data
-           lat - array of latitudes of TC track data
-           fields - a dictionary of dictionaries with field names as
-                    keys, and each sub-dictionary containing keys of
-                    'Type','Length','Precision' and 'Data'
-                    'Type' must be one of the following integer values:
-                    0 - strings
-                    1 - integers
-                    2 - doubles
-                    4 - Invalid
-    Output: None
-    """
-    fshp, fdbf = shpCreateFile(filename, 3, fields)
-    for i in xrange(len(lon)-1):
-        if fields['Index']['Data'][i] == fields['Index']['Data'][i+1]:
-            obj = shpCreateLine([lon[i], lon[i+1]], [lat[i], lat[i+1]])
-        else:
-            obj = shpCreateLine([lon[i], lon[i]], [lat[i], lat[i]])
-        rec = fshp.write_object(-1, obj)
-        recdata = ()
-        fieldNames = fields.keys()
-        for f in sorted(fieldNames):
-            recdata += (fields[f]['Data'][i],)
-        fdbf.write_record(rec, recdata)
-    fshp.close()
-    fdbf.close()
     return
 
-def shpReadShapeFile(shapeFile):
+def tracks2line(tracks, outputFile, dissolve=False):
     """
-    Read in shape file, return vertices and information
-    Based on the mpl_toolkit.basemap.Basemap.readshapefile() function
-    Changes include removal of the optional kwargs to draw bounds on an
-    axes object, and no conversion from lat/lon coords to map (x/y)
-    coords.
+    Writes tracks to a shapefile as a collection of line features
 
-    Input: shapeFile - path to shapefile components
-    Output: coords - array of shapefile vertices or points (lon,lat)
-            attributes - list of dictionaries, one for each shape,
-            containing attributes of each shape from the corresponding
-            dbf file.
+    If dissolve==True, then each track feature is written as a
+    single polyline feature, otherwise each track segment is
+    stored as a separate feature.
+
+    :type  tracks: list of :class:`Track` objects
+    :param tracks: :class:`Track` features to store in a shape file
+
+    :type  outputFile: str
+    :param outputFile: Path to output file destination
+
+    :type  dissolve: boolean
+    :param dissolve: Store track features or track segments.
     """
-    try:
-        shp = shapelib.ShapeFile(shapeFile)
-    except:
-        raise IOError, "Error reading shapefile %s.shp" % shapeFile
-    try:
-        dbf = dbflib.open(shapeFile)
-    except:
-        raise IOError, "Error reading dbffile %s.dbf" % shapeFile
 
-    info = shp.info()
-    if info[1] not in [1,3,5,8]:
-        raise ValueError, "shpReadShapeFile can only handle 2D shape types"
-
-    msg = """Shapefile must have lat/lon vertices - it appears this one
-    has vertices in map projection coordinates. Convert the shapefile to
-    geographic coordinates using the shpproj utility from the shapelib
-    tools"""
-    if info[1] in [1,8]:
-        coords = []
-        nelem = shp.info()[0]
-        for elem in xrange(nelem):
-            shpObj = shp.read_object(elem)
-            verts = shpObj.vertices()
-            lons, lats = zip(*verts)
-            if max(lons) > 721. or min(lons) < -721. or max(lats) > 91. or \
-               min(lats) < -91.:
-                raise ValueError, msg
-            if len(verts) > 1:
-                coords.append(zip(lons, lats))
-            else:
-                coords.append((lons[0], lats[0]))
-        attributes = [dbf.read_record(i) for i in xrange(nelem)]
-
+    sf = shapefile.Writer(shapefile.POLYLINE)
+    if dissolve:
+        sf.fields = EVENTFIELDS
     else:
-        coords = []
-        attributes = []
-        for npoly in xrange(shp.info()[0]):
-            shpObj = shp.read_object(npoly)
-            verts = shpObj.vertices()
-            rings = len(verts)
-            for ring in xrange(rings):
-                lons, lats = zip(*verts[ring])
-                if max(lons) > 721. or min(lons) < -721. or max(lats) > 91. or \
-                   min(lats) < -91.:
-                    raise ValueError, msg
-                coords.append(zip(lons, lats))
-                if ring == 0:
-                    shapedict = dbf.read_record(npoly)
-                shapedict['RINGNUM'] = ring+1
-                shapedict['SHAPENUM'] = npoly+1
-                attributes.append(shapedict)
-    shp.close()
-    dbf.close()
-    return coords, attributes
+        sf.fields = OBSFIELDS
 
-def shpCreateDBFFile(fileName, fields):
-    """
-    Create a dbf file, containing the given fields
-    Input: fileName - full path (excluding extension!) to the shapefile
-                      to create
-           fields - a dictionary of dictionaries with field names as
-                    keys, and each sub-dictionary containing keys of
-                    'Type','Length','Precision' and 'Data'
-                    'Type' must be one of the following integer values:
-                    0 - strings
-                    1 - integers
-                    2 - doubles
-                    4 - Invalid
-    Output: dbffile object
-    """
-    try:
-        fdbf = dbflib.create(fileName)
-    except IOError:
-        print "Failed to create dbffile: %s.dbf"%fileName
-        return None
-    fieldNames = fields.keys()
-    for f in sorted(fieldNames):
-        fieldType = fields[f]['Type']
-        fieldLength = fields[f]['Length']
-        # Force the precision to be zero unless the field is a double
-        if fieldType == 2:
-            fieldPrec = fields[f]['Precision']
+    for track in tracks:
+        if dissolve:
+            if len(track.data) > 1:
+                dlon = np.diff(track.Longitude)
+                if dlon.min() < -180:
+                    # Track crosses 0E longitude - split track
+                    # into multiple parts:
+                    idx = np.argmin(dlon)
+                    parts = []
+                    lines = izip(track.Longitude[:idx],
+                                 track.Latitude[:idx])
+                    
+                    parts.append(lines)
+                    lines = izip(track.Longitude[idx+1:],
+                                 track.Latitude[idx+1:])
+                    
+                    parts.append(lines)
+                    sf.line(parts)
+                else:
+                    lines = izip(track.Longitude, track.Latitude)
+                    sf.line([lines])
+            else:
+                lines = izip(track.Longitude, track.Latitude)
+                sf.line([lines])
+
+
+            minPressure = track.trackMinPressure
+            maxWind = track.trackMaxWind
+            
+            age = track.TimeElapsed.max()
+            
+            startYear = track.Year[0]
+            startMonth = track.Month[0]
+            startDay = track.Day[0]
+            startHour = track.Hour[0]
+            startMin = track.Minute[0]
+            record = [track.CycloneNumber[0], startYear, startMonth, startDay,
+                      startHour, startMin, age, minPressure, maxWind]
+            sf.record(*record)
+            
         else:
-            fieldPrec = 0
-        fdbf.add_field(f, fieldType, fieldLength, fieldPrec)
+            if len(track.data) == 1:
+                line = [[[track.Longitude, track.Latitude],
+                        [track.Longitude, track.Latitude]]]
+                sf.line(line)
+                sf.record(*track.data[0])
+            else:
+                for n in range(len(track.data) - 1):
+                    dlon = track.Longitude[n + 1] - track.Longitude[n]
+                    if dlon < -180.:
+                        # case where the track crosses 0E:
+                        segment = [[[track.Longitude[n], track.Latitude[n]],
+                                   [track.Longitude[n], track.Latitude[n]]]]
+                    else:
+                        segment = [[[track.Longitude[n], 
+                                     track.Latitude[n]],
+                                    [track.Longitude[n + 1], 
+                                     track.Latitude[n + 1]]]]
+                    sf.line(segment) 
+                    sf.record(*track.data[n])
+                    
+                # Last point in the track:
+                sf.line([[[track.Longitude[n + 1], 
+                           track.Latitude[n + 1]],
+                              [track.Longitude[n + 1], 
+                               track.Latitude[n + 1]]]])
+                sf.record(*track.data[n+1])
 
-    return fdbf
-
-def shpSaveDBFFile(fileName, fields, nrecords):
-    """
-    Save track data to shapefile. The fields are sorted using the same
-    function as in shpCreateFile, so the fields should be in the correct
-    order.
-    Input: fileName - dbf file object created by shpCreateFile
-           fields - a dictionary of dictionaries with field names as
-           keys, and each sub-dictionary containing keys of 'Type',
-           'Length','Precision' and 'Data'
-                    'Type' must be one of the following integer values:
-                    0 - strings
-                    1 - integers
-                    2 - doubles
-                    4 - Invalid
-           nrecords - integer number of records to be inserted into the
-                      dbf file
-    Output: None
-    """
-    fdbf = shpCreateDBFFile(fileName, fields)
-    for rec in xrange(nrecords):
-        recdata = ()
-        fieldNames = fields.keys()
-        for f in sorted(fieldNames):
-            recdata += (fields[f]['Data'][rec],)
-        fdbf.write_record(rec, recdata)
-    fdbf.close()
-    return 1
+    try:
+        sf.save(outputFile)
+    except shapefile.ShapefileException:
+        raise
