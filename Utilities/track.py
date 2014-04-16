@@ -14,10 +14,10 @@ trackTypes = ('i', 'i', 'i', 'i',
               'f', 'f', 'f', 'f', 'f', 
               'f', 'f', 'f')
 
-trackFormats = ('%i,%i,%i,%i,' 
-                '%i,%i,%i,%5.1f,'
-                '%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,'
-                '%6.2f,%6.2f,%7.2f')
+trackFormats = ('%i, %i, %i, %i,' 
+                '%i, %i, %i, %5.1f,'
+                '%8.3f, %8.3f, %6.2f, %6.2f, %7.2f,'
+                '%6.2f, %6.2f, %7.2f')
                 
 
 
@@ -35,12 +35,15 @@ class Track(object):
         t = Track(data)
         print(t.CentralPressure)
 
-
     :type  data: numpy.ndarray
     :param data: the tropical cyclone track data.
     """
 
     def __init__(self, data):
+        """
+        :type  data: numpy.ndarray
+        :param data: the tropical cyclone track data.
+        """
         self.data = data
         self.trackId = None
         self.trackfile = None
