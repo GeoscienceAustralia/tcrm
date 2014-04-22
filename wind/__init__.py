@@ -343,7 +343,8 @@ class WindfieldAroundTrack(object):
 
             if timeStepCallback:
                 timeStepCallback(i, localGust, Ux, Vy, P,
-                                 lonGrid / 100., latGrid / 100.)
+                                 lonGrid[imin:imax] / 100., 
+                                 latGrid[jmin:jmax] / 100.)
 
             # Retain when there is a new maximum gust
 
@@ -645,7 +646,7 @@ class WindfieldGenerator(object):
         
         if timeStepCallback:
             results = itertools.imap(self.calculateExtremesFromTrack, trackiter,
-                                     itertools.cycle(timeStepCallback)) 
+                                     itertools.repeat(timeStepCallback)) 
         else:
             results = itertools.imap(self.calculateExtremesFromTrack, trackiter)
 
@@ -839,6 +840,9 @@ def readTrackData(trackfile):
         TRACKFILE_CNVT -- The column converters
 
     :param str trackfile: the track data filename.
+    
+    :return: track data
+    :rtype: :class:`numpy.ndarray`
 
     """
 
@@ -864,6 +868,8 @@ def readMultipleTrackData(trackfile):
     `readTrackData` to read the data from the file.
 
     :param str trackfile: the track data filename.
+    
+    :return: a collection of :class:`Track` objects
 
     """
 
@@ -911,6 +917,8 @@ def loadTracks(trackfile):
     file.
 
     :param str trackfile: the track data filename.
+    
+    :return: list of :class:`Track` objects.
     
     """
 
@@ -989,6 +997,10 @@ def attemptParallel():
 def run(configFile, callback=None):
     """
     Run the wind field calculations.
+    
+    :param str configFile: path to a configuration file.
+    :param func callback: optional callback function to track progress.
+    
     """
 
     log.info('Loading wind field calculation settings')
@@ -1021,7 +1033,21 @@ def run(configFile, callback=None):
 
     if config.has_option('WindfieldInterface', 'TrackPath'):
         trackPath = config.get('WindfieldInterface', 'TrackPath')
-
+        
+    
+    if config.has_section('Timeseries'):
+        if config.has_option('Timeseries', 'Extract'):
+            if config.getboolean('Timeseries', 'Extract'):
+                from Utilities.timeseries import Timeseries
+                ts = Timeseries(configFile)
+                timestepCallback = ts.extract
+                import atexit
+                atexit.register(ts.shutdown)
+    else:
+        def timestepCallback(*args):
+            """Dummy timestepCallback function"""
+            pass
+            
     thetaMax = math.radians(thetaMax)
     
     # Attempt to start the track generator in parallel
@@ -1050,7 +1076,7 @@ def run(configFile, callback=None):
     trackfiles = [pjoin(trackPath, f) for f in files if f.startswith('tracks')]
     nfiles = len(trackfiles)
 
-    def progress(i):
+    def progressCallback(i):
         callback(i, nfiles)
 
     msg = 'Processing %d track files in %s' % (nfiles, trackPath)
@@ -1061,7 +1087,9 @@ def run(configFile, callback=None):
     pp.barrier()
 
     wfg.dumpGustsFromTrackfiles(trackfiles, windfieldPath, windfieldFormat,
-                                progress)
+                                progressCallback, timestepCallback)
+    #if ts:
+    #    ts.shutdown()
 
     pp.barrier()
 
