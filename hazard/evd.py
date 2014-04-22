@@ -26,11 +26,24 @@ except ImportError:
     log.debug('LMOMENTS package not found - reverting to slower python' +
               'version of code')
 
-import pdb
-
 def estimateEVD(v, years, missingValue=-9999., minRecords=50, yrspersim=1):
     """
     Calculate extreme value distribution parameters using the Lmoments module
+
+    :param v: array of data values.
+    :type v: :class:`numpy.ndarray`
+    :param years: array of years for which to calculate return period values.
+    :type years: :class:`numpy.ndarray`
+    :param float missingValue: value to insert if fit does not converge.
+    :param int minRecords: minimum number of valid observations required to
+                           perform fitting.
+    :param int yrspersim: data represent block maxima - this gives the length
+                          of each block in years.
+
+    :return: return period values
+    :rtype: :class:`numpy.ndarray`
+    :return: location, shape and scale parameters of the distribution
+    :rtype: float
     """
     # Convert to float to prevent integer division & ensure consistent data
     # types for output variables
