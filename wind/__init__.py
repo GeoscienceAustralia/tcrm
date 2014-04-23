@@ -522,7 +522,9 @@ class WindfieldGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Latitude',
-                    'units': 'degrees_north'
+                    'units': 'degrees_north',
+                    'axis': 'Y'
+                    
                 }
             },
             1: {
@@ -531,7 +533,8 @@ class WindfieldGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Longitude',
-                    'units': 'degrees_east'
+                    'units': 'degrees_east',
+                    'axis': 'X'
                 }
             }
         }
@@ -545,7 +548,8 @@ class WindfieldGenerator(object):
                 'atts': {
                     'long_name': 'Maximum 3-second gust wind speed',
                     'units': 'm/s',
-                    'actual_range':(np.min(gust), np.max(gust))
+                    'actual_range':(np.min(gust), np.max(gust)),
+                    'grid_mapping': 'crs'
                 }
             },
             1: {
@@ -556,7 +560,8 @@ class WindfieldGenerator(object):
                 'atts': {
                     'long_name': 'Maximum eastward wind',
                     'units': 'm/s',
-                    'actual_range':(np.min(Vx), np.max(Vx))
+                    'actual_range':(np.min(Vx), np.max(Vx)),
+                    'grid_mapping': 'crs'
                 }
             },
             2: {
@@ -567,7 +572,8 @@ class WindfieldGenerator(object):
                 'atts': {
                     'long_name': 'Maximum northward wind',
                     'units': 'm/s',
-                    'actual_range':(np.min(Vy), np.max(Vy))
+                    'actual_range':(np.min(Vy), np.max(Vy)),
+                    'grid_mapping': 'crs'
                 }
             },
             3: {
@@ -578,7 +584,20 @@ class WindfieldGenerator(object):
                 'atts': {
                     'long_name': 'Minimum air pressure at sea level',
                     'units': 'Pa',
-                    'actual_range':(np.min(P), np.max(P))
+                    'actual_range':(np.min(P), np.max(P)),
+                    'grid_mapping': 'crs'
+                }
+            },
+            4: {
+                'name': 'crs',
+                'dims': (),
+                'values': None,
+                'dtype': 'i',
+                'atts': {
+                    'grid_mapping_name': 'latitude_longitude',
+                    'semi_major_axis': 6378137.0,
+                    'inverse_flattening': 298.257222101,
+                    'longitude_of_prime_meridian': 0.0
                 }
             }
         }
@@ -748,7 +767,8 @@ class WindfieldGenerator(object):
                     'actual_range': (np.min(speed), np.max(speed)),
                     'valid_range': (0.0, 200.),
                     'cell_methods': ('time: maximum '
-                                     'time: maximum (interval: 3 seconds)')
+                                     'time: maximum (interval: 3 seconds)'),
+                    'grid_mapping': 'crs'
                 }
             },
             1: {
@@ -760,8 +780,9 @@ class WindfieldGenerator(object):
                     'long_name': 'Eastward component of maximum wind speed',
                     'standard_name': 'eastward_wind',
                     'units': 'm/s',
-                    'actual_range':(np.min(Vx), np.max(Vx)),
-                    'valid_range': (-200., 200.)
+                    'actual_range': (np.min(Vx), np.max(Vx)),
+                    'valid_range': (-200., 200.),
+                    'grid_mapping': 'crs'
                 }
             },
             2: {
@@ -773,8 +794,9 @@ class WindfieldGenerator(object):
                     'long_name': 'Northward component of maximim wind speed',
                     'standard_name': 'northward_wind',
                     'units': 'm/s',
-                    'actual_range':(np.min(Vy), np.max(Vy)),
-                    'valid_range': (-200., 200.)
+                    'actual_range': (np.min(Vy), np.max(Vy)),
+                    'valid_range': (-200., 200.),
+                    'grid_mapping': 'crs'
                 }
             },
             3: {
@@ -786,9 +808,22 @@ class WindfieldGenerator(object):
                     'long_name': 'Minimum air pressure at sea level',
                     'standard_name': 'air_pressure_at_sea_level',
                     'units': 'Pa',
-                    'actual_range':(np.min(P), np.max(P)),
+                    'actual_range': (np.min(P), np.max(P)),
                     'valid_range': (70000., 115000.),
-                    'cell_methods': 'time: minimum'
+                    'cell_methods': 'time: minimum',
+                    'grid_mapping': 'crs'
+                }
+            },
+            4: {
+                'name': 'crs',
+                'dims': (),
+                'values': None,
+                'dtype': 'i',
+                'atts': {
+                    'grid_mapping_name': 'latitude_longitude',
+                    'semi_major_axis': 6378137.0,
+                    'inverse_flattening': 298.257222101,
+                    'longitude_of_prime_meridian': 0.0
                 }
             }
         }
@@ -1041,8 +1076,7 @@ def run(configFile, callback=None):
                 from Utilities.timeseries import Timeseries
                 ts = Timeseries(configFile)
                 timestepCallback = ts.extract
-                import atexit
-                atexit.register(ts.shutdown)
+                
     else:
         def timestepCallback(*args):
             """Dummy timestepCallback function"""
@@ -1088,8 +1122,8 @@ def run(configFile, callback=None):
 
     wfg.dumpGustsFromTrackfiles(trackfiles, windfieldPath, windfieldFormat,
                                 progressCallback, timestepCallback)
-    #if ts:
-    #    ts.shutdown()
+    if ts:
+        ts.shutdown()
 
     pp.barrier()
 

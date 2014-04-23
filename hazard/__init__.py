@@ -410,7 +410,8 @@ class HazardCalculator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name' : 'Return period',
-                    'units' : 'years'
+                    'units' : 'years',
+                    'axis': 'T'
                 } 
             },
             1: {
@@ -448,7 +449,8 @@ class HazardCalculator(object):
                     'long_name': 'Location parameter for GEV distribution',
                     'units': 'm/s',
                     'actual_range': (np.min(self.loc), np.max(self.loc)),
-                    'valid_range': (0.0, 200.)
+                    'valid_range': (0.0, 200.),
+                    'grid_mapping': 'crs'
                 }
             },
             1: {
@@ -458,7 +460,8 @@ class HazardCalculator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Scale parameter for GEV distribution',
-                    'units': ''
+                    'units': '',
+                    'grid_mapping': 'crs'
                 }
             },
             2: {
@@ -468,7 +471,8 @@ class HazardCalculator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Shape parameter for GEV distribution',
-                    'units': ''
+                    'units': '',
+                    'grid_mapping': 'crs'
                 }
             },
             3: {
@@ -480,7 +484,8 @@ class HazardCalculator(object):
                     'long_name': 'Return period wind speed',
                     'units': 'm/s',
                     'actual_range': (np.min(self.Rp), np.max(self.Rp)),
-                    'valid_range': (0.0, 200.)
+                    'valid_range': (0.0, 200.),
+                    'grid_mapping': 'crs'
                 } 
             },
             4: {
@@ -491,7 +496,8 @@ class HazardCalculator(object):
                 'atts': {
                     'long_name': 'Upper percentile return period wind speed',
                     'units': 'm/s',
-                    'percentile': 95
+                    'percentile': 95,
+                    'grid_mapping': 'crs'
                 } 
             },
             5: {
@@ -502,9 +508,22 @@ class HazardCalculator(object):
                 'atts': {
                     'long_name': 'Lower percentile return period wind speed',
                     'units': 'm/s',
-                    'percentile': 5
+                    'percentile': 5,
+                    'grid_mapping': 'crs'
                 } 
-            } 
+            },
+            6: {
+                'name': 'crs',
+                'dims': (),
+                'values': None,
+                'dtype': 'i',
+                'atts': {
+                    'grid_mapping_name': 'latitude_longitude',
+                    'semi_major_axis': 6378137.0,
+                    'inverse_flattening': 298.257222101,
+                    'longitude_of_prime_meridian': 0.0
+                }
+            }
         }
         
         # Create output file for return-period gust wind speeds and 
