@@ -25,10 +25,9 @@
 
  $Id: testNetCDF.py 276 2010-04-16 02:24:00Z nsummons $
 """
-import os, sys, logging
+import sys
 from os.path import join as pjoin
 import unittest
-import cPickle
 import NumpyTestCase
 import numpy as np
 import netCDF4
@@ -43,7 +42,6 @@ except:
 unittest_dir = pathLocate.getUnitTestDirectory()
 sys.path.append(pathLocate.getRootDirectory())
 from Utilities import nctools
-from Utilities.files import flStartLog
 from netCDF4 import Dataset
 
 class TestNetCDF(NumpyTestCase.NumpyTestCase):
@@ -194,6 +192,29 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
                     }
                 }
             }
+            
+        self.nullvalue_var = {
+            0: {
+                'name': 'pressure',
+                'values': None,
+                'dtype': 'float64',
+                'dims': (),
+                'atts': {
+                    'units': 'hPa',
+                    'standard_name': 'air_pressure'
+                    }
+                },
+            1: {
+                'name': 'temperature',
+                'values': temp_out,
+                'dtype': 'float64',
+                'dims': ('time', 'level', 'lat', 'lon'),
+                'atts': {
+                    'units': 'degrees_celcius',
+                    'standard_name': 'air_temperature'
+                    }
+                }
+            }
         
 
     def test_ncCreateFile(self):
@@ -242,15 +263,19 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
 
     def test_ncSaveGridOpenFile(self):
         """Test ncSaveGrid returns netCDF4.Dataset if keepfileopen=True"""
-        ncobj = nctools.ncSaveGrid(self.ncfile,
+        ncobj = nctools.ncSaveGrid(self.ncfile, 
                                    self.dimensions,
                                    self.variables,
                                    keepfileopen=True)
         
         self.assertEqual(type(ncobj), Dataset)
         ncobj.close()
-                
-                
+        
+    def test_ncSaveGridNullValue(self):
+        """Test ncSaveGrid can save a variable with no values"""
+        nctools.ncSaveGrid(self.ncfile,
+                           self.dimensions,
+                           self.nullvalue_var)
                       
                           
     def test_ncReadFile(self):

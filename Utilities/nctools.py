@@ -358,10 +358,11 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
             raise KeyError("Variable dict missing key '{0}'".
                            format(missingkeys))
 
-        if len(v['dims']) != v['values'].ndim:
-            ncobj.close()
-            raise ValueError("Mismatch between shape of "
-                             "variable and dimensions")
+        if v['values'] is not None:
+            if (len(v['dims']) != v['values'].ndim):
+                ncobj.close()
+                raise ValueError("Mismatch between shape of "
+                                 "variable and dimensions")
 
         var = ncobj.createVariable(v['name'], v['dtype'],
                                    v['dims'], 
@@ -370,7 +371,7 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
                                    least_significant_digit=lsd,
                                    fill_value=nodata)
 
-        if writedata:
+        if (writedata and v['values'] is not None):
             var[:] = np.array(v['values'], dtype=v['dtype'])
     
         var.setncatts(v['atts'])
