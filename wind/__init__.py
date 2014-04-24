@@ -1066,10 +1066,6 @@ def run(configFile, callback=None):
     if config.has_option('WindfieldInterface', 'gridLimit'):
         gridLimit = config.geteval('WindfieldInterface', 'gridLimit')
 
-    if config.has_option('WindfieldInterface', 'TrackPath'):
-        trackPath = config.get('WindfieldInterface', 'TrackPath')
-        
-    
     if config.has_section('Timeseries'):
         if config.has_option('Timeseries', 'Extract'):
             if config.getboolean('Timeseries', 'Extract'):
@@ -1122,8 +1118,10 @@ def run(configFile, callback=None):
 
     wfg.dumpGustsFromTrackfiles(trackfiles, windfieldPath, windfieldFormat,
                                 progressCallback, timestepCallback)
-    if ts:
+    try ts:
         ts.shutdown()
+    except NameError:
+        pass
 
     pp.barrier()
 
