@@ -23,15 +23,19 @@ import os
 import sys
 import itertools
 import numpy as np
-import logging as log
+import logging
 
 from os.path import join as pjoin
+from scipy.stats import scoreatpercentile as percentile
 from functools import wraps
 
 from Utilities.files import flProgramVersion
 from Utilities.config import ConfigParser
 import Utilities.nctools as nctools
 import evd
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 def setDomain(inputPath):
     """
@@ -239,7 +243,7 @@ class HazardCalculator(object):
         config.read(configFile)
         
         self.nodata = -9999.
-        self.years = np.array(config.get('HazardInterface', 
+        self.years = np.array(config.get('Hazard', 
                                          'Years').split(',')).astype('f')
         self.outputPath = pjoin(config.get('Output', 'Path'), 'hazard')
         self.inputPath = pjoin(config.get('Output', 'Path'), 'windfield')
@@ -249,6 +253,9 @@ class HazardCalculator(object):
         self.minRecords = minRecords
         self.yrsPerSim = yrsPerSim
         self.calcCI = calcCI
+        if self.calcCI:
+            self.sample_size = config.getint('Hazard', 'SampleSize')
+            self.prange = config.getint('Hazard', 'PercentileRange')
         
         self.tilegrid = tilegrid
         lon, lat = self.tilegrid.getDomainExtent()
@@ -604,6 +611,7 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
     :return: `numpy.ndarray` of return period wind speed values
 
     """
+
     lower = (100 - prange) / 2.
     upper = 100. - lower
 
@@ -619,10 +627,10 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
     for i in xrange(Vr.shape[1]):
         for j in xrange(Vr.shape[2]):
             if Vr[:, i, j].max() > 0.0:
-                random.shuffle(Vr[:, i, j])
+                np.random.shuffle(Vr[:, i, j])
                 for n in xrange(nsamples):
                     nstart = n*sample_size
-                    nend  = (n + 1)*subsample_size - 1
+                    nend  = (n + 1)*sample_size - 1
                     vsub = Vr[nstart:nend, i, j]                        
 
                     vsub.sort()
@@ -803,8 +811,8 @@ def run(configFile, callback=None):
     outputPath = config.get('Output', 'Path')
     gridLimit = config.geteval('Region', 'gridLimit')
     margin = config.get('WindfieldInterface', 'Margin')
-    numsimulations = config.getint('HazardInterface', 'NumSim')
-    calculate_confidence = config.getboolean('HazardInterface', 'CalculateCI')
+    numsimulations = config.getint('Hazard', 'NumSim')
+    calculate_confidence = config.getboolean('Hazard', 'CalculateCI')
     
     inputPath = pjoin(outputPath, 'windfield')
 
@@ -812,11 +820,11 @@ def run(configFile, callback=None):
 
     outputPath = pjoin(config.get('Output', 'Path'), 'hazard')
 
-    years = np.array(config.get('HazardInterface', 
+    years = np.array(config.get('Hazard', 
                                 'Years').split(',')).astype('f')
 
-    minRecords = config.get('HazardInterface', 'MinimumRecords')
-    yrsPerSim = config.get('HazardInterface', 'YearsPerSimulation')
+    minRecords = config.get('Hazard', 'MinimumRecords')
+    yrsPerSim = config.get('Hazard', 'YearsPerSimulation')
     minRecords=10 
 
     attemptParallel()

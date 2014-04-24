@@ -31,14 +31,16 @@ PARSERS = {
     'DataProcess_inputfile': str,
     'DataProcess_source': str,
     'DataProcess_startseason': int,
-    'HazardInterface_calculateci': parseBool,
-    'HazardInterface_inputpath': str,
-    'HazardInterface_minimumrecords': int,
-    'HazardInterface_numsim': int,
-    'HazardInterface_plotspeedunits': str,
-    'HazardInterface_resolution': float,
-    'HazardInterface_years': parseList,
-    'HazardInterface_yearspersimulation': int,
+    'Hazard_calculateci': parseBool,
+    'Hazard_inputpath': str,
+    'Hazard_minimumrecords': int,
+    'Hazard_numsim': int,
+    'Hazard_plotspeedunits': str,
+    'Hazard_resolution': float,
+    'Hazard_years': parseList,
+    'Hazard_yearspersimulation': int,
+    'Hazard_samplesize': int,
+    'Hazard_percentilerange': int,
     'Input_landmask': str,
     'Input_mslpgrid': parseList,
     'Logging_logfile': str,
@@ -165,6 +167,15 @@ URL=ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.derived/surface/slp.day.1981
 path=MSLP
 filename=slp.day.ltm.nc
 
+[Hazard]
+Years=2,5,10,20,25,50,100,200,250,500,1000
+MinimumRecords=50
+Resolution=0.05
+CalculateCI=True
+YearsPerSimulation=1
+NumSim=1024
+PercentileRange=90
+SampleSize=100
 
 """
 

@@ -38,7 +38,6 @@ except ImportError:
     logging.warn('Basemap package not installed. Disabling some plots')
 
 
-#from Utilities.files import flConfigFile, flStartLog
 from Utilities.config import cnfGetIniValue
 from Utilities.colours import colourMap
 import Utilities.nctools as nctools
@@ -46,7 +45,7 @@ from Utilities.smooth import smooth
 from Utilities import pathLocator
 from Utilities import metutils
 #from Utilities.progressbar import ProgressBar
-#import csv
+
 import sqlite3
 import unicodedata
 
@@ -59,7 +58,7 @@ class AutoPlotHazard:
         self.inputFile = os.path.join(self.outputPath, 'hazard', 'hazard.nc')
         self.plotPath = os.path.join(self.outputPath, 'plots', 'hazard')
         self.margin = cnfGetIniValue(configFile, 'WindfieldInterface', 'Margin', 2.0)
-        self.plotSpeedUnits = cnfGetIniValue(configFile, 'HazardInterface', 'PlotSpeedUnits', 'mps')
+        self.plotSpeedUnits = cnfGetIniValue(configFile, 'Hazard', 'PlotSpeedUnits', 'mps')
         if self.plotSpeedUnits == 'mps':
             self.speedunitlabel = 'metres / second'
         elif self.plotSpeedUnits == 'mph':
