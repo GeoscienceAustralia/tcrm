@@ -211,8 +211,7 @@ def ncCreateDim(ncobj, name, values, dtype, atts=None):
     if atts:
         dimension.setncatts(atts)
 
-def ncCreateVar(ncobj, name, dimensions, dtype, data=None, atts=None,
-                 zlib=True, complevel=4, lsd=None, nodata=-9999.,):
+def ncCreateVar(ncobj, name, dimensions, dtype, data=None, atts=None, **kwargs):
     """
     Create a `Variable` instance in a :class:`netCDF4.Dataset` or
     :class:`netCDF4.Group` instance.
@@ -227,23 +226,16 @@ def ncCreateVar(ncobj, name, dimensions, dtype, data=None, atts=None,
     :param data: :class:`numpy.ndarray` Array holding the data to be stored. 
     :type data: :class:`numpy.ndarray` or None.
     :param dict atts: Dict of attributes to assign to the variable.
-    :param bool zlib: If true, compresses data in variables using gzip compression.
-    :param int complevel: Value between 1 and 9, describing level of compression desired.
-         Ignored if zlib=False
-    :param int lsd: Variable data will be truncated to this number of significant digits.
-    :param nodata: Value representing missing data
-    :type nodata: `float` or `int`
+    :param kwargs: additional keyword args passed directly to the 
+                   :class:`netCDF4.Variable` constructor
 
     :return: :class:`netCDF4.Variable` instance
     :rtype: :class:`netCDF4.Variable` 
     """
     logger.debug("Creating variable %s" % name)
     
-    var = ncobj.createVariable(name, dtype, dimensions,
-                               zlib=zlib,
-                               complevel=complevel,
-                               least_significant_digit=lsd,
-                               fill_value=nodata)
+    var = ncobj.createVariable(name, dtype, dimensions, **kwargs)
+
     if data:
         var[:] = np.array(data, dtype=dtype)
             
