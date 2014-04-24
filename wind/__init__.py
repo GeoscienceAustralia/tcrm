@@ -1118,7 +1118,7 @@ def run(configFile, callback=None):
 
     wfg.dumpGustsFromTrackfiles(trackfiles, windfieldPath, windfieldFormat,
                                 progressCallback, timestepCallback)
-    try ts:
+    try:
         ts.shutdown()
     except NameError:
         pass
