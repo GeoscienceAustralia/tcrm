@@ -8,4 +8,5 @@ input
 output
 .DS_Store
 *.ini
+*.ini~
 *.py~
