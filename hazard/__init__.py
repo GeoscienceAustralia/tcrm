@@ -417,8 +417,7 @@ class HazardCalculator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name' : 'Return period',
-                    'units' : 'years',
-                    'axis': 'T'
+                    'units' : 'years'
                 } 
             },
             1: {
