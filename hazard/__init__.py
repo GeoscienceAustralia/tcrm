@@ -321,6 +321,7 @@ class HazardCalculator(object):
             w = 0
             for d in range(1, pp.size()):
                 pp.send(tiles[w], destination=d, tag = work_tag)
+                log.debug("Processing tile %d of %d" % (w, len(tiles)))
                 w += 1
 
             terminated = 0
@@ -355,6 +356,7 @@ class HazardCalculator(object):
 
                 if w < len(tiles):
                     pp.send(tiles[w], destination=d, tag=work_tag)
+                    log.debug("Processing tile %d of %d" % (w, len(tiles)))
                     w += 1
                 else:
                     pp.send(None, destination=d, tag=work_tag)
@@ -374,6 +376,7 @@ class HazardCalculator(object):
         elif pp.size() == 1 and pp.rank() == 0:
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
             for i, tile in enumerate(tiles):
+                log.debug("Processing tile %d of %d" % (i, len(tiles)))
                 result = self.calculateHazard(tile)
                 if self.calcCI:
                     limits, Rp, loc, scale, shp, RPupper, RPlower = result
@@ -475,6 +478,7 @@ class HazardCalculator(object):
                 'dims': ('lat', 'lon'),
                 'values': self.shp,
                 'dtype': 'f',
+                'least_significant_digit': 5,
                 'atts': {
                     'long_name': 'Shape parameter for GEV distribution',
                     'units': '',
@@ -662,12 +666,13 @@ def loadFilesFromPath(inputPath, tilelimits):
     fileList = os.listdir(inputPath)
     files = [pjoin(inputPath, f) for f in fileList]
     files = [f for f in files if os.path.isfile(f)]
+    log.debug("Loading data from %d files" % (len(files)))
 
     ysize = tilelimits[3] - tilelimits[2]
     xsize = tilelimits[1] - tilelimits[0]
     Vr = np.empty((len(files), ysize, xsize), dtype='f')
 
-    for n, f in enumerate(files):
+    for n, f in enumerate(sorted(files)):
         Vr[n,:,:] = loadFile(f, tilelimits)
 
     return Vr

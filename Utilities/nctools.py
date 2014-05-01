@@ -355,12 +355,16 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
                 ncobj.close()
                 raise ValueError("Mismatch between shape of "
                                  "variable and dimensions")
+        if v.has_key('least_significant_digit'):
+            varlsd = v['least_significant_digit']
+        else:
+            varlsd = lsd
 
         var = ncobj.createVariable(v['name'], v['dtype'],
                                    v['dims'], 
                                    zlib=zlib,
                                    complevel=complevel,
-                                   least_significant_digit=lsd,
+                                   least_significant_digit=varlsd,
                                    fill_value=nodata)
 
         if (writedata and v['values'] is not None):
