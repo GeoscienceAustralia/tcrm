@@ -42,7 +42,7 @@ from Utilities.files import flStartLog
 
 class TestPressureProfile(NumpyTestCase.NumpyTestCase):
 
-    pkl_file = open(os.path.join(unittest_dir, 'test_data', 'pressureProfile_testdata.pck'), 'rb')
+    pkl_file = open(os.path.join(unittest_dir, 'test_data', 'pressureProfileTestData.pck'), 'rb')
     R = cPickle.load(pkl_file)
     pEnv = cPickle.load(pkl_file)
     pCentre = cPickle.load(pkl_file)

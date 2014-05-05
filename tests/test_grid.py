@@ -64,7 +64,7 @@ class TestGrid(NumpyTestCase.NumpyTestCase):
 
     def test_grdRead(self):
         """Test grid data is read correctly from ascii file"""
-        pfile = open(os.path.join(unittest_dir, 'test_data', 'testgrid.pck'),'rb')
+        pfile = open(os.path.join(unittest_dir, 'test_data', 'gridReadTestData.pck'),'rb')
         pdata = cPickle.load(pfile)
         plon = cPickle.load(pfile)
         plat = cPickle.load(pfile)

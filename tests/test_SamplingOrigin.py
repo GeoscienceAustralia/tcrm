@@ -46,7 +46,7 @@ class TestSamplingOrigin(NumpyTestCase.NumpyTestCase):
     
     def setUp(self):
         self.numberOfSamples = 1000
-        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kde_origin_xyz.pck'), 'rb')
+        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kdeOrigin_xyz.pck'), 'rb')
         xp = cPickle.load(pkl_file)
         yp = cPickle.load(pkl_file)
         zp = cPickle.load(pkl_file)
@@ -70,7 +70,7 @@ class TestSamplingOrigin(NumpyTestCase.NumpyTestCase):
         self.assertAlmostEqual(xp, x, 4)
         self.assertAlmostEqual(yp, y, 4)
 
-if __name__ == "__main__":        
+if __name__ == "__main__":
 
     testSuite = unittest.makeSuite(TestSamplingOrigin,'test')
     unittest.TextTestRunner(verbosity=2).run(testSuite)
