@@ -9,7 +9,7 @@ from wind.windmodels import *
 try:
     import pathLocate
 except:
-    from unittests import pathLocate
+    from tests import pathLocate
 
 # Add parent folder to python path
 unittest_dir = pathLocate.getUnitTestDirectory()
@@ -19,7 +19,7 @@ class TestWindVelocity(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
         pkl_file = open(os.path.join(
-            unittest_dir, 'test_data', 'windProfile_testdata.pck'), 'rb')
+            unittest_dir, 'test_data', 'windProfileTestData.pck'), 'rb')
         self.R = cPickle.load(pkl_file)
         self.pEnv = cPickle.load(pkl_file)
         self.pCentre = cPickle.load(pkl_file)
@@ -34,8 +34,8 @@ class TestWindVelocity(NumpyTestCase.NumpyTestCase):
         self.test_wP_jelesnianski = cPickle.load(pkl_file)
         self.test_wP_holland = cPickle.load(pkl_file)
         self.test_wP_willoughby = cPickle.load(pkl_file)
-        self.test_wP_doubleHolland = cPickle.load(pkl_file)
         self.test_wP_powell = cPickle.load(pkl_file)
+        self.test_wP_doubleHolland = cPickle.load(pkl_file)
         pkl_file.close()
 
     def testRankine(self):
@@ -78,7 +78,7 @@ class TestWindVelocity(NumpyTestCase.NumpyTestCase):
 class TestWindVorticity(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
-        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'vorticity_testdata.pck'), 'rb')
+        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'vorticityTestData.pck'), 'rb')
         self.R = cPickle.load(pkl_file)
         self.pEnv = cPickle.load(pkl_file)
         self.pCentre = cPickle.load(pkl_file)
@@ -147,7 +147,7 @@ class TestWindVorticity(NumpyTestCase.NumpyTestCase):
 class TestWindField(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
-        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'windField_testdata.pck'), 'rb')
+        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'windFieldTestData.pck'), 'rb')
         self.R = cPickle.load(pkl_file)
         self.lam = cPickle.load(pkl_file)
         self.rMax = cPickle.load(pkl_file)
