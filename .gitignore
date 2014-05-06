@@ -8,5 +8,5 @@ input
 output
 .DS_Store
 *.ini
-*.ini~
 *.py~
+MSLP/*.nc
