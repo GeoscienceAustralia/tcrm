@@ -176,6 +176,7 @@ YearsPerSimulation=1
 NumSim=1024
 PercentileRange=90
 SampleSize=100
+PlotSpeedUnits=mps
 
 """
 

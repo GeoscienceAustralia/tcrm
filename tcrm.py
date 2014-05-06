@@ -499,7 +499,8 @@ def doHazardPlotting(configFile):
 
     from PlotInterface.AutoPlotHazard import AutoPlotHazard
     plotter = AutoPlotHazard(configFile, progressbar=pbar)
-    plotter.plot()
+    plotter.plotMap()
+    plotter.plotCurves()
 
     pbar.update(1.0)
 
