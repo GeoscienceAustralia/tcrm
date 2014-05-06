@@ -1,58 +1,30 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`trackLandfall` -- calculate central pressure for over-land TCs
+====================================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Based on the central pressure deficit at landfall and the time over
+land, calculate the revised pressure deficit. 
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-Title: trackLandfall.py
-Author: C. Arthur, craig.arthur@ga.gov.au
-CreationDate: 2007-07-04
-Description: Determines central pressure as a function of time over
-land. Based on Vickery and Twisdale (1995).
-References: Vickery, P. J. and L. A. Twisdale (1995). Wind-Field and
-            Filling Models for Hurricane Wind-Speed Predictions.
-            Journal of Structural Engineering 121(11): 1700-1709.
-            Powell, M., G. Soukup, S. Cocke, S. Gulati,
-            N. Morriseau-Leroy, S. Hamid, N. Dorst and L. Axe (2005).
-            State of Florida hurricane loss projection model:
-            Atmospheric science component. Journal of Wind Engineering
-            and Industrial Aerodynamics, 93(8): 651-674.
-
-
-SeeAlso:
-
-Constraints:
-Version: 95
-ModifiedBy:
-ModifiedDate:
-Modification:
-
-Version: $Rev: 810 $
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 2009-01-13
-Modification: Documentation improved
-$Id: trackLandfall.py 810 2012-02-21 07:52:50Z nsummons $
+References:
+Vickery, P. J. and L. A. Twisdale (1995). Wind-Field and Filling
+Models for Hurricane Wind-Speed Predictions. Journal of Structural
+Engineering 121(11): 1700-1709.
+Powell, M., G. Soukup, S. Cocke, S. Gulati, N. Morriseau-Leroy,
+S. Hamid, N. Dorst and L. Axe (2005). State of Florida hurricane
+loss projection model: Atmospheric science component. Journal of
+Wind Engineering and Industrial Aerodynamics, 93(8): 651-674.
 """
 
-import os, sys, pdb, logging
+import logging
 
-import numpy
+import numpy as np
 
 from Utilities.grid import SampleGrid
 from Utilities import pathLocator
 from Utilities.config import ConfigParser
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 class LandfallDecay:
     """
@@ -63,7 +35,7 @@ class LandfallDecay:
     and so may require some further tuning for the region of interest.
 
     Parameters:
-    dt - time step of the generated cyclone tracks
+    :param float dt: time step of the generated cyclone tracks
 
     Members:
     dt - time step of the generated cyclone tracks
@@ -97,8 +69,6 @@ class LandfallDecay:
 
         landMaskFile = config.get('Input', 'LandMask')
 
-        self.logger = logging.getLogger()
-        
         self.landMask = SampleGrid(landMaskFile)
         self.tol = 0 # Time over land
         self.dt = dt
@@ -117,10 +87,10 @@ class LandfallDecay:
         Determine if a cyclone centred at (cLon, cLat) is over land or not.
         """
 
-        if self.landMask.sampleGrid(cLon,cLat) > 0.0:
+        if self.landMask.sampleGrid(cLon, cLat) > 0.0:
             self.tol += self.dt
-            self.logger.debug("Storm centre: %6.2f, %6.2f"%(cLon, cLat))
-            self.logger.debug("Time over land: %d hours"%self.tol)
+            log.debug("Storm centre: %6.2f, %6.2f"%(cLon, cLat))
+            log.debug("Time over land: %d hours"%self.tol)
             return True
         else:
             self.tol = 0
@@ -140,8 +110,8 @@ class LandfallDecay:
         deltaP = pEnv - pCentre
         a0 = 0.008
         a1 = 0.0008
-        epsilon = numpy.random.normal(0.0, 0.001)
-        alpha = a0 + a1*deltaP + epsilon
-        deltaPnew = deltaP*numpy.exp(-alpha*self.tol)
+        epsilon = np.random.normal(0.0, 0.001)
+        alpha = a0 + a1 * deltaP + epsilon
+        deltaPnew = deltaP * np.exp(-alpha * self.tol)
         pCentreNew = pEnv - deltaPnew
         return pCentreNew
