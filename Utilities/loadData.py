@@ -25,7 +25,6 @@ from Utilities.track import Track, trackFields, trackTypes
 
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
- 
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -611,9 +610,15 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     inputPressureUnits = config.get(source, 'PressureUnits')
     inputLengthUnits = config.get(source, 'LengthUnits')
     inputDateFormat = config.get(source, 'DateFormat')
-
+    
+    if config.getboolean('DataProcess', 'FilterSeasons'):
+        startSeason = config.getint('DataProcess', 'StartSeason')        
+        idx = np.where(inputData['season'] >= startSeason)[0]
+        inputData = inputData[idx]
+        
     # Determine the initial TC positions...
     indicator = getInitialPositions(inputData)
+
 
     # Sort date/time information
     if 'age' in inputData.dtype.names:
