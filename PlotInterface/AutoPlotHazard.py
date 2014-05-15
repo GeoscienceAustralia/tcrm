@@ -40,12 +40,13 @@ except ImportError:
 from os.path import join as pjoin
 
 from Utilities.config import ConfigParser
-from Utilities.colours import colourMap
+
 from Utilities.maputils import find_index
 import Utilities.nctools as nctools
 from Utilities.smooth import smooth
 from Utilities import pathLocator
 from Utilities import metutils
+from Utilities import colours
 #from Utilities.progressbar import ProgressBar
 
 import sqlite3
@@ -197,7 +198,7 @@ class AutoPlotHazard(object):
                     llcrnrlat=llLat,
                     urcrnrlat=urLat)
         m.contourf(x, y, inputData[ilat][:, ilon], self.plotUnits.levels, 
-                   extend='both', cmap=colourMap('pccspvar', 'stretched'))
+                   extend='both', cmap=pyplot.get_cmap('pccspvar'))
                    
         cb = pyplot.colorbar(shrink=0.5, orientation='horizontal',
                             extend='both', ticks=self.plotUnits.levels[::2], 
