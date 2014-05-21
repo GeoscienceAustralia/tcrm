@@ -284,13 +284,13 @@ class PressureDistribution(object):
                                          
     def calculate(self, tracks):
 
-        dataMean = np.zeros((len(self.lon_range) - 1, 
+        dataMean = ma.zeros((len(self.lon_range) - 1, 
                              len(self.lat_range) - 1))
-        dataMin = np.zeros((len(self.lon_range) - 1, 
+        dataMin = ma.zeros((len(self.lon_range) - 1, 
                             len(self.lat_range) - 1))
-        dataMax = np.zeros((len(self.lon_range) - 1, 
+        dataMax = ma.zeros((len(self.lon_range) - 1, 
                             len(self.lat_range) - 1))
-        dataMed = np.zeros((len(self.lon_range) - 1, 
+        dataMed = ma.zeros((len(self.lon_range) - 1, 
                             len(self.lat_range) - 1))
 
         for cell in self.gridCells:
@@ -353,22 +353,22 @@ class PressureDistribution(object):
         filelist = os.listdir(self.trackPath)
         trackfiles = [pjoin(self.trackPath, f) for f in filelist
                       if f.startswith('tracks')]
-        synMean = np.empty((len(trackfiles), 
-                           len(self.lon_range) - 1, 
-                           len(self.lat_range) - 1))
-        synMin = np.empty((len(trackfiles), 
-                           len(self.lon_range) - 1, 
-                           len(self.lat_range) - 1))
-        synMax = np.empty((len(trackfiles), 
-                           len(self.lon_range) - 1, 
-                           len(self.lat_range) - 1))
-        synMed = np.empty((len(trackfiles), 
-                           len(self.lon_range) - 1, 
-                           len(self.lat_range) - 1))
+        synMean = -9999. * ma.ones((len(trackfiles), 
+                                    len(self.lon_range) - 1, 
+                                   len(self.lat_range) - 1))
+        synMin = -9999. * ma.ones((len(trackfiles), 
+                                   len(self.lon_range) - 1, 
+                                   len(self.lat_range) - 1))
+        synMax = -9999. * ma.ones((len(trackfiles), 
+                                   len(self.lon_range) - 1, 
+                                   len(self.lat_range) - 1))
+        synMed = -9999. * ma.ones((len(trackfiles), 
+                                   len(self.lon_range) - 1, 
+                                   len(self.lat_range) - 1))
                      
         bins = np.arange(850., 1020., 5.)
         synMinCP = np.empty((len(trackfiles),
-                            len(bins) - 1))
+                             len(bins) - 1))
                             
         for n, trackfile in enumerate(trackfiles):
             tracks = loadTracks(trackfile)
@@ -376,20 +376,20 @@ class PressureDistribution(object):
                synMax[n, :, :], synMed[n, :, :] = self.calculate(tracks)
             synMinCP[n, :] = self.calcMinPressure(tracks)
             
-        synMean = ma.masked_equal(synMean, 0)
-        synMin = ma.masked_equal(synMin, 0)
-        synMed = ma.masked_equal(synMed, 0)
-        synMax = ma.masked_equal(synMax, 0)
+        synMean = ma.masked_values(synMean, -9999.)
+        synMin = ma.masked_values(synMin, -9999.)
+        synMed = ma.masked_values(synMed, -9999.)
+        synMax = ma.masked_values(synMax, -9999.)
         
-        self.synMean = np.mean(synMean, axis=0)
-        self.synMed = np.mean(synMed, axis=0)
-        self.synMin = np.mean(synMin, axis=0)
-        self.synMax = np.mean(synMax, axis=0)
+        self.synMean = ma.mean(synMean, axis=0)
+        self.synMed = ma.mean(synMed, axis=0)
+        self.synMin = ma.mean(synMin, axis=0)
+        self.synMax = ma.mean(synMax, axis=0)
         
-        self.synMeanUpper = percentile(synMean, per=95, axis=0)
-        self.synMeanLower = percentile(synMean, per=5, axis=0)
-        self.synMinUpper = percentile(synMin, per=95, axis=0)
-        self.synMinLower = percentile(synMin, per=5, axis=0)
+        self.synMeanUpper = percentile(ma.compressed(synMean), per=95, axis=0)
+        self.synMeanLower = percentile(ma.compressed(synMean), per=5, axis=0)
+        self.synMinUpper = percentile(ma.compressed(synMin), per=95, axis=0)
+        self.synMinLower = percentile(ma.compressed(synMin), per=5, axis=0)
                     
         self.synMinCPDist = np.mean(synMinCP, axis=0)
         self.synMinCPLower = percentile(synMinCP, per=5, axis=0)

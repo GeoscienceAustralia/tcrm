@@ -28,6 +28,7 @@ PARSERS = {
     'Actions_plotdata': parseBool,
     'Actions_plothazard': parseBool,
     'Actions_downloaddata': parseBool,
+    'Actions_executeevaluate': parseBool,
     'DataProcess_inputfile': str,
     'DataProcess_source': str,
     'DataProcess_startseason': int,
@@ -95,6 +96,7 @@ ExecuteStat=False
 ExecuteTrackGenerator=False
 ExecuteWindfield=False
 ExecuteHazard=False
+ExecuteEvaluate=False
 PlotData=False
 PlotHazard=False
 DownloadData=True

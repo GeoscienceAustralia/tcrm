@@ -13,6 +13,7 @@ import os
 import logging
 
 import numpy as np
+import numpy.ma as ma
 
 from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
@@ -331,21 +332,22 @@ class TrackDensity(object):
         filelist = os.listdir(self.trackPath)
         trackfiles = [pjoin(self.trackPath, f) for f in filelist
                       if f.startswith('tracks')]
-        self.synHist = np.empty((len(trackfiles), 
-                                 len(self.lon_range) - 1, 
-                                 len(self.lat_range) - 1))
+        self.synHist = -9999. * np.ones((len(trackfiles), 
+                                         len(self.lon_range) - 1, 
+                                     len(self.lat_range) - 1))
         for n, trackfile in enumerate(trackfiles):
             tracks = loadTracks(trackfile)
             self.synHist[n, :, :] = self.calculate(tracks) / self.synNumYears
             
-        self.synHistMean = np.mean(self.synHist, axis=0)
-        self.medSynHist = np.median(self.synHist, axis=0)
+        self.synHist = ma.masked_values(self.synHist, -9999.)
+        self.synHistMean = ma.mean(self.synHist, axis=0)
+        self.medSynHist = ma.median(self.synHist, axis=0)
 
-        self.synHistUpper = percentile(self.synHist, per=95, axis=0)
-        self.synHistLower = percentile(self.synHist, per=5, axis=0)
+        self.synHistUpper = percentile(ma.compressed(self.synHist), per=95, axis=0)
+        self.synHistLower = percentile(ma.compressed(self.synHist), per=5, axis=0)
                     
     def save(self):
-        dataFile = pjoin(self.dataPath, 'track_density.nc')
+        dataFile = pjoin(self.dataPath, 'density.nc')
 
         # Simple sanity check (should also include the synthetic data):
         if not hasattr(self, 'hist'):
@@ -408,7 +410,7 @@ class TrackDensity(object):
                     'long_name': ('Track density - upper percentile '
                                   '- synthetic events'),
                     'units':' observations per 1-degree grid per year',
-                    'percentile': 95
+                    'percentile': '95'
                 }
             },
             3: {
@@ -420,12 +422,11 @@ class TrackDensity(object):
                     'long_name': ('Track density - lower percentile '
                                   '- synthetic events'),
                     'units': 'observations per 1-degree grid per year',
-                    'percentile': 5
+                    'percentile': '5'
                 }
             }
         }
-        import pdb
-        pdb.set_trace()
+        
         ncSaveGrid(dataFile, dimensions, variables)
                         
     def plotHistoric(self):
@@ -492,4 +493,4 @@ class TrackDensity(object):
         self.plotTrackDensity()
         self.plotTrackDensityPercentiles()
         
-        self.save()
+        #self.save()

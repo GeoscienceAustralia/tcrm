@@ -19,6 +19,7 @@ from Utilities.files import flStartLog, flLoadFile
 from Utilities.config import ConfigParser
 from Utilities import pathLocator
 
+
 # Set Basemap data path if compiled with py2exe
 if pathLocator.is_frozen():
     os.environ['BASEMAPDATA'] = pjoin(
@@ -381,9 +382,9 @@ def doDataPlotting(configFile):
     log.info('Plotting quantiles for pressure, bearing, and speed')
     pbar.update(0.65)
 
-    plotting.quantile(pRateData, "Pressure")
-    plotting.quantile(bRateData, "Bearing")
-    plotting.quantile(sRateData, "Speed")
+    plotting.quantile(pRateData, "Pressure", "logistic")
+    plotting.quantile(bRateData, "Bearing", "logistic")
+    plotting.quantile(sRateData, "Speed", "logistic")
 
     log.info('Plotting frequency data')
     pbar.update(0.85)
@@ -504,6 +505,20 @@ def doHazardPlotting(configFile):
 
     pbar.update(1.0)
 
+@disableOnWorkers
+def doEvaluation(configFile):
+    """
+    Do the track model evaluation processing.
+    
+    :param str configFile: Name of the configuration file.
+    
+    """
+    
+    log.info("Running Evaluation")
+    
+    import Evaluate
+    Evaluate.run(configFile)
+    
 
 @timer
 def main(configFile='main.ini'):
@@ -563,6 +578,10 @@ def main(configFile='main.ini'):
 
     if config.getboolean('Actions', 'PlotHazard'):
         doHazardPlotting(configFile)
+        
+    pp.barrier()
+    if config.getboolean('Actions', 'ExecuteEvaluate'):
+        doEvaluation(config)
 
     pp.barrier()
 
