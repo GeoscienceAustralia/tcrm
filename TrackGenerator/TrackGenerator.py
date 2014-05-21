@@ -27,7 +27,6 @@ import os
 import sys
 import logging as log
 import math
-import random
 import itertools
 import numpy as np
 
@@ -38,6 +37,7 @@ import Utilities.Cmap as Cmap
 import Utilities.Cstats as Cstats
 import Utilities.maputils as maputils
 import Utilities.metutils as metutils
+import Utilities.tcrandom as random
 from os.path import join as pjoin
 from netCDF4 import Dataset as netcdf_file
 from scipy.ndimage.interpolation import spline_filter
@@ -52,10 +52,10 @@ from Utilities.config import ConfigParser
 from Utilities.interp3d import interp3d
 
 class SamplePressure(object):
-    def __init__(self, mslp_file):
+    def __init__(self, mslp_file, var='slp'):
         ncobj = nctools.ncLoadFile(mslp_file)
-        data = nctools.ncGetData(ncobj, 'slp')
-        slpunits = getattr(ncobj.variables['slp'],'units')
+        data = nctools.ncGetData(ncobj, var)
+        slpunits = getattr(ncobj.variables[var],'units')
 
         data = metutils.convert(data, slpunits, 'hPa')
         self.data = spline_filter(data)
@@ -921,13 +921,13 @@ class TrackGenerator(object):
 
         # Do the step
 
-        self.dpChi = alpha[c] * self.dpChi + phi[c] * normal()
+        self.dpChi = alpha[c] * self.dpChi + phi[c] * logistic()
 
         if i == 1:
             self.dp += sigma[c] * self.dpChi
         else:
             self.dp = mu[c] + sigma[c] * self.dpChi
-
+            
     def _stepBearing(self, c, i, onLand):
         """
         Take one step of the bearing model.
@@ -961,7 +961,7 @@ class TrackGenerator(object):
 
         # Do the step
 
-        self.bChi = alpha[c] * self.bChi + phi[c] * normal()
+        self.bChi = alpha[c] * self.bChi + phi[c] * logistic()
 
         # Update the bearing
 
@@ -1005,7 +1005,7 @@ class TrackGenerator(object):
 
         # Do the step
 
-        self.vChi = alpha[c] * self.vChi + phi[c] * normal()
+        self.vChi = alpha[c] * self.vChi + phi[c] * logistic()
 
         # Update the speed
 
@@ -1047,7 +1047,7 @@ class TrackGenerator(object):
 
         # Do the step
 
-        self.dsChi = alpha[c] * self.dsChi + phi[c] * normal()
+        self.dsChi = alpha[c] * self.dsChi + phi[c] * logistic()
 
         # Update the size change
 
@@ -1501,6 +1501,12 @@ def uniform(a=0.0, b=1.0):
     Sample from a uniform distribution.
     """
     return PRNG.uniform(a, b)
+    
+def logistic(loc=0., scale=1.0):
+    """
+    Sample from a logistic distribution.
+    """
+    return PRNG.logisticvariate(loc, scale)
 
 
 def ppf(q, cdf):
@@ -1585,8 +1591,8 @@ def run(configFile, callback=None):
     maxTimeSteps = config.getint('TrackGenerator', 'NumTimeSteps')
     dt = config.getfloat('TrackGenerator', 'TimeStep')
     fmt = config.get('TrackGenerator', 'Format')
-    gridSpace = config.geteval('TrackGenerator', 'GridSpace')
-    gridInc = config.geteval('TrackGenerator', 'GridInc')
+    gridSpace = config.geteval('Region', 'GridSpace')
+    gridInc = config.geteval('Region', 'GridInc')
     gridLimit = config.geteval('Region', 'gridLimit')
     mslpFile = config.get('Input', 'MSLPFile')
     seasonSeed = None
