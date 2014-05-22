@@ -489,7 +489,7 @@ class PlotData:
         self.savefig('spd_bear_corr')
         pyplot.rcdefaults()
 
-    def quantile(self, data, parameterName, dist='normal', mean=0.0, sigma=1.0):
+    def quantile(self, data, parameterName, dist='norm', mean=0.0, sigma=1.0):
         """
         Generate a probability plot of the given data; data should be an
         array of anomalies
@@ -502,7 +502,7 @@ class PlotData:
         m = numpy.average(d)
         sd = numpy.std(d)
         nd = (d-m)/sd
-        (osm, osr), (slope, intercept, r) = probplot(nd, plot=pyplot)
+        (osm, osr), (slope, intercept, r) = probplot(nd, dist=dist, plot=pyplot)
         #pyplot.xticks(numpy.arange(-3.,3.1,1.))
         #pyplot.yticks(numpy.arange(-3.,3.1,1.))
         #pyplot.xlabel("Normal")
