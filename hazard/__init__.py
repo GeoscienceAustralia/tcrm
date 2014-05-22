@@ -24,6 +24,7 @@ import sys
 import itertools
 import numpy as np
 import logging
+import random
 
 from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
@@ -630,7 +631,7 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
     for i in xrange(Vr.shape[1]):
         for j in xrange(Vr.shape[2]):
             if Vr[:, i, j].max() > 0.0:
-                np.random.shuffle(Vr[:, i, j])
+                random.shuffle(Vr[:, i, j])
                 for n in xrange(nsamples):
                     nstart = n*sample_size
                     nend  = (n + 1)*sample_size - 1
