@@ -599,7 +599,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     windspeed,rmax,penv = loadTrackFile('tcrm.ini', 'IBTRaCS.csv', 'IBTrACS' )
 
     """
-    logger.debug("Loading %s" % trackFile)
+    logger.info("Loading %s" % trackFile)
     inputData = colReadCSV(configFile, trackFile, source) #,
                           #nullValue=missingValue)
 
@@ -676,8 +676,8 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     if 'penv' in inputData.dtype.names:
         penv = np.array(inputData['penv'], 'd')
     else:
-        logger.info("No ambient MSLP data in this input file")
-        logger.info("Sampling data from MSLP data defined in "
+        logger.debug("No ambient MSLP data in this input file")
+        logger.debug("Sampling data from MSLP data defined in "
                     "configuration file")
         # Warning: using sampled data will likely lead to some odd behaviour
         # near the boundary of the MSLP grid boundaries - higher resolution
