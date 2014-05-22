@@ -32,6 +32,7 @@ PARSERS = {
     'DataProcess_inputfile': str,
     'DataProcess_source': str,
     'DataProcess_startseason': int,
+    'DataProcess_filterseasons': parseBool,
     'Hazard_calculateci': parseBool,
     'Hazard_inputpath': str,
     'Hazard_minimumrecords': int,
@@ -103,6 +104,7 @@ DownloadData=True
 
 [DataProcess]
 StartSeason=1981
+FilterSeasons=True
 
 [TrackGenerator]
 NumSimulations=50
