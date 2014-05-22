@@ -6,10 +6,12 @@ font.size: 12.0
 text.color: black
 text.antialiased: True
 axes.titlesize: large
-axes.labelsize: large
+axes.labelsize: small
 axes.labelcolor: black
 axes.color_cycle: k, b, g, r, c, m, y
 legend.fancybox: True
 legend.frameon: True
 xtick.direction: out
 ytick.direction: out
+xtick.labelsize: x-small
+ytick.labelsize: x-small
