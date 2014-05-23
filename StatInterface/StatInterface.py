@@ -84,23 +84,23 @@ class StatInterface(object):
         missingValue = cnfGetIniValue(self.configFile, 'StatInterface',
                                       'MissingValue', sys.maxint)
 
-        gridLimitStr = cnfGetIniValue(self.configFile, 'StatInterface',
-                                      'gridLimit', '')
+        #gridLimitStr = cnfGetIniValue(self.configFile, 'Region',
+        #                              'gridLimit', '')
 
-        if gridLimitStr is not '':
-            try:
-                self.gridLimit = eval(gridLimitStr)
-            except SyntaxError:
-                log.exception('Error! gridLimit is not a dictionary')
-        else:
-            self.gridLimit = autoCalc_gridLimit
-            log.info('No gridLimit specified - using automatic' +
+        #if gridLimitStr is not '':
+        #    try:
+        #        self.gridLimit = eval(gridLimitStr)
+        #    except SyntaxError:
+        #        log.exception('Error! gridLimit is not a dictionary')
+        #else:
+        self.gridLimit = autoCalc_gridLimit
+        log.info('No gridLimit specified - using automatic' +
                      ' selection: ' + str(self.gridLimit))
 
         try:
-            gridSpace = eval(cnfGetIniValue(self.configFile, 'StatInterface',
+            gridSpace = eval(cnfGetIniValue(self.configFile, 'Region',
                                             'gridSpace'))
-            gridInc = eval(cnfGetIniValue(self.configFile, 'StatInterface',
+            gridInc = eval(cnfGetIniValue(self.configFile, 'Region',
                                           'gridInc'))
         except SyntaxError:
             log.exception('Error! gridSpace or gridInc not dictionaries')
@@ -247,28 +247,48 @@ class StatInterface(object):
                 self.gridInc,
                 minSample=minSample,
                 angular=angular)
-
+                
         log.debug('Calculating cell statistics for speed')
         vStats = calculate('all_speed')
-
+        vStats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','speed_stats'))
         log.debug('Saving cell statistics for speed to netcdf file')
         vStats.save(pjoin(path, 'speed_stats.nc'), 'speed')
-
+        
+        dvStats = calculate('speed_rate')
+        dvStats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','speed_rate_stats'))
+        log.debug('Saving cell statistics for speed rate to netcdf file')
+        dvStats.save(pjoin(path, 'speed_rate_stats.nc'), 'speed_rate')
+        
         log.debug('Calculating cell statistics for pressure')
         pStats = calculate('all_pressure')
-
+        pStats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','pressure_stats'))
         log.debug('Saving cell statistics for pressure to netcdf file')
         pStats.save(pjoin(path, 'pressure_stats.nc'), 'pressure')
-
-        log.debug('Calculating cell statistics for bearing')
-        bStats = calculate('all_bearing', angular=True)
-
-        log.debug('Saving cell statistics for bearing to netcdf file')
-        bStats.save(pjoin(path, 'bearing_stats.nc'), 'bearing')
 
         log.debug('Calculating cell statistics for pressure rate' +
                   ' of change')
         dpStats = calculate('pressure_rate')
+        dpStats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','pressure_rate_stats'))
 
         log.debug('Saving cell statistics for pressure rate to netcdf file')
-        dpStats.save(pjoin(path, 'pressure_rate_stats.nc'), 'pressure rate')
+        dpStats.save(pjoin(path, 'pressure_rate_stats.nc'), 'pressure_rate')
+        
+        log.debug('Calculating cell statistics for bearing')
+        bStats = calculate('all_bearing', angular=True)
+        bStats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','bearing_stats'))
+        log.debug('Saving cell statistics for bearing to netcdf file')
+        bStats.save(pjoin(path, 'bearing_stats.nc'), 'bearing')
+
+        log.debug('Calculating cell statistics for bearing rate of change')
+        bStats = calculate('bearing_rate', angular=True)
+        bStats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','bearing_rate_stats'))
+        log.debug('Saving cell statistics for bearing to netcdf file')
+        bStats.save(pjoin(path, 'bearing_rate_stats.nc'), 'bearing_rate')
+
+        

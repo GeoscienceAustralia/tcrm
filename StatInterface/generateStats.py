@@ -41,16 +41,34 @@ Modification: Changed logging method
 $Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
-import os, pdb, logging, sys, math
+import os, pdb, logging, sys
 
 import numpy as np
+from matplotlib import pyplot
 
 import Utilities.stats as stats
 
 from Utilities.files import flLoadFile
 from Utilities.config import ConfigParser
 
+
+
 __version__ = '$Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $'
+
+def acf(p, nlags=1):
+    """
+    Autocorrelation coefficient
+    
+    :param p: array of values to calculate autocorrelation coefficient
+    :type p: 1-d :class:`numpy.ndarray`
+    
+    """
+    ar = np.correlate(p, p, 'full')
+    n = len(p)
+    # Grab only the lag-one autocorrelation coeff.
+    ar = ar[n-1:(n+nlags)]/ar.max()
+    return ar
+    
 
 class parameters(object):
     """parameters:
@@ -169,7 +187,41 @@ class GenerateStats:
         if progressbar is not None:
             progressbar.update(1.0, prgStartValue, prgEndValue)
         self.logger.debug('Finished calculating statistics')
+        
+    def plotStatistics(self, output_file):
 
+        p = stats.statRemoveNum(np.array(self.param), self.missingValue)
+        pmin = p.min()
+        pmax = p.max()
+        bins = np.linspace(pmin, pmax, 50)
+        hist = np.empty((len(bins) - 1, self.maxCell))
+        
+        x = np.arange(11)
+        alpha = np.empty((11, self.maxCell))
+        
+        fig1 = pyplot.figure()
+        ax1 = fig1.add_subplot(111)
+        fig2 = pyplot.figure()
+        ax2 = fig2.add_subplot(111)
+        
+        for i in range(self.maxCell + 1):
+            p = self.extractParameter(i, 0)
+            hist[:, i-1], b = np.histogram(p , bins, normed=True)
+            alpha[:, i-1] = acf(p, 10)
+            
+            ax1.plot(bins[:-1], hist[:,i-1], '0.7', lw=0.5)
+            ax2.plot(x, alpha[:,i-1], '0.7', lw=0.5)
+        
+        mhist = np.mean(hist, axis=1)
+        ax1.plot(bins[:-1], mhist,  'k')
+        fig1.savefig(output_file + '.png')
+        
+        malpha = np.mean(alpha, axis=1)
+        ax2.plot(x, malpha,  'k')
+        ax2.grid()
+        fig2.savefig(output_file + '_AR.png')
+        
+        
     def calculate(self, cellNum, onLand):
         """calculate(cellNum):
         Calculate the required statistics (mean, variance,
@@ -189,6 +241,7 @@ class GenerateStats:
         n = len(p)
         # Grab only the lag-one autocorrelation coeff.
         alpha = alphas[n]/alphas.max()
+        alpha = acf(p)[-1]
         phi = np.sqrt(1 - alpha**2)
         mn = min(p)
         return mu, sig, alpha, phi, mn

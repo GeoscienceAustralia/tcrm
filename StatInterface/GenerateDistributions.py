@@ -389,12 +389,12 @@ if __name__ == "__main__":
                cnfGetIniValue(configFile, 'Logging', 'Verbose', True))
     path = cnfGetIniValue(configFile, 'Output', 'Path')
 
-    gridLimit = eval(cnfGetIniValue(configFile, 'Settings', 'gridLimit'))
-    gridSpace = eval(cnfGetIniValue(configFile, 'Settings', 'gridSpace'))
-    gridInc = eval(cnfGetIniValue(configFile, 'Settings', 'gridInc'))
-    kdeType = cnfGetIniValue(configFile, 'Parameters', 'kdeType')
-    kdeStep = cnfGetIniValue(configFile, 'Parameters', 'kdeStep', 0.1)
-    minSamplesCell = cnfGetIniValue(configFile, 'Parameters',
+    gridLimit = eval(cnfGetIniValue(configFile, 'Region', 'gridLimit'))
+    gridSpace = eval(cnfGetIniValue(configFile, 'Region', 'gridSpace'))
+    gridInc = eval(cnfGetIniValue(configFile, 'Region', 'gridInc'))
+    kdeType = cnfGetIniValue(configFile, 'StatInterface', 'kdeType')
+    kdeStep = cnfGetIniValue(configFile, 'StatInterface', 'kdeStep', 0.1)
+    minSamplesCell = cnfGetIniValue(configFile, 'StatInterface',
                                     'minSamplesCell', 100)
     missingValue = cnfGetIniValue(configFile, 'StatInterface',
                                   'MissingValue', sys.maxint)
