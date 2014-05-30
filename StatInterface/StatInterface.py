@@ -7,7 +7,7 @@ import KDEOrigin
 import KDEParameters
 
 from os.path import join as pjoin
-from Utilities.config import cnfGetIniValue
+from Utilities.config import cnfGetIniValue, ConfigParser
 from GenerateDistributions import GenerateDistributions
 from generateStats import GenerateStats
 
@@ -65,43 +65,38 @@ class StatInterface(object):
         Initialize the data and variables required for the interface
         """
         self.configFile = configFile
+        config = ConfigParser()
+        config.read(configFile)
         self.progressbar = progressbar
 
         log.info("Initialising StatInterface")
 
-        self.kdeType = cnfGetIniValue(self.configFile, 'StatInterface',
-                                      'kdeType', 'Biweight')
-        self.kde2DType = cnfGetIniValue(self.configFile, 'StatInterface',
-                                        'kde2DType', 'Gaussian')
-        self.ns = cnfGetIniValue(self.configFile, 'StatInterface',
-                                 'Samples', 50000)
-        minSamplesCell = cnfGetIniValue(self.configFile, 'StatInterface',
-                                        'minSamplesCell', 100)
-        self.kdeStep = cnfGetIniValue(self.configFile, 'StatInterface',
-                                      'kdeStep', 0.2)
-        self.outputPath = cnfGetIniValue(self.configFile, 'Output', 'Path')
+        self.kdeType = config.get('StatInterface', 'kdeType')
+        self.kde2DType = config.get('StatInterface','kde2DType')
+        minSamplesCell = config.getint('StatInterface', 'minSamplesCell')
+        self.kdeStep = config.getfloat('StatInterface', 'kdeStep')
+        self.outputPath = config.get('Output', 'Path')
         self.processPath = pjoin(self.outputPath, 'process')
+
         missingValue = cnfGetIniValue(self.configFile, 'StatInterface',
                                       'MissingValue', sys.maxint)
 
-        #gridLimitStr = cnfGetIniValue(self.configFile, 'Region',
-        #                              'gridLimit', '')
+        gridLimitStr = cnfGetIniValue(self.configFile, 'StatInterface',
+                                      'gridLimit', '')
 
-        #if gridLimitStr is not '':
-        #    try:
-        #        self.gridLimit = eval(gridLimitStr)
-        #    except SyntaxError:
-        #        log.exception('Error! gridLimit is not a dictionary')
-        #else:
-        self.gridLimit = autoCalc_gridLimit
-        log.info('No gridLimit specified - using automatic' +
+        if gridLimitStr is not '':
+            try:
+                self.gridLimit = eval(gridLimitStr)
+            except SyntaxError:
+                log.exception('Error! gridLimit is not a dictionary')
+        else:
+            self.gridLimit = autoCalc_gridLimit
+            log.info('No gridLimit specified - using automatic' +
                      ' selection: ' + str(self.gridLimit))
 
         try:
-            gridSpace = eval(cnfGetIniValue(self.configFile, 'Region',
-                                            'gridSpace'))
-            gridInc = eval(cnfGetIniValue(self.configFile, 'Region',
-                                          'gridInc'))
+            gridSpace = config.geteval('Region', 'gridSpace')
+            gridInc = config.geteval('Region', 'gridInc')
         except SyntaxError:
             log.exception('Error! gridSpace or gridInc not dictionaries')
             raise
@@ -247,7 +242,7 @@ class StatInterface(object):
                 self.gridInc,
                 minSample=minSample,
                 angular=angular)
-                
+
         log.debug('Calculating cell statistics for speed')
         vStats = calculate('all_speed')
         vStats.plotStatistics(pjoin(self.outputPath, 'plots',
@@ -291,4 +286,3 @@ class StatInterface(object):
         log.debug('Saving cell statistics for bearing to netcdf file')
         bStats.save(pjoin(path, 'bearing_rate_stats.nc'), 'bearing_rate')
 
-        
