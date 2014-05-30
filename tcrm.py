@@ -12,10 +12,10 @@ import time
 import sys
 import os
 
-from os.path import join as pjoin, realpath, isdir, dirname
+from os.path import join as pjoin, realpath, isdir, dirname, abspath
 from functools import wraps
 from Utilities.progressbar import SimpleProgressBar as ProgressBar
-from Utilities.files import flStartLog, flLoadFile
+from Utilities.files import flStartLog, flLoadFile, flModDate
 from Utilities.config import ConfigParser
 from Utilities import pathLocator
 
@@ -89,7 +89,10 @@ def status():
 
 def version():
     """
-    Check version of TCRM code.
+    Check version of TCRM code. This returns the full hash of the git
+    commit, if git is available on the system. Otherwise, it returns
+    the last modified date of this file. It's assumed that this would be 
+    the case if a user downloads the zip file from the git repository.
     """
     
     vers = ''
@@ -97,7 +100,9 @@ def version():
     try:
         vers = git('log -1 --date=iso --pretty=format:"%ad %H"')
     except subprocess.CalledProcessError:
-        raise
+        log.info(("Unable to obtain version information "
+                    "- version string will be last modified date of code"))
+        vers = flModDate(abspath(__file__), "%Y-%m-%d_%H:%M")
     
     return vers
 
@@ -505,7 +510,7 @@ def doHazardPlotting(configFile):
 
     pbar.update(1.0)
 
-@disableOnWorkers
+
 def doEvaluation(configFile):
     """
     Do the track model evaluation processing.
