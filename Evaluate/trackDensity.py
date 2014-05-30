@@ -18,8 +18,12 @@ import numpy.ma as ma
 from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
 
+import matplotlib
+matplotlib.use('Agg')
+
 from matplotlib import pyplot
 from mpl_toolkits.basemap import Basemap
+from functools import wraps
 
 import interpolateTracks
 
@@ -28,12 +32,15 @@ from Utilities.metutils import convert
 from Utilities.maputils import bearing2theta
 from Utilities.track import Track
 from Utilities.nctools import ncSaveGrid
+from Utilities import pathLocator
 
 # Importing :mod:`colours` makes a number of additional colour maps available:
 from Utilities import colours
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
+
+
 
 TRACKFILE_COLS = ('CycloneNumber', 'TimeElapsed', 'Longitude',
                   'Latitude', 'Speed', 'Bearing', 'CentralPressure',
@@ -51,6 +58,51 @@ TRACKFILE_CNVT = {
     6: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[6], 'Pa'),
     7: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[7], 'Pa'),
 }
+
+
+def disableOnWorkers(f):
+    """
+    Disable function calculation on workers. Function will
+    only be evaluated on the master.
+    """
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if pp.size() > 1 and pp.rank() > 0:
+            return
+        else:
+            return f(*args, **kwargs)
+    return wrap
+
+def attemptParallel():
+    """
+    Attempt to load Pypar globally as `pp`.  If pypar cannot be loaded then a
+    dummy `pp` is created.
+
+    """
+
+    global pp
+
+    try:
+        # load pypar for everyone
+
+        import pypar as pp
+
+    except ImportError:
+
+        # no pypar, create a dummy one
+        
+        class DummyPypar(object):
+
+            def size(self):
+                return 1
+
+            def rank(self):
+                return 0
+
+            def barrier(self):
+                pass
+
+        pp = DummyPypar()
 
 def readTrackData(trackfile):
     """
@@ -131,6 +183,7 @@ def loadTracksFromPath(path):
     log.info(msg)
     return loadTracksFromFiles(sorted(trackfiles))
 
+@disableOnWorkers
 def plotDensity(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
                 res='i', dl=5., datarange=(-1.,1.), cmap='gist_heat_r', title=None,
                 xlab='Longitude', ylab='Latitude', clabel=None, maskland=False,
@@ -263,6 +316,10 @@ class TrackDensity(object):
         self.plotPath = pjoin(outputPath, 'plots', 'stats')
         self.dataPath = pjoin(outputPath, 'process')
 
+        # Determine TCRM input directory
+        tcrm_dir = pathLocator.getRootDirectory()
+        self.inputPath = pjoin(tcrm_dir, 'input')
+
         self.synNumYears = config.getint('TrackGenerator',
                                          'yearspersimulation')
 
@@ -288,17 +345,28 @@ class TrackDensity(object):
                                           normed=False)
         return histogram
 
+    def calculateMeans(self):
+        self.synHist = ma.masked_values(self.synHist, -9999.)
+        self.synHistMean = ma.mean(self.synHist, axis=0)
+        self.medSynHist = ma.median(self.synHist, axis=0)
+
+        self.synHistUpper = percentile(ma.compressed(self.synHist), per=95, axis=0)
+        self.synHistLower = percentile(ma.compressed(self.synHist), per=5, axis=0)
+
+    @disableOnWorkers
     def historic(self):
         """Load historic data and calculate histogram"""
         config = ConfigParser()
         config.read(self.configFile)
         inputFile = config.get('DataProcess', 'InputFile')
+        if len(os.path.dirname(inputFile)) == 0:
+            inputFile = pjoin(self.inputPath, inputFile)
+
         source = config.get('DataProcess', 'Source')
 
         timestep = config.getfloat('TrackGenerator', 'Timestep')
 
-        path, base = os.path.split(inputFile)
-        interpHistFile = pjoin(path, "interp_tracks.csv")
+        interpHistFile = pjoin(self.inputPath, "interp_tracks.csv")
         try:
             tracks = interpolateTracks.parseTracks(self.configFile,
                                                    inputFile,
@@ -335,17 +403,55 @@ class TrackDensity(object):
         self.synHist = -9999. * np.ones((len(trackfiles),
                                          len(self.lon_range) - 1,
                                      len(self.lat_range) - 1))
-        for n, trackfile in enumerate(trackfiles):
-            tracks = loadTracks(trackfile)
-            self.synHist[n, :, :] = self.calculate(tracks) / self.synNumYears
 
-        self.synHist = ma.masked_values(self.synHist, -9999.)
-        self.synHistMean = ma.mean(self.synHist, axis=0)
-        self.medSynHist = ma.median(self.synHist, axis=0)
+        work_tag = 0
+        result_tag = 1
+        
+        if (pp.rank() == 0) and (pp.size() > 1):
+            w = 0
+            n = 0
+            for d in range(1, pp.size()):
+                pp.send(trackfiles[w], destination=d, tag=work_tag)
+                log.debug("Processing track file %d of %d" % (w, len(trackfiles)))
+                w += 1
 
-        self.synHistUpper = percentile(ma.compressed(self.synHist), per=95, axis=0)
-        self.synHistLower = percentile(ma.compressed(self.synHist), per=5, axis=0)
+            terminated = 0
+            while (terminated < pp.size() - 1):
+                results, status = pp.receive(pp.any_source, tag=result_tag, 
+                                             return_status=True)
+                self.synHist[n, :, :] = results
+                n += 1
+                
+                d = status.source
+                if w < len(trackfiles):
+                    pp.send(trackfiles[w], destination=d, tag=work_tag)
+                    log.debug("Processing track file %d of %d" % (w, len(trackfiles)))
+                    w += 1
+                else:
+                    pp.send(None, destination=d, tag=work_tag)
+                    terminated += 1
 
+            self.calculateMeans()
+
+        elif (pp.size() > 1) and (pp.rank() != 0):
+            while(True):
+                trackfile = pp.receive(source=0, tag=work_tag)
+                if trackfile is None:
+                    break
+
+                log.debug("Processing %s" % (trackfile))
+                tracks = loadTracks(trackfile)
+                results = self.calculate(tracks) / self.synNumYears
+                pp.send(results, destination=0, tag=result_tag)
+
+        elif (pp.size() == 1) and (pp.rank() == 0):
+            for n, trackfile in enumerate(trackfiles):
+                tracks = loadTracks(trackfile)
+                self.synHist[n, :, :] = self.calculate(tracks) / self.synNumYears
+
+            self.calculateMeans()
+
+    @disableOnWorkers
     def save(self):
         dataFile = pjoin(self.dataPath, 'density.nc')
 
@@ -429,6 +535,7 @@ class TrackDensity(object):
 
         ncSaveGrid(dataFile, dimensions, variables)
 
+    @disableOnWorkers
     def plotHistoric(self):
         """
         Plot results
@@ -438,6 +545,7 @@ class TrackDensity(object):
         plotDensity(self.lon_range[:-1], self.lat_range[:-1],
                     np.transpose(self.hist), datarange=datarange)
 
+    @disableOnWorkers
     def plotSynthetic(self):
         """
         Plot results from synthetic events
@@ -446,7 +554,9 @@ class TrackDensity(object):
         plotDensity(self.lon_range[:-1], self.lat_range[:-1],
                     np.transpose(self.synHistMean), datarange=datarange)
 
+    @disableOnWorkers
     def plotTrackDensity(self):
+        """Plot track density information"""
 
         datarange = (0, self.hist.max())
         pyplot.figure()
@@ -465,7 +575,13 @@ class TrackDensity(object):
                  bbox=dict(fc='white', ec='black', alpha=0.5))
         pyplot.savefig(pjoin(self.plotPath, 'track_density.png'))
 
+    @disableOnWorkers
     def plotTrackDensityPercentiles(self):
+        """
+        Plot upper and lower percentiles of track density derived from
+        synthetic event sets
+
+        """
 
         datarange = (0, self.hist.max())
         pyplot.figure()
@@ -486,9 +602,16 @@ class TrackDensity(object):
 
 
     def run(self):
+        """Run the track density evaluation"""
+        attemptParallel()
 
         self.historic()
+
+        pp.barrier()
+
         self.synthetic()
+        
+        pp.barrier()
 
         self.plotTrackDensity()
         self.plotTrackDensityPercentiles()

@@ -12,7 +12,6 @@
 
 import os
 import sys
-import pdb
 import logging
 
 import numpy as np
@@ -21,19 +20,25 @@ import numpy.ma as ma
 from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
 
+import matplotlib
+matplotlib.use('Agg')
+
 from matplotlib import pyplot
 from mpl_toolkits.basemap import Basemap
-
+from functools import wraps
 
 from Utilities.config import ConfigParser
 from Utilities.metutils import convert
 from Utilities.maputils import bearing2theta
 from Utilities.loadData import loadTrackFile
 from Utilities.track import Track
+from Utilities import pathLocator
 from Utilities.nctools import ncSaveGrid
 
 # Importing :mod:`colours` makes a number of additional colour maps available:
 from Utilities import colours
+
+
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -54,6 +59,51 @@ TRACKFILE_CNVT = {
     6: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[6], 'hPa'),
     7: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[7], 'hPa'),
 }
+
+
+def disableOnWorkers(f):
+    """
+    Disable function calculation on workers. Function will
+    only be evaluated on the master.
+    """
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if pp.size() > 1 and pp.rank() > 0:
+            return
+        else:
+            return f(*args, **kwargs)
+    return wrap
+
+def attemptParallel():
+    """
+    Attempt to load Pypar globally as `pp`.  If pypar cannot be loaded then a
+    dummy `pp` is created.
+
+    """
+
+    global pp
+
+    try:
+        # load pypar for everyone
+
+        import pypar as pp
+
+    except ImportError:
+
+        # no pypar, create a dummy one
+        
+        class DummyPypar(object):
+
+            def size(self):
+                return 1
+
+            def rank(self):
+                return 0
+
+            def barrier(self):
+                pass
+
+        pp = DummyPypar()
 
 def readTrackData(trackfile):
     """
@@ -136,9 +186,10 @@ class gridCell(object):
         self.cell_number = number
         self.index = index
 
+@disableOnWorkers
 def plotDensity(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
                 res='i', dl=5., datarange=(-1.,1.), cmap='gist_heat_r', title=None,
-                xlab='Longitude', ylab='Latitude', clabel=None, maskland=False,
+                xlab='Longitude', ylab='Latitude', addcbar=True, clabel=None, maskland=False,
                 maskocean=False):
     """
     Plot a grid of values using pyplot.pcolormesh() to create a pseudocolour
@@ -227,16 +278,17 @@ def plotDensity(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
     pyplot.grid(True)
     pyplot.tick_params(direction='out', length=4, right='off', top='off')
 
-    cb = pyplot.colorbar(aspect=30, orientation='vertical',
-                         extend='both', pad=0.1)
-    cb.ax.tick_params(direction='in')
+    if addcbar:
+        cb = pyplot.colorbar(aspect=30, orientation='vertical',
+                             extend='both', pad=0.1)
+        cb.ax.tick_params(direction='in')
 
-    if cb.orientation == 'horizontal':
-        for t in cb.ax.get_xticklabels():
-            t.set_fontsize(8)
+        if cb.orientation == 'horizontal':
+            for t in cb.ax.get_xticklabels():
+                t.set_fontsize(8)
 
-    if clabel:
-        cb.set_label(clabel)
+        if clabel:
+            cb.set_label(clabel)
 
     return
 
@@ -251,6 +303,10 @@ class PressureDistribution(object):
         config = ConfigParser()
         config.read(configFile)
         self.configFile = configFile
+
+        # Determine TCRM input directory
+        tcrm_dir = pathLocator.getRootDirectory()
+        self.inputPath = pjoin(tcrm_dir, 'input')
 
         # Define the grid:
         gridLimit = config.geteval('Region', 'gridLimit')
@@ -292,7 +348,7 @@ class PressureDistribution(object):
                             len(self.lat_range) - 1))
         dataMed = ma.zeros((len(self.lon_range) - 1,
                             len(self.lat_range) - 1))
-
+        log.debug("Processing %d tracks" % (len(tracks)))
         for cell in self.gridCells:
             vcell = np.array([])
             for t in tracks:
@@ -326,56 +382,8 @@ class PressureDistribution(object):
         h, n = np.histogram(minCP, bins, normed=True)
         return h
 
-    def historic(self):
-        """Load historic data and calculate histogram"""
-        log.info("Processing historical pressure distributions")
-        config = ConfigParser()
-        config.read(self.configFile)
-        inputFile = config.get('DataProcess', 'InputFile')
-        source = config.get('DataProcess', 'Source')
 
-        path, base = os.path.split(inputFile)
-        try:
-            tracks = loadTrackFile(self.configFile, inputFile, source)
-        except (TypeError, IOError, ValueError):
-            log.critical("Cannot load historical track file: {0}".format(inputFile))
-            raise
-        else:
-            self.histMean, self.histMin, \
-                self.histMax, self.histMed = self.calculate(tracks)
-
-            self.histMinCP = self.calcMinPressure(tracks)
-
-    def synthetic(self):
-        """Load synthetic data and calculate histogram"""
-        log.info("Processing synthetic pressure distributions")
-
-        filelist = os.listdir(self.trackPath)
-        trackfiles = [pjoin(self.trackPath, f) for f in filelist
-                      if f.startswith('tracks')]
-        synMean = -9999. * ma.ones((len(trackfiles),
-                                    len(self.lon_range) - 1,
-                                   len(self.lat_range) - 1))
-        synMin = -9999. * ma.ones((len(trackfiles),
-                                   len(self.lon_range) - 1,
-                                   len(self.lat_range) - 1))
-        synMax = -9999. * ma.ones((len(trackfiles),
-                                   len(self.lon_range) - 1,
-                                   len(self.lat_range) - 1))
-        synMed = -9999. * ma.ones((len(trackfiles),
-                                   len(self.lon_range) - 1,
-                                   len(self.lat_range) - 1))
-
-        bins = np.arange(850., 1020., 5.)
-        synMinCP = np.empty((len(trackfiles),
-                             len(bins) - 1))
-
-        for n, trackfile in enumerate(trackfiles):
-            tracks = loadTracks(trackfile)
-            synMean[n, :, :],  synMin[n, :, :], \
-               synMax[n, :, :], synMed[n, :, :] = self.calculate(tracks)
-            synMinCP[n, :] = self.calcMinPressure(tracks)
-
+    def calculateMeans(self, synMean, synMin, synMed, synMax, synMinCP):
         synMean = ma.masked_values(synMean, -9999.)
         synMin = ma.masked_values(synMin, -9999.)
         synMed = ma.masked_values(synMed, -9999.)
@@ -394,7 +402,117 @@ class PressureDistribution(object):
         self.synMinCPDist = np.mean(synMinCP, axis=0)
         self.synMinCPLower = percentile(synMinCP, per=5, axis=0)
         self.synMinCPUpper = percentile(synMinCP, per=95, axis=0)
+        
+        r = list(np.random.uniform(high=synMean.shape[0], size=3).astype(int))
+        self.synRandomMinima = synMean[r, :, :]
 
+    @disableOnWorkers
+    def historic(self):
+        """Load historic data and calculate histogram"""
+        log.info("Processing historical pressure distributions")
+        config = ConfigParser()
+        config.read(self.configFile)
+        inputFile = config.get('DataProcess', 'InputFile')
+        source = config.get('DataProcess', 'Source')
+        
+        if len(os.path.dirname(inputFile)) == 0:
+            inputFile = pjoin(self.inputPath, inputFile)
+        
+        try:
+            tracks = loadTrackFile(self.configFile, inputFile, source)
+        except (TypeError, IOError, ValueError):
+            log.critical("Cannot load historical track file: {0}".format(inputFile))
+            raise
+        else:
+            self.histMean, self.histMin, \
+                self.histMax, self.histMed = self.calculate(tracks)
+
+            self.histMinCP = self.calcMinPressure(tracks)
+
+    def synthetic(self):
+        """Load synthetic data and calculate histogram"""
+        log.info("Processing synthetic pressure distributions")
+
+        work_tag = 0
+        result_tag = 1
+        filelist = os.listdir(self.trackPath)
+        trackfiles = sorted([pjoin(self.trackPath, f) for f in filelist
+                             if f.startswith('tracks')])
+        synMean = -9999. * ma.ones((len(trackfiles),
+                                    len(self.lon_range) - 1,
+                                    len(self.lat_range) - 1))
+        synMin = -9999. * ma.ones((len(trackfiles),
+                                    len(self.lon_range) - 1,
+                                    len(self.lat_range) - 1))
+        synMax = -9999. * ma.ones((len(trackfiles),
+                                    len(self.lon_range) - 1,
+                                    len(self.lat_range) - 1))
+        synMed = -9999. * ma.ones((len(trackfiles),
+                                    len(self.lon_range) - 1,
+                                    len(self.lat_range) - 1))
+
+        bins = np.arange(850., 1020., 5.)
+        synMinCP = np.empty((len(trackfiles), len(bins) - 1))
+
+        if (pp.rank() == 0) and (pp.size() > 1):
+
+            w = 0
+            n = 0
+            for d in range(1, pp.size()):
+                pp.send(trackfiles[w], destination=d, tag=work_tag)
+                log.debug("Processing track file %d of %d" % (w + 1, len(trackfiles)))
+                w += 1
+
+            terminated = 0
+            while (terminated < pp.size() - 1):
+                results, status = pp.receive(pp.any_source, tag=result_tag,
+                                             return_status=True)
+                
+
+                sMean, sMin, sMax, sMed, sMinCP = results
+                synMean[n, :, :] = sMean
+                synMin[n, :, :] = sMin
+                synMax[n, :, :] = sMax
+                synMed[n, :, :] = sMed
+                synMinCP[n, :] = sMinCP
+                n += 1
+
+                d = status.source
+
+                if w < len(trackfiles):
+                    pp.send(trackfiles[w], destination=d, tag=work_tag)
+                    log.debug("Processing track file %d of %d" % (w + 1, len(trackfiles)))
+                    w += 1
+                else:
+                    pp.send(None, destination=d, tag=work_tag)
+                    terminated += 1
+
+            self.calculateMeans(synMean, synMin, synMed, synMax, synMinCP)
+
+        elif (pp.size() > 1) and (pp.rank() != 0):
+            while(True):
+                trackfile = pp.receive(source=0, tag=work_tag)
+                if trackfile is None:
+                    break
+                
+                log.debug("Processing %s" % (trackfile))
+                tracks = loadTracks(trackfile)
+                sMean, sMin, sMax, sMed = self.calculate(tracks)
+                sMinCP = self.calcMinPressure(tracks)
+                results = (sMean, sMin, sMax, sMed, sMinCP)
+                pp.send(results, destination=0, tag=result_tag)
+                
+        elif pp.size() == 1 and pp.rank() == 0:
+            # Assumed no Pypar - helps avoid the need to extend DummyPypar()
+            for n, trackfile in enumerate(sorted(trackfiles)):
+                tracks = loadTracks(trackfile)
+                synMean[n, :, :], synMin[n, :, :], \
+                    synMax[n, :, :], synMed[n, :, :] = self.calculate(tracks)
+                synMinCP[n, :] = self.calcMinPressure(tracks)
+
+            self.calculateMeans(synMean, synMin, synMed, synMax, synMinCP)
+
+    @disableOnWorkers
     def plotPressureMean(self):
         """
         Plot a map of observed and synthetic mean pressure values
@@ -402,8 +520,8 @@ class PressureDistribution(object):
         """
 
         datarange = (950, 1000)
-        pyplot.figure()
-        ax1 = pyplot.subplot(211)
+        fig = pyplot.figure()
+        ax1 = fig.add_subplot(211)
         plotDensity(self.lon_range[:-1], self.lat_range[:-1],
                     np.transpose(self.histMean), datarange=datarange,
                     clabel="Mean central pressure (hPa)", cmap='gist_heat')
@@ -412,12 +530,16 @@ class PressureDistribution(object):
 
         ax2 = pyplot.subplot(212)
         plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                    np.transpose(self.synMean), datarange=datarange,
-                    clabel="Mean central pressure (hPa)", cmap='gist_heat')
+                         np.transpose(self.synMean), 
+                         datarange=datarange,
+                         clabel="Mean central pressure (hPa)", 
+                         cmap='gist_heat')
+
         ax2.text(self.lon_range[1], self.lat_range[1],"Mean synthetic",
                  bbox=dict(fc='white', ec='black', alpha=0.5))
         pyplot.savefig(pjoin(self.plotPath, 'meanPressure.png'))
 
+    @disableOnWorkers
     def plotPressureMin(self):
         """
         Plot a map of observed and synthetic minimum central pressure values.
@@ -425,22 +547,29 @@ class PressureDistribution(object):
         """
 
         datarange = (900, 1000)
-        pyplot.figure()
-        ax1 = pyplot.subplot(211)
+        fig =  pyplot.figure(figsize=(12, 8))
+
+        ax1 = fig.add_subplot(2, 2, 1)
         plotDensity(self.lon_range[:-1], self.lat_range[:-1],
                     np.transpose(self.histMin), datarange=datarange,
-                    clabel="Minimum central pressure (hPa)", cmap='gist_heat')
+                    clabel="Minimum central pressure (hPa)",
+                    cmap='gist_heat')
         ax1.text(self.lon_range[1], self.lat_range[1],"Historic",
                  bbox=dict(fc='white', ec='black', alpha=0.5))
+        for i in range(3):
+            ax = fig.add_subplot(2, 2, i+2)
+            plotDensity(self.lon_range[:-1], self.lat_range[:-1],
+                            np.transpose(self.synRandomMinima[i]), 
+                            datarange=datarange, addcbar=True,
+                            clabel="Minimum central pressure (hPa)",
+                            cmap='gist_heat')
 
-        ax2 = pyplot.subplot(212)
-        plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                    np.transpose(self.synMin), datarange=datarange,
-                    clabel="Minimum central pressure (hPa)", cmap='gist_heat')
-        ax2.text(self.lon_range[1], self.lat_range[1],"Mean synthetic",
-                 bbox=dict(fc='white', ec='black', alpha=0.5))
+            ax.text(self.lon_range[1], self.lat_range[1],"Synthetic",
+                     bbox=dict(fc='white', ec='black', alpha=0.5))
+
         pyplot.savefig(pjoin(self.plotPath, 'minPressure.png'))
 
+    @disableOnWorkers
     def plotPressureMinDiff(self):
         """
         Plot a map of the difference between observed and synthetic minimum
@@ -449,8 +578,8 @@ class PressureDistribution(object):
         """
 
         datarange = (-50, 50)
-        pyplot.figure()
-        ax1 = pyplot.subplot(111)
+        fig = pyplot.figure()
+        ax1 = fig.add_subplot(111)
         data = self.histMin - self.synMin
         plotDensity(self.lon_range[:-1], self.lat_range[:-1],
                     np.transpose(data), datarange=datarange,
@@ -460,6 +589,7 @@ class PressureDistribution(object):
 
         pyplot.savefig(pjoin(self.plotPath, 'minPressureDiff.png'))
 
+    @disableOnWorkers
     def plotPressureMeanDiff(self):
         """
         Plot a map of the difference between observed and synthetic mean
@@ -468,8 +598,8 @@ class PressureDistribution(object):
         """
 
         datarange = (-50, 50)
-        pyplot.figure()
-        ax1 = pyplot.subplot(111)
+        fig = pyplot.figure()
+        ax1 = fig.add_subplot(111)
         data = self.histMean - self.synMean
         plotDensity(self.lon_range[:-1], self.lat_range[:-1],
                     np.transpose(data), datarange=datarange,
@@ -479,6 +609,7 @@ class PressureDistribution(object):
 
         pyplot.savefig(pjoin(self.plotPath, 'meanPressureDiff.png'))
 
+    @disableOnWorkers
     def plotMinPressureDistribution(self):
         """
         Plot a pdf of observed minimum central pressure values, and the mean
@@ -486,8 +617,8 @@ class PressureDistribution(object):
 
         """
 
-        pyplot.figure()
-        ax1 = pyplot.subplot(111)
+        fig = pyplot.figure()
+        ax1 = fig.add_subplot(111)
         bins = np.arange(850., 1020., 5.)
         ax1.plot(bins[:-1], self.histMinCP, color='r', lw=2)
         ax1.plot(bins[:-1], self.synMinCPDist, color='k', lw=2)
@@ -505,16 +636,17 @@ class PressureDistribution(object):
         outputFile = pjoin(self.plotPath, 'minPressureDist.png')
         pyplot.savefig(outputFile)
 
+    @disableOnWorkers
     def save(self):
         dataFile = pjoin(self.dataPath, 'pressureDistribution.nc')
 
         # Simple sanity check (should also include the synthetic data):
-        if not hasattr(self, 'hist'):
+        if not hasattr(self, 'histMin'):
             log.critical("No historical data available!")
             log.critical("Check that data has been processed before trying to save data")
             return
 
-        log.info('Saving track density data to {0}'.format(dataFile))
+        log.info('Saving pressure distribution data to {0}'.format(dataFile))
         dimensions = {
             0: {
                 'name': 'lat',
@@ -586,8 +718,15 @@ class PressureDistribution(object):
 
     def run(self):
         """Run the pressure distribution evaluation"""
+        attemptParallel()
+
         self.historic()
+
+        pp.barrier()
+
         self.synthetic()
+
+        pp.barrier()
 
         self.plotPressureMean()
         self.plotPressureMin()
