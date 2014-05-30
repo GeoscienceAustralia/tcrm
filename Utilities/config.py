@@ -56,6 +56,8 @@ PARSERS = {
     'RMW_mean': float,
     'RMW_sigma': float,
     'Region_gridlimit': eval,
+    'Region_gridspace': eval,
+    'Region_gridinc': eval,
     'Region_localityid': int,
     'Region_localityname': str,
     'StatInterface_gridinc': eval,
@@ -102,6 +104,10 @@ PlotData=False
 PlotHazard=False
 DownloadData=True
 
+[Region]
+gridSpace={'x':1.0,'y':1.0}
+gridInc={'x':1.0,'y':0.5}
+
 [DataProcess]
 StartSeason=1981
 FilterSeasons=True
@@ -114,6 +120,8 @@ TimeStep=1.0
 Format=csv
 gridSpace={'x':1.0,'y':1.0}
 gridInc={'x':1.0,'y':0.5}
+SeasonSeed=1
+TrackSeed=1
 
 [WindfieldInterface]
 profileType=holland
@@ -146,6 +154,9 @@ Verbose=False
 
 [StatInterface]
 kdeType=Gaussian
+kde2DType=Gaussian
+kdeStep=0.2
+minSamplesCell=100
 
 [Source]
 FieldDelimiter=,
