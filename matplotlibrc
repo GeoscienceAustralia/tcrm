@@ -15,3 +15,4 @@ xtick.direction: out
 ytick.direction: out
 xtick.labelsize: x-small
 ytick.labelsize: x-small
+contour.negative_linestyle: dashed

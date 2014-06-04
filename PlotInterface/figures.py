@@ -2,8 +2,12 @@ import sys
 import numpy as np
 import scipy.stats as stats
 import wind.windmodels as windmodels
+
+from matplotlib import pyplot
 from matplotlib.figure import Figure
+from matplotlib.artist import setp
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from mpl_toolkits.basemap import Basemap
 
 
 class WindProfileFigure(Figure):
@@ -56,7 +60,6 @@ class WindProfileFigure(Figure):
                       r'= %d \hspace{0.5}km$') %
                     (self.cP / 100., self.eP / 100., self.rMax))
 
-
 class ScatterHistogramFigure(Figure):
 
     def __init__(self):
@@ -72,8 +75,14 @@ class ScatterHistogramFigure(Figure):
         axesTop = divider.append_axes('top', 1.2, pad=0.1, sharex=axes)
         axesRight = divider.append_axes('right', 1.2, pad=0.2, sharey=axes)
 
-        axesTop.hist(x, fc='k', ec=None)
-        axesRight.hist(y, fc='k', ec=None, orientation='horizontal')
+        # Make labels invisible:
+        setp(axesTop.get_xticklabels() + axesRight.get_yticklabels(),
+                    visible=False)
+
+        axesTop.hist(x, bins=20, fc='k', ec=None, normed=True)
+        axesRight.hist(y, bins=20, fc='k', ec=None, orientation='horizontal', normed=True)
+        [t.set_rotation(-90) for t in axesRight.get_xticklabels()]
+
 
     def plot(self, xdata, ydata):
         i = np.where((xdata < sys.maxint) & (ydata < sys.maxint))[0]
@@ -82,7 +91,6 @@ class ScatterHistogramFigure(Figure):
 
         axes = self.add_subplot(1, 1, 1)
         self.render(axes, x, y)
-
 
 class RegressionFigure(Figure):
 
@@ -169,6 +177,41 @@ class LaggedRegressionFigure(RegressionFigure):
         super(LaggedRegressionFigure, self).subplot(axes, subfigure)
         axes.set_aspect('equal')
 
+class LineRegressionFigure(RegressionFigure):
+
+    def add(self, x, y, xlabel='x', ylabel='y', title='x'):
+        super(LineRegressionFigure, self).add(x, y,
+                                              xlabel,
+                                              ylabel,
+                                              title)
+
+    def subplot(self, axes, subfigure):
+        xdata, ydata, xlabel, ylabel, title, transform = subfigure
+        color = axes._get_lines.color_cycle
+
+        xdata, ydata = self.prepareData(xdata, ydata, transform)
+
+        k = color.next()
+        axes.plot(xdata, ydata, '-', alpha=0.8, color=k)
+
+        xmin, xmax = self.formatAxes(axes, xdata, ydata)
+
+        m, c, r, p, e = stats.linregress(np.array([xdata, ydata]))
+        x = np.array([xmin, xmax])
+        y = m * x + c
+
+        k = color.next()
+        axes.plot(x, x, '-', color=k)
+
+        k = color.next()
+        axes.plot(x, y, '-', color=k, label='r = %5.3f' % r)
+
+        axes.set_xlabel(xlabel)
+        axes.set_ylabel(ylabel)
+        axes.set_title(title)
+
+        legend = axes.legend(loc=2)
+        legend.get_frame().set_alpha(0.5)
 
 class PressureFigure(LaggedRegressionFigure):
 
@@ -197,10 +240,10 @@ class BearingFigure(LaggedRegressionFigure):
         super(BearingFigure, self).plot()
 
 
-class FrequencyFigure(RegressionFigure):
+class FrequencyFigure(LineRegressionFigure):
 
     def plot(self, years, frequency):
-        self.add(np.array(years, int), frequency, 'Year', 'Frequency', 'Annual Frequency')
+        self.add(np.array(years[1:-1], int), frequency[1:-1], 'Year', 'Frequency', 'Annual Frequency')
         super(FrequencyFigure, self).plot()
 
 
@@ -221,6 +264,12 @@ def savePressureFigure(pressures, pressureRates, filename='docs/prs_corr.png'):
     fig = PressureFigure()
     fig.plot(pressures, pressureRates)
     saveFigure(fig, filename)
+    fig = ScatterHistogramFigure()
+    fig.plot(pressures[1:], pressures[:-1])
+    saveFigure(fig, 'docs/pressuresh.png')
+    fig = ScatterHistogramFigure()
+    fig.plot(pressureRates[1:], pressureRates[:-1])
+    saveFigure(fig, 'docs/pressureratesh.png')
 
 
 def saveSpeedFigures(speeds, speedRates):

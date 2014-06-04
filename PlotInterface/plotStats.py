@@ -1,5 +1,8 @@
-import os, logging, sys
+import os 
+import logging
+import sys
 
+from os.path import join as pjoin
 from matplotlib import pyplot
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.stats import linregress, probplot
@@ -45,7 +48,7 @@ def _linreg(data):
     return m, c, r, pr, err
 
 
-class PlotData:
+class PlotData(object):
     """
     Base class for plotting summaries of input data.
 
@@ -73,7 +76,7 @@ class PlotData:
         All keyword args are passed without alteration
         """
         outputfile = ".".join([filename, self.fmt])
-        pyplot.savefig(os.path.join(self.outpath, outputfile),
+        pyplot.savefig(poin(self.outpath, outputfile),
                        format=self.fmt, **kwargs)
         pyplot.close()
 
@@ -125,10 +128,8 @@ class PlotData:
         Plot the input pressure values lagged against themselves,
         and the same for the changes in pressure.
         """
-        pyplot.rcdefaults()
 
-        pyplot.rcParams['figure.figsize'] = (7, 12)
-        pyplot.figure(self.figurenum())
+        pyplot.figure(self.figurenum(), figsize=(7, 12))
         pyplot.subplot(211)
         pyplot.plot(pAllData[1:], pAllData[:-1], 'k.', markersize=1)
 
@@ -174,8 +175,7 @@ class PlotData:
         Plot the input speed values lagged against themselves,
         and the same for the changes in speed.
         """
-        pyplot.rcParams['figure.figsize'] = (7, 12)
-        pyplot.figure(self.figurenum())
+        pyplot.figure(self.figurenum(), figsize=(7, 12))
         pyplot.subplot(211)
         pyplot.plot(speedData[1:], speedData[:-1], 'k.', markersize=1)
 
@@ -213,7 +213,7 @@ class PlotData:
         pyplot.title("Speed rate of change")
         self.savefig("spd_corr")
 
-        pyplot.rcdefaults()
+        #pyplot.rcdefaults()
 
         self.scatterHistogram(speedData[1:], speedData[:-1],
                               'speed_scatterHist', allpos=True)
@@ -226,8 +226,8 @@ class PlotData:
         Plot the (cosine of) input bearing values lagged against themselves,
         and the same for the changes in bearing.
         """
-        pyplot.rcParams['figure.figsize'] = (7, 12)
-        pyplot.figure(self.figurenum())
+
+        pyplot.figure(self.figurenum(), figsize=(7, 12))
         pyplot.subplot(211)
     #    pyplot.plot(numpy.cos(bAllData[1:]),numpy.cos(bAllData[:-1]),'kx')
     #    pyplot.xlim(-1.,1.)
@@ -287,8 +287,8 @@ class PlotData:
         """
         Plot bar graphs of the number of TC observations and genesis events
         """
-        pyplot.rcParams['figure.figsize'] = (10, 6)
-        pyplot.figure(self.figurenum())
+
+        pyplot.figure(self.figurenum(), figsize=(10, 6))
         pyplot.clf()
         pyplot.bar(julianDayObs[:, 0], julianDayObs[:, 1])
         pyplot.xlim((1, 365))
@@ -310,8 +310,8 @@ class PlotData:
         Plot the input lat/lon values lagged against themselves,
         and the same for the changes in lat/lon.
         """
-        pyplot.rcParams['figure.figsize'] = (7, 12)
-        pyplot.figure(self.figurenum())
+
+        pyplot.figure(self.figurenum(), figsize=(7, 12))
 
         dlon = lonData[1:] - lonData[:-1]
         dlat = latData[1:] - latData[:-1]
@@ -360,9 +360,8 @@ class PlotData:
 
     def plotFrequency(self, years, frequency):
         """Plot annual frequency of TCs, plus linear trend line"""
-        pyplot.rcdefaults()
-        pyplot.rcParams['figure.figsize'] = (14, 5)
-        pyplot.figure(self.figurenum())
+
+        pyplot.figure(self.figurenum(), figsize=(14, 5))
         pyplot.plot(years, frequency, 'k-', linewidth=3)
         xmax = 5*int((1 + years.max()/5))
         xmin = 5*int((years.min()/5))
@@ -389,7 +388,7 @@ class PlotData:
         pyplot.grid(True)
         pyplot.title("Annual frequency (%d - %d)"%(years.min(), years.max()))
         self.savefig('frequency')
-        pyplot.rcdefaults()
+        #pyplot.rcdefaults()
         return
 
     def minPressureLat(self, pAllData, latData, latMin=-40., latMax=0.):
@@ -435,8 +434,8 @@ class PlotData:
         Plot a histogram of the minimum central pressures from the input
         dataset.
         """
-        pyplot.rcParams['figure.figsize'] = (8, 7)
-        pyplot.figure(self.figurenum())
+
+        pyplot.figure(self.figurenum(), figsize=(8, 7))
         pyplot.clf()
         pcarray = []
         index = index.astype(int)
@@ -461,14 +460,13 @@ class PlotData:
         x[1:, 1] = n
         files.flSaveFile(os.path.join(self.outpath, 'min_pressure_hist.csv'), x,
                          delimiter=',', fmt='%6.2f')
-        pyplot.rcdefaults()
+        #pyplot.rcdefaults()
 
     def plotSpeedBear(self, sAllData, bAllData):
         """
         Plot speed and bearing against each other
         """
-        pyplot.rcParams['figure.figsize'] = (7, 7)
-        pyplot.figure(self.figurenum())
+        pyplot.figure(self.figurenum(), figsize=(7, 7))
         pyplot.subplot(111)
         ii = numpy.where((sAllData < sys.maxint) & (bAllData < sys.maxint))
         pyplot.polar((numpy.pi/2. - numpy.radians(bAllData[ii])), sAllData[ii],
@@ -487,7 +485,7 @@ class PlotData:
                     va='center', color='r', size=14)
         pyplot.title("Speed vs bearing")
         self.savefig('spd_bear_corr')
-        pyplot.rcdefaults()
+        #pyplot.rcdefaults()
 
     def quantile(self, data, parameterName, dist='norm', mean=0.0, sigma=1.0):
         """
@@ -495,8 +493,7 @@ class PlotData:
         array of anomalies
 
         """
-        pyplot.rcParams['figure.figsize'] = (8, 7)
-        pyplot.figure(self.figurenum())
+        pyplot.figure(self.figurenum(), figsize=(8, 7))
         pyplot.clf()
         d = data.compress(data < sys.maxint)
         m = numpy.average(d)
@@ -514,7 +511,7 @@ class PlotData:
         pyplot.text(2, -4.9, r"$r^2=%1.4f$" % r, fontsize=12)
 
         self.savefig('qqplot_%s' % parameterName)
-        pyplot.rcdefaults()
+        #pyplot.rcdefaults()
 
 if __name__=="__main__":
     from os.path import join as pjoin

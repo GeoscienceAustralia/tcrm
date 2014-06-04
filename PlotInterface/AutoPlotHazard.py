@@ -49,6 +49,8 @@ from Utilities import metutils
 from Utilities import colours
 #from Utilities.progressbar import ProgressBar
 
+from PlotInterface.maps import saveHazardMap
+
 import sqlite3
 import unicodedata
 
@@ -102,11 +104,29 @@ class AutoPlotHazard(object):
 
     def plotMap(self):
         """Plot return period wind speed maps"""
+        
         lon, lat, years, inputData = self.loadFile(self.inputFile, 'wspd')
-            
+        [xgrid, ygrid] = np.meshgrid(lon, lat)
+        inputData = metutils.convert(inputData, 'mps', self.plotUnits.units)
+
+        map_kwargs = dict(llcrnrlon=xdata.min(),
+                          llcrnrlat=ydata.min(),
+                          urcrnrlon=xdata.max(),
+                          urcrnrlat=ydata.max(),
+                          projection='merc',
+                          resolution='i')
+
         for i, year in enumerate(years):
-            self.plotHazardMap(inputData[i, :, :], lon, lat, 
-                               int(year), self.plotPath)
+            title = '%d-Year Return Period Cyclonic Wind Hazard' % (year)
+            imageFilename = '%d_yrRP_hazard_map.png' % (year)
+            filename = pjoin(self.plotPath, imageFilename)
+            cbarlab = "Wind speed (%s)"%self.plotUnits.units
+            saveHazardMap(inputData[i, :, :], xgrid, ygrid, title, cbarlab, 
+                            map_kwargs, filename)
+
+            #self.plotHazardMap(inputData[i, :, :], lon, lat, 
+            #                   int(year), self.plotPath)
+
             self.progressbar.update((i + 1) / float(len(years)), 0.0, 0.9)
             
     def plotCurves(self):
