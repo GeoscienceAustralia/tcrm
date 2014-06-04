@@ -319,6 +319,7 @@ class PressureDistribution(object):
                                    gridLimit['yMax'] + 0.1,
                                    gridSpace['y'])
 
+        self.gridLimit = gridLimit
         outputPath = config.get('Output', 'Path')
         self.trackPath = pjoin(outputPath, 'tracks')
         self.plotPath = pjoin(outputPath, 'plots', 'stats')
@@ -376,7 +377,8 @@ class PressureDistribution(object):
         minCP = np.zeros(len(tracks))
 
         for i, t in enumerate(tracks):
-            minCP[i] = t.CentralPressure.min()
+            if t.inRegion(self.gridLimit):
+                minCP[i] = t.CentralPressure.min()
 
         bins = np.arange(850., 1020., 5.)
         h, n = np.histogram(minCP, bins, normed=True)
@@ -581,9 +583,13 @@ class PressureDistribution(object):
         fig = pyplot.figure()
         ax1 = fig.add_subplot(111)
         data = self.histMin - self.synMin
+
+        xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
+        clabel="Minimum central pressure difference (hPa)"
+
         plotDensity(self.lon_range[:-1], self.lat_range[:-1],
                     np.transpose(data), datarange=datarange,
-                    clabel="Minimum central pressure difference (hPa)", cmap='rwbcmap')
+                    clabel=clabel, cmap='rwbcmap')
         ax1.text(self.lon_range[1], self.lat_range[1],"Historic - mean synthetic",
                  bbox=dict(fc='white', ec='black', alpha=0.5))
 
@@ -597,7 +603,7 @@ class PressureDistribution(object):
 
         """
 
-        datarange = (-50, 50)
+        datarange = (-25, 25)
         fig = pyplot.figure()
         ax1 = fig.add_subplot(111)
         data = self.histMean - self.synMean
