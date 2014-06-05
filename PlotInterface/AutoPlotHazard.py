@@ -109,10 +109,10 @@ class AutoPlotHazard(object):
         [xgrid, ygrid] = np.meshgrid(lon, lat)
         inputData = metutils.convert(inputData, 'mps', self.plotUnits.units)
 
-        map_kwargs = dict(llcrnrlon=xdata.min(),
-                          llcrnrlat=ydata.min(),
-                          urcrnrlon=xdata.max(),
-                          urcrnrlat=ydata.max(),
+        map_kwargs = dict(llcrnrlon=xgrid.min(),
+                          llcrnrlat=ygrid.min(),
+                          urcrnrlon=xgrid.max(),
+                          urcrnrlat=ygrid.max(),
                           projection='merc',
                           resolution='i')
 

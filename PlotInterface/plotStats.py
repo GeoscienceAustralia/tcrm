@@ -76,7 +76,7 @@ class PlotData(object):
         All keyword args are passed without alteration
         """
         outputfile = ".".join([filename, self.fmt])
-        pyplot.savefig(poin(self.outpath, outputfile),
+        pyplot.savefig(pjoin(self.outpath, outputfile),
                        format=self.fmt, **kwargs)
         pyplot.close()
 
@@ -487,7 +487,7 @@ class PlotData(object):
         self.savefig('spd_bear_corr')
         #pyplot.rcdefaults()
 
-    def quantile(self, data, parameterName, dist='norm', mean=0.0, sigma=1.0):
+    def quantile(self, data, parameterName, dist='normal', mean=0.0, sigma=1.0):
         """
         Generate a probability plot of the given data; data should be an
         array of anomalies

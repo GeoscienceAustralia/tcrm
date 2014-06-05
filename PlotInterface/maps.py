@@ -85,7 +85,7 @@ class MapFigure(Figure, Basemap):
 
     def subplot(self, axes, subfigure):
         data, xgrid, ygrid, title, cbarlab, map_kwargs = subfigure
-        mapobj, mx, my = self.createMap(axes, map_kwargs)
+        mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
         
         CS = mapobj.contour(mx, my, data, 10, colors='k', linewidth=1.5)
         axes.clabel(CS, inline=1)
@@ -112,7 +112,7 @@ class FilledContourMapFigure(MapFigure):
 
     def subplot(self, axes, subfigure):
         data, xgrid, ygrid, title, cbarlab, map_kwargs = subfigure
-        mapobj, mx, my = self.createMap(axes, map_kwargs)
+        mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
 
         CS = mapobj.contourf(mx, my, data, 10, extend='both')
         CB = mapobj.colorbar(CS, location='right', pad='5%',
@@ -142,7 +142,7 @@ class ArrayMapFigure(MapFigure):
 
     def subplot(self, axes, subfigure):
         data, xgrid, ygrid, title, cbarlab, map_kwargs = subfigure
-        mapobj, mx, my = self.createMap(axes, map_kwargs)
+        mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
 
         CS = mapobj.pcolormesh(mx, my, data, 10)
         CB = pyplot.colorbar(CS, location='right', pad='5%',
@@ -172,7 +172,7 @@ class BarbMapFigure(MapFigure):
 
     def subplot(self, axes, subfigure):
         xdata, ydata, xgrid, ygrid, title, cbarlab, map_kwargs = subfigure
-        mapobj, mx, my = self.createMap(axes, map_kwargs)
+        mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
 
         mag = np.sqrt(xdata*xdata + ydata*ydata)
         CS = mapobj.contourf(mx, my, mag, 10)
