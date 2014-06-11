@@ -2,8 +2,9 @@
 :mod:`CalcFrequency` -- Calculate annual genesis frequency
 ==========================================================
 
-Calculate annual genesis frequency of TCs within the track
-generation domain.
+.. module:: CalcFrequency
+   :synopsis: Calculate annual genesis frequency of TCs within the track
+              generation domain.
 
     Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
     Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
@@ -21,15 +22,14 @@ generation domain.
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Title: CalcTrackDomain.py
-Author: Nicholas Summons, nicholas.summons@ga.gov.au
-CreationDate: 2011-08-3
+
+.. moduleauthor:: Nicholas Summons, <nicholas.summons@ga.gov.au>
 
 """
 
-import os
+from os.path import join as pjoin
 import logging
-import numpy
+import numpy as np
 
 from Utilities.files import flLoadFile
 from Utilities.config import ConfigParser
@@ -86,20 +86,20 @@ class CalcFrequency:
         """
 
         logger.info("Calculating annual frequency of TC events")
-        origin_year = numpy.array(flLoadFile(os.path.join(self.outputPath,
-                                                          'process', 'origin_year'),
-                                                          '%', ','), dtype='int')
+        origin_year = np.array(flLoadFile(pjoin(self.outputPath,
+                                                'process', 'origin_year'),
+                                                '%', ','), dtype='int')
         
-        origin_lon_lat = flLoadFile(os.path.join(self.outputPath,
-                                                 'process', 'origin_lon_lat'),
-                                                 '%', ',')
+        origin_lon_lat = flLoadFile(pjoin(self.outputPath,
+                                          'process', 'origin_lon_lat'),
+                                          '%', ',')
         origin_lon = origin_lon_lat[:, 0]
         origin_lat = origin_lon_lat[:, 1]
         min_year = origin_year.min()
         # Skip last year from average since may contain only partial year record
         max_year = origin_year.max() - 1
 
-        freq_count = numpy.zeros(3000)
+        freq_count = np.zeros(3000)
         
         for year in range(min_year, max_year + 1):
             freq_count[year] = sum((origin_year == year) & \
@@ -108,7 +108,13 @@ class CalcFrequency:
                                  (origin_lat > self.tg_domain['yMin']) & \
                                  (origin_lat < self.tg_domain['yMax']))
 
-        freq = numpy.mean(freq_count[min_year:max_year + 1])
-        freq = numpy.round(freq*100)/100
+        freq = np.mean(freq_count[min_year:max_year + 1])
+        freq = np.round(freq*100)/100
+
+        fname = pjoin(self.outputPath, 'process', 'region_frequency')
+        X = np.array([np.arange(min_year,max_year + 1), 
+                      freq_count[min_year:max_year + 1]])
+        header = "Year,count"
+        np.savetxt(fname, X.T, fmt="%d", delimiter=",", header=header)
 
         return freq
