@@ -17,6 +17,7 @@ import Utilities.stats as stats
 __version__ = '$Id: plotStats.py 810 2012-02-21 07:52:50Z nsummons $'
 
 log = logging.getLogger(__name__)
+pyplot.ioff()
 
 def get_bins(data, allpos=False):
     """
