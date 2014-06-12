@@ -1,6 +1,6 @@
 # TCRM Plotting Configuration
 backend: TkAgg
-lines.linewidth: 2.0
+lines.linewidth: 0.5
 lines.markersize: 1
 font.size: 12.0
 text.color: black
