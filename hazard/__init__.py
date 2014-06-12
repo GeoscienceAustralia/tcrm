@@ -2,10 +2,10 @@
 :mod:`hazard` -- Hazard calculation
 ===================================
 
-This module contains the core objects for the return period 
+This module contains the core objects for the return period
 hazard calculation.
 
-Hazard calculations can be run in parallel using MPI if the 
+Hazard calculations can be run in parallel using MPI if the
 :term:`pypar` library is found and TCRM is run using the
 :term:`mpirun` command. For example, to run with 10 processors::
 
@@ -35,13 +35,15 @@ from Utilities.config import ConfigParser
 import Utilities.nctools as nctools
 import evd
 
+import pdb
+
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 def setDomain(inputPath):
     """
     Establish the full extent of input wind field files
-    
+
     Parameters:
     -----------
 
@@ -80,12 +82,12 @@ def disableOnWorkers(f):
 class Tile(object):
     """
     Tile object.
-    
-    Because there is a buffer region around the outer edge of 
+
+    Because there is a buffer region around the outer edge of
     the :class:`dict` gridLimit, the indices where data is pulled from
-    (the wind field files) are different from those where the data is 
-    stored (the output hazard array). 
-    
+    (the wind field files) are different from those where the data is
+    stored (the output hazard array).
+
     This object holds the index ranges for teh input array and output array,
     to indicate this relationship.
 
@@ -105,38 +107,38 @@ class TileGrid(object):
     def __init__(self, gridLimit, wf_lon, wf_lat, xstep=100, ystep=100):
         """
         Initialise the tile grid for dividing up the domain
-        
-        :param gridLimit: :class:`dict` describing the domain where the 
+
+        :param gridLimit: :class:`dict` describing the domain where the
                           tracks will be generated.
                           The :class:`dict` should contain the keys :attr:`xMin`,
                           :attr:`xMax`, :attr:`yMin` and :attr:`yMax`. The *y*
-                          variable bounds the latitude and the *x* variable 
+                          variable bounds the latitude and the *x* variable
                           bounds the longitude.
-        
+
         :param wf_lon: `numpy.ndarray` of longitudes in thw wind field.
         :param wf_lat: `numpy.ndarray` of latitudes of the wind field.
         :param xstep: `int` size of the tile in the x-direction.
         :param ystep: `int` size of the tile in the y-direction.
 
         """
-        
-        
-        ii, = ((np.round(wf_lon*1000).astype(int) >= 
-                int(gridLimit['xMin']*1000)) & 
-               (np.round(wf_lon*1000).astype(int) <= 
-                int(gridLimit['xMax']*1000))).nonzero()
-        
 
-        jj, = ((np.round(wf_lat*1000).astype(int) >= 
-                int(gridLimit['yMin']*1000)) & 
-               (np.round(wf_lat*1000).astype(int) <= 
+
+        ii, = ((np.round(wf_lon*1000).astype(int) >=
+                int(gridLimit['xMin']*1000)) &
+               (np.round(wf_lon*1000).astype(int) <=
+                int(gridLimit['xMax']*1000))).nonzero()
+
+
+        jj, = ((np.round(wf_lat*1000).astype(int) >=
+                int(gridLimit['yMin']*1000)) &
+               (np.round(wf_lat*1000).astype(int) <=
                 int(gridLimit['yMax']*1000))).nonzero()
 
         self.imin = ii[0]
         self.imax = ii[-1]
         self.jmin = jj[0]
         self.jmax = jj[-1]
-        
+
         self.xdim = self.imax - self.imin + 1
         self.ydim = self.jmax - self.jmin + 1
 
@@ -144,13 +146,13 @@ class TileGrid(object):
         self.ystep = ystep
         self.wf_lon = wf_lon
         self.wf_lat = wf_lat
-        
+
         self.tileGrid()
 
     def tileGrid(self):
         """
         Defines the indices required to subset a 2D array into smaller
-        rectangular 2D arrays (of dimension x_step * y_step).  
+        rectangular 2D arrays (of dimension x_step * y_step).
         """
 
         subset_maxcols = int(np.ceil(self.xdim / float(self.xstep)))
@@ -165,17 +167,17 @@ class TileGrid(object):
         for i in xrange(subset_maxcols):
             for j in xrange(subset_maxrows):
                 self.x_start[k] = i * self.xstep + self.imin
-                self.x_end[k] = min((i + 1) * self.xstep + self.imin, 
+                self.x_end[k] = min((i + 1) * self.xstep + self.imin,
                                     self.xdim + self.imin) - 1
                 self.y_start[k] = j * self.ystep + self.jmin
-                self.y_end[k] = min((j + 1) * self.ystep + self.jmin, 
+                self.y_end[k] = min((j + 1) * self.ystep + self.jmin,
                                     self.ydim + self.jmin) - 1
                 k += 1
-    
+
 
     def getGridLimit(self, k):
         """
-        Return the limits for tile `k`. x-indices correspond to the 
+        Return the limits for tile `k`. x-indices correspond to the
         east-west coordinate, y-indices correspond to the north-south
         coordinate.
 
@@ -204,20 +206,20 @@ class TileGrid(object):
     def getDomainExtent(self):
         """
         Return the longitude and latitude values that lie within
-        the modelled domain 
-        
+        the modelled domain
+
         Returns:
         --------
 
         :param lon: :class:`numpy.ndarray` containing longitude values
-        
+
         :param lat: :class:`numpy.ndarray` containing latitude values
 
         """
 
         lon = self.wf_lon[self.imin:self.imax + 1]
         lat = self.wf_lat[self.jmin:self.jmax + 1]
-        
+
         return lon, lat
 
 
@@ -228,7 +230,7 @@ class HazardCalculator(object):
 
     """
 
-    def __init__(self, configFile, tilegrid, numSim, minRecords, yrsPerSim, 
+    def __init__(self, configFile, tilegrid, numSim, minRecords, yrsPerSim,
                  calcCI=False):
         """
         Initialise HazardCalculator object.
@@ -238,18 +240,18 @@ class HazardCalculator(object):
         :param int numSim: number of simulations created.
         :param int minRecords: minimum number of valid wind speed values required
                                to do fitting.
-        :param int yrsPerSim: 
+        :param int yrsPerSim:
         """
         config = ConfigParser()
         config.read(configFile)
-        
+
         self.nodata = -9999.
-        self.years = np.array(config.get('Hazard', 
+        self.years = np.array(config.get('Hazard',
                                          'Years').split(',')).astype('f')
         self.outputPath = pjoin(config.get('Output', 'Path'), 'hazard')
         self.inputPath = pjoin(config.get('Output', 'Path'), 'windfield')
         gridLimit = config.geteval('Region', 'gridLimit')
-        
+
         self.numSim = numSim
         self.minRecords = minRecords
         self.yrsPerSim = yrsPerSim
@@ -257,24 +259,24 @@ class HazardCalculator(object):
         if self.calcCI:
             self.sample_size = config.getint('Hazard', 'SampleSize')
             self.prange = config.getint('Hazard', 'PercentileRange')
-        
+
         self.tilegrid = tilegrid
         lon, lat = self.tilegrid.getDomainExtent()
-        
+
         # Create arrays for storing output data:
         self.loc = np.zeros((len(lat), len(lon)), dtype='f')
         self.shp = np.zeros((len(lat), len(lon)), dtype='f')
         self.scale = np.zeros((len(lat), len(lon)), dtype='f')
         self.Rp = np.zeros((len(self.years), len(lat), len(lon)), dtype='f')
-        
+
         self.RPupper = np.zeros((len(self.years), len(lat), len(lon)), dtype='f')
         self.RPlower = np.zeros((len(self.years), len(lat), len(lon)), dtype='f')
-        
+
         self.global_atts = {'history': ('TCRM hazard simulation - '
                             'return period wind speeds'),
                             'version': flProgramVersion(),
                             'Python_ver': sys.version}
-                 
+
 
         # Add configuration settings to global attributes:
         for section in config.sections():
@@ -285,22 +287,21 @@ class HazardCalculator(object):
 
     def calculateHazard(self, tilelimits):
         """
-        Load input hazard data and then calculate the return period and 
-        distribution parameters for a given tile. 
-        
-        :param tilelimits: `tuple` of tile limits 
-        """
+        Load input hazard data and then calculate the return period and
+        distribution parameters for a given tile.
 
+        :param tilelimits: `tuple` of tile limits
+        """
         Vr = loadFilesFromPath(self.inputPath, tilelimits)
-        
-        Rp, loc, scale, shp = calculate(Vr, self.years, self.nodata, 
+
+        Rp, loc, scale, shp = calculate(Vr, self.years, self.nodata,
                                         self.minRecords, self.yrsPerSim)
 
         if self.calcCI:
-            RpUpper, RpLower = calculateCI(Vr, self.years, self.nodata, 
+            RpUpper, RpLower = calculateCI(Vr, self.years, self.nodata,
                                            self.minRecords, self.yrsPerSim,
                                            self.sample_size, self.prange)
-        
+
             return (tilelimits, Rp, loc, scale, shp, RpUpper, RpLower)
         else:
             return (tilelimits, Rp, loc, scale, shp)
@@ -311,12 +312,12 @@ class HazardCalculator(object):
 
         Parameters:
         -----------
-        
+
         :param tileiter: `generator` that yields tuples of tile dimensions.
 
         """
-        
-        work_tag = 0 
+
+        work_tag = 0
         result_tag = 1
         if (pp.rank() == 0) and (pp.size() > 1):
             w = 0
@@ -328,7 +329,7 @@ class HazardCalculator(object):
             terminated = 0
             while(terminated < pp.size() - 1):
 
-                result, status = pp.receive(pp.any_source, tag=result_tag, 
+                result, status = pp.receive(pp.any_source, tag=result_tag,
                                              return_status=True)
 
                 if self.calcCI:
@@ -336,7 +337,7 @@ class HazardCalculator(object):
                 else:
                     limits, Rp, loc, scale, shp = result
 
-                
+
                 # Reset the min/max bounds for the output array:
                 (xmin, xmax, ymin, ymax) = limits
                 xmin -= self.tilegrid.imin
@@ -348,7 +349,7 @@ class HazardCalculator(object):
                 self.scale[ymin:ymax, xmin:xmax] = scale
                 self.shp[ymin:ymax, xmin:xmax] = shp
                 self.Rp[:, ymin:ymax, xmin:xmax] = Rp[:, :, :]
-                
+
                 if self.calcCI:
                     self.RPupper[:, ymin:ymax, xmin:xmax] = RPupper[:, :, :]
                     self.RPlower[:, ymin:ymax, xmin:xmax] = RPlower[:, :, :]
@@ -383,7 +384,7 @@ class HazardCalculator(object):
                     limits, Rp, loc, scale, shp, RPupper, RPlower = result
                 else:
                     limits, Rp, loc, scale, shp = result
-                
+
                 # Reset the min/max bounds for the output array:
                 (xmin, xmax, ymin, ymax) = limits
                 xmin -= self.tilegrid.imin
@@ -413,16 +414,16 @@ class HazardCalculator(object):
         log.info("Saving hazard data file")
         # FIXME: need to ensure CF-1.6 and OGC compliance in output files.
         lon, lat = self.tilegrid.getDomainExtent()
-        
+
         dimensions = {
             0: {
-                'name': 'years', 
-                'values': self.years, 
+                'name': 'years',
+                'values': self.years,
                 'dtype': 'f',
                 'atts': {
                     'long_name' : 'Return period',
                     'units' : 'years'
-                } 
+                }
             },
             1: {
                 'name': 'lat',
@@ -447,7 +448,7 @@ class HazardCalculator(object):
                 }
             }
         }
-                         
+
         # Create variables:
         variables = {
             0: {
@@ -466,7 +467,7 @@ class HazardCalculator(object):
             1: {
                 'name': 'scale',
                 'dims': ('lat', 'lon'),
-                'values': self.scale, 
+                'values': self.scale,
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Scale parameter for GEV distribution',
@@ -497,7 +498,7 @@ class HazardCalculator(object):
                     'actual_range': (np.min(self.Rp), np.max(self.Rp)),
                     'valid_range': (0.0, 200.),
                     'grid_mapping': 'crs'
-                } 
+                }
             },
             4: {
                 'name': 'wspdupper',
@@ -509,19 +510,19 @@ class HazardCalculator(object):
                     'units': 'm/s',
                     'percentile': 95,
                     'grid_mapping': 'crs'
-                } 
+                }
             },
             5: {
-                'name': 'wspdlower', 
+                'name': 'wspdlower',
                 'dims': ('years', 'lat', 'lon'),
-                'values': self.RPlower, 
+                'values': self.RPlower,
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Lower percentile return period wind speed',
                     'units': 'm/s',
                     'percentile': 5,
                     'grid_mapping': 'crs'
-                } 
+                }
             },
             6: {
                 'name': 'crs',
@@ -536,20 +537,20 @@ class HazardCalculator(object):
                 }
             }
         }
-        
-        # Create output file for return-period gust wind speeds and 
+
+        # Create output file for return-period gust wind speeds and
         # GEV parameters
         nctools.ncSaveGrid(pjoin(self.outputPath, 'hazard.nc'),
-                           dimensions, variables, 
+                           dimensions, variables,
                            nodata=self.nodata,
                            datatitle='TCRM hazard simulation',
-                           gatts=self.global_atts, writedata=True, 
+                           gatts=self.global_atts, writedata=True,
                            keepfileopen=False)
 
 
 def calculate(Vr, years, nodata, minRecords, yrsPerSim):
     """
-    Fit a GEV to the wind speed records for a 2-D extent of 
+    Fit a GEV to the wind speed records for a 2-D extent of
     wind speed values
 
     Parameters:
@@ -595,7 +596,7 @@ def calculate(Vr, years, nodata, minRecords, yrsPerSim):
 def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
                 sample_size=50, prange=90):
     """
-    Fit a GEV to the wind speed records for a 2-D extent of 
+    Fit a GEV to the wind speed records for a 2-D extent of
     wind speed values, providing a confidence range by resampling at
     random from the input values.
 
@@ -627,7 +628,7 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
     w = np.zeros((len(years), nsamples), dtype='f')
     wUpper = np.zeros((len(years)), dtype='f')
     wLower = np.zeros((len(years)), dtype='f')
-    
+
     for i in xrange(Vr.shape[1]):
         for j in xrange(Vr.shape[2]):
             if Vr[:, i, j].max() > 0.0:
@@ -635,11 +636,11 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
                 for n in xrange(nsamples):
                     nstart = n*sample_size
                     nend  = (n + 1)*sample_size - 1
-                    vsub = Vr[nstart:nend, i, j]                        
+                    vsub = Vr[nstart:nend, i, j]
 
                     vsub.sort()
                     if vsub.max( ) > 0.:
-                        w[:, n], loc, scale, shp = evd.estimateEVD(vsub, years, nodata, 
+                        w[:, n], loc, scale, shp = evd.estimateEVD(vsub, years, nodata,
                                                                    minRecords, yrsPerSim)
                 for n in range(len(years)):
                     wUpper[n] = percentile(w[n,:], upper)
@@ -651,13 +652,13 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
     return RpUpper, RpLower
 
 
-    
+
 def loadFilesFromPath(inputPath, tilelimits):
     """
     Load wind field data for each subset into a 3-D array.
 
     :param str inputPath: str path to wind field files.
-    
+
     :param tuple tilelimits: tuple of index limits of a tile.
 
     :returns: 3-D `numpy.narray` of wind field records.
@@ -680,9 +681,9 @@ def loadFilesFromPath(inputPath, tilelimits):
 
 def loadFile(filename, limits):
     """
-    Load a subset of the data from the given file, with the extent 
+    Load a subset of the data from the given file, with the extent
     of the subset specified in the `limits` tuple
-    
+
     :param str filename: str full path to file to load.
 
     :param tuple limits: tuple of index limits of a tile.
@@ -705,7 +706,7 @@ def getTiles(tilegrid):
 
     :param tilegrid: :class:`TileGrid` instance
     """
-    
+
     tilenums = range(tilegrid.num_tiles)
     return getTileLimits(tilegrid, tilenums)
 
@@ -717,18 +718,18 @@ def getTileLimits(tilegrid, tilenums):
     -----------
 
     :param tilegrid: :class:`TileGrid` instance
-    
+
     :param tilenums: list of tile numbers (must be sequential)
 
     Returns:
     --------
-    
+
     :param tilelimits: list of tuples of tile imits
 
     """
 
     tilelimits = [tilegrid.getGridLimit(t) for t in tilenums]
-    return tilelimits  
+    return tilelimits
 
 def balanced(iterable):
     """
@@ -780,7 +781,7 @@ def attemptParallel():
     except ImportError:
 
         # no pypar, create a dummy one
-        
+
         class DummyPypar(object):
 
             def size(self):
@@ -800,37 +801,27 @@ def run(configFile, callback=None):
     Run the hazard calculations.
 
     This will attempt to run the calculation in parallel by tiling the
-    domain, but also provides a sane fallback mechanism to execute 
+    domain, but also provides a sane fallback mechanism to execute
     in serial.
 
     :param configFile: str
 
     """
-    
+
     log.info("Loading hazard calculation settings")
-    
 
     config = ConfigParser()
     config.read(configFile)
-    
+
     outputPath = config.get('Output', 'Path')
-    gridLimit = config.geteval('Region', 'gridLimit')
-    margin = config.get('WindfieldInterface', 'Margin')
-    numsimulations = config.getint('Hazard', 'NumSim')
-    calculate_confidence = config.getboolean('Hazard', 'CalculateCI')
-    
     inputPath = pjoin(outputPath, 'windfield')
+    gridLimit = config.geteval('Region', 'gridLimit')
+    numsimulations = config.getint('TrackGenerator', 'NumSimulations')
+    yrsPerSim = config.getint('TrackGenerator', 'YearsPerSimulation')
+    minRecords = config.getint('Hazard', 'MinimumRecords')
+    calculate_confidence = config.getboolean('Hazard', 'CalculateCI')
 
     wf_lon, wf_lat = setDomain(inputPath)
-
-    outputPath = pjoin(config.get('Output', 'Path'), 'hazard')
-
-    years = np.array(config.get('Hazard', 
-                                'Years').split(',')).astype('f')
-
-    minRecords = config.get('Hazard', 'MinimumRecords')
-    yrsPerSim = config.get('Hazard', 'YearsPerSimulation')
-    minRecords=10 
 
     attemptParallel()
 
@@ -840,23 +831,23 @@ def run(configFile, callback=None):
 
     #def progress(i):
     #    callback(i, len(tiles))
-             
+
     pp.barrier()
-    hc = HazardCalculator(configFile, TG, 
-                          numsimulations, 
+    hc = HazardCalculator(configFile, TG,
+                          numsimulations,
                           minRecords,
                           yrsPerSim,
                           calculate_confidence)
-    
 
-    
 
-    hc.dumpHazardFromTiles(tiles) 
+
+
+    hc.dumpHazardFromTiles(tiles)
 
     pp.barrier()
-    
+
     hc.saveHazard()
 
     log.info("Completed hazard calculation")
-    
-    
+
+

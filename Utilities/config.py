@@ -34,13 +34,9 @@ PARSERS = {
     'DataProcess_startseason': int,
     'DataProcess_filterseasons': parseBool,
     'Hazard_calculateci': parseBool,
-    'Hazard_inputpath': str,
     'Hazard_minimumrecords': int,
-    'Hazard_numsim': int,
     'Hazard_plotspeedunits': str,
-    'Hazard_resolution': float,
     'Hazard_years': parseList,
-    'Hazard_yearspersimulation': int,
     'Hazard_samplesize': int,
     'Hazard_percentilerange': int,
     'Input_landmask': str,
@@ -71,8 +67,6 @@ PARSERS = {
     'TCRM_numberofheadinglines': int,
     'TCRM_pressureunits': str,
     'TCRM_speedunits': str,
-    'TrackGenerator_gridinc': eval,
-    'TrackGenerator_gridspace': eval,
     'TrackGenerator_numsimulations': int,
     'TrackGenerator_seasonseed': int,
     'TrackGenerator_trackseed': int,
@@ -83,7 +77,6 @@ PARSERS = {
     'WindfieldInterface_beta1': float,
     'WindfieldInterface_beta2': float,
     'WindfieldInterface_margin': float,
-    'WindfieldInterface_numberoffiles': int,
     'WindfieldInterface_profiletype': str,
     'WindfieldInterface_resolution': float,
     'WindfieldInterface_source': str,
@@ -94,14 +87,14 @@ PARSERS = {
 
 DEFAULTS = """
 [Actions]
-DataProcess=False
-ExecuteStat=False
-ExecuteTrackGenerator=False
-ExecuteWindfield=False
-ExecuteHazard=False
-ExecuteEvaluate=False
-PlotData=False
-PlotHazard=False
+DataProcess=True
+ExecuteStat=True
+ExecuteTrackGenerator=True
+ExecuteWindfield=True
+ExecuteHazard=True
+ExecuteEvaluate=True
+PlotData=True
+PlotHazard=True
 DownloadData=True
 
 [Region]
@@ -111,15 +104,21 @@ gridInc={'x':1.0,'y':0.5}
 [DataProcess]
 StartSeason=1981
 FilterSeasons=True
+InputFile=Allstorms.ibtracs_wmo.v03r05.csv
+Source=IBTRACS
+
+[StatInterface]
+kdeType=Gaussian
+kde2DType=Gaussian
+kdeStep=0.2
+minSamplesCell=100
 
 [TrackGenerator]
-NumSimulations=50
-YearsPerSimulation=10
+NumSimulations=500
+YearsPerSimulation=1
 NumTimeSteps=360
 TimeStep=1.0
 Format=csv
-gridSpace={'x':1.0,'y':1.0}
-gridInc={'x':1.0,'y':0.5}
 SeasonSeed=1
 TrackSeed=1
 
@@ -131,8 +130,16 @@ beta1=1.3
 beta2=1.3
 thetaMax=70.0
 Margin=2
-Resolution=0.01
+Resolution=0.05
 PlotOutput=False
+
+[Hazard]
+Years=2,5,10,20,25,50,100,200,250,500,1000
+MinimumRecords=50
+CalculateCI=True
+PercentileRange=90
+SampleSize=100
+PlotSpeedUnits=mps
 
 [RMW]
 GetRMWDistFromInputData=False
@@ -151,12 +158,6 @@ ProgressBar=False
 LogFile=main.log
 LogLevel=INFO
 Verbose=False
-
-[StatInterface]
-kdeType=Gaussian
-kde2DType=Gaussian
-kdeStep=0.2
-minSamplesCell=100
 
 [Source]
 FieldDelimiter=,
@@ -181,17 +182,6 @@ SpeedUnits=kph
 URL=ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.derived/surface/slp.day.1981-2010.ltm.nc
 path=MSLP
 filename=slp.day.ltm.nc
-
-[Hazard]
-Years=2,5,10,20,25,50,100,200,250,500,1000
-MinimumRecords=50
-Resolution=0.05
-CalculateCI=True
-YearsPerSimulation=1
-NumSim=1024
-PercentileRange=90
-SampleSize=100
-PlotSpeedUnits=mps
 
 """
 
