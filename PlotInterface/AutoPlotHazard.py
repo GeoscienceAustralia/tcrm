@@ -28,7 +28,11 @@ Description: Automatically plots hazard maps for each return period and
 import logging
 import numpy as np
 import numpy.ma as ma
+import matplotlib
+matplotlib.use('Agg')
+
 from matplotlib import pyplot
+pyplot.ioff()
 
 try:
     from mpl_toolkits.basemap import Basemap
@@ -127,9 +131,6 @@ class AutoPlotHazard(object):
             levels = self.plotUnits.levels
             saveHazardMap(inputData[i, :, :], xgrid, ygrid, title, levels,
                           cbarlab, map_kwargs, filename)
-
-            #self.plotHazardMap(inputData[i, :, :], lon, lat,
-            #                   int(year), self.plotPath)
 
             self.progressbar.update((i + 1) / float(len(years)), 0.0, 0.9)
 
