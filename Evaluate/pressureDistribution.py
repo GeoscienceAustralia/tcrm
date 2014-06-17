@@ -24,6 +24,7 @@ import matplotlib
 matplotlib.use('Agg')
 
 from matplotlib import pyplot
+from matplotlib import cm
 from mpl_toolkits.basemap import Basemap
 from functools import wraps
 
@@ -38,6 +39,8 @@ from Utilities.nctools import ncSaveGrid
 # Importing :mod:`colours` makes a number of additional colour maps available:
 from Utilities import colours
 
+from PlotInterface.maps import ArrayMapFigure, saveFigure
+from PlotInterface.curves import saveDistributionCurve
 
 
 log = logging.getLogger(__name__)
@@ -185,112 +188,6 @@ class gridCell(object):
         self.ymax = ymax
         self.cell_number = number
         self.index = index
-
-@disableOnWorkers
-def plotDensity(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
-                res='i', dl=5., datarange=(-1.,1.), cmap='gist_heat_r', title=None,
-                xlab='Longitude', ylab='Latitude', addcbar=True, clabel=None, maskland=False,
-                maskocean=False):
-    """
-    Plot a grid of values using pyplot.pcolormesh() to create a pseudocolour
-    plot of a 2-dimensional array, with a basemap included.
-
-    It updates the figure object, but does not have scope to save or display it.
-    That way, the function can be used to generate a number of subplots, with
-    the calling program handling the saving/display requirements.
-
-    :param x: :class:`numpy.ndarray` of longitude points
-    :param y: :class:`numpy.ndarray` of latitude points
-    :param data: 2-d :class:`numpy.ndarray` of data values.
-
-    """
-
-    if (len(x.shape) < 2) and (len(y.shape) < 2):
-        [xx, yy] = np.meshgrid(x, y)
-    else:
-        xx = x
-        yy = y
-    if llLon:
-        llcrnrlon = llLon
-    else:
-        llcrnrlon = x.min()
-
-    if llLat:
-        llcrnrlat = llLat
-    else:
-        llcrnrlat = y.min()
-
-    if urLon:
-        urcrnrlon = urLon
-    else:
-        urcrnrlon = x.max()
-
-    if urLat:
-        urcrnrlat = urLat
-    else:
-        urcrnrlat = y.max()
-
-    meridians = np.arange(dl*np.floor(llcrnrlon / dl),
-                          dl*np.ceil(urcrnrlon / dl), dl)
-    parallels = np.arange(dl*np.floor(llcrnrlat / dl),
-                          dl*np.ceil(urcrnrlat / dl), dl)
-
-    m = Basemap(projection='cyl',
-                resolution=res,
-                llcrnrlon=llcrnrlon,
-                urcrnrlon=urcrnrlon,
-                llcrnrlat=llcrnrlat,
-                urcrnrlat=urcrnrlat)
-
-    # Set the colour map:
-    cmap = pyplot.get_cmap(cmap)
-
-    if maskocean:
-        try:
-            from mpl_toolkits.basemap import maskoceans
-        except ImportError:
-            log.debug("Maskoceans module unavailable, skipping this command")
-        else:
-            datam = maskoceans(xx, yy, data, inlands=False)
-            m.pcolormesh(xx, yy, datam, edgecolors='None',
-                         vmin=datarange[0], vmax=datarange[1],
-                         cmap=cmap)
-    else:
-        m.pcolormesh(xx, yy, data, edgecolors='None',
-                     vmin=datarange[0], vmax=datarange[1],
-                     cmap=cmap)
-
-    m.drawcoastlines(linewidth=0.5)
-    if maskland:
-        m.fillcontinents(color='white')
-
-    m.drawparallels(parallels, labels=[1, 0, 0, 0],
-                    fontsize=7.5, linewidth=0.2)
-    m.drawmeridians(meridians, labels=[0, 0, 0, 1],
-                    fontsize=7.5, linewidth=0.2)
-    if ylab:
-        pyplot.ylabel(ylab, fontsize=7.5, labelpad=25)
-    if xlab:
-        pyplot.xlabel(xlab, fontsize=7.5, labelpad=20)
-    if title:
-        pyplot.title(title)
-
-    pyplot.grid(True)
-    pyplot.tick_params(direction='out', length=4, right='off', top='off')
-
-    if addcbar:
-        cb = pyplot.colorbar(aspect=30, orientation='vertical',
-                             extend='both', pad=0.1)
-        cb.ax.tick_params(direction='in')
-
-        if cb.orientation == 'horizontal':
-            for t in cb.ax.get_xticklabels():
-                t.set_fontsize(8)
-
-        if clabel:
-            cb.set_label(clabel)
-
-    return
 
 class PressureDistribution(object):
     def __init__(self, configFile):
@@ -520,26 +417,28 @@ class PressureDistribution(object):
         Plot a map of observed and synthetic mean pressure values
 
         """
-
+        
+        
         datarange = (950, 1000)
-        fig = pyplot.figure()
-        ax1 = fig.add_subplot(211)
-        plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                    np.transpose(self.histMean), datarange=datarange,
-                    clabel="Mean central pressure (hPa)", cmap='gist_heat')
-        ax1.text(self.lon_range[1], self.lat_range[1],"Historic",
-                 bbox=dict(fc='white', ec='black', alpha=0.5))
+        figure = ArrayMapFigure() 
 
-        ax2 = pyplot.subplot(212)
-        plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                         np.transpose(self.synMean), 
-                         datarange=datarange,
-                         clabel="Mean central pressure (hPa)", 
-                         cmap='gist_heat')
+        map_kwargs = dict(llcrnrlon=self.lon_range[:-1].min(),
+                          llcrnrlat=self.lat_range[:-1].min(),
+                          urcrnrlon=self.lon_range[:-1].max(),
+                          urcrnrlat=self.lat_range[:-1].max(),
+                          projection='merc',
+                          resolution='i')
 
-        ax2.text(self.lon_range[1], self.lat_range[1],"Mean synthetic",
-                 bbox=dict(fc='white', ec='black', alpha=0.5))
-        pyplot.savefig(pjoin(self.plotPath, 'meanPressure.png'))
+        cbarlab = "Mean central pressure (hPa)"
+        xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
+        figure.add(np.transpose(self.histMean), xgrid, ygrid, "Historic", datarange, 
+                   cbarlab, map_kwargs)
+        figure.add(np.transpose(self.synMean), xgrid, ygrid, "Synthetic", datarange, 
+                   cbarlab, map_kwargs)
+
+        figure.plot()
+        outputFile = pjoin(self.plotPath, 'meanPressure.png')
+        saveFigure(figure, outputFile)
 
     @disableOnWorkers
     def plotPressureMin(self):
@@ -549,27 +448,25 @@ class PressureDistribution(object):
         """
 
         datarange = (900, 1000)
-        fig =  pyplot.figure(figsize=(12, 8))
+        figure = ArrayMapFigure()
 
-        ax1 = fig.add_subplot(2, 2, 1)
-        plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                    np.transpose(self.histMin), datarange=datarange,
-                    clabel="Minimum central pressure (hPa)",
-                    cmap='gist_heat')
-        ax1.text(self.lon_range[1], self.lat_range[1],"Historic",
-                 bbox=dict(fc='white', ec='black', alpha=0.5))
-        for i in range(3):
-            ax = fig.add_subplot(2, 2, i+2)
-            plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                            np.transpose(self.synRandomMinima[i]), 
-                            datarange=datarange, addcbar=True,
-                            clabel="Minimum central pressure (hPa)",
-                            cmap='gist_heat')
+        map_kwargs = dict(llcrnrlon=self.lon_range[:-1].min(),
+                          llcrnrlat=self.lat_range[:-1].min(),
+                          urcrnrlon=self.lon_range[:-1].max(),
+                          urcrnrlat=self.lat_range[:-1].max(),
+                          projection='merc',
+                          resolution='i')
 
-            ax.text(self.lon_range[1], self.lat_range[1],"Synthetic",
-                     bbox=dict(fc='white', ec='black', alpha=0.5))
+        cbarlab = "Minimum central pressure (hPa)"
+        xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
+        figure.add(np.transpose(self.histMin), xgrid, ygrid, "Historic", datarange, 
+                   cbarlab, map_kwargs)
+        figure.add(np.transpose(self.synMin), xgrid, ygrid, "Synthetic", datarange, 
+                   cbarlab, map_kwargs)
 
-        pyplot.savefig(pjoin(self.plotPath, 'minPressure.png'))
+        figure.plot()
+        outputFile = pjoin(self.plotPath, 'minPressure.png')
+        saveFigure(figure, outputFile)
 
     @disableOnWorkers
     def plotPressureMinDiff(self):
@@ -580,20 +477,24 @@ class PressureDistribution(object):
         """
 
         datarange = (-50, 50)
-        fig = pyplot.figure()
-        ax1 = fig.add_subplot(111)
-        data = self.histMin - self.synMin
+        figure = ArrayMapFigure()
 
+        map_kwargs = dict(llcrnrlon=self.lon_range[:-1].min(),
+                          llcrnrlat=self.lat_range[:-1].min(),
+                          urcrnrlon=self.lon_range[:-1].max(),
+                          urcrnrlat=self.lat_range[:-1].max(),
+                          projection='merc',
+                          resolution='i')
+
+        cbarlab = "Minimum central pressure difference (hPa)"
         xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
-        clabel="Minimum central pressure difference (hPa)"
+        data = self.histMin - self.synMin
+        figure.add(np.transpose(data), xgrid, ygrid, "", datarange, 
+                   cbarlab, map_kwargs)
+        figure.plot()
+        outputFile = pjoin(self.plotPath, 'minPressureDiff.png')
+        saveFigure(figure, outputFile)
 
-        plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                    np.transpose(data), datarange=datarange,
-                    clabel=clabel, cmap='rwbcmap')
-        ax1.text(self.lon_range[1], self.lat_range[1],"Historic - mean synthetic",
-                 bbox=dict(fc='white', ec='black', alpha=0.5))
-
-        pyplot.savefig(pjoin(self.plotPath, 'minPressureDiff.png'))
 
     @disableOnWorkers
     def plotPressureMeanDiff(self):
@@ -604,16 +505,24 @@ class PressureDistribution(object):
         """
 
         datarange = (-25, 25)
-        fig = pyplot.figure()
-        ax1 = fig.add_subplot(111)
-        data = self.histMean - self.synMean
-        plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                    np.transpose(data), datarange=datarange,
-                    clabel="Mean central pressure difference (hPa)", cmap='rwbcmap')
-        ax1.text(self.lon_range[1], self.lat_range[1],"Historic - mean synthetic",
-                 bbox=dict(fc='white', ec='black', alpha=0.5))
+        figure = ArrayMapFigure()
 
-        pyplot.savefig(pjoin(self.plotPath, 'meanPressureDiff.png'))
+        map_kwargs = dict(llcrnrlon=self.lon_range[:-1].min(),
+                          llcrnrlat=self.lat_range[:-1].min(),
+                          urcrnrlon=self.lon_range[:-1].max(),
+                          urcrnrlat=self.lat_range[:-1].max(),
+                          projection='merc',
+                          resolution='i')
+
+        cbarlab = "Mean central pressure difference (hPa)"
+        data = self.histMean - self.synMean
+        xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
+        data = self.histMin - self.synMin
+        figure.add(np.transpose(data), xgrid, ygrid, "", datarange, 
+                   cbarlab, map_kwargs)
+        figure.plot()
+        outputFile = pjoin(self.plotPath, 'meanPressureDiff.png')
+        saveFigure(figure, outputFile)
 
     @disableOnWorkers
     def plotMinPressureDistribution(self):
@@ -622,25 +531,16 @@ class PressureDistribution(object):
         of the synthetic event sets (plus 90th percentile values).
 
         """
-
-        fig = pyplot.figure()
-        ax1 = fig.add_subplot(111)
-        bins = np.arange(850., 1020., 5.)
-        ax1.plot(bins[:-1], self.histMinCP, color='r', lw=2)
-        ax1.plot(bins[:-1], self.synMinCPDist, color='k', lw=2)
-        ax1.fill_between(bins[:-1], self.synMinCPUpper,
-                         self.synMinCPLower, facecolor='0.75',
-                         edgecolor='0.99', alpha=0.7)
-
-        pyplot.xlim(850., 1020.)
-        pyplot.xticks()
-        pyplot.xlabel('Minimum pressure')
-        pyplot.yticks()
-        pyplot.ylabel('Probability')
-        pyplot.grid(True)
+        x = np.arange(850., 1020., 5.)[:-1]
+        y1 = self.histMinCP
+        y2 = self.synMinCPDist
+        y2min= self.synMinCPLower
+        y2max = self.synMinCPUpper
 
         outputFile = pjoin(self.plotPath, 'minPressureDist.png')
-        pyplot.savefig(outputFile)
+        saveDistributionCurve(x, y1, y2, y2max, y2min, "Minimum pressure (hPa)", 
+                              "Probability", "Minimum pressure distribution", 
+                              outputFile)
 
     @disableOnWorkers
     def save(self):

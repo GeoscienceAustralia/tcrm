@@ -14,6 +14,8 @@ from mpl_toolkits.basemap import Basemap
 
 from Utilities.smooth import smooth
 
+import pdb
+
 class MapFigure(Figure, Basemap):
 
     def __init__(self):
@@ -63,8 +65,8 @@ class MapFigure(Figure, Basemap):
         ymin = mapobj.llcrnry
         ymax = mapobj.urcrnry
 
-        xloc = xmin + 0.15 * (xmax - xmin)
-        yloc = ymin - 0.1 * (ymin - ymax)
+        xloc = xmin + 0.15 * abs(xmax - xmin)
+        yloc = ymin + 0.1 * abs(ymin - ymax)
 
         lonloc, latloc = mapobj(xloc, yloc, inverse=True)
 
@@ -98,12 +100,17 @@ class MapFigure(Figure, Basemap):
     def plot(self):
 
         n = len(self.subfigures)
-        w, h = self.get_size_inches()
-        self.set_size_inches(w, n*h)
-        for i, subfigure in enumerate(reversed(self.subfigures)):
-            axes = self.add_subplot(n, 1, i)
-            self.subplot(axes, subfigure)
+        r = int(np.ceil(np.sqrt(n)))
+        c = int(np.ceil(n / r))
 
+        w, h = self.get_size_inches()
+        self.set_size_inches(w * c , r * h)
+        for i, subfigure in enumerate(reversed(self.subfigures)):
+            x = i % c + 1
+            y = i // c + 1
+            axes = self.add_subplot(n, x, y)
+            self.subplot(axes, subfigure)
+        
 class FilledContourMapFigure(MapFigure):
 
     def add(self, data, xgrid, ygrid, title, levels, cbarlab, map_kwargs):
@@ -143,17 +150,19 @@ class MaskedContourMapFigure(FilledContourMapFigure):
 
 class ArrayMapFigure(MapFigure):
     """Array plot"""
-    def add(self, data, xgrid, ygrid, title, levels, cbarlab, map_kwargs):
-        super(ArrayMapFigure, self).add(data, xgrid, ygrid, title, levels,
+    def add(self, data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs):
+        super(ArrayMapFigure, self).add(data, xgrid, ygrid, title, datarange,
                                         cbarlab, map_kwargs)
 
     def subplot(self, axes, subfigure):
-        data, xgrid, ygrid, title, levels, cbarlab, map_kwargs = subfigure
+        data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs = subfigure
         mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
 
-        CS = mapobj.pcolormesh(mx, my, data, levels)
-        CB = pyplot.colorbar(CS, location='right', pad='5%',
-                             fig=self, ax=axes, ticks=levels[::2])
+        vmin = datarange[0]
+        vmax = datarange[1]
+        CS = mapobj.pcolormesh(mx, my, data, vmin=vmin, vmax=vmax)
+        CB = mapobj.colorbar(CS, location='right', pad='5%',
+                             fig=self, ax=axes)
         CB.set_label(cbarlab)
         axes.set_title(title)
         self.labelAxes(axes)
@@ -165,10 +174,10 @@ class MaskedArrayMapFigure(ArrayMapFigure):
     """Array plot with ocean areas masked"""
     def subplot(self, axes, subfigure):
         from mpl_toolkits.basemap import maskoceans
-        data, xgrid, ygrid, title, levels, cbarlabel, map_kwargs = subfigure
+        data, xgrid, ygrid, title, datarange, cbarlabel, map_kwargs = subfigure
 
         masked_data = maskoceans(xgrid, ygrid, data, inlands=False)
-        subfigure = (masked_data, xgrid, ygrid, title, levels, cbarlab, map_kwargs)
+        subfigure = (masked_data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs)
         super(MaskedContourMapFigure, self).subplot(axes, subfigure)
 
 class BarbMapFigure(MapFigure):
@@ -207,8 +216,8 @@ class WindfieldMap(FilledContourMapFigure):
 
 class ArrayMap(ArrayMapFigure):
 
-    def plot(self, data, xgrid, ygrid, title, levels, cbarlab, map_kwargs):
-        self.add(data, xgrid, ygrid, title, levels, cbarlab, map_kwargs)
+    def plot(self, data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs):
+        self.add(data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs)
         super(ArrayMap, self).plot()
 
 def saveFigure(figure, filename):
@@ -227,9 +236,9 @@ def saveWindfieldMap(data, xgrid, ygrid, title, levels, cbarlab, map_kwargs, fil
     fig.plot(data, xgrid, ygrid, title, levels, cbarlab, map_kwargs)
     saveFigure(fig, filename)
 
-def saveArrayMap(data, xgrid, ygrid, title, levels, cbarlab, map_kwargs, filename):
+def saveArrayMap(data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs, filename):
     fig = ArrayMap()
-    fig.plot(data, xgrid, ygrid, title, levels, cbarlab, map_kwargs)
+    fig.plot(data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs)
     saveFigure(fig, filename)
 
 def main():
@@ -257,7 +266,14 @@ def main():
     title = "Return period wind speed"
     cbarlab = "Wind speed (%s)"%f.variables['wspd'].units
     levels = np.arange(30, 101., 5.)
-    saveHazardMap(vdata[4,:,:], xgrid, ygrid, title, levels, cbarlab, map_kwargs, 'docs/hazard_map.png')
+    datarange = (np.floor(vdata[2,:,:].min()), np.ceil(vdata[4,:,:].max()))
+
+    figure = ArrayMapFigure()
+    figure.add(vdata[2,:,:], xgrid, ygrid, title, datarange, cbarlab, map_kwargs)
+    figure.add(vdata[4,:,:], xgrid, ygrid, title, datarange, cbarlab, map_kwargs)
+    figure.plot()
+    saveFigure(figure, 'docs/hazard_map.png')
+    #saveArrayMap(vdata[4,:,:], xgrid, ygrid, title, datarange, cbarlab, map_kwargs, 'docs/hazard_map.png')
 
 if __name__ == "__main__":
     main()

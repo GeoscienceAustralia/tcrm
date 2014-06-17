@@ -34,6 +34,8 @@ from Utilities.track import Track
 from Utilities.nctools import ncSaveGrid
 from Utilities import pathLocator
 
+from PlotInterface.maps import ArrayMapFigure, saveFigure
+
 # Importing :mod:`colours` makes a number of additional colour maps available:
 from Utilities import colours
 
@@ -183,111 +185,6 @@ def loadTracksFromPath(path):
     log.info(msg)
     return loadTracksFromFiles(sorted(trackfiles))
 
-@disableOnWorkers
-def plotDensity(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
-                res='i', dl=5., datarange=(-1.,1.), cmap='gist_heat_r', title=None,
-                xlab='Longitude', ylab='Latitude', clabel=None, maskland=False,
-                maskocean=False):
-    """
-    Plot a grid of values using pyplot.pcolormesh() to create a pseudocolour
-    plot of a 2-dimensional array, with a basemap included.
-
-    It updates the figure object, but does not have scope to save or display it.
-    That way, the function can be used to generate a number of subplots, with
-    the calling program handling the saving/display requirements.
-
-    :param x: :class:`numpy.ndarray` of longitude points
-    :param y: :class:`numpy.ndarray` of latitude points
-    :param data: 2-d :class:`numpy.ndarray` of data values.
-
-    """
-
-    if (len(x.shape) < 2) and (len(y.shape) < 2):
-        [xx, yy] = np.meshgrid(x, y)
-    else:
-        xx = x
-        yy = y
-    if llLon:
-        llcrnrlon = llLon
-    else:
-        llcrnrlon = x.min()
-
-    if llLat:
-        llcrnrlat = llLat
-    else:
-        llcrnrlat = y.min()
-
-    if urLon:
-        urcrnrlon = urLon
-    else:
-        urcrnrlon = x.max()
-
-    if urLat:
-        urcrnrlat = urLat
-    else:
-        urcrnrlat = y.max()
-
-    meridians = np.arange(dl*np.floor(llcrnrlon / dl),
-                          dl*np.ceil(urcrnrlon / dl), dl)
-    parallels = np.arange(dl*np.floor(llcrnrlat / dl),
-                          dl*np.ceil(urcrnrlat / dl), dl)
-
-    m = Basemap(projection='cyl',
-                resolution=res,
-                llcrnrlon=llcrnrlon,
-                urcrnrlon=urcrnrlon,
-                llcrnrlat=llcrnrlat,
-                urcrnrlat=urcrnrlat)
-
-    # Set the colour map:
-    cmap = pyplot.get_cmap(cmap)
-
-    if maskocean:
-        try:
-            from mpl_toolkits.basemap import maskoceans
-        except ImportError:
-            log.debug("Maskoceans module unavailable, skipping this command")
-        else:
-            datam = maskoceans(xx, yy, data, inlands=False)
-            m.pcolormesh(xx, yy, datam, edgecolors='None',
-                         vmin=datarange[0], vmax=datarange[1],
-                         cmap=cmap)
-    else:
-        m.pcolormesh(xx, yy, data, edgecolors='None',
-                     vmin=datarange[0], vmax=datarange[1],
-                     cmap=cmap)
-
-    m.drawcoastlines(linewidth=0.5)
-    if maskland:
-        m.fillcontinents(color='white')
-
-    m.drawparallels(parallels, labels=[1, 0, 0, 0],
-                    fontsize=7.5, linewidth=0.2)
-    m.drawmeridians(meridians, labels=[0, 0, 0, 1],
-                    fontsize=7.5, linewidth=0.2)
-    if ylab:
-        pyplot.ylabel(ylab, fontsize=7.5, labelpad=25)
-    if xlab:
-        pyplot.xlabel(xlab, fontsize=7.5, labelpad=20)
-    if title:
-        pyplot.title(title)
-
-    pyplot.grid(True)
-    pyplot.tick_params(direction='out', length=4, right='off', top='off')
-
-    cb = pyplot.colorbar(aspect=30, orientation='vertical',
-                         extend='max', pad=0.1)
-    cb.ax.tick_params(direction='in')
-
-    if cb.orientation == 'horizontal':
-        for t in cb.ax.get_xticklabels():
-            t.set_fontsize(8)
-
-    if clabel:
-        cb.set_label(clabel)
-
-    return
-
 class TrackDensity(object):
     def __init__(self, configFile):
         """
@@ -377,9 +274,6 @@ class TrackDensity(object):
             log.critical("Cannot load historical track file: {0}".format(inputFile))
             raise
         else:
-            #tracks = loadTrackFile(self.configFile,
-            #                       inputFile,
-            #                       source)
             startYr = 9999
             endYr = 0
             for t in tracks:
@@ -535,45 +429,30 @@ class TrackDensity(object):
 
         ncSaveGrid(dataFile, dimensions, variables)
 
-    @disableOnWorkers
-    def plotHistoric(self):
-        """
-        Plot results
-        """
-
-        datarange = (0, self.hist.max())
-        plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                    np.transpose(self.hist), datarange=datarange)
-
-    @disableOnWorkers
-    def plotSynthetic(self):
-        """
-        Plot results from synthetic events
-        """
-        datarange = (0, self.synHistMean.max())
-        plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                    np.transpose(self.synHistMean), datarange=datarange)
 
     @disableOnWorkers
     def plotTrackDensity(self):
         """Plot track density information"""
 
         datarange = (0, self.hist.max())
-        pyplot.figure()
-        ax1 = pyplot.subplot(211)
-        plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                    np.transpose(self.hist), datarange=datarange,
-                    clabel="TC observations/yr")
-        ax1.text(self.lon_range[1], self.lat_range[1],"Historic",
-                 bbox=dict(fc='white', ec='black', alpha=0.5))
+        figure = ArrayMapFigure()
 
-        ax2 = pyplot.subplot(212)
-        plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                    np.transpose(self.synHistMean), datarange=datarange,
-                    clabel="TC observations/yr")
-        ax2.text(self.lon_range[1], self.lat_range[1],"Mean synthetic",
-                 bbox=dict(fc='white', ec='black', alpha=0.5))
-        pyplot.savefig(pjoin(self.plotPath, 'track_density.png'))
+        map_kwargs = dict(llcrnrlon=self.lon_range[:-1].min(),
+                          llcrnrlat=self.lat_range[:-1].min(),
+                          urcrnrlon=self.lon_range[:-1].max(),
+                          urcrnrlat=self.lat_range[:-1].max(),
+                          projection='merc',
+                          resolution='i')
+        cbarlab = "TC observations/yr"
+        xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
+        figure.add(self.hist.T, xgrid, ygrid, "Historic", datarange, 
+                   cbarlab, map_kwargs)
+        figure.add(self.synHistMean.T, xgrid, ygrid, "Synthetic",
+                    datarange, cbarlab, map_kwargs)
+        figure.plot()
+        outputFile = pjoin(self.plotPath, 'track_density.png')
+        saveFigure(figure, outputFile)
+
 
     @disableOnWorkers
     def plotTrackDensityPercentiles(self):
@@ -584,22 +463,24 @@ class TrackDensity(object):
         """
 
         datarange = (0, self.hist.max())
-        pyplot.figure()
-        ax1 = pyplot.subplot(211)
-        plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                    np.transpose(self.synHistUpper), datarange=datarange,
-                    clabel="TC observations/yr")
-        ax1.text(self.lon_range[1], self.lat_range[1],"Upper percentile",
-                 bbox=dict(fc='white', ec='black', alpha=0.5))
+        figure = ArrayMapFigure()
 
-        ax2 = pyplot.subplot(212)
-        plotDensity(self.lon_range[:-1], self.lat_range[:-1],
-                    np.transpose(self.synHistLower), datarange=datarange,
-                    clabel="TC observations/yr")
-        ax2.text(self.lon_range[1], self.lat_range[1],"Lower percentile",
-                 bbox=dict(fc='white', ec='black', alpha=0.5))
-        pyplot.savefig(pjoin(self.plotPath, 'track_density_percentiles.png'))
-
+        map_kwargs = dict(llcrnrlon=self.lon_range[:-1].min(),
+                          llcrnrlat=self.lat_range[:-1].min(),
+                          urcrnrlon=self.lon_range[:-1].max(),
+                          urcrnrlat=self.lat_range[:-1].max(),
+                          projection='merc',
+                          resolution='i')
+        cbarlab = "TC observations/yr"
+        xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
+        figure.add(self.synHistUpper.T, xgrid, ygrid, "Upper percentile", datarange, 
+                   cbarlab, map_kwargs)
+        figure.add(self.synHistLower.T, xgrid, ygrid, "Lower percentile",
+                    datarange, cbarlab, map_kwargs)
+        figure.plot()
+        outputFile = pjoin(self.plotPath, 'track_density_percentiles.png')
+        saveFigure(figure, outputFile)
+        
 
     def run(self):
         """Run the track density evaluation"""

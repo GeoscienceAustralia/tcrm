@@ -156,11 +156,16 @@ class RegressionFigure(Figure):
 
     def plot(self):
         n = len(self.subfigures)
-        w,h = self.get_size_inches()
-        self.set_size_inches(w, n*h)
+        r = int(np.ceil(np.sqrt(n)))
+        c = int(np.ceil(n / r))
+        w, h = self.get_size_inches()
+        self.set_size_inches(w * c, r * h)
         for i, subfigure in enumerate(reversed(self.subfigures)):
-            axes = self.add_subplot(n, 1, i)
+            x = i % c + 1
+            y = i // c + 1
+            axes = self.add_subplot(n, x, y)
             self.subplot(axes, subfigure)
+        
 
 
 class LaggedRegressionFigure(RegressionFigure):

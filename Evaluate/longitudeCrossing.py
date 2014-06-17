@@ -22,7 +22,10 @@ from scipy.stats import scoreatpercentile as percentile
 
 import matplotlib
 matplotlib.use('Agg')
-from matplotlib import pyplot
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+
+#from matplotlib import pyplot
 
 from functools import wraps
 
@@ -37,7 +40,7 @@ from Utilities.files import flProgramVersion
 from Utilities import pathLocator
 import Utilities.Intersections as Int
 
-
+import pdb
 
 # Importing :mod:`colours` makes a number of additional colour maps available:
 from Utilities import colours
@@ -266,9 +269,9 @@ class LongitudeCrossing(object):
                         continue
 
             # Generate the histograms to be returned:
-            h[:, n], bins = np.histogram(lats, self.gateLats, normed=True)
-            ewh[:, n], bins = np.histogram(ewlats, self.gateLats, normed=True)
-            weh[:, n], bins = np.histogram(welats, self.gateLats, normed=True)
+            h[:, n], bins = np.histogram(lats, self.gateLats, density=True)
+            ewh[:, n], bins = np.histogram(ewlats, self.gateLats, density=True)
+            weh[:, n], bins = np.histogram(welats, self.gateLats, density=True)
 
         return h, ewh, weh
     
@@ -279,9 +282,9 @@ class LongitudeCrossing(object):
         self.synCrossEW = np.mean(lonCrossEW, axis=0)
         self.synCrossWE = np.mean(lonCrossWE, axis=0)
 
-        self.synCrossUpper = percentile(lonCrossHist, per=90, axis=0)
-        self.synCrossEWUpper = percentile(lonCrossEW, per=90, axis=0)
-        self.synCrossWEUpper = percentile(lonCrossWE, per=90, axis=0)
+        self.synCrossUpper = percentile(lonCrossHist, per=95, axis=0)
+        self.synCrossEWUpper = percentile(lonCrossEW, per=95, axis=0)
+        self.synCrossWEUpper = percentile(lonCrossWE, per=95, axis=0)
 
         self.synCrossLower = percentile(lonCrossHist, per=5, axis=0)
         self.synCrossEWLower = percentile(lonCrossEW, per=5, axis=0)
@@ -369,7 +372,7 @@ class LongitudeCrossing(object):
                     terminated += 1
 
             self.calcStats(lonCrossHist, lonCrossEW, lonCrossWE)
-
+            
         elif (pp.size() > 1) and (pp.rank() != 0):
             while(True):
                 trackfile = pp.receive(source=0, tag=work_tag)
@@ -567,9 +570,8 @@ class LongitudeCrossing(object):
     @disableOnWorkers
     def plotCrossingRates(self):
         """Plot longitude crossing rates"""
-        
         log.debug("Plotting longitude crossing rates")
-        fig = pyplot.figure()
+        fig = Figure()
         ax1 = fig.add_subplot(2, 1, 1)
         for i in range(len(self.gateLons)):
             ax1.plot(2.* self.gateLons[i] - 100. * self.lonCrossingEWHist[:, i],
@@ -585,14 +587,13 @@ class LongitudeCrossing(object):
 
         minLonLim = 2. * (self.lon_range.min() - 10.)
         maxLonLim = 2. * (self.lon_range.max() + 10.)
-        pyplot.xlim(minLonLim, maxLonLim)
-        pyplot.xticks(2. * self.gateLons, self.gateLons.astype(int), fontsize=8)
-        pyplot.xlabel("East-west crossings")
-        pyplot.ylim(self.gateLats.min(), self.gateLats[-2])
-        pyplot.yticks(fontsize=8)
-        pyplot.ylabel('Latitude')
-        
-        pyplot.grid(True)
+        ax1.set_xlim(minLonLim, maxLonLim)
+        ax1.set_xticks(2. * self.gateLons)
+        ax1.set_xticklabels(self.gateLons.astype(int))
+        ax1.set_xlabel("East-west crossings")
+        ax1.set_ylim(self.gateLats.min(), self.gateLats[-2])
+        ax1.set_ylabel('Latitude')
+        ax1.grid(True)
 
         ax2 = fig.add_subplot(2, 1, 2)
         for i in range(len(self.gateLons)):
@@ -607,16 +608,17 @@ class LongitudeCrossing(object):
             ax2.fill_betweenx(self.gateLats[:-1], x1, x2,
                               color='0.5', alpha=0.7)
 
-        pyplot.xlim(minLonLim, maxLonLim)
-        pyplot.xticks(2. * self.gateLons, self.gateLons.astype(int), fontsize=8)
+        ax2.set_xlim(minLonLim, maxLonLim)
+        ax2.set_xticks(2. * self.gateLons)
+        ax2.set_xticklabels(self.gateLons.astype(int))
 
-        pyplot.xlabel("West-east crossings")
-        pyplot.ylim(self.gateLats.min(), self.gateLats[-2])
-        pyplot.yticks(fontsize=8)
-        pyplot.ylabel('Latitude')
-        pyplot.grid(True)
+        ax2.set_xlabel("West-east crossings")
+        ax2.set_ylim(self.gateLats.min(), self.gateLats[-2])
+        ax2.set_ylabel('Latitude')
+        ax2.grid(True)
         
-        pyplot.savefig(pjoin(self.plotPath,'lon_crossing_syn.png'))
+        canvas = FigureCanvas(fig)
+        canvas.print_figure(pjoin(self.plotPath,'lon_crossing_syn.png'))
 
         return
 
@@ -633,6 +635,6 @@ class LongitudeCrossing(object):
         self.synthetic()
 
         pp.barrier()
-
+        
         self.plotCrossingRates()
         self.save()
