@@ -215,7 +215,7 @@ class LandfallRates(object):
 
         landfall = []
         offshore = []
-
+    
         for t in tracks:
             for i in range(1, len(t.Longitude)):
                 cross = Int.Crossings()
@@ -350,6 +350,7 @@ class LandfallRates(object):
         elif pp.size() == 1 and pp.rank() == 0:
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
             for n, trackfile in enumerate(sorted(trackfiles)):
+                log.debug("Processing track file %d of %d" % (w + 1, len(trackfiles)))
                 tracks = loadTracks(trackfile)
                 results = self.processTracks(tracks)
                 self.processResults(results, n)
@@ -360,7 +361,7 @@ class LandfallRates(object):
     def plotLandfallRates(self):
 
         figure = RangeCompareCurve()
-        figure.set_size_inches(12,6)
+        figure.set_size_inches(8,3)
         xlab = "Gate number"
         ylab = "Landfall probability"
         

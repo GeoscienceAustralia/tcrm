@@ -25,8 +25,6 @@ matplotlib.use('Agg')
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-#from matplotlib import pyplot
-
 from functools import wraps
 
 import interpolateTracks
@@ -269,15 +267,22 @@ class LongitudeCrossing(object):
                         continue
 
             # Generate the histograms to be returned:
-            h[:, n], bins = np.histogram(lats, self.gateLats, density=True)
-            ewh[:, n], bins = np.histogram(ewlats, self.gateLats, density=True)
-            weh[:, n], bins = np.histogram(welats, self.gateLats, density=True)
+            if len(lats) > 0:
+                h[:, n], bins = np.histogram(lats, self.gateLats,
+                                             density=True)
+            if len(ewlats) > 0:
+                ewh[:, n], bins = np.histogram(ewlats, self.gateLats,
+                                               density=True)
+            if len(welats) > 0:
+                weh[:, n], bins = np.histogram(welats, self.gateLats,
+                                               density=True)
+
 
         return h, ewh, weh
     
     def calcStats(self, lonCrossHist, lonCrossEW, lonCrossWE):
         """Calculate means and percentiles of synthetic event sets"""
-
+        
         self.synCrossMean = np.mean(lonCrossHist, axis=0)
         self.synCrossEW = np.mean(lonCrossEW, axis=0)
         self.synCrossWE = np.mean(lonCrossWE, axis=0)
