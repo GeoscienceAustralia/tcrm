@@ -12,6 +12,7 @@ class CurveFigure(Figure):
     def __init__(self):
         Figure.__init__(self)
         self.subfigures = []
+        self.subplots_adjust(hspace=0.5)
 
     def add(self, xdata, ydata, xlabel='x', ylabel='y', title='x'):
         self.subfigures.append((xdata, ydata, xlabel, ylabel, title))
