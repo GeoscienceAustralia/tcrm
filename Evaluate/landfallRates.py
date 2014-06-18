@@ -350,7 +350,7 @@ class LandfallRates(object):
         elif pp.size() == 1 and pp.rank() == 0:
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
             for n, trackfile in enumerate(sorted(trackfiles)):
-                log.debug("Processing track file %d of %d" % (w + 1, len(trackfiles)))
+                log.debug("Processing track file %d of %d" % (n + 1, len(trackfiles)))
                 tracks = loadTracks(trackfile)
                 results = self.processTracks(tracks)
                 self.processResults(results, n)
