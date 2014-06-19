@@ -217,13 +217,23 @@ class Crossings:
         """
 
         result = Intersection("No Intersection")
-        for i in xrange(len(points)-1):
-            a1 = points[i]
-            a2 = points[i+1]
-            inter = self.CircleLine(c, r, a1, a2)
-            if inter.status == "Intersection":
-                result.points.append(inter.points)
-                result.status = "Intersection"
+        if type(points) == list:
+            for p in points:
+                for i in xrange(len(p) - 1):
+                    a1 = p[i]
+                    a2 = p[i-1]
+                    inter = self.CircleLine(c, r, a1, a2)
+                    if inter.status == "Intersection":
+                        result.points.append(inter.points)
+                        result.status = "Intersection"
+        else:
+            for i in xrange(len(points)-1):
+                a1 = points[i]
+                a2 = points[i+1]
+                inter = self.CircleLine(c, r, a1, a2)
+                if inter.status == "Intersection":
+                    result.points.append(inter.points)
+                    result.status = "Intersection"
         #if ( len(result.points) > 0. ):
 
 
@@ -267,12 +277,19 @@ class Crossings:
         Determine if a line intersects a polygon
         """
         result = Intersection("No Intersection")
-
-        for i in xrange(len(points)-1):
-            b1 = points[i]
-            b2 = points[i+1]
-            inter = self.LineLine(a1, a2, b1, b2)
-            result.points.append(inter.points)
+        if type(points) == list:
+            for p in points:
+                for i in xrange(len(p) - 1):
+                    b1 = p[i]
+                    b2 = p[i + 1]
+                    inter = self.LineLine(a1, a2, b1, b2)
+                    result.points.append(inter.points)
+        else:
+            for i in xrange(len(points)-1):
+                b1 = points[i]
+                b2 = points[i+1]
+                inter = self.LineLine(a1, a2, b1, b2)
+                result.points.append(inter.points)
 
         if (len(result.points) > 0):
             result.status = "Intersection"
