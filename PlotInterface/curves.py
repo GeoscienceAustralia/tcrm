@@ -22,12 +22,13 @@ class CurveFigure(Figure):
 
         axes.plot(xdata, ydata, '-', color='k')
         axes.set_xlabel(xlabel)
+        axes.set_ticklabels(xdata.astype(int))
         axes.set_ylabel(ylabel)
         axes.set_title(title)
         self.addGrid(axes)
 
     def addGrid(self, axes):
-        axes.grid(True, color='k', linestyle=':', linewidth=0.2)
+        axes.grid(True, which='both', color='k', linestyle=':', linewidth=0.2)
 
     def addRange(self, axes, xdata, ymin, ymax):
         axes.fill_between(xdata, ymax, ymin, facecolor='0.75',
@@ -101,16 +102,35 @@ class RangeCompareCurve(CurveFigure):
         self.addGrid(axes)
 
 class SemilogRangeCurve(CurveFigure):
-    
+
+    def add(self, xdata, ymean, ymax, ymin, xlabel, ylabel, title):
+        self.subfigures.append((xdata, ymean, ymax, ymin,
+                                xlabel, ylabel, title))
+    def addGrid(self, axes):
+        xlims = axes.get_xlim()
+        xmax = np.max(xlims)
+        xticks = np.array([])
+        x = np.arange(1,10, dtype=int)
+        for i in range(int(np.log10(xmax)+1)):
+            xticks = np.append(xticks, x*np.power(10, i).astype(int))
+
+        xticks = np.append(xticks, xmax)
+        axes.set_xticks(xticks)
+        axes.autoscale(True, axis='x', tight=True)
+        axes.grid(True, which='both', color='k', linestyle=':', linewidth=0.2)
+        
     def subplot(self, axes, subfigure):
         xdata, ymean, ymax, ymin, xlabel, ylabel, title = subfigure
 
         axes.semilogx(xdata, ymean, color='k', lw=2, subsx=xdata)
-        self.addRange(axes, xdata, ymin, ymax)
+        if (ymin[0] > 0) and (ymax[0] > 0):
+            self.addRange(axes, xdata, ymin, ymax)
 
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
-        axes.set_title(title)
+        axes.set_title(title, fontsize='small')
+        ylim = (0., np.ceil(ymean.max()/10.)*10.)
+        axes.set_ylim(ylim)
         self.addGrid(axes)
 
 class SemilogRangeCompareCurve(CurveFigure):

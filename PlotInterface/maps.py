@@ -8,9 +8,8 @@ matplotlib.rc_file_defaults()
 
 from matplotlib import pyplot
 from matplotlib.figure import Figure
-from matplotlib.artist import setp
-from mpl_toolkits.axes_grid1 import AxesGrid
 from mpl_toolkits.basemap import Basemap
+
 
 from Utilities.smooth import smooth
 
@@ -42,15 +41,20 @@ class MapFigure(Figure, Basemap):
                                 dl*np.ceil(ymax / dl) + dl, dl)
 
         mapobj.drawparallels(parallels, linewidth=0.25,
-                             labels=[1, 0, 0, 1], fontsize='x-small')
+                             labels=[1, 0, 0, 1], fontsize='xx-small')
         mapobj.drawmeridians(meridians, linewidth=0.25,
-                             labels=[1, 0, 0, 1], fontsize='x-small')
+                             labels=[1, 0, 0, 1], fontsize='xx-small')
 
         axes.tick_params(direction='out', length=4)
 
     def addCoastline(self, mapobj):
 
-        mapobj.drawcoastlines(linewidth=1.)
+        mapobj.drawcoastlines(linewidth=.5, color="#0036FF")
+        mapobj.drawmapboundary(fill_color="#BEE8FF")
+
+    def fillContinents(self, mapobj):
+        mapobj.fillcontinents(color="#FFDAB5",
+                              lake_color="#BEE8FF")
 
     def addMapScale(self, mapobj):
         lonmin = mapobj.lonmin
@@ -66,14 +70,14 @@ class MapFigure(Figure, Basemap):
         ymax = mapobj.urcrnry
 
         xloc = xmin + 0.15 * abs(xmax - xmin)
-        yloc = ymin + 0.1 * abs(ymin - ymax)
+        yloc = ymin + 0.1 * abs(ymax - ymin)
 
         lonloc, latloc = mapobj(xloc, yloc, inverse=True)
 
         # Set scale length to nearest 100-km for 20% of map width
         scale_length = 100*int((0.2 * (xmax - xmin) / 1000.)/100)
         mapobj.drawmapscale(lonloc, latloc, midlon, midlat, scale_length,
-                            barstyle='fancy', fontsize='x-small',zorder=1)
+                            barstyle='fancy', fontsize='xx-small', zorder=10)
 
     def createMap(self, axes, xgrid, ygrid, map_kwargs):
         """
@@ -178,7 +182,7 @@ class MaskedArrayMapFigure(ArrayMapFigure):
 
         masked_data = maskoceans(xgrid, ygrid, data, inlands=False)
         subfigure = (masked_data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs)
-        super(MaskedContourMapFigure, self).subplot(axes, subfigure)
+        super(MaskedArrayMapFigure, self).subplot(axes, subfigure)
 
 class BarbMapFigure(MapFigure):
 
@@ -204,7 +208,7 @@ class HazardMap(MaskedContourMapFigure):
     def plot(self, data, xgrid, ygrid, title, levels, cbarlab, map_kwargs):
         # Smooth the data to reduce 'lines-on-a-map' inferences:
         dx = np.mean(np.diff(xgrid))
-        data = smooth(data, int(1/dx))
+        #data = smooth(data, int(1/dx))
         self.add(data, xgrid, ygrid, title, levels, cbarlab, map_kwargs)
         super(HazardMap, self).plot()
 

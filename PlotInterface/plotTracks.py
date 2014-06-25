@@ -60,18 +60,101 @@
 
  $Id: PlotTracks.py 634 2007-12-16 21:16:58Z carthur $
 """
-import os, sys, pdb, logging
+import os
+import sys
+import logging
 
-import pylab, numpy
-from mpl_toolkits.basemap import Basemap
+import numpy as np
 
 import Utilities.shptools as shptools
-import Utilities.config as config
-import Utilities.files as files
-import Utilities.grid as grid
-import Utilities.my_tool as myutils
+from Utilities.config import ConfigParser
+from Utilities.files import flStartLog
+from Utilities.stats import between
 
-class PlotTracks:
+from maps import MapFigure, saveFigure
+
+class TrackMapFigure(MapFigure):
+
+    def add(self, tracks, xgrid, ygrid, title, map_kwargs):
+        self.subfigures.append((tracks, xgrid, ygrid, title, map_kwargs))
+
+    def subplot(self, axes, subfigure):
+        tracks, xgrid, ygrid, title, map_kwargs = subfigure
+        mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
+
+        for t in tracks:
+            mlon, mlat = mapobj(t.Longitude, t.Latitude)
+            mapobj.plot(mlon, mlat, 'k-', linewidth=1.5)
+        axes.set_title(title)
+        self.labelAxes(axes)
+        self.addGraticule(axes, mapobj)
+        self.addCoastline(mapobj)
+        self.fillContinents(mapobj)
+        self.addMapScale(mapobj)
+
+class SingleTrackMap(TrackMapFigure):
+    
+    def plot(self, tracks, xgrid, ygrid, title, map_kwargs):
+        self.add(tracks, xgrid, ygrid, title, map_kwargs)
+        super(SingleTrackMap, self).plot()
+
+
+def saveTrackMap(tracks, xgrid, ygrid, title, map_kwargs, filename):
+    fig = SingleTrackMap()
+    fig.plot(tracks, xgrid, ygrid, title, map_kwargs)
+    saveFigure(fig, filename)
+
+def main(configFile):
+    from Utilities.loadData import loadTrackFile
+    from Utilities.config import ConfigParser
+    from os.path import join as pjoin, normpath, dirname
+    baseDir = normpath(pjoin(dirname(__file__), '..'))
+    inputPath = pjoin(baseDir, 'input')
+    config = ConfigParser()
+    config.read(configFile)
+    
+    inputFile = config.get('DataProcess', 'InputFile')
+    source = config.get('DataProcess', 'Source')
+
+    gridLimit = config.geteval('Region', 'gridLimit')
+
+    xx = np.arange(gridLimit['xMin'], gridLimit['xMax'] + .1, 0.1)
+    yy = np.arange(gridLimit['yMin'], gridLimit['yMax'] + .1, 0.1)
+
+    xgrid, ygrid = np.meshgrid(xx, yy)
+    
+    if len(dirname(inputFile)) == 0:
+        inputFile = pjoin(inputPath, inputFile)
+        
+    try:
+        tracks = loadTrackFile(configFile, inputFile, source)
+    except (TypeError, IOError, ValueError):
+        log.critical("Cannot load historical track file: {0}".format(inputFile))
+        raise
+
+    title = source
+    outputPath = config.get('Output', 'Path')
+    outputPath = pjoin(outputPath, 'plots','stats')
+    outputFile = pjoin(outputPath, 'tctracks.png')
+
+    map_kwargs = dict(llcrnrlon=xgrid.min(),
+                      llcrnrlat=ygrid.min(),
+                      urcrnrlon=xgrid.max(),
+                      urcrnrlat=ygrid.max(),
+                      projection='merc',
+                      resolution='i')
+
+    figure = TrackMapFigure()
+    figure.add(tracks, xgrid, ygrid, title, map_kwargs)
+    figure.plot()
+    saveFigure(figure, outputFile)
+
+if __name__ == "__main__":
+    configFile = sys.argv[1]
+    main(configFile)
+    
+    
+class PlotTracks(object):
     """PlotTracks: plots tropical cyclone tracks
     Parameters
     ----------
@@ -107,17 +190,17 @@ class PlotTracks:
         gridLimit, gridSpace and cyclone track data.
         """
         self.configFile = configFile
-        
+        config = ConfigParser()
+        config.read(configFile)
+
         if gridSpace['x'] <= 0. or gridSpace['y'] <= 0.:
             raise InvalidArguments, 'Invalid input on grid spacing: grid spacing cannot be negative or zero'
 
         ar = abs((gridLimit['yMax'] - gridLimit['yMin']) /
                  (gridLimit['xMax'] - gridLimit['xMin']))
 
-        prj = config.cnfGetIniValue(self.configFile, 'PlotInterface',
-                                    'Projection', 'cyl')
-        res = config.cnfGetIniValue(self.configFile, 'PlotInterface',
-                                    'Resolution', 'l')
+        prj = config.get('PlotInterface', 'Projection')
+        res = config.get('PlotInterface', 'Resolution')
 
         self.map = Basemap(projection=prj, resolution=res,
                             llcrnrlon=gridLimit['xMin'],
@@ -142,7 +225,7 @@ class PlotTracks:
             else:
                 # Assume the track file is a CSV file, and the fields are in a specific order...
                 self.cycloneTracks = files.flLoadFile(cycloneTracks, '%', ',')
-        elif type(cycloneTracks) is numpy.ndarray:
+        elif type(cycloneTracks) is np.ndarray:
             self.cycloneTracks = cycloneTracks
         elif type(cycloneTracks) is array:
             self.cycloneTracks = cycloneTracks
@@ -159,49 +242,43 @@ class PlotTracks:
         The tracks can be in one of several formats: \
         "
 
-    def plotTracks(self, titlestr=None, colours=False):
+    def plotTracks(self, tracks, titlestr=None, colours=False):
         """plotTracks([titlestr]):
         Plot cyclone tracks with coastline displayed. Title string is
         optional
         """
-        self._separateTracks()
         counter = 0
-        for n in self.cyclone:
+        for t in tracks:
             counter += 1
-            self.map.plot([self.cyclone[n]['lon'][0]],
-                          [self.cyclone[n]['lat'][0]], 'k.')
-            for i in range(1, len(self.cyclone[n]['lon'])):
-                if colours:
-                    if self.cyclone[n]['pressure'][i-1] == sys.maxint:
+            track_length = len(t.Longitude)
+            self.map.plot(t.Longitude[0], t.Latitude[0],'k.')
+            if track_length > 1:
+                for i in range(track_length - 1):
+                    seg_lon = [t.Longitude[i], t.Longitude[i + 1]]
+                    seg_lat = [t.Latitude[i], t.Latitude[i + 1]]
+                    if t.CentralPressure[i] == sys.maxint:
                         col = 'k'
-                    elif ((self.cyclone[n]['pressure'][i-1] >= 985.) and
-                          (self.cyclone[n]['pressure'][i-1] < sys.maxint)):
+                    elif between(t.CentralPressure[i], 985., sys.maxint):
                         col = 'b'
-                    elif ((self.cyclone[n]['pressure'][i-1] >= 970.) and
-                          (self.cyclone[n]['pressure'][i-1] < 985.)):
+                    elif between(t.CentralPressure[i], 970., 985.):
                         col = 'g'
-                    elif ((self.cyclone[n]['pressure'][i-1] >= 955.) and
-                          (self.cyclone[n]['pressure'][i-1] < 970.)):
+                    elif between(t.CentralPressure[i], 955., 970.):
                         col = 'y'
-                    elif ((self.cyclone[n]['pressure'][i-1] >= 930.) and
-                          (self.cyclone[n]['pressure'][i-1] < 955.)):
+                    elif between(t.CentralPressure[i], 930., 955.):
                         col = 'r'
                     else:
                         col = 'm'
-                else:
-                    col = 'k'
-                self.map.plot([self.cyclone[n]['lon'][i-1], self.cyclone[n]['lon'][i]],
-                              [self.cyclone[n]['lat'][i-1], self.cyclone[n]['lat'][i]],
-                              col+'-')
+                    self.map.plot(seg_lon, seg_lat, col+'-')
+
         self.map.drawcoastlines()
         self.map.drawparallels(self.parallel, labels=[1,0,0,1], fontsize=9)
         self.map.drawmeridians(self.meridian, labels=[1,0,0,1], fontsize=9)
         self.map.fillcontinents()
 
         if titlestr is None:
-            pylab.title(str(counter) + ' Cyclone Tracks')
+            pyplot.title(str(counter) + ' Cyclone Tracks')
         else:
-            pylab.title(titlestr)
+            pyplot.title(titlestr)
         print "Plotted %d cyclone tracks" % counter
 
     def plotTracksShp(self, titlestr=None, colours=False):
@@ -232,7 +309,7 @@ class PlotTracks:
         self.map.drawmeridians(self.meridian, labels=[1,0,0,1], fontsize=9)
         self.map.fillcontinents()
         if titlestr:
-            pylab.title(titlestr)
+            pyplot.title(titlestr)
 
     def _separateTracks(self):
         """_separateTracks():
@@ -258,40 +335,3 @@ class PlotTracks:
             cps.append(pressure)
 
 
-
-if __name__ == "__main__":
-    try:
-        configFile = sys.argv[1]
-    except IndexError:
-        configFile = 'plotTracks.ini'
-        # If no filename is specified and default filename doesn't exist => raise error
-        if not os.path.exists(configFile):
-            error_msg = "No configuration file specified, please type: python plotTracks.py {config filename}.ini"
-            raise IOError, error_msg
-    # If specified config file doesn't exist => raise error
-    if not os.path.exists(configFile):
-        error_msg = "Configuration file '" + configFile +"' not found"
-        raise IOError, error_msg
-        
-    #cycloneTracks = cfgFiles['Output.cyclone_tracks']
-    #cycloneData = myutils.textread('DataProcess\\dataprocess.ini')
-    #indicator = numpy.array(cycloneData['indicator'], int)
-    #lat = numpy.array(cycloneData['lat'], float)
-    #lon = numpy.array(cycloneData['lon'], float)
-    #pressure = numpy.array(cycloneData['pressure'], float)
-
-    #cycloneTracks = numpy.concatenate(([indicator], [lon], [lat], [pressure]), axis=0)
-    #cycloneTracks = numpy.transpose(cycloneTracks)
-
-    #data = files.flLoadFile("C:\\WorkSpace\\atcram\\data\\output\\post1960\\syn_tracks.0001.txt", '%', ',')
-    #ind = numpy.ones(numpy.size(data[:,0]))
-    #ind[1:] = numpy.diff(data[:,0])
-    #cycloneTracks = numpy.concatenate(([ind], [data[:,2]], [data[:,3]], [data[:,6]]), axis=0)
-    #cycloneTracks = numpy.transpose(cycloneTracks)
-    cycloneTracks = 'C:/WorkSpace/data/PAGASA/tracks/tracks_0001.shp'
-    gridLimit = {'xMin':110, 'xMax':140, 'yMin':5, 'yMax':30} #eval(config.cnfGetIniValue(configFile, 'Map', 'gridLimit') #{'xMin':90, 'xMax':180, 'yMin':-40, 'yMax':0}
-    gridSpace = {'x':1, 'y':1} #eval(config.cnfGetIniValue(configFile, 'Map', 'gridSpace') #{'x':5, 'y':5}
-    pT = PlotTracks(configFile, cycloneTracks, gridLimit, gridSpace)
-    pT.plotTracksShp()
-    pylab.savefig('C:/WorkSpace/data/PAGASA/tracks/tracks_0001.png')
-    pylab.show()

@@ -18,11 +18,6 @@ import numpy.ma as ma
 from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
 
-import matplotlib
-matplotlib.use('Agg')
-
-from matplotlib import pyplot
-from mpl_toolkits.basemap import Basemap
 from functools import wraps
 
 import interpolateTracks

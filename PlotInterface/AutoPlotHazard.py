@@ -31,9 +31,6 @@ import numpy.ma as ma
 import matplotlib
 matplotlib.use('Agg')
 
-from matplotlib import pyplot
-pyplot.ioff()
-
 try:
     from mpl_toolkits.basemap import Basemap
     NO_BASEMAP = False
@@ -54,6 +51,7 @@ from Utilities import colours
 #from Utilities.progressbar import ProgressBar
 
 from PlotInterface.maps import saveHazardMap
+from PlotInterface.curves import saveHazardCurve
 
 import sqlite3
 import unicodedata
@@ -65,11 +63,11 @@ class PlotUnits(object):
 
     def __init__(self, units):
         labels = {
-            'mps': 'metres/second',
-            'mph': 'miles/hour',
-            'kts': 'knots',
-            'kph': 'kilometres/hour',
-            'kmh': 'kilomtres/hour'
+            'mps': 'm/s',
+            'mph': 'mi/h',
+            'kts': 'kts',
+            'kph': 'km/h',
+            'kmh': 'km/h'
         }
 
         levels = {
@@ -124,6 +122,7 @@ class AutoPlotHazard(object):
                           resolution='i')
 
         for i, year in enumerate(years):
+            log.debug("Plotting %d-year return period hazard map"%(year))
             title = '%d-Year Return Period Cyclonic Wind Hazard' % (year)
             imageFilename = '%d_yrRP_hazard_map.png' % (year)
             filename = pjoin(self.plotPath, imageFilename)
@@ -163,6 +162,7 @@ class AutoPlotHazard(object):
             data = nctools.ncGetData(ncobj, varname)
             mv = getattr(ncobj.variables[varname], '_FillValue')
             ncobj.close()
+            del ncobj
         except:
             self.logger.critical("Cannot load input file: %s"%inputFile)
             try:
@@ -175,81 +175,7 @@ class AutoPlotHazard(object):
         mask = (data==mv)
         mdata = ma.array(data, mask=mask)
         return lon, lat, years, mdata
-
-    def plotHazardMap(self, inputData, lon, lat, year, plotPath):
-        """
-        Plot a hazard map
-
-        :param inputData: 2D array of data to plot on a map.
-        :type inputData: :class:`numpy.ndarray`
-
-        """
-        if NO_BASEMAP:
-            return
-
-        llLon = lon[0]
-        llLat = lat[0]
-        urLon = lon[-1]
-        urLat = lat[-1]
-        res = 'i'
-        if (urLon - llLon) > 20:
-            dl = 10.
-        else:
-            dl = 5.
-
-        ilon = np.where(((lon > llLon) & (lon < urLon)))[0]
-        ilat = np.where(((lat > llLat) & (lat < urLat)))[0]
-        [x, y] = np.meshgrid(lon[ilon], lat[ilat])
-
-        # FIXME - data is already in a masked array - why mask here?
-        eps = 10e-3
-        dmask = (inputData < eps)
-        inputData.mask[:] = dmask
-        inputData.data[:] = metutils.convert(inputData.data, 'mps',
-                                             self.plotUnits.units)
-
-        inputData.data[:] = smooth(inputData.data, 40)
-
-        meridians=np.arange(dl * np.floor(llLon / dl),
-                            dl * np.ceil(urLon / dl), dl)
-        parallels=np.arange(dl * np.floor(llLat / dl),
-                            dl * np.ceil(urLat / dl), dl)
-
-        pyplot.clf()
-        m = Basemap(projection='cyl',
-                    resolution=res,
-                    llcrnrlon=llLon,
-                    urcrnrlon=urLon,
-                    llcrnrlat=llLat,
-                    urcrnrlat=urLat)
-        m.contourf(x, y, inputData[ilat][:, ilon], self.plotUnits.levels,
-                   extend='both', cmap=pyplot.get_cmap('pccspvar'))
-
-        cb = pyplot.colorbar(shrink=0.5, orientation='horizontal',
-                            extend='both', ticks=self.plotUnits.levels[::2],
-                            pad=0.05)
-
-        cb.set_label('Maximum gust wind speed (' + self.plotUnits.label + ')',
-                     fontsize=10)
-
-        if cb.orientation=='horizontal':
-            for t in cb.ax.get_xticklabels():
-                t.set_fontsize(8)
-        else:
-            for t in cb.ax.get_yticklabels():
-                t.set_fontsize(8)
-        pyplot.title(str(year) + '-Year Return Period Cyclonic Wind Hazard')
-
-        m.drawcoastlines(linewidth=0.5)
-        m.drawparallels(parallels, labels=[1, 0, 0, 1],
-                        fontsize=9, linewidth=0.2)
-        m.drawmeridians(meridians, labels=[1, 0, 0, 1],
-                        fontsize=9, linewidth=0.2)
-
-        pyplot.grid(True)
-        imageFilename = str(year) + 'yrRP_hazard_map' + '.png'
-        pyplot.savefig(pjoin(plotPath, imageFilename))
-
+    
     def plotHazardCurves(self, inputFile, plotPath):
         """
         Plot the hazard values stored in hazardFile, at the stns
@@ -321,10 +247,18 @@ class AutoPlotHazard(object):
                                              placeLons, parentCountries):
 
             log.debug("Plotting return period curve for %s"%name)
-
             i = find_index(lon, plon)
             j = find_index(lat, plat)
 
+            xlabel = 'Return period (years)'
+            ylabel = 'Wind speed (%s)'%self.plotUnits.label
+            title = "Return period wind speeds at " + name + ", " \
+                            + country + "\n(%5.1f,%5.1f)"%(plon, plat)
+
+            name = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore')
+            name.replace(' ', '')
+            filename = pjoin(plotPath, 'RP_curve_%s.%s'%(name,"png"))
+            log.debug("Saving hazard curve for %s to %s"%(name, filename))
             placeWspd = metutils.convert(wspd[:, j, i], 'mps',
                                          self.plotUnits.units)
             maxWspd = placeWspd.max()
@@ -333,37 +267,7 @@ class AutoPlotHazard(object):
                                                   self.plotUnits.units)
                 placeWspdUpper  = metutils.convert(wUpper[:,j,i], 'mps',
                                                    self.plotUnits.units)
+                
+            saveHazardCurve(years, placeWspd, placeWspdUpper, placeWspdLower,
+                            xlabel, ylabel, title, filename)
 
-            pyplot.clf()
-            if placeWspd[0] > 0:
-                pyplot.semilogx(years, placeWspd, 'r-',
-                                linewidth=2, subsx=years,
-                                label='Return period wind speed')
-                if ciBounds:
-                    if (placeWspdLower[0] > 0) and (placeWspdUpper[0] > 0):
-                        pyplot.fill_between(years, placeWspdUpper,
-                                            placeWspdLower, facecolor='0.75',
-                                            edgecolor='0.99',
-                                            alpha=0.7)
-                        maxWspd = np.max([maxWspd, placeWspdUpper.max()])
-
-            else:
-                continue
-            pyplot.xlabel('Return period (years)')
-            pyplot.ylabel('Wind speed (' + self.plotUnits.label + ')')
-            #years2 = numpy.array([25.0 * (2 ** k) for k in range(7)])
-            years2 = np.array([10., 25., 50., 100., 250., 500., 1000., 2500.])
-            pyplot.xticks(years2, years2.astype(int))
-
-            pyplot.xlim(years.min(), years.max())
-
-            # Override default maximum if exceeded by hazard values
-            pyplot.ylim(0.0, np.max([np.ceil(maxWspd/10.0)*10.0, defaultMax]))
-            pyplot.title("Return period wind speeds at " + name + ", " \
-                            + country + "\n(%5.1f,%5.1f)"%(plon, plat))
-            pyplot.grid(True)
-
-            # Convert unicode to ascii and remove spaces
-            name = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore')
-            name.replace(' ', '')
-            pyplot.savefig(pjoin(plotPath, 'RP_curve_%s.%s'%(name,"png")))
