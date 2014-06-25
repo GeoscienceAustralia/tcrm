@@ -208,7 +208,7 @@ class HazardMap(MaskedContourMapFigure):
     def plot(self, data, xgrid, ygrid, title, levels, cbarlab, map_kwargs):
         # Smooth the data to reduce 'lines-on-a-map' inferences:
         dx = np.mean(np.diff(xgrid))
-        #data = smooth(data, int(1/dx))
+        data = smooth(data, int(1/dx))
         self.add(data, xgrid, ygrid, title, levels, cbarlab, map_kwargs)
         super(HazardMap, self).plot()
 
