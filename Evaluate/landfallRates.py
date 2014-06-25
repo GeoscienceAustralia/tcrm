@@ -358,7 +358,7 @@ class LandfallRates(object):
             self.calculateStats()
 
     @disableOnWorkers
-    def plotLandfallRates(self):
+    def plot(self):
 
         figure = RangeCompareCurve()
         figure.set_size_inches(8,3)
@@ -381,17 +381,12 @@ class LandfallRates(object):
         saveFigure(figure, outputFile)
         
     def run(self):
-        """Run the longitude crossing evaluation"""
+        """Execute the analysis"""
         
         attemptParallel()
-
         self.historic()
-
         pp.barrier()
-
         self.synthetic()
-
         pp.barrier()
-
-        self.plotLandfallRates()
+        self.plot()
         #self.save()
