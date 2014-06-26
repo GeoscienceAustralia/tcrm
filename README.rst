@@ -25,7 +25,7 @@ Features
 Dependencies
 ============
 
-* TCRM requires Python (2.7 preferred), Numpy, Scipy, Matplotlib, basemap, netcdf4-python and a C compiler;
+* TCRM requires `Python (2.7 preferred) <https://www.python.org/>`_, `Numpy <http://www.numpy.org/>`_, `Scipy <http://www.scipy.org/>`_, `Matplotlib <http://matplotlib.org/>`_, `Basemap <http://matplotlib.org/basemap/index.html>`_, `netcdf4-python <https://code.google.com/p/netcdf4-python/>`_ and a C compiler;
 * For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
 
 Screenshot
