@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from matplotlib.dates import date2num, num2date
 from scipy.interpolate import interp1d, splev, splrep
 
@@ -9,25 +9,26 @@ from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile
 
 TRACKFILE_COLS = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
-                  'Day', 'Hour', 'Minute', 'TimeElapsed', 'Longitude',
-                  'Latitude', 'Speed', 'Bearing', 'CentralPressure',
-                  'WindSpeed', 'rMax', 'EnvPressure')
+                  'Day', 'Hour', 'Minute', 'TimeElapsed', 'Datetime',
+                  'Longitude', 'Latitude', 'Speed', 'Bearing', 
+                  'CentralPressure', 'WindSpeed', 'rMax', 
+                  'EnvPressure')
 
 TRACKFILE_FMTS = ('i', 'i', 'i', 'i', 
-                  'i', 'i', 'i', 'f', 
+                  'i', 'i', 'i', 'f', datetime,
                   'f', 'f', 'f', 'f', 'f', 
-                  'f', 'f', 'f')
+                  'f', 'f', 'f', 'f')
 
 TRACKFILE_OUTFMT = ('%i,%i,%i,%i,' 
-                    '%i,%i,%i,%5.1f,'
+                    '%i,%i,%i,%8.3f,%s,%5.1f,'
                     '%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,'
                     '%6.2f,%6.2f,%7.2f')
 
-OUTPUT_COLS = ('CycloneNumber', 'TimeElapsed', 'Longitude',
+OUTPUT_COLS = ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
                   'Latitude', 'Speed', 'Bearing', 'CentralPressure',
                   'EnvPressure', 'rMax')
 
-OUTPUT_FMTS = ('%i,%7.3f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f')
+OUTPUT_FMTS = '%i,%s,%7.3f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f'
 
 class Track(object):
     def __init__(self, data):
@@ -61,7 +62,8 @@ def interpolate(track, delta, interpolation_type=None):
     day_ = [datetime(*x) for x in zip(track.Year, track.Month, 
                                       track.Day, track.Hour, 
                                       track.Minute)]
-
+    timestep = timedelta(delta/24.)
+    
     time_ = np.array([d.toordinal() + d.hour / 24. for d in day_], 'f') 
     dt_ = 24.0 * np.diff(time_)
     dt = np.empty(track.Hour.size, 'f')
@@ -73,7 +75,9 @@ def interpolate(track, delta, interpolation_type=None):
     newtime = np.arange(timestep[0], timestep[-1] + .01, delta)
     newtime[-1] = timestep[-1]
     _newtime = (newtime / 24.) + time_[0]
+
     newdates = num2date(_newtime)
+    newdates = np.array([n.replace(tzinfo=None) for n in newdates])
     nid = track.trackId[0] * np.ones(newtime.size)
 
     # Find the indices of valid pressure observations:
@@ -201,10 +205,11 @@ def interpolate(track, delta, interpolation_type=None):
                                'names': TRACKFILE_COLS,
                                'formats': TRACKFILE_FMTS
                                } )
+
     for key, val in zip(TRACKFILE_COLS, 
-                        [newindex, newTCID, nYear, nMonth, nDay, nHour, nMin, 
-                           newtime, nLon, nLat, nvFm, nthetaFm, npCentre, 
-                           nwSpd, nrMax, npEnv]):
+                        [newindex, newTCID, nYear, nMonth, nDay, nHour, nMin,
+                           newtime, newdates, nLon, nLat, nvFm, nthetaFm,  
+                           npCentre, nwSpd, nrMax, npEnv]):
         newdata[key] = val
     newtrack = Track(newdata)
     newtrack.trackId = track.trackId
@@ -223,10 +228,10 @@ def saveTracks(tracks, outputFile):
         output.append(r)
     data = np.hstack([r for r in output]).T
     
-    with open(outputFile, 'w') as fid:
-        fid.write('%' + ','.join(OUTPUT_COLS) + '\n')
+    with open(outputFile, 'w') as fp:
+        fp.write('%' + ','.join(OUTPUT_COLS) + '\n')
         if len(data) > 0:
-            np.savetxt(fid, data, fmt=OUTPUT_FMTS)
+            np.savetxt(fp, data, fmt=OUTPUT_FMTS)
 
 def parseTracks(configFile, trackFile, source, delta, outputFile=None,
                 interpolation_type=None):
@@ -276,11 +281,5 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
     if outputFile:
         # Save data to file:
         saveTracks(results, outputFile)
-        """
-        newTracks = np.hstack([r.data.T for r in results]).T
-        with open(outputFile, 'w') as fid:
-            fid.write('%' + ','.join(TRACKFILE_COLS) + '\n')
-            if len(newTracks) > 0:
-                np.savetxt(fid, newTracks, fmt=TRACKFILE_OUTFMT)
-        """
+
     return results
