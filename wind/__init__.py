@@ -25,7 +25,7 @@ import math
 import os
 import sys
 import windmodels
-
+from datetime import datetime 
 from os.path import join as pjoin, split as psplit, splitext as psplitext
 from collections import defaultdict
 
@@ -38,22 +38,23 @@ from Utilities.maputils import bearing2theta, makeGrid
 import Utilities.nctools as nctools
 
 # Trackfile .csv format.
-
-TRACKFILE_COLS = ('CycloneNumber', 'TimeElapsed', 'Longitude',
+DATEFORMAT = "%Y-%m-%d %H:%M:%S"
+TRACKFILE_COLS = ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
                   'Latitude', 'Speed', 'Bearing', 'CentralPressure',
                   'EnvPressure', 'rMax')
 
-TRACKFILE_UNIT = ('', 'hr', 'degree', 'degree', 'kph', 'degrees',
+TRACKFILE_UNIT = ('', '', 'hr', 'degree', 'degree', 'kph', 'degrees',
                   'hPa', 'hPa', 'km')
 
-TRACKFILE_FMTS = ('i', 'f', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
+TRACKFILE_FMTS = ('i', 'object', 'f', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
 
 TRACKFILE_CNVT = {
     0: lambda s: int(float(s.strip() or 0)),
-    4: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[4], 'mps'),
-    5: lambda s: bearing2theta(float(s.strip() or 0) * np.pi / 180.),
-    6: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[6], 'Pa'),
+    1: lambda s: datetime.strptime(s.strip(), DATEFORMAT),
+    5: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[5], 'mps'),
+    6: lambda s: bearing2theta(float(s.strip() or 0) * np.pi / 180.),
     7: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[7], 'Pa'),
+    8: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[8], 'Pa'),
 }
 
 
@@ -317,7 +318,7 @@ class WindfieldAroundTrack(object):
                                 (self.track.Longitude <= xMax) &
                                 (yMin <= self.track.Latitude) &
                                 (self.track.Latitude <= yMax))[0]
-
+        
         for i in timesInRegion:
 
             # Map the local grid to the regional grid
@@ -340,14 +341,37 @@ class WindfieldAroundTrack(object):
             localBearing = ((np.arctan2(-Ux, -Vy)) * 180. / np.pi)
 
             # Handover this time step to a callback if required
+            
+        for i in timesInRegion:
 
-            if timeStepCallback:
-                timeStepCallback(i, localGust, Ux, Vy, P,
+            # Map the local grid to the regional grid
+
+            jmin = int((latCDegree[i] - minLat - gridMargin) / gridStep)
+            jmax = int((latCDegree[i] - minLat + gridMargin) / gridStep) + 1
+            imin = int((lonCDegree[i] - minLon - gridMargin) / gridStep)
+            imax = int((lonCDegree[i] - minLon + gridMargin) / gridStep) + 1
+
+            # Calculate the local wind speeds and pressure at time i
+
+            Ux, Vy, P = self.localWindField(i)
+
+            # Calculate the local wind gust and bearing
+
+            Ux *= self.gustFactor
+            Vy *= self.gustFactor
+
+            localGust = np.sqrt(Ux ** 2 + Vy ** 2)
+            localBearing = ((np.arctan2(-Ux, -Vy)) * 180. / np.pi)
+
+            # Handover this time step to a callback if required
+            
+            if timeStepCallback is not None:
+                timeStepCallback(self.track.Datetime[i], 
+                                 localGust, Ux, Vy, P,
                                  lonGrid[imin:imax] / 100., 
                                  latGrid[jmin:jmax] / 100.)
 
             # Retain when there is a new maximum gust
-
             mask = localGust > gust[jmin:jmax, imin:imax]
 
             gust[jmin:jmax, imin:imax] = np.where(
@@ -662,7 +686,6 @@ class WindfieldGenerator(object):
                                  timestep to extract point values for 
                                  specified locations.
         """
-        
         if timeStepCallback:
             results = itertools.imap(self.calculateExtremesFromTrack, trackiter,
                                      itertools.repeat(timeStepCallback)) 
@@ -858,7 +881,9 @@ class WindfieldGenerator(object):
                                  specified locations.
 
         """
+
         tracks = loadTracksFromFiles(sorted(trackfiles))
+
         self.dumpGustsFromTracks(tracks, windfieldPath, filenameFormat,
                                  progressCallback=progressCallback,
                                  timeStepCallback=timeStepCallback)
@@ -1070,6 +1095,7 @@ def run(configFile, callback=None):
         if config.has_option('Timeseries', 'Extract'):
             if config.getboolean('Timeseries', 'Extract'):
                 from Utilities.timeseries import Timeseries
+                log.debug("Timeseries data will be extracted")
                 ts = Timeseries(configFile)
                 timestepCallback = ts.extract
                 
@@ -1077,7 +1103,7 @@ def run(configFile, callback=None):
         def timestepCallback(*args):
             """Dummy timestepCallback function"""
             pass
-            
+
     thetaMax = math.radians(thetaMax)
     
     # Attempt to start the track generator in parallel
