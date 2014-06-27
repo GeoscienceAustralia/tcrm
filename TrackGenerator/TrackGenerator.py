@@ -30,6 +30,8 @@ import math
 import itertools
 import numpy as np
 
+from datetime import datetime, timedelta
+
 import Utilities.stats as stats
 import trackLandfall
 import Utilities.nctools as nctools
@@ -363,7 +365,7 @@ class TrackGenerator(object):
         """
 
         log.debug('Generating %d tropical cyclone tracks', nTracks)
-
+        genesisYear = int(uniform(1900,9998))
         results = []
         for j in range(1, nTracks + 1):
 
@@ -426,7 +428,12 @@ class TrackGenerator(object):
                 genesisDay = ppf(uniform(), cdfInitDay)
             else:
                 genesisDay = initDay
-                
+            
+            genesisHour = int(uniform(0,24))
+            
+            initTimeStr = "%04d-%03d %d:00" % (genesisYear, genesisDay, genesisHour)
+            genesisTime = datetime.strptime(initTimeStr, "%Y-%j %H:%M")
+
             # Sample an initial environment pressure if none is
             # provided - dependent on initial day of year:
 
@@ -479,7 +486,7 @@ class TrackGenerator(object):
             track = self._singleTrack(j, genesisLon, genesisLat,
                                       genesisSpeed, genesisBearing,
                                       genesisPressure, initEnvPressure,
-                                      genesisRmax, genesisDay)
+                                      genesisRmax, genesisTime)
 
             results.append(track)
 
@@ -489,7 +496,7 @@ class TrackGenerator(object):
             """
             :return: True if the track is empty. False, otherwise.
             """
-            index, age, lon, lat, v, bearing, P, penv, rmax = track
+            index, dates, age, lon, lat, speed, bearing, P, penv, rmax = track
             return len(lon) == 0
 
         def diedEarly(track, minAge=12):
@@ -497,7 +504,7 @@ class TrackGenerator(object):
             :return: True if the track dies before `minAge`. False,
             otherwise.
             """
-            index, age, lon, lat, speed, bearing, P, penv, rmax = track
+            index, dates, age, lon, lat, speed, bearing, P, penv, rmax = track
             return age[-1] < minAge
 
         def insideDomain(track):
@@ -505,7 +512,7 @@ class TrackGenerator(object):
             :return: True if the track stays inside the domain. False,
             otherwise.
             """
-            index, age, lon, lat, speed, bearing, P, penv, rmax = track
+            index, dates, age, lon, lat, speed, bearing, P, penv, rmax = track
             inside = [lon[k] > self.innerGridLimit['xMin'] and
                       lon[k] < self.innerGridLimit['xMax'] and
                       lat[k] > self.innerGridLimit['yMin'] and
@@ -517,11 +524,10 @@ class TrackGenerator(object):
             """
             :return: True if a valid pressure. False, otherwise.
             """
-            index, age, lon, lat, speed, bearing, P, eP, rmax = track
+            index, dates, age, lon, lat, speed, bearing, P, eP, rmax = track
             return all(np.round(P, 2) < np.round(eP, 2))
 
         # Filter the generated tracks based on certain criteria
-
         nbefore = len(results)
         results = [track for track in results if not empty(track)]
         log.debug('Removed %i empty tracks.', nbefore - len(results))
@@ -681,7 +687,7 @@ class TrackGenerator(object):
 
     def _singleTrack(self, cycloneNumber, initLon, initLat, initSpeed,
                      initBearing, initPressure, initEnvPressure,
-                     initRmax, initDay):
+                     initRmax, initTime):
         """
         Generate a single tropical cyclone track from a genesis point.
 
@@ -730,6 +736,7 @@ class TrackGenerator(object):
         """
 
         index = np.ones(self.maxTimeSteps, 'f') * cycloneNumber
+        dates = np.empty(self.maxTimeSteps, dtype=datetime)
         age = np.empty(self.maxTimeSteps, 'i')
         jday = np.empty(self.maxTimeSteps, 'f')
         lon = np.empty(self.maxTimeSteps, 'f')
@@ -745,7 +752,8 @@ class TrackGenerator(object):
         # Initialise the track
 
         age[0] = 0
-        jday[0] = initDay
+        dates[0] = initTime
+        jday[0] = int(initTime.strftime("%j")) + initTime.hour/24.
         lon[0] = initLon
         lat[0] = initLat
         speed[0] = initSpeed
@@ -755,6 +763,8 @@ class TrackGenerator(object):
         rmax[0] = initRmax
         land[0] = 0
         dist[0] = self.dt * initSpeed
+
+        timestep = timedelta(self.dt/24.)
 
         # Initialise variables that will be used when performing a step
 
@@ -787,6 +797,7 @@ class TrackGenerator(object):
                                               lat[i - 1])
 
             age[i] = age[i - 1] + self.dt
+            dates[i] = dates[i - 1] + timestep
             jday[i] = jday[i - 1] + self.dt/24.
             jday[i] = np.mod(jday[i], 365)
 
@@ -808,7 +819,7 @@ class TrackGenerator(object):
                 log.debug('TC exited domain at point ' +
                           '(%.2f %.2f) and time %i', lon[i], lat[i], i)
                 
-                return (index[:i], age[:i], lon[:i], lat[:i],
+                return (index[:i], dates[:i], age[:i], lon[:i], lat[:i],
                         speed[:i], bearing[:i], pressure[:i],
                         penv[:i], rmax[:i])
 
@@ -881,12 +892,12 @@ class TrackGenerator(object):
                                        lon[0], lat[0], lon[i], lat[i]):
                 log.debug('Track no longer satisfies criteria, ' +
                           'terminating at time %i.', i)
-                return (index[:i], age[:i], lon[:i], lat[:i],
+                return (index[:i], dates[:i], age[:i], lon[:i], lat[:i],
                         speed[:i], bearing[:i], pressure[:i], penv[:i],
                         rmax[:i])
 
-        return (index, age, lon, lat, speed, bearing, pressure, penv,
-                rmax)
+        return (index, dates, age, lon, lat, speed, bearing, pressure, 
+                penv, rmax)
 
     def _stepPressureChange(self, c, i, onLand):
         """
@@ -1664,7 +1675,7 @@ def run(configFile, callback=None):
     # should jump ahead in the PRNG stream to ensure that it is
     # independent of all other simulations.
 
-    maxRvsPerTrack = 5 * (maxTimeSteps + 1)
+    maxRvsPerTrack = 5 * (maxTimeSteps + 2)
     jumpAhead = np.hstack([[0],
                           np.cumsum(nCyclones * maxRvsPerTrack)[:-1]])
 
@@ -1710,10 +1721,10 @@ def run(configFile, callback=None):
         trackFile = pjoin(trackPath, sim.outfile)
         tracks = tg.generateTracks(sim.ntracks)
 
-        header = 'CycloneNumber,TimeElapsed(hr),Longitude(degree),' + \
-                 'Latitude(degree),Speed(km/hr),Bearing(degrees),' + \
-                 'CentralPressure(hPa),EnvPressure(hPa),rMax(km)\n'
-        fmt = '%i,%7.3f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f'
+        header = 'CycloneNumber,Datetime,TimeElapsed,Longitude,' + \
+                 'Latitude,Speed,Bearing,' + \
+                 'CentralPressure,EnvPressure,rMax\n'
+        fmt = '%i,%s,%7.3f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f'
         
         """
         for i, track in enumerate(tracks):
