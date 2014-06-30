@@ -4,6 +4,7 @@ import scipy.stats as stats
 
 from matplotlib.figure import Figure
 from matplotlib.artist import setp
+from matplotlib.ticker import LogLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.basemap import Basemap
 
@@ -65,7 +66,13 @@ class SemilogxCurve(CurveFigure):
         axes.set_ylabel(ylabel)
         axes.set_title(title)
         self.addGrid(axes)
-
+        
+    def addGrid(self, axes):
+        axes.xaxis.set_major_locator(LogLocator())
+        axes.xaxis.set_minor_locator(LogLocator(subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9]))
+        axes.autoscale(True, axis='x', tight=True)
+        axes.grid(True, which='major', color='k', linestyle='-', linewidth=0.1)
+        
 class RangeCurve(CurveFigure):
 
     def add(self, xdata, ymean, ymax, ymin, xlabel='x', ylabel='y', title='x'):
@@ -107,17 +114,11 @@ class SemilogRangeCurve(CurveFigure):
         self.subfigures.append((xdata, ymean, ymax, ymin,
                                 xlabel, ylabel, title))
     def addGrid(self, axes):
-        xlims = axes.get_xlim()
-        xmax = np.max(xlims)
-        xticks = np.array([])
-        x = np.arange(1,10, dtype=int)
-        for i in range(int(np.log10(xmax)+1)):
-            xticks = np.append(xticks, x*np.power(10, i).astype(int))
-
-        xticks = np.append(xticks, xmax)
-        axes.set_xticks(xticks)
+        
+        axes.xaxis.set_major_locator(LogLocator())
+        axes.xaxis.set_minor_locator(LogLocator(subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9]))
         axes.autoscale(True, axis='x', tight=True)
-        axes.grid(True, which='both', color='k', linestyle=':', linewidth=0.2)
+        axes.grid(True, which='major', color='k', linestyle='-', linewidth=0.1)
         
     def subplot(self, axes, subfigure):
         xdata, ymean, ymax, ymin, xlabel, ylabel, title = subfigure
@@ -138,7 +139,13 @@ class SemilogRangeCompareCurve(CurveFigure):
     def add(self, xdata, y1, y2, y2max, y2min, xlabel='x', ylabel='y', title='x'):
         self.subfigures.append((xdata, y1, y2max, y2min,
                                 xlabel, ylabel, title))
-
+        
+    def addGrid(self, axes):
+        axes.xaxis.set_major_locator(LogLocator())
+        axes.xaxis.set_minor_locator(LogLocator(subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9]))
+        axes.autoscale(True, axis='x', tight=True)
+        axes.grid(True, which='major', color='k', linestyle='-', linewidth=0.1)
+        
     def subplot(self, axes, subfigure):
         xdata, y1, y2, y2max, y2min, xlabel, ylabel, title = subfigure
 
