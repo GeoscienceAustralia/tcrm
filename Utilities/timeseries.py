@@ -33,6 +33,9 @@ ISO_FORMAT = "%Y-%m-%d %H:%M"
 OUTPUT_NAMES = ('Time', 'Longitude', 'Latitude',
                 'Speed', 'UU', 'VV', 'Bearing',
                 'Pressure')
+OUTPUT_FMT = ['%s', '%7.3f', '%7.3f', 
+              '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
+              '%7.2f']
 
 CONFIG_DEFAULTS = """
 [Timeseries]
@@ -122,23 +125,6 @@ class Timeseries(object):
             for id, lon, lat in zip(stnid, stnlon, stnlat):
                 self.stations.append(Station(id, lon, lat))
         
-        #self.data = dict.fromkeys(self.stnid, [])
-        #self.maxdata = dict.fromkeys(self.stnid, [])
-        #self.mindata = dict.fromkeys(self.stnid, [])
-
-        
-        #for i in xrange(len(self.stations)):
-        #    # For storing the maximum wind speed:
-        #    self.maxdata[self.stnid[i]] = [self.stnid[i],
-        #                                   self.stnlon[i],
-        #                                   self.stnlat[i],
-        #                                   '', 0.0, 0.0, 0.0, 0.0, 0.0]
-        #    # For storing the minimum pressure:
-        #    self.mindata[self.stnid[i]] = [self.stnid[i],
-        #                                   self.stnlon[i],
-        #                                   self.stnlat[i],
-        #                                   '', 0.0, 0.0, 0.0, 0.0, 9999999.]
-                                           
     def sample(self, lon, lat, spd, uu, vv, prs, gridx, gridy):
         """
         Extract values from 2-dimensional grids at the given lat/lon.
@@ -182,24 +168,9 @@ class Timeseries(object):
         :param gridy: :class:`numpy.ndarray` of grid latitudes.
         
         """
-        #dt = num2date(tstep, tz=None)
-        #if spd is None:
-        #    # Set these values to zero:
-        #    for i in xrange(len(self.stnid)):
-        #        if self.meta:
-        #            self.data[self.stnid[i]].append(list(np.concatenate(([dt,
-        #                     self.stnlon[i], self.stnlat[i], 0.0, 0.0, 0.0, 
-        #                     0.0, prs], self.metadata[i, :]))))
-        #        else:
-        #            self.data[self.stnid[i]].append([dt, self.stnlon[i],
-        #                      self.stnlat[i], 0.0, 0.0, 0.0, 0.0, prs])
-
-        #else:
-            # Inside the grid:
 
         for stn in self.stations:
             if stn.insideGrid(gridx, gridy):
-                #pdb.set_trace()
                 result = self.sample(stn.lon, stn.lat, spd, uu, vv, prs,
                                       gridx, gridy)
                 s, u, v, b, p = result
@@ -209,33 +180,6 @@ class Timeseries(object):
                 stn.data.append([dt, stn.lon, stn.lat, 0.0, 0.0,  
                                           0.0, 0.0, prs[0, 0]])
                     
-            #for i, (stnid, lon, lat) in enumerate(zip(self.stnid, 
-            #                                          self.stnlon, 
-            #                                          self.stnlat)):
-            #    if (float(lon) < gridx.min() or float(lon) > gridx.max() or \
-            #        float(lat) < gridy.min() or float(lat) > gridy.max()):
-            #        # Outside the grid:
-            #        if self.meta:
-            #            self.data[stnid].append(list(np.concatenate(([dt, lon, 
-            #                            lat, 0.0, 0.0, 0.0, 0.0, prs[0, 0]],
-            #                            self.metadata[i, :]))))
-            #        else:
-            #            self.data[stnid].append([dt, lon, lat, 0.0, 0.0, 0.0, 
-            #                                        0.0, prs[0, 0]])
-            #    else:
-            #        result = self.sample(lon, lat, spd, uu, vv, prs, 
-            #                                      gridx, gridy)
-            #        s, u, v, b, p = result
-            #        if self.meta:
-            #            self.data[stnid].append(list(np.concatenate(([dt, lon, 
-            #                    lat, s, u, v, b, p], self.metadata[i, :]))))
-            #        else:
-            #            self.data[stnid].append([dt, lon, lat, s, u, v, b, p])
-            #        if s > self.maxdata[stnid][4]:
-            #            self.maxdata[stnid][3:] = [dt, s, u, v, b, p]
-            #        if p < self.mindata[stnid][8]:
-            #            self.mindata[stnid][3:] = [dt, s, u, v, b, p]
-                        
 
     def shutdown(self):
         """
@@ -243,12 +187,9 @@ class Timeseries(object):
         """
 
         header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
-        maxheader = ('Station,Longitude,Latitude,Time,Speed,'
-                        'UU,VV,Bearing,Pressure')
-        fmt = ['%s', '%7.3f', '%7.3f', '%6.2f', '%6.2f', 
-               '%6.2f', '%6.2f', '%7.2f']
-               
-        
+        #maxheader = ('Station,Longitude,Latitude,Time,Speed,'
+        #                'UU,VV,Bearing,Pressure')
+                
         for stn in self.stations:
             
             if np.any(np.array(stn.data)[:, 3] > 0.0):
@@ -258,24 +199,10 @@ class Timeseries(object):
                 tmpdata[:, 0] = np.array([tmpdata[i, 0].strftime(ISO_FORMAT) 
                                     for i in xrange(tmpdata[:, 0].size)])
 
-                np.savetxt(fname, np.array(tmpdata), fmt=fmt,
+                np.savetxt(fname, np.array(tmpdata), fmt=OUTPUT_FMT,
                            delimiter=',', header=header)
         
 
-        #for stn in self.stnid:
-        #    if np.any(np.array(self.data[stn])[:, 3] > 0.0):
-        #        tmpdata = np.array(self.data[stn])
-        #        fname = pjoin(self.outputPath, 'ts.%s.csv' % str(stn))
-        #        tmpdata[:, 0] = np.array([tmpdata[i, 0].strftime(ISO_FORMAT) 
-        #                                for i in xrange(tmpdata[:, 0].size)])
-        #                                
-        #        np.savetxt(fname, np.array(tmpdata), fmt=fmt,
-        #                   delimiter=',', header=header)
-        #
-        #maxfname = pjoin(self.outputPath, 'maxwind.csv')
-        #mindata = []
-        #maxdata = []
-        
         """
         for stn in self.stations:
             if type(self.maxdata[stn.id][3]) == datetime.datetime:

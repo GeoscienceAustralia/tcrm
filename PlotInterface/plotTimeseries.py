@@ -31,78 +31,40 @@ $Id: plotTimeseries.py 810 2012-02-21 07:52:50Z nsummons $
 
 import os, sys, pdb, logging
 
-import matplotlib.pyplot as pyplot
-import re
-import numpy
+import numpy as np
+from datetime import datetime
 
 from Utilities.metutils import convert
-import Utilities.files as files
 
-def _plot(data, stnInfo, outputFile):
-    """
-    Internal function to plot the data. This is called either once, or
-    multiple times.
-    Input: data - array (N,4) of time, wind speed, u (eastward) and v
-                  (northward) components
-           stnInfo - dictionary containing station ID, longitude and
-                     latitude
-           outputFile - path to which the resulting image will be saved
-    Output: None - images are saved to the given filename
-    """
-    # Extract the data from the input array:
-    t = data[0,:]
-    s = data[1,:]
-    u = data[2,:]
-    v = data[3,:]
-    b = data[4,:]
-    p = data[5,:]
+from timeseries import TimeSeriesFigure, saveFigure
 
-    # Plot the gust wind speed:
-    pyplot.subplot(411)
-    pyplot.subplots_adjust(left=0.125, bottom=0.1)
-    pyplot.plot(t, s, 'g-')
-    pyplot.ylabel('Wind speed (m/s)', fontsize=8)
-    pyplot.yticks(fontsize=8)
-    #pyplot.xticks(fontsize=8)
-    pyplot.legend((r'Gust wind speed',), loc=2)
-    pyplot.grid(True)
-    pyplot.title('Station ID: %s (%6.2fE, %6.2fS)'%(stnInfo['ID'],
-                 stnInfo['lon'], stnInfo['lat']))
+DATEFORMAT = "%Y-%m-%d %H:%M"
+INPUT_COLS = ('Time', 'Longitude', 'Latitude',
+              'Speed', 'UU', 'VV', 'Bearing',
+              'Pressure')
 
-    # Plot the components:
-    pyplot.subplot(412)
-    pyplot.plot(t, u, 'r-', t, v, 'b-')
-    pyplot.axhline(color='k', linewidth=2)
-    pyplot.ylabel('Wind speed (m/s)', fontsize=8)
-    pyplot.yticks(fontsize=8)
-    #pyplot.xticks(fontsize=8)
-    pyplot.grid(True)
-    pyplot.legend((r'U (eastward)', r'V (northward)'), loc=2 )
+INPUT_FMTS = ('object', 'f', 'f', 'f', 'f', 'f', 'f', 'f')
+INPUT_TITLES = ("Time", "Longitude", "Latitude", "Wind speed", "Eastward wind", 
+                "Northward wind", "Wind direction", "Sea level pressure")
+INPUT_UNIT = ('%Y-%m-%d %H:%M', 'degrees', 'degrees', 'm/s', 'm/s', 'm/s','degrees', 'Pa')
+INPUT_CNVT = {
+    0: lambda s: datetime.strptime(s.strip(), INPUT_UNIT[0]),
+    7: lambda s: convert(float(s.strip() or 0), INPUT_UNIT[7], 'hPa')
+}
 
-    # Plot the bearing:
-    pyplot.subplot(413)
-    pyplot.plot(t, b, 'g-')
-    pyplot.ylabel('Wind direction ($^{\circ}$N)', fontsize=8)
-    pyplot.ylim((0, 360))
-    pyplot.yticks(numpy.arange(0, 361, 45), fontsize=8)
-    #pyplot.xticks(fontsize=8)
-    pyplot.axhline(y=180, color='k', linewidth=2)
-    pyplot.legend((r'Wind direction',), loc=2)
-    pyplot.grid(True)
-
-    # Plot the pressure:
-    pyplot.subplot(414)
-    pyplot.plot(t, convert(p, 'Pa', 'hPa'), 'r-')
-    pyplot.ylabel('Pressure (hPa)', fontsize=8)
-    pyplot.yticks(fontsize=8)
-    pyplot.ylim((900,1010))
-    pyplot.legend((r'Mean sea level pressure',), loc=2)
-    pyplot.grid(True)
-    pyplot.xlabel('Time (hours)', fontsize=8)
-
-    # Save the image:
-    pyplot.savefig(outputFile)
-    return
+def loadTimeseriesData(datafile):
+    try:
+        return np.loadtxt(datafile,
+                          comments = "#",
+                          delimiter = ',',
+                          dtype = {
+                            'names': INPUT_COLS,
+                            'formats': INPUT_FMTS},
+                            converters = INPUT_CNVT)
+    except ValueError:
+        return np.empty(0, dtype={
+                        'names': INPUT_COLS,
+                        'formats': INPUT_FMTS})
 
 def plotTimeseries(inputPath, outputPath, locID=None):
     """
@@ -117,27 +79,47 @@ def plotTimeseries(inputPath, outputPath, locID=None):
     """
     if locID:
         # Only plot the data corresponding to the requested location ID:
-        inputFile = os.path.join(inputPath, 'ts.%s.dat' % (locID))
-        outputFile = os.path.join(outputPath, 'ts.%s.eps' % (locID))
-        inputData = files.flLoadFile(inputFile, comments='%', delimiter=',')
-        data = numpy.array([inputData[:,0], inputData[:,3], inputData[:,4],
-                            inputData[:,5], inputData[:,6], inputData[:,7]])
-        stnInfo = {'ID': locID, 'lon': inputData[0,1], 'lat': inputData[0,2]}
-        _plot(data, stnInfo, outputFile)
+        inputFile = os.path.join(inputPath, 'ts.%s.csv' % (locID))
+        outputFile = os.path.join(outputPath, 'ts.%s.png' % (locID))
+        inputData = loadTimeseriesData(inputFile)
+
+        stnInfo = {'ID': locID, 'lon': inputData['Longitude'][0],
+                    'lat': inputData['Latitude'][0]}
+        title = 'Station ID: %s (%6.2f, %6.2f)' % (locID, inputData['Longitude'][0], inputData['Latitude'][0])
+        fig = TimeSeriesFigure()
+        fig.add(inputData['Time'], inputData['Pressure'], [900,1020], 'Pressure (hPa)', 'Pressure')
+        fig.add(inputData['Time'], inputData['Speed'], [0,100], 'Wind speed (m/s)', 'Wind speed')
+        fig.add(inputData['Time'], inputData['Bearing'], [0,360], 'Direction', 'Wind direction')
+
+        fig.plot()
+        fig.addTitle(title)
+        saveFigure(fig, outputFile)
+        
     else:
         inputFileList = os.listdir(inputPath)
         for f in inputFileList:
             inputFile = os.path.join(inputPath,f)
             # Here we assume the timeseries files are named ts.<location ID>.dat
-            locID = f.rstrip('.dat').lstrip('ts.')
-            outputFile = os.path.join(outputPath, '%s.png' % f.rstrip('.dat'))
-            inputData = files.flLoadFile(inputFile,comments='%', delimiter=',')
-            data = numpy.array([inputData[:,0], inputData[:,3],
-                                inputData[:,4], inputData[:,5],
-                                inputData[:,6], inputData[:,7]])
-            stnInfo = {'ID':locID, 'lon':inputData[0,1], 'lat':inputData[0,2]}
-            _plot(data,stnInfo, outputFile)
-            pyplot.clf()
+            locID = f.rstrip('.csv').lstrip('ts.')
+            outputFile = os.path.join(outputPath, '%s.png' % f.rstrip('.csv'))
+            inputData = loadTimeseriesData(inputFile)
+
+
+            stnInfo = {'ID':locID, 'lon':inputData['Longitude'][0], 
+                        'lat':inputData['Latitude'][0]}
+            title = 'Station ID: %s (%6.2f, %6.2f)' % (locID, inputData['Longitude'][0], 
+                                                        inputData['Latitude'][0])
+
+            
+            fig = TimeSeriesFigure()
+            
+            fig.add(inputData['Time'], inputData['Pressure'], [900,1020], 'Pressure (hPa)', 'Sea level pressure')
+            fig.add(inputData['Time'], inputData['Speed'], [0,100], 'Wind speed (m/s)', 'Wind speed')
+            fig.add(inputData['Time'], inputData['Bearing'], [0,360], 'Direction', 'Wind direction')
+            fig.plot()
+            fig.addTitle(title)
+            saveFigure(fig, outputFile)
+
 
 if __name__ == '__main__':
     plotTimeseries(sys.argv[1], sys.argv[2])
