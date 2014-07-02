@@ -4,7 +4,7 @@ import scipy.stats as stats
 
 from matplotlib.figure import Figure
 from matplotlib.artist import setp
-from matplotlib.ticker import LogLocator
+from matplotlib.ticker import LogLocator, FormatStrFormatter
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.basemap import Basemap
 
@@ -69,6 +69,7 @@ class SemilogxCurve(CurveFigure):
         
     def addGrid(self, axes):
         axes.xaxis.set_major_locator(LogLocator())
+        axes.xaxis.set_major_formatter(FormatStrFormatter('%d'))
         axes.xaxis.set_minor_locator(LogLocator(subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9]))
         axes.autoscale(True, axis='x', tight=True)
         axes.grid(True, which='major', color='k', linestyle='-', linewidth=0.1)
@@ -116,6 +117,7 @@ class SemilogRangeCurve(CurveFigure):
     def addGrid(self, axes):
         
         axes.xaxis.set_major_locator(LogLocator())
+        axes.xaxis.set_major_formatter(FormatStrFormatter('%d'))
         axes.xaxis.set_minor_locator(LogLocator(subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9]))
         axes.autoscale(True, axis='x', tight=True)
         axes.grid(True, which='major', color='k', linestyle='-', linewidth=0.1)
@@ -142,6 +144,7 @@ class SemilogRangeCompareCurve(CurveFigure):
         
     def addGrid(self, axes):
         axes.xaxis.set_major_locator(LogLocator())
+        axes.xaxis.set_major_formatter(FormatStrFormatter('%d'))
         axes.xaxis.set_minor_locator(LogLocator(subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9]))
         axes.autoscale(True, axis='x', tight=True)
         axes.grid(True, which='major', color='k', linestyle='-', linewidth=0.1)
