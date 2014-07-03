@@ -321,6 +321,7 @@ def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):
     day = np.empty(len(dates), 'i')
     hour = np.empty(len(dates), 'i')
     minute = np.empty(len(dates), 'i')
+    datetimes = np.empty(len(dates), datetime)
 
     for i in xrange(len(dates)):
         try:
@@ -333,8 +334,9 @@ def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):
             day[i] = d.day
             hour[i] = d.hour
             minute[i] = d.minute
+            datetimes[i] = d
 
-    return year, month, day, hour, minute
+    return year, month, day, hour, minute, datetimes
 
 
 def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
@@ -343,7 +345,7 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
     minute details for the input dataset
     """
     try:
-        year, month, day, hour, minute = date2ymdh(data['date'], datefmt)
+        year, month, day, hour, minute, datetimes = date2ymdh(data['date'], datefmt)
     except (ValueError, KeyError):
         # Sort out date/time information:
         month = np.array(data['month'], 'i')
@@ -373,7 +375,7 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
                                "- setting minutes to 00 for all times")
                 minute = np.zeros((hour.size), 'i')
 
-    return year, month, day, hour, minute
+    return year, month, day, hour, minute, datetimes
 
 def parseAge(data, indicator):
     """
@@ -400,7 +402,7 @@ def parseAge(data, indicator):
         hour[i] = dt.hour
         minute[i] = dt.minute
 
-    return year, month, day, hour, minute
+    return year, month, day, hour, minute, times_
 
 
 def getTimeDelta(year, month, day, hour, minute):
@@ -622,10 +624,10 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
 
     # Sort date/time information
     if 'age' in inputData.dtype.names:
-        year, month, day, hour, minute = parseAge(inputData, indicator)
+        year, month, day, hour, minute, datetimes = parseAge(inputData, indicator)
         timeElapsed = inputData['age']
     else:
-        year, month, day, hour, minute = parseDates(inputData, indicator,
+        year, month, day, hour, minute, datetimes = parseDates(inputData, indicator,
                                                     inputDateFormat)
         timeElapsed = getTimeElapsed(indicator, year, month, day, hour, minute)
         
@@ -705,7 +707,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
                                'formats': trackTypes
                                } )
     for key, value in zip(trackFields, [indicator, TCID, year, month,
-                                           day, hour, minute, timeElapsed,
+                                           day, hour, minute, timeElapsed, datetimes,
                                            lon, lat, speed, bearing,
                                            pressure, windspeed, rmax, penv]):
         data[key] = value

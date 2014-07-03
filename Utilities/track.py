@@ -3,19 +3,20 @@ Track-related attributes
 """
 
 import numpy as np
+from datetime import datetime, timedelta
 
 trackFields = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
-               'Day', 'Hour', 'Minute', 'TimeElapsed', 'Longitude',
+               'Day', 'Hour', 'Minute', 'TimeElapsed', 'Datetime','Longitude',
                'Latitude', 'Speed', 'Bearing', 'CentralPressure',
                'WindSpeed', 'rMax', 'EnvPressure')
 
 trackTypes = ('i', 'i', 'i', 'i', 
-              'i', 'i', 'i', 'f', 
+              'i', 'i', 'i', 'f', datetime,
               'f', 'f', 'f', 'f', 'f', 
               'f', 'f', 'f')
 
 trackFormats = ('%i, %i, %i, %i,' 
-                '%i, %i, %i, %5.1f,'
+                '%i, %i, %i, %5.1f,' '%s',
                 '%8.3f, %8.3f, %6.2f, %6.2f, %7.2f,'
                 '%6.2f, %6.2f, %7.2f')
                 
