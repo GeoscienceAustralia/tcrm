@@ -109,10 +109,8 @@ class MapFigure(Figure, Basemap):
 
         w, h = self.get_size_inches()
         self.set_size_inches(w * c , r * h)
-        for i, subfigure in enumerate(reversed(self.subfigures)):
-            x = i % c + 1
-            y = i // c + 1
-            axes = self.add_subplot(n, x, y)
+        for i, subfigure in enumerate(self.subfigures):
+            axes = self.add_subplot(r, c, i)
             self.subplot(axes, subfigure)
         
 class FilledContourMapFigure(MapFigure):
