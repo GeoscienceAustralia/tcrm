@@ -138,7 +138,7 @@ Years=2,5,10,20,25,50,100,200,250,500,1000
 MinimumRecords=50
 CalculateCI=True
 PercentileRange=90
-SampleSize=100
+SampleSize=50
 PlotSpeedUnits=mps
 
 [RMW]
