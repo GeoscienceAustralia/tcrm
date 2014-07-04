@@ -18,6 +18,7 @@ import numpy as np
 
 from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
+from datetime import datetime
 from ConfigParser import NoOptionError
 
 from functools import wraps
@@ -40,21 +41,22 @@ from PlotInterface.curves import RangeCompareCurve, saveFigure
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
-TRACKFILE_COLS = ('CycloneNumber', 'TimeElapsed', 'Longitude',
+TRACKFILE_COLS = ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
                   'Latitude', 'Speed', 'Bearing', 'CentralPressure',
                   'EnvPressure', 'rMax')
 
-TRACKFILE_UNIT = ('', 'hr', 'degree', 'degree', 'kph', 'degrees',
+TRACKFILE_UNIT = ('', '%Y-%m-%d %H:%M:%S', 'hr', 'degree', 'degree', 'kph', 'degrees',
                   'hPa', 'hPa', 'km')
 
-TRACKFILE_FMTS = ('i', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f')
+TRACKFILE_FMTS = ('i', datetime, 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f')
 
 TRACKFILE_CNVT = {
     0: lambda s: int(float(s.strip() or 0)),
-    4: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[4], 'mps'),
-    5: lambda s: bearing2theta(float(s.strip() or 0) * np.pi / 180.),
-    6: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[6], 'Pa'),
+    1: lambda s: datetime.strptime(s.strip(), TRACKFILE_UNIT[1]),
+    5: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[5], 'mps'),
+    6: lambda s: bearing2theta(float(s.strip() or 0) * np.pi / 180.),
     7: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[7], 'Pa'),
+    8: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[8], 'Pa'),
 }
 
 
