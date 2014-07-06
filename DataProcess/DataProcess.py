@@ -226,8 +226,8 @@ class DataProcess:
             except (ValueError, KeyError):
                 pass
 
-            year, month, day, hour, minute = loadData.parseDates(inputData,
-                                                                 indicator)
+            year, month, day, hour, minute, datetimes \
+                = loadData.parseDates(inputData, indicator)
 
             # Time between observations:
             dt = loadData.getTimeDelta(year, month, day, hour, minute)
