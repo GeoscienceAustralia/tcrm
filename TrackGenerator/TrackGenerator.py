@@ -1597,7 +1597,7 @@ def run(configFile, callback=None):
     config.read(configFile)
 
     outputPath = config.get('Output', 'Path')
-    nGenesisPoints = config.getint('TrackGenerator', 'NumSimulations')
+    nSimulations = config.getint('TrackGenerator', 'NumSimulations')
     yrsPerSim = config.getint('TrackGenerator', 'YearsPerSimulation')
     maxTimeSteps = config.getint('TrackGenerator', 'NumTimeSteps')
     dt = config.getfloat('TrackGenerator', 'TimeStep')
@@ -1668,7 +1668,7 @@ def run(configFile, callback=None):
     # behaves correctly when not done in parallel.
 
     nCyclones = np.random.poisson(
-        np.floor(yrsPerSim) * meanFreq, nGenesisPoints)
+        np.floor(yrsPerSim) * meanFreq, nSimulations)
 
     # Estimate the maximum number of random values to be drawn from the
     # PRNG for each track and calculate how much each track simulation
@@ -1679,8 +1679,8 @@ def run(configFile, callback=None):
     jumpAhead = np.hstack([[0],
                           np.cumsum(nCyclones * maxRvsPerTrack)[:-1]])
 
-    log.info('Generating %i total tracks from %i genesis locations',
-              sum(nCyclones), nGenesisPoints)
+    log.info('Generating %i total events for %i simulations',
+              sum(nCyclones), nSimulations)
 
     # Setup the simulation parameters
 

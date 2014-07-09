@@ -164,7 +164,7 @@ class WindfieldAroundTrack(object):
 
     def __init__(self, track, profileType='powell', windFieldType='kepert',
                  beta=1.5, beta1=1.5, beta2=1.4, thetaMax=70.0,
-                 margin=2.0, resolution=0.05, gustFactor=1.38,
+                 margin=2.0, resolution=0.05, gustFactor=1.23,
                  gridLimit=None):
         self.track = track
         self.profileType = profileType

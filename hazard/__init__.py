@@ -257,6 +257,7 @@ class HazardCalculator(object):
         self.yrsPerSim = yrsPerSim
         self.calcCI = calcCI
         if self.calcCI:
+            log.debug("Bootstrap confidence intervals will be calculated")
             self.sample_size = config.getint('Hazard', 'SampleSize')
             self.prange = config.getint('Hazard', 'PercentileRange')
 
@@ -641,7 +642,8 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
                     vsub.sort()
                     if vsub.max( ) > 0.:
                         w[:, n], loc, scale, shp = evd.estimateEVD(vsub, years, nodata,
-                                                                   minRecords, yrsPerSim)
+                                                                   minRecords/5, yrsPerSim)
+
                 for n in range(len(years)):
                     wUpper[n] = percentile(w[n,:], upper)
                     wLower[n] = percentile(w[n,:], lower)
