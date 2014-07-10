@@ -130,7 +130,7 @@ class SemilogRangeCurve(CurveFigure):
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
         axes.set_title(title, fontsize='small')
-        ylim = (0., np.max(100, np.ceil(ymean.max()/10.)*10.))
+        ylim = (0., np.max([100, np.ceil(ymean.max()/10.)*10.]))
         axes.set_ylim(ylim)
         self.addGrid(axes)
 
@@ -153,7 +153,7 @@ class SemilogRangeCompareCurve(CurveFigure):
         axes.semilogx(xdata, y1, color='r', lw=2, label="", subsx=xdata)
         axes.semilogx(xdata, y2, color='k', lw=2, label="", subsx=xdata)
         self.addRange(axes, xdata, y2min, y2max)
-        ylim = (0., np.max(100, np.ceil(ymean.max()/10.)*10.))
+        ylim = (0., np.max([100, np.ceil(ymean.max()/10.)*10.]))
         axes.set_ylim(ylim)
 
         axes.set_xlabel(xlabel)
