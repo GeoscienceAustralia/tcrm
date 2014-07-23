@@ -590,7 +590,7 @@ class LongitudeCrossing(object):
             x1 = 2.* self.gateLons[i] - 100. * self.synCrossEWUpper[:, i]
             x2 = 2.* self.gateLons[i] - 100. * self.synCrossEWLower[:, i]
             ax1.fill_betweenx(self.gateLats[:-1], x1, x2, 
-                              color='0.5', alpha=0.7)
+                              color='0.75', alpha=0.7)
 
         minLonLim = 2. * (self.lon_range.min() - 10.)
         maxLonLim = 2. * (self.lon_range.max() + 10.)
@@ -613,7 +613,7 @@ class LongitudeCrossing(object):
             x1 = 2.* self.gateLons[i] + 100. * self.synCrossWEUpper[:, i]
             x2 = 2.* self.gateLons[i] + 100. * self.synCrossWELower[:, i]
             ax2.fill_betweenx(self.gateLats[:-1], x1, x2,
-                              color='0.5', alpha=0.7)
+                              color='0.75', alpha=0.7)
 
         ax2.set_xlim(minLonLim, maxLonLim)
         ax2.set_xticks(2. * self.gateLons)

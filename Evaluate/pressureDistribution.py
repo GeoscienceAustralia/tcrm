@@ -14,6 +14,8 @@ import os
 import sys
 import logging
 
+import pdb
+
 import numpy as np
 import numpy.ma as ma
 
@@ -41,6 +43,7 @@ from Utilities import colours
 
 from PlotInterface.maps import ArrayMapFigure, saveFigure
 from PlotInterface.curves import saveDistributionCurve
+from PlotInterface.figures import QuantileFigure
 
 
 log = logging.getLogger(__name__)
@@ -280,7 +283,7 @@ class PressureDistribution(object):
 
         bins = np.arange(850., 1020., 5.)
         h, n = np.histogram(minCP, bins, normed=True)
-        return h
+        return h, minCP
 
 
     def calculateMeans(self, synMean, synMin, synMed, synMax, synMinCP):
@@ -327,7 +330,7 @@ class PressureDistribution(object):
             self.histMean, self.histMin, \
                 self.histMax, self.histMed = self.calculate(tracks)
 
-            self.histMinCP = self.calcMinPressure(tracks)
+            self.histMinCPDist, self.histMinCP = self.calcMinPressure(tracks)
 
     def synthetic(self):
         """Load synthetic data and calculate histogram"""
@@ -352,7 +355,7 @@ class PressureDistribution(object):
                                     len(self.lat_range) - 1))
 
         bins = np.arange(850., 1020., 5.)
-        synMinCP = np.empty((len(trackfiles), len(bins) - 1))
+        synMinCPDist = np.empty((len(trackfiles), len(bins) - 1))
 
         if (pp.rank() == 0) and (pp.size() > 1):
 
@@ -369,12 +372,13 @@ class PressureDistribution(object):
                                              return_status=True)
                 
 
-                sMean, sMin, sMax, sMed, sMinCP = results
+                sMean, sMin, sMax, sMed, sMinCPDist, sMinCP = results
                 synMean[n, :, :] = sMean
                 synMin[n, :, :] = sMin
                 synMax[n, :, :] = sMax
                 synMed[n, :, :] = sMed
-                synMinCP[n, :] = sMinCP
+                synMinCPDist[n, :] = sMinCPDist
+                self.synMinCP = sMinCP
                 n += 1
 
                 d = status.source
@@ -387,7 +391,7 @@ class PressureDistribution(object):
                     pp.send(None, destination=d, tag=work_tag)
                     terminated += 1
 
-            self.calculateMeans(synMean, synMin, synMed, synMax, synMinCP)
+            self.calculateMeans(synMean, synMin, synMed, synMax, synMinCPDist)
 
         elif (pp.size() > 1) and (pp.rank() != 0):
             while(True):
@@ -398,8 +402,8 @@ class PressureDistribution(object):
                 log.debug("Processing %s" % (trackfile))
                 tracks = loadTracks(trackfile)
                 sMean, sMin, sMax, sMed = self.calculate(tracks)
-                sMinCP = self.calcMinPressure(tracks)
-                results = (sMean, sMin, sMax, sMed, sMinCP)
+                sMinCPDist, sMinCP = self.calcMinPressure(tracks)
+                results = (sMean, sMin, sMax, sMed, sMinCPDist, sMinCP)
                 pp.send(results, destination=0, tag=result_tag)
                 
         elif pp.size() == 1 and pp.rank() == 0:
@@ -408,9 +412,9 @@ class PressureDistribution(object):
                 tracks = loadTracks(trackfile)
                 synMean[n, :, :], synMin[n, :, :], \
                     synMax[n, :, :], synMed[n, :, :] = self.calculate(tracks)
-                synMinCP[n, :] = self.calcMinPressure(tracks)
+                synMinCPDist[n, :], self.synMinCP = self.calcMinPressure(tracks)
 
-            self.calculateMeans(synMean, synMin, synMed, synMax, synMinCP)
+            self.calculateMeans(synMean, synMin, synMed, synMax, synMinCPDist)
 
     @disableOnWorkers
     def plotPressureMean(self):
@@ -533,15 +537,26 @@ class PressureDistribution(object):
 
         """
         x = np.arange(850., 1020., 5.)[:-1]
-        y1 = self.histMinCP
+        y1 = self.histMinCPDist
         y2 = self.synMinCPDist
         y2min= self.synMinCPLower
         y2max = self.synMinCPUpper
-
         outputFile = pjoin(self.plotPath, 'minPressureDist.png')
         saveDistributionCurve(x, y1, y2, y2max, y2min, "Minimum pressure (hPa)", 
                               "Probability", "Minimum pressure distribution", 
                               outputFile)
+
+    @disableOnWorkers
+    def plotMinPressureQuantiles(self):
+        x = self.histMinCP
+        y = self.synMinCP
+        lims = (850, 1000)
+        fig = QuantileFigure()
+        fig.add(x.compress(x>0), y.compress(y>0), lims, "Observed pressure (hPa)", "Simulated pressure (hPa)",
+                "Q-Q plot of minimum central pressure")
+        fig.plot()
+        outputFile = pjoin(self.plotPath, 'minPressureQuantiles.png')
+        saveFigure(fig, outputFile)
 
     @disableOnWorkers
     def save(self):
@@ -622,6 +637,10 @@ class PressureDistribution(object):
         }
 
         ncSaveGrid(dataFile, dimensions, variables)
+        histCPFile = pjoin(self.dataPath, 'histCP.csv')
+        synCPFile = pjoin(self.dataPath, 'synCP.csv')
+        np.savetxt(histCPFile, self.histMinCP)
+        np.savetxt(synCPFile, self.synMinCP)
 
     def run(self):
         """Run the pressure distribution evaluation"""
@@ -642,5 +661,5 @@ class PressureDistribution(object):
         self.plotPressureMinDiff()
 
         self.plotMinPressureDistribution()
-
+        self.plotMinPressureQuantiles()
         self.save()
