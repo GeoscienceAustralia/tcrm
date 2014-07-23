@@ -1,3 +1,5 @@
+from __future__ import division
+
 import sys
 import numpy as np
 import scipy.stats as stats
@@ -92,6 +94,80 @@ class ScatterHistogramFigure(Figure):
         axes = self.add_subplot(1, 1, 1)
         self.render(axes, x, y)
 
+class QuantileFigure(Figure):
+    
+    def __init__(self):
+        Figure.__init__(self)
+        self.subfigures = []
+
+    def percentiles(self, data):
+        """Calculate percentile values from 1 to 100"""
+        p = np.array([stats.scoreatpercentile(data, q) for q in range(1, 101)])
+        return p
+
+    def percentilerange(self, data):
+        """Calculate a range of percentile values"""
+        b = np.zeros((1000,100))
+        for n in xrange(1000):
+            b[n, :] = np.array([np.random.choice(data) for _ in xrange(100)])
+        
+        d = stats.scoreatpercentile(b, range(1,101), axis=1)
+        u = stats.scoreatpercentile(d, 95, axis=1)
+        l = stats.scoreatpercentile(d, 5, axis=1)
+        return u, l
+
+    def add(self, xdata, ydata, axisrange, xlabel='x', ylabel='y',
+            title='Q-Q plot'):
+
+        self.subfigures.append((xdata, ydata, axisrange, 
+                                xlabel, ylabel, title))
+
+    def formatAxes(self, axes, limits):
+        axes.set_ylim(limits)
+        axes.set_xlim(limits)
+
+        #axes.set_xticks(np.linspace(*limits, num=11))
+        #axes.set_yticks(np.linspace(*limits, num=11))
+
+    def addGrid(self, axes):
+        axes.grid(True, which='major', color='k', linestyle='-', linewidth=0.1)
+
+
+    def subplot(self, axes, subfigure):
+        xdata, ydata, axisrange, xlabel, ylabel, title = subfigure
+
+        xper = self.percentiles(xdata)
+        yper = self.percentiles(ydata)
+
+        xupper, xlower = self.percentilerange(xdata)
+        yupper, ylower = self.percentilerange(ydata)
+        
+        axes.scatter(xper, yper, s=5, c='r', marker='o', 
+                     edgecolor='none', alpha=0.5)
+
+        axes.plot(xupper, ylower, color='0.5', linestyle='solid', linewidth=0.5)
+        axes.plot(xlower, yupper, color='0.5', linestyle='solid', linewidth=0.5)
+
+        axes.set_xlabel(xlabel)
+        axes.set_ylabel(ylabel)
+        axes.set_title(title)
+        
+        xx = np.arange(*axisrange)
+        axes.plot(xx, xx, 'b--', linewidth=0.5)
+
+        self.formatAxes(axes, axisrange)
+        self.addGrid(axes)
+
+    def plot(self):
+        n = len(self.subfigures)
+        r = int(np.ceil(np.sqrt(n)))
+        c = int(np.ceil(n / r))
+        w, h = self.get_size_inches()
+        self.set_size_inches(w * c, r * h)
+        for i, subfigure in enumerate(self.subfigures):
+            axes = self.add_subplot(r, c, i)
+            self.subplot(axes, subfigure)
+
 class RegressionFigure(Figure):
 
     def __init__(self):
@@ -161,7 +237,7 @@ class RegressionFigure(Figure):
         w, h = self.get_size_inches()
         self.set_size_inches(w * c, r * h)
         for i, subfigure in enumerate(self.subfigures):
-            axes = self.add_subplot(r, c, i)
+            axes = self.add_subplot(r, c, i + 1)
             self.subplot(axes, subfigure)
         
 
@@ -282,11 +358,21 @@ def saveSpeedFigures(speeds, speedRates):
     fig = ScatterHistogramFigure()
     fig.plot(speeds[1:], speeds[:-1])
     saveFigure(fig, 'docs/speedsh.png')
+    fig = ScatterHistogramFigure()
+    fig.plot(speedRates[1:], speedRates[:-1])
+    saveFigure(fig, 'docs/speedratesh.png')
 
-def saveBearingFigure(bearings, bearingRates, filename='docs/bear_corr.png'):
+def saveBearingFigure(bearings, bearingRates):
     fig = BearingFigure()
     fig.plot(bearings, bearingRates)
-    saveFigure(fig, filename)
+    saveFigure(fig, 'docs/bear_corr.png')
+    fig = ScatterHistogramFigure()
+    fig.plot(bearings[1:], bearings[:-1])
+    saveFigure(fig, 'docs/bearingsh.png')
+    fig = ScatterHistogramFigure()
+    fig.plot(bearingRates[1:], bearingRates[:-1])
+    saveFigure(fig, 'docs/bearingratesh.png')
+    
 
 
 def saveFrequencyFigure(years, frequency, filename='docs/freq_corr.png'):
