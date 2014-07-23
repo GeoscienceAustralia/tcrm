@@ -510,6 +510,7 @@ class HazardCalculator(object):
                     'long_name': 'Upper percentile return period wind speed',
                     'units': 'm/s',
                     'percentile': 95,
+                    'valid_range': (0.0, 200.),
                     'grid_mapping': 'crs'
                 }
             },
@@ -522,6 +523,7 @@ class HazardCalculator(object):
                     'long_name': 'Lower percentile return period wind speed',
                     'units': 'm/s',
                     'percentile': 5,
+                    'valid_range': (0.0, 200.),
                     'grid_mapping': 'crs'
                 }
             },
@@ -642,7 +644,7 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
                     vsub.sort()
                     if vsub.max( ) > 0.:
                         w[:, n], loc, scale, shp = evd.estimateEVD(vsub, years, nodata,
-                                                                   minRecords/5, yrsPerSim)
+                                                                   minRecords/10, yrsPerSim)
 
                 for n in range(len(years)):
                     wUpper[n] = percentile(w[n,:], upper)
