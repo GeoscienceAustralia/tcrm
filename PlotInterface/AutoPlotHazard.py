@@ -175,6 +175,43 @@ class AutoPlotHazard(object):
         mask = (data==mv)
         mdata = ma.array(data, mask=mask)
         return lon, lat, years, mdata
+
+    def getLocations(self):
+        """
+        Extract locations from the localities database
+
+        """
+        
+        # If locality is not found in domain, revert to plotting return
+        # curves for all localities in domain:
+        self.sqlcur.execute(('select placename from localities where lon > ? '
+                             'and lon < ? and lat > ? and lat < ? '
+                             'and placeID = ?'),
+                             (minLon, maxLon,
+                              minLat, maxLat,
+                              str(self.localityID)))
+
+        if len([z[0] for z in self.sqlcur.fetchall()]) == 0:
+            self.localityID = -99999
+
+        if self.localityID == -99999:
+            self.sqlcur.execute(('select placename, parentcountry, lat, lon '
+                                 'from localities where lon > ? and lon < ? '
+                                 'and lat > ? and lat < ?'),
+                                 (minLon, maxLon, minLat, maxLat))
+        else:
+            self.sqlcur.execute(('select placename, parentcountry, lat, lon '
+                                 'from localities where placeID = ?'),
+                                 (str(self.localityID),))
+
+        placeNames, parentCountries, placeLats, placeLons = \
+            zip(*self.sqlcur.fetchall())
+        placeNames = list(placeNames)
+        parentCountries = list(parentCountries)
+        placeLats = list(placeLats)
+        placeLons = list(placeLons)
+
+        return placeNames, parentCountries, placeLats, placeLons
     
     def plotHazardCurves(self, inputFile, plotPath):
         """
@@ -209,40 +246,13 @@ class AutoPlotHazard(object):
         minLat = min(lat)
         maxLat = max(lat)
 
-        # If locality is not found in domain, revert to plotting return
-        # curves for all localities in domain:
-        self.sqlcur.execute(('select placename from localities where lon > ? '
-                             'and lon < ? and lat > ? and lat < ? '
-                             'and placeID = ?'),
-                             (minLon, maxLon,
-                              minLat, maxLat,
-                              str(self.localityID)))
-
-        if len([z[0] for z in self.sqlcur.fetchall()]) == 0:
-            self.localityID = -99999
-
-        if self.localityID == -99999:
-            self.sqlcur.execute(('select placename, parentcountry, lat, lon '
-                                 'from localities where lon > ? and lon < ? '
-                                 'and lat > ? and lat < ?'),
-                                 (minLon, maxLon, minLat, maxLat))
-        else:
-            self.sqlcur.execute(('select placename, parentcountry, lat, lon '
-                                 'from localities where placeID = ?'),
-                                 (str(self.localityID),))
-
-        placeNames, parentCountries, placeLats, placeLons = \
-            zip(*self.sqlcur.fetchall())
-        placeNames = list(placeNames)
-        parentCountries = list(parentCountries)
-        placeLats = list(placeLats)
-        placeLons = list(placeLons)
-
         # Use the same maximum value for all localities to simplify
         # intercomparisons:
         defaultMax = np.ceil(metutils.convert(100.0, 'mps',
                                               self.plotUnits.units)/10.0)*10.0
-
+        
+        placeNames, parentCountries, placeLats, placeLons = self.getLocations()
+        
         for name, plat, plon, country in zip(placeNames, placeLats,
                                              placeLons, parentCountries):
 
@@ -250,14 +260,14 @@ class AutoPlotHazard(object):
             i = find_index(lon, plon)
             j = find_index(lat, plat)
 
-            xlabel = 'Return period (years)'
+            xlabel = 'Average recurrence interval (years)'
             ylabel = 'Wind speed (%s)'%self.plotUnits.label
             title = "Return period wind speeds at " + name + ", " \
                             + country + "\n(%5.1f,%5.1f)"%(plon, plat)
 
             name = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore')
             name.replace(' ', '')
-            filename = pjoin(plotPath, 'RP_curve_%s.%s'%(name,"png"))
+            filename = pjoin(plotPath, 'ARI_curve_%s.%s'%(name,"png"))
             log.debug("Saving hazard curve for %s to %s"%(name, filename))
             placeWspd = metutils.convert(wspd[:, j, i], 'mps',
                                          self.plotUnits.units)

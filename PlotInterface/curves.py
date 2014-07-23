@@ -1,3 +1,4 @@
+from __future__ import division
 import sys
 import numpy as np
 import scipy.stats as stats
@@ -51,7 +52,7 @@ class CurveFigure(Figure):
         w, h = self.get_size_inches()
         self.set_size_inches(w * c, r * h)
         for i, subfigure in enumerate(self.subfigures):
-            axes = self.add_subplot(r, c, i)
+            axes = self.add_subplot(r, c, i + 1)
             self.subplot(axes, subfigure)
 
 class SemilogxCurve(CurveFigure):
@@ -137,7 +138,7 @@ class SemilogRangeCurve(CurveFigure):
 class SemilogRangeCompareCurve(CurveFigure):
 
     def add(self, xdata, y1, y2, y2max, y2min, xlabel='x', ylabel='y', title='x'):
-        self.subfigures.append((xdata, y1, y2max, y2min,
+        self.subfigures.append((xdata, y1, y2, y2max, y2min,
                                 xlabel, ylabel, title))
         
     def addGrid(self, axes):
@@ -153,7 +154,7 @@ class SemilogRangeCompareCurve(CurveFigure):
         axes.semilogx(xdata, y1, color='r', lw=2, label="", subsx=xdata)
         axes.semilogx(xdata, y2, color='k', lw=2, label="", subsx=xdata)
         self.addRange(axes, xdata, y2min, y2max)
-        ylim = (0., np.max([100, np.ceil(ymean.max()/10.)*10.]))
+        ylim = (0., np.max([100, np.ceil(y2.max()/10.)*10.]))
         axes.set_ylim(ylim)
 
         axes.set_xlabel(xlabel)
