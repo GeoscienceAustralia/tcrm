@@ -7,7 +7,6 @@ from matplotlib.figure import Figure
 from matplotlib.artist import setp
 from matplotlib.ticker import LogLocator, FormatStrFormatter
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from mpl_toolkits.basemap import Basemap
 
 class CurveFigure(Figure):
 
@@ -25,6 +24,7 @@ class CurveFigure(Figure):
         axes.plot(xdata, ydata, '-', color='k')
         axes.set_xlabel(xlabel)
         axes.set_ticklabels(xdata.astype(int))
+        axes.autoscale(True, axis='x', tight=True)
         axes.set_ylabel(ylabel)
         axes.set_title(title)
         self.addGrid(axes)
