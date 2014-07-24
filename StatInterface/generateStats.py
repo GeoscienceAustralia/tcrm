@@ -1,19 +1,9 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`generateStats` -- calculation of statistical values
+=========================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+Calculates the basic statistical values used in the track generation
+module, on a per grid cell basis. 
 
 
 Title: generateStats.py
@@ -44,14 +34,14 @@ $Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $
 import os, pdb, logging, sys
 
 import numpy as np
-from matplotlib import pyplot
 
 import Utilities.stats as stats
 
 from Utilities.files import flLoadFile
 from Utilities.config import ConfigParser
 
-
+from scipy.stats import scoreatpercentile as percentile
+from PlotInterface.curves import RangeCurve, saveFigure
 
 __version__ = '$Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $'
 
@@ -73,27 +63,23 @@ def acf(p, nlags=1):
 class parameters(object):
     """parameters:
 
-    Description: Create an object that holds np.arrays of the statistical
-    properties of each grid cell. There are np.arrays for both land and sea cells.
+    Description: Create an object that holds `numpy` arrays of the 
+    statistical properties of each grid cell. There are `numpy` 
+    arrays for both land and sea cells.
 
     Parameters:
     None
 
     Members:
-    mu/lmu : np.array of mean values of parameter for each grid cell
-    sig/lsig : np.array of variance values of parameter for each grid cell
-    alpha/lalpha : np.array of autoregression coefficients of parameter for
+    mu/lmu : array of mean values of parameter for each grid cell
+    sig/lsig : array of variance values of parameter for each grid cell
+    alpha/lalpha : array of autoregression coefficients of parameter for
     each grid cell
-    phi/lphi : np.array of normalisation values for random variations
+    phi/lphi : array of normalisation values for random variations
 
-    Methods:
-    None
-
-    Internal methods:
-    None
     """
 
-    def __init__(self,numCells):
+    def __init__(self, numCells):
         self.mu = np.zeros(numCells)
         self.sig = np.zeros(numCells)
         self.alpha = np.zeros(numCells)
@@ -191,59 +177,79 @@ class GenerateStats:
     def plotStatistics(self, output_file):
 
         p = stats.statRemoveNum(np.array(self.param), self.missingValue)
+        a = p - np.mean(p)
         pmin = p.min()
         pmax = p.max()
+        amin = a.min()
+        amax = a.max()
+        abins = np.linspace(amin, amax, 50)
         bins = np.linspace(pmin, pmax, 50)
         hist = np.empty((len(bins) - 1, self.maxCell))
-        
+        ahist = np.empty((len(abins) - 1, self.maxCell))
         x = np.arange(11)
         alpha = np.empty((11, self.maxCell))
-        
-        fig1 = pyplot.figure()
-        ax1 = fig1.add_subplot(111)
-        fig2 = pyplot.figure()
-        ax2 = fig2.add_subplot(111)
-        
-        for i in range(self.maxCell + 1):
+        aalpha = np.empty((11, self.maxCell))
+
+        for i in xrange(self.maxCell + 1):
             p = self.extractParameter(i, 0)
-            hist[:, i-1], b = np.histogram(p , bins, normed=True)
-            alpha[:, i-1] = acf(p, 10)
-            
-            ax1.plot(bins[:-1], hist[:,i-1], '0.7', lw=0.5)
-            ax2.plot(x, alpha[:,i-1], '0.7', lw=0.5)
-        
+            a = p - np.mean(p)
+            hist[:, i - 1], b = np.histogram(p, bins, normed=True)
+            ahist[:, i - 1], b = np.histogram(a, abins, normed=True)
+            alpha[:, i - 1] = acf(p, 10)
+            aalpha[:, i - 1] = acf(a, 10)
+
         mhist = np.mean(hist, axis=1)
-        ax1.plot(bins[:-1], mhist,  'k')
-        fig1.savefig(output_file + '.png')
-        
+        uhist = percentile(hist, per=95, axis=1)
+        lhist = percentile(hist, per=5, axis=1)
+
+        mahist = np.mean(ahist, axis=1)
+        uahist = percentile(ahist, per=95, axis=1)
+        lahist = percentile(ahist, per=5, axis=1)
+
         malpha = np.mean(alpha, axis=1)
-        ax2.plot(x, malpha,  'k')
-        ax2.grid()
-        fig2.savefig(output_file + '_AR.png')
+        ualpha = percentile(alpha, per=95, axis=1)
+        lalpha = percentile(alpha, per=5, axis=1)
+
+        maalpha = np.mean(aalpha, axis=1)
+        uaalpha = percentile(aalpha, per=95, axis=1)
+        laalpha = percentile(aalpha, per=5, axis=1)
         
+        fig = RangeCurve()
+        fig.add(bins[:-1], mhist, uhist, lhist, "Values", "Probability", "")
+        fig.add(abins[:-1], mahist, uahist, lahist, "Anomalies", "Probability", "")
+        fig.add(x, malpha, ualpha, lalpha, "Lag", "Autocorrelation", "ACF of values")
+        fig.add(x, maalpha, uaalpha, laalpha, "Lag", "Autocorrelation", "ACF of anomalies")
+        fig.plot()
+
+        saveFigure(fig, output_file + '.png')
         
     def calculate(self, cellNum, onLand):
-        """calculate(cellNum):
+        """
         Calculate the required statistics (mean, variance,
         autocorrelation and regularized anomaly coefficient) for the
         given cell.
+
         """
+
         p = self.extractParameter(cellNum, onLand)
-        #self.logger.debug('Calculating statistics for cell %i from %i samples' % (cellNum, len(p)))
+
         if self.angular:
             mu = stats.circmean(np.radians(p))
             sig = stats.circstd(np.radians(p))
         else:
             mu = np.mean(p)
             sig = np.std(p)
+
         # Calculate the autocorrelations:
         alphas = np.correlate(p, p, 'full')
         n = len(p)
+
         # Grab only the lag-one autocorrelation coeff.
         alpha = alphas[n]/alphas.max()
         alpha = acf(p)[-1]
         phi = np.sqrt(1 - alpha**2)
         mn = min(p)
+
         return mu, sig, alpha, phi, mn
 
     def extractParameter(self, cellNum, onLand):
@@ -254,7 +260,9 @@ class GenerateStats:
         sufficient.
 
         Null/missing values are removed.
+
         """
+
         if not stats.validCellNum(cellNum, self.gridLimit, self.gridSpace):
             self.logger.critical("Invalid input on cellNum: cell number %i is out of range"%cellNum)
             raise InvalidArguments, 'Invalid input on cellNum: cell number %i is out of range'%cellNum
@@ -268,12 +276,14 @@ class GenerateStats:
         lon = self.lonLat[:,0]
         lat = self.lonLat[:,1]
         lsflag = self.lonLat[:,2]
+
         if onLand:
             ij = np.where(((lat >= sLat) & (lat < nLat)) &
                        (lon >= wLon) & (lon < eLon) & (lsflag>0))
         else:
             ij = np.where(((lat >= sLat) & (lat < nLat)) &
                        (lon >= wLon) & (lon < eLon) & (lsflag==0))
+
         p_ = self.param[ij]
         p = stats.statRemoveNum(np.array(p_), self.missingValue)
 
@@ -292,9 +302,12 @@ class GenerateStats:
                         self.logger.warning("Insufficient grid points over land in selected domain to estimate storm statistics - reverting to statistics for open ocean.")
                     return self.extractParameter(cellNum, False)
                 else:
-                    errMsg = "Insufficient grid points in selected domain to estimate storm statistics - please select a larger domain."
+                    errMsg = ("Insufficient grid points in selected "
+                              "domain to estimate storm statistics - "
+                              "please select a larger domain.")
                     self.logger.critical(errMsg)
                     raise StopIteration, errMsg
+
             if onLand:
                 ij = np.where(((lat >= sLat) & (lat < nLat)) & (lon >= wLon) &
                            (lon < eLon) & (lsflag>0))
@@ -340,6 +353,7 @@ class GenerateStats:
         Obtain the indices of observations from adjacent cells.
         This is called when there are insufficient observations
         in a cell to generate a PDF.
+
         """
         wLon -= self.gridInc['x']
         eLon += self.gridInc['x']
@@ -354,6 +368,7 @@ class GenerateStats:
         """_checkGridLimits(wLon, eLon, nLat, sLat):
         Check the bounds of the cell are within the limits of the
         region under investigation - if not then set to the limits
+
         """
         if wLon < self.gridLimit['xMin']:
             wLon = self.gridLimit['xMin']
@@ -366,6 +381,7 @@ class GenerateStats:
         return wLon, eLon, nLat, sLat
 
     def load(self, filename):
+        
         self.logger.debug('Loading statistics from %s' % filename)
         from netCDF4 import Dataset
         ncdf = Dataset(filename, 'r')
