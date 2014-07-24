@@ -356,7 +356,7 @@ class PressureDistribution(object):
 
         bins = np.arange(850., 1020., 5.)
         synMinCPDist = np.empty((len(trackfiles), len(bins) - 1))
-
+        self.synMinCP = np.array([])
         if (pp.rank() == 0) and (pp.size() > 1):
 
             w = 0
@@ -378,7 +378,7 @@ class PressureDistribution(object):
                 synMax[n, :, :] = sMax
                 synMed[n, :, :] = sMed
                 synMinCPDist[n, :] = sMinCPDist
-                self.synMinCP = sMinCP
+                self.synMinCP = np.append(self.synMinCP, sMinCP)
                 n += 1
 
                 d = status.source
@@ -412,8 +412,8 @@ class PressureDistribution(object):
                 tracks = loadTracks(trackfile)
                 synMean[n, :, :], synMin[n, :, :], \
                     synMax[n, :, :], synMed[n, :, :] = self.calculate(tracks)
-                synMinCPDist[n, :], self.synMinCP = self.calcMinPressure(tracks)
-
+                synMinCPDist[n, :], sMinCP = self.calcMinPressure(tracks)
+                self.synMinCP = np.append(self.synMinCP, sMinCP)
             self.calculateMeans(synMean, synMin, synMed, synMax, synMinCPDist)
 
     @disableOnWorkers
