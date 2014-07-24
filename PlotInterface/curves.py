@@ -88,6 +88,7 @@ class RangeCurve(CurveFigure):
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
         axes.set_title(title)
+        axes.autoscale(True, axis='x', tight=True)
         self.addGrid(axes)
 
 class RangeCompareCurve(CurveFigure):
@@ -106,6 +107,7 @@ class RangeCompareCurve(CurveFigure):
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
         axes.set_title(title)
+        axes.autoscale(True, axis='x', tight=True)
         self.addGrid(axes)
 
 class SemilogRangeCurve(CurveFigure):
