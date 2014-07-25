@@ -176,9 +176,17 @@ class AutoPlotHazard(object):
         mdata = ma.array(data, mask=mask)
         return lon, lat, years, mdata
 
-    def getLocations(self):
+    def getLocations(self, minLon, maxLon, minLat, maxLat):
         """
         Extract locations from the localities database
+
+        :param float minLon: Minimum longitude of the model domain.
+        :param float maxLon: Maximum longitude of the model domain.
+        :param float minLat: Minimum latitude of the model domain.
+        :param float maxLat: Maximum latitude of the model domain.
+
+        :returns: Names, countries, latitude and longitude of all locations
+                  within the model domain.
 
         """
         
@@ -251,7 +259,8 @@ class AutoPlotHazard(object):
         defaultMax = np.ceil(metutils.convert(100.0, 'mps',
                                               self.plotUnits.units)/10.0)*10.0
         
-        placeNames, parentCountries, placeLats, placeLons = self.getLocations()
+        placeNames, parentCountries, placeLats, placeLons = \
+            self.getLocations(minLon, maxLon, minLat, maxLat)
         
         for name, plat, plon, country in zip(placeNames, placeLats,
                                              placeLons, parentCountries):
