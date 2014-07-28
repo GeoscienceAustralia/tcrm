@@ -375,6 +375,9 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
                                "- setting minutes to 00 for all times")
                 minute = np.zeros((hour.size), 'i')
 
+        datetimes = np.array([datetime(y, m, d, h, mn) for y, m, d, h, mn 
+                                in zip(year, month, day, hour, minute)])
+
     return year, month, day, hour, minute, datetimes
 
 def parseAge(data, indicator):

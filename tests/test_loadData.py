@@ -95,7 +95,7 @@ class TestDateParsing(unittest.TestCase):
 
     def test_dateInput(self):
         """Test parseDates returns correct values when passed date info"""
-        year, month, day, hour, minute = loadData.parseDates(self.input_dates,
+        year, month, day, hour, minute, dt = loadData.parseDates(self.input_dates,
                                                              self.indicator)
         assert_almost_equal(year, self.year)
         assert_almost_equal(month, self.month)
@@ -110,7 +110,7 @@ class TestDateParsing(unittest.TestCase):
                          day=self.day,
                          hour=self.hour,
                          minute=self.minute)
-        year, month, day, hour, minute = loadData.parseDates(inputdata,
+        year, month, day, hour, minute, dt = loadData.parseDates(inputdata,
                                                              self.indicator)
 
         assert_almost_equal(year, self.year)
@@ -125,7 +125,7 @@ class TestDateParsing(unittest.TestCase):
                          month=self.month,
                          day=self.day,
                          hour=self.hourmin)
-        year, month, day, hour, minute = loadData.parseDates(inputdata,
+        year, month, day, hour, minute, dt = loadData.parseDates(inputdata,
                                                              self.indicator)
 
         assert_almost_equal(year, self.year)
@@ -140,7 +140,7 @@ class TestDateParsing(unittest.TestCase):
                          month=self.month,
                          day=self.day,
                          hour=self.hour)
-        year, month, day, hour, minute = loadData.parseDates(inputdata,
+        year, month, day, hour, minute, dt = loadData.parseDates(inputdata,
                                                              self.indicator)
 
         assert_almost_equal(year, self.year)
@@ -167,7 +167,7 @@ class TestDateConversion(unittest.TestCase):
 
     def test_date2ymdh(self):
         """Test date2ymdh function"""
-        year, month, day, hour, minute = loadData.date2ymdh(self.goodInputDates)
+        year, month, day, hour, minute, dt = loadData.date2ymdh(self.goodInputDates)
         assert_almost_equal(year, self.outputYear)
         assert_almost_equal(month, self.outputMonth)
         assert_almost_equal(day, self.outputDay)
@@ -195,7 +195,7 @@ class TestDateConversion(unittest.TestCase):
                 dtobj = datetime.strptime(d, self.dateformat)
                 datestr = dtobj.strftime(fmt)
                 dates.append(datestr)
-            year, month, day, hour, minute = loadData.date2ymdh(dates, fmt)
+            year, month, day, hour, minute, dt = loadData.date2ymdh(dates, fmt)
             assert_almost_equal(self.outputYear, year)
             assert_almost_equal(self.outputMonth, month)
             assert_almost_equal(self.outputDay, day)
