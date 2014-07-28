@@ -29,11 +29,11 @@ from datetime import datetime
 from os.path import join as pjoin, split as psplit, splitext as psplitext
 from collections import defaultdict
 
-
 from Utilities.files import flModDate, flProgramVersion
 from Utilities.config import ConfigParser
 from Utilities.metutils import convert, coriolis
 from Utilities.maputils import bearing2theta, makeGrid
+from Utilities.parallel import attemptParallel
 
 import Utilities.nctools as nctools
 
@@ -1024,36 +1024,6 @@ def balanced(iterable):
     return itertools.islice(iterable, p, None, P)
 
 
-def attemptParallel():
-    """
-    Attempt to load Pypar globally as `pp`.  If pypar cannot be loaded then a
-    dummy `pp` is created.
-    """
-    global pp
-
-    try:
-        # load pypar for everyone
-
-        import pypar as pp
-
-    except ImportError:
-
-        # no pypar, create a dummy one
-
-        class DummyPypar(object):
-
-            def size(self):
-                return 1
-
-            def rank(self):
-                return 0
-
-            def barrier(self):
-                pass
-
-        pp = DummyPypar()
-
-
 def run(configFile, callback=None):
     """
     Run the wind field calculations.
@@ -1107,9 +1077,9 @@ def run(configFile, callback=None):
     thetaMax = math.radians(thetaMax)
     
     # Attempt to start the track generator in parallel
-
-    attemptParallel()
-
+    global pp
+    pp = attemptParallel()
+    
     log.info('Running windfield generator')
     
     wfg = WindfieldGenerator(config=config,

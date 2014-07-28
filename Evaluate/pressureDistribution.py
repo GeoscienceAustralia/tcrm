@@ -28,7 +28,6 @@ matplotlib.use('Agg')
 
 from matplotlib import cm
 from mpl_toolkits.basemap import Basemap
-from functools import wraps
 
 from Utilities.config import ConfigParser
 from Utilities.metutils import convert
@@ -37,6 +36,7 @@ from Utilities.loadData import loadTrackFile
 from Utilities.track import Track
 from Utilities import pathLocator
 from Utilities.nctools import ncSaveGrid
+from Utilities.parallel import attemptParallel, disableOnWorkers
 
 # Importing :mod:`colours` makes a number of additional colour maps available:
 from Utilities import colours
@@ -66,51 +66,6 @@ TRACKFILE_CNVT = {
     7: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[7], 'hPa'),
     8: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[8], 'hPa'),
 }
-
-
-def disableOnWorkers(f):
-    """
-    Disable function calculation on workers. Function will
-    only be evaluated on the master.
-    """
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if pp.size() > 1 and pp.rank() > 0:
-            return
-        else:
-            return f(*args, **kwargs)
-    return wrap
-
-def attemptParallel():
-    """
-    Attempt to load Pypar globally as `pp`.  If pypar cannot be loaded then a
-    dummy `pp` is created.
-
-    """
-
-    global pp
-
-    try:
-        # load pypar for everyone
-
-        import pypar as pp
-
-    except ImportError:
-
-        # no pypar, create a dummy one
-        
-        class DummyPypar(object):
-
-            def size(self):
-                return 1
-
-            def rank(self):
-                return 0
-
-            def barrier(self):
-                pass
-
-        pp = DummyPypar()
 
 def readTrackData(trackfile):
     """
@@ -644,7 +599,8 @@ class PressureDistribution(object):
 
     def run(self):
         """Run the pressure distribution evaluation"""
-        attemptParallel()
+        global pp
+        pp = attemptParallel()
 
         self.historic()
 

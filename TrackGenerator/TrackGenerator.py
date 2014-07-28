@@ -52,6 +52,7 @@ from DataProcess.CalcFrequency import CalcFrequency
 from DataProcess.CalcTrackDomain import CalcTrackDomain
 from Utilities.config import ConfigParser
 from Utilities.interp3d import interp3d
+from Utilities.parallel import attemptParallel
 
 class SamplePressure(object):
     def __init__(self, mslp_file, var='slp'):
@@ -1461,36 +1462,6 @@ class TrackGenerator(object):
                            dtype='f', writedata=True,
                            keepfileopen=False)
 
-def attemptParallel():
-    """
-    Attempt to load Pypar globally as `pp`.  If pypar cannot be loaded
-    then a dummy `pp` is created.
-    """
-    global pp
-
-    try:
-        # load pypar for everyone
-
-        import pypar as pp
-
-    except ImportError:
-
-        # no pypar, create a dummy one
-
-        class DummyPypar(object):
-
-            def size(self):
-                return 1
-
-            def rank(self):
-                return 0
-
-            def barrier(self):
-                pass
-
-        pp = DummyPypar()
-
-
 # Define a global pseudo-random number generator. This is done to
 # ensure we are sampling correctly across processors when performing
 # the simulation in parallel. We use the inbuilt Python `random`
@@ -1635,9 +1606,9 @@ def run(configFile, callback=None):
         trackSeed = config.getint('TrackGenerator', 'TrackSeed')
 
     # Attempt to start the track generator in parallel
-
-    attemptParallel()
-
+    global pp
+    pp = attemptParallel()
+    
     if pp.size() > 1 and (not seasonSeed or not trackSeed):
         log.critical('TrackSeed and GenesisSeed are needed' +
                      ' for parallel runs!')

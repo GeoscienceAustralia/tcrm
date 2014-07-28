@@ -32,6 +32,7 @@ from functools import wraps
 
 from Utilities.files import flProgramVersion
 from Utilities.config import ConfigParser
+from Utilities.parallel import attemptParallel, disableOnWorkers
 import Utilities.nctools as nctools
 import evd
 
@@ -322,13 +323,20 @@ class HazardCalculator(object):
         result_tag = 1
         if (pp.rank() == 0) and (pp.size() > 1):
             w = 0
+            p = pp.size() - 1
             for d in range(1, pp.size()):
-                pp.send(tiles[w], destination=d, tag = work_tag)
-                log.debug("Processing tile %d of %d" % (w, len(tiles)))
-                w += 1
+                if w < len(tiles):
+                    pp.send(tiles[w], destination=d, tag=work_tag)
+                    log.debug("Processing tile %d of %d" % (w, len(tiles)))
+                    w += 1
+                else:
+                    pp.send(None, destination=d, tag=work_tag)
+                    p = w
+
 
             terminated = 0
-            while(terminated < pp.size() - 1):
+
+            while(terminated < p):
 
                 result, status = pp.receive(pp.any_source, tag=result_tag,
                                              return_status=True)
@@ -365,6 +373,7 @@ class HazardCalculator(object):
                     pp.send(None, destination=d, tag=work_tag)
                     terminated += 1
 
+                log.debug("Number of terminated threads is %d"%terminated)
                 if progressCallback:
                     progressCallback(w)
 
@@ -768,38 +777,6 @@ def balance(N):
     return Nlo, Nhi
 
 
-def attemptParallel():
-    """
-    Attempt to load Pypar globally as `pp`.  If pypar cannot be loaded then a
-    dummy `pp` is created.
-
-    """
-
-    global pp
-
-    try:
-        # load pypar for everyone
-
-        import pypar as pp
-
-    except ImportError:
-
-        # no pypar, create a dummy one
-
-        class DummyPypar(object):
-
-            def size(self):
-                return 1
-
-            def rank(self):
-                return 0
-
-            def barrier(self):
-                pass
-
-        pp = DummyPypar()
-
-
 def run(configFile, callback=None):
     """
     Run the hazard calculations.
@@ -827,7 +804,8 @@ def run(configFile, callback=None):
 
     wf_lon, wf_lat = setDomain(inputPath)
 
-    attemptParallel()
+    global pp
+    pp = attemptParallel()
 
     log.info("Running hazard calculations")
     TG = TileGrid(gridLimit, wf_lon, wf_lat)

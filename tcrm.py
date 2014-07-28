@@ -17,6 +17,7 @@ from functools import wraps
 from Utilities.progressbar import SimpleProgressBar as ProgressBar
 from Utilities.files import flStartLog, flLoadFile, flModDate
 from Utilities.config import ConfigParser
+from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities import pathLocator
 
 
@@ -108,62 +109,6 @@ def version():
 
 # Set global version string (for output metadata purposes):
 __version__  = version()
-
-def attemptParallel():
-    """
-    Attempt to load Pypar globally as `pp`. If Pypar loads
-    successfully, then a call to `pypar.finalize` is registered to be
-    called at exit of the Python interpreter. This is to ensure that
-    MPI exits cleanly.
-
-    If pypar cannot be loaded then a dummy `pp` is created.
-    
-    """
-
-    # pylint: disable=W0621,W0601,C0111,C0103,C0321,R0201
-    global pp
-
-    try:
-        # load pypar for everyone
-
-        import pypar as pp
-
-        # success! now ensure a clean MPI exit
-
-        import atexit
-        atexit.register(pp.finalize)
-
-    except ImportError:
-
-        # just in case user is trying to run with mpirun anyhow
-        # NOTE: this only works with OpenMPI
-
-        if os.getenv('OMPI_COMM_WORLD_RANK'):
-            raise
-
-        # no pypar and not run with mpirun, use the dummy one
-
-        class DummyPypar(object):
-            def size(self): return 1
-            def rank(self): return 0
-            def barrier(self): pass
-
-        pp = DummyPypar()
-
-
-def disableOnWorkers(f):
-    """
-    Disable function calculation on workers. Function will
-    only be evaluated on the master.
-    """
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if pp.size() > 1 and pp.rank() > 0:
-            return
-        else:
-            return f(*args, **kwargs)
-    return wrap
-
 
 @disableOnWorkers
 def doDataDownload(configFile):
@@ -634,7 +579,10 @@ def startup():
     if args.debug:
         debug = True
 
-    attemptParallel()
+    global pp
+    pp = attemptParallel()
+    import atexit
+    atexit.register(pp.finalize)
 
     if pp.size() > 1 and pp.rank() > 0:
         logfile += '-' + str(pp.rank())

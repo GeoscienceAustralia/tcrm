@@ -21,8 +21,6 @@ from scipy.stats import scoreatpercentile as percentile
 from datetime import datetime
 from ConfigParser import NoOptionError
 
-from functools import wraps
-
 import interpolateTracks
 
 from Utilities.config import ConfigParser
@@ -30,7 +28,7 @@ from Utilities.metutils import convert
 from Utilities.maputils import bearing2theta
 from Utilities.track import Track
 from Utilities.loadData import loadTrackFile
-#from Utilities.parallel import attemptParallel, disableOnWorkers
+from Utilities.parallel import attemptParallel, disableOnWorkers
 
 from Utilities.files import flProgramVersion
 from Utilities import pathLocator
@@ -58,51 +56,6 @@ TRACKFILE_CNVT = {
     7: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[7], 'Pa'),
     8: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[8], 'Pa'),
 }
-
-
-def disableOnWorkers(f):
-    """
-    Disable function calculation on workers. Function will
-    only be evaluated on the master.
-    """
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if pp.size() > 1 and pp.rank() > 0:
-            return
-        else:
-            return f(*args, **kwargs)
-    return wrap
-
-def attemptParallel():
-    """
-    Attempt to load Pypar globally as `pp`.  If pypar cannot be loaded then a
-    dummy `pp` is created.
-
-    """
-
-    global pp
-
-    try:
-        # load pypar for everyone
-
-        import pypar as pp
-
-    except ImportError:
-
-        # no pypar, create a dummy one
-        
-        class DummyPypar(object):
-
-            def size(self):
-                return 1
-
-            def rank(self):
-                return 0
-
-            def barrier(self):
-                pass
-
-        pp = DummyPypar()
 
 def readTrackData(trackfile):
     """
@@ -384,8 +337,9 @@ class LandfallRates(object):
         
     def run(self):
         """Execute the analysis"""
-        
-        attemptParallel()
+        global pp
+        pp = attemptParallel()
+
         self.historic()
         pp.barrier()
         self.synthetic()
