@@ -704,12 +704,12 @@ class KepertWindField(WindFieldModel):
         Z = self.vorticity(R)
         K = 50.  # Diffusivity
         Cd = 0.002  # Constant drag coefficient
-        
+
         Vt = vFm * np.ones(V.shape)
-        
+
         core = np.where(R > 4. * self.rMax)
         Vt[core] = vFm * np.exp(-((R[core] / self.rMax) - 4.) ** 2. )
-        
+
         al = ((2. * V / R ) + self.f) / (2. * K)
         be = (self.f + Z) / (2. * K)
         gam = V / (2. * K * R)
@@ -721,7 +721,7 @@ class KepertWindField(WindFieldModel):
         chi = (Cd / K) * V / np.sqrt(np.sqrt(al * be))
         eta = (Cd / K) * V / np.sqrt(np.sqrt(al * be) + np.abs(gam))
         psi = (Cd / K) * V / np.sqrt(np.abs(np.sqrt(al * be) - gam))
-        
+
         i = complex(0., 1.)
         A0 = (-chi * V * (1. + i * (1. + chi)) / (2. * chi ** 2. + 3.
               * chi + 2.))
@@ -733,19 +733,19 @@ class KepertWindField(WindFieldModel):
 
         Am = (-(psi * (1. + 2. * albe + (1. + i) * (1. + albe) * eta))
               * Vt /
-             ( albe * ((2. + 2. * i) * (1 + eta * psi) + 
+             ( albe * ((2. + 2. * i) * (1 + eta * psi) +
               3. * psi + 3. * i * eta)) )
 
         #Am[ind] = (-((1. + (1. + i) * eta[ind]) / albe[ind] +
         #           (2. + (1. + i) * eta[ind])) * psi[ind] * vFm /
         #           (2. - 2. * i + 3. * (psi[ind] + eta[ind])
         #            + (2. + 2. * i) * eta[ind] * psi[ind]))
-                    
-        AmIII = (-(psi * (1. + 2. * albe + (1. + i) * (1. + albe) * eta) 
-                * Vt) / 
-                ( albe * (2. - 2. * i + 3. * (eta + psi) + (2. + 2. * i) * 
+
+        AmIII = (-(psi * (1. + 2. * albe + (1. + i) * (1. + albe) * eta)
+                * Vt) /
+                ( albe * (2. - 2. * i + 3. * (eta + psi) + (2. + 2. * i) *
                 eta * psi)))
-                
+
         Am[ind] = AmIII[ind]
 
         # First asymmetric surface component
@@ -757,23 +757,23 @@ class KepertWindField(WindFieldModel):
         #      eta * vFm /
         #      ((2. + 2. * i) * (1. + eta * psi) + 3. * eta +
         #       3. * i * psi))
-               
+
         Ap = (-(eta * (1. - 2. * albe + (1. + i) * (1. - albe) * psi)) * Vt /
-                (albe * ((2. + 2. * i) * (1. + eta * psi) + 
-                3. * eta + 3. * i * psi)))               
+                (albe * ((2. + 2. * i) * (1. + eta * psi) +
+                3. * eta + 3. * i * psi)))
 
         #Ap[ind] = (-((1. + (1. - i) * psi[ind]) / albe[ind] -
         #             (2. + (1. - i) * psi[ind])) *
         #           eta[ind] * vFm /
         #           (2. + 2. * i + 3. * (eta[ind] + psi[ind]) +
         #            (2. - 2. * i) * eta[ind] * psi[ind]))
-                    
-        ApIII = (-(eta * (1. - 2. * albe + (1. - i) * (1. - albe) * psi) * Vt) / 
-                (albe * (2. + 2. * i + 3. * (eta + psi) 
+
+        ApIII = (-(eta * (1. - 2. * albe + (1. - i) * (1. - albe) * psi) * Vt) /
+                (albe * (2. + 2. * i + 3. * (eta + psi)
                 + (2. - 2. * i) * eta * psi)))
-                
+
         Ap[ind] = ApIII[ind]
-                  
+
         # Second asymmetric surface component
 
         ups = albe * (Ap * np.exp(i * lam)).real
@@ -845,8 +845,8 @@ def fieldParams(name):
     return params
 
 
-PROFILES = {k.__name__.replace('WindProfile', '').lower(): k
-            for k in allSubclasses(vars()['WindProfileModel'])}
+PROFILES = dict([(k.__name__.replace('WindProfile', '').lower(), k)
+                 for k in allSubclasses(vars()['WindProfileModel'])])
 
-FIELDS = {k.__name__.replace('WindField', '').lower(): k
-          for k in allSubclasses(vars()['WindFieldModel'])}
+FIELDS = dict([(k.__name__.replace('WindField', '').lower(), k)
+               for k in allSubclasses(vars()['WindFieldModel'])])
