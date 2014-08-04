@@ -15,7 +15,6 @@ if 'NullHandler' not in dir(log):
     import py26compat
     log.NullHandler = py26compat.NullHandler
 
-
 import Utilities.datasets as datasets
 import traceback
 import argparse
@@ -30,6 +29,7 @@ from Utilities.files import flStartLog, flLoadFile, flModDate
 from Utilities.config import ConfigParser
 from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities import pathLocator
+
 
 # Set Basemap data path if compiled with py2exe
 if pathLocator.is_frozen():
@@ -59,7 +59,7 @@ def timer(f):
     def wrap(*args, **kwargs):
         t1 = time.time()
         res = f(*args, **kwargs)
-
+        
         tottime = time.time() - t1
         msg = "%02d:%02d:%02d " % \
           reduce(lambda ll, b : divmod(ll[0], b) + ll[1:],
@@ -102,10 +102,10 @@ def version():
     """
     Check version of TCRM code. This returns the full hash of the git
     commit, if git is available on the system. Otherwise, it returns
-    the last modified date of this file. It's assumed that this would be
+    the last modified date of this file. It's assumed that this would be 
     the case if a user downloads the zip file from the git repository.
     """
-
+    
     vers = ''
 
     try:
@@ -114,7 +114,7 @@ def version():
         log.info(("Unable to obtain version information "
                     "- version string will be last modified date of code"))
         vers = flModDate(abspath(__file__), "%Y-%m-%d_%H:%M")
-
+    
     return vers
 
 # Set global version string (for output metadata purposes):
@@ -126,9 +126,9 @@ def doDataDownload(configFile):
     Check and download the data files.
 
     :param str configFile: Name of configuration file.
-
+    
     """
-
+    
     log.info('Checking availability of input data sets')
 
     config = ConfigParser()
@@ -160,12 +160,12 @@ def doDataDownload(configFile):
 def doOutputDirectoryCreation(configFile):
     """
     Create all the necessary output folders.
-
+    
     :param str configFile: Name of configuration file.
     :raises OSError: If the directory tree cannot be created.
-
+    
     """
-
+    
     config = ConfigParser()
     config.read(configFile)
 
@@ -195,9 +195,9 @@ def doTrackGeneration(configFile):
     Do the tropical cyclone track generation.
 
     The track generation settings are read from *configFile*.
-
+    
     :param str configFile: Name of configuration file.
-
+    
     """
 
     log.info('Starting track generation')
@@ -254,7 +254,7 @@ def doDataProcessing(configFile):
     for the model calibration step.
 
     :param str configFile: Name of configuration file.
-
+    
     """
 
     config = ConfigParser()
@@ -280,7 +280,7 @@ def doDataPlotting(configFile):
     Plot the data.
 
     :param str configFile: Name of configuration file.
-
+    
     """
     import matplotlib
     matplotlib.use('Agg')  # Use matplotlib backend
@@ -365,7 +365,7 @@ def doStatistics(configFile):
     Calibrate the model.
 
     :param str configFile: Name of configuration file.
-
+    
     """
     from DataProcess.CalcTrackDomain import CalcTrackDomain
 
@@ -378,7 +378,7 @@ def doStatistics(configFile):
 
     log.info('Running StatInterface')
     pbar = ProgressBar('Calibrating model: ', showProgressBar)
-
+    
     # Auto-calculate track generator domain
     CalcTD = CalcTrackDomain(configFile)
     domain = CalcTD.calcDomainFromFile()
@@ -417,9 +417,9 @@ def doHazard(configFile):
     Do the hazard calculations.
 
     :param str configFile: Name of configuration file.
-
+    
     """
-
+    
     log.info('Running HazardInterface')
 
     config = ConfigParser()
@@ -443,9 +443,9 @@ def doHazardPlotting(configFile):
     Do the hazard plots.
 
     :param str configFile: Name of configuration file.
-
+    
     """
-
+    
     import matplotlib
     matplotlib.use('Agg')  # Use matplotlib backend
 
@@ -469,16 +469,16 @@ def doHazardPlotting(configFile):
 def doEvaluation(configFile):
     """
     Do the track model evaluation processing.
-
+    
     :param str configFile: Name of the configuration file.
-
+    
     """
-
+    
     log.info("Running Evaluation")
-
+    
     import Evaluate
     Evaluate.run(configFile)
-
+    
 
 @timer
 def main(configFile='main.ini'):
@@ -538,7 +538,7 @@ def main(configFile='main.ini'):
 
     if config.getboolean('Actions', 'PlotHazard'):
         doHazardPlotting(configFile)
-
+        
     pp.barrier()
     if config.getboolean('Actions', 'ExecuteEvaluate'):
         doEvaluation(config)
@@ -611,9 +611,9 @@ def startup():
     warnings.filterwarnings("ignore", category=UserWarning, module="numpy")
     warnings.filterwarnings("ignore", category=UserWarning,
                             module="matplotlib")
-
+    
     warnings.filterwarnings("ignore", category=RuntimeWarning)
-
+    
     if debug:
         main(configFile)
     else:
