@@ -7,7 +7,7 @@ iniparse==0.3.1
 iso8601==0.1.10
 lxml==3.3.5
 matplotlib==1.3.1
-mercurial==1.4
+mercurial==3.0.1
 netCDF4==1.1.0
 netaddr==0.7.12
 nose==1.3.3
