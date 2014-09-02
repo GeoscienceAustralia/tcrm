@@ -8,7 +8,6 @@
 
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-Make a dummy change...
 
 """
 
@@ -73,7 +72,7 @@ insEvents = "INSERT INTO tblEvents VALUES (?,?,?,?,?,?,?,?,?,?)"
 insWindSpeed = "INSERT INTO tblWindSpeed VALUES (?,?,?,?,?,?,?,?)"
 
 # Insert hazard record:
-insHazard = "INSERT INTO tblHazard VALUES (?,?,?,?,?,?,?,?,?)"
+insHazard = "INSERT INTO tblHazard VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
 
 # Insert track record:
 insTrack = "INSERT INTO tblTracks VALUES (?,?,?,?,?,?)"
@@ -275,7 +274,7 @@ def setup(configFile, callback=None):
         conn = create_tables(conn)
         conn.close()
 
-    getDomainLocations(location_db, gridLimit, hazard_db)
+    get_domain_locations(location_db, gridLimit, hazard_db)
 
 
 def get_domain_locations(location_db, gridLimit, hazard_db):
@@ -506,7 +505,8 @@ def process_hazard(hazardFile, hazard_db):
 
             locParams = (locId, int(year), float(locWspd), float(locUpper),
                          float(locLower), float(locLoc), float(locScale),
-                         float(locShp), dtHazardFile, "", datetime.now())
+                         float(locShp), tcrm_version, dtHazardFile, "",
+                         datetime.now())
             
             params.append(locParams)
 
