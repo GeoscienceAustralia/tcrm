@@ -104,13 +104,6 @@ class KDEParameters:
             self.logger.error("Invalid KDE type: %s" %kdeType)
             raise NotImplementedError, "Invalid KDE type: %s" %kdeType
 
-    def __doc__(self):
-        """
-        Documentation on what this class does
-        """
-        return "Calculate distributions for the cyclone parameters using \
-                kernel density estimation technique"
-
     def generateKDE(self, parameters, kdeStep, kdeParameters=None,
                     cdfParameters=None, angular=False, periodic=False,
                     missingValue=sys.maxint):
@@ -146,8 +139,8 @@ class KDEParameters:
         if periodic:
             x = np.arange(1, periodic + 1, kdeStep)
             self.grid = np.concatenate( [x - periodic, x, x + periodic] )
-            self.parameters = np.concatenate([self.parameters - periodic, 
-                                              self.parameters, 
+            self.parameters = np.concatenate([self.parameters - periodic,
+                                              self.parameters,
                                               self.parameters + periodic])
         else:
             self.grid = np.arange(xmin, xmax, kdeStep)
@@ -160,11 +153,11 @@ class KDEParameters:
 
         bw = KPDF.UPDFOptimumBandwidth(self.parameters)
         self.pdf = self._generatePDF(self.grid, bw, self.parameters)
-        
+
         if periodic:
             self.pdf = 3.0*self.pdf[(periodic/kdeStep):2*(periodic/kdeStep)]
             self.grid = self.grid[(periodic/kdeStep):2*(periodic/kdeStep)]
-            
+
         self.cy = stats.cdf(self.grid, self.pdf)
         if kdeParameters is None:
             return np.transpose(np.array([self.grid, self.pdf, self.cy]))
@@ -177,11 +170,11 @@ class KDEParameters:
     def generateGenesisDateCDF(self, genDays, lonLat, bw=None, genesisKDE=None):
         """
         Calculate the PDF of genesis day using KDEs.
-        Since the data is periodic, we use a simple method to include the 
+        Since the data is periodic, we use a simple method to include the
         periodicity in estimating the PDF. We prepend and append the data
         to itself, then use the central third of the PDF and multiply by three to
         obtain the required PDF. Probably notquite exact, but it should be
-        sufficient for our purposes. 
+        sufficient for our purposes.
         """
 
         data = flLoadFile( genDays )
@@ -190,7 +183,7 @@ class KDEParameters:
         ndata = np.concatenate( [data - 365, data, data + 365] )
 
         if bw is None:
-            bw = KPDF.UPDFOptimumBandwidth( ndata ) 
+            bw = KPDF.UPDFOptimumBandwidth( ndata )
 
         try:
             kdeMethod = getattr(KPDF, "UPDF%s" %self.kdeType)
@@ -208,7 +201,7 @@ class KDEParameters:
             self.logger.debug("Saving KDE and CDF data to files")
             #flSaveFile(genesisKDE, transpose(numpy.concatenate([days, pdf])))
             flSaveFile(genesisKDE, np.transpose(np.array([days, cy])))
-        
+
 
     def _generatePDF(self, grid, bw, dataset):
         """

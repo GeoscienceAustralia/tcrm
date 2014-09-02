@@ -110,12 +110,6 @@ class SamplingParameters:
         else:
             self.xacy = array([])
 
-    def __doc__(self):
-        """Documentation on what this class does
-        """
-
-        return "Cyclone Parameters Sampling from the CDF"
-
     def setParameters(self, cdfParameters):
         """Set parameters
         """

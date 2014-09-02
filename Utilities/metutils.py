@@ -1,74 +1,17 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`metutils` -- perform basic meteorological calculations
+============================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: metutils
+    :synopsis: perform basic meteorological calculations.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Title: met.py
-Author: Craig Arthur, craig.arthur@ga.gov.au
-CreationDate: 2006-11-28
-Description: Contains functions to perform met calculations
-
-Members:
-elevToAirPr(elev <, units_ap>) :
-vapPrToDewPoint(vp) :
-dewPointToVapPr(t_dp <, units_vp>) :
-wetbulbgt(t_dp, temp) :
-wetBulbToDewPoint(db, wb, elev) :
-wetBulbToVapPr(db, wb, elev <, units_vp>) :
-satVapPr(temp <, units_vp>) :
-vapPrToRH(vp, sat_vp) :
-wetBulbToRH(t_db, t_wb, elev) :
-dewPointToRH(t_dry, t_dew) :
-rHToDewPoint(rh, t_dry) :
-vapPrToMixRat(es, prs) :
-rHToMixRat(rh, tmp, prs):
-coriolis(latitude) :
-    Returns the coriolis parameter (commonly called 'f') for a given
-    latitude convert(value, input, output):
-    Converts 'value' from 'input' units to 'output' units. Contains
-    conversions for length, speed, pressure and temperature.
-
-Version: $Rev: 642 $
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 2007-09-11
-Modification: Added functions for converting atmospheric moisture variables
-
-SeeAlso: (related programs)
-Constraints:
-
-$Id: metutils.py 642 2012-02-21 07:54:04Z nsummons $
-"""
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
 """
-Contents:
-coriolis(lat) :
-    Calculates Coriolis parameter (f) from latitude (in degress)
 
-convert(value, input, output) :
-    Convert value from input units to gPressureUnitsoutput units.
-    'input' and 'output' are strings, 'value' is a float
-
-"""
-import os, sys, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
 import math
 import numpy
 from numpy import radians
-__version__ = '$Id: metutils.py 642 2012-02-21 07:54:04Z nsummons $'
 
 #Define constants
 gPressureUnits = "hPa"
@@ -76,13 +19,19 @@ gApproxPressure = 101.325
 gEps = 0.622
 
 def elevToAirPr(elev, units_ap=gPressureUnits):
-    """elevToAirPr(elev <, units_ap>)
-    Approximate air pressure in hectopascals (mb)
-    Input: elevation above sea level (metres)
-    Output: approx. air pressure in the specified or default units.
-    Note: Calculation is in kPa with a conversion at the end to the
-          required units.
     """
+    Approximate air pressure in hectopascals (mb) at a given elevation.
+
+    :param float elev: Elevation above sea level (metres).
+    :param units_ap: Units of air pressure (default ``"hPa"``).
+    :type units_ap: str
+
+    :returns: Approximate air pressure at the given elevation
+              in the specified or default units.
+    :rtype: float              
+
+    """
+    
     ap = gApproxPressure
     if elev > 0:
         ap = gApproxPressure * numpy.exp(-0.0001184 * elev)
@@ -91,35 +40,62 @@ def elevToAirPr(elev, units_ap=gPressureUnits):
     return ap
 
 def vapPrToDewPoint(vp, units_vp=gPressureUnits):
-    """vapPrToDewPoint(vp)
-    Calculate Dew Point from vapour pressure (in kPa)
+    """
+    Calculate dew point from vapour pressure (in kPa)
+
+    :param float vp: Input vapour pressure.
+    :param str units_vp: Input units (default ``gPressureUnits``)
+
+    :returns: dew point temperature (in degrees Kelvin)
+    :rtype: float
+    
     """
     vp = convert(vp, units_vp, "kPa")
     t_dp = (116.9 + (237.3*numpy.log(vp))) / (16.78 - numpy.log(vp))
     return t_dp
 
 def dewPointToVapPr(t_dp, units_vp=gPressureUnits):
-    """dewPointToVapPr(t_dp <, units_vp>)
-    Calculate vapour pressure (in default units (hPa) or specified
-    units) from dew point temperature
+    """
+    Calculate vapour pressure from dew point temperature.
+
+    :param float t_dp: Dew point temperature (degrees Celsius)
+    :param str units_vp: Output units (default ``gPressureUnits``).
+
+    :returns: Vapour pressure of water content.
+    :rtype: float
+    
     """
     vp = numpy.exp((16.78*t_dp-116.9)/(t_dp+237.3))
     vp = convert(vp, 'kPa', units_vp)
     return vp
 
 def wetBulbGlobeTemp(t_dp, temp):
-    """wetBulbGlobeTemp(t_dp, temp)
+    """
     Calculate Wet Bulb Globe Temperature from Dew Point Temperature
     and Dry Bulb Temperature (same as air temperature).
-    Returns null if dew point or temp not defined
+
+    :param float t_dp: Dew point temperature (degees Celsius).
+    :param float temp: Air temperature (degrees Celsius).
+
+    :returns: Wet bulb globe temperature (degrees Celsius).
+    :rtype: float
+    
     """
     vp = dewPointToVapPr(t_dp, 'kPa');
     wbgt = 0.567*temp + 0.393*vp + 3.94;
     return wbgt
 
 def wetBulbToDewPoint(db, wb, elev=0):
-    """wetBulbToDewPoint(db, wb, elev)
-    Calculate Dew Point from dry bulb and wet bulb temperatures
+    """
+    Calculate Dew Point from dry bulb and wet bulb temperatures.
+
+    :param float db: Dry bulb temperature (degrees Celsius).
+    :param float wb: Wet bulb temperature (degrees Celsius).
+    :param float elev: Optional elevation of the observation (metres).
+
+    :returns: Dew point temperature (degrees Kelvin).
+    :rtype: float
+    
     """
     # Calculate vapour pressure
     vp = wetBulbToVapPr(db, wb, elev, 'kPa');
@@ -128,12 +104,18 @@ def wetBulbToDewPoint(db, wb, elev=0):
     return t_dp
 
 def wetBulbToVapPr(db, wb, elev, units_vp=gPressureUnits):
-    """wetBulbToVapPr(db, wb, elev, units_vp=gPressureUnits )
+    """
     Calculate vapour pressure from dry bulb and wet bulb temperatures,
     and optional elevation.
-    input: dry bulb and wet bulb temps in degrees centigrade, elevation
-    in metres (elevation is optional)
-    output: vapour pressure
+
+    :param float db: Dry bulb temperature (degrees Celsius).
+    :param float wb: Wet bulb temperature (degrees Celsius).
+    :param float elev: Elevation (metres).
+    :param str units_vp: Output units (default ``gPressureUnits``)
+    
+    :returns: Vapour pressure.
+    :rtype: float
+    
     """
     if (wb > db):
         # Reality check. Wet bulb can't be greater than dry bulb
@@ -154,12 +136,26 @@ def wetBulbToVapPr(db, wb, elev, units_vp=gPressureUnits):
     return vp
 
 def satVapPr(temp, units_vp=gPressureUnits):
-    """satVapPr(temp, units_vp=gPressureUnits)
+    """
     Saturation vapour pressure from temperature in degrees celsius.
-    Input: temperature (degrees celsius)
-    Output: saturation vapour pressure in the specified or default units.
-    Note: Calculation is in kPa with a conversion at the end to the
-          required units.
+
+    :param float temp: Temperature (degrees celsius).
+    :param str units_vp: Units of the vapour pressure to return.
+                         Default is ``gPressureUnits``.
+
+    :returns: saturation vapour pressure in the specified or default units.
+    
+    .. note::
+       Calculation is in kPa with a conversion at the end to the
+       required units.
+
+
+    Example::
+
+        >>> from metutils import satVapPr
+        >>> satVapPr(25.)
+        31.697124349060619
+        
     """
     vp = numpy.exp(((16.78 * temp) - 116.9) / (temp+237.3))
     vp = convert(vp, 'kPa', units_vp)
@@ -167,9 +163,21 @@ def satVapPr(temp, units_vp=gPressureUnits):
     return vp
 
 def vapPrToRH(vp, sat_vp):
-    """vapPrToRH(vp, sat_vp)
+    """
     Calculate relative humidity from vapour pressure and saturated
-    vapour pressure
+    vapour pressure.
+
+    :param float vp: Vapour pressure (hPa)
+    :param float sat_vp: Saturation vapour pressure (hPa)
+
+    :returns: Relative humidity (%)
+
+    Example::
+
+        >>> from metutils import vapPrToRH
+        >>> vapPrToRH(10., 30.)
+        33.33333333333
+    
     """
     if (sat_vp == 0):
         rh = 100
@@ -184,13 +192,26 @@ def vapPrToRH(vp, sat_vp):
     return rh
 
 def wetBulbToRH(t_db, t_wb, elev):
-    """wetBulbToRH(t_db, t_wb, elev)
+    """
     Calculate relative humidity from dry bulb and wet bulb temperatures,
     and optional elevation.
-    input: dry bulb and wet bulb temps in degrees centigrade, elevation
-           in metres (elevation is optional)
-    output: relative humidity
+
+    :param float t_db: Dry bulb temperature (degrees Celsius).
+    :param float t_wb: Wet bulb temperature (degrees Celsius).
+    :param float elev: Elevation (metres).
+
+    :returns: Relative humidity (%).
+
+    Example::
+
+        >>> from metutils import wetBulbToRH
+        >>> wetBulbToRH(25., 10., 0)
+        6.747686
+        >>> wetBulbToRH(25., 20., 0)
+        63.01954
+
     """
+    
     # Calculate vapour pressure
     vp = wetBulbToVapPr(t_db, t_wb, elev)
     # Calculate the saturated vapour pressure at the dry bulb temperature
@@ -201,16 +222,16 @@ def wetBulbToRH(t_db, t_wb, elev):
     return rh
 
 def dewPointToRH(t_dry, t_dew):
-    """dewPointToRH(t_dry, t_dew)
+    """
     Calculate relative humidity from dry bulb and dew point (in degrees
     Celsius)
 
-    Calculation take from Dave Williamson's Access code:
-        Val([sTempDryBulb]) AS Tdry,
-        Val([sDewPoint]) AS Tdew,
-        6.11*10^((7.5*[Tdry])/(273.3+[Tdry])) AS VapT,
-        6.11*10^((7.5*[Tdew])/(273.3+[Tdew])) AS VapTd,
-        CInt(100*[VapTd]/[VapT]) AS RH
+    :param float t_dry: Dry bulb temperature (degrees Celsius).
+    :param float t_dew: Dew point temperature (degrees Celsius).
+
+    :returns: Relative humidity (%)
+    :rtype: float
+    
     """
     vap_t_dry = 6.11 * (10 ** ((7.5 * t_dry) / (237.3 + t_dry)))
     vap_t_dew = 6.11 * (10 ** ((7.5 * t_dew) / (237.3 + t_dew)))
@@ -221,9 +242,15 @@ def dewPointToRH(t_dry, t_dew):
     return rh
 
 def rHToDewPoint(rh, t_dry):
-    """rHToDewPoint(rh, t_dry)
+    """
     Calculate dew point from relative humidity and dry bulb (in degrees
-    Celsius)
+    Celsius).
+
+    :param float rh: Relative humidity (%).
+    :param float t_dry: Dry bulb temperature (degrees Celsius).
+
+    :returns: Dew point temperture (degrees Celsius).
+    :rtype: float
     """
     vap_t_dry = satVapPr(t_dry, 'kPa')  # 6.11 * (10 ** ((7.5 * t_dry ) / (237.3 + t_dry)))
     vap_t_dew = (rh/100.0) * vap_t_dry
@@ -236,34 +263,60 @@ def rHToDewPoint(rh, t_dry):
     return t_dew
 
 def vapPrToMixRat(es, prs):
-    """vapPrToMixRat(es, prs)
+    """
     Calculate mixing ratio from vapour pressure
     In this function, we (mis)use the symbol es for vapour pressure,
     when it correctly represents saturation vapour pressure.
-    The function can be used for both
+    The function can be used for both.
+
+    :param float es: Vapour pressure.
+    :param float prs: Air pressure.
+
+    :returns: Mixing ratio.
+    :rtype: float
+    
     """
     rat = gEps*es/(prs-es)
     return rat
 
 def mixRatToVapPr(rat, prs):
-    """mixRatToVapPr(rat, prs):
-    Calculate vapour pressure from mixing ratio
+    """
+    Calculate vapour pressure from mixing ratio.
+
+    :param float rat: Mixing ratio.
+    :param float prs: Air pressure.
+
+    :returns: Vapour pressure.
+    :rtype: float
     """
     es = rat*prs/(gEps+rat)
     return es
 
 def vapPrToSpHum(es, prs):
-    """vapPrToSpHum(es, prs)
-    Convert vapour pressure to specific humidity
+    """
+    Convert vapour pressure to specific humidity.
+
+    :param float es: Vapour pressure.
+    :param float prs: Air pressure.
+
+    :returs: Specific humidity.
+    :rtype: float
     """
     q = gEps*es/prs
     return q
 
 def spHumToMixRat(q, units="gkg"):
-    """spHumToMixRat(q)
-    Calculate mixing ratio from specific humidity
+    """
+    Calculate mixing ratio from specific humidity.
     Assumes the input specific humidity variable is in units
     of g/kg.
+
+    :param float q: Specific humidity (any units, assumed g/kg).
+    :param str units: Units of specific humidity, default g/kg.
+
+    :returns: Mixing ratio (kg/kg).
+    :rtype: float
+    
     """
     q = convert(q, units, "kgkg")
 
@@ -271,8 +324,17 @@ def spHumToMixRat(q, units="gkg"):
     return rat
 
 def rHToMixRat(rh, tmp, prs, tmp_units="C"):
-    """rHToMixRat(rh, tmp, prs):
-    Calculate mixing ratio from relative humidity, temperature and pressure
+    """
+    Calculate mixing ratio from relative humidity, temperature and pressure.
+
+    :param float rh: Relative humidity (%).
+    :param float tmp: Temperature (any units, default degrees Celsius).
+    :param float prs: Air pressure (hPa).
+    :param str tmp_units: Air temperature units (default degrees Celsius).
+
+    :returns: Mixing ratio (g/kg).
+    :rtype: float
+    
     """
     es = satVapPr(convert(tmp, tmp_units, "C"))
     e = (rh/100.)*es
@@ -280,9 +342,17 @@ def rHToMixRat(rh, tmp, prs, tmp_units="C"):
     return rat
 
 def spHumToRH(q, tmp, prs):
-    """spHumToRH(tmp, prs):
+    """
     Calculate relative humidity from specific humidity, temperature and
     pressure.
+
+    :param float q: Specific humidity (g/kg).
+    :param float tmp: Temperature (degrees Celsius).
+    :param float prs: Air pressure (hPa).
+
+    :returns: Relative humidity (%)
+    :rtype: float
+    
     """
     es = satVapPr(tmp)
     qs = gEps * es / prs
@@ -290,9 +360,15 @@ def spHumToRH(q, tmp, prs):
     return rh
 
 def coriolis(lat):
-    """Calculate the Coriolis factor
+    """
     Calculate the Coriolis factor (f) for a given latitude (degrees).
-    If a list is passed, return a list, else return a single value.
+
+    :param lat: Latitude (degrees).
+    :type  lat: :class:`numpy.ndarray` or scalar float
+    
+    :returns: Coriolis factor
+    :rtype: :class:`numpy.ndarray` or scalar float
+    
     """
     omega = 2*math.pi/86400.
     f = 2*omega*numpy.sin(radians(lat))
@@ -301,6 +377,13 @@ def coriolis(lat):
 def convert(value, input, output):
     """
     Convert value from input units to output units.
+
+    :param value: Value to be converted
+    :param str input: Input units.
+    :param str output: Output units.
+
+    :returns: Value converted to ``output`` units.
+    
     """
     startValue = value
     value = numpy.array(value)
@@ -389,7 +472,13 @@ def convert(value, input, output):
 
 def vapour(temp):
     """
-    Determine equivalent potential temperature (theta-e) given temperature
+    Determine saturation vapour pressure, given temperature). 
+
+    :param float temp: Air temperature (degrees Celsius)
+
+    :returns: Saturation vapour pressure (kPa).
+    :rtype: float
+    
     """
     vapour = 6.112*numpy.exp(17.67*temp/(243.5+temp))
     return vapour

@@ -1,9 +1,27 @@
+"""
+:mod:`progressbar` -- display progress on STDOUT
+================================================
+
+.. module:: progressbar
+    :synopsis: print a progress bar on to standard output.
+
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
+
+"""
+
 import time
 import sys
 
 class ProgressBar(object):
+    """
+    Set up the progress bar.
 
+    :param str modname: Name of the module who's progress will be marked.
+    :param bool showbar: `True` if the progress bar is to be shown.
+
+    """
     def __init__(self, modname, showbar=True):
+        
         self.modname = modname + " "
         self.showbar = False
         self.lastPercentage = None
@@ -17,6 +35,14 @@ class ProgressBar(object):
             self.showbar = showbar
  
     def update(self, progress, startPos=0, endPos=1):
+        """
+        Update the progress bar instance and print to STDERR. 
+
+        :param float progress: Fraction of progress through a process.
+        :param float startPos: Where to start.
+        :param float endPos: The end of the bar.
+        
+        """
         if self.showbar:
             prg = progress * (endPos - startPos) + startPos
             if self._percentage(prg) != self.lastPercentage:
@@ -47,12 +73,27 @@ class ProgressBar(object):
 
 
 class SimpleProgressBar(ProgressBar):
+    """
+    A simpler progress bar -- a bunch of asterixes with with the percentage tacked on the end.
 
+    :param str modname: Name of the module who's progress will be marked.
+    :param bool showbar: `True` if the progress bar is to be shown.
+
+    """
     def __init__(self, modname, showbar=True):
         ProgressBar.__init__(self, modname, showbar)
         self.lastPercentage = 0.
 
     def update(self, progress, startPos=0, endPos=1, incr=5.):
+        """
+        Update the simple progress bar.
+        
+        :param float progress: Fraction of progress through a process.
+        :param float startPos: Where to start.
+        :param float endPos: The end of the bar.
+        :param float incr: How often to increment the progress indicator.
+        
+        """
         prg = progress * (endPos - startPos) + startPos
         percent = prg * 100.
         if self.showbar:

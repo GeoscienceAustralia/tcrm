@@ -1,16 +1,57 @@
+"""
+:mod:`config` -- reading configuration files
+============================================
+
+.. module:: config
+    :synopsis: Provides functions for manipulating configuration files
+               e.g. reading setting from a configuration file.
+
+.. moduleauthor:: Dale Roberts <dale.roberts@ga.gov.au>
+
+"""
+
 import io
 from ConfigParser import RawConfigParser
 
 
 def parseBool(txt):
+    """
+    Parser for boolean options
+
+    :param str txt: String from config file to parse.
+
+    :returns: ``True`` if the string is 'True', ``False`` otherwise.
+    :rtype: boolean
+    
+    """
+    
     return txt == 'True'
 
-
 def parseList(txt):
+    """
+    Parse a comma-separated line into a list.
+
+    :param str txt: String from config file to parse.
+
+    :return: List, based on the input string.
+    :rtype: list
+
+    """
+    
     return txt.split(',')
 
 
 def formatList(lst):
+    """
+    Convert a list into a comma-joined string.
+
+    :param list lst: Input list to join.
+
+    :return: A string comprised of the list elements joined by commas.
+    :rtype: str
+    
+    """
+    
     return ','.join(map(str, lst))
 
 
@@ -212,11 +253,23 @@ class ConfigParser(RawConfigParser):
 
     def geteval(self, section, option):
         """
+        :param str section: Section name to evaluate.
+        :param str option: Option name to evaluate.
+        
         :return: an evaluated setting.
+        
         """
         return self._get(section, eval, option)
 
     def read(self, filename):
+        """
+        Read a configuration file, and set the :attr:`read_once` attribute
+        to ``True``.
+
+        :param str filename: Path to the configuration file to read.
+
+        """
+        
         if filename is None:
             return
         if self.read_once:
@@ -225,6 +278,16 @@ class ConfigParser(RawConfigParser):
         self.read_once = True
 
     def items(self, section):
+        """
+        Return the parsed option, value pairs for a section of the configuration.
+
+        :param str section: Section name.
+
+        :returns: (Option, value) tuple pairs for the given section.
+        :rtype: list
+
+        """
+        
         raw = RawConfigParser.items(self, section)
         parsed = {}
         for name, value in raw:
@@ -236,6 +299,15 @@ class ConfigParser(RawConfigParser):
         return parsed.items()
 
     def set(self, section, option, value):
+        """
+        Set the value of a specific section and option in the configuration.
+
+        :param str section: Section to be updated.
+        :param str option: Option to be updated.
+        :param value: Value to set.
+
+        """
+        
         try:
             formatter = FORMATERS['%s_%s' % (section, option)]
             newvalue = formatter(value)
@@ -248,6 +320,18 @@ def cnfGetIniValue(configFile, section, option, default=None):
     """
     Helper function to interface with code that uses the
     old config parser.
+
+    :param str configFile: path to the configuration file to read.
+    :param str section: Section name to read.
+    :param str option: Option name to read.
+    :param default: Optional default value to use if the section/option
+                    pair is not present in the file.
+
+    :returns: Value recorded in the section/option of the config file, if
+              present; the default value otherwise (if defined).
+
+    :raises NoSectionError, NoOptionError: if the section/option is not
+              defined, and no default value given.
     """
     config = ConfigParser()
     config.read(configFile)

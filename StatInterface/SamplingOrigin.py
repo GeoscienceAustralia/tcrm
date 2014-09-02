@@ -141,16 +141,6 @@ class SamplingOrigin:
             self.y = array([])
             self.z = array([])
 
-    def __doc__(self):
-        """
-Documentation on the purpose of the class
-        """
-
-        return 'Tropical cyclone origin sampling: \
-                Generate a single or multiple TC origins, based on the \
-                probability of genesis (assumed generated from a KDE of \
-                historic genesis locations, but could be any other source)'
-
     def setKDEOrigins(self, kdeOriginX=None, kdeOriginY=None, kdeOriginZ=None,
                       outputPath=None):
         """set kde origin parameters

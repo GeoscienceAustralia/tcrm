@@ -1,51 +1,27 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`lat_long_UTM_conversion` -- convert between geographic & UTM coordinates
+==============================================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- Title: lat_long_UTM_conversion.py
- Author: Ole Nielsen, ole.nielsen@ga.gov.au
- CreationDate: 2007-10-29
- Description:  Convert from latitude-longitude coordinates to UTM
+.. module:: lat_long_UTM_conversion
+    :synopsis: Convert from latitude-longitude coordinates to UTM
                coordinates.
- Usage:
- zone, easting, northing = LLToUTM(latitude, longitude,
-                                   ReferenceEllipsoid=23)
- latitude, longitude = UTMtoLL(northing, easting, zone,
-                               isSouthernHemisphere=True,
-                               ReferenceEllipsoid=23)
- see http://www.pygps.org
 
- Version: 577
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate: 2007-10-29
- Modification: Added to ATCRAM
+.. moduleauthor:: Ole Nielsen <ole.nielsen@ga.gov.au>
 
- Version: $Rev: 642 $
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate: 2007-11-12 17:13
- Modification: A bastardised version to make life a little easier for
-               converting to UTM coords. You can now give the UTM Zone
-               as an option
 
-$Id: lat_long_UTM_conversion.py 642 2012-02-21 07:54:04Z nsummons $
+Usage::
+
+    >>> zone, easting, northing = LLToUTM(latitude, longitude,
+    ...                                   ReferenceEllipsoid=23)
+    >>> latitude, longitude = UTMtoLL(northing, easting, zone,
+    ...                               isSouthernHemisphere=True,
+    ...                               ReferenceEllipsoid=23)
+
+See http://www.pygps.org
+
 """
 
 from math import pi, sin, cos, tan, sqrt
-
-__version__ = '$Id: lat_long_UTM_conversion.py 642 2012-02-21 07:54:04Z nsummons $'
 
 _deg2rad = pi / 180.0
 _rad2deg = 180.0 / pi
@@ -99,11 +75,20 @@ _ellipsoid = [
 
 def LLtoUTM(Lat, Long, ReferenceEllipsoid=23, ZoneNumber=None):
     """
-    converts lat/long to UTM coords.  Equations from USGS Bulletin 1532
-    East Longitudes are positive, West longitudes are negative.
-    North latitudes are positive, South latitudes are negative
+    Converts lat/long to UTM coords.  Equations from USGS Bulletin 1532
+    
     Lat and Long are in decimal degrees
     Written by Chuck Gantz- chuck.gantz@globalstar.com
+
+    :param float Lat: Latitude. North latitudes are positive, south
+                      latitudes are negative.
+    :param float Lon: Longitude. East longitudes are positive, west
+                      longitudes are negative.
+    :param int ReferenceEllipsoid: Reference ellipsoid for the coordinate
+                                   system (default=23 -- WGS84).
+    :param str ZoneNumber: UTM Zone for coordinates.
+
+    :returns: Tuple of (ZoneNumber, UTMEasting, UTMNorthing)
     """
     a = _ellipsoid[ReferenceEllipsoid][_EquatorialRadius]
     eccSquared = _ellipsoid[ReferenceEllipsoid][_eccentricitySquared]
@@ -205,7 +190,7 @@ def _UTMLetterDesignator(Lat):
 def UTMtoLL(northing, easting, zone, isSouthernHemisphere=True,
             ReferenceEllipsoid=23):
     """
-    converts UTM coords to lat/long.  Equations from USGS Bulletin 1532
+    Converts UTM coords to lat/long.  Equations from USGS Bulletin 1532
     East Longitudes are positive, West longitudes are negative.
     North latitudes are positive, South latitudes are negative
     Lat and Long are in decimal degrees.
@@ -215,37 +200,46 @@ def UTMtoLL(northing, easting, zone, isSouthernHemisphere=True,
     FIXME: This is set up to work for the Southern Hemisphere.
 
     Using
-    http://www.ga.gov.au/geodesy/datums/redfearn_geo_to_grid.jsp
+    http://www.ga.gov.au/geodesy/datums/redfearn_geo_to_grid.jsp ::
 
-    Site Name:    GDA-MGA: (UTM with GRS80 ellipsoid)
-    Zone:   36
-    Easting:  511669.521  Northing: 19328195.112
-    Latitude:   84  0 ' 0.00000 ''  Longitude: 34  0 ' 0.00000 ''
-    Grid Convergence:  0  -59 ' 40.28 ''  Point Scale: 0.99960166
-
-    ____________
-    Site Name:    GDA-MGA: (UTM with GRS80 ellipsoid)
-    Zone:   36
-    Easting:  519384.803  Northing: 1118247.585
-    Latitude:   -80  0 ' 0.00000 ''  Longitude: 34  0 ' 0.00000 ''
-    Grid Convergence:  0  59 ' 5.32 ''  Point Scale: 0.99960459
-    ___________
-    Site Name:    GDA-MGA: (UTM with GRS80 ellipsoid)
-    Zone:   36
-    Easting:  611263.812  Northing: 10110547.106
-    Latitude:   1  0 ' 0.00000 ''  Longitude: 34  0 ' 0.00000 ''
-    Grid Convergence:  0  -1 ' 2.84 ''  Point Scale: 0.99975325
-    ______________
-    Site Name:    GDA-MGA: (UTM with GRS80 ellipsoid)
-    Zone:   36
-    Easting:  611263.812  Northing: 9889452.894
-    Latitude:   -1  0 ' 0.00000 ''  Longitude: 34  0 ' 0.00000 ''
-    Grid Convergence:  0  1 ' 2.84 ''  Point Scale: 0.99975325
+      Site Name:    GDA-MGA: (UTM with GRS80 ellipsoid)
+      Zone:   36
+      Easting:  511669.521  Northing: 19328195.112
+      Latitude:   84  0 ' 0.00000 ''  Longitude: 34  0 ' 0.00000 ''
+      Grid Convergence:  0  -59 ' 40.28 ''  Point Scale: 0.99960166
+      ____________
+      Site Name:    GDA-MGA: (UTM with GRS80 ellipsoid)
+      Zone:   36
+      Easting:  519384.803  Northing: 1118247.585
+      Latitude:   -80  0 ' 0.00000 ''  Longitude: 34  0 ' 0.00000 ''
+      Grid Convergence:  0  59 ' 5.32 ''  Point Scale: 0.99960459
+      ____________
+      Site Name:    GDA-MGA: (UTM with GRS80 ellipsoid)
+      Zone:   36
+      Easting:  611263.812  Northing: 10110547.106
+      Latitude:   1  0 ' 0.00000 ''  Longitude: 34  0 ' 0.00000 ''
+      Grid Convergence:  0  -1 ' 2.84 ''  Point Scale: 0.99975325
+      ____________
+      Site Name:    GDA-MGA: (UTM with GRS80 ellipsoid)
+      Zone:   36
+      Easting:  611263.812  Northing: 9889452.894
+      Latitude:   -1  0 ' 0.00000 ''  Longitude: 34  0 ' 0.00000 ''
+      Grid Convergence:  0  1 ' 2.84 ''  Point Scale: 0.99975325
 
     So this uses a false northing of 10000000 in the both hemispheres.
     ArcGIS used a false northing of 0 in the northern hem though.
     Therefore it is difficult to actually know what hemisphere you are
     in.
+
+    :param float northing: Northing coordinate in UTM coordinates.
+    :param float easting: Easting coordinate in UTM coordinates
+    :param int zone: UTM zone number.
+    :param boolean isSouthernHemisphere: ``True`` if the location is in
+                                         the southern hemisphere (default).
+    :param int ReferenceEllipsoid: Reference ellipsoid for the coordinate
+                                   system (default=23 -- WGS84).
+
+    :returns: Tuple pair of latitude, longitude for the point.
     """
     k0 = 0.9996
     a = _ellipsoid[ReferenceEllipsoid][_EquatorialRadius]

@@ -132,14 +132,14 @@ class GenerateDistributions:
                        limits of the region under investigation - if not
                        then set to the limits
     """
-    
+
     def __init__(self, configFile, gridLimit, gridSpace, gridInc, kdeType,
                  minSamplesCell=40, missingValue=sys.maxint):
         """
         Initialise required fields
         """
         self.logger = logging.getLogger()
-        
+
         self.logger.info("Initialising GenerateDistributions")
         self.gridSpace = gridSpace
         self.gridLimit = gridLimit
@@ -150,13 +150,6 @@ class GenerateDistributions:
         self.kdeParameter = KDEParameters.KDEParameters(kdeType)
 
         self.missingValue = missingValue
-
-    def __doc__(self):
-        """
-        Documentation on the function of the class:
-        """
-        return 'Generate the cumulative distribution functions for a parameter in\
-        each cell of the grid over the area of investigation.'
 
     def allDistributions(self, lonLat, parameterList, parameterName=None,
                          kdeStep=0.1, angular=False, periodic=False,
@@ -225,10 +218,10 @@ class GenerateDistributions:
                         self.pName + "_y"
             allCellCdfOutput = pjoin(self.outputPath, 'process',
                                      'all_cell_cdf_' + self.pName)
-                                     
+
             args = {"filename":allCellCdfOutput, "data":results,
                     "header":cdfHeader, "delimiter":",", "fmt":"%f"}
-                    
+
             self.logger.debug("Writing CDF dataset for all individual cell numbers into files")
             flSaveFile(**args)
 
@@ -237,17 +230,17 @@ class GenerateDistributions:
             filename = allCellCdfOutput + '.nc'
 
             ncdf = Dataset(filename, 'w')
-            
+
             ncdf.createDimension('cell', len(results[:,0]))
             cell = ncdf.createVariable('cell', 'i', ('cell',))
             cell[:] = results[:,0]
-            
+
             x = ncdf.createVariable('x', 'f', ('cell',))
             x[:] = results[:,1]
-            
+
             y = ncdf.createVariable('CDF', 'f', ('cell',))
             y[:] = results[:,2]
-            
+
             ncdf.close()
 
     def extractParameter(self, cellNum):
@@ -289,7 +282,7 @@ class GenerateDistributions:
             if (wLon == wLon_last) & (eLon == eLon_last) & (nLat == nLat_last) & (sLat == sLat_last):
                 errMsg = "Insufficient grid points in selected domain to " \
                        + "estimate storm statistics - please select a larger " \
-                       + "domain. Samples = %i / %i" % (np.size(self.parameter), 
+                       + "domain. Samples = %i / %i" % (np.size(self.parameter),
                                                         self.minSamplesCell)
                 self.logger.critical(errMsg)
                 raise StopIteration, errMsg

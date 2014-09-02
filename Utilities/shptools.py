@@ -2,8 +2,11 @@
 :mod:`shptools` - helper functions for manipulating shape files
 ===============================================================
 
-A collection of useful functions to manipulate shapefiles. Uses the `shapefile`
-library <http://code.google.com/p/pyshp/>
+.. module: shptools
+    :synopsis: A collection of useful functions to manipulate shapefiles. Uses the `shapefile
+               library <http://code.google.com/p/pyshp/>`_
+
+
 
 """
 
@@ -50,13 +53,16 @@ def parseData(data):
     """
     Parse a dict of dicts to generate a list of lists describing
     the fields, and an array of the corresponding data records
+    
     :param dict data: a dict of dicts with field names as keys, and each 
                       sub-dict containing keys of 'Type', 'Length', 
                       'Precision' and 'Data'. 
                       
     :returns: fields, records
     :rtype: list
+    
     """
+    
     fields = []
     records = []
     for k in data.keys():
@@ -92,7 +98,7 @@ def shpCreateFile(outputFile, shapes, data, shpType):
     :type shapes: :class:`shapefile._Shape`
     
     :param int shptype: :class:`shapefile` object type (these are integer
-                        values, but you can also use the shapelib.SHPT_ value).
+                        values, but you can also use the shapelib.SHPT value).
     :param dict fields: a dictionary of dictionaries with field names as
                         keys, and each sub-dictionary containing keys of 'Type',
                         'Length','Precision' and 'Data':
@@ -102,6 +108,8 @@ def shpCreateFile(outputFile, shapes, data, shpType):
                         2 - doubles
                         4 - Invalid
 
+    :raises: :mod:`shapefile.ShapefileException` if unable to write the file.
+    
     """
     fields, records = parseData(data)
 
@@ -167,19 +175,20 @@ def shpWriteShapeFile(outputFile, shpType, fields, shapes, records):
     Save data to a shapefile. The fields are sorted using the same
     function as in shpCreateFile, so the fields should be in the correct
     order.
-    Input: outputFile - dbf file object created by shpCreateFile
-           shpType -
-           data - a dictionary of dictionaries with field names as
-           keys, and each sub-dictionary containing keys of 'Type',
-           'Length','Precision' and 'Data'
-           'Type' must be one of the following integer values:
-           0 - strings
-           1 - integers
-           2 - doubles
-           4 - Invalid
 
+    :param outputFile: A dbf file object created by shpCreateFile
+    :param shpType: The type of features to be created.
+    :param dict data: A dictionary of dictionaries with field names as
+                      keys, and each sub-dictionary containing keys of 'Type',
+                      'Length','Precision' and 'Data'
+                      'Type' must be one of the following integer values:
+                      0 - strings
+                      1 - integers
+                      2 - doubles
+                      4 - Invalid
 
-    Output: None
+    :raises: :mod:`shapefile.ShapefileException` if unable to write the file.
+    
     """
     log.info("Writing data to {0}.shp".format(outputFile))
     w = shapefile.Writer(shpType)
@@ -287,7 +296,7 @@ def shpGetField(shape_file, field_name, dtype=float):
                   float
                   
     :return: the value of the given field for each feature
-    :rtype: array or list (if :var:`dtype` is a string)
+    :rtype: array or list (if `dtype` is a string)
 
     """
 

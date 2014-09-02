@@ -1,28 +1,11 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`plotWindfield` -- plot a wind field map
+=============================================
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-Title: plotWindfield.py - plot a wind field
-
-Author: Craig Arthur
-Email: craig.arthur@ga.gov.au
 CreationDate: 2006-112-01
 Description: Plot a given wind field (in fact any array) over a map,
-             given the longitude and latitide grids.
+given the longitude and latitide grids.
 
 
 Version: $Rev: 549 $

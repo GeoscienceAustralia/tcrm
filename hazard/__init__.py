@@ -2,8 +2,11 @@
 :mod:`hazard` -- Hazard calculation
 ===================================
 
-This module contains the core objects for the return period
-hazard calculation.
+.. module:: hazard
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
+
+This module contains the core objects for the return period hazard
+calculation.
 
 Hazard calculations can be run in parallel using MPI if the
 :term:`pypar` library is found and TCRM is run using the
@@ -45,17 +48,10 @@ def setDomain(inputPath):
     """
     Establish the full extent of input wind field files
 
-    Parameters:
-    -----------
+    :param str inputPath: path of folder containing wind field files
 
-    :param inputPath: `str` path of folder containing wind field files
-
-    Returns:
-    --------
-
-    :param wf_lon: `numpy.ndarray` of longitudes of the wind field
-
-    :param wf_lat: `numpy.ndarray` of latitudes of the wind field
+    :return:  Longitudes and latitudes of the wind field grid.
+    :rtype: `numpy.ndarray` 
 
     """
 
@@ -89,7 +85,7 @@ class Tile(object):
     (the wind field files) are different from those where the data is
     stored (the output hazard array).
 
-    This object holds the index ranges for teh input array and output array,
+    This object holds the index ranges for the input array and output array,
     to indicate this relationship.
 
     """
@@ -182,18 +178,12 @@ class TileGrid(object):
         east-west coordinate, y-indices correspond to the north-south
         coordinate.
 
-        Parameters:
-        -----------
+        :param int k: tile number
 
-        :param k: `int` tile number
-
-        Returns:
-        --------
-
-        :param x1: minimum x-index for tile `k`
-        :param x2: maximum x-index for tile `k`
-        :param y1: minimum y-index for tile `k`
-        :param y2: maximum y-index for tile `k`
+        :return x1: minimum x-index for tile `k`
+        :return x2: maximum x-index for tile `k`
+        :return y1: minimum y-index for tile `k`
+        :return y2: maximum y-index for tile `k`
 
         """
 
@@ -209,12 +199,8 @@ class TileGrid(object):
         Return the longitude and latitude values that lie within
         the modelled domain
 
-        Returns:
-        --------
-
-        :param lon: :class:`numpy.ndarray` containing longitude values
-
-        :param lat: :class:`numpy.ndarray` containing latitude values
+        :return lon: :class:`numpy.ndarray` containing longitude values
+        :return lat: :class:`numpy.ndarray` containing latitude values
 
         """
 
@@ -274,10 +260,10 @@ class HazardCalculator(object):
         self.RPupper = np.zeros((len(self.years), len(lat), len(lon)), dtype='f')
         self.RPlower = np.zeros((len(self.years), len(lat), len(lon)), dtype='f')
 
-        self.global_atts = {'history': ('TCRM hazard simulation - '
+        self.global_atts = {'title': ('TCRM hazard simulation - '
                             'return period wind speeds'),
-                            'version': flProgramVersion(),
-                            'Python_ver': sys.version}
+                            'tcrm_version': flProgramVersion(),
+                            'python_version': sys.version}
 
 
         # Add configuration settings to global attributes:
@@ -312,10 +298,7 @@ class HazardCalculator(object):
         """
         Iterate over tiles to calculate return period hazard levels
 
-        Parameters:
-        -----------
-
-        :param tileiter: `generator` that yields tuples of tile dimensions.
+        :param tileiter: generator that yields tuples of tile dimensions.
 
         """
 
@@ -565,9 +548,6 @@ def calculate(Vr, years, nodata, minRecords, yrsPerSim):
     Fit a GEV to the wind speed records for a 2-D extent of
     wind speed values
 
-    Parameters:
-    -----------
-
     :param Vr: `numpy.ndarray` of wind speeds (3-D - event, lat, lon)
     :param years: `numpy.ndarray` of years for which to evaluate
                   return period values
@@ -727,55 +707,15 @@ def getTileLimits(tilegrid, tilenums):
     """
     Generate a list of tuples of the x- and y- limits of a tile
 
-    Parameters:
-    -----------
-
     :param tilegrid: :class:`TileGrid` instance
-
     :param tilenums: list of tile numbers (must be sequential)
 
-    Returns:
-    --------
-
-    :param tilelimits: list of tuples of tile imits
+    :return: list of tuples of tile limits
 
     """
 
     tilelimits = [tilegrid.getGridLimit(t) for t in tilenums]
     return tilelimits
-
-def balanced(iterable):
-    """
-    Balance an iterator across processors.
-
-    This partitions the work evenly across processors. However, it requires
-    the iterator to have been generated on all processors before hand. This is
-    only some magical slicing of the iterator, i.e., a poor man version of
-    scattering.
-
-    """
-
-    P, p = pp.size(), pp.rank()
-    return itertools.islice(iterable, p, None, P)
-
-def balance(N):
-    """
-    Compute p'th interval when N is distributed over P bins
-    """
-
-    P, p = pp.size(), pp.rank()
-
-    L = int(np.floor(float(N) / P))
-    K = N - P * L
-    if p < K:
-        Nlo = p * L + p
-        Nhi = Nlo + L + 1
-    else:
-        Nlo = p * L + K
-        Nhi = Nlo + L
-
-    return Nlo, Nhi
-
 
 def run(configFile, callback=None):
     """
@@ -785,7 +725,7 @@ def run(configFile, callback=None):
     domain, but also provides a sane fallback mechanism to execute
     in serial.
 
-    :param configFile: str
+    :param str configFile: path to configuration file
 
     """
 

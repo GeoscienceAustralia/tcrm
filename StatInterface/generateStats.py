@@ -2,33 +2,13 @@
 :mod:`generateStats` -- calculation of statistical values
 =========================================================
 
-Calculates the basic statistical values used in the track generation
-module, on a per grid cell basis. 
+.. module:: generateStats
+    :synopsis: Calculates the mean, variance and
+               autocorrelation statistics for all grid
+               cells in the domain, for a given parameter.
 
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-Title: generateStats.py
-Author: Craig Arthur, craig.arthur@ga.gov.au
-CreationDate: 11/27/07 2:58:PM
-Description: Calculates the mean, variance and autocorrelation
-statistics for all grid cells in the domain, for a given parameter
-(speed, bearing, etc).  The statistics calculated herein provide
-information used in generating synthetic TC tracks. The method is based
-on the approached described by Hall & Jewson (2007)
-
-References:
-Hall, T.M. and Jewson, S. (2007): Statistical modelling of North
-Atlantic tropical cyclone tracks.
-Tellus A, 59(4), doi:10.1111/j.1600-0870.2007.00240.x, pp486-498
-
-Constraints:
-SeeAlso:
-
-Version: $Rev: 810 $
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 10/04/08 11:42:AM
-Modification: Changed logging method
-
-$Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, pdb, logging, sys
@@ -42,8 +22,6 @@ from Utilities.config import ConfigParser
 
 from scipy.stats import scoreatpercentile as percentile
 from PlotInterface.curves import RangeCurve, saveFigure
-
-__version__ = '$Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $'
 
 def acf(p, nlags=1):
     """
@@ -61,8 +39,7 @@ def acf(p, nlags=1):
     
 
 class parameters(object):
-    """parameters:
-
+    """
     Description: Create an object that holds `numpy` arrays of the 
     statistical properties of each grid cell. There are `numpy` 
     arrays for both land and sea cells.
@@ -97,10 +74,13 @@ class GenerateStats:
     Description:
 
     Parameters:
-    parameter: np.array or String (representing filename)
-               Contains the data which the statistical values will be
-               based
-    lonLat:    np.array or String (representing filename)
+    :type  parameter: :class:`numpy.ndarray` or str
+    :param parameter: contains the data on which the statistical
+                      values will be based. If `str`, then
+                      represents the name of a file that contains
+                      the data
+    :type  lonLat: :class:`numpy.ndarray` or str
+    :param lonLat:
                Contains the longitude and latitude of each of the
                observations in the np.array parameter
     gridLimit: dictionary containing limits of regional grid
@@ -121,7 +101,9 @@ class GenerateStats:
     Members:
     Methods:
     Internal methods:
+    
     """
+
     def __init__(self, parameter, lonLat, gridLimit,
                  gridSpace, gridInc, minSample=100, angular=False, missingValue=sys.maxint, 
                  progressbar=None, prgStartValue=0, prgEndValue=1, calculateLater=False):

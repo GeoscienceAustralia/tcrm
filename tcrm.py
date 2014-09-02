@@ -1,6 +1,14 @@
 """
-Tropical Cyclone Risk Model
-Copyright (c) 2014 Commonwealth of Australia (Geoscience Australia)
+:mod:`tcrm` -- the main TCRM interface
+======================================
+
+.. module:: tcrm
+    :synopsis: The main interface to TCRM. Determines which components
+               of the model system to execute, based on the configuration
+               settings specified.
+
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
+
 """
 
 import Utilities.datasets as datasets
@@ -43,7 +51,8 @@ git pull
 
 def timer(f):
     """
-    Basic timing functions for entire process
+    A simple timing decorator for the entire process.
+    
     """
     @wraps(f)
     def wrap(*args, **kwargs):
@@ -62,7 +71,8 @@ def timer(f):
 
 def git(command):
     """
-    Run a git command and return the output
+    Run a git command and return the output.
+    
     """
 
     with open(os.devnull) as devnull:
@@ -72,7 +82,10 @@ def git(command):
 
 def status():
     """
-    Check status TCRM of code.
+    Check the status of the TCRM code. If the version of code being
+    executed is behind the version available on the repository,
+    a message will be printed indicating the latest updates.
+    
     """
     msg = ''
 
@@ -94,6 +107,9 @@ def version():
     commit, if git is available on the system. Otherwise, it returns
     the last modified date of this file. It's assumed that this would be 
     the case if a user downloads the zip file from the git repository.
+
+    The version string is used to identify the code base in the output
+    metadata.
     """
     
     vers = ''
@@ -113,9 +129,26 @@ __version__  = version()
 @disableOnWorkers
 def doDataDownload(configFile):
     """
-    Check and download the data files.
+    Check and download the data files listed in the configuration file.
+    Datasets are listed in the `Input` section of the configuration
+    file, with the option `Datasets`. There must also be a corresponding
+    section in the configuration file that inlcudes the url, path where
+    the dataset will be stored and the filename that will be stored, e.g.::
 
+        [Input]
+        Datasets=IBTRACS
+
+        [IBTRACS]
+        URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
+        filename=Allstorms.ibtracs_wmo.v03r05.csv
+        path=input
+
+    This will attempt to download the gzipped csv file from the given URL
+    and save it to the given filename, in the 'input' folder under the current
+    directory. Gzipped files are automatically unzipped. 
+    
     :param str configFile: Name of configuration file.
+    :raises IOError: If the data cannot be downloaded.
     
     """
     
@@ -182,7 +215,7 @@ def doOutputDirectoryCreation(configFile):
 
 def doTrackGeneration(configFile):
     """
-    Do the tropical cyclone track generation.
+    Do the tropical cyclone track generation in :mod:`TrackGenerator`.
 
     The track generation settings are read from *configFile*.
     
@@ -211,8 +244,8 @@ def doTrackGeneration(configFile):
 
 def doWindfieldCalculations(configFile):
     """
-    Do the wind field calculations. The wind field settings are read
-    from *configFile*.
+    Do the wind field calculations, using :mod:`wind`. The wind
+    field settings are read from *configFile*.
 
     :param str configFile: Name of configuration file.
 
@@ -241,7 +274,7 @@ def doWindfieldCalculations(configFile):
 def doDataProcessing(configFile):
     """
     Parse the input data and turn it into the necessary format
-    for the model calibration step.
+    for the model calibration step, using the :mod:`DataProcess` module.
 
     :param str configFile: Name of configuration file.
     
@@ -267,7 +300,7 @@ def doDataProcessing(configFile):
 @disableOnWorkers
 def doDataPlotting(configFile):
     """
-    Plot the data.
+    Plot the pre-processed input data.
 
     :param str configFile: Name of configuration file.
     
@@ -352,7 +385,7 @@ def doDataPlotting(configFile):
 @disableOnWorkers
 def doStatistics(configFile):
     """
-    Calibrate the model.
+    Calibrate the model with the :mod:`StatInterface` module.
 
     :param str configFile: Name of configuration file.
     
@@ -404,7 +437,8 @@ def doStatistics(configFile):
 
 def doHazard(configFile):
     """
-    Do the hazard calculations.
+    Do the hazard calculations (extreme value distribution fitting)
+    using the :mod:`hazard` module.
 
     :param str configFile: Name of configuration file.
     
@@ -430,7 +464,9 @@ def doHazard(configFile):
 @disableOnWorkers
 def doHazardPlotting(configFile):
     """
-    Do the hazard plots.
+    Do the hazard plots (hazard maps and curves for all locations within
+    the model domain). Plotting is performed by the
+    :mod:`PlotInterface.AutoPlotHazard` module.
 
     :param str configFile: Name of configuration file.
     
@@ -458,7 +494,26 @@ def doHazardPlotting(configFile):
 
 def doEvaluation(configFile):
     """
-    Do the track model evaluation processing.
+    Do the track model evaluation processing, using :mod:`Evaluate`.
+
+    To perform this stage, it is recommended to generate an event set
+    with several simulated years (e.g. 10, 20, 30 years) in each
+    simulation.
+
+    A good setting might be::
+
+        [Actions]
+        ExecuteTrackGenerator=True
+        ExecuteEvaluate=True
+        
+        [TrackGenerator]
+        NumSimulations=1000
+        YearsPerSimulation=50
+
+    This will generate 1000 simulations each with 50 years of simulated
+    TC activity. :mod:`Evaluate` will then compare pressure distributions,
+    track density, landfall rates and longitude crossing rates for the
+    input dataset and the full 1000 simulations.
     
     :param str configFile: Name of the configuration file.
     
@@ -539,6 +594,12 @@ def main(configFile='main.ini'):
 
 
 def startup():
+    """
+    Parse command line arguments, set up logging and attempt
+    to execute the main TCRM functions.
+
+    """
+    
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config_file', help='The configuration file')
     parser.add_argument('-v', '--verbose', help='Verbose output',

@@ -1,3 +1,14 @@
+"""
+:mod:`tracks2shp` -- save a track instance as a shape file
+===========================================================
+
+.. module:: tracks2shp
+    :synopsis: Writes track instances to a shape file as a
+               collection of line, ployline or point features.
+
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
+
+"""
 
 import shapefile
 from itertools import izip
@@ -40,6 +51,9 @@ def tracks2point(tracks, outputFile):
 
     :param str outputFile: Path to output file destination
 
+    :raises: :mod:`shapefile.ShapefileException` if there is an error
+             when attempting to save the file.
+
     """
     sf = shapefile.Writer(shapefile.POINT)
     sf.fields = OBSFIELDS
@@ -72,6 +86,9 @@ def tracks2line(tracks, outputFile, dissolve=False):
 
     :type  dissolve: boolean
     :param dissolve: Store track features or track segments.
+
+    :raises: :mod:`shapefile.ShapefileException` if there is an error
+             when attempting to save the file.
     """
 
     sf = shapefile.Writer(shapefile.POLYLINE)

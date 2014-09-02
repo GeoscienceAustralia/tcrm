@@ -171,14 +171,6 @@ class GridInterface:
         self.parameter_type = parameter_type
         self.tool = GridTool(Nan)
 
-    def __doc__(self):
-        """
-        documentation on what this class does
-        """
-        return 'A wrapper class that allows user to interact with all \
-               the n by n grid related classes for representing historical \
-               data of cyclones'
-
     def plotOrigin(self, fig, oricounts, lon_bin, lat_bin):
         """
         generate plots relating to the origins of cyclones

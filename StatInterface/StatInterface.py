@@ -1,6 +1,16 @@
 """
-Model Calibration
+:mod:`StatInterface` -- statistical analysis of input datasets
+==============================================================
+
+.. module:: StatInterface
+    :synopsis: Generate cumulative distribution functions and probability
+    density functions of the various parameters, largely using kernel
+    density estimation methods.
+
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
+
 """
+
 import sys
 import logging as log
 import KDEOrigin
@@ -13,50 +23,18 @@ from generateStats import GenerateStats
 
 
 class StatInterface(object):
-
     """
-    Parameters
-    ----------
-    None
+    Main interface to the statistical analysis module of TCRM. This
+    module generates cumulative distribution functions and probability
+    density functions of the various parameters, largely using kernel
+    density estimation methods. 
 
-    Members
-    -------
-    lon_lat : string (file name including path)
-        latitude and longitude data for cyclone origins
-    init_bearing : string (file name including path)
-        initial bearings of cyclones
-    bearing_no_init : string (file name including path)
-        bearings of cyclones with no initial bearing
-    all_bearing : string (file name including path)
-        all bearings of cyclones
-    init_speed : string (file name including path)
-        initial speeds of cyclones
-    speed_no_init : string (file name including path)
-        speeds of cyclones with no initial speed
-    all_speed : string (file name including path)
-        all speeds of cyclones
-    init_pressure : string (file name including path)
-        initial pressures of cyclones
-    pressure_no_init : string (file name including path)
-        pressures of cyclones with no initial pressure
-    all_pressure : string (file name including path)
-        all pressures of cyclones
-    kdeType : string
-        kernel density estimation type
-    ns : int
-        number of samples
-
-    Methods
-    -------
-    kdeBearing()
-        generate KDEs relating to the bearings of cyclones
-    kdeSpeed()
-        generate KDEs relating to the speeds of cyclones
-    kdePressure()
-        generate KDEs relating to the pressures of cyclones
-    kdeCell(cellNo)
-        generate cyclone parameter KDEs relating to a particular cell
-
+    :param str configFile: Path to configuration file.
+    :param autoCalc_gridLimit: function to calculate the extent of a domain.
+    :param progressBar: a :meth:`SimpleProgressBar` object to print
+                        progress to STDOUT.
+   
+    
     """
 
     def __init__(self, configFile, autoCalc_gridLimit=None,
@@ -112,7 +90,8 @@ class StatInterface(object):
 
     def kdeOrigin(self):
         """
-        Generate 2D KDEs relating to the origin of cyclones
+        Generate 2D PDFs relating to the origin of cyclones.
+        
         """
         log.info('Generating 2D PDF of TC origins')
         log.debug('Reading data from %s',
@@ -127,6 +106,8 @@ class StatInterface(object):
     def kdeGenesisDate(self):
         """
         Generate CDFs relating to the genesis day-of-year of cyclones
+        for each grid cell in teh model domain.
+        
         """
         log.info('Generating CDFs for TC genesis day')
         log.debug('Reading data from %s',
@@ -142,7 +123,9 @@ class StatInterface(object):
 
     def cdfCellBearing(self):
         """
-        generate CDFs relating to the bearing of cyclones
+        Generate CDFs relating to the bearing of cyclones for each
+        grid cell in the model domain.
+        
         """
         log.info('Generating CDFs for TC bearing')
         log.debug('Reading data from %s',
@@ -159,7 +142,9 @@ class StatInterface(object):
 
     def cdfCellSpeed(self):
         """
-        generate CDFs relating to the pressures of cyclones
+        Generate CDFs relating to the speed of motion of cyclones for each
+        grid cell in the model domain.
+        
         """
         log.info('Generating CDFs for TC speed')
         log.debug('Reading data from %s',
@@ -177,7 +162,9 @@ class StatInterface(object):
 
     def cdfCellPressure(self):
         """
-        generate CDFs relating to the pressures of cyclones
+        Generate CDFs relating to the pressures of cyclones 
+        in each grid cell in the model domain.
+        
         """
         log.info('Generating CDFs for TC pressure')
         log.debug('Reading data from %s',
@@ -195,7 +182,9 @@ class StatInterface(object):
 
     def cdfCellSize(self):
         """
-        generate CDFs relating to the pressures of cyclones
+        Generate CDFs relating to the size (radius of maximum wind)
+        of cyclones in each grid cell in the model domain.
+        
         """
         log.info('Generating CDFs for TC size')
         log.debug('Reading data from %s',
@@ -224,9 +213,11 @@ class StatInterface(object):
         an instance of
         :class:`StatInterface.generateStats.GenerateStats`.
 
-        An optional :attr:`minSample` can be given which sets the
-        minimum number of observations in a given cell to calculate the
-        statistics.  """
+        An optional :attr:`minSample` (default=100) can be given which
+        sets the minimum number of observations in a given cell to
+        calculate the statistics.
+        
+        """
 
         path = self.processPath
 

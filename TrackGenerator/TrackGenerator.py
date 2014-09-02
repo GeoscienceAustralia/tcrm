@@ -55,6 +55,15 @@ from Utilities.interp3d import interp3d
 from Utilities.parallel import attemptParallel
 
 class SamplePressure(object):
+    """
+    Provide a method to get a 3-d interpolated mean sea level
+    pressure at a given location
+
+    :param str mslp_file: path to a 3-d (time, lat, lon) MSLP
+                          netcdf file.
+    :param str var: Variable name (assumed 'slp')
+    
+    """
     def __init__(self, mslp_file, var='slp'):
         ncobj = nctools.ncLoadFile(mslp_file)
         data = nctools.ncGetData(ncobj, var)
@@ -64,6 +73,16 @@ class SamplePressure(object):
         self.data = spline_filter(data)
         
     def get_pressure(self, coords):
+        """
+        Interpolate daily long term mean sea level pressure at
+        the given coordinates.
+
+        :param list coords: [day of year, latitude, longitude]
+        :rtype: float
+        :return: long term MSLP
+
+        """
+        
         scale = [365., 180., 360.]
         offset = [0., -90., 0.]
         mslp = interp3d(self.data, coords, scale, offset, prefilter=False)
@@ -127,23 +146,15 @@ class TrackGenerator(object):
     :param sizeMean: the fallback average tropical cyclone size to use
                      when the empirical distribution data cannot be
                      loaded from file. The default value is taken from
-                     the paper::
+                     McConochie et al. (2004)
 
-                     McConochie, J.D., T.A. Hardy and L.B. Mason
-                     (2004). Modelling tropical cyclone over-water wind
-                     and pressure fields.  Ocean Engineering, 31,
-                     1757-1782
 
     :type  sizeStdDev: float (default: 0.6)
     :param sizeStdDev: the fallback standard deviation of the tropical
                        cyclone size to use when the empirical
                        distribution data cannot be loaded from file.
-                       The default value is taken from the paper::
-
-                       McConochie, J.D., T.A. Hardy and L.B. Mason
-                       (2004). Modelling tropical cyclone over-water
-                       wind and pressure fields.  Ocean Engineering,
-                       31, 1757-1782
+                       The default value is taken from McConochie et al.
+                       (2004).
 
     """
 

@@ -734,13 +734,14 @@ class WindfieldGenerator(object):
         """
         lat, lon, speed, Vx, Vy, P = result
 
-        inputFileDate = flModDate(trackfile)
+        trackfileDate = flModDate(trackfile)
 
         gatts = {
             'title': 'TCRM hazard simulation - synthetic event wind field',
             'tcrm_version': flProgramVersion(),
             'python_version': sys.version,
-            'track_file': '%s (modified %s)' % (trackfile, inputFileDate),
+            'track_file': trackfile,
+            'track_file_date': trackfileDate,
             'radial_profile': self.profileType,
             'boundary_layer': self.windFieldType,
             'beta': self.beta}

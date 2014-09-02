@@ -1,40 +1,25 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`process` -- control processing of files
+=============================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: process
+    :synopsis: Provides functions to control processing of files. The
+               module records details of each file processed in a text file,
+               which can then be looked up at a later time to determin if a file
+               has previously been processed. It uses the MD5 checksum value of
+               the file as the primary indicator of modifications to a file.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- Title: process.py
- Author: Craig Arthur, craig.arthur@ga.gov.au
- CreationDate: 11/14/07 4:30:PM
- Description: Provides functions to control processing of a large number
- of files. It records details of each file processed in a text file
- which can then be looked up at a later time to check if it has been
- processed.  It uses the MD5 checksum value of the file as the primary
- indicator of modifications to a file.
- Constraints: Python versions <= 2.4 should use the md5 module. Later
- versions should use the hashlib module.
- SeeAlso: files.py
-
- Version :$Rev: 642 $
-
- $Id: process.py 642 2012-02-21 07:54:04Z nsummons $
 """
-import os, sys, time, pdb, logging
+
+import os
+import sys
+import time
+import logging
 
 from files import flGetStat, flModDate
-__version__ = '$Id: process.py 642 2012-02-21 07:54:04Z nsummons $'
+
 global gDatFile
 global gProcessedFiles
 global g_archive_dir
@@ -47,13 +32,17 @@ g_archive_dir = ''
 g_archive_date_format = '%Y%m%d%H%M'
 g_archive_timestamp = True
 
-def pSetProcessedEntry( directory, filename, attribute, value ):
+def pSetProcessedEntry(directory, filename, attribute, value):
     """
     Update the attribute of the given file with the given value.
-    Input: directory, filename, attribute, value
-    Output: None (gProcessedFiles is updated)
-    Example: pSetProcessedEntry(directory, filename, attribute, value)
+
+    :param str directory: Base directory of the file.
+    :param str filename: File name.
+    :param str attribute: Name of the file attribute to be updated.
+    :param str value: Attribute value.
+
     """
+    
     global gDatFile
     global gProcessedFiles
     if directory in gProcessedFiles:
@@ -71,10 +60,15 @@ def pGetProcessedEntry( directory, filename, attribute ):
     """
     Retrieve the value of an attribute for a file from the
     gProcessedFiles dictionary.
-    Input: directory, name and attribute of the file to retrieve
-    Output: Value (if it exists) of the attribute
-    Example: value = pGetProcessedEntry(directory, filename, attribute)
+
+    :param str directory: Path name of the file.
+    :param str filename: File name to retrieve the details of.
+    :param str attribute: Attribute to retrieve.
+
+    :returns: Attribute value
+    
     """
+    
     global gDatFile
     global gProcessedFiles
     try:
@@ -89,10 +83,15 @@ def pGetProcessedFiles( datFileName=None ):
     """
     Retrieve a list of processed files from a dat file. This will also
     set the global gDatFile.
-    Input: datFileName
-    Output: True if successfully read the dat file, False otherwise
-    Example: rc = pGetProcessedFiles(gDatFile)
+    
+    :param str datFileName: Name of a data file to read from.
+
+    :returns: True if successfully read the data file, False
+              otherwise.
+    :rtype: bool
+    
     """
+    
     global gDatFile
     global gProcessedFiles
     rc = 0
@@ -123,12 +122,16 @@ def pGetProcessedFiles( datFileName=None ):
     return rc
 
 def pWriteProcessedFile( filename ):
-    """pWriteProcessedFile(filename):
-    Write the various attributes of the given file to gDatFile
-    Input: filename that has been processed
-    Output: True if the attributes of the file are successfully stored
-            in gProcessedFiles and written to gDatFile, False otherwise.
-    Example: rc = pWriteProcessedFile(filename)
+    """
+    Write the various attributes of the given file to `gDatFile`
+
+    :param str filename: Name of file that has been processed.
+
+    :returns: True if the attributes of the file are successfully
+              stored in gProcessedFiles and written to gDatFile, False
+              otherwise.
+    :rtype: bool
+    
     """
     global gDatFile
     global gProcessedFiles
@@ -153,13 +156,15 @@ def pWriteProcessedFile( filename ):
 
 def pDeleteDatFile( ):
     """
-    Delete the existing dat file - defined in the gDatFile variable
+    Delete the existing data file - defined in the `gDatFile` variable
     (list of previously-processed files).
-    Input: None
-    Output: True if existing dat file successfully deleted,
-            False otherwise
-    Example: rc = pDeleteDatFile()
+    
+    :return: True if existing dat file successfully deleted,
+             False otherwise
+    :rtype: bool
+
     """
+
     global gDatFile
     global gProcessedFiles
     rc = 0
@@ -173,12 +178,16 @@ def pAlreadyProcessed( directory, filename, attribute, value ):
     """
     Determine if a file has already been processed (i.e. it is stored in
     gProcessedFiles)
-    Input: directory, filename, attribute and corresponding value of a
-           file.
-    Output: True if the value matches that stored in gProcessedFiles,
-            False otherwise
-    Example: rc = pAlreadyProcessed(directory, filename, attribute,
-                                    value)
+
+    :param str directory: Base path of the file being checked.
+    :param str filename: Name of the file.
+    :param str attribute: Attribute name to be checked.
+    :param str value: Value of the attribute to be tested.
+    
+    :return: True if the value matches that stored in gProcessedFiles,
+             False otherwise.
+    :rtype: boolean
+
     """
     global gDatFile
     global gProcessedFiles
@@ -191,10 +200,16 @@ def pAlreadyProcessed( directory, filename, attribute, value ):
 
 def pArchiveDir( archive_dir=None ):
     """
-    pArchiveDir
-    Set or get the archive directory.
-    Input: archive directory (if setting it)
-    Output: original archive directory
+    Set or get the archive directory. If setting the directory, its
+    existence is checked and the directory is created.
+    
+    :param str archive_dir: Archive directory (if setting it).
+
+    :return: The archive directory.
+    :rtype: str
+
+    :raises OSError: if the directory cannot be created
+
     """
     global g_archive_dir
     
@@ -206,16 +221,24 @@ def pArchiveDir( archive_dir=None ):
                 os.makedirs(g_archive_dir)
             except:
                 logger.exception( "Cannot create %s"%( g_archive_dir ) )
+                raise OSError
+            
     rc = g_archive_dir
     
     return rc
 
 
 def pArchiveDateFormat( date_format=None ):
-    """pArchiveDateFormat:
-    Set or get archive date format.
-    Input: archive date format (if setting it)
-    Output: original archive date format
+    """
+    Set or get archive date format. Archived files can optionally have
+    a date string inserted into the filename to retain all files with
+    the same name, but different timestamps.
+    
+    :param str date_format: archive date format (if setting it)
+
+    :return: archive date format
+    :rtype: str
+    
     """
     global g_archive_date_format
     if ( date_format ):
@@ -225,10 +248,16 @@ def pArchiveDateFormat( date_format=None ):
 
 
 def pArchiveTimestamp( timestamp=False ):
-    """pArchiveTimestamp
-    Set or get archive timstamp flag.
-    Input: true or false (if setting it)
-    Output: original setting
+    """
+    Set or get archive timstamp flag. If the flag is `True`, then
+    files that are to be archived will have a timestamp inserted into
+    the file name.
+    
+    :param bool timestamp: `True` or `False` (if setting it)
+
+    :return: The value of `g_archive_timestamp`
+    :rtype: bool
+    
     """
     global g_archive_timestamp
     if ( timestamp ):
@@ -237,7 +266,16 @@ def pArchiveTimestamp( timestamp=False ):
     return rc
 
 def pMoveFile( origin, destination ):
-    """pMoveFile: move a single file"""
+    """
+    Move a single file to an archive directory.
+
+    :param str origin: Full path of the file to be moved.
+    :param str destination: Full path of the file destination.
+
+    :return: `True` if the file is successfully moved, `False` otherwise.
+    :rtype: bool
+        
+    """
     try:
         os.rename( origin, destination )
     except:
@@ -251,9 +289,15 @@ def pMoveFile( origin, destination ):
     return rc
 
 def pArchiveFile( filename ):
-    """pArchiveFile
+    """
     Move the file to the archive directory (if specified), inserting a
     timestamp in the name.
+
+    :param str filename: Full path of the file to be archived.
+
+    :return: `True` if the file is successfully moved, `False` otherwise.
+    :rtype: bool
+    
     """
     path, ext = os.path.splitext( filename )
     path, base = os.path.split( path )

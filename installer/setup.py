@@ -72,9 +72,17 @@ data = matplotlib.get_py2exe_datafiles() + \
        [('MSLP', glob(pjoin('MSLP', '*.nc')))] + \
        [('.', [pjoin('.', 'matplotlibrc')])]
 
+requires = [
+    'matplotlib >= 1.1.1',
+    'basemap >= 1.0.2',
+    'netCDF4 >= 1.0.1',
+    'numpy >= 1.7.1',
+    'scipy >= 0.12.0']
+
 setup(name='tcrm',
       version='1.0',
       options=opts,
       ext_modules=exts,
       data_files=data,
+      install_requires=requires,
       **py2exe)

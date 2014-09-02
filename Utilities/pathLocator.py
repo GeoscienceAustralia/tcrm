@@ -1,34 +1,39 @@
-import os, sys, pdb, logging
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`pathLocator` -- determine directory one level above the Utilites folder
+=============================================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: pathLocator
+    :synopsis: A function to determine the directory one level above
+               the Utilities folder. Designed to work even if the code has been
+               compiled with py2exe.  This results in the modules being built-in
+               to the interpreter, so the path of the executable is returned
+               instead.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Nicholas Summons <nicholas.summons@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Title: pathLocator.py
-Author: Nicholas Summons, nicholas.summons@ga.gov.au  (Adapted from code snippet found on online forum)
-CreationDate: 18-10-2011
-Description: A function to determine the directory one level above the Utilities folder.
-             Designed to work even if the code has been compiled with py2exe.  This results in the modules
-             being built-in to the interpreter, so the path of the executable is returned instead.
 """
+import sys
+import os
 
 def is_frozen():
+    """
+    Determine if modules have been built into the interpreter, e.g. by
+    py2exe.
+
+    :return: `True` if the modules are frozen, `False` otherwise.
+    """ 
     # Modules built-in to the interpreter, e.g., by py2exe
     return hasattr(sys, "frozen")
 
 def getRootDirectory():
+    """
+    Return the name of the path one level above the directory of this current
+    file.
+
+    :return: Path name one level above this.
+    :rtype: str
+    """
+    
     encoding = sys.getfilesystemencoding()
     if is_frozen():
         return os.path.dirname(unicode(sys.executable, encoding))

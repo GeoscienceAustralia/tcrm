@@ -1,41 +1,13 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`tsmultipliers` -- apply site-exposure multipliers to time series output
+=============================================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: tsmultipliers
+    :synopsis: Multiply the wind speed in a timeseries file by the
+               appropriate multiplier values. Still a very rudimentary process. 
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- Title: tsmultipliers.py
- Author: Craig Arthur, craig.arthur@ga.gov.au
- CreationDate: 2008-10-09 2:12:PM
- Description: Multiply the wind speed in a timeseries file by the
- appropriate multiplier values. Still a very rudimentary process.
-
- Version : 46
- First version
-
- Version: 74
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate: 2009-02-05 12:13:PM
- Modification: Included correct bearing value in timeseries.
-
- Version: $Rev: 642 $
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate: 2009-08-25 3:43:PM
- Modification: Interpolate multiplier values to actual bearing rather
-               than classifying - still need to test value of performing
-               interpolation
- $Id: tsmultipliers.py 642 2012-02-21 07:54:04Z nsummons $
 """
 
 import os, sys, pdb, logging
@@ -50,7 +22,13 @@ __version__ = '$Id: tsmultipliers.py 642 2012-02-21 07:54:04Z nsummons $'
 
 def tsmultiply(inputFile):
     """
-    Apply multipliers to a single file.
+    Apply multipliers to a single file. Values are combined then written
+    back to the source file. 
+
+    :param str inputFile: Path to the input timeseries file. This will need
+                          to contain the values of the three multipliers
+                          (topography, terrain and shielding) for each of
+                          eight directions.
     """
     tsdata = flLoadFile(inputFile, delimiter=',')
     tstep = tsdata[:,0]

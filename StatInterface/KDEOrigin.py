@@ -164,12 +164,6 @@ class KDEOrigin:
         self.bw = KPDF.MPDFOptimumBandwidth(self.lonLat)
         self.logger.debug("Optimal bandwidth: %f"%self.bw)
 
-    def __doc__(self):
-        """
-        documentation on what this class does
-        """
-        return "Plot tropical cyclone origins using 2D kernel density estimation technique"
-
     def _generatePDF(self, grid, bw):
         """
         Sub-function that generates the PDFs of 2D kernel density
@@ -210,10 +204,10 @@ class KDEOrigin:
                     'name': 'lat',
                     'values': self.y,
                     'dtype': 'f',
-                    'atts': { 
+                    'atts': {
                         'long_name':' Latitude',
                         'units': 'degrees_north'
-                        } 
+                        }
                     },
                 1: {
                     'name': 'lon',
@@ -222,8 +216,8 @@ class KDEOrigin:
                     'atts': {
                         'long_name': 'Longitude',
                         'units': 'degrees_east'
-                        } 
-                    } 
+                        }
+                    }
                 }
 
             variables = {
@@ -235,8 +229,8 @@ class KDEOrigin:
                     'atts': {
                         'long_name': 'TC Genesis probability distribution',
                         'units': ''
-                        } 
-                    } 
+                        }
+                    }
                 }
 
             ncSaveGrid(outputFile, dimensions, variables)
@@ -266,7 +260,7 @@ class KDEOrigin:
             self.logger.debug("Saving origin PDF to file")
             #grdSave(os.path.join(self.processPath, 'originPDF.txt'),
             #        pdf, self.x, self.y, self.kdeStep)
-        
+
         return self.x, self.y, self.pdf
 
     def generateCdf(self, save=False):
@@ -279,7 +273,7 @@ class KDEOrigin:
             self.logger.debug("Saving origin CDF to file")
             grdSave(self.processPath+'originCDF.txt', self.cz, self.x,
                     self.y, self.kdeStep)
-                    
+
         if save:
             outputFile = os.path.join(self.processPath, 'originCDF.nc')
             dimensions = {
@@ -287,22 +281,22 @@ class KDEOrigin:
                 'name': 'lat',
                 'values': self.y,
                 'dtype': 'f',
-                'atts': { 
+                'atts': {
                     'long_name': 'Latitude',
                     'units': 'degrees_north'
-                    } 
+                    }
                 },
-            1: { 
+            1: {
                 'name': 'lon',
                 'values': self.x,
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Longitude',
                     'units':'degrees_east'
-                    } 
-                } 
+                    }
+                }
             }
-            
+
             variables =  {
                 0: {
                     'name': 'gcdf',
@@ -312,9 +306,9 @@ class KDEOrigin:
                     'atts': {
                         'long_name': ('TC Genesis cumulative '
                                         'distribution'),
-                        'units': '' 
-                        } 
-                    } 
+                        'units': ''
+                        }
+                    }
                 }
 
             ncSaveGrid(outputFile, dimensions, variables)

@@ -21,6 +21,8 @@ def attemptParallel():
 
     If pypar cannot be loaded then a dummy `pp` is created.
 
+    :returns: A pypar object - either a dummy or the real thing
+    
     """
 
     global pp
@@ -55,7 +57,9 @@ def disableOnWorkers(f):
     """
     Decorator to disable function `f` calculation on workers.
     The function will only be evaluated on the master thread.
-    
+
+    :param f: Function to be wrapped
+    :type f: function
     """
     
     @wraps(f)

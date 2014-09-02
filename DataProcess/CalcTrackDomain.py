@@ -1,29 +1,12 @@
 """
-:mod: CalcTrackDomain - calculate track generation domain
-=========================================================
+:mod:`CalcTrackDomain` - calculate track generation domain
+==========================================================
 
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+.. module:: CalcTrackDomain 
+    :synopsis: Determine track generator domain, ensuring it encompasses
+               all tracks entering the windfield generator domain.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-Title: CalcTrackDomain.py
-Author: Nicholas Summons, nicholas.summons@ga.gov.au
-CreationDate: 2010-03-23
-Description: Determine track generator domain, ensuring it encompasses
-             all tracks entering the windfield generator domain.
+.. moduleauthor:: Nicholas Summons <nicholas.summons@ga.gov.au>
 """
 
 from os.path import join as pjoin
@@ -34,7 +17,7 @@ from Utilities.config import ConfigParser
 from Utilities.files import flLoadFile
 
 
-class CalcTrackDomain:
+class CalcTrackDomain(object):
     """
     Calculate the extents over which tracks will be generated. 
 
@@ -46,26 +29,19 @@ class CalcTrackDomain:
     :type  configFile: string
     :param configFile: Configuration file containing simulation settings
     
-    :type  outputPath: string
-    :param outputPath: Path to simulation output directory
-
-    :type  wf_domain: :class:`dict`
-    :param wf_domain: the domain where the wind fields will be calculated.
-                      The :class:`dict` should contain the keys :attr:`xMin`,
-                      :attr:`xMax`, :attr:`yMin` and :attr:`yMax`. The *x*
-                      variable bounds the longitude and the *y* variable bounds
-                      the latitude.
-
     """
 
     def __init__(self, configFile):
+        """
+        :param str configFile: Path to configuration file.
+        """
         config = ConfigParser()
         config.read(configFile)
 
         self.outputPath = config.get('Output', 'Path')
         self.wf_domain = config.geteval('Region', 'gridLimit')
 
-    def _calc(self, index, lons, lats):
+    def calc(self, index, lons, lats):
         """
         Core function for determining track generation domain
 
@@ -124,37 +100,39 @@ class CalcTrackDomain:
                      TC positions
         :param lats: :class:`numpy.ndarray` representing the latitude of all 
                      TC positions
-
-        :rtype  tg_domain: :class:`dict`
-        :return tg_domain: the domain where the tracks will be generated.
+        
+        :rtype: dict
+        :returns: the domain where the tracks will be generated.
                            The :class:`dict` should contain the keys :attr:`xMin`,
                            :attr:`xMax`, :attr:`yMin` and :attr:`yMax`. The *x*
                            variable bounds the longitude and the *y* variable 
                            bounds the latitude.
+        
         """
 
-        tg_domain = self._calc(index, lons, lats)
+        tg_domain = self.calc(index, lons, lats)
         return tg_domain
 
     def calcDomainFromFile(self):
         """
         Calculate track generation domain, using a file as the input source
 
-        :rtype  tg_domain: :class:`dict`
-        :return tg_domain: the domain where the tracks will be generated.
-                           The :class:`dict` should contain the keys :attr:`xMin`,
-                           :attr:`xMax`, :attr:`yMin` and :attr:`yMax`. The *x*
-                           variable bounds the longitude and the *y* variable 
-                           bounds the latitude.
+        :rtype: dict
+        :returns: the domain where the tracks will be generated.
+                  The :class:`dict` should contain the keys :attr:`xMin`,
+                  :attr:`xMax`, :attr:`yMin` and :attr:`yMax`. The *x*
+                  variable bounds the longitude and the *y* variable 
+                  bounds the latitude.
+                  
         """
 
         # Load tracks from file
         cyclone_tracks = flLoadFile(pjoin(self.outputPath, 'process', 
                                           'cyclone_tracks'),
                                           '%', ',')
-        tg_domain = self._calc(cyclone_tracks[:, 0],
-                               cyclone_tracks[:, 1],
-                               cyclone_tracks[:, 2])
+        tg_domain = self.calc(cyclone_tracks[:, 0],
+                              cyclone_tracks[:, 1],
+                              cyclone_tracks[:, 2])
 
         return tg_domain
 

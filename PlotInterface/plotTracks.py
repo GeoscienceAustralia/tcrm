@@ -93,7 +93,7 @@ class TrackMapFigure(MapFigure):
         self.addMapScale(mapobj)
 
 class SingleTrackMap(TrackMapFigure):
-    
+
     def plot(self, tracks, xgrid, ygrid, title, map_kwargs):
         self.add(tracks, xgrid, ygrid, title, map_kwargs)
         super(SingleTrackMap, self).plot()
@@ -112,7 +112,7 @@ def main(configFile):
     inputPath = pjoin(baseDir, 'input')
     config = ConfigParser()
     config.read(configFile)
-    
+
     inputFile = config.get('DataProcess', 'InputFile')
     source = config.get('DataProcess', 'Source')
 
@@ -122,10 +122,10 @@ def main(configFile):
     yy = np.arange(gridLimit['yMin'], gridLimit['yMax'] + .1, 0.1)
 
     xgrid, ygrid = np.meshgrid(xx, yy)
-    
+
     if len(dirname(inputFile)) == 0:
         inputFile = pjoin(inputPath, inputFile)
-        
+
     try:
         tracks = loadTrackFile(configFile, inputFile, source)
     except (TypeError, IOError, ValueError):
@@ -152,8 +152,8 @@ def main(configFile):
 if __name__ == "__main__":
     configFile = sys.argv[1]
     main(configFile)
-    
-    
+
+
 class PlotTracks(object):
     """PlotTracks: plots tropical cyclone tracks
     Parameters
@@ -232,15 +232,6 @@ class PlotTracks(object):
         else:
             raise TypeError, "Unknown type for cycloneTracks"
 
-
-
-    def __doc__(self):
-        """
-        documentation on what this class does
-        """
-        return "Plot a set of cyclone tracks \
-        The tracks can be in one of several formats: \
-        "
 
     def plotTracks(self, tracks, titlestr=None, colours=False):
         """plotTracks([titlestr]):

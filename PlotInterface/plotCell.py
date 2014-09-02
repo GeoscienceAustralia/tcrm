@@ -136,13 +136,6 @@ class PlotCell:
         self.cellNum = cellNum
         self.extractParameters(cellNum)
 
-
-    def __doc__(self):
-        """
-        documentation on what this class does
-        """
-        return "Plot the cyclone parameter histograms of a particular cell"
-
     def extractParameters(self, cellNum):
         """
         Extracts cyclone parameters for a given cell
