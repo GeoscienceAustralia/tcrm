@@ -30,6 +30,7 @@ import metutils
 
 __version__ = '$Id: interpTrack.py 685 2012-03-29 04:22:32Z carthur $'
 
+
 def _ShowSyntax( exit_code=0 ):
     print sys.argv[0]
     print "Interpolate the observed points of a tropical cyclone temporally"

@@ -717,6 +717,7 @@ def getTileLimits(tilegrid, tilenums):
     tilelimits = [tilegrid.getGridLimit(t) for t in tilenums]
     return tilelimits
 
+
 def run(configFile, callback=None):
     """
     Run the hazard calculations.

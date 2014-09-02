@@ -127,6 +127,7 @@ def version():
 __version__  = version()
 
 
+
 @disableOnWorkers
 def doDataDownload(configFile):
     """
@@ -147,6 +148,7 @@ def doDataDownload(configFile):
     This will attempt to download the gzipped csv file from the given URL
     and save it to the given filename, in the 'input' folder under the current
     directory. Gzipped files are automatically unzipped. 
+
     
     :param str configFile: Name of configuration file.
     :raises IOError: If the data cannot be downloaded.

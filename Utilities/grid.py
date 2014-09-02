@@ -251,7 +251,6 @@ class SampleGrid:
 
         :returns: Value of the nearest grid point to the given lon/lat point.
 
-
         """
         indi = self.lon.searchsorted(lon)
         indj = self.lat.searchsorted(lat)

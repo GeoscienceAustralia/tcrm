@@ -46,7 +46,7 @@ class DataSet(object):
 
         :param callback: Callback function (for reporting status to STDOUT).
         :type callback: function
-    
+
         :raises IOError: Unable to download the dataset.
         
         """
@@ -127,6 +127,7 @@ def checkAndDownload(callback=None):
     :param callback: Callback function (for reporting status to STDOUT).
     :type callback: function
     
+
     """
     
     for dataset in DATASETS:
