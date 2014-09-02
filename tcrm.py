@@ -126,6 +126,7 @@ def version():
 # Set global version string (for output metadata purposes):
 __version__  = version()
 
+
 @disableOnWorkers
 def doDataDownload(configFile):
     """

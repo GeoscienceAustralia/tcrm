@@ -7,6 +7,13 @@
                all tracks entering the windfield generator domain.
 
 .. moduleauthor:: Nicholas Summons <nicholas.summons@ga.gov.au>
+
+
+Determine track generator domain, ensuring it encompasses
+all tracks entering the windfield generator domain.
+
+CreationDate: 2010-03-23
+
 """
 
 from os.path import join as pjoin

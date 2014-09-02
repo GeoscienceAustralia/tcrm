@@ -6,6 +6,10 @@
     :synopsis: Processes the database of historical TCs into suitably formatted
                text files.
 
+Processes the database of historical TCs into suitably formatted
+text files.
+
+
 """
 
 import os

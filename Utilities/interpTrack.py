@@ -116,7 +116,7 @@ def interpolateTrack(configFile, trackFile, source, delta=0.1,
               central pressure, environmental pressure and radius to
               maximum wind) that describe the track at ``delta`` hours
               intervals.
-    
+
     """
     logger = logging.getLogger()
     indicator,year,month,day,hour,minute,lon,lat,pressure,speed,bearing,windspeed,rmax,penv = loadTrackFile(configFile,trackFile,source)

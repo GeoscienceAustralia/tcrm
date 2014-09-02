@@ -9,6 +9,7 @@
 
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
+
 """
 
 import os, pdb, logging, sys
@@ -44,6 +45,7 @@ class parameters(object):
     statistical properties of each grid cell. There are `numpy` 
     arrays for both land and sea cells.
 
+
     Parameters:
     None
 
@@ -54,6 +56,12 @@ class parameters(object):
     each grid cell
     phi/lphi : array of normalisation values for random variations
 
+    Methods:
+    None
+
+    Internal methods:
+    None
+    
     """
 
     def __init__(self, numCells):

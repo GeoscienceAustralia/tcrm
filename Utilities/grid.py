@@ -2,7 +2,8 @@
 :mod:`grid` -- read, write and sample ascii grid files
 ======================================================
 
-Provide functions to read, write and sample ascii grid files. The ascii files are assumend to have and ArcGIS GIRD format::
+Provide functions to read, write and sample ascii grid files. The
+ascii files are assumend to have and ArcGIS GIRD format::
 
     ncols        nx
     nrows        ny
@@ -250,7 +251,6 @@ class SampleGrid:
 
         :returns: Value of the nearest grid point to the given lon/lat point.
 
-        
 
         """
         indi = self.lon.searchsorted(lon)

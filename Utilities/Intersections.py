@@ -151,6 +151,7 @@ class Crossings:
     """
     Determine if a a line intersects some other geometric feature
     (another line, a circle, a polygon). 
+
     """
 
     def __init__(self):
