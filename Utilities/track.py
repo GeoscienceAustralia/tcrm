@@ -5,6 +5,8 @@ Track-related attributes
 import numpy as np
 from datetime import datetime, timedelta
 
+from shapely.geometry import Point, LineString
+
 trackFields = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
                'Day', 'Hour', 'Minute', 'TimeElapsed', 'Datetime','Longitude',
                'Latitude', 'Speed', 'Bearing', 'CentralPressure',
@@ -86,4 +88,18 @@ class Track(object):
                 (yMin <= np.min(self.Latitude)) and
                 (np.max(self.Latitude) <= yMax))
                 
+    def minimumDistance(self, points):
+        """
+        Calculate the minimum distance between a track and a sequence of :class:`shapely.geometry.Point`s
 
+        :param points: sequence of :c;ass:`shapely.geometry.Point` objects.
+        """
+        coords = []
+        for x, y in zip(self.Longitude, self.Latitude):
+            coords.append((x, y))
+
+        line_feature = LineString(coords)
+
+        distances = [line_feature.distance(point) for point in points]
+        return distances
+            
