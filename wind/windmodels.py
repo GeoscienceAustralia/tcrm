@@ -845,8 +845,8 @@ def fieldParams(name):
     return params
 
 
-PROFILES = {k.__name__.replace('WindProfile', '').lower(): k
-            for k in allSubclasses(vars()['WindProfileModel'])}
+PROFILES = dict([(k.__name__.replace('WindProfile', '').lower(), k)
+                 for k in allSubclasses(vars()['WindProfileModel'])])
 
-FIELDS = {k.__name__.replace('WindField', '').lower(): k
-          for k in allSubclasses(vars()['WindFieldModel'])}
+FIELDS = dict([(k.__name__.replace('WindField', '').lower(), k)
+               for k in allSubclasses(vars()['WindFieldModel'])])

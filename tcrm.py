@@ -10,10 +10,20 @@
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
 """
-
-import Utilities.datasets as datasets
+# These packages need patching to run on python 2.6
 import logging as log
 import subprocess
+
+# Monkey patch check_output into subprocess for python 2.6.X
+if 'check_output' not in dir(subprocess):
+    import py26compat
+    subprocess.check_output = py26compat.check_output
+
+if 'NullHandler' not in dir(log):
+    import py26compat
+    log.NullHandler = py26compat.NullHandler
+
+import Utilities.datasets as datasets
 import traceback
 import argparse
 import time
