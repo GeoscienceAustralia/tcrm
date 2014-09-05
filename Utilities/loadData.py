@@ -82,6 +82,44 @@ class Track(object):
         if key.startswith('__') and key.endswith('__'):
             return super(Track, self).__getattr__(key)
         return self.data[key]
+
+#FORMATS:
+bdeck = {
+    "delimiter": ",",
+    "names" : ("basin", "num", "date", "lat", "lon", "vmax", "pressure", "rmax"),
+    "dtype" : ("|S2", "i", "object", "f8", "f8", "f8", "f8", "f8"),
+    "usecols" : (0, 1, 2, 6, 7, 8, 9, 11),
+    "converters" : {
+                0: lambda s: s.strip(),
+                1: lambda s: s.strip(),
+                2: lambda s: datetime.strptime(s.strip(), "%Y%m%d%H"),
+                6: lambda s: float(s.strip("NSEW")) / 10.,
+                7: lambda s: float(s.strip("NSEW")) / 10.,
+                8: lambda s: float(s.strip()),
+                9: lambda s: float(s.strip()),
+                11: lambda s: metutils.convert(float(s.strip()), "nm", "km")
+            },
+    "autostrip" : True
+    }
+
+ibtracs = {
+    "delimiter" : ",",
+    "names" : ("tcserialno", "season", "num", "date", "lat", "lon", "pressure"),
+    "dtype" : ("|S13", "i", "i", "object", "f8", "f8", "f8"),
+    "usecols" : (0, 1, 2, 6, 8, 9, 11),
+    "converters" : {
+                0: lambda s: s.strip(),
+                1: lambda s: int(s.strip()),
+                2: lambda s: int(s.strip()),
+                6: lambda s: datetime.strptime(s.strip(), "%Y-%m-%d %H:%M:%S"),
+                8: lambda s: float(s.strip()),
+                9: lambda s: float(s.strip()),
+                11: lambda s: float(s.strip())
+             },
+    "skip_header" : 3,
+    "autostrip" : True,
+    }
+
 """
 
 def getSpeedBearing(index, lon, lat, deltatime, ieast=1,
