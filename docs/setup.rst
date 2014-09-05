@@ -71,7 +71,7 @@ cells, which are used for calculating statistics. At this time, the
 values here must be integer values, but can be different in the ``x``
 (east-west) and ``y`` (north-south) directions. The ``gridInc`` option
 control the incremental increase in grid cell size when insufficient
-observations are located within a grid cell (see StatInterface
+observations are located within a grid cell (see the :mod:`StatInterface
 description)::
 
     [Region]
