@@ -215,6 +215,7 @@ class DataProcess(object):
         except (ValueError, KeyError):
 
             try:
+                self.logger.info("Filtering input data by season: season > %d"%startSeason)
                 # Find indicies that satisfy minimum season filter
                 idx = np.where(inputData['season'] >= startSeason)[0]
                 # Filter records:
