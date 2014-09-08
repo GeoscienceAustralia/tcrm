@@ -9,11 +9,7 @@
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
 """
-
 import os, math, numpy, pdb
-
-__version__ = '$Id: Intersections.py 685 2012-03-29 04:22:32Z carthur $'
-
 
 def convert2vertex(a1, a2):
     """
@@ -23,10 +19,11 @@ def convert2vertex(a1, a2):
     :param a2: abscissa
 
     :returns: List of :class:`Point` objects. 
+
     """
-    result = []
-    for i in xrange(len(a1)):
-        result.append(Point(a1[i], a2[i]))
+
+
+    result = [Point(x, y) for x, y in zip(a1, a2)]
     return result
 
 def inLand(P, V):
