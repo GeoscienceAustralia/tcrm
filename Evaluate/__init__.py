@@ -13,6 +13,7 @@ from pressureDistribution import PressureDistribution
 from trackDensity import TrackDensity
 from longitudeCrossing import LongitudeCrossing
 from landfallRates import LandfallRates
+from genesisDensity import GenesisDensity
 
 
 def run(configFile):
@@ -28,8 +29,10 @@ def run(configFile):
     TD = TrackDensity(configFile)
     LC = LongitudeCrossing(configFile)
     LF = LandfallRates(configFile)
+    GD = GenesisDensity(configFile)
     
     PD.run()
     TD.run()
     LC.run()
     LF.run()
+    GD.run()
