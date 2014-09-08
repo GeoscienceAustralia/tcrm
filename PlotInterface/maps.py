@@ -15,8 +15,6 @@ from mpl_toolkits.basemap import Basemap
 
 from Utilities.smooth import smooth
 
-import pdb
-
 class MapFigure(Figure, Basemap):
 
     def __init__(self):
