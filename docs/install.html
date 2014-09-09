@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" />
+    <link rel="next" title="Setting up the model" href="setup.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="setup.html" title="Setting up the model"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>Installation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Installing TCRM is intended to be a simple process, requiring only a small amount of compilation and basic understanding of command line operations. TCRM has been installed and (lightly) tested on a range of unix-based systems, Windows and Mac OS/X systems.</p>
+<div class="section" id="dependencies">
+<span id="id2"></span><h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>For instructions on installation of these dependencies, please see the documentation for each package.</p>
+<ul class="simple">
+<li><a class="reference external" href="https://www.python.org/">Python</a> - v2.7 preferred</li>
+<li><a class="reference external" href="http://www.numpy.org/">Numpy</a> - v1.6 or later</li>
+<li><a class="reference external" href="http://www.scipy.org/">Scipy</a></li>
+<li><a class="reference external" href="http://matplotlib.org/">Matplotlib</a></li>
+<li><a class="reference external" href="http://matplotlib.org/basemap/index.html">Basemap</a></li>
+<li><a class="reference external" href="https://code.google.com/p/netcdf4-python/">netcdf4-python</a> - version 1.0.8 or later</li>
+<li>Parallel execution in multi-processor environments (with MPI installed) requires <a class="reference external" href="http://github.com/daleroberts/pypar">Pypar</a></li>
+</ul>
+<p>For Windows environments, we recommend using the <a class="reference external" href="http://code.google.com/p/pythonxy/">Python(x,y) package</a>, that includes all the required
+modules (excluding Basemap and Pypar). Pre-compiled binary installer
+versions can be obtained <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/">here</a>.</p>
+</div>
+<div class="section" id="compiling-the-extensions">
+<span id="compilation"></span><h2>Compiling the extensions<a class="headerlink" href="#compiling-the-extensions" title="Permalink to this headline">¶</a></h2>
+<p>The model requires a number of C extensions to be compiled before
+execution. These can be built using Python&#8217;s inbuilt <tt class="xref py py-mod docutils literal"><span class="pre">distutils</span></tt>
+module. Copy the required files from the <cite>installer</cite> directory to the
+base directory and then execute the build process:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ python intaller/setup.py build_ext -i
+</pre></div>
+</div>
+<p>For Windows users, the model includes the <tt class="docutils literal"><span class="pre">compile.cmd</span></tt> script that
+will build these extensions in place.</p>
+</div>
+<div class="section" id="testing-the-installation">
+<span id="testing"></span><h2>Testing the installation<a class="headerlink" href="#testing-the-installation" title="Permalink to this headline">¶</a></h2>
+<p>The model code includes a suite of unit tests that ensure elements of
+the code base will work as expected, even if a user makes
+modificaitons to the code.</p>
+<p>The test suite can be run from the main directory:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ python ./tests/run.py
+</pre></div>
+</div>
+<p>This should report no errors.</p>
+<div class="section" id="special-note-for-windows-systems">
+<h3>Special note for Windows systems<a class="headerlink" href="#special-note-for-windows-systems" title="Permalink to this headline">¶</a></h3>
+<p>On a Windows system, <tt class="xref py py-func docutils literal"><span class="pre">tests.test_files.testModulePath()</span></tt> may fail
+due to the different path separators (<tt class="docutils literal"><span class="pre">/</span></tt> versus <tt class="docutils literal"><span class="pre">\\</span></tt>) used by the
+Windows system. This test failure will appear as:</p>
+<div class="highlight-python"><div class="highlight"><pre>======================================================================
+FAIL: testModulePath (tests.test_files.TestModuleUtilities)
+Test flModulePath returns correct path, base &amp; extension
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File &quot;tcrm\tests\test_files.py&quot;, line 22, in testModulePath
+    self.assertEqual(self.path, p)
+AssertionError: &#39;tcrm/tests&#39; != &#39;tcrm\\tests&#39;
+
+----------------------------------------------------------------------
+</pre></div>
+</div>
+<p>Such an error will not affect model execution.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li><a class="reference internal" href="#compiling-the-extensions">Compiling the extensions</a></li>
+<li><a class="reference internal" href="#testing-the-installation">Testing the installation</a><ul>
+<li><a class="reference internal" href="#special-note-for-windows-systems">Special note for Windows systems</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="setup.html"
+                        title="next chapter">Setting up the model</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/docs/install.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="setup.html" title="Setting up the model"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             >previous</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
+      Last updated on Sep 09, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

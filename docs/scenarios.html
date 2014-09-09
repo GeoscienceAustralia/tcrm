@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Scenario modelling &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" />
+    <link rel="next" title="Utilities package" href="Utilities.html" />
+    <link rel="prev" title="Source formats" href="sources.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Utilities.html" title="Utilities package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sources.html" title="Source formats"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="scenario-modelling">
+<h1>Scenario modelling<a class="headerlink" href="#scenario-modelling" title="Permalink to this headline">¶</a></h1>
+<p>TCRM can also be used to simulate the wind field from an individual
+event. Given the track of a tropical cyclone, users can run the
+<a class="reference internal" href="wind.html#module-wind" title="wind"><tt class="xref py py-mod docutils literal"><span class="pre">wind</span></tt></a> module only, and generate the maximum wind swath from a
+TC. The <cite>tcevent.py</cite> script enables users to efficiently run a
+scenario simulation, including performing temporal interpolation of
+the track positions to generate a realistic representation of the wind
+field. This can be useful for exploring synthetic events in more
+detail, or for analysing the wind field from an historical tropical
+cyclone.</p>
+<p>TCRM does not currently account for local landscape effects on wind
+speed (e.g. topographic enhancement or changes in surface roughness
+due to vegetation or built environments). Users should determine the
+best way to include these effects for their own purposes.</p>
+<p>As TCRM uses a parametric profile, the primary vortex is axisymmetric,
+and asymmetry in the surface winds arises solely due to the forward
+motion of the cyclone and the (uniform) surface friction. For a
+complete and accurate representation of the winds from an actual
+tropical cyclone, the simulated winds from TCRM should be combined
+with observed maximum wind speeds in the vicinity of the cyclone using
+spatial interpolation methods (e.g. kriging).</p>
+<div class="section" id="setting-up-a-scenario">
+<h2>Setting up a scenario<a class="headerlink" href="#setting-up-a-scenario" title="Permalink to this headline">¶</a></h2>
+<p>Users will need to manually edit a configuration file to execute a
+scenario simulation. Many of the options in the main TCRM
+configuration file are not required for scenario simulation, so it is
+recommended to create a reduced configuration file that contains only
+the required sections and options.</p>
+<p>A basic configuration file for a scenario simulation would look like
+this:</p>
+<div class="highlight-python"><div class="highlight"><pre>[DataProcess]
+InputFile=scenario.csv
+
+[WindfieldInterface]
+Source=NRL    # Naval Research Laboratory
+Margin=3
+Resolution=0.02
+profileType=powell
+beta=1.6
+windFieldType=kepert
+TimeStep=0.0833333333
+
+[Timeseries]
+Extract=True
+StationFile=./input/stationlist.shp
+StationID=WMO
+
+[Output]
+Path = ./output/scenario
+
+[NRL]
+Columns=index,skip,skip,date,lat,lon,skip,skip,pressure,rmax
+FieldDelimiter=,
+NumberOfHeadingLines=0
+PressureUnits=hPa
+SpeedUnits=kts
+LengthUnits=km
+DateFormat=%Y%m%d %H:%M
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-the-scenario">
+<h2>Running the scenario<a class="headerlink" href="#running-the-scenario" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>tcevent.py</cite> script loads the track file, performs the temporal
+interpolation and then passes the interpolated track file to the
+<a class="reference internal" href="wind.html#module-wind" title="wind"><tt class="xref py py-mod docutils literal"><span class="pre">wind</span></tt></a> module. Since the <tt class="docutils literal"><span class="pre">Region</span></tt> section has been removed, the
+<a class="reference internal" href="wind.html#wind.run" title="wind.run"><tt class="xref py py-meth docutils literal"><span class="pre">wind.run()</span></tt></a> method will set the grid domain to cover the entire
+extent of the track.</p>
+<p>Make sure <tt class="docutils literal"><span class="pre">python</span></tt> is in your system path, then from the base
+directory, call the <tt class="docutils literal"><span class="pre">tcevent.py</span></tt> script, with the configuration
+file option included. For example, to run the example scenario:</p>
+<div class="highlight-python"><div class="highlight"><pre>python tcevent.py -c example/scenario.ini
+</pre></div>
+</div>
+<p>If the <tt class="docutils literal"><span class="pre">-v</span></tt> option is included, then all logging messages will be
+printed to the console. The level of logging detail is set in the
+configuration file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">note:</th><td class="field-body"><cite>tcevent.py</cite> cannot be executed in parallel.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="command-line-arguments">
+<h2>Command line arguments<a class="headerlink" href="#command-line-arguments" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-c <var>file</var></span>, <span class="option">--config <var>file</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Path to a configuration file.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-v</span>, <span class="option">--verbose</span></kbd></td>
+<td>If given, logging messages will be printed
+to the console.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-d</span>, <span class="option">--debug</span></kbd></td>
+<td>In the case that execution results in an exception,
+allow the Python stack to call into the stack trace
+(through implementation of a custom hook script) and
+start the Python debugger (<tt class="xref py py-mod docutils literal"><span class="pre">pdb</span></tt>).</td></tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="extract-time-series-data">
+<h2>Extract time series data<a class="headerlink" href="#extract-time-series-data" title="Permalink to this headline">¶</a></h2>
+<p>When running a scenario, it is possible to extract a time series of
+the wind speed and sea level pressure values from the grid at selected
+locations. The locations are defined in a user-supplied point shape
+file (a location database is planned for inclusion in future
+versions to better facilitate this feature). The shape file should
+contain a field with a unique identifier, otherwise station output is
+numbered sequentially through the locations.</p>
+<ul class="simple">
+<li>Locations must be provided in geographic coordinates (longitude,
+latitude coordinates). No reprojection is performed.</li>
+<li>Output is a &#8216;regional&#8217; wind speed &#8211; that is, the wind speed at that
+location, excluding local topographic or landscape effects. These
+effects can be incorporated offline (i.e. outside the TCRM
+framework).</li>
+</ul>
+<p>The data is stored in a separate csv file for each location, and data
+is plotted on a simple figure for visual inspection.</p>
+<div class="align-center figure">
+<img alt="Time series example from Guiuan, Philippines" src="../_images/timeseries_example.png" />
+<p class="caption">Time series data for Super Typhoon <em>Haiyan</em> at Guiuan, Samar, Philippines.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body">The double labels on the secondary (right-hand) y-axis require
+Matplotlib version 1.3 or later.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Scenario modelling</a><ul>
+<li><a class="reference internal" href="#setting-up-a-scenario">Setting up a scenario</a></li>
+<li><a class="reference internal" href="#running-the-scenario">Running the scenario</a></li>
+<li><a class="reference internal" href="#command-line-arguments">Command line arguments</a></li>
+<li><a class="reference internal" href="#extract-time-series-data">Extract time series data</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="sources.html"
+                        title="previous chapter">Source formats</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Utilities.html"
+                        title="next chapter">Utilities package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/docs/scenarios.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Utilities.html" title="Utilities package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sources.html" title="Source formats"
+             >previous</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
+      Last updated on Sep 09, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

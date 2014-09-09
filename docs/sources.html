@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Source formats &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" />
+    <link rel="next" title="Scenario modelling" href="scenarios.html" />
+    <link rel="prev" title="Evaluation" href="evaluation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="scenarios.html" title="Scenario modelling"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="evaluation.html" title="Evaluation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="source-formats">
+<h1>Source formats<a class="headerlink" href="#source-formats" title="Permalink to this headline">¶</a></h1>
+<p>There are a wide variety of formats of tropical cyclone track
+databases available, both observational and model generated (e.g. we
+have used tropical cyclone-like vortices derived from regional and
+global climate models). To introduce users to the model, we include
+the format for the <a class="reference external" href="http://www.ncdc.noaa.gov/oa/ibtracs/">International Best Tracks Archive for Climate
+Stewardship</a> (IBTrACS-WMO
+format). The default action for TCRM is to download the current
+version (v03r05 at August 2014) and use this to calibrate the model.</p>
+<div class="section" id="database-format">
+<span id="databaseformat"></span><h2>Database format<a class="headerlink" href="#database-format" title="Permalink to this headline">¶</a></h2>
+<p>The first few lines of the IBTrACS database are shown below.</p>
+<div class="highlight-python"><div class="highlight"><pre>IBTrACS WMO: International Best Tracks Archive for Climate Stewardship -- WMO DATA ONLY -- Version: v03r05
+Serial_Num,Season,Num,Basin,Sub_basin,Name,ISO_time,Nature,Latitude,Longitude,Wind(WMO),Pres(WMO),Center,Wind(WMO) Percentile,Pres(WMO) Percentile,Track_type
+N/A,Year,#,BB,BB,N/A,YYYY-MM-DD HH:MM:SS,N/A,deg_north,deg_east,kt,mb,N/A,%,%,N/A
+1848011S09080,1848,02, SI, MM,XXXX848003,1848-01-11 06:00:00, NR, -8.60,  79.80,  0.0,    0.0,reunion,-100.000,-100.000,main
+1848011S09080,1848,02, SI, MM,XXXX848003,1848-01-12 06:00:00, NR, -9.00,  78.90,  0.0,    0.0,reunion,-100.000,-100.000,main
+1848011S09080,1848,02, SI, MM,XXXX848003,1848-01-13 06:00:00, NR,-10.40,  73.20,  0.0,    0.0,reunion,-100.000,-100.000,main
+1848011S09080,1848,02, SI, MM,XXXX848003,1848-01-14 06:00:00, NR,-12.80,  69.90,  0.0,    0.0,reunion,-100.000,-100.000,main
+1848011S09080,1848,02, SI, MM,XXXX848003,1848-01-15 06:00:00, NR,-13.90,  68.90,  0.0,    0.0,reunion,-100.000,-100.000,main
+1848011S09080,1848,02, SI, MM,XXXX848003,1848-01-16 06:00:00, NR,-15.30,  67.70,  0.0,    0.0,reunion,-100.000,-100.000,main
+1848011S09080,1848,02, SI, MM,XXXX848003,1848-01-17 06:00:00, NR,-16.50,  67.00,  0.0,    0.0,reunion,-100.000,-100.000,main
+1848011S09080,1848,02, SI, MM,XXXX848003,1848-01-18 06:00:00, NR,-18.00,  67.40,  0.0,    0.0,reunion,-100.000,-100.000,main
+</pre></div>
+</div>
+</div>
+<div class="section" id="setting-the-configuration-options">
+<span id="configuresource"></span><h2>Setting the configuration options<a class="headerlink" href="#setting-the-configuration-options" title="Permalink to this headline">¶</a></h2>
+<p>The columns arrangement can be determined from looking at the second
+line of the database:
+<tt class="docutils literal"><span class="pre">Serial_Num,Season,Num,Basin,Sub_basin,Name,ISO_time,Nature,Latitude,Longitude,Wind(WMO),Pres(WMO),Center,Wind(WMO)</span>
+<span class="pre">Percentile,Pres(WMO)</span> <span class="pre">Percentile,Track_type</span></tt>. The important variables
+required for TCRM are the <tt class="docutils literal"><span class="pre">Serial_Num</span></tt>, <tt class="docutils literal"><span class="pre">ISO_time</span></tt>, <tt class="docutils literal"><span class="pre">Latitude</span></tt>,
+<tt class="docutils literal"><span class="pre">Longitude</span></tt> and <tt class="docutils literal"><span class="pre">Pres(WMO)</span></tt> columns. All other variables can be
+ignored. Based on this, the <tt class="docutils literal"><span class="pre">Columns</span></tt> option can be set as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">Columns</span> <span class="o">=</span> <span class="n">tcserialno</span><span class="p">,</span><span class="n">season</span><span class="p">,</span><span class="n">num</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">date</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">lat</span><span class="p">,</span><span class="n">lon</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">pressure</span>
+</pre></div>
+</div>
+<p>Notice that there are only 12 columns specified, but the database
+contains 15 columns. The last three columns are not used, so since
+they are not specified, they are automatically ignored.</p>
+<p>The data are comma-delimited, so the <tt class="docutils literal"><span class="pre">FieldDelimiter</span></tt> option is set
+to a comma &#8211; it does not need to be wrapped in quotes.</p>
+<div class="highlight-python"><div class="highlight"><pre>FieldDelimiter = ,
+</pre></div>
+</div>
+<p>The first three lines are metadata and information that describe the
+data (version, column names, units). These lines are ignored when the
+<tt class="docutils literal"><span class="pre">NumberOfHeadingLines</span></tt> option is set to 3.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">NumberOfHeadingLines</span> <span class="o">=</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>The format of the date field needs to be specified in the
+configuration file. Format specification is controlled by Python&#8217;s
+standard <tt class="xref py py-mod docutils literal"><span class="pre">datetime</span></tt> module.</p>
+<div class="highlight-python"><div class="highlight"><pre>DateFormat = %Y-%m-%d %H:%M:%S
+</pre></div>
+</div>
+<p>The remaining three options &#8211; <tt class="docutils literal"><span class="pre">PressureUnits</span></tt>, <tt class="docutils literal"><span class="pre">LengthUnits</span></tt> and
+<tt class="docutils literal"><span class="pre">SpeedUnits</span></tt> &#8211; set the units of the pressure values, any length
+units and the speed units (of motion of the storms). Notice that the
+third line in the database indicates the wind speed is in units of
+<tt class="docutils literal"><span class="pre">kt</span></tt> (knots) - this refers to the observed maximum wind speed. The
+<tt class="docutils literal"><span class="pre">SpeedUnits</span></tt> option controls the units for the forward motion speed
+of storms - a field that is not included in the IBTrACS database.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">PressureUnits</span> <span class="o">=</span> <span class="n">hPa</span>
+<span class="n">LengthUnits</span> <span class="o">=</span> <span class="n">km</span>
+<span class="n">SpeedUnits</span> <span class="o">=</span> <span class="n">kmh</span>
+</pre></div>
+</div>
+<p>The full section for using IBTrACS is shown below.</p>
+<div class="highlight-python"><div class="highlight"><pre>[IBTRACS]
+; Input data file settings
+URL = ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
+Path = input
+Filename = Allstorms.ibtracs_wmo.v03r05.csv
+NumberOfHeadingLines = 3
+Columns = tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
+FieldDelimiter = ,
+DateFormat = %Y-%m-%d %H:%M:%S
+PressureUnits = hPa
+LengthUnits = km
+SpeedUnits = kph
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Source formats</a><ul>
+<li><a class="reference internal" href="#database-format">Database format</a></li>
+<li><a class="reference internal" href="#setting-the-configuration-options">Setting the configuration options</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="evaluation.html"
+                        title="previous chapter">Evaluation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="scenarios.html"
+                        title="next chapter">Scenario modelling</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/docs/sources.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="scenarios.html" title="Scenario modelling"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="evaluation.html" title="Evaluation"
+             >previous</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
+      Last updated on Sep 09, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

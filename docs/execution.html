@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Running the model &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Setting up the model" href="setup.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="setup.html" title="Setting up the model"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="running-the-model">
+<h1>Running the model<a class="headerlink" href="#running-the-model" title="Permalink to this headline">¶</a></h1>
+<p>The primary way to run TCRM is at the command line (A graphical
+interface is under development). Command line arguments are passed to
+the main <tt class="docutils literal"><span class="pre">tcrm.py</span></tt> script for defining the path to the configuration
+file, as well as enabling verbose output and/or debugging.</p>
+<div class="section" id="command-line-arguments">
+<h2>Command line arguments<a class="headerlink" href="#command-line-arguments" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-c <var>file</var></span>, <span class="option">--config <var>file</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>Path to a configuration file</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-v</span>, <span class="option">--verbose</span></kbd></td>
+<td>If given, then logging messages will be printed to the console</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">-d</span>, <span class="option">--debug</span></kbd></td>
+<td>In the case that execution results in an exception, allow the
+Python stack to call into the stack trace (through
+implementation of a custom hook script).</td></tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Make sure <tt class="docutils literal"><span class="pre">python</span></tt> is in your system path, then from the base
+directory, call the <tt class="docutils literal"><span class="pre">tcrm.py</span></tt> script, with the configuration file
+option included. For example, to run the example simulation:</p>
+<div class="highlight-python"><div class="highlight"><pre>python tcrm.py -c example/port_hedland.ini
+</pre></div>
+</div>
+<p>The model will print a simple progress indicator to the console to
+show that the model is working.</p>
+<p>If the <tt class="docutils literal"><span class="pre">-v</span></tt> option is included, then all logging messages will be
+printed to the console. The level of logging detail is set in the
+configuration file.</p>
+</div>
+<div class="section" id="running-on-a-parallel-system">
+<h2>Running on a parallel system<a class="headerlink" href="#running-on-a-parallel-system" title="Permalink to this headline">¶</a></h2>
+<p>As a stochastic model, TCRM can generate massive numbers of synthetic
+events, which implies run times can become very long. If TCRM is
+installed on a multiprocessor system (either a shared memory or
+distributed memory system), then the workload can be shared across the
+workload. TCRM uses the <tt class="xref py py-mod docutils literal"><span class="pre">pypar</span></tt> module to enable multi-threaded
+processing. Instructions for installing <tt class="xref py py-mod docutils literal"><span class="pre">pypar</span></tt> are given on the
+<a class="reference external" href="http://github.com/daleroberts/pypar">Pypar website</a>.</p>
+<p>Pypar is built around the MPI library, and so uses the <tt class="docutils literal"><span class="pre">mpirun</span></tt>
+command to execute the model across multiple processors. As an example
+the following command will execute across 16 processors:</p>
+<div class="highlight-python"><div class="highlight"><pre>mpirun -np 16 python tcrm.py -c example/port_hedland.ini
+</pre></div>
+</div>
+<p>Running across multiple processors means that logging messages from
+each individual processor can get mixed up with others. To avoid this,
+a separate log file is created for each thread, and output to the
+console is suppressed (even if the <tt class="docutils literal"><span class="pre">-v</span></tt> or <tt class="docutils literal"><span class="pre">--verbose</span></tt> option is
+given at the command line).</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Running the model</a><ul>
+<li><a class="reference internal" href="#command-line-arguments">Command line arguments</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#running-on-a-parallel-system">Running on a parallel system</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="setup.html"
+                        title="previous chapter">Setting up the model</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="examples.html"
+                        title="next chapter">Examples</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/docs/execution.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="setup.html" title="Setting up the model"
+             >previous</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
+      Last updated on Sep 09, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

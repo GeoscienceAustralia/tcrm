@@ -1,0 +1,1643 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>tests package &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tests-package">
+<h1>tests package<a class="headerlink" href="#tests-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="tests-numpytestcase-module">
+<h2>tests.NumpyTestCase module<a class="headerlink" href="#tests-numpytestcase-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: NumpyTestCase.py
+Author: Nariman Habili, <a class="reference external" href="mailto:nariman&#46;habili&#37;&#52;&#48;ga&#46;gov&#46;au">nariman<span>&#46;</span>habili<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2006-12-12
+Description: Equality tests for numpy arrays.</p>
+<p>Version: $Rev: 563 $</p>
+<p>$Id: NumpyTestCase.py 563 2007-10-24 02:52:40Z carthur $</p>
+<dl class="class">
+<dt id="tests.NumpyTestCase.NumpyTestCase">
+<em class="property">class </em><tt class="descname">NumpyTestCase</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.NumpyTestCase.NumpyTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>ExtendsTestCase with equality tests for numpy arrays.</p>
+<dl class="method">
+<dt id="tests.NumpyTestCase.NumpyTestCase.numpyAssertAlmostEqual">
+<tt class="descname">numpyAssertAlmostEqual</tt><big>(</big><em>a1</em>, <em>a2</em>, <em>prec=1e-05</em><big>)</big><a class="headerlink" href="#tests.NumpyTestCase.NumpyTestCase.numpyAssertAlmostEqual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for approximately equality of array fields a1 and a2.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.NumpyTestCase.NumpyTestCase.numpyAssertAlmostEqualElements">
+<tt class="descname">numpyAssertAlmostEqualElements</tt><big>(</big><em>a</em>, <em>prec=1e-05</em><big>)</big><a class="headerlink" href="#tests.NumpyTestCase.NumpyTestCase.numpyAssertAlmostEqualElements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for equality of all elements of array a.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.NumpyTestCase.NumpyTestCase.numpyAssertEqual">
+<tt class="descname">numpyAssertEqual</tt><big>(</big><em>a1</em>, <em>a2</em><big>)</big><a class="headerlink" href="#tests.NumpyTestCase.NumpyTestCase.numpyAssertEqual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for equality of array fields a1 and a2.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.NumpyTestCase.NumpyTestCase.numpyAssertEqualElements">
+<tt class="descname">numpyAssertEqualElements</tt><big>(</big><em>a</em><big>)</big><a class="headerlink" href="#tests.NumpyTestCase.NumpyTestCase.numpyAssertEqualElements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for equality of all elements of array a.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.pathLocate">
+<span id="tests-pathlocate-module"></span><h2>tests.pathLocate module<a class="headerlink" href="#module-tests.pathLocate" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="tests.pathLocate.getRootDirectory">
+<tt class="descname">getRootDirectory</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.pathLocate.getRootDirectory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="tests.pathLocate.getUnitTestDirectory">
+<tt class="descname">getUnitTestDirectory</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.pathLocate.getUnitTestDirectory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="tests.pathLocate.is_frozen">
+<tt class="descname">is_frozen</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.pathLocate.is_frozen" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-tests.run">
+<span id="tests-run-module"></span><h2>tests.run module<a class="headerlink" href="#module-tests.run" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="tests-test-gettype-module">
+<h2>tests.test_GetType module<a class="headerlink" href="#tests-test-gettype-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: test_files.py
+Author: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2009-11-27 9:46:AM
+Description: Unit test for files.py</p>
+<p>Throughout, I convert all directory separators to <a href="#id1"><span class="problematic" id="id2">*</span></a>NIX style
+separators (i.e. the Windows style &#8216;&#8217; become &#8216;/&#8217;)</p>
+<p>PLEASE READ THE UNITTEST DOCUMENTATION AT
+<a class="reference external" href="http://docs.python.org/library/unittest.html">http://docs.python.org/library/unittest.html</a>
+before adding more tests</p>
+<p>Version :$Rev: 733 $</p>
+<p>$Id: test_GetType.py 733 2012-11-14 02:52:01Z carthur $</p>
+<dl class="class">
+<dt id="tests.test_GetType.Test_GetType">
+<em class="property">class </em><tt class="descname">Test_GetType</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_GetType.Test_GetType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="attribute">
+<dt id="tests.test_GetType.Test_GetType.Types">
+<tt class="descname">Types</tt><em class="property"> = &lt;Utilities.GetType.GetType instance at 0x0CF4AB48&gt;</em><a class="headerlink" href="#tests.test_GetType.Test_GetType.Types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_GetType.Test_GetType.test_getType">
+<tt class="descname">test_getType</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_GetType.Test_GetType.test_getType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the getType() function</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_GetType.Test_GetType.typedict">
+<tt class="descname">typedict</tt><em class="property"> = {'bearing': 'float', 'maxspeed': 'float', 'skip': 'string', 'month': 'float', 'date': 'string', 'second': 'float', 'num': 'int', 'year': 'float', 'tcserialno': 'string', 'speed': 'float', 'unit': 'string', 'vmax': 'float', 'index': 'int', 'lon': 'float', 'shear': 'float', 'direction': 'float', 'penv': 'float', 'season': 'float', 'rmax': 'float', 'mpi': 'float', 'pressure': 'float', 'lat': 'float', 'day': 'float', 'minute': 'float', 'name': 'string', 'hour': 'float', 'age': 'float', 'surfcode': 'string', 'intensity': 'string'}</em><a class="headerlink" href="#tests.test_GetType.Test_GetType.typedict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.test_Intersections">
+<span id="tests-test-intersections-module"></span><h2>tests.test_Intersections module<a class="headerlink" href="#module-tests.test_Intersections" title="Permalink to this headline">¶</a></h2>
+<p>Version: $Rev: 733 $</p>
+<p>$Id: test_Intersections.py 733 2012-11-14 02:52:01Z carthur $</p>
+<dl class="class">
+<dt id="tests.test_Intersections.IntersectionsTest">
+<em class="property">class </em><tt class="descname">IntersectionsTest</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_Intersections.IntersectionsTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="method">
+<dt id="tests.test_Intersections.IntersectionsTest.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_Intersections.IntersectionsTest.setUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up the test environment</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_Intersections.IntersectionsTest.test_CircleLine">
+<tt class="descname">test_CircleLine</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_Intersections.IntersectionsTest.test_CircleLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Crossings.CircleLine()</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_Intersections.IntersectionsTest.test_inLand">
+<tt class="descname">test_inLand</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_Intersections.IntersectionsTest.test_inLand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test inLand() returns correct value for points in/outside vertices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_Intersections.IntersectionsTest.test_isLeft">
+<tt class="descname">test_isLeft</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_Intersections.IntersectionsTest.test_isLeft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test _isLeft() returns +ve value for a point to the left of the line</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_Intersections.IntersectionsTest.test_isOnLine">
+<tt class="descname">test_isOnLine</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_Intersections.IntersectionsTest.test_isOnLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test _isLeft() returns zero for a point lying on the line</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_Intersections.IntersectionsTest.test_isRight">
+<tt class="descname">test_isRight</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_Intersections.IntersectionsTest.test_isRight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test _isLeft() returns -ve value for a point to the right of the line</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tests-test-kdeorigin-module">
+<h2>tests.test_KDEOrigin module<a class="headerlink" href="#tests-test-kdeorigin-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: KDEOriginTestCase.py
+Author: Nariman Habili, <a class="reference external" href="mailto:nariman&#46;habili&#37;&#52;&#48;ga&#46;gov&#46;au">nariman<span>&#46;</span>habili<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2006-12-13
+Description: Unit testing module for KDEOrigin.py</p>
+<p>Version: $Rev: 563 $</p>
+<p>$Id: TestKDEOrigin.py 563 2007-10-24 02:52:40Z carthur $</p>
+<dl class="class">
+<dt id="tests.test_KDEOrigin.TestKDEOrigin">
+<em class="property">class </em><tt class="descname">TestKDEOrigin</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_KDEOrigin.TestKDEOrigin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="method">
+<dt id="tests.test_KDEOrigin.TestKDEOrigin.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_KDEOrigin.TestKDEOrigin.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_KDEOrigin.TestKDEOrigin.test_GenerateKDE">
+<tt class="descname">test_GenerateKDE</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_KDEOrigin.TestKDEOrigin.test_GenerateKDE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing GenerateKDE for 2D data</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tests-test-kdeparameters-module">
+<h2>tests.test_KDEParameters module<a class="headerlink" href="#tests-test-kdeparameters-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: TestKDEParameters.py
+Author: Nariman Habili, <a class="reference external" href="mailto:nariman&#46;habili&#37;&#52;&#48;ga&#46;gov&#46;au">nariman<span>&#46;</span>habili<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2007-05-07
+Description: Unit testing module for TestKDEParameters.py</p>
+<p>Version: $Rev: 480 $</p>
+<p>$Id: TestKDEParameters.py 480 2007-05-01 05:03:15Z nhabili $</p>
+<dl class="class">
+<dt id="tests.test_KDEParameters.TestKDEParameters">
+<em class="property">class </em><tt class="descname">TestKDEParameters</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_KDEParameters.TestKDEParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="method">
+<dt id="tests.test_KDEParameters.TestKDEParameters.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_KDEParameters.TestKDEParameters.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_KDEParameters.TestKDEParameters.test_GenerateKDE">
+<tt class="descname">test_GenerateKDE</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_KDEParameters.TestKDEParameters.test_GenerateKDE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing GenerateKDE for 1-D data</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tests-test-samplingorigin-module">
+<h2>tests.test_SamplingOrigin module<a class="headerlink" href="#tests-test-samplingorigin-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: TestSamplingOrigin.py
+Author: Nariman Habili, <a class="reference external" href="mailto:nariman&#46;habili&#37;&#52;&#48;ga&#46;gov&#46;au">nariman<span>&#46;</span>habili<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2006-12-14
+Description: Unit testing module for SamplingOrigin.py</p>
+<p>Version: $Rev$</p>
+<p>$Id$</p>
+<dl class="class">
+<dt id="tests.test_SamplingOrigin.TestSamplingOrigin">
+<em class="property">class </em><tt class="descname">TestSamplingOrigin</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_SamplingOrigin.TestSamplingOrigin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="method">
+<dt id="tests.test_SamplingOrigin.TestSamplingOrigin.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_SamplingOrigin.TestSamplingOrigin.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_SamplingOrigin.TestSamplingOrigin.test_GenerateOneSample">
+<tt class="descname">test_GenerateOneSample</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_SamplingOrigin.TestSamplingOrigin.test_GenerateOneSample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing GenerateOneSample</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_SamplingOrigin.TestSamplingOrigin.test_GenerateSamples">
+<tt class="descname">test_GenerateSamples</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_SamplingOrigin.TestSamplingOrigin.test_GenerateSamples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing GenerateSamples</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tests-test-samplingparameters-module">
+<h2>tests.test_SamplingParameters module<a class="headerlink" href="#tests-test-samplingparameters-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: TestSamplingParameters.py
+Author: Nariman Habili, <a class="reference external" href="mailto:nariman&#46;habili&#37;&#52;&#48;ga&#46;gov&#46;au">nariman<span>&#46;</span>habili<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2007-05-03
+Description: Unit testing module for SamplingParameters.py</p>
+<p>Version: $Rev$</p>
+<p>$Id$</p>
+<dl class="class">
+<dt id="tests.test_SamplingParameters.TestSamplingParameters">
+<em class="property">class </em><tt class="descname">TestSamplingParameters</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_SamplingParameters.TestSamplingParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="method">
+<dt id="tests.test_SamplingParameters.TestSamplingParameters.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_SamplingParameters.TestSamplingParameters.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_SamplingParameters.TestSamplingParameters.test_GenerateOneSample">
+<tt class="descname">test_GenerateOneSample</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_SamplingParameters.TestSamplingParameters.test_GenerateOneSample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing GenerateOneSample</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_SamplingParameters.TestSamplingParameters.test_GenerateSamples">
+<tt class="descname">test_GenerateSamples</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_SamplingParameters.TestSamplingParameters.test_GenerateSamples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing GenerateSamples</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.test_TrackGenerator">
+<span id="tests-test-trackgenerator-module"></span><h2>tests.test_TrackGenerator module<a class="headerlink" href="#module-tests.test_TrackGenerator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="tests.test_TrackGenerator.TestTrackGenerator">
+<em class="property">class </em><tt class="descname">TestTrackGenerator</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_TrackGenerator.TestTrackGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="tests.test_TrackGenerator.TestTrackGenerator.testGeneratePath">
+<tt class="descname">testGeneratePath</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_TrackGenerator.TestTrackGenerator.testGeneratePath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.test_evd">
+<span id="tests-test-evd-module"></span><h2>tests.test_evd module<a class="headerlink" href="#module-tests.test_evd" title="Permalink to this headline">¶</a></h2>
+<p>Testing the extreme value distributions</p>
+<dl class="class">
+<dt id="tests.test_evd.TestEvd">
+<em class="property">class </em><tt class="descname">TestEvd</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_evd.TestEvd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="tests.test_evd.TestEvd.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_evd.TestEvd.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_evd.TestEvd.testEVD">
+<tt class="descname">testEVD</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_evd.TestEvd.testEVD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing extreme value distribution</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.test_files">
+<span id="tests-test-files-module"></span><h2>tests.test_files module<a class="headerlink" href="#module-tests.test_files" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="tests.test_files.TestConfigFile">
+<em class="property">class </em><tt class="descname">TestConfigFile</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_files.TestConfigFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="tests.test_files.TestConfigFile.testConfigFile">
+<tt class="descname">testConfigFile</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_files.TestConfigFile.testConfigFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test flConfigFile returns correct filename</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_files.TestFileLoading">
+<em class="property">class </em><tt class="descname">TestFileLoading</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_files.TestFileLoading" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="tests.test_files.TestFileLoading.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_files.TestFileLoading.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_files.TestFileLoading.testLoadBrokenFile">
+<tt class="descname">testLoadBrokenFile</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_files.TestFileLoading.testLoadBrokenFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test flLoadFile on a file with differing length columns</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_files.TestFileLoading.testLoadFile">
+<tt class="descname">testLoadFile</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_files.TestFileLoading.testLoadFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test flLoadFile loads data correctly</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_files.TestFileLoading.testLoadNonFile">
+<tt class="descname">testLoadNonFile</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_files.TestFileLoading.testLoadNonFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trying to load a non-file should raise an IOError</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_files.TestFileSize">
+<em class="property">class </em><tt class="descname">TestFileSize</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_files.TestFileSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="tests.test_files.TestFileSize.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_files.TestFileSize.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_files.TestFileSize.testSize">
+<tt class="descname">testSize</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_files.TestFileSize.testSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test flSize returns correct file size value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_files.TestFileSize.testSizeError">
+<tt class="descname">testSizeError</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_files.TestFileSize.testSizeError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test flSize raises IOError for non-file</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_files.TestModDate">
+<em class="property">class </em><tt class="descname">TestModDate</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_files.TestModDate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="tests.test_files.TestModDate.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_files.TestModDate.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_files.TestModDate.testModDate">
+<tt class="descname">testModDate</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_files.TestModDate.testModDate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test flModDate function</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_files.TestModuleUtilities">
+<em class="property">class </em><tt class="descname">TestModuleUtilities</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_files.TestModuleUtilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="tests.test_files.TestModuleUtilities.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_files.TestModuleUtilities.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_files.TestModuleUtilities.testModuleName">
+<tt class="descname">testModuleName</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_files.TestModuleUtilities.testModuleName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test flModuleName returns correct module name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_files.TestModuleUtilities.testModulePath">
+<tt class="descname">testModulePath</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_files.TestModuleUtilities.testModulePath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test flModulePath returns correct path, base &amp; extension</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tests-test-generatestats-module">
+<h2>tests.test_generateStats module<a class="headerlink" href="#tests-test-generatestats-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: testWindProfile.py</p>
+<p>Author: Nicholas Summons, <a class="reference external" href="mailto:nicholas&#46;summons&#37;&#52;&#48;ga&#46;gov&#46;au">nicholas<span>&#46;</span>summons<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2011-06-10
+Description: Unit test for the windProfile class</p>
+<dl class="class">
+<dt id="tests.test_generateStats.TestGenerateStats">
+<em class="property">class </em><tt class="descname">TestGenerateStats</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="attribute">
+<dt id="tests.test_generateStats.TestGenerateStats.angular">
+<tt class="descname">angular</tt><em class="property"> = False</em><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats.angular" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_generateStats.TestGenerateStats.configFile">
+<tt class="descname">configFile</tt><em class="property"> = None</em><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats.configFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_generateStats.TestGenerateStats.gridInc">
+<tt class="descname">gridInc</tt><em class="property"> = {'y': 0.5, 'x': 1.0}</em><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats.gridInc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_generateStats.TestGenerateStats.gridLimit">
+<tt class="descname">gridLimit</tt><em class="property"> = {'xMin': 150.0, 'yMin': -31.0, 'yMax': -5.0, 'xMax': 186.0}</em><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats.gridLimit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_generateStats.TestGenerateStats.gridSpace">
+<tt class="descname">gridSpace</tt><em class="property"> = {'y': 1.0, 'x': 1.0}</em><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats.gridSpace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_generateStats.TestGenerateStats.lonLat">
+<tt class="descname">lonLat</tt><em class="property"> = array([[ 85. ,   6.5,   0. ],        [ 85. ,   6.5,   0. ],        [ 85. ,   6.5,   0. ],        ...,         [ 62.7, -35. ,   0. ],        [ 66.5, -36.7,   0. ],        [ 70.4, -37.6,   0. ]])</em><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats.lonLat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_generateStats.TestGenerateStats.minSample">
+<tt class="descname">minSample</tt><em class="property"> = 100</em><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats.minSample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_generateStats.TestGenerateStats.missingValue">
+<tt class="descname">missingValue</tt><em class="property"> = 2147483647</em><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats.missingValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_generateStats.TestGenerateStats.parameter">
+<tt class="descname">parameter</tt><em class="property"> = array([  2.14748365e+09,   0.00000000e+00,   0.00000000e+00, ...,          6.57500000e+01,   6.46200000e+01,   5.96100000e+01])</em><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats.parameter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_generateStats.TestGenerateStats.pkl_file">
+<tt class="descname">pkl_file</tt><em class="property"> = &lt;closed file u'C:\\WorkSpace\\tcrm\\tests\\test_data\\generateStatsTestData.pck', mode 'rb' at 0x0C457548&gt;</em><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats.pkl_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_generateStats.TestGenerateStats.test_generateStats">
+<tt class="descname">test_generateStats</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats.test_generateStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing generateStats (warning: will take about 2 mins to run)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tests-test-grid-module">
+<h2>tests.test_grid module<a class="headerlink" href="#tests-test-grid-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: testGrid.py
+Author: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 07/15/08 1:46:PM
+Description: Unit test for grid.py</p>
+<p>Version :$Rev: 810 $</p>
+<p>$Id: test_grid.py 810 2012-02-21 07:52:50Z nsummons $</p>
+<dl class="class">
+<dt id="tests.test_grid.TestGrid">
+<em class="property">class </em><tt class="descname">TestGrid</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_grid.TestGrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<p>TestReadGrid:</p>
+<p>Description:</p>
+<dl class="method">
+<dt id="tests.test_grid.TestGrid.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_grid.TestGrid.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_grid.TestGrid.test_SampleGrid">
+<tt class="descname">test_SampleGrid</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_grid.TestGrid.test_SampleGrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test SampleGrid class using an ascii file as input</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_grid.TestGrid.test_SampleGridNetCDF">
+<tt class="descname">test_SampleGridNetCDF</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_grid.TestGrid.test_SampleGridNetCDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test SampleGrid class using a netCDF file as input</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_grid.TestGrid.test_grdRead">
+<tt class="descname">test_grdRead</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_grid.TestGrid.test_grdRead" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test grid data is read correctly from ascii file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_grid.TestGrid.test_grdReadNetCDF">
+<tt class="descname">test_grdReadNetCDF</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_grid.TestGrid.test_grdReadNetCDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test grid data is read correctly from netCDF file</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.test_gridNC">
+<span id="tests-test-gridnc-module"></span><h2>tests.test_gridNC module<a class="headerlink" href="#module-tests.test_gridNC" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="tests.test_gridNC.TestSampleGrid">
+<em class="property">class </em><tt class="descname">TestSampleGrid</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_gridNC.TestSampleGrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Test that the range of methods to load gridded data produce expected
+results. Uses the 0.083 degree land-sea mask dataset as a test dataset.</p>
+<dl class="method">
+<dt id="tests.test_gridNC.TestSampleGrid.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_gridNC.TestSampleGrid.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_gridNC.TestSampleGrid.test_gridNctools">
+<tt class="descname">test_gridNctools</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_gridNC.TestSampleGrid.test_gridNctools" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test grid.grdRead produces same result as nctools.ncGetData</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_gridNC.TestSampleGrid.test_sampleGridArray">
+<tt class="descname">test_sampleGridArray</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_gridNC.TestSampleGrid.test_sampleGridArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test grid.SampleGrid.grid produces flipped result of nctools.ncGetData</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_gridNC.TestSampleGrid.test_sampleGridPoints">
+<tt class="descname">test_sampleGridPoints</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_gridNC.TestSampleGrid.test_sampleGridPoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test grid.SampleGrid returns correct values for known points</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.test_interp3d">
+<span id="tests-test-interp3d-module"></span><h2>tests.test_interp3d module<a class="headerlink" href="#module-tests.test_interp3d" title="Permalink to this headline">¶</a></h2>
+<p>Title: test_interp3d.py
+Author: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2013-01-17
+Description: Unit test suite for interp3d.py</p>
+<p>Version: $Rev$</p>
+<p>Id: $Id$</p>
+<dl class="class">
+<dt id="tests.test_interp3d.TestInterp3d">
+<em class="property">class </em><tt class="descname">TestInterp3d</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_interp3d.TestInterp3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<p>TestInterp3d:
+Description:
+Parameters:
+Members:
+Methods:
+Internal methods:</p>
+<dl class="method">
+<dt id="tests.test_interp3d.TestInterp3d.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_interp3d.TestInterp3d.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_interp3d.TestInterp3d.test_interp3d">
+<tt class="descname">test_interp3d</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_interp3d.TestInterp3d.test_interp3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test interp3d returns expected values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_interp3d.TestInterp3d.test_interp3d_2dinput">
+<tt class="descname">test_interp3d_2dinput</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_interp3d.TestInterp3d.test_interp3d_2dinput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test interp3d raises ValueError if input_array is 2D</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tests-test-lmomentfit-module">
+<h2>tests.test_lmomentFit module<a class="headerlink" href="#tests-test-lmomentfit-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: test_lmomentFit.py
+Author: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2012-11-21
+Description: Unit testing module for lmomentFit.py</p>
+<p>Version: $Rev: 737 $</p>
+<p>ModifiedBy: 
+ModifiedDate: 
+Modification:</p>
+<p>$Id: test_lmomentFit.py 737 2012-11-21 00:59:42Z carthur $</p>
+<dl class="class">
+<dt id="tests.test_lmomentFit.Testlmoments">
+<em class="property">class </em><tt class="descname">Testlmoments</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_lmomentFit.Testlmoments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="method">
+<dt id="tests.test_lmomentFit.Testlmoments.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_lmomentFit.Testlmoments.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_lmomentFit.Testlmoments.test_pelgev">
+<tt class="descname">test_pelgev</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_lmomentFit.Testlmoments.test_pelgev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test pelgev returns correct GEV parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_lmomentFit.Testlmoments.test_samlmu3">
+<tt class="descname">test_samlmu3</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_lmomentFit.Testlmoments.test_samlmu3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test samlmu3 returns same values as samlmu</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_lmomentFit.Testlmoments.test_samlmu_list">
+<tt class="descname">test_samlmu_list</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_lmomentFit.Testlmoments.test_samlmu_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test samlmu works with list input</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_lmomentFit.Testlmoments.test_samlmu_mom">
+<tt class="descname">test_samlmu_mom</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_lmomentFit.Testlmoments.test_samlmu_mom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test samlmu returns correct values for moments</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.test_loadData">
+<span id="tests-test-loaddata-module"></span><h2>tests.test_loadData module<a class="headerlink" href="#module-tests.test_loadData" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="tests.test_loadData.TestAgeParsing">
+<em class="property">class </em><tt class="descname">TestAgeParsing</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_loadData.TestAgeParsing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="tests.test_loadData.TestAgeParsing.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestAgeParsing.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_loadData.TestDateConversion">
+<em class="property">class </em><tt class="descname">TestDateConversion</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_loadData.TestDateConversion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="tests.test_loadData.TestDateConversion.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestDateConversion.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestDateConversion.test_badData">
+<tt class="descname">test_badData</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestDateConversion.test_badData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test date2ymdh raises ValueError for dodgy input date</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestDateConversion.test_date2ymdh">
+<tt class="descname">test_date2ymdh</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestDateConversion.test_date2ymdh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test date2ymdh function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestDateConversion.test_date2ymdhBadFormat">
+<tt class="descname">test_date2ymdhBadFormat</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestDateConversion.test_date2ymdhBadFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test date2ymdh raises ValueError for poorly formatted year data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestDateConversion.test_date2ymdhFormats">
+<tt class="descname">test_date2ymdhFormats</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestDateConversion.test_date2ymdhFormats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test date2ymdh with different input date formats</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_loadData.TestDateParsing">
+<em class="property">class </em><tt class="descname">TestDateParsing</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_loadData.TestDateParsing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Test performance of ParseDates()</p>
+<dl class="method">
+<dt id="tests.test_loadData.TestDateParsing.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestDateParsing.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestDateParsing.test_ParseDatesNoMinsInput">
+<tt class="descname">test_ParseDatesNoMinsInput</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestDateParsing.test_ParseDatesNoMinsInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test parseDates with year, month, day, hour (no minutes) input</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestDateParsing.test_dateInput">
+<tt class="descname">test_dateInput</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestDateParsing.test_dateInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test parseDates returns correct values when passed date info</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestDateParsing.test_parseDatesYMDHInput">
+<tt class="descname">test_parseDatesYMDHInput</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestDateParsing.test_parseDatesYMDHInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test parseDates with year, month, day, hourminute (HHMM) input</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestDateParsing.test_parseDatesYMDHMInput">
+<tt class="descname">test_parseDatesYMDHMInput</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestDateParsing.test_parseDatesYMDHMInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test parseDates with year, month, day, hour, minute input</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_loadData.TestInitialPositions">
+<em class="property">class </em><tt class="descname">TestInitialPositions</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_loadData.TestInitialPositions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<p>Test performance of getInitialPositions()</p>
+<dl class="method">
+<dt id="tests.test_loadData.TestInitialPositions.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestInitialPositions.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestInitialPositions.test_getInitPos_failure">
+<tt class="descname">test_getInitPos_failure</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestInitialPositions.test_getInitPos_failure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure getInitialPositions fails if insufficient data provided</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestInitialPositions.test_getInitPos_fromSeason">
+<tt class="descname">test_getInitPos_fromSeason</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestInitialPositions.test_getInitPos_fromSeason" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test to ensure the function returns correct values based on season</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestInitialPositions.test_getInitPos_fromSerialNo">
+<tt class="descname">test_getInitPos_fromSerialNo</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestInitialPositions.test_getInitPos_fromSerialNo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test to ensure the function returns correct values based on serial number</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestInitialPositions.test_getInitPos_fromTCNum">
+<tt class="descname">test_getInitPos_fromTCNum</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestInitialPositions.test_getInitPos_fromTCNum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test to ensure the function returns correct values based on TC number</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_loadData.TestJulianDays">
+<em class="property">class </em><tt class="descname">TestJulianDays</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_loadData.TestJulianDays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="tests.test_loadData.TestJulianDays.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestJulianDays.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestJulianDays.test_julianDays">
+<tt class="descname">test_julianDays</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestJulianDays.test_julianDays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test julianDays function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestJulianDays.test_julianDaysBadInput">
+<tt class="descname">test_julianDaysBadInput</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestJulianDays.test_julianDaysBadInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test julianDays raises ValueError on bad input</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_loadData.TestLoadingTrackFiles">
+<em class="property">class </em><tt class="descname">TestLoadingTrackFiles</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_loadData.TestLoadingTrackFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="tests.test_loadData.TestLoadingTrackFiles.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestLoadingTrackFiles.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_loadData.TestTime">
+<em class="property">class </em><tt class="descname">TestTime</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_loadData.TestTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="tests.test_loadData.TestTime.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestTime.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestTime.test_getTime">
+<tt class="descname">test_getTime</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestTime.test_getTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test getTime function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestTime.test_getTimeBadInput">
+<tt class="descname">test_getTimeBadInput</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestTime.test_getTimeBadInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test getTime raises ValueError on bad input</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_loadData.TestTimeDeltas">
+<em class="property">class </em><tt class="descname">TestTimeDeltas</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_loadData.TestTimeDeltas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="method">
+<dt id="tests.test_loadData.TestTimeDeltas.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestTimeDeltas.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestTimeDeltas.test_getTimeDelta">
+<tt class="descname">test_getTimeDelta</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestTimeDeltas.test_getTimeDelta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test getTimeDelta function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_loadData.TestTimeDeltas.test_getTimeDeltaBadInput">
+<tt class="descname">test_getTimeDeltaBadInput</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_loadData.TestTimeDeltas.test_getTimeDeltaBadInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test getTimeDelta raises ValueError on bad input</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tests-test-maputils-module">
+<h2>tests.test_maputils module<a class="headerlink" href="#tests-test-maputils-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: testMapUtils.py
+Author: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2006-11-03
+Description: Test output from utils/map.py
+The functions included in this test were derived from MATLAB code. The MATLAB code
+is used to generate the results against which output from the Python functions are
+compared.</p>
+<p>SeeAlso: (related programs)
+Constraints:</p>
+<dl class="class">
+<dt id="tests.test_maputils.TestMapUtils">
+<em class="property">class </em><tt class="descname">TestMapUtils</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_maputils.TestMapUtils" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="attribute">
+<dt id="tests.test_maputils.TestMapUtils.AZI">
+<tt class="descname">AZI</tt><em class="property"> = array([ 135.0044,  135.0175,  135.0393,  135.0699,  135.1092,  135.1574,         135.2143,  135.2802,  135.3549,  135.4385,  135.5312,  135.6329,         135.7437,  135.8637,  135.993 ,  136.1315,  136.2795,  136.437 ,         136.6041,  136.7808])</em><a class="headerlink" href="#tests.test_maputils.TestMapUtils.AZI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_maputils.TestMapUtils.Dist">
+<tt class="descname">Dist</tt><em class="property"> = array([ 157.1427,  157.1068,  157.047 ,  156.9633,  156.8559,  156.7248,         156.57  ,  156.3918,  156.1902,  155.9654,  155.7176,  155.447 ,         155.1538,  154.8382,  154.5004,  154.1407,  153.7595,  153.357 ,         152.9336,  152.4895])</em><a class="headerlink" href="#tests.test_maputils.TestMapUtils.Dist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_maputils.TestMapUtils.X">
+<tt class="descname">X</tt><em class="property"> = array([ 3,  5,  9, 11, 65])</em><a class="headerlink" href="#tests.test_maputils.TestMapUtils.X" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_maputils.TestMapUtils.XN">
+<tt class="descname">XN</tt><em class="property"> = array([-111.1251, -111.1251, -111.1251, -111.1251, -111.1251, -111.1251,        -111.1251, -111.1251, -111.1251, -111.1251, -111.1251, -111.1251,        -111.1251, -111.1251, -111.1251, -111.1251, -111.1251, -111.1251,        -111.1251, -111.1251])</em><a class="headerlink" href="#tests.test_maputils.TestMapUtils.XN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_maputils.TestMapUtils.Y">
+<tt class="descname">Y</tt><em class="property"> = array([ 4, 12, 40, 60, 72])</em><a class="headerlink" href="#tests.test_maputils.TestMapUtils.Y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_maputils.TestMapUtils.YE">
+<tt class="descname">YE</tt><em class="property"> = array([ 111.1082,  111.0574,  110.9728,  110.8544,  110.7022,  110.5164,         110.2968,  110.0437,  109.757 ,  109.4369,  109.0834,  108.6968,         108.277 ,  107.8242,  107.3386,  106.8203,  106.2695,  105.6863,         105.0709,  104.4234])</em><a class="headerlink" href="#tests.test_maputils.TestMapUtils.YE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_maputils.TestMapUtils.Z">
+<tt class="descname">Z</tt><em class="property"> = array([ 5, 13, 41, 61, 97])</em><a class="headerlink" href="#tests.test_maputils.TestMapUtils.Z" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_maputils.TestMapUtils.findpts">
+<tt class="descname">findpts</tt><em class="property"> = [131.5, 135, 140.0, 140.9]</em><a class="headerlink" href="#tests.test_maputils.TestMapUtils.findpts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_maputils.TestMapUtils.indices">
+<tt class="descname">indices</tt><em class="property"> = [1, 5, 10, 11]</em><a class="headerlink" href="#tests.test_maputils.TestMapUtils.indices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_maputils.TestMapUtils.lat">
+<tt class="descname">lat</tt><em class="property"> = array([  0.,  -1.,  -2.,  -3.,  -4.,  -5.,  -6.,  -7.,  -8.,  -9., -10.,        -11., -12., -13., -14., -15., -16., -17., -18., -19., -20.])</em><a class="headerlink" href="#tests.test_maputils.TestMapUtils.lat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_maputils.TestMapUtils.lon">
+<tt class="descname">lon</tt><em class="property"> = array([ 130.,  131.,  132.,  133.,  134.,  135.,  136.,  137.,  138.,         139.,  140.,  141.,  142.,  143.,  144.,  145.,  146.,  147.,         148.,  149.,  150.])</em><a class="headerlink" href="#tests.test_maputils.TestMapUtils.lon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_maputils.TestMapUtils.nearvals">
+<tt class="descname">nearvals</tt><em class="property"> = [131.0, 135.0, 140.0, 141.0]</em><a class="headerlink" href="#tests.test_maputils.TestMapUtils.nearvals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_maputils.TestMapUtils.test_Bearing">
+<tt class="descname">test_Bearing</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_maputils.TestMapUtils.test_Bearing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test conversion from bearing to theta and back again</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_maputils.TestMapUtils.test_GridLatLonBear">
+<tt class="descname">test_GridLatLonBear</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_maputils.TestMapUtils.test_GridLatLonBear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test gridLatLon function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_maputils.TestMapUtils.test_GridLatLonDist">
+<tt class="descname">test_GridLatLonDist</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_maputils.TestMapUtils.test_GridLatLonDist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test gridLatLonDist function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_maputils.TestMapUtils.test_ValuesXY2r">
+<tt class="descname">test_ValuesXY2r</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_maputils.TestMapUtils.test_ValuesXY2r" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test xy2R function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_maputils.TestMapUtils.test_ValueslatLon2Azi">
+<tt class="descname">test_ValueslatLon2Azi</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_maputils.TestMapUtils.test_ValueslatLon2Azi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test latLon2Azi function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_maputils.TestMapUtils.test_ValueslatLon2XY">
+<tt class="descname">test_ValueslatLon2XY</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_maputils.TestMapUtils.test_ValueslatLon2XY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test latLon2XY function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_maputils.TestMapUtils.test_findindex">
+<tt class="descname">test_findindex</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_maputils.TestMapUtils.test_findindex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test find_index function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_maputils.TestMapUtils.test_findindex_Err">
+<tt class="descname">test_findindex_Err</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_maputils.TestMapUtils.test_findindex_Err" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that find_index raises ValueError if second arg is an array</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_maputils.TestMapUtils.test_findnearest">
+<tt class="descname">test_findnearest</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_maputils.TestMapUtils.test_findnearest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test find_nearest function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_maputils.TestMapUtils.test_findnearest_Err">
+<tt class="descname">test_findnearest_Err</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_maputils.TestMapUtils.test_findnearest_Err" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test that find_nearest raises ValueError if second arg is an array</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_maputils.TestMapUtils.theta">
+<tt class="descname">theta</tt><em class="property"> = array([-6.28318531, -5.49778714, -4.71238898, -3.92699082, -3.14159265,        -2.35619449, -1.57079633, -0.78539816,  0.        ,  0.78539816,         1.57079633,  2.35619449,  3.14159265,  3.92699082,  4.71238898,         5.49778714])</em><a class="headerlink" href="#tests.test_maputils.TestMapUtils.theta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tests-test-metutils-module">
+<h2>tests.test_metutils module<a class="headerlink" href="#tests-test-metutils-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: testMetUtils.py</p>
+<p>Author: Craig Arthur
+Email: <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2006-11-14
+Description: Unit test for utils/met.py</p>
+<p>Version: $Rev: 202 $
+ModifiedBy: 
+ModifiedDate: yyyy-mm-dd
+SeeAlso: (related programs)
+Constraints:</p>
+<p>$Id: test_metutils.py 202 2006-11-28 02:41:31Z carthur $</p>
+<dl class="class">
+<dt id="tests.test_metutils.TestConvert">
+<em class="property">class </em><tt class="descname">TestConvert</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_metutils.TestConvert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="attribute">
+<dt id="tests.test_metutils.TestConvert.f">
+<tt class="descname">f</tt><em class="property"> = array([  0.00000000e+00,  -2.53834962e-06,  -5.07592604e-06,         -7.61195628e-06,  -1.01456678e-05,  -1.26762889e-05,         -1.52030487e-05,  -1.77251775e-05,  -2.02419070e-05,         -2.27524707e-05,  -2.52561037e-05,  -2.77520434e-05,         -3.02395297e-05,  -3.27178046e-05,  -3.51861134e-05,         -3.76437042e-05,  -4.00898283e-05,  -4.25237407e-05,         -4.49447000e-05,  -4.73519686e-05,  -4.97448134e-05])</em><a class="headerlink" href="#tests.test_metutils.TestConvert.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_metutils.TestConvert.lat">
+<tt class="descname">lat</tt><em class="property"> = array([  0.,  -1.,  -2.,  -3.,  -4.,  -5.,  -6.,  -7.,  -8.,  -9., -10.,        -11., -12., -13., -14., -15., -16., -17., -18., -19., -20.])</em><a class="headerlink" href="#tests.test_metutils.TestConvert.lat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_metutils.TestConvert.test_celcius2F">
+<tt class="descname">test_celcius2F</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_metutils.TestConvert.test_celcius2F" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert temperatures in Celcius to Farenheit</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_metutils.TestConvert.test_deg2km">
+<tt class="descname">test_deg2km</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_metutils.TestConvert.test_deg2km" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert distance in degrees to distance in km</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_metutils.TestConvert.test_farenheit2C">
+<tt class="descname">test_farenheit2C</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_metutils.TestConvert.test_farenheit2C" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert temperatures in Farenheit to Celcius</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_metutils.TestConvert.test_hPa2Pa">
+<tt class="descname">test_hPa2Pa</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_metutils.TestConvert.test_hPa2Pa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert pressure from hPa to Pa</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_metutils.TestConvert.test_kgmetre2hPa">
+<tt class="descname">test_kgmetre2hPa</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_metutils.TestConvert.test_kgmetre2hPa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert from Pa to hPa</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_metutils.TestConvert.test_km2deg">
+<tt class="descname">test_km2deg</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_metutils.TestConvert.test_km2deg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert distance in km to distance in degrees</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_metutils.TestConvert.test_mps2kmphr">
+<tt class="descname">test_mps2kmphr</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_metutils.TestConvert.test_mps2kmphr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert from m/s to km/h</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_metutils.TestCoriolis">
+<em class="property">class </em><tt class="descname">TestCoriolis</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_metutils.TestCoriolis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="attribute">
+<dt id="tests.test_metutils.TestCoriolis.f">
+<tt class="descname">f</tt><em class="property"> = array([  0.00000000e+00,  -2.53834969e-06,  -5.07592586e-06,         -7.61195633e-06,  -1.01456681e-05,  -1.26762889e-05,         -1.52030489e-05,  -1.77251768e-05,  -2.02419069e-05,         -2.27524706e-05,  -2.52561040e-05,  -2.77520430e-05,         -3.02395292e-05,  -3.27178059e-05,  -3.51861127e-05,         -3.76437056e-05,  -4.00898280e-05,  -4.25237413e-05,         -4.49446998e-05,  -4.73519685e-05,  -4.97448127e-05], dtype=float32)</em><a class="headerlink" href="#tests.test_metutils.TestCoriolis.f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_metutils.TestCoriolis.lat">
+<tt class="descname">lat</tt><em class="property"> = array([  0.,  -1.,  -2.,  -3.,  -4.,  -5.,  -6.,  -7.,  -8.,  -9., -10.,        -11., -12., -13., -14., -15., -16., -17., -18., -19., -20.], dtype=float32)</em><a class="headerlink" href="#tests.test_metutils.TestCoriolis.lat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_metutils.TestCoriolis.test_coriolisArray">
+<tt class="descname">test_coriolisArray</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_metutils.TestCoriolis.test_coriolisArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Coriolis with an array of latitudes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_metutils.TestCoriolis.test_coriolisScalar">
+<tt class="descname">test_coriolisScalar</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_metutils.TestCoriolis.test_coriolisScalar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test Coriolis with a scalar value for latitude</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tests-test-nctools-module">
+<h2>tests.test_nctools module<a class="headerlink" href="#tests-test-nctools-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: testNetCDF.py
+Author: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 07/15/08 1:46:PM
+Description: Unit test for nctools.py</p>
+<p>Version :$Rev: 276 $</p>
+<p>$Id: testNetCDF.py 276 2010-04-16 02:24:00Z nsummons $</p>
+<dl class="class">
+<dt id="tests.test_nctools.TestNetCDF">
+<em class="property">class </em><tt class="descname">TestNetCDF</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<p>TestNetCDF: test the suite of netCDF tools</p>
+<dl class="method">
+<dt id="tests.test_nctools.TestNetCDF.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_nctools.TestNetCDF.test_ncCreateFile">
+<tt class="descname">test_ncCreateFile</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF.test_ncCreateFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test nctools creates a file successfully</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_nctools.TestNetCDF.test_ncGetTimeValues">
+<tt class="descname">test_ncGetTimeValues</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF.test_ncGetTimeValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test ncGetTimes returns correct time values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_nctools.TestNetCDF.test_ncGetTimes">
+<tt class="descname">test_ncGetTimes</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF.test_ncGetTimes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test ncGetTimes returns datetime objects</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_nctools.TestNetCDF.test_ncReadFile">
+<tt class="descname">test_ncReadFile</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF.test_ncReadFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test nctools functions for reading dimensions and variables</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_nctools.TestNetCDF.test_ncSaveGridExceptions">
+<tt class="descname">test_ncSaveGridExceptions</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF.test_ncSaveGridExceptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test ncSaveGrid raises correct exceptions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_nctools.TestNetCDF.test_ncSaveGridNullValue">
+<tt class="descname">test_ncSaveGridNullValue</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF.test_ncSaveGridNullValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test ncSaveGrid can save a variable with no values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_nctools.TestNetCDF.test_ncSaveGridOpenFile">
+<tt class="descname">test_ncSaveGridOpenFile</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF.test_ncSaveGridOpenFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test ncSaveGrid returns netCDF4.Dataset if keepfileopen=True</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tests-test-pressureprofile-module">
+<h2>tests.test_pressureProfile module<a class="headerlink" href="#tests-test-pressureprofile-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: TestPressureProfile.py
+Author: Nicholas Summons, <a class="reference external" href="mailto:nicholas&#46;summons&#37;&#52;&#48;ga&#46;gov&#46;au">nicholas<span>&#46;</span>summons<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2011-06-09
+Description: Unit testing module for pressureProfile</p>
+<p>Version: $Rev$</p>
+<p>$Id$</p>
+<dl class="class">
+<dt id="tests.test_pressureProfile.TestPressureProfile">
+<em class="property">class </em><tt class="descname">TestPressureProfile</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.R">
+<tt class="descname">R</tt><em class="property"> = array([[ 304.62324266,  301.10295765,  297.63126618, ...,  296.25657933,          299.70835472,  303.20940525],        [ 300.6183382 ,  297.0493591 ,  293.52850816, ...,  292.13403433,          295.63514651,  299.18508092],        [ 296.66339877,  293.04500524,  289.47421884, ...,  288.05963173,          291.61087934,  295.21044004],        ...,         [ 298.4601161 ,  294.7746667 ,  291.13714383, ...,  289.69595938,          293.31380597,  296.98029885],        [ 302.43808067,  298.80061379,  295.21162999, ...,  293.79001062,          297.35910345,  300.97738794],        [ 306.46511383,  302.8749448 ,  299.33376059, ...,  297.93139478,          301.45249571,  305.02327823]])</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.beta">
+<tt class="descname">beta</tt><em class="property"> = 1.5</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.beta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.beta1">
+<tt class="descname">beta1</tt><em class="property"> = 1.5</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.beta1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.beta2">
+<tt class="descname">beta2</tt><em class="property"> = 1.4</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.beta2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.cLat">
+<tt class="descname">cLat</tt><em class="property"> = -20.129999999999999</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.cLat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.cLon">
+<tt class="descname">cLon</tt><em class="property"> = 158.16999999999999</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.cLon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.pCentre">
+<tt class="descname">pCentre</tt><em class="property"> = 95330.0</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.pCentre" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.pEnv">
+<tt class="descname">pEnv</tt><em class="property"> = 101445.0</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.pEnv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.pkl_file">
+<tt class="descname">pkl_file</tt><em class="property"> = &lt;closed file u'C:\\WorkSpace\\tcrm\\tests\\test_data\\pressureProfileTestData.pck', mode 'rb' at 0x0C510F40&gt;</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.pkl_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.prP">
+<tt class="descname">prP</tt><em class="property"> = &lt;PressureInterface.pressureProfile.PrsProfile instance at 0x0C4219B8&gt;</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.prP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.rMax">
+<tt class="descname">rMax</tt><em class="property"> = 96.0</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.rMax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.rMax2">
+<tt class="descname">rMax2</tt><em class="property"> = 250.0</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.rMax2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_pressureProfile.TestPressureProfile.test_Holland">
+<tt class="descname">test_Holland</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.test_Holland" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing Holland profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_pressureProfile.TestPressureProfile.test_Powell">
+<tt class="descname">test_Powell</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.test_Powell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing Powell profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_pressureProfile.TestPressureProfile.test_Willoughby">
+<tt class="descname">test_Willoughby</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.test_Willoughby" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing Willoughby profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_pressureProfile.TestPressureProfile.test_doubleHolland">
+<tt class="descname">test_doubleHolland</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.test_doubleHolland" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing Double Holland profile</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.test_pHolland">
+<tt class="descname">test_pHolland</tt><em class="property"> = array([[ 100453.46378844,  100437.54648144,  100421.43717491, ...,          100414.94212627,  100431.12521022,  100447.12055605],        [ 100435.32264082,  100418.69597113,  100401.85228733, ...,          100395.05643538,  100411.98396415,  100428.69864838],        [ 100416.87121971,  100399.50410103,  100381.89265051, ...,          100374.78196819,  100392.4882855 ,  100409.95430151],        ...,         [ 100425.32112909,  100407.86499594,  100390.15390677, ...,          100383.00030554,  100400.8106223 ,  100418.36985404],        [ 100443.63205329,  100426.9097374 ,  100409.95999732, ...,          100403.11873014,  100420.15657692,  100436.9710286 ],        [ 100461.62937904,  100445.61031267,  100429.38907719, ...,          100422.84634195,  100439.14550747,  100455.24664314]])</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.test_pHolland" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.test_pPowell">
+<tt class="descname">test_pPowell</tt><em class="property"> = array([[ 99987.86592379,  99971.18017265,  99954.37409356, ...,          99947.62077275,  99964.47149707,  99981.20682418],        [ 99968.85533795,  99951.52231197,  99934.04939303, ...,          99927.02385647,  99944.54924981,  99961.93967317],        [ 99949.62522818,  99931.62028324,  99913.45412737, ...,          99906.14530722,  99924.37249058,  99942.4433457 ],        ...,         [ 99958.41867974,  99940.27686176,  99921.96416702, ...,          99914.59397532,  99932.97162623,  99951.18319295],        [ 99977.55006291,  99960.07433093,  99942.44925371, ...,          99935.36016623,  99953.04155037,  99970.5784374 ],        [ 99996.45711764,  99979.62326474,  99962.65986598, ...,          99955.84100355,  99972.85277605,  99989.73987318]])</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.test_pPowell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.test_pWilloughby">
+<tt class="descname">test_pWilloughby</tt><em class="property"> = array([[ 99029.52760876,  99016.62850645,  99003.71485085, ...,          98998.54749376,  99011.46425555,  99024.37031452],        [ 99014.83746316,  99001.53127164,  98988.20057626, ...,          98982.86363912,  98996.20139405,  99009.51853212],        [ 99000.07992283,  98986.35382056,  98972.59237178, ...,          98967.08011094,  98980.85294   ,  98994.59433098],        ...,         [ 99006.81556384,  98992.94228661,  98979.02816587, ...,          98973.45329138,  98987.38099863,  99001.27175939],        [ 99021.54357728,  99008.08613589,  98994.59883784, ...,          98989.19775978,  99002.69426014,  99016.16478766],        [ 99036.19989395,  99023.14573467,  99010.07182487, ...,          99004.83891423,  99017.91800523,  99030.98120087]])</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.test_pWilloughby" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_pressureProfile.TestPressureProfile.test_pdoubleHolland">
+<tt class="descname">test_pdoubleHolland</tt><em class="property"> = array([[ 100156.96599828,  100138.48908957,  100119.83870143, ...,          100112.33306022,  100131.04900086,  100149.59688703],        [ 100135.91151598,  100116.67000928,  100097.23066034, ...,          100089.40260049,  100108.91726438,  100128.2394823 ],        [ 100114.56147734,  100094.52483831,  100074.26381938, ...,          100066.09962546,  100086.44662025,  100106.5745619 ],        ...,         [ 100124.33079288,  100104.16382656,  100083.76077778, ...,          100075.53642247,  100096.03021948,  100116.29312913],        [ 100145.54750244,  100126.16896565,  100106.5811351 , ...,          100098.69041406,  100118.35821827,  100137.82201214],        [ 100166.46366383,  100147.843539  ,  100129.03875949, ...,          100121.46818068,  100140.34304826,  100159.03859123]])</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.test_pdoubleHolland" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tests-test-stats-module">
+<h2>tests.test_stats module<a class="headerlink" href="#tests-test-stats-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: TestStatut.py
+Author: N. Habili, <a class="reference external" href="mailto:nariman&#46;habili&#37;&#52;&#48;ga&#46;gov&#46;au">nariman<span>&#46;</span>habili<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2006-12-20
+Description: Unit testing module for statutils.py</p>
+<p>Version: $Rev: 563 $</p>
+<p>ModifiedBy: 
+ModifiedDate: 
+Modification:</p>
+<p>$Id: TestStat.py 563 2007-10-24 02:52:40Z carthur $</p>
+<dl class="class">
+<dt id="tests.test_stats.Teststatutils">
+<em class="property">class </em><tt class="descname">Teststatutils</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_stats.Teststatutils" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="attribute">
+<dt id="tests.test_stats.Teststatutils.gridLimit">
+<tt class="descname">gridLimit</tt><em class="property"> = {'xMin': 70, 'yMin': -40, 'yMax': 0, 'xMax': 180}</em><a class="headerlink" href="#tests.test_stats.Teststatutils.gridLimit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_stats.Teststatutils.gridSpace">
+<tt class="descname">gridSpace</tt><em class="property"> = {'y': 5, 'x': 5}</em><a class="headerlink" href="#tests.test_stats.Teststatutils.gridSpace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_stats.Teststatutils.test_GetCellLonLat">
+<tt class="descname">test_GetCellLonLat</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_stats.Teststatutils.test_GetCellLonLat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing getCellLonLat</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_stats.Teststatutils.test_GetCellNum">
+<tt class="descname">test_GetCellNum</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_stats.Teststatutils.test_GetCellNum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing getCellNum</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_stats.Teststatutils.test_GetMaxRange">
+<tt class="descname">test_GetMaxRange</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_stats.Teststatutils.test_GetMaxRange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing getMaxRange</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_stats.Teststatutils.test_GetMinRange">
+<tt class="descname">test_GetMinRange</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_stats.Teststatutils.test_GetMinRange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing getMinRange</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_stats.Teststatutils.test_GetOccurence">
+<tt class="descname">test_GetOccurence</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_stats.Teststatutils.test_GetOccurence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing getOccurance</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_stats.Teststatutils.test_MaxCellNum">
+<tt class="descname">test_MaxCellNum</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_stats.Teststatutils.test_MaxCellNum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing maxCellNum</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_stats.Teststatutils.test_ValidCellNum">
+<tt class="descname">test_ValidCellNum</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_stats.Teststatutils.test_ValidCellNum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing validCellNum</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_stats.Teststatutils.test_cdf">
+<tt class="descname">test_cdf</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_stats.Teststatutils.test_cdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing cdf</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_stats.Teststatutils.test_cdf2d">
+<tt class="descname">test_cdf2d</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_stats.Teststatutils.test_cdf2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing cdf2d</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="tests-test-vmax-module">
+<h2>tests.test_vmax module<a class="headerlink" href="#tests-test-vmax-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: TestVMax.Py
+Author: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2006-10-24
+Description: Unit test for vmax.py</p>
+<p>Version: $Rev: 563 $</p>
+<p>ModifiedBy: N. Habili
+ModifiedDate: 2007-04-27
+Modification: vMax and pDiff are now two separate tests</p>
+<p>ModifiedBy: N. Habili
+ModifiedDate: 2007-04-27
+Modification: Added tests for exceptions</p>
+<p>$Id: TestVMax.py 563 2007-10-24 02:52:40Z carthur $</p>
+<dl class="class">
+<dt id="tests.test_vmax.TestVMax">
+<em class="property">class </em><tt class="descname">TestVMax</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_vmax.TestVMax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></tt></p>
+<dl class="attribute">
+<dt id="tests.test_vmax.TestVMax.pc">
+<tt class="descname">pc</tt><em class="property"> = array([ 88000,  89000,  90000,  91000,  92000,  93000,  94000,  95000,         96000,  97000,  98000,  99000, 100000, 101000])</em><a class="headerlink" href="#tests.test_vmax.TestVMax.pc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_vmax.TestVMax.pe">
+<tt class="descname">pe</tt><em class="property"> = 101000</em><a class="headerlink" href="#tests.test_vmax.TestVMax.pe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_vmax.TestVMax.test_pDiff">
+<tt class="descname">test_pDiff</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_vmax.TestVMax.test_pDiff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing pDiff</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_vmax.TestVMax.test_vMax">
+<tt class="descname">test_vMax</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_vmax.TestVMax.test_vMax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Testing vMax</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tests.test_vmax.TestVMax.vmax">
+<tt class="descname">vmax</tt><em class="property"> = {'will': [71.283768, 68.487229, 65.571529, 62.52, 59.31168, 55.919588, 52.307985, 48.427784, 44.208316, 39.54112, 34.243614, 27.959794, 19.77056, 0], 'atkin': [69.863944556, 66.3538774077, 62.7379715373, 59.0029306788, 55.1322554425, 51.1050167812, 46.8939397787, 42.4622486228, 37.7581116559, 32.7039505937, 27.1731303211, 20.9284420943, 13.3928678506, 0.0], 'holl': [73.527058, 70.642513, 67.635057, 64.487496, 61.178211, 57.67937, 53.95411, 49.9518, 45.599546, 40.785474, 35.321256, 28.839685, 20.392737, 0]}</em><a class="headerlink" href="#tests.test_vmax.TestVMax.vmax" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests.test_windmodels">
+<span id="tests-test-windmodels-module"></span><h2>tests.test_windmodels module<a class="headerlink" href="#module-tests.test_windmodels" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="tests.test_windmodels.TestWindField">
+<em class="property">class </em><tt class="descname">TestWindField</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindField.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindField.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindField.test_Hubbert">
+<tt class="descname">test_Hubbert</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindField.test_Hubbert" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindField.test_Kepert">
+<tt class="descname">test_Kepert</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindField.test_Kepert" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindField.test_McConochie">
+<tt class="descname">test_McConochie</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindField.test_McConochie" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_windmodels.TestWindVelocity">
+<em class="property">class </em><tt class="descname">TestWindVelocity</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVelocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVelocity.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVelocity.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVelocity.testDoubleHolland">
+<tt class="descname">testDoubleHolland</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVelocity.testDoubleHolland" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVelocity.testHolland">
+<tt class="descname">testHolland</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVelocity.testHolland" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVelocity.testJelesnianski">
+<tt class="descname">testJelesnianski</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVelocity.testJelesnianski" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVelocity.testPowell">
+<tt class="descname">testPowell</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVelocity.testPowell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVelocity.testRankine">
+<tt class="descname">testRankine</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVelocity.testRankine" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVelocity.testWilloughby">
+<tt class="descname">testWilloughby</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVelocity.testWilloughby" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tests.test_windmodels.TestWindVorticity">
+<em class="property">class </em><tt class="descname">TestWindVorticity</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVorticity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVorticity.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVorticity.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVorticity.testDoubleHolland">
+<tt class="descname">testDoubleHolland</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVorticity.testDoubleHolland" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVorticity.testHolland">
+<tt class="descname">testHolland</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVorticity.testHolland" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVorticity.testJelesnianski">
+<tt class="descname">testJelesnianski</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVorticity.testJelesnianski" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVorticity.testPowell">
+<tt class="descname">testPowell</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVorticity.testPowell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVorticity.testRankine">
+<tt class="descname">testRankine</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVorticity.testRankine" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_windmodels.TestWindVorticity.testWilloughby">
+<tt class="descname">testWilloughby</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_windmodels.TestWindVorticity.testWilloughby" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-tests">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tests" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">tests package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#tests-numpytestcase-module">tests.NumpyTestCase module</a></li>
+<li><a class="reference internal" href="#module-tests.pathLocate">tests.pathLocate module</a></li>
+<li><a class="reference internal" href="#module-tests.run">tests.run module</a></li>
+<li><a class="reference internal" href="#tests-test-gettype-module">tests.test_GetType module</a></li>
+<li><a class="reference internal" href="#module-tests.test_Intersections">tests.test_Intersections module</a></li>
+<li><a class="reference internal" href="#tests-test-kdeorigin-module">tests.test_KDEOrigin module</a></li>
+<li><a class="reference internal" href="#tests-test-kdeparameters-module">tests.test_KDEParameters module</a></li>
+<li><a class="reference internal" href="#tests-test-samplingorigin-module">tests.test_SamplingOrigin module</a></li>
+<li><a class="reference internal" href="#tests-test-samplingparameters-module">tests.test_SamplingParameters module</a></li>
+<li><a class="reference internal" href="#module-tests.test_TrackGenerator">tests.test_TrackGenerator module</a></li>
+<li><a class="reference internal" href="#module-tests.test_evd">tests.test_evd module</a></li>
+<li><a class="reference internal" href="#module-tests.test_files">tests.test_files module</a></li>
+<li><a class="reference internal" href="#tests-test-generatestats-module">tests.test_generateStats module</a></li>
+<li><a class="reference internal" href="#tests-test-grid-module">tests.test_grid module</a></li>
+<li><a class="reference internal" href="#module-tests.test_gridNC">tests.test_gridNC module</a></li>
+<li><a class="reference internal" href="#module-tests.test_interp3d">tests.test_interp3d module</a></li>
+<li><a class="reference internal" href="#tests-test-lmomentfit-module">tests.test_lmomentFit module</a></li>
+<li><a class="reference internal" href="#module-tests.test_loadData">tests.test_loadData module</a></li>
+<li><a class="reference internal" href="#tests-test-maputils-module">tests.test_maputils module</a></li>
+<li><a class="reference internal" href="#tests-test-metutils-module">tests.test_metutils module</a></li>
+<li><a class="reference internal" href="#tests-test-nctools-module">tests.test_nctools module</a></li>
+<li><a class="reference internal" href="#tests-test-pressureprofile-module">tests.test_pressureProfile module</a></li>
+<li><a class="reference internal" href="#tests-test-stats-module">tests.test_stats module</a></li>
+<li><a class="reference internal" href="#tests-test-vmax-module">tests.test_vmax module</a></li>
+<li><a class="reference internal" href="#module-tests.test_windmodels">tests.test_windmodels module</a></li>
+<li><a class="reference internal" href="#module-tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/docs/tests.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
+      Last updated on Sep 09, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

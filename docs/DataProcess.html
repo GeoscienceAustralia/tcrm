@@ -1,0 +1,345 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DataProcess package &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="dataprocess-package">
+<h1>DataProcess package<a class="headerlink" href="#dataprocess-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-DataProcess.DataProcess">
+<span id="dataprocess-dataprocess-module"></span><h2>DataProcess.DataProcess module<a class="headerlink" href="#module-DataProcess.DataProcess" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-DataProcess">
+<span id="dataprocess-basic-processing-of-input-database"></span><h3><a class="reference internal" href="#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><tt class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></tt></a> &#8211; basic processing of input database<a class="headerlink" href="#module-DataProcess" title="Permalink to this headline">¶</a></h3>
+<p>Processes the database of historical TCs into suitably formatted
+text files.</p>
+<dl class="class">
+<dt id="DataProcess.DataProcess.DataProcess">
+<em class="property">class </em><tt class="descname">DataProcess</tt><big>(</big><em>configFile</em>, <em>progressbar=None</em><big>)</big><a class="headerlink" href="#DataProcess.DataProcess.DataProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Processes the database of historical TCs into suitably formatted
+text files.  Data is written to plain text files for ease of
+access (this may be upgraded in future versions to netCDF files).
+Currently extracts fields containing the value of cyclone
+parameters, but no information on the change of parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>configFile</strong> (<em>str</em>) &#8211; Configuration file containing simulation settings</li>
+<li><strong>progressbar</strong> (<a class="reference internal" href="Utilities.html#module-progressbar" title="progressbar: print a progress bar on to standard output."><tt class="xref py py-class docutils literal"><span class="pre">progressbar</span></tt></a>) &#8211; <a class="reference internal" href="Utilities.html#module-progressbar" title="progressbar: print a progress bar on to standard output."><tt class="xref py py-attr docutils literal"><span class="pre">progressbar</span></tt></a> object to print progress to 
+STDOUT</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Internal Methods:
+_lonLat(lon, lat, indicator) Extract longitudes and latitudes
+_bearing(bear, indicator) Extract bearings
+_speed(dist, dt, indicator) Extract speeds
+_pressure(pressure, indicator) Extract pressures
+_pressureRate(pressure, dt, indicator) Extract rate of presssure change
+_speedRate(dist, dt, indicator) Extract the acceleration (rate of change of speed)
+_bearingChange(bear, dt, indicator) Extract the rate of change of bearing
+_windSpeed(vmax, indicator) Extract the maximum sustained wind speed</p>
+<dl class="method">
+<dt id="DataProcess.DataProcess.DataProcess.extractTracks">
+<tt class="descname">extractTracks</tt><big>(</big><em>index</em>, <em>lon</em>, <em>lat</em><big>)</big><a class="headerlink" href="#DataProcess.DataProcess.DataProcess.extractTracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract tracks that only <em>start</em> within the pre-defined domain.
+The function returns the indices of the tracks that begin within
+the domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>index</strong> (<cite>numpy.ndarray</cite>) &#8211; indicator of initial positions of TCs (1 = new TC,
+0 = continuation of previous TC).</li>
+<li><strong>lon</strong> (<cite>numpy.ndarray</cite>) &#8211; longitudes of TC positions</li>
+<li><strong>lat</strong> (<cite>numpy.ndarray</cite>) &#8211; latitudes of TC positions</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">indices corresponding to all points of all tracks that
+form within the model domain</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><cite>numpy.ndarray</cite></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataProcess.DataProcess.DataProcess.processData">
+<tt class="descname">processData</tt><big>(</big><em>restrictToWindfieldDomain=False</em><big>)</big><a class="headerlink" href="#DataProcess.DataProcess.DataProcess.processData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process raw data into ASCII files that can be read by the main
+components of the system</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>restrictToWindfieldDomain</strong> (<em>bool</em>) &#8211; if True, only process data
+within the wind field domain, otherwise, process data from
+across the track generation domain.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-DataProcess.CalcFrequency">
+<span id="dataprocess-calcfrequency-module"></span><h2>DataProcess.CalcFrequency module<a class="headerlink" href="#module-DataProcess.CalcFrequency" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-CalcFrequency">
+<span id="calcfrequency-calculate-annual-genesis-frequency"></span><h3><a class="reference internal" href="#module-CalcFrequency" title="CalcFrequency: Calculate annual genesis frequency of TCs within the track generation domain."><tt class="xref py py-mod docutils literal"><span class="pre">CalcFrequency</span></tt></a> &#8211; Calculate annual genesis frequency<a class="headerlink" href="#module-CalcFrequency" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="DataProcess.CalcFrequency.CalcFrequency">
+<em class="property">class </em><tt class="descname">CalcFrequency</tt><big>(</big><em>configFile</em>, <em>auto_calc_grid_limit</em><big>)</big><a class="headerlink" href="#DataProcess.CalcFrequency.CalcFrequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the annual mean frequency of TC events
+based on input dataset. The frequency is calculated
+for the given domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tg_domain</strong> (<em>dict</em>) &#8211; the domain where the tracks will be generated.
+The <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt> should contain the keys <tt class="xref py py-attr docutils literal"><span class="pre">xMin</span></tt>,
+<tt class="xref py py-attr docutils literal"><span class="pre">xMax</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">yMin</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">yMax</span></tt>. The <em>x</em>
+variable bounds the longitude and the <em>y</em> variable bounds
+the latitude.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="DataProcess.CalcFrequency.CalcFrequency.calc">
+<tt class="descname">calc</tt><big>(</big><big>)</big><a class="headerlink" href="#DataProcess.CalcFrequency.CalcFrequency.calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the frequency of TC events in a pre-defined domain, based 
+on the input dataset and the full range of years contained in the 
+<tt class="xref py py-attr docutils literal"><span class="pre">origin_year</span></tt> file.</p>
+<p>The <tt class="xref py py-attr docutils literal"><span class="pre">origin_year</span></tt> file is created in 
+<tt class="xref py py-class docutils literal"><span class="pre">DataProcess.processData</span></tt> and restricts the range to a 
+user-selected range of years.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-DataProcess.CalcTrackDomain">
+<span id="dataprocess-calctrackdomain-module"></span><h2>DataProcess.CalcTrackDomain module<a class="headerlink" href="#module-DataProcess.CalcTrackDomain" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-CalcTrackDomain">
+<span id="calctrackdomain-calculate-track-generation-domain"></span><h3><a class="reference internal" href="#module-CalcTrackDomain" title="CalcTrackDomain: Determine track generator domain, ensuring it encompasses all tracks entering the windfield generator domain."><tt class="xref py py-mod docutils literal"><span class="pre">CalcTrackDomain</span></tt></a> - calculate track generation domain<a class="headerlink" href="#module-CalcTrackDomain" title="Permalink to this headline">¶</a></h3>
+<p>Determine track generator domain, ensuring it encompasses
+all tracks entering the windfield generator domain.</p>
+<p>CreationDate: 2010-03-23</p>
+<dl class="class">
+<dt id="DataProcess.CalcTrackDomain.CalcTrackDomain">
+<em class="property">class </em><tt class="descname">CalcTrackDomain</tt><big>(</big><em>configFile</em><big>)</big><a class="headerlink" href="#DataProcess.CalcTrackDomain.CalcTrackDomain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Calculate the extents over which tracks will be generated.</p>
+<p>Based on the user-selected wind field domain, examine the input dataset
+and identify the maximal extent covering all TCs that enter the wind 
+field domain. This sets the domain over which synthetic TCs will be
+generated by teh TrackGenerator module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>string</em>) &#8211; Configuration file containing simulation settings</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="DataProcess.CalcTrackDomain.CalcTrackDomain.calc">
+<tt class="descname">calc</tt><big>(</big><em>index</em>, <em>lons</em>, <em>lats</em><big>)</big><a class="headerlink" href="#DataProcess.CalcTrackDomain.CalcTrackDomain.calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Core function for determining track generation domain</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>index</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of values indicating the start
+of a new TC track (1), zero otherwise</li>
+<li><strong>lons</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> representing the longitude of all
+TC positions</li>
+<li><strong>lats</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> representing the latitude of all 
+TC positions</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataProcess.CalcTrackDomain.CalcTrackDomain.calcDomainFromFile">
+<tt class="descname">calcDomainFromFile</tt><big>(</big><big>)</big><a class="headerlink" href="#DataProcess.CalcTrackDomain.CalcTrackDomain.calcDomainFromFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate track generation domain, using a file as the input source</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the domain where the tracks will be generated.
+The <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt> should contain the keys <tt class="xref py py-attr docutils literal"><span class="pre">xMin</span></tt>,
+<tt class="xref py py-attr docutils literal"><span class="pre">xMax</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">yMin</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">yMax</span></tt>. The <em>x</em>
+variable bounds the longitude and the <em>y</em> variable 
+bounds the latitude.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DataProcess.CalcTrackDomain.CalcTrackDomain.calcDomainFromTracks">
+<tt class="descname">calcDomainFromTracks</tt><big>(</big><em>index</em>, <em>lons</em>, <em>lats</em><big>)</big><a class="headerlink" href="#DataProcess.CalcTrackDomain.CalcTrackDomain.calcDomainFromTracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate track generation domain from input track details</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>index</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of values indicating the start
+of a new TC track (1), zero otherwise</li>
+<li><strong>lons</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> representing the longitude of all
+TC positions</li>
+<li><strong>lats</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> representing the latitude of all 
+TC positions</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">dict</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the domain where the tracks will be generated.
+The <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt> should contain the keys <tt class="xref py py-attr docutils literal"><span class="pre">xMin</span></tt>,
+<tt class="xref py py-attr docutils literal"><span class="pre">xMax</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">yMin</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">yMax</span></tt>. The <em>x</em>
+variable bounds the longitude and the <em>y</em> variable 
+bounds the latitude.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">DataProcess package</a><ul>
+<li><a class="reference internal" href="#module-DataProcess.DataProcess">DataProcess.DataProcess module</a><ul>
+<li><a class="reference internal" href="#module-DataProcess"><tt class="docutils literal"><span class="pre">DataProcess</span></tt> &#8211; basic processing of input database</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-DataProcess.CalcFrequency">DataProcess.CalcFrequency module</a><ul>
+<li><a class="reference internal" href="#module-CalcFrequency"><tt class="docutils literal"><span class="pre">CalcFrequency</span></tt> &#8211; Calculate annual genesis frequency</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-DataProcess.CalcTrackDomain">DataProcess.CalcTrackDomain module</a><ul>
+<li><a class="reference internal" href="#module-CalcTrackDomain"><tt class="docutils literal"><span class="pre">CalcTrackDomain</span></tt> - calculate track generation domain</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/docs/DataProcess.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
+      Last updated on Sep 09, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

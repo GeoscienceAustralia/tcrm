@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Evaluation &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" />
+    <link rel="next" title="Source formats" href="sources.html" />
+    <link rel="prev" title="Examples" href="examples.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sources.html" title="Source formats"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="evaluation">
+<h1>Evaluation<a class="headerlink" href="#evaluation" title="Permalink to this headline">¶</a></h1>
+<p>TCRM provides functionality to evaluate the performance of the track
+model over the model domain through the <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><tt class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></tt></a> module. By
+running a number of simulations, each generating a similar number of
+years of events to the input track database, we can compare the
+synthetic events with the observations. Metrics include track density,
+genesis distribution, minimum pressure distributions, landfall rates
+and longitude crossing rates.</p>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
+<p>An example configuration for executing an evaluation. Other sections
+of the configuration file should remain unchanged.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Actions</span><span class="p">]</span>
+<span class="n">DataProcess</span><span class="o">=</span><span class="bp">True</span>
+<span class="n">ExecuteStat</span><span class="o">=</span><span class="bp">True</span>
+<span class="n">ExecuteTrackGenerator</span><span class="o">=</span><span class="bp">True</span>
+<span class="n">ExecuteWindfield</span><span class="o">=</span><span class="bp">False</span>
+<span class="n">ExecuteHazard</span><span class="o">=</span><span class="bp">False</span>
+<span class="n">PlotHazard</span><span class="o">=</span><span class="bp">False</span>
+<span class="n">PlotData</span><span class="o">=</span><span class="bp">False</span>
+<span class="n">ExecuteEvaluate</span><span class="o">=</span><span class="bp">False</span>
+<span class="n">DownloadData</span><span class="o">=</span><span class="bp">True</span>
+
+<span class="p">[</span><span class="n">Input</span><span class="p">]</span>
+<span class="n">LandMask</span><span class="o">=</span><span class="nb">input</span><span class="o">/</span><span class="n">landmask</span><span class="o">.</span><span class="n">nc</span>
+<span class="n">MSLPFile</span><span class="o">=</span><span class="n">MSLP</span><span class="o">/</span><span class="n">slp</span><span class="o">.</span><span class="n">day</span><span class="o">.</span><span class="n">ltm</span><span class="o">.</span><span class="n">nc</span>
+<span class="n">CoastlineGates</span><span class="o">=</span><span class="nb">input</span><span class="o">/</span><span class="n">gates</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="p">[</span><span class="n">TrackGenerator</span><span class="p">]</span>
+<span class="n">NumSimulations</span><span class="o">=</span><span class="mi">500</span>
+<span class="n">YearsPerSimulation</span><span class="o">=</span><span class="mi">30</span>
+<span class="n">NumTimeSteps</span><span class="o">=</span><span class="mi">360</span>
+<span class="n">TimeStep</span><span class="o">=</span><span class="mf">1.0</span>
+<span class="n">SeasonSeed</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">TrackSeed</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>Note that the <tt class="docutils literal"><span class="pre">YearsPerSimulation</span></tt> option is now set to 30, so TCRM
+will generate 500 event sets, each with the equivalent of 30 years of
+TCs. The annual frequency of events is based on a Poisson distribution
+around the mean annual frequency, which is determined from the input
+track database.</p>
+<p>A csv-format file containing a set of gates around the coastline is
+required for <a class="reference internal" href="Evaluate.html#module-Evaluate.landfallRates" title="Evaluate.landfallRates"><tt class="xref py py-mod docutils literal"><span class="pre">Evaluate.landfallRates</span></tt></a>. Gates are defined as a
+series of points around the coastline in number, longitude, latitude
+format. Below are the first 15 points in the sample gates provided in
+the code base.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="mf">0.00</span><span class="p">,</span> <span class="mf">114.78</span><span class="p">,</span> <span class="o">-</span><span class="mf">34.70</span>
+<span class="mf">1.00</span><span class="p">,</span> <span class="mf">115.20</span><span class="p">,</span> <span class="o">-</span><span class="mf">32.95</span>
+<span class="mf">2.00</span><span class="p">,</span> <span class="mf">114.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">31.17</span>
+<span class="mf">3.00</span><span class="p">,</span> <span class="mf">114.49</span><span class="p">,</span> <span class="o">-</span><span class="mf">29.42</span>
+<span class="mf">4.00</span><span class="p">,</span> <span class="mf">113.66</span><span class="p">,</span> <span class="o">-</span><span class="mf">27.83</span>
+<span class="mf">5.00</span><span class="p">,</span> <span class="mf">112.73</span><span class="p">,</span> <span class="o">-</span><span class="mf">26.28</span>
+<span class="mf">6.00</span><span class="p">,</span> <span class="mf">112.96</span><span class="p">,</span> <span class="o">-</span><span class="mf">24.50</span>
+<span class="mf">7.00</span><span class="p">,</span> <span class="mf">113.22</span><span class="p">,</span> <span class="o">-</span><span class="mf">22.72</span>
+<span class="mf">8.00</span><span class="p">,</span> <span class="mf">114.47</span><span class="p">,</span> <span class="o">-</span><span class="mf">21.43</span>
+<span class="mf">9.00</span><span class="p">,</span> <span class="mf">115.98</span><span class="p">,</span> <span class="o">-</span><span class="mf">20.44</span>
+<span class="mf">10.00</span><span class="p">,</span> <span class="mf">117.74</span><span class="p">,</span> <span class="o">-</span><span class="mf">20.08</span>
+<span class="mf">11.00</span><span class="p">,</span> <span class="mf">119.46</span><span class="p">,</span> <span class="o">-</span><span class="mf">19.55</span>
+<span class="mf">12.00</span><span class="p">,</span> <span class="mf">121.12</span><span class="p">,</span> <span class="o">-</span><span class="mf">18.84</span>
+<span class="mf">13.00</span><span class="p">,</span> <span class="mf">121.74</span><span class="p">,</span> <span class="o">-</span><span class="mf">17.15</span>
+<span class="mf">14.00</span><span class="p">,</span> <span class="mf">123.04</span><span class="p">,</span> <span class="o">-</span><span class="mf">15.91</span>
+<span class="mf">15.00</span><span class="p">,</span> <span class="mf">124.49</span><span class="p">,</span> <span class="o">-</span><span class="mf">14.85</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="output">
+<h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><tt class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></tt></a> module generates a set of figures that compare the
+synthetic event set to the input track database. For the synthetic
+events, the module calculates a mean value and upper and lower
+percentiles of the distribution (commonly the 5th and 95th percentile
+values).</p>
+<p>Some of the results are also saved to netCDF files (track density,
+pressure distributions and longitude crossing rates) for users to
+import into other graphics packages.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Evaluation</a><ul>
+<li><a class="reference internal" href="#setup">Setup</a></li>
+<li><a class="reference internal" href="#output">Output</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="examples.html"
+                        title="previous chapter">Examples</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="sources.html"
+                        title="next chapter">Source formats</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/docs/evaluation.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="sources.html" title="Source formats"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             >previous</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
+      Last updated on Sep 09, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,931 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>StatInterface package &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="statinterface-package">
+<h1>StatInterface package<a class="headerlink" href="#statinterface-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="statinterface-generatedistributions-module">
+<h2>StatInterface.GenerateDistributions module<a class="headerlink" href="#statinterface-generatedistributions-module" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Title: GenerateDistributions.py - generate the distributions of</dt>
+<dd>parameters.</dd>
+</dl>
+<p>Author: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2006-12-07
+Description: Generate the cumulative distribution functions (CDF&#8217;s) for</p>
+<blockquote>
+<div>a given parameter for each cell in the lat-lon grid
+(defined by gridLimit and gridSpace).  This uses the method
+of kernel density estimators to determine the
+distributions.</div></blockquote>
+<p>Version: $Rev: 810 $</p>
+<p>Version: $Rev: 810 $
+ModifiedBy: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+ModifiedDate: 2006-12-14
+Modification: Added _expandCell and _checkGridLimits to permit</p>
+<blockquote>
+<div>increasing the population of cells that initially have
+insufficient observations to generate a quality PDF.</div></blockquote>
+<p>ModifiedBy: Nariman Habili, <a class="reference external" href="mailto:nariman&#46;habili&#37;&#52;&#48;ga&#46;gov&#46;au">nariman<span>&#46;</span>habili<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+ModifiedDate: 2007-03-22
+Modification: lonLat, parameterList, parameterName are now pass passed</p>
+<blockquote>
+<div>in at allDistributions.</div></blockquote>
+<p>Version: $Rev: 810 $
+ModifiedBy: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+ModifiedDate: 10/04/08 11:42:AM
+Modification: Changed logging method</p>
+<p>SeeAlso: (related programs)
+Constraints:</p>
+<p>$Id: GenerateDistributions.py 810 2012-02-21 07:52:50Z nsummons $</p>
+<dl class="class">
+<dt id="StatInterface.GenerateDistributions.GenerateDistributions">
+<em class="property">class </em><tt class="descname">GenerateDistributions</tt><big>(</big><em>configFile</em>, <em>gridLimit</em>, <em>gridSpace</em>, <em>gridInc</em>, <em>kdeType</em>, <em>minSamplesCell=40</em>, <em>missingValue=2147483647</em><big>)</big><a class="headerlink" href="#StatInterface.GenerateDistributions.GenerateDistributions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Description: Generate the cumulative distribution functions (CDF&#8217;s)
+for a given parameter for each cell in the lat-lon grid (defined by
+gridLimit and gridSpace).  This uses the method of kernel density
+estimators to determine the distributions.</p>
+<p>Parameters:
+files : dictionary</p>
+<blockquote>
+<div>Contains input and output files read from config files</div></blockquote>
+<dl class="docutils">
+<dt>lonLat <span class="classifier-delimiter">:</span> <span class="classifier">string or 2d-array</span></dt>
+<dd>If string, a filename containing the lon/lat of all cyclone
+observations
+If array, contains lon/lat pairs of all cyclone observations</dd>
+<dt>parameterList: string or array</dt>
+<dd>If string, a filename containing the values of a parameter for
+all cyclone observations.
+If array, contains all values of a parameter for all cyclone
+observations</dd>
+<dt>paramterName <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Name of the parameter being examined</dd>
+<dt>gridLimit <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dd>lon/lat bounds of the grid over which the parameter
+distributions will be determined.</dd>
+<dt>gridSpace <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dd>lon/lat grid spacing (in degrees)</dd>
+<dt>kdeType <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Name of the kernel density estimator to use</dd>
+</dl>
+<p>Members:
+files : dictionary</p>
+<blockquote>
+<div>Contains input and output files read from config files</div></blockquote>
+<dl class="docutils">
+<dt>lonLat <span class="classifier-delimiter">:</span> <span class="classifier">string or 2d-array</span></dt>
+<dd>If string, a filename containing the lon/lat of all cyclone
+observations
+If array, contains lon/lat pairs of all cyclone observations</dd>
+<dt>parameterList: string or array</dt>
+<dd>If string, a filename containing the values of a parameter for
+all cyclone observations.
+If array, contains all values of a parameter for all cyclone
+observations</dd>
+<dt>paramterName <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Name of the parameter being examined</dd>
+<dt>gridLimit <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dd>lon/lat bounds of the grid over which the parameter
+distributions will be determined.</dd>
+<dt>gridSpace <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dd>lon/lat grid spacing (in degrees)</dd>
+<dt>kdeType <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>Name of the kernel density estimator to use</dd>
+</dl>
+<p>Methods:
+allDistributions : calculate and save the CDF for each cell for a</p>
+<blockquote>
+<div>given parameter.</div></blockquote>
+<dl class="docutils">
+<dt>extractParameter <span class="classifier-delimiter">:</span> <span class="classifier">Identify the data in the full dataset</span></dt>
+<dd>corresponding to the cell under investigation and
+return the values of the given parameter, with
+null values removed.</dd>
+</dl>
+<p>Internal Methods:
+_expandCell : Obtain the indices of observations from adjacent</p>
+<blockquote>
+<div>cells.  This is called when there are insufficient
+observations in a cell to generate a PDF.</div></blockquote>
+<dl class="docutils">
+<dt>_checkCellLimits <span class="classifier-delimiter">:</span> <span class="classifier">Check the bounds of the cell are within the</span></dt>
+<dd>limits of the region under investigation - if not
+then set to the limits</dd>
+</dl>
+<dl class="method">
+<dt id="StatInterface.GenerateDistributions.GenerateDistributions.allDistributions">
+<tt class="descname">allDistributions</tt><big>(</big><em>lonLat</em>, <em>parameterList</em>, <em>parameterName=None</em>, <em>kdeStep=0.1</em>, <em>angular=False</em>, <em>periodic=False</em>, <em>plotParam=False</em><big>)</big><a class="headerlink" href="#StatInterface.GenerateDistributions.GenerateDistributions.allDistributions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate a distribution for each individual cell and store in a
+file or return</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.GenerateDistributions.GenerateDistributions.extractParameter">
+<tt class="descname">extractParameter</tt><big>(</big><em>cellNum</em><big>)</big><a class="headerlink" href="#StatInterface.GenerateDistributions.GenerateDistributions.extractParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>extractParameter(cellNum):
+Extracts the cyclone parameter data for the given cell.
+If the population of a cell is insufficient for generating a
+PDF, the bounds of the cell are expanded until the population is
+sufficient.</p>
+<p>Null/missing values are removed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="statinterface-kdeorigin-module">
+<h2>StatInterface.KDEOrigin module<a class="headerlink" href="#statinterface-kdeorigin-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: KDEOrigin.py - Define Class for KDE Origin
+Author: Geoff Xu, <a class="reference external" href="mailto:geoff&#46;xu&#37;&#52;&#48;ga&#46;gov&#46;au">geoff<span>&#46;</span>xu<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2006-01-10
+Description:
+Python code developed from Xun Guo Lin&#8217;s Matlab code on PDF &amp;
+CDF of cyclone origin using 2D KDE
+Version: $Rev: 810 $</p>
+<p>ModifiedBy: C. Arthur
+ModifiedDate: 2006-10-24
+Modification: Added descriptive headers and metadata</p>
+<p>ModifiedBy: N. Habili
+ModifiedDate: 2006-11-29
+Modification: File names passed by dictionaries instead of individual</p>
+<blockquote>
+<div>file names.</div></blockquote>
+<p>Upgrade to ndarray
+Conformance with style guide</p>
+<p>ModifiedBy: N. Habili
+ModifiedDate: 2006-12-14
+Modification:
+Results will be returned if files=0.
+Removed method generateOldKde().</p>
+<p>ModifiedBy: N. Habili
+ModifiedDate: 2006-12-15
+Modification:
+Method name changed from generateNewKde to generateKDE</p>
+<p>Version: 83
+ModifiedBy: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+ModifiedDate: 10/04/08 11:42:AM
+Modification: Changed logging method</p>
+<p>Version: 299
+ModifiedBy: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+ModifiedDate: 2008-07-02 2:31:PM
+Modification: Write PDF &amp; CDF to ascii grid files (these can be read
+by GIS packages), eliminating the need for multiple files to be created</p>
+<p>Version: $Rev: 810 $
+ModifiedBy: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+ModifiedDate: 2011-03-21 1:18:PM
+Modification: Write 2-D grid of genesis PDF to netCDF.</p>
+<p>Id: KDEOrigin.py 219 2009-10-02 03:20:56Z carthur $</p>
+<dl class="class">
+<dt id="StatInterface.KDEOrigin.KDEOrigin">
+<em class="property">class </em><tt class="descname">KDEOrigin</tt><big>(</big><em>configFile</em>, <em>kdeType</em>, <em>gridLimit</em>, <em>kdeStep</em>, <em>lonLat=None</em>, <em>progressbar=None</em><big>)</big><a class="headerlink" href="#StatInterface.KDEOrigin.KDEOrigin" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>files <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dd>dictionary containing input/output file names and paths.</dd>
+</dl>
+<dl class="docutils">
+<dt>aus_blat <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
+<dd>Latitidue data for Australian coast line from australia_bndy.txt
+with Tasmania removed</dd>
+<dt>aus_blon <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
+<dd>Longitude data for Austrlian coast line from australia_bndy.txt
+with Tasmania removed</dd>
+<dt>lonLat <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
+<dd>Longitude and latitude dataset for cyclone origins from lon_lat
+file</dd>
+<dt>kde_origin_x <span class="classifier-delimiter">:</span> <span class="classifier">string (file name including path)</span></dt>
+<dd>Path and name of created data for x coordinates of KDE result</dd>
+<dt>kde_origin_y <span class="classifier-delimiter">:</span> <span class="classifier">string (file name including path)</span></dt>
+<dd>Path and name of created data for y coordinates of KDE result</dd>
+<dt>kde_origin_z <span class="classifier-delimiter">:</span> <span class="classifier">string (file name including path)</span></dt>
+<dd>Path and name of created data for z coordinates of KDE result</dd>
+<dt>cdf_origin_cz <span class="classifier-delimiter">:</span> <span class="classifier">string (file name including path)</span></dt>
+<dd>Path and name of created data for z coordinates of CDF result</dd>
+</dl>
+<dl class="docutils">
+<dt>generateKDE(user,option,bw)</dt>
+<dd>Generate the PDF for cyclone origins using kernel density
+estimation technique then save it to a file path provided by
+user</dd>
+<dt>generateCdf()</dt>
+<dd>Generate the CDFs corresponding to PDFs of cyclone origins,
+then save it on a file path provided by user</dd>
+<dt>plotKde()</dt>
+<dd>Plot the PDF using 2D kernel density estimation technique</dd>
+<dt>plotColour()</dt>
+<dd>Wrap a colour layer on top of 3D plots, can be slow</dd>
+<dt>plotCdf()</dt>
+<dd>Plot the CDFs corresponding to pdfs of cyclone origins</dd>
+</dl>
+<dl class="docutils">
+<dt>_generatePDF(option,grid,bw) <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
+<dd>Sub-function that generates the PDFs of 2D kernel density
+estimation from raw dataset</dd>
+</dl>
+<dl class="method">
+<dt id="StatInterface.KDEOrigin.KDEOrigin.generateCdf">
+<tt class="descname">generateCdf</tt><big>(</big><em>save=False</em><big>)</big><a class="headerlink" href="#StatInterface.KDEOrigin.KDEOrigin.generateCdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the CDFs corresponding to PDFs of cyclone origins,
+then save it on a file path provided by user</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.KDEOrigin.KDEOrigin.generateKDE">
+<tt class="descname">generateKDE</tt><big>(</big><em>bw=None</em>, <em>save=False</em>, <em>plot=False</em><big>)</big><a class="headerlink" href="#StatInterface.KDEOrigin.KDEOrigin.generateKDE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the PDF for cyclone origins using kernel density
+estimation technique then save it to a file path provided by
+user.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.KDEOrigin.KDEOrigin.updateProgressBar">
+<tt class="descname">updateProgressBar</tt><big>(</big><em>n</em>, <em>nMax</em><big>)</big><a class="headerlink" href="#StatInterface.KDEOrigin.KDEOrigin.updateProgressBar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback function to update progress bar from C code</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="statinterface-kdeparameters-module">
+<h2>StatInterface.KDEParameters module<a class="headerlink" href="#statinterface-kdeparameters-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: KDEParameters.py - generate kernel density estimations of cyclone
+parameters</p>
+<p>Author: Geoff Xu, <a class="reference external" href="mailto:geoff&#46;xu&#37;&#52;&#48;ga&#46;gov&#46;au">geoff<span>&#46;</span>xu<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2006-01-05
+Description:
+Generates the probability density functions (using kernel density
+estimation) of given cyclone parameters (speed, pressure, bearing, etc).
+Each of these PDF&#8217;s is converted to a cumulative density function for
+use in other sections.</p>
+<p>Version: $Rev: 810 $</p>
+<p>ModifiedDate: 2006-11-29
+ModifiedBy: N. Habili, <a class="reference external" href="mailto:nariman&#46;habili&#37;&#52;&#48;ga&#46;gov&#46;au">nariman<span>&#46;</span>habili<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+Modifications: Added accessor methods, upgraded to ndarray and conforms</p>
+<blockquote>
+<div>with style guide</div></blockquote>
+<p>ModifiedDate: 2006-12-07
+ModifiedBy: C. Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+Modifications: Added a generic generateKDE() method, tidied _generatePDF()</p>
+<p>ModifiedDate: 2007-05-01
+ModifiedBy: N. Habili, <a class="reference external" href="mailto:nariman&#46;habili&#37;&#52;&#48;ga&#46;gov&#46;au">nariman<span>&#46;</span>habili<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+Modifications: Removed plotting methods</p>
+<blockquote>
+<div>Removed generateKDEAll, generateKDEInit, and
+generateKDENoInit</div></blockquote>
+<p>$Id: KDEParameters.py 810 2012-02-21 07:52:50Z nsummons $</p>
+<dl class="class">
+<dt id="StatInterface.KDEParameters.KDEParameters">
+<em class="property">class </em><tt class="descname">KDEParameters</tt><big>(</big><em>kdeType</em><big>)</big><a class="headerlink" href="#StatInterface.KDEParameters.KDEParameters" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>kdeType <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>kernel density estimation type</dd>
+</dl>
+<dl class="docutils">
+<dt>parameters <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
+<dd>parameters of cyclones</dd>
+<dt>kdeType <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>kernel density estimation type</dd>
+<dt>kdeParameters <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>file path for kde parameters</dd>
+<dt>cdfParameters <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>file path for cdf parameters</dd>
+</dl>
+<dl class="docutils">
+<dt>generateKde(self, parameters, kdeParameters, cdfParameters)</dt>
+<dd>Generate PDF and cdf for a cyclone parameter using kernel
+density estimation technique. It is then either returned or
+saved in a file path provided by user</dd>
+</dl>
+<dl class="docutils">
+<dt>generatePDF(option,grid,dataset) <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
+<dd>a sub function that generates the PDFs of kernel density
+estimation from raw dataset</dd>
+</dl>
+<dl class="method">
+<dt id="StatInterface.KDEParameters.KDEParameters.generateGenesisDateCDF">
+<tt class="descname">generateGenesisDateCDF</tt><big>(</big><em>genDays</em>, <em>lonLat</em>, <em>bw=None</em>, <em>genesisKDE=None</em><big>)</big><a class="headerlink" href="#StatInterface.KDEParameters.KDEParameters.generateGenesisDateCDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the PDF of genesis day using KDEs.
+Since the data is periodic, we use a simple method to include the
+periodicity in estimating the PDF. We prepend and append the data
+to itself, then use the central third of the PDF and multiply by three to
+obtain the required PDF. Probably notquite exact, but it should be
+sufficient for our purposes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.KDEParameters.KDEParameters.generateKDE">
+<tt class="descname">generateKDE</tt><big>(</big><em>parameters</em>, <em>kdeStep</em>, <em>kdeParameters=None</em>, <em>cdfParameters=None</em>, <em>angular=False</em>, <em>periodic=False</em>, <em>missingValue=2147483647</em><big>)</big><a class="headerlink" href="#StatInterface.KDEParameters.KDEParameters.generateKDE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a PDF and CDF for a given parameter set using the
+method of kernel density estimators.
+Optionally return the PDF and CDF as an array, or write both
+to separate files.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="statinterface-samplingorigin-module">
+<h2>StatInterface.SamplingOrigin module<a class="headerlink" href="#statinterface-samplingorigin-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: SamplingOrigin.py</p>
+<p>Author: Geoff Xu, <a class="reference external" href="mailto:geoff&#46;xu&#37;&#52;&#48;ga&#46;gov&#46;au">geoff<span>&#46;</span>xu<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2006-01-16
+Description: Define the class for sampling cyconle origins. Python code</p>
+<blockquote>
+<div>developed from Xun Guo Lin&#8217;s MATLAB code on sampling of
+cyclone origins</div></blockquote>
+<p>Version: $Rev: 810 $</p>
+<p>ModifiedDate: 2006-10-31
+ModifiedBy: C. Arthur
+Modifications: Added descriptive headers and metadata</p>
+<p>ModifiedDate: 2006-11-29
+ModifiedBy: N. Habili
+Modifications: File names passed by dictionaries instead of individual</p>
+<blockquote>
+<div>file names.
+Upgrade to ndarray
+Conformance with style guide</div></blockquote>
+<p>ModifiedDate: 2007-04-02
+ModifiedBy: N. Habili
+Modifications: Added setKDEOrigins</p>
+<p>Version: 83
+ModifiedBy: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+ModifiedDate: 10/04/08 11:42:AM
+Modification: Changed logging method</p>
+<p>Version: $Rev: 810 $
+ModifiedBy: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+ModifiedDate: 2008-07-02 2:35:PM
+Modification: Reads the origin PDF data from an ascii grid format file</p>
+<p>$Id: SamplingOrigin.py 810 2012-02-21 07:52:50Z nsummons $</p>
+<dl class="class">
+<dt id="StatInterface.SamplingOrigin.SamplingOrigin">
+<em class="property">class </em><tt class="descname">SamplingOrigin</tt><big>(</big><em>kdeOrigin=None</em>, <em>x=None</em>, <em>y=None</em><big>)</big><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>files <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dd>dictionary containing input/output file names and paths.</dd>
+<dt>ns <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
+<dd>number of samples to generate</dd>
+</dl>
+<dl class="docutils">
+<dt>kdeOriginX <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
+<dd>x coordinates of kde result generated from KDEOrigin class</dd>
+<dt>kdeOriginY <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
+<dd>y coordinates of kde result generated from KDEOrigin class</dd>
+<dt>kdeOriginZ <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
+<dd>z coordinates of kde result generated from KDEOrigin class</dd>
+<dt>ns <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>number of samples to generate</dd>
+<dt>cdfX <span class="classifier-delimiter">:</span> <span class="classifier">2D array of float</span></dt>
+<dd>cumulative density function in longitudinal direction</dd>
+<dt>cdfY <span class="classifier-delimiter">:</span> <span class="classifier">2D array of float</span></dt>
+<dd>cumulative density function in latitudinal direction</dd>
+</dl>
+<dl class="docutils">
+<dt>generateSamples(ns,sample_orig_path)</dt>
+<dd>generate random samples of cyclone initial origins</dd>
+<dt>generateOneSample() <span class="classifier-delimiter">:</span> <span class="classifier">float, float</span></dt>
+<dd>generate a random sample of cyclone initial origin</dd>
+<dt>plotContours(aus_coast_line,oricounts,lon_bin,lat_bin)</dt>
+<dd>plot the contours of historical cyclone origins,
+cyclone origins estimated by 2D KDE,
+and cyclone origins generated by random sampling</dd>
+</dl>
+<dl class="docutils">
+<dt>calculateCDF()</dt>
+<dd>calculate Py and CDFy beforehand to remove the need of repeated
+calculation later</dd>
+</dl>
+<dl class="docutils">
+<dt>setKDEOrigins(kdeOriginX, kdeOriginY, kdeOriginZ, files) <span class="classifier-delimiter">:</span> <span class="classifier">string or</span></dt>
+<dd>array set parameters</dd>
+</dl>
+<dl class="method">
+<dt id="StatInterface.SamplingOrigin.SamplingOrigin.cdf">
+<tt class="descname">cdf</tt><big>(</big><em>x</em>, <em>y</em><big>)</big><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.cdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.SamplingOrigin.SamplingOrigin.generateOneSample">
+<tt class="descname">generateOneSample</tt><big>(</big><big>)</big><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.generateOneSample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a random cyclone origin</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.SamplingOrigin.SamplingOrigin.generateSamples">
+<tt class="descname">generateSamples</tt><big>(</big><em>ns</em>, <em>outputFile=None</em><big>)</big><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.generateSamples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate random samples of cyclone origins</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.SamplingOrigin.SamplingOrigin.ppf">
+<tt class="descname">ppf</tt><big>(</big><em>q1</em>, <em>q2</em><big>)</big><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.ppf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.SamplingOrigin.SamplingOrigin.setKDEOrigins">
+<tt class="descname">setKDEOrigins</tt><big>(</big><em>kdeOriginX=None</em>, <em>kdeOriginY=None</em>, <em>kdeOriginZ=None</em>, <em>outputPath=None</em><big>)</big><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.setKDEOrigins" title="Permalink to this definition">¶</a></dt>
+<dd><p>set kde origin parameters</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="StatInterface.SamplingOrigin.rand">
+<tt class="descname">rand</tt><big>(</big><em>d0</em>, <em>d1</em>, <em>...</em>, <em>dn</em><big>)</big><a class="headerlink" href="#StatInterface.SamplingOrigin.rand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Random values in a given shape.</p>
+<p>Create an array of the given shape and propagate it with
+random samples from a uniform distribution
+over <tt class="docutils literal"><span class="pre">[0,</span> <span class="pre">1)</span></tt>.</p>
+<dl class="docutils">
+<dt>d0, d1, ..., dn <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd>The dimensions of the returned array, should all be positive.
+If no argument is given a single Python float is returned.</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape <tt class="docutils literal"><span class="pre">(d0,</span> <span class="pre">d1,</span> <span class="pre">...,</span> <span class="pre">dn)</span></tt></span></dt>
+<dd>Random values.</dd>
+</dl>
+<p>random</p>
+<p>This is a convenience function. If you want an interface that
+takes a shape-tuple as the first argument, refer to
+np.random.random_sample .</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([[ 0.14022471,  0.96360618],  #random</span>
+<span class="go">       [ 0.37601032,  0.25528411],  #random</span>
+<span class="go">       [ 0.49313049,  0.94909878]]) #random</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="statinterface-samplingparameters-module">
+<h2>StatInterface.SamplingParameters module<a class="headerlink" href="#statinterface-samplingparameters-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: samplingParameters.py - generate samples of cyclone parameters
+Author: Geoff Xu, <a class="reference external" href="mailto:geoff&#46;xu&#37;&#52;&#48;ga&#46;gov&#46;au">geoff<span>&#46;</span>xu<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2006-01-09
+Description: Defines the class for sampling cyclone parameters. Can</p>
+<blockquote>
+<div>generate either a single sample, or an array of samples
+(for multiple cyclones)</div></blockquote>
+<p>ModifiedBy: Nariman Habili, <a class="reference external" href="mailto:nariman&#46;habili&#37;&#52;&#48;ga&#46;gov&#46;au">nariman<span>&#46;</span>habili<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+ModifiedDate: 2006-11-29
+Modification: Added accessor methods, upgraded to ndarray and conformed</p>
+<blockquote>
+<div>with style guide</div></blockquote>
+<p>ModifiedBy: Nariman Habili, <a class="reference external" href="mailto:nariman&#46;habili&#37;&#52;&#48;ga&#46;gov&#46;au">nariman<span>&#46;</span>habili<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+ModifiedDate: 2007-04-02
+Modification: Added setParameters</p>
+<p>SeeAlso: (related programs)
+Constraints:</p>
+<p>$Id: SamplingParameters.py 810 2012-02-21 07:52:50Z nsummons $</p>
+<dl class="class">
+<dt id="StatInterface.SamplingParameters.SamplingParameters">
+<em class="property">class </em><tt class="descname">SamplingParameters</tt><big>(</big><em>cdfParameters=None</em><big>)</big><a class="headerlink" href="#StatInterface.SamplingParameters.SamplingParameters" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>cdfParameters <span class="classifier-delimiter">:</span> <span class="classifier">string (file name including path) or array</span></dt>
+<dd>CDF of cyclone parameters generated from kde classes</dd>
+<dt>ns <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
+<dd>number of samples to generate</dd>
+</dl>
+<dl class="docutils">
+<dt>xacy <span class="classifier-delimiter">:</span> <span class="classifier">2D array of float</span></dt>
+<dd>xy coordinates of cdf of cyclone initial parameters</dd>
+<dt>ns <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>number of samples to generate</dd>
+<dt>sample <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
+<dd>random samples been generated from generateSample method</dd>
+</dl>
+<dl class="docutils">
+<dt>generateOneSample() <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Generate a random sample of cyclone parameters</dd>
+<dt>generateSamples(ns,sample_parameter_path)</dt>
+<dd>Generate random samples of cyclone initial parameters</dd>
+<dt>plotSamples(original_parameters,kde_parameters)</dt>
+<dd>plot the orignal historical data as well as the random samples
+generated for cyclone initial parameters</dd>
+</dl>
+<dl class="docutils">
+<dt>setParameters(cdfParameters) <span class="classifier-delimiter">:</span> <span class="classifier">string or array</span></dt>
+<dd>set parameters</dd>
+<dt>setName(n) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>set the name of plot</dd>
+<dt>name()</dt>
+<dd>get the name of plot</dd>
+<dt>setXlabel(xLabel) <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>set the label name on x axis</dd>
+<dt>xLabel()</dt>
+<dd>get the label name on x axis</dd>
+<dt>setBarWidth(barWidth) <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
+<dd>set the width of the bar on the plot</dd>
+<dt>barWidth()</dt>
+<dd>get the width of the bar on the plot</dd>
+</dl>
+<dl class="method">
+<dt id="StatInterface.SamplingParameters.SamplingParameters.generateOneSample">
+<tt class="descname">generateOneSample</tt><big>(</big><big>)</big><a class="headerlink" href="#StatInterface.SamplingParameters.SamplingParameters.generateOneSample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a random sample of cyclone parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.SamplingParameters.SamplingParameters.generateSamples">
+<tt class="descname">generateSamples</tt><big>(</big><em>ns</em>, <em>sample_parameter_path=None</em><big>)</big><a class="headerlink" href="#StatInterface.SamplingParameters.SamplingParameters.generateSamples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate random samples of cyclone initial parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.SamplingParameters.SamplingParameters.setParameters">
+<tt class="descname">setParameters</tt><big>(</big><em>cdfParameters</em><big>)</big><a class="headerlink" href="#StatInterface.SamplingParameters.SamplingParameters.setParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set parameters</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="StatInterface.SamplingParameters.rand">
+<tt class="descname">rand</tt><big>(</big><em>d0</em>, <em>d1</em>, <em>...</em>, <em>dn</em><big>)</big><a class="headerlink" href="#StatInterface.SamplingParameters.rand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Random values in a given shape.</p>
+<p>Create an array of the given shape and propagate it with
+random samples from a uniform distribution
+over <tt class="docutils literal"><span class="pre">[0,</span> <span class="pre">1)</span></tt>.</p>
+<dl class="docutils">
+<dt>d0, d1, ..., dn <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd>The dimensions of the returned array, should all be positive.
+If no argument is given a single Python float is returned.</dd>
+</dl>
+<dl class="docutils">
+<dt>out <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape <tt class="docutils literal"><span class="pre">(d0,</span> <span class="pre">d1,</span> <span class="pre">...,</span> <span class="pre">dn)</span></tt></span></dt>
+<dd>Random values.</dd>
+</dl>
+<p>random</p>
+<p>This is a convenience function. If you want an interface that
+takes a shape-tuple as the first argument, refer to
+np.random.random_sample .</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([[ 0.14022471,  0.96360618],  #random</span>
+<span class="go">       [ 0.37601032,  0.25528411],  #random</span>
+<span class="go">       [ 0.49313049,  0.94909878]]) #random</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-StatInterface.StatInterface">
+<span id="statinterface-statinterface-module"></span><h2>StatInterface.StatInterface module<a class="headerlink" href="#module-StatInterface.StatInterface" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="statinterface-statistical-analysis-of-input-datasets">
+<h3><a class="reference internal" href="#module-StatInterface" title="StatInterface"><tt class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></tt></a> &#8211; statistical analysis of input datasets<a class="headerlink" href="#statinterface-statistical-analysis-of-input-datasets" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="StatInterface.StatInterface.StatInterface">
+<em class="property">class </em><tt class="descname">StatInterface</tt><big>(</big><em>configFile</em>, <em>autoCalc_gridLimit=None</em>, <em>progressbar=None</em><big>)</big><a class="headerlink" href="#StatInterface.StatInterface.StatInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Main interface to the statistical analysis module of TCRM. This
+module generates cumulative distribution functions and probability
+density functions of the various parameters, largely using kernel
+density estimation methods.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>configFile</strong> (<em>str</em>) &#8211; Path to configuration file.</li>
+<li><strong>autoCalc_gridLimit</strong> &#8211; function to calculate the extent of a domain.</li>
+<li><strong>progressBar</strong> &#8211; a <tt class="xref py py-meth docutils literal"><span class="pre">SimpleProgressBar()</span></tt> object to print
+progress to STDOUT.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="StatInterface.StatInterface.StatInterface.calcCellStatistics">
+<tt class="descname">calcCellStatistics</tt><big>(</big><em>minSample=100</em><big>)</big><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.calcCellStatistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the cell statistics for speed, bearing, pressure, and
+pressure rate of change for all the grid cells in the domain.</p>
+<p>The statistics calculated are mean, variance, and
+autocorrelation.</p>
+<p>The cell statistics are calculated on a grid defined by
+<tt class="xref py py-attr docutils literal"><span class="pre">gridLimit</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">gridSpace</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">gridInc</span></tt> using
+an instance of
+<a class="reference internal" href="#StatInterface.generateStats.GenerateStats" title="StatInterface.generateStats.GenerateStats"><tt class="xref py py-class docutils literal"><span class="pre">StatInterface.generateStats.GenerateStats</span></tt></a>.</p>
+<p>An optional <tt class="xref py py-attr docutils literal"><span class="pre">minSample</span></tt> (default=100) can be given which
+sets the minimum number of observations in a given cell to
+calculate the statistics.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.StatInterface.StatInterface.cdfCellBearing">
+<tt class="descname">cdfCellBearing</tt><big>(</big><big>)</big><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.cdfCellBearing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate CDFs relating to the bearing of cyclones for each
+grid cell in the model domain.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.StatInterface.StatInterface.cdfCellPressure">
+<tt class="descname">cdfCellPressure</tt><big>(</big><big>)</big><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.cdfCellPressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate CDFs relating to the pressures of cyclones 
+in each grid cell in the model domain.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.StatInterface.StatInterface.cdfCellSize">
+<tt class="descname">cdfCellSize</tt><big>(</big><big>)</big><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.cdfCellSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate CDFs relating to the size (radius of maximum wind)
+of cyclones in each grid cell in the model domain.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.StatInterface.StatInterface.cdfCellSpeed">
+<tt class="descname">cdfCellSpeed</tt><big>(</big><big>)</big><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.cdfCellSpeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate CDFs relating to the speed of motion of cyclones for each
+grid cell in the model domain.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.StatInterface.StatInterface.kdeGenesisDate">
+<tt class="descname">kdeGenesisDate</tt><big>(</big><big>)</big><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.kdeGenesisDate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate CDFs relating to the genesis day-of-year of cyclones
+for each grid cell in teh model domain.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.StatInterface.StatInterface.kdeOrigin">
+<tt class="descname">kdeOrigin</tt><big>(</big><big>)</big><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.kdeOrigin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate 2D PDFs relating to the origin of cyclones.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="statinterface-circularkde-module">
+<h2>StatInterface.circularKDE module<a class="headerlink" href="#statinterface-circularkde-module" title="Permalink to this headline">¶</a></h2>
+<p>Title: circularKDE.py
+Author: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
+CreationDate: 2007-07-24
+Description: Create a probability distribution function for radial-type
+data, e.g. bearings. Returns the grid on which the PDF is defined, the
+PDF itself and the corresponding CDF. By default, the grid is specified
+on [0,2*pi)
+Reference:</p>
+<p>SeeAlso:</p>
+<p>Constraints:</p>
+<p>Version: $Rev: 810 $
+ModifiedBy:
+ModifiedDate:
+Modification:</p>
+<p>$Id: circularKDE.py 810 2012-02-21 07:52:50Z nsummons $</p>
+<dl class="function">
+<dt id="StatInterface.circularKDE.circularKDE">
+<tt class="descname">circularKDE</tt><big>(</big><em>parameters</em>, <em>kdeStep=pi/16.</em><big>)</big><a class="headerlink" href="#StatInterface.circularKDE.circularKDE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a probability distribution function for radial-type data,
+e.g. bearings. Returns the grid on which the PDF is defined, the
+PDF itself and the corresponding CDF</p>
+<p>By default, the grid is specified on [0,2*pi)</p>
+<p>$Id: circularKDE.py 810 2012-02-21 07:52:50Z nsummons $</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-StatInterface.generateStats">
+<span id="statinterface-generatestats-module"></span><h2>StatInterface.generateStats module<a class="headerlink" href="#module-StatInterface.generateStats" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-generateStats">
+<span id="generatestats-calculation-of-statistical-values"></span><h3><a class="reference internal" href="#module-generateStats" title="generateStats: Calculates the mean, variance and autocorrelation statistics for all grid cells in the domain, for a given parameter."><tt class="xref py py-mod docutils literal"><span class="pre">generateStats</span></tt></a> &#8211; calculation of statistical values<a class="headerlink" href="#module-generateStats" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="StatInterface.generateStats.GenerateStats">
+<em class="property">class </em><tt class="descname">GenerateStats</tt><big>(</big><em>parameter</em>, <em>lonLat</em>, <em>gridLimit</em>, <em>gridSpace</em>, <em>gridInc</em>, <em>minSample=100</em>, <em>angular=False</em>, <em>missingValue=2147483647</em>, <em>progressbar=None</em>, <em>prgStartValue=0</em>, <em>prgEndValue=1</em>, <em>calculateLater=False</em><big>)</big><a class="headerlink" href="#StatInterface.generateStats.GenerateStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>GenerateStats:</p>
+<p>Description:</p>
+<p>Parameters:
+:type  parameter: <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> or str
+:param parameter: contains the data on which the statistical</p>
+<blockquote>
+<div>values will be based. If <cite>str</cite>, then
+represents the name of a file that contains
+the data</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lonLat</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> or str) &#8211; Contains the longitude and latitude of each of the
+observations in the np.array parameter</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>gridLimit: dictionary containing limits of regional grid</dt>
+<dd>Contains keys &#8216;xMin&#8217;, &#8216;xMax&#8217;, &#8216;yMin&#8217;, &#8216;yMax&#8217;</dd>
+<dt>gridSpace: Dictionary containing spacing of grid</dt>
+<dd>Contains keys &#8216;x&#8217; and &#8216;y&#8217;</dd>
+<dt>gridInc:   Dictionary containing increments for grid to be used when</dt>
+<dd>insufficient observations exist in the cell being
+analysed.
+Contain keys &#8216;x&#8217; and &#8216;y&#8217;</dd>
+<dt>minSample: Integer</dt>
+<dd>The minimum required number of observations in a given
+cell to calculate meaningful statistics.</dd>
+<dt>angular:   Boolean</dt>
+<dd>True = the data in np.array &#8216;parameter&#8217; is angular in nature
+(e.g. bearings)
+False = the data in np.array &#8216;parameter&#8217; is not angular.</dd>
+</dl>
+<p>Members:
+Methods:
+Internal methods:</p>
+<dl class="method">
+<dt id="StatInterface.generateStats.GenerateStats.calculate">
+<tt class="descname">calculate</tt><big>(</big><em>cellNum</em>, <em>onLand</em><big>)</big><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.calculate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the required statistics (mean, variance,
+autocorrelation and regularized anomaly coefficient) for the
+given cell.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.generateStats.GenerateStats.calculateStatistics">
+<tt class="descname">calculateStatistics</tt><big>(</big><big>)</big><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.calculateStatistics" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.generateStats.GenerateStats.extractParameter">
+<tt class="descname">extractParameter</tt><big>(</big><em>cellNum</em>, <em>onLand</em><big>)</big><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.extractParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>extractParameter(cellNum):
+Extracts the cyclone parameter data for the given cell.
+If the population of a cell is insufficient for generating a
+PDF, the bounds of the cell are expanded until the population is
+sufficient.</p>
+<p>Null/missing values are removed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.generateStats.GenerateStats.load">
+<tt class="descname">load</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.generateStats.GenerateStats.plotStatistics">
+<tt class="descname">plotStatistics</tt><big>(</big><em>output_file</em><big>)</big><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.plotStatistics" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="StatInterface.generateStats.GenerateStats.save">
+<tt class="descname">save</tt><big>(</big><em>filename</em>, <em>description=''</em><big>)</big><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="StatInterface.generateStats.acf">
+<tt class="descname">acf</tt><big>(</big><em>p</em>, <em>nlags=1</em><big>)</big><a class="headerlink" href="#StatInterface.generateStats.acf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Autocorrelation coefficient</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>p</strong> (1-d <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; array of values to calculate autocorrelation coefficient</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="StatInterface.generateStats.parameters">
+<em class="property">class </em><tt class="descname">parameters</tt><big>(</big><em>numCells</em><big>)</big><a class="headerlink" href="#StatInterface.generateStats.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Description: Create an object that holds <cite>numpy</cite> arrays of the 
+statistical properties of each grid cell. There are <cite>numpy</cite> 
+arrays for both land and sea cells.</p>
+<p>Parameters:
+None</p>
+<p>Members:
+mu/lmu : array of mean values of parameter for each grid cell
+sig/lsig : array of variance values of parameter for each grid cell
+alpha/lalpha : array of autoregression coefficients of parameter for
+each grid cell
+phi/lphi : array of normalisation values for random variations</p>
+<p>Methods:
+None</p>
+<p>Internal methods:
+None</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-StatInterface">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-StatInterface" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">StatInterface package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#statinterface-generatedistributions-module">StatInterface.GenerateDistributions module</a></li>
+<li><a class="reference internal" href="#statinterface-kdeorigin-module">StatInterface.KDEOrigin module</a></li>
+<li><a class="reference internal" href="#statinterface-kdeparameters-module">StatInterface.KDEParameters module</a></li>
+<li><a class="reference internal" href="#statinterface-samplingorigin-module">StatInterface.SamplingOrigin module</a></li>
+<li><a class="reference internal" href="#statinterface-samplingparameters-module">StatInterface.SamplingParameters module</a></li>
+<li><a class="reference internal" href="#module-StatInterface.StatInterface">StatInterface.StatInterface module</a><ul>
+<li><a class="reference internal" href="#statinterface-statistical-analysis-of-input-datasets"><tt class="docutils literal"><span class="pre">StatInterface</span></tt> &#8211; statistical analysis of input datasets</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#statinterface-circularkde-module">StatInterface.circularKDE module</a></li>
+<li><a class="reference internal" href="#module-StatInterface.generateStats">StatInterface.generateStats module</a><ul>
+<li><a class="reference internal" href="#module-generateStats"><tt class="docutils literal"><span class="pre">generateStats</span></tt> &#8211; calculation of statistical values</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-StatInterface">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/docs/StatInterface.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
+      Last updated on Sep 09, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

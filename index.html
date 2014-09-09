@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The Tropical Cyclone Risk Model &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="#" />
+    <link rel="next" title="Introduction" href="docs/intro.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="docs/intro.html" title="Introduction"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="the-tropical-cyclone-risk-model">
+<h1>The Tropical Cyclone Risk Model<a class="headerlink" href="#the-tropical-cyclone-risk-model" title="Permalink to this headline">¶</a></h1>
+<p>The <strong>Tropical Cyclone Risk Model</strong> is a stochastic tropical cyclone
+model developed by
+<a class="reference external" href="http://www.ga.gov.au">Geoscience Australia</a> for
+estimating the wind hazard from tropical cyclones.</p>
+<p>Due to the relatively short record of quality-controlled, consistent
+tropical cyclone observations, it is difficult to estimate average
+recurrence interval wind speeds ue to tropical cyclones. To overcome
+the restriction of observed data, TCRM uses an autoregressive model to
+generate thousands of years of events that are statistically similar
+to the historical record. To translate these events to estimated wind
+speeds, TCRM applies a parametric windfield and boundary layer model
+to each event. Finally an extreme value distribution is fitted to the
+aggregated windfields at each grid point in the model domain to
+provide ARI wind speed estimates.</p>
+</div>
+<div class="section" id="features">
+<h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><strong>Multi-platform</strong>: TCRM can run on desktop machines through to
+massively-parallel systems (tested on Windows XP/Vista/7, *NIX);</li>
+<li><strong>Multiple options for wind field &amp; boundary layer models</strong>: A
+number of radial profiles and simple boundary layer models have
+been included to allow users to test sensitivity to these options.</li>
+<li><strong>Globally applicable</strong>: Users can set up a domain in any TC basin
+in the globe. The model is not tuned to any one region of the
+globe. Rather, the model is designed to draw sufficient
+information from best-track archives;</li>
+<li><strong>Evaluation metrics</strong>: Offers capability to run objective
+evaluation of track model metrics (e.g. landfall rates);</li>
+<li><strong>Single scenarios</strong>: Users can run a single TC event (e.g. using
+a b-deck format track file) at high temporal resolution and
+extract time series data at chosen locations;</li>
+</ul>
+</div>
+<div class="section" id="contents">
+<h1>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="docs/intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs/setup.html">Setting up the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs/execution.html">Running the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs/evaluation.html">Model evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs/sources.html">Using different TC databases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs/scenarios.html">Scenario simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs/Utilities.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs/glossary.html">Glossary</a></li>
+</ul>
+</div>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="#">
+              <img class="logo" src="_static/GA_0.gif" alt="Logo"/>
+            </a></p>
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">The Tropical Cyclone Risk Model</a></li>
+<li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#contents">Contents</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="docs/intro.html"
+                        title="next chapter">Introduction</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="docs/intro.html" title="Introduction"
+             >next</a> |</li>
+        <li><a href="#">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
+      Last updated on Sep 09, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

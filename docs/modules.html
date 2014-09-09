@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>. &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>.<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tcrm.html">tcrm module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tcrm.html#module-tcrm"><tt class="docutils literal"><span class="pre">tcrm</span></tt> &#8211; the main TCRM interface</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="DataProcess.html">DataProcess package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="DataProcess.html#module-DataProcess.DataProcess">DataProcess.DataProcess module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="DataProcess.html#module-DataProcess"><tt class="docutils literal"><span class="pre">DataProcess</span></tt> &#8211; basic processing of input database</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="DataProcess.html#module-DataProcess.CalcFrequency">DataProcess.CalcFrequency module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="DataProcess.html#module-CalcFrequency"><tt class="docutils literal"><span class="pre">CalcFrequency</span></tt> &#8211; Calculate annual genesis frequency</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="DataProcess.html#module-DataProcess.CalcTrackDomain">DataProcess.CalcTrackDomain module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="DataProcess.html#module-CalcTrackDomain"><tt class="docutils literal"><span class="pre">CalcTrackDomain</span></tt> - calculate track generation domain</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="StatInterface.html">StatInterface package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="StatInterface.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StatInterface.html#statinterface-generatedistributions-module">StatInterface.GenerateDistributions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StatInterface.html#statinterface-kdeorigin-module">StatInterface.KDEOrigin module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StatInterface.html#statinterface-kdeparameters-module">StatInterface.KDEParameters module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StatInterface.html#statinterface-samplingorigin-module">StatInterface.SamplingOrigin module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StatInterface.html#statinterface-samplingparameters-module">StatInterface.SamplingParameters module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StatInterface.html#module-StatInterface.StatInterface">StatInterface.StatInterface module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="StatInterface.html#statinterface-statistical-analysis-of-input-datasets"><tt class="docutils literal"><span class="pre">StatInterface</span></tt> &#8211; statistical analysis of input datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="StatInterface.html#statinterface-circularkde-module">StatInterface.circularKDE module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="StatInterface.html#module-StatInterface.generateStats">StatInterface.generateStats module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="StatInterface.html#module-generateStats"><tt class="docutils literal"><span class="pre">generateStats</span></tt> &#8211; calculation of statistical values</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="StatInterface.html#module-StatInterface">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="TrackGenerator.html">TrackGenerator package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="TrackGenerator.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TrackGenerator.html#module-TrackGenerator.TrackGenerator">TrackGenerator.TrackGenerator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="TrackGenerator.html#trackgenerator-tropical-cyclone-track-generation"><tt class="docutils literal"><span class="pre">TrackGenerator</span></tt> &#8211; Tropical cyclone track generation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="TrackGenerator.html#module-TrackGenerator.trackLandfall">TrackGenerator.trackLandfall module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="TrackGenerator.html#tracklandfall-calculate-central-pressure-for-over-land-tcs"><tt class="docutils literal"><span class="pre">trackLandfall</span></tt> &#8211; calculate central pressure for over-land TCs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="TrackGenerator.html#module-TrackGenerator">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wind.html">wind package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wind.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wind.html#module-wind.vmax">wind.vmax module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="wind.html#module-vmax"><tt class="docutils literal"><span class="pre">vmax</span></tt> &#8211; calculate maximum wind speed from pressure deficit</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="wind.html#module-wind.windmodels">wind.windmodels module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wind.html#module-wind">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="wind.html#wind-wind-field-calculation"><tt class="docutils literal"><span class="pre">wind</span></tt> &#8211; Wind field calculation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="PressureInterface.html">PressureInterface package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PressureInterface.html#module-PressureInterface">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PressureInterface.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PressureInterface.html#module-PressureInterface.pressureProfile">PressureInterface.pressureProfile module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PressureInterface.html#module-pressureProfile"><tt class="docutils literal"><span class="pre">pressureProfile</span></tt> &#8211; radial pressure profile for a TC</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hazard.html">hazard package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hazard.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hazard.html#module-hazard.evd">hazard.evd module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hazard.html#evd-calculate-extreme-value-distributions"><tt class="docutils literal"><span class="pre">evd</span></tt> &#8211; Calculate extreme value distributions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="hazard.html#module-hazard">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="hazard.html#module-hazard"><tt class="docutils literal"><span class="pre">hazard</span></tt> &#8211; Hazard calculation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Evaluate.html">Evaluate package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Evaluate.html#module-Evaluate">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Evaluate.html#module-Evaluate"><tt class="docutils literal"><span class="pre">Evaluate</span></tt> &#8211; run evaluation of track model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Evaluate.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Evaluate.html#module-Evaluate.interpolateTracks">Evaluate.interpolateTracks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Evaluate.html#module-Evaluate.landfallRates">Evaluate.landfallRates module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Evaluate.html#module-LandfallRates"><tt class="docutils literal"><span class="pre">LandfallRates</span></tt> &#8211; calculate landfall rates</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Evaluate.html#module-Evaluate.longitudeCrossing">Evaluate.longitudeCrossing module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Evaluate.html#module-LongitudeCrossing"><tt class="docutils literal"><span class="pre">LongitudeCrossing</span></tt> &#8211; calculate crossing rate of lons/lats</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Evaluate.html#module-Evaluate.pressureDistribution">Evaluate.pressureDistribution module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Evaluate.html#module-PressureDistribution"><tt class="docutils literal"><span class="pre">PressureDistributions</span></tt> &#8211; calculate central pressure distributions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Evaluate.html#module-Evaluate.trackDensity">Evaluate.trackDensity module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Evaluate.html#module-TrackDensity"><tt class="docutils literal"><span class="pre">TrackDensity</span></tt> &#8211; calculate track density</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="PlotInterface.html">PlotInterface package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PlotInterface.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PlotInterface.html#module-PlotInterface.AutoPlotHazard">PlotInterface.AutoPlotHazard module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PlotInterface.html#module-AutoPlotHazard"><tt class="docutils literal"><span class="pre">AutoPlotHazard</span></tt> &#8211; Plot hazard maps and curves</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PlotInterface.html#module-PlotInterface.curves">PlotInterface.curves module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PlotInterface.html#module-curves"><tt class="docutils literal"><span class="pre">curves</span></tt> &#8211; plot curve figures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PlotInterface.html#module-PlotInterface.figures">PlotInterface.figures module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PlotInterface.html#module-PlotInterface.maps">PlotInterface.maps module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PlotInterface.html#module-PlotInterface.plotStats">PlotInterface.plotStats module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PlotInterface.html#module-PlotInterface.plotTimeseries">PlotInterface.plotTimeseries module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PlotInterface.html#module-plotTimeseries"><tt class="docutils literal"><span class="pre">plotTimeseries</span></tt> &#8211; plot timeseries data generated by TCRM</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PlotInterface.html#module-PlotInterface.plotTracks">PlotInterface.plotTracks module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PlotInterface.html#module-plotTracks"><tt class="docutils literal"><span class="pre">plotTracks</span></tt> &#8211; plot TC tracks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PlotInterface.html#module-PlotInterface.plotWindfield">PlotInterface.plotWindfield module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PlotInterface.html#plotwindfield-plot-a-wind-field-map"><tt class="docutils literal"><span class="pre">plotWindfield</span></tt> &#8211; plot a wind field map</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PlotInterface.html#module-PlotInterface.timeseries">PlotInterface.timeseries module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PlotInterface.html#module-PlotInterface">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tcevent.html">tcevent module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tcevent.html#tcevent-run-the-windfield-module-for-a-single-tc-track"><tt class="docutils literal"><span class="pre">tcevent</span></tt> &#8211; run the windfield module for a single TC track</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
+            </a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/docs/modules.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
+      Last updated on Sep 09, 2014.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
