@@ -1,40 +1,17 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`circularKDE` -- probability distributions for circular data
+=================================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: circularKDE
+    :synopsis: Probability distributions for circular data.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-Title: circularKDE.py
-Author: Craig Arthur, craig.arthur@ga.gov.au
-CreationDate: 2007-07-24
-Description: Create a probability distribution function for radial-type
+Create a probability distribution function for radial-type
 data, e.g. bearings. Returns the grid on which the PDF is defined, the
 PDF itself and the corresponding CDF. By default, the grid is specified
-on [0,2*pi)
-Reference:
+on [0,2*pi).
 
-SeeAlso:
-
-Constraints:
-
-Version: $Rev: 810 $
-ModifiedBy:
-ModifiedDate:
-Modification:
-
-$Id: circularKDE.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import numpy
@@ -44,14 +21,19 @@ from math import pi
 import stats
 
 def circularKDE(parameters, kdeStep=pi/16.):
-    """circularKDE(parameters, kdeStep=pi/16.)
+    """
     Create a probability distribution function for radial-type data,
     e.g. bearings. Returns the grid on which the PDF is defined, the
-    PDF itself and the corresponding CDF
+    PDF itself and the corresponding CDF.
 
-    By default, the grid is specified on [0,2*pi)
+    By default, the grid is specified on [0,2\*pi)
 
-    $Id: circularKDE.py 810 2012-02-21 07:52:50Z nsummons $
+    :param parameters: :class:`numpy.ndarray` of parameter values.
+    :param float kdeStep: Increment of the ordinate at which the
+                          distribution will be estimated.
+
+    :returns: :class:`numpy.ndarray` of the grid, the PDF and the CDF.
+    
     """
     bw = KPDF.UPDFOptimumBandwidth(parameters)
     grid = numpy.arange(0, 2*pi+kdeStep, kdeStep)

@@ -1,55 +1,19 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`GenerateDistributions` -- generate distributions of parameters
+====================================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: GenerateDistributions
+    :synopsis: Generate CDFs for parameters for each grid cell in the
+               model domain.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
 
-Title: GenerateDistributions.py - generate the distributions of
-       parameters.
+Generate the cumulative distribution functions (CDF's) for a given
+parameter for each cell in the lat-lon grid (defined by gridLimit and
+gridSpace). This uses the method of kernel density estimators to
+determine the distributions.
 
-Author: Craig Arthur, craig.arthur@ga.gov.au
-CreationDate: 2006-12-07
-Description: Generate the cumulative distribution functions (CDF's) for
-             a given parameter for each cell in the lat-lon grid
-             (defined by gridLimit and gridSpace).  This uses the method
-             of kernel density estimators to determine the
-             distributions.
-
-Version: $Rev: 810 $
-
-Version: $Rev: 810 $
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 2006-12-14
-Modification: Added _expandCell and _checkGridLimits to permit
-              increasing the population of cells that initially have
-              insufficient observations to generate a quality PDF.
-
-ModifiedBy: Nariman Habili, nariman.habili@ga.gov.au
-ModifiedDate: 2007-03-22
-Modification: lonLat, parameterList, parameterName are now pass passed
-              in at allDistributions.
-
-Version: $Rev: 810 $
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 10/04/08 11:42:AM
-Modification: Changed logging method
-
-SeeAlso: (related programs)
-Constraints:
-
-$Id: GenerateDistributions.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os
@@ -67,70 +31,46 @@ import numpy as np
 
 class GenerateDistributions:
     """
-    Description: Generate the cumulative distribution functions (CDF's)
+    Generate the cumulative distribution functions (CDF's)
     for a given parameter for each cell in the lat-lon grid (defined by
     gridLimit and gridSpace).  This uses the method of kernel density
-    estimators to determine the distributions.
+    estimators to determine the distributions. The methods allow for
+    extraction of paramter values from the parameter files created in
+    :class:`DataProcess.DataProcess`, and calculation (and saving)
+    distributions.
 
-    Parameters:
-    files : dictionary
-        Contains input and output files read from config files
-    lonLat : string or 2d-array
-        If string, a filename containing the lon/lat of all cyclone
-        observations
-        If array, contains lon/lat pairs of all cyclone observations
-    parameterList: string or array
-        If string, a filename containing the values of a parameter for
-        all cyclone observations.
-        If array, contains all values of a parameter for all cyclone
-        observations
-    paramterName : string
-        Name of the parameter being examined
-    gridLimit : dictionary
-        lon/lat bounds of the grid over which the parameter
-        distributions will be determined.
-    gridSpace : dictionary
-        lon/lat grid spacing (in degrees)
-    kdeType : string
-        Name of the kernel density estimator to use
+    :param str configFile: Path to configuration file.
+    :param dict gridLimit: The bounds of the model domain. The
+                           :class:`dict` should contain the keys
+                           :attr:`xMin`, :attr:`xMax`, :attr:`yMin`
+                           and :attr:`yMax`. The *x* variable bounds
+                           the longitude and the *y* variable 
+                           bounds the latitude.
+    :param dict gridSpace: The default grid cell size. The :class:`dict`
+                           should contain keys of :attr:`x` and
+                           :attr:`y`. The *x* variable defines the
+                           longitudinal grid size, and the *y*
+                           variable defines the latitudinal size.
+    :param dict gridInc: The increment in grid size, for those cells
+                         that do not contain sufficient observations
+                         for generating distributions. The :class:`dict`
+                         should contain the keys :attr:`x` and
+                         :attr:`y`. The *x* variable defines the
+                         longitudinal grid increment, and the *y*
+                         variable defines the latitudinal increment.
+    :param str kdeType: Name of the (univariate) kernel estimator to use
+                        when generating the distribution. Must be one of
+                        ``epanechnikov``, ``gaussian``, ``biweight`` or
+                        ``triangular``.
+    :param int minSamplesCell: Minimum number of valid observations
+                               required to generate distributions.
+                               If insufficient observations are found in
+                               a grid cell, then it is incrementally
+                               expanded until ``minSamplesCell`` is
+                               reached.
+    :param missingValue: Missing values have this value (default
+                         :attr:`sys.maxint`).
 
-    Members:
-    files : dictionary
-        Contains input and output files read from config files
-    lonLat : string or 2d-array
-        If string, a filename containing the lon/lat of all cyclone
-        observations
-        If array, contains lon/lat pairs of all cyclone observations
-    parameterList: string or array
-        If string, a filename containing the values of a parameter for
-        all cyclone observations.
-        If array, contains all values of a parameter for all cyclone
-        observations
-    paramterName : string
-        Name of the parameter being examined
-    gridLimit : dictionary
-        lon/lat bounds of the grid over which the parameter
-        distributions will be determined.
-    gridSpace : dictionary
-        lon/lat grid spacing (in degrees)
-    kdeType : string
-        Name of the kernel density estimator to use
-
-    Methods:
-    allDistributions : calculate and save the CDF for each cell for a
-                       given parameter.
-    extractParameter : Identify the data in the full dataset
-                       corresponding to the cell under investigation and
-                       return the values of the given parameter, with
-                       null values removed.
-
-    Internal Methods:
-    _expandCell : Obtain the indices of observations from adjacent
-                  cells.  This is called when there are insufficient
-                  observations in a cell to generate a PDF.
-    _checkCellLimits : Check the bounds of the cell are within the
-                       limits of the region under investigation - if not
-                       then set to the limits
     """
 
     def __init__(self, configFile, gridLimit, gridSpace, gridInc, kdeType,
@@ -156,7 +96,42 @@ class GenerateDistributions:
                          plotParam=False):
         """
         Calculate a distribution for each individual cell and store in a
-        file or return
+        file or return the distribution.
+
+        :param lonLat: The longitude/latitude of all observations in
+                       the model domain. If a string is given, then
+                       it is the path to a file containing the
+                       longitude/latitude information. If an array
+                       is given, then it should be a 2-d array
+                       containing the data values. 
+        :type  lonLat: str or :class:`numpy.ndarray`
+        :param parameterList: Parameter values. If a string is given,
+                              then it is the path to a file containing
+                              the values. If an array is passed, then it
+                              should hold the parameter values. 
+        :type  parameterList: str or :class:`numpy.ndarray`
+        :param str parameterName: Optional. If given, then the
+                                  cell distributions will be saved to a
+                                  file with this name. If absent,
+                                  the distribution values are returned.
+        :param kdeStep: Increment of the ordinate values at which
+                        the distributions will be calculated.
+        :type  kdeStep: float, default=`0.1`
+        :param angular: Does the data represent an angular measure
+                        (e.g. bearing).
+        :type  angular: boolean, default=``False``
+        :param periodic: Does the data represent some form of periodic
+                         data (e.g. day of year). If given, it should
+                         be the period of the data (e.g. for annual data,
+                         ``periodic=365``).
+        :type  periodic: boolean or float, default=``False``
+        :param boolean plotParam: Plot the parameters. Default is ``False``.
+
+        :returns: If no ``parameterName`` is given returns ``None``
+                  (data are saved to file), otherwise
+                  :class:`numpy.ndarray`.
+
+        
         """
         if parameterName:
             self.logger.debug("Running allDistributions for %s"%parameterName)
@@ -244,13 +219,19 @@ class GenerateDistributions:
             ncdf.close()
 
     def extractParameter(self, cellNum):
-        """extractParameter(cellNum):
+        """
         Extracts the cyclone parameter data for the given cell.
         If the population of a cell is insufficient for generating a
         PDF, the bounds of the cell are expanded until the population is
         sufficient.
 
         Null/missing values are removed.
+
+        :param int cellNum: The cell number to process.
+        :returns: None. The :attr:`parameter` attribute is updated.
+        :raises InvalidArguments: if the cell number is not valid
+                                  (i.e. if it is outside the possible
+                                  range of cell numbers).
         """
         if not stats.validCellNum(cellNum, self.gridLimit, self.gridSpace):
             self.logger.critical("Invalid input on cellNum: cell number %i is out of range"%cellNum)

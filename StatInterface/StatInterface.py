@@ -4,10 +4,11 @@
 
 .. module:: StatInterface
     :synopsis: Generate cumulative distribution functions and probability
-    density functions of the various parameters, largely using kernel
-    density estimation methods.
+               density functions of the various parameters,
+               largely using kernel density estimation methods.
 
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
+
 
 """
 

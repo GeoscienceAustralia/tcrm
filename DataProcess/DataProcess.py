@@ -3,11 +3,14 @@
 ========================================================
 
 .. module:: DataProcess
-    :synopsis: Processes the database of historical TCs into suitably formatted
-               text files.
+    :synopsis: Processes the database of historical TCs into
+               suitably formatted text files.
 
-Processes the database of historical TCs into suitably formatted
-text files.
+Processes the database of historical TCs into simply formatted
+text files. Extracts locations, including genesis location, and
+calculates speed, bearing, genesis day (as the day of the year)
+annual frequency (of the complete database), pressure rates of
+change, speed rates of change and bearing rates of change.
 
 
 """
