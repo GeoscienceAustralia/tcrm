@@ -12,8 +12,9 @@ from matplotlib import pyplot
 from matplotlib.figure import Figure
 from mpl_toolkits.basemap import Basemap
 
-
+import Utilities.colours 
 from Utilities.smooth import smooth
+
 
 class MapFigure(Figure, Basemap):
 

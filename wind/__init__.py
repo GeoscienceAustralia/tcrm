@@ -35,13 +35,13 @@ import math
 import os
 import sys
 import windmodels
-from datetime import datetime 
+from datetime import datetime
 from os.path import join as pjoin, split as psplit, splitext as psplitext
 from collections import defaultdict
 
 from Utilities.files import flModDate, flProgramVersion
 from Utilities.config import ConfigParser
-from Utilities.metutils import convert, coriolis
+from Utilities.metutils import convert
 from Utilities.maputils import bearing2theta, makeGrid
 from Utilities.parallel import attemptParallel
 
@@ -175,7 +175,7 @@ class WindfieldAroundTrack(object):
     def __init__(self, track, profileType='powell', windFieldType='kepert',
                  beta=1.5, beta1=1.5, beta2=1.4, thetaMax=70.0,
                  margin=2.0, resolution=0.05, gustFactor=1.23,
-                 gridLimit=None):
+                 gridLimit=None, domain='bounded'):
         self.track = track
         self.profileType = profileType
         self.windFieldType = windFieldType
@@ -187,6 +187,7 @@ class WindfieldAroundTrack(object):
         self.resolution = resolution
         self.gustFactor = gustFactor
         self.gridLimit = gridLimit
+        self.domain = domain
 
     def polarGridAroundEye(self, i):
         """
@@ -196,9 +197,18 @@ class WindfieldAroundTrack(object):
         :type  i: int
         :param i: the time.
         """
-        R, theta = makeGrid(self.track.Longitude[i],
-                            self.track.Latitude[i],
-                            self.margin, self.resolution)
+        if self.domain=='full':
+            R, theta = makeGrid(self.track.Longitude[i],
+                                self.track.Latitude[i],
+                                self.margin, self.resolution,
+                                minLon=self.gridLimit['xMin'],
+                                maxLon=self.gridLimit['xMax'],
+                                minLat=self.gridLimit['yMin'],
+                                maxLat=self.gridLimit['yMax'])
+        else:
+            R, theta = makeGrid(self.track.Longitude[i],
+                                self.track.Latitude[i],
+                                self.margin, self.resolution)
         return R, theta
 
     def pressureProfile(self, i, R):
@@ -255,7 +265,6 @@ class WindfieldAroundTrack(object):
         R, theta = self.polarGridAroundEye(i)
 
         P = self.pressureProfile(i, R)
-        f = coriolis(self.track.Latitude[i])
 
         #FIXME: temporary way to do this
         cls = windmodels.field(self.windFieldType)
@@ -328,15 +337,19 @@ class WindfieldAroundTrack(object):
                                 (self.track.Longitude <= xMax) &
                                 (yMin <= self.track.Latitude) &
                                 (self.track.Latitude <= yMax))[0]
-        
+
         for i in timesInRegion:
 
             # Map the local grid to the regional grid
+            jmin, jmax = 0, int((maxLat - minLat + 2. * gridMargin) / gridStep) + 1
+            imin, imax = 0, int((maxLon - minLon + 2. * gridMargin) / gridStep) + 1
+            
+            if self.domain == 'bounded':
 
-            jmin = int((latCDegree[i] - minLat - gridMargin) / gridStep)
-            jmax = int((latCDegree[i] - minLat + gridMargin) / gridStep) + 1
-            imin = int((lonCDegree[i] - minLon - gridMargin) / gridStep)
-            imax = int((lonCDegree[i] - minLon + gridMargin) / gridStep) + 1
+                jmin = int((latCDegree[i] - minLat - gridMargin) / gridStep)
+                jmax = int((latCDegree[i] - minLat + gridMargin) / gridStep) + 1
+                imin = int((lonCDegree[i] - minLon - gridMargin) / gridStep)
+                imax = int((lonCDegree[i] - minLon + gridMargin) / gridStep) + 1
 
             # Calculate the local wind speeds and pressure at time i
 
@@ -351,34 +364,11 @@ class WindfieldAroundTrack(object):
             localBearing = ((np.arctan2(-Ux, -Vy)) * 180. / np.pi)
 
             # Handover this time step to a callback if required
-            
-        for i in timesInRegion:
 
-            # Map the local grid to the regional grid
-
-            jmin = int((latCDegree[i] - minLat - gridMargin) / gridStep)
-            jmax = int((latCDegree[i] - minLat + gridMargin) / gridStep) + 1
-            imin = int((lonCDegree[i] - minLon - gridMargin) / gridStep)
-            imax = int((lonCDegree[i] - minLon + gridMargin) / gridStep) + 1
-
-            # Calculate the local wind speeds and pressure at time i
-
-            Ux, Vy, P = self.localWindField(i)
-
-            # Calculate the local wind gust and bearing
-
-            Ux *= self.gustFactor
-            Vy *= self.gustFactor
-
-            localGust = np.sqrt(Ux ** 2 + Vy ** 2)
-            localBearing = ((np.arctan2(-Ux, -Vy)) * 180. / np.pi)
-
-            # Handover this time step to a callback if required
-            
             if timeStepCallback is not None:
-                timeStepCallback(self.track.Datetime[i], 
+                timeStepCallback(self.track.Datetime[i],
                                  localGust, Ux, Vy, P,
-                                 lonGrid[imin:imax] / 100., 
+                                 lonGrid[imin:imax] / 100.,
                                  latGrid[jmin:jmax] / 100.)
 
             # Retain when there is a new maximum gust
@@ -440,9 +430,11 @@ class WindfieldGenerator(object):
 
     """
 
-    def __init__(self, config, margin=2.0, resolution=0.05, profileType='powell',
-                 windFieldType='kepert', beta=1.5, beta1=1.5, beta2=1.4,
-                 thetaMax=70.0, gridLimit=None):
+    def __init__(self, config, margin=2.0, resolution=0.05,
+                 profileType='powell', windFieldType='kepert',
+                 beta=1.5, beta1=1.5, beta2=1.4,
+                 thetaMax=70.0, gridLimit=None, domain='bounded'):
+
         self.config = config
         self.margin = margin
         self.resolution = resolution
@@ -453,10 +445,10 @@ class WindfieldGenerator(object):
         self.beta2 = beta2
         self.thetaMax = thetaMax
         self.gridLimit = gridLimit
+        self.domain = domain
 
     def setGridLimit(self, track):
-        
-        track_limits = {'xMin':9999,'xMax':-9999,'yMin':9999,'yMax':-9999}
+        track_limits = {'xMin':9999, 'xMax':-9999, 'yMin':9999, 'yMax':-9999}
         track_limits['xMin'] = min(track_limits['xMin'], track.Longitude.min())
         track_limits['xMax'] = max(track_limits['xMax'], track.Longitude.max())
         track_limits['yMin'] = min(track_limits['yMin'], track.Latitude.min())
@@ -466,8 +458,8 @@ class WindfieldGenerator(object):
         self.gridLimit['xMax'] = np.ceil(track_limits['xMax'])
         self.gridLimit['yMin'] = np.floor(track_limits['yMin'])
         self.gridLimit['yMax'] = np.ceil(track_limits['yMax'])
-        
-        
+
+
     def calculateExtremesFromTrack(self, track, callback=None):
         """
         Calculate the wind extremes given a single tropical cyclone track.
@@ -475,12 +467,15 @@ class WindfieldGenerator(object):
 
         :type  track: :class:`Track`
         :param track: the tropical cyclone track.
-        
+
         :type  callback: function
-        :param callback: optional function to be called at each timestep to 
+        :param callback: optional function to be called at each timestep to
                          extract point values for specified locations.
-                         
+
         """
+        if self.gridLimit is None:
+            self.setGridLimit(track)
+
         wt = WindfieldAroundTrack(track,
                                   profileType=self.profileType,
                                   windFieldType=self.windFieldType,
@@ -489,13 +484,12 @@ class WindfieldGenerator(object):
                                   beta2=self.beta2,
                                   thetaMax=self.thetaMax,
                                   margin=self.margin,
-                                  resolution=self.resolution)
-        
-        if self.gridLimit is None:
-            self.setGridLimit(track)
-            
+                                  resolution=self.resolution,
+                                  gridLimit=self.gridLimit,
+                                  domain=self.domain)
+
         return track, wt.regionalExtremes(self.gridLimit, callback)
-            
+
 
     def calculateExtremesFromTrackfile(self, trackfile, callback=None):
         """
@@ -507,11 +501,11 @@ class WindfieldGenerator(object):
 
         :type  trackfile: str
         :param trackfile: the file name of the trackfile.
-        
+
         :type  callback: function
-        :param callback: optional function to be called at each timestep to 
+        :param callback: optional function to be called at each timestep to
                          extract point values for specified locations.
-                         
+
         """
         trackiter = loadTracks(trackfile)
         f = self.calculateExtremesFromTrack
@@ -540,9 +534,9 @@ class WindfieldGenerator(object):
 
         :type  dumpfile: str
         :param dumpfile: the file name where to save the wind extremes.
-        
+
         :type  callback: function
-        :param callback: optional function to be called at each timestep to 
+        :param callback: optional function to be called at each timestep to
                          extract point values for specified locations.
         """
         result = self.calculateExtremesFromTrackfile(trackfile, callback)
@@ -558,7 +552,7 @@ class WindfieldGenerator(object):
                     'long_name': 'Latitude',
                     'units': 'degrees_north',
                     'axis': 'Y'
-                    
+
                 }
             },
             1: {
@@ -655,9 +649,9 @@ class WindfieldGenerator(object):
 
         :type  pressurefile: str
         :param pressurefile: the file name of the pressure image file to write.
-        
+
         :type  callback: function
-        :param callback: optional function to be called at each timestep to 
+        :param callback: optional function to be called at each timestep to
                          extract point values for specified locations.
         """
         result = self.calculateExtremesFromTrackfile(trackfile, callback)
@@ -676,7 +670,7 @@ class WindfieldGenerator(object):
         """
         Dump the maximum wind speeds (gusts) observed over a region to
         netcdf files. One file is created for every track file.
-        
+
         :type  trackiter: list of :class:`Track` objects
         :param trackiter: a list of :class:`Track` objects.
 
@@ -690,15 +684,15 @@ class WindfieldGenerator(object):
         :type  progressCallback: function
         :param progressCallback: optional function to be called after a file is
                                  saved. This can be used to track progress.
-                                 
+
         :type  timeStepCallBack: function
-        :param timeStepCallback: optional function to be called at each 
-                                 timestep to extract point values for 
+        :param timeStepCallback: optional function to be called at each
+                                 timestep to extract point values for
                                  specified locations.
         """
         if timeStepCallback:
             results = itertools.imap(self.calculateExtremesFromTrack, trackiter,
-                                     itertools.repeat(timeStepCallback)) 
+                                     itertools.repeat(timeStepCallback))
         else:
             results = itertools.imap(self.calculateExtremesFromTrack, trackiter)
 
@@ -722,9 +716,9 @@ class WindfieldGenerator(object):
             if len(done[track.trackfile]) >= done[track.trackfile][0][1]:
                 path, basename = psplit(track.trackfile)
                 base, ext = psplitext(basename)
-                dumpfile = pjoin(windfieldPath, 
+                dumpfile = pjoin(windfieldPath,
                                  base.replace('tracks', 'gust') + '.nc')
-                                 
+
                 #dumpfile = pjoin(windfieldPath, fnFormat % (pp.rank(), i))
                 self._saveGustToFile(track.trackfile,
                                      (lat, lon, gust, Vx, Vy, P),
@@ -755,7 +749,7 @@ class WindfieldGenerator(object):
             'radial_profile': self.profileType,
             'boundary_layer': self.windFieldType,
             'beta': self.beta}
-        
+
         # Add configuration settings to global attributes:
         for section in self.config.sections():
             for option in self.config.options(section):
@@ -885,10 +879,10 @@ class WindfieldGenerator(object):
         :type  progressCallback: function
         :param progressCallback: optional function to be called after a file is
                                  saved. This can be used to track progress.
-                                 
+
         :type  timeStepCallBack: function
-        :param timeStepCallback: optional function to be called at each 
-                                 timestep to extract point values for 
+        :param timeStepCallback: optional function to be called at each
+                                 timestep to extract point values for
                                  specified locations.
 
         """
@@ -911,7 +905,7 @@ def readTrackData(trackfile):
         TRACKFILE_CNVT -- The column converters
 
     :param str trackfile: the track data filename.
-    
+
     :return: track data
     :rtype: :class:`numpy.ndarray`
 
@@ -939,7 +933,7 @@ def readMultipleTrackData(trackfile):
     `readTrackData` to read the data from the file.
 
     :param str trackfile: the track data filename.
-    
+
     :return: a collection of :class:`Track` objects
 
     """
@@ -988,9 +982,9 @@ def loadTracks(trackfile):
     file.
 
     :param str trackfile: the track data filename.
-    
+
     :return: list of :class:`Track` objects.
-    
+
     """
 
     tracks = []
@@ -1038,10 +1032,10 @@ def balanced(iterable):
 def run(configFile, callback=None):
     """
     Run the wind field calculations.
-    
+
     :param str configFile: path to a configuration file.
     :param func callback: optional callback function to track progress.
-    
+
     """
 
     log.info('Loading wind field calculation settings')
@@ -1060,15 +1054,16 @@ def run(configFile, callback=None):
     thetaMax = config.getfloat('WindfieldInterface', 'thetaMax')
     margin = config.getfloat('WindfieldInterface', 'Margin')
     resolution = config.getfloat('WindfieldInterface', 'Resolution')
-    
+    domain = config.get('WindfieldInterface', 'Domain')
+
     windfieldPath = pjoin(outputPath, 'windfield')
     trackPath = pjoin(outputPath, 'tracks')
     windfieldFormat = 'gust-%i-%04d.nc'
 
     gridLimit = None
-    if config.has_section('Region'):
+    if config.has_option('Region','gridLimit'):
         gridLimit = config.geteval('Region', 'gridLimit')
-    
+
     if config.has_option('WindfieldInterface', 'gridLimit'):
         gridLimit = config.geteval('WindfieldInterface', 'gridLimit')
 
@@ -1079,20 +1074,20 @@ def run(configFile, callback=None):
                 log.debug("Timeseries data will be extracted")
                 ts = Timeseries(configFile)
                 timestepCallback = ts.extract
-                
+
     else:
         def timestepCallback(*args):
             """Dummy timestepCallback function"""
             pass
 
     thetaMax = math.radians(thetaMax)
-    
+
     # Attempt to start the track generator in parallel
     global pp
     pp = attemptParallel()
-    
+
     log.info('Running windfield generator')
-    
+
     wfg = WindfieldGenerator(config=config,
                              margin=margin,
                              resolution=resolution,
@@ -1102,7 +1097,8 @@ def run(configFile, callback=None):
                              beta1=beta1,
                              beta2=beta2,
                              thetaMax=thetaMax,
-                             gridLimit=gridLimit)
+                             gridLimit=gridLimit,
+                             domain=domain)
 
     msg = 'Dumping gusts to %s' % windfieldPath
     log.info(msg)
@@ -1114,6 +1110,7 @@ def run(configFile, callback=None):
     nfiles = len(trackfiles)
 
     def progressCallback(i):
+        """Define the callback function"""
         callback(i, nfiles)
 
     msg = 'Processing %d track files in %s' % (nfiles, trackPath)

@@ -86,6 +86,7 @@ PARSERS = {
     'Logging_loglevel': str,
     'Logging_progressbar': parseBool,
     'Logging_verbose': parseBool,
+    'Logging_datestamp':parseBool,
     'Output_path': str,
     'Process_datfile': str,
     'Process_excludepastprocessed': parseBool,
@@ -120,6 +121,7 @@ PARSERS = {
     'WindfieldInterface_margin': float,
     'WindfieldInterface_profiletype': str,
     'WindfieldInterface_resolution': float,
+    'WindfieldInterface_domain': str,
     'WindfieldInterface_source': str,
     'WindfieldInterface_thetamax': float,
     'WindfieldInterface_trackfile': str,
@@ -173,6 +175,7 @@ thetaMax=70.0
 Margin=2
 Resolution=0.05
 PlotOutput=False
+Domain=bounded
 
 [Hazard]
 Years=2,5,10,20,25,50,100,200,250,500,1000
@@ -199,6 +202,7 @@ ProgressBar=False
 LogFile=main.log
 LogLevel=INFO
 Verbose=False
+Datestamp=False
 
 [Source]
 FieldDelimiter=,

@@ -18,40 +18,36 @@ Copyright (c) 2014 Commonwealth of Australia (Geoscience Australia)
 """
 
 import os
-import sys
 import time
 import logging as log
 import argparse
 import traceback
 
 from functools import wraps
-from os.path import join as pjoin, realpath, isdir, dirname, abspath
+from os.path import join as pjoin, realpath, isdir, dirname
 
 from Utilities import pathLocator
 from Utilities.config import ConfigParser
 from Utilities.files import flStartLog
 from Utilities.progressbar import SimpleProgressBar as ProgressBar
 from Evaluate import interpolateTracks
+from PlotInterface.maps import saveWindfieldMap
 
 def timer(f):
     """
-    Basic timing function for entire process.
-
-    :param func f: Function to be timed.
-    :returns: the result of calling :func:`f`
-    
+    Basic timing functions for entire process
     """
     @wraps(f)
     def wrap(*args, **kwargs):
         t1 = time.time()
         res = f(*args, **kwargs)
-        
+
         tottime = time.time() - t1
         msg = "%02d:%02d:%02d " % \
           reduce(lambda ll, b : divmod(ll[0], b) + ll[1:],
                         [(tottime,), 60, 60])
 
-        log.info("Time for %s: %s"%(f.func_name, msg) )
+        log.info("Time for {0}: {1}".format(f.func_name, msg) )
         return res
 
     return wrap
@@ -59,12 +55,12 @@ def timer(f):
 def doOutputDirectoryCreation(configFile):
     """
     Create all the necessary output folders.
-    
+
     :param str configFile: Name of configuration file.
     :raises OSError: If the directory tree cannot be created.
-    
+
     """
-    
+
     config = ConfigParser()
     config.read(configFile)
 
@@ -89,10 +85,7 @@ def doOutputDirectoryCreation(configFile):
 
 def doTimeseriesPlotting(configFile):
     """
-    Run functions to plot time series output.
-
-    :param str configFile: Path to configuration file.
-    
+    Run functions to plot time series output
     """
     config = ConfigParser()
     config.read(configFile)
@@ -100,32 +93,69 @@ def doTimeseriesPlotting(configFile):
     outputPath = config.get('Output', 'Path')
     timeseriesPath = pjoin(outputPath, 'process', 'timeseries')
     plotPath = pjoin(outputPath, 'plots', 'timeseries')
-    log.info("Plotting time series data to %s" % plotPath)
+    log.info("Plotting time series data to {0}".format(plotPath))
     from PlotInterface.plotTimeseries import plotTimeseries
     plotTimeseries(timeseriesPath, plotPath)
+
+def doWindfieldPlotting(configFile):
+    """
+    Plot the wind field on a map.
+
+    :param str configFile: Path to the configuration file.
     
+    :Note: the file name is assumed to be 'gust.interp.nc'
+
+    """
+    from netCDF4 import Dataset
+    import numpy as np
+    config = ConfigParser()
+    config.read(configFile)
+
+    outputPath = config.get('Output', 'Path')
+    windfieldPath = pjoin(outputPath, 'windfield')
+
+    # Note the assumption about the file name!
+    outputWindFile = pjoin(windfieldPath, 'gust.interp.nc')
+    plotPath = pjoin(outputPath, 'plots', 'maxwind.png')
+    
+    f = Dataset(outputWindFile, 'r')
+
+    xdata = f.variables['lon'][:]
+    ydata = f.variables['lat'][:]
+
+    vdata = f.variables['vmax'][:]
+
+    [xgrid, ygrid] = np.meshgrid(xdata, ydata)
+    map_kwargs = dict(llcrnrlon=xdata.min(),
+                      llcrnrlat=ydata.min(),
+                      urcrnrlon=xdata.max(),
+                      urcrnrlat=ydata.max(),
+                      projection='merc',
+                      resolution='i')
+    title = "Maximum wind speed"
+    cbarlabel = "Wind speed ({0})".format(f.variables['vmax'].units)
+    levels = np.arange(30, 101., 5.)
+    saveWindfieldMap(vdata, xgrid, ygrid, title, levels, 
+                     cbarlabel, map_kwargs, plotPath)
+
 @timer
 def main(configFile):
-    """
-    Main process to execute :mod:`wind.windmodels`
 
-    :param str configFile: Path to configuration file.
-
-    """
-    
     config = ConfigParser()
     config.read(configFile)
     doOutputDirectoryCreation(configFile)
-    
-    trackFile = config.get('DataProcess', 'InputFile') 
+
+    trackFile = config.get('DataProcess', 'InputFile')
     source = config.get('DataProcess', 'Source')
     delta = 1/12.
     outputPath = pjoin(config.get('Output','Path'), 'tracks')
     outputTrackFile = pjoin(outputPath, "tracks.interp.csv")
 
     # This will save interpolated track data in TCRM format:
-    interpTrack = interpolateTracks.parseTracks(configFile, trackFile, source, delta, 
+    interpTrack = interpolateTracks.parseTracks(configFile, trackFile,
+                                                source, delta,
                                                 outputTrackFile)
+
     showProgressBar = config.get('Logging', 'ProgressBar')
 
     pbar = ProgressBar('Calculating wind fields: ', showProgressBar)
@@ -137,21 +167,14 @@ def main(configFile):
     wind.run(configFile, status)
 
     # FIXME: Add wind field and timeseries plotting
-    
+    doWindfieldPlotting(configFile)
     doTimeseriesPlotting(configFile)
-    
-def startup():
-    """
-    Start the model simulation. Parses command line arguments and reads the
-    configuration file details, then calls :func:`main` to run the wind field
-    generator.
 
-    """
-    
+def startup():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config_file', 
+    parser.add_argument('-c', '--config_file',
                         help='Path to configuration file')
-    parser.add_argument('-v', '--verbose', help='Verbose output', 
+    parser.add_argument('-v', '--verbose', help='Verbose output',
                         action='store_true')
     parser.add_argument('-d', '--debug', help='Allow pdb traces',
                         action='store_true')
@@ -176,6 +199,7 @@ def startup():
 
     logLevel = config.get('Logging', 'LogLevel')
     verbose = config.getboolean('Logging', 'Verbose')
+    datestamp = config.getboolean('Logging', 'Datestamp')
     debug = False
 
     if args.verbose:
@@ -184,7 +208,7 @@ def startup():
     if args.debug:
         debug = True
 
-    flStartLog(logfile, logLevel, verbose)
+    flStartLog(logfile, logLevel, verbose, datestamp)
     # Switch off minor warning messages
     import warnings
     warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -192,9 +216,9 @@ def startup():
     warnings.filterwarnings("ignore", category=UserWarning, module="numpy")
     warnings.filterwarnings("ignore", category=UserWarning,
                             module="matplotlib")
-    
+
     warnings.filterwarnings("ignore", category=RuntimeWarning)
-    
+
     if debug:
         main(configFile)
     else:
