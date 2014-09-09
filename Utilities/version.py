@@ -14,6 +14,12 @@ import os
 import sys
 import subprocess
 
+# Monkey patch check_output into subprocess for python 2.6.X
+if 'check_output' not in dir(subprocess):
+    import py26compat
+    subprocess.check_output = py26compat.check_output
+
+
 UPDATE_MSG = """
 ----------------------------------------------------------
 Your TCRM version is not up-to-date. The last 3 things that

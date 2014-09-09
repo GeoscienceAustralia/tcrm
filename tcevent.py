@@ -16,10 +16,13 @@ Tropical Cyclone Risk Model
 Copyright (c) 2014 Commonwealth of Australia (Geoscience Australia)
 
 """
+import logging as log
+if 'NullHandler' not in dir(log):
+    from Utilities import py26compat
+    log.NullHandler = py26compat.NullHandler
 
 import os
 import time
-import logging as log
 import argparse
 import traceback
 
@@ -29,9 +32,12 @@ from os.path import join as pjoin, realpath, isdir, dirname
 from Utilities import pathLocator
 from Utilities.config import ConfigParser
 from Utilities.files import flStartLog
+from Utilities.version import version
 from Utilities.progressbar import SimpleProgressBar as ProgressBar
 from Evaluate import interpolateTracks
 from PlotInterface.maps import saveWindfieldMap
+
+__version__ = version()
 
 def timer(f):
     """

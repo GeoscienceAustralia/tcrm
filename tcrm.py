@@ -10,17 +10,11 @@
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
 """
-# These packages need patching to run on python 2.6
+# This package needs patching to run on python 2.6
 import logging as log
-import subprocess
-
-# Monkey patch check_output into subprocess for python 2.6.X
-if 'check_output' not in dir(subprocess):
-    import py26compat
-    subprocess.check_output = py26compat.check_output
 
 if 'NullHandler' not in dir(log):
-    import py26compat
+    from Utilities import py26compat
     log.NullHandler = py26compat.NullHandler
 
 import Utilities.datasets as datasets
@@ -36,6 +30,7 @@ from Utilities.progressbar import SimpleProgressBar as ProgressBar
 from Utilities.files import flStartLog, flLoadFile, flModDate
 from Utilities.config import ConfigParser
 from Utilities.parallel import attemptParallel, disableOnWorkers
+from Utilities.version import version, status
 from Utilities import pathLocator
 
 
@@ -43,20 +38,6 @@ from Utilities import pathLocator
 if pathLocator.is_frozen():
     os.environ['BASEMAPDATA'] = pjoin(
         pathLocator.getRootDirectory(), 'mpl-data', 'data')
-
-UPDATE_MSG = """
-----------------------------------------------------------
-Your TCRM version is not up-to-date. The last 3 things that
-have been fixed are:
-
-%s
-
-To update your version of TCRM, try running:
-
-git pull
-
-----------------------------------------------------------
-"""
 
 
 def timer(f):
@@ -79,59 +60,6 @@ def timer(f):
 
     return wrap
 
-def git(command):
-    """
-    Run a git command and return the output.
-    
-    """
-
-    with open(os.devnull) as devnull:
-        return subprocess.check_output('git ' + command,
-                                       shell=True,
-                                       stderr=devnull)
-
-def status():
-    """
-    Check the status of the TCRM code. If the version of code being
-    executed is behind the version available on the repository,
-    a message will be printed indicating the latest updates.
-    
-    """
-    msg = ''
-
-    try:
-        git('fetch')  # update status of remote
-        behind = int(git('rev-list HEAD...origin/master --count'))
-        recent = git('log --pretty=format:" - %s (%ad)" --date=relative ' +
-                     'origin/master HEAD~3..HEAD')
-        if behind != 0:
-            msg = UPDATE_MSG % recent
-    except subprocess.CalledProcessError:
-        pass
-
-    return msg
-
-def version():
-    """
-    Check version of TCRM code. This returns the full hash of the git
-    commit, if git is available on the system. Otherwise, it returns
-    the last modified date of this file. It's assumed that this would be
-    the case if a user downloads the zip file from the git repository.
-
-    The version string is used to identify the code base in the output
-    metadata.
-    """
-
-    vers = ''
-
-    try:
-        vers = git('log -1 --date=iso --pretty=format:"%ad %H"')
-    except subprocess.CalledProcessError:
-        log.info(("Unable to obtain version information "
-                    "- version string will be last modified date of code"))
-        vers = flModDate(abspath(__file__), "%Y-%m-%d_%H:%M")
-
-    return vers
 
 # Set global version string (for output metadata purposes):
 __version__  = version()
