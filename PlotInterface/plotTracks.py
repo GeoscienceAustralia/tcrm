@@ -1,64 +1,12 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`plotTracks` -- plot TC tracks
+===================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: plotTracks
+    :synopsis: Plot TC tracks on a map.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
- Title: plotTracks.py
-
- Author: Geoff Xu
- Email:
-
- CreationDate: 2006-02-16
-
- Description: Plots the cyclone tracks using the data in 'cycloneTracks'.
-
- Version:
- ModifiedBy: Geoff Xu
- ModifiedDate: 2006-02-17
- Modification:
-
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate:2006-10-25
- Modification: Added descriptive headers and metadata
-
- ModifiedBy: Nariman Habili, nariman.habili@ga.gov.au
- ModifiedDate: 2006-11-21
- Modification: Conformance with new style guide.
-               Using ptools instead of passing object tool in constructor
-
- Version 412
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate: 2007-02-01
- Modification: Use Basemap toolkit to generate coastlines
-
- Version: 634
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate: 2007-03-29
- Modification: Tracks are colourised based on estimated pressure.
-
- Version: $Rev$
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate: 2009-04-07
- Modification: Can now read in tracks from a shapefile
-
-
- SeeAlso: (related programs)
- Constraints:
-
- $Id: PlotTracks.py 634 2007-12-16 21:16:58Z carthur $
 """
 import os
 import sys
@@ -155,7 +103,9 @@ if __name__ == "__main__":
 
 
 class PlotTracks(object):
-    """PlotTracks: plots tropical cyclone tracks
+    """
+    Plots tropical cyclone tracks
+
     Parameters
     ----------
     cyclone_tracks : string (file name including path) or array

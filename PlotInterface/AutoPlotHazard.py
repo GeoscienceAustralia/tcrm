@@ -1,28 +1,19 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`AutoPlotHazard` -- Plot hazard maps and curves
+====================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: AutoPlotHazard
+    :synopsis: Plot hazard maps and curves for locations within the
+               simulation domain.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.. moduleauthor:: Nicholas Summons <nicholas.summons@ga.gov.au>
 
-Title: autoPlotHazard.py
-Author: Nicholas Summons
-Email: nicholas.summons@ga.gov.au
-CreationDate: 2011-08-05
-Description: Automatically plots hazard maps for each return period and
-             hazard return curves for each locality within the domain.
-             Adapted from compareGrids.py code and plotHazardCurves.py
-             developed by Craig Arthur.
+Automatically plots hazard maps for each return period and hazard
+return curves for each locality within the domain. Adapted from
+compareGrids.py code and plotHazardCurves.py developed by Craig
+Arthur.
+
 """
 
 import logging

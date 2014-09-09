@@ -8,6 +8,19 @@
 
 .. moduleauthor: Craig Arthur <craig.arthur@ga.gov.au>
 
+Load a formatted csv file that contains tropical cyclone track
+information and return a collection of :class:`Track` objects.
+
+The format of the files is defined in a named section of the input
+configuration file. See the :ref:`Source Formats <sourceformats>` section
+of the User Guide for details on specifying the format.
+
+TODO:
+Modify the source to be a dict containing the kwargs to
+:mod:`numpy.genfromtxt` to make reading additional formats possible
+(e.g. include converters for some data fields, as in B-deck format
+track files.
+
 """
 
 import sys
@@ -118,6 +131,23 @@ ibtracs = {
              },
     "skip_header" : 3,
     "autostrip" : True,
+    }
+
+tcrm = {
+    "delimiter" : ",",
+    "names" : ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
+                  'Latitude', 'Speed', 'Bearing', 'CentralPressure',
+                  'EnvPressure', 'rMax'),
+    "dtype" : ('i', 'object', 'f', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8'),
+    "converters" : {
+        0: lambda s: int(float(s.strip() or 0)),
+        1: lambda s: datetime.strptime(s.strip(), "%Y-%m-%d %H:%M:%S"),
+        5: lambda s: metutils.convert(float(s.strip() or 0), 'kph', 'mps'),
+        6: lambda s: maputils.bearing2theta(float(s.strip() or 0) * np.pi / 180.),
+        7: lambda s: metutils.convert(float(s.strip() or 0), 'hPa', 'Pa'),
+        8: lambda s: metutils.convert(float(s.strip() or 0), 'hPa', 'Pa'),
+        },
+    "autostrip" : True
     }
 
 """
@@ -688,8 +718,8 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     Load TC track data from the given input file, from a specified source.
     The configFile is a configuration file that contains a section called
     'source' that describes the data.
-    This returns a series of arrays containing the data. See the return
-    line for the common names of the data returned.
+    This returns a collection of :class:`Track` objects that contains
+    the details of the TC tracks in the input file.
 
     :param str configFile: Configuration file with a section ``source``.
     :param str trackFile: Path to a csv-formatted file containing TC data.

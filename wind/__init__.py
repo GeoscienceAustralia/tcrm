@@ -1,20 +1,30 @@
 """
 :mod:`wind` -- Wind field calculation
-===================================================
+=====================================
 
-This module contains the core object for the wind field calculations.
-
+This module contains the core object for the wind field
+calculations. It provides the radial profile models to define the
+primary vortex of the simulated TC, and bounday layer models that
+define the asymmetry induced by surface friction and forward motion of
+the TC over the earth's surface. The final output from the module is a
+netCDF file containing the maximum surface gust wind speed (a 3-second
+gust, at 10 metres above ground level), along with the components
+(eastward and westward) that generated the wind gust and the minimum
+mean sea level pressure over the lifetime of the event. If multiple
+TCs are contained in a track file, then the output file contains the
+values from all events (for example, an annual maximum wind speed).
+ 
 Wind field calculations can be run in parallel using MPI if the
 :term:`pypar` library is found and TCRM is run using the
 :term:`mpirun` command. For example, to run with 10 processors::
 
-    mpirun -n 10 python tcrm.py cairns.ini
+    $ mpirun -n 10 python tcrm.py cairns.ini
 
 :class:`wind` can be correctly initialised and started by
-calling the :meth: `run` with the location of a *configFile*::
+calling the :meth:`run` with the location of a *configFile*::
 
-    import wind
-    wind.run('cairns.ini')
+    >>> import wind
+    >>> wind.run('cairns.ini')
 
 """
 

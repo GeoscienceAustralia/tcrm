@@ -49,28 +49,15 @@ class DataProcess(object):
     :param progressbar: :attr:`progressbar` object to print progress to 
                         STDOUT
 
-    Methods
-    processdata()
-        process initial raw data into ASCII data that is readable by the
-        program
-
-    Internal Methods
-    _lonLat(lon, lat, indicator)
-        Extract longitudes and latitudes
-    _bearing(bear, indicator)
-        Extract bearings
-    _speed(dist, dt, indicator)
-        Extract speeds
-    _pressure(pressure, indicator)
-        Extract pressures
-    _pressureRate(pressure, dt, indicator)
-        Extract rate of presssure change
-    _speedRate(dist, dt, indicator)
-        Extract the acceleration (rate of change of speed)
-    _bearingChange(bear, dt, indicator)
-        Extract the rate of change of bearing
-    _windSpeed(vmax, indicator)
-        Extract the maximum sustained wind speed
+    Internal Methods:
+    _lonLat(lon, lat, indicator) Extract longitudes and latitudes
+    _bearing(bear, indicator) Extract bearings
+    _speed(dist, dt, indicator) Extract speeds
+    _pressure(pressure, indicator) Extract pressures
+    _pressureRate(pressure, dt, indicator) Extract rate of presssure change
+    _speedRate(dist, dt, indicator) Extract the acceleration (rate of change of speed)
+    _bearingChange(bear, dt, indicator) Extract the rate of change of bearing
+    _windSpeed(vmax, indicator) Extract the maximum sustained wind speed
     
     """
 

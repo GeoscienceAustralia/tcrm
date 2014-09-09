@@ -4,7 +4,7 @@
 
 .. module:: curves
     :synopsis: provide methods to plot curves (hazard curves,
-    distributions, logarithmic axes, etc).
+               distributions, logarithmic axes, etc).
 
 .. moduleauthor: Craig Arthur <craig.arthur@ga.gov.au>
 
