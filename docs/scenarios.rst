@@ -22,7 +22,8 @@ and asymmetry in the surface winds arises solely due to the forward
 motion of the cyclone and the (uniform) surface friction. For a
 complete and accurate representation of the winds from an actual
 tropical cyclone, the simulated winds from TCRM should be combined
-with observed maximum wind speeds in the vicinity of the cyclone.
+with observed maximum wind speeds in the vicinity of the cyclone using
+spatial interpolation methods (e.g. kriging).
 
 .. _scenariosetup:
 Setting up a scenario
@@ -37,11 +38,8 @@ the required sections and options.
 A basic configuration file for a scenario simulation would look like
 this::
 
-    [Actions]
-    ExecuteWindfield = True
-
     [DataProcess]
-    InputFile=./example/scenario/tctrack.csv
+    InputFile=scenario.csv
 
     [WindfieldInterface]
     Source=NRL    # Naval Research Laboratory
@@ -98,11 +96,12 @@ Command line arguments
 ----------------------
 
  -c file, --config file   Path to a configuration file.
- -v, --verbose            If given, then logging messages will be printed 
+ -v, --verbose            If given, logging messages will be printed 
                           to the console.
  -d, --debug              In the case that execution results in an exception, 
                           allow the Python stack to call into the stack trace 
-                          (through implementation of a custom hook script). 
+                          (through implementation of a custom hook script) and 
+                          start the Python debugger (:mod:`pdb`). 
 
 .. _timeseries:
 Extract time series data
@@ -125,3 +124,14 @@ numbered sequentially through the locations.
 
 The data is stored in a separate csv file for each location, and data
 is plotted on a simple figure for visual inspection.
+
+.. figure:: ./timeseries_example.png
+    :align: center
+    :alt: Time series example from Guiuan, Philippines
+    :figclass: align-center
+
+    Time series data for Super Typhoon *Haiyan* at Guiuan, Samar, Philippines. 
+
+:Note: The double labels on the secondary (right-hand) y-axis require
+       Matplotlib version 1.3 or later.
+

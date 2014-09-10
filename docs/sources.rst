@@ -1,8 +1,8 @@
-.. _sourceformats:
 
-===============
+.. _sourceformats:
+==================
 Source formats 
-===============
+==================
 
 There are a wide variety of formats of tropical cyclone track
 databases available, both observational and model generated (e.g. we
@@ -16,7 +16,7 @@ version (v03r05 at August 2014) and use this to calibrate the model.
 .. _databaseformat:
 
 Database format
----------------
+-------------------
 
 The first few lines of the IBTrACS database are shown below. ::
 

@@ -4,25 +4,45 @@ Examples
 Full TCRM hazard simulation
 ---------------------------
 
-An example configuration file is provided with the code to provide users a starting point for testing the installation, and for setting up their own simulation. The example simulation is centred on Port Hedland, Australia (118.6E, 20.3S), which has experienced numerous severe tropical cyclones. 
+An example configuration file is provided with the code to provide
+users a starting point for testing the installation, and for setting
+up their own simulation. The example simulation is centred on Port
+Hedland, Australia (118.6E, 20.3S), which has experienced numerous
+severe tropical cyclones.
 
-Once the model has been :ref:`installed <installation>` and tested, the example simulation can be run as follows::
+Once the model has been :ref:`installed <installation>` and tested,
+the example simulation can be run as follows::
     
-    python tcrm.py -c example/port_hedland.ini
+    $ python tcrm.py -c example/port_hedland.ini
 
-The model will automatically create output folders to store the results in, as well as a log file that provides details on the progress of the model. The simulation will process the input track database (IBTrACS v03r05), run the statistical interface, generate 1000 simulated years of TC events, the wind swaths associated with those simulated years, calculate the hazard (return period wind speeds) for the region and plot the output as maps and a return period curve for Port Hedland. The hazard data are also stored in netCDF (version 4) files. 
+The model will automatically create output folders to store the
+results in, as well as a log file that provides details on the
+progress of the model. The simulation will process the input track
+database (IBTrACS v03r05), run the statistical interface, generate
+1000 simulated years of TC events, the wind swaths associated with
+those simulated years, calculate the hazard (return period wind
+speeds) for the region and plot the output as maps and a return period
+curve for Port Hedland. The hazard data are also stored in netCDF
+(version 4) files.
 
 
 
 Running in an MPI environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-For a multiprocessor environment using MPI and Pypar, the example can be run with::
+For a multiprocessor environment using MPI and Pypar, the example can
+be run with::
 
-    mpirun -np <number of cpus> python tcrm.py -c example/port_hedland.ini
+    $ mpirun -np 16 python tcrm.py -c example/port_hedland.ini
 
-Replace `<number of cpus>` with an integer number.
+This will execute TCRM across 16 CPUs (if available). 
+
+TCRM has been tested on systems up to 256 CPUs. Testing with large
+event sets (4000 events) indicate > 23 times speedup when run across
+32 CPUs.
 
 Scenario simulation
 -------------------
 
-An example scenario is also included with the code to demonstrate an individual event simulation. This uses TC xx (YYYY), which impacted Blah.  
+An example scenario is also included with the code to demonstrate an
+individual event simulation. This uses TC xx (YYYY), which impacted
+Blah.

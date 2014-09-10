@@ -6,22 +6,18 @@ Glossary
    Annual Exceedance Probability
       The probability of a threshold being exceeded once (or more) in any
       year. 
-   
-   Hazard
-      The magnitude of wind speed. 
-
-   Return period
-      The average time between exceedances of a given threshold. Compare to
-      Annual Exceedance Probability
-
-   Tropical cyclone
-      A tropical cyclone is a rapidly-rotating storm system characterized by 
-      a low-pressure center, strong winds, and a spiral arrangement of 
-      thunderstorms that produce heavy rain.
-
 
    Genesis
-      Formation of a tropical cyclone event
+      Formation of a tropical cyclone event.
+
+   Hazard
+      The magnitude of wind speed. TCRM generates a 3-second gust wind
+      speed, at 10 metres above ground over open, flat terrain (an
+      aerodynamic roughness length of 0.02 m).
+
+   Kernel density estimation
+      A non-parametric method to estimate the probability density
+      function of a random variable. 
 
    Lysis
       Termination of a tropical cyclone event. Can be caused by the tropical 
@@ -34,5 +30,15 @@ Glossary
 
    Pypar
       PyPar is a python library that provides efficient and scalable 
-      parallelism using the message passing interface (MPI) to handle big 
-      data and highly computational problems. 
+      parallelism using the message passing interface (MPI) to handle
+      big data and highly computational problems. See
+      http://github.com/daleroberts/pypar
+
+   Return period
+      The average time between exceedances of a given threshold. Compare to
+      Annual Exceedance Probability. 
+
+   Tropical cyclone
+      A tropical cyclone is a rapidly-rotating storm system characterized by 
+      a low-pressure center, strong winds, and a spiral arrangement of 
+      thunderstorms that produce heavy rain.
