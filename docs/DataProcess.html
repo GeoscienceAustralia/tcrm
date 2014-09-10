@@ -50,8 +50,11 @@
 <span id="dataprocess-dataprocess-module"></span><h2>DataProcess.DataProcess module<a class="headerlink" href="#module-DataProcess.DataProcess" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-DataProcess">
 <span id="dataprocess-basic-processing-of-input-database"></span><h3><a class="reference internal" href="#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><tt class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></tt></a> &#8211; basic processing of input database<a class="headerlink" href="#module-DataProcess" title="Permalink to this headline">¶</a></h3>
-<p>Processes the database of historical TCs into suitably formatted
-text files.</p>
+<p>Processes the database of historical TCs into simply formatted
+text files. Extracts locations, including genesis location, and
+calculates speed, bearing, genesis day (as the day of the year)
+annual frequency (of the complete database), pressure rates of
+change, speed rates of change and bearing rates of change.</p>
 <dl class="class">
 <dt id="DataProcess.DataProcess.DataProcess">
 <em class="property">class </em><tt class="descname">DataProcess</tt><big>(</big><em>configFile</em>, <em>progressbar=None</em><big>)</big><a class="headerlink" href="#DataProcess.DataProcess.DataProcess" title="Permalink to this definition">¶</a></dt>
@@ -338,7 +341,7 @@ bounds the latitude.</p>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Sep 09, 2014.
+      Last updated on Sep 10, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

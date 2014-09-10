@@ -544,8 +544,8 @@ For example, If <cite>data</cite> contains the tropical cyclone track data
 (<cite>numpy.array</cite>) loaded with the <a class="reference internal" href="#wind.readTrackData" title="wind.readTrackData"><tt class="xref py py-meth docutils literal"><span class="pre">readTrackData()</span></tt></a> function,
 then the central pressure column can be printed out with the
 code:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">t</span> <span class="o">=</span> <span class="n">Track</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">CentralPressure</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">Track</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">CentralPressure</span><span class="p">)</span>
 </pre></div>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -851,7 +851,17 @@ extract point values for specified locations.</li>
 <dl class="method">
 <dt id="wind.WindfieldGenerator.setGridLimit">
 <tt class="descname">setGridLimit</tt><big>(</big><em>track</em><big>)</big><a class="headerlink" href="#wind.WindfieldGenerator.setGridLimit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Set the outer bounds of the grid to encapsulate
+the extent of a single TC track.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>track</strong> &#8211; <a class="reference internal" href="#wind.Track" title="wind.Track"><tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt></a> object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -1048,7 +1058,7 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Sep 09, 2014.
+      Last updated on Sep 10, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

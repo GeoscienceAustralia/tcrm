@@ -58,17 +58,17 @@ generation.</p>
 <p>Track generation can be run in parallel using MPI if the <a class="reference internal" href="glossary.html#term-pypar"><em class="xref std std-term">pypar</em></a>
 library is found and TCRM is run using the <a class="reference internal" href="glossary.html#term-mpirun"><em class="xref std std-term">mpirun</em></a> command. For
 example, to run with 10 processors:</p>
-<div class="highlight-python"><div class="highlight"><pre>mpirun -n 10 python main.py cairns.ini
+<div class="highlight-python"><div class="highlight"><pre>$ mpirun -n 10 python main.py cairns.ini
 </pre></div>
 </div>
 <p><a class="reference internal" href="#module-TrackGenerator" title="TrackGenerator"><tt class="xref py py-class docutils literal"><span class="pre">TrackGenerator</span></tt></a> can be correctly initialised and started by
-calling the :meth: <cite>run</cite> with the location of a <em>configFile</em>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">TrackGenerator</span>
-<span class="n">TrackGenerator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s">&#39;cairns.ini&#39;</span><span class="p">)</span>
+calling <a class="reference internal" href="#TrackGenerator.TrackGenerator.run" title="TrackGenerator.TrackGenerator.run"><tt class="xref py py-meth docutils literal"><span class="pre">run()</span></tt></a> with the location of a configuration file:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">TrackGenerator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">TrackGenerator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s">&#39;cairns.ini&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Alternatively, it can be run from the command line:</p>
-<div class="highlight-python"><div class="highlight"><pre>python TrackGenerator.py cairns.ini
+<div class="highlight-python"><div class="highlight"><pre>$ python TrackGenerator.py cairns.ini
 </pre></div>
 </div>
 <dl class="class">
@@ -210,7 +210,7 @@ data (see <a class="reference internal" href="#TrackGenerator.TrackGenerator.Tra
 <p>If the genesis point (initLon, initLat) is not provided, then
 an origin will be randomly chosen using the empirical genesis
 point distribution calculated by
-<tt class="xref py py-class docutils literal"><span class="pre">StatInterface.SamplingOrigin</span></tt>. However, if this random
+<a class="reference internal" href="StatInterface.html#module-StatInterface.SamplingOrigin" title="StatInterface.SamplingOrigin"><tt class="xref py py-class docutils literal"><span class="pre">StatInterface.SamplingOrigin</span></tt></a>. However, if this random
 point (or the initial point given) falls outside the domain
 defined by <tt class="xref py py-attr docutils literal"><span class="pre">gridLimit</span></tt> then no tracks will be generated.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -357,14 +357,16 @@ the track generation configuration from.</td>
 <p>Determines the decay rate of a cyclone after it makes landfall.
 Based on the central pressure deficit at landfall and the time over
 land, calculate the revised pressure deficit.</p>
-<p>References:
-Vickery, P. J. and L. A. Twisdale (1995). Wind-Field and Filling
+<p>References:</p>
+<ul class="simple">
+<li>Vickery, P. J. and L. A. Twisdale (1995). Wind-Field and Filling
 Models for Hurricane Wind-Speed Predictions. Journal of Structural
-Engineering 121(11): 1700-1709.
-Powell, M., G. Soukup, S. Cocke, S. Gulati, N. Morriseau-Leroy,
+Engineering 121(11): 1700-1709.</li>
+<li>Powell, M., G. Soukup, S. Cocke, S. Gulati, N. Morriseau-Leroy,
 S. Hamid, N. Dorst and L. Axe (2005). State of Florida hurricane
 loss projection model: Atmospheric science component. Journal of
-Wind Engineering and Industrial Aerodynamics, 93(8): 651-674.</p>
+Wind Engineering and Industrial Aerodynamics, 93(8): 651-674.</li>
+</ul>
 <dl class="class">
 <dt id="TrackGenerator.trackLandfall.LandfallDecay">
 <em class="property">class </em><tt class="descname">LandfallDecay</tt><big>(</big><em>configFile</em>, <em>dt</em><big>)</big><a class="headerlink" href="#TrackGenerator.trackLandfall.LandfallDecay" title="Permalink to this definition">¶</a></dt>
@@ -373,9 +375,18 @@ it has made landfall.  Based on the work of on the model of Vickery
 &amp; Twisdale (1995) and employed in the Florida Hurricane Loss model
 of Powell et al. (2005). The model is tuned for Florida conditions,
 and so may require some further tuning for the region of interest.</p>
-<p>Parameters:
-:param str configFile: Configuration file
-:param float dt: time step of the generated cyclone tracks</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>configFile</strong> (<em>str</em>) &#8211; Configuration file</li>
+<li><strong>dt</strong> (<em>float</em>) &#8211; time step of the generated cyclone tracks</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <p>Members:
 dt - time step of the generated cyclone tracks
 landMask - 2D array of 0/1 indicating ocean/land respectively (any
@@ -512,7 +523,7 @@ eps=random.normal(0.0,0.0025)</p>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Sep 09, 2014.
+      Last updated on Sep 10, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

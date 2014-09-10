@@ -58,6 +58,7 @@
    <a href="#cap-g"><strong>g</strong></a> | 
    <a href="#cap-h"><strong>h</strong></a> | 
    <a href="#cap-i"><strong>i</strong></a> | 
+   <a href="#cap-k"><strong>k</strong></a> | 
    <a href="#cap-l"><strong>l</strong></a> | 
    <a href="#cap-m"><strong>m</strong></a> | 
    <a href="#cap-n"><strong>n</strong></a> | 
@@ -94,6 +95,11 @@ generation domain.</em></td></tr>
        <a href="docs/DataProcess.html#module-CalcTrackDomain"><tt class="xref">CalcTrackDomain</tt></a></td><td>
        <em>Determine track generator domain, ensuring it encompasses
 all tracks entering the windfield generator domain.</em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="docs/StatInterface.html#module-circularKDE"><tt class="xref">circularKDE</tt></a></td><td>
+       <em>Probability distributions for circular data.</em></td></tr>
      <tr>
        <td></td>
        <td>
@@ -135,8 +141,8 @@ distributions, logarithmic axes, etc).</em></td></tr>
               id="toggle-1" style="display: none" alt="-" /></td>
        <td>
        <a href="docs/DataProcess.html#module-DataProcess"><tt class="xref">DataProcess</tt></a></td><td>
-       <em>Processes the database of historical TCs into suitably formatted
-text files.</em></td></tr>
+       <em>Processes the database of historical TCs into
+suitably formatted text files.</em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&nbsp;&nbsp;&nbsp;
@@ -193,6 +199,12 @@ the track generation model.</em></td></tr>
      <tr>
        <td></td>
        <td>
+       <a href="docs/StatInterface.html#module-GenerateDistributions"><tt class="xref">GenerateDistributions</tt></a></td><td>
+       <em>Generate CDFs for parameters for each grid cell in the
+model domain.</em></td></tr>
+     <tr>
+       <td></td>
+       <td>
        <a href="docs/StatInterface.html#module-generateStats"><tt class="xref">generateStats</tt></a></td><td>
        <em>Calculates the mean, variance and
 autocorrelation statistics for all grid
@@ -235,6 +247,19 @@ cells in the domain, for a given parameter.</em></td></tr>
        <a href="docs/Utilities.html#module-Intersections"><tt class="xref">Intersections</tt></a></td><td>
        <em>Functions to determine line intersections for polygons and
 line features.</em></td></tr>
+     <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
+     <tr class="cap" id="cap-k"><td></td><td>
+       <strong>k</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="docs/StatInterface.html#module-KDEOrigin"><tt class="xref">KDEOrigin</tt></a></td><td>
+       <em>Kernel density estimation for genesis probability.</em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="docs/StatInterface.html#module-KDEParameters"><tt class="xref">KDEParameters</tt></a></td><td>
+       <em>Generate KDEs of TC parameters.</em></td></tr>
      <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
      <tr class="cap" id="cap-l"><td></td><td>
        <strong>l</strong></td><td></td></tr>
@@ -414,6 +439,17 @@ the file as the primary indicator of modifications to a file.</em></td></tr>
      <tr class="cap" id="cap-s"><td></td><td>
        <strong>s</strong></td><td></td></tr>
      <tr>
+       <td></td>
+       <td>
+       <a href="docs/StatInterface.html#module-SamplingOrigin"><tt class="xref">SamplingOrigin</tt></a></td><td>
+       <em>Generate a sample of random TC origins from
+CDFs derived using kernel density estimation.</em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="docs/StatInterface.html#module-SamplingParamters"><tt class="xref">SamplingParamters</tt></a></td><td>
+       <em>Generate samples of TC parameters.</em></td></tr>
+     <tr>
        <td><img src="_static/minus.png" class="toggler"
               id="toggle-6" style="display: none" alt="-" /></td>
        <td>
@@ -422,7 +458,37 @@ the file as the primary indicator of modifications to a file.</em></td></tr>
      <tr class="cg-6">
        <td></td>
        <td>&nbsp;&nbsp;&nbsp;
+       <a href="docs/StatInterface.html#module-StatInterface.circularKDE"><tt class="xref">StatInterface.circularKDE</tt></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-6">
+       <td></td>
+       <td>&nbsp;&nbsp;&nbsp;
+       <a href="docs/StatInterface.html#module-StatInterface.GenerateDistributions"><tt class="xref">StatInterface.GenerateDistributions</tt></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-6">
+       <td></td>
+       <td>&nbsp;&nbsp;&nbsp;
        <a href="docs/StatInterface.html#module-StatInterface.generateStats"><tt class="xref">StatInterface.generateStats</tt></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-6">
+       <td></td>
+       <td>&nbsp;&nbsp;&nbsp;
+       <a href="docs/StatInterface.html#module-StatInterface.KDEOrigin"><tt class="xref">StatInterface.KDEOrigin</tt></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-6">
+       <td></td>
+       <td>&nbsp;&nbsp;&nbsp;
+       <a href="docs/StatInterface.html#module-StatInterface.KDEParameters"><tt class="xref">StatInterface.KDEParameters</tt></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-6">
+       <td></td>
+       <td>&nbsp;&nbsp;&nbsp;
+       <a href="docs/StatInterface.html#module-StatInterface.SamplingOrigin"><tt class="xref">StatInterface.SamplingOrigin</tt></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-6">
+       <td></td>
+       <td>&nbsp;&nbsp;&nbsp;
+       <a href="docs/StatInterface.html#module-StatInterface.SamplingParameters"><tt class="xref">StatInterface.SamplingParameters</tt></a></td><td>
        <em></em></td></tr>
      <tr class="cg-6">
        <td></td>
@@ -795,7 +861,7 @@ of a vector field.</em></td></tr>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Sep 09, 2014.
+      Last updated on Sep 10, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
