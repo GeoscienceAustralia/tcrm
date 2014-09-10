@@ -60,8 +60,8 @@ class GenerateDistributions:
                          variable defines the latitudinal increment.
     :param str kdeType: Name of the (univariate) kernel estimator to use
                         when generating the distribution. Must be one of
-                        ``epanechnikov``, ``gaussian``, ``biweight`` or
-                        ``triangular``.
+                        ``Epanechnikov``, ``Gaussian``, ``Biweight`` or
+                        ``Triangular``.
     :param int minSamplesCell: Minimum number of valid observations
                                required to generate distributions.
                                If insufficient observations are found in
