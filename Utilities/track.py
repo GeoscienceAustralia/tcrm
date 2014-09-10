@@ -90,13 +90,14 @@ class Track(object):
                 
     def minimumDistance(self, points):
         """
-        Calculate the minimum distance between a track and a sequence of :class:`shapely.geometry.Point`s
+        Calculate the minimum distance between a track and a
+        collection of :class:`shapely.geometry.Point` points. Assumes
+        the points and the :attr:`Longitude` and :attr:`Latitude`
+        attributes share the same coordinate system.
 
         :param points: sequence of :c;ass:`shapely.geometry.Point` objects.
         """
-        coords = []
-        for x, y in zip(self.Longitude, self.Latitude):
-            coords.append((x, y))
+        coords = [(x,y) for x, y in zip(self.Longitude, self.Latitude)]
 
         line_feature = LineString(coords)
 

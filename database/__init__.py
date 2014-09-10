@@ -22,7 +22,6 @@ geometries & projected location data.
 """
 
 import os
-import itertools
 import logging
 import sqlite3
 from datetime import datetime
@@ -43,26 +42,29 @@ log.addHandler(logging.NullHandler())
 
 # Stations - we assume a geographic corrdinate system:
 tblLocationsDef = ("CREATE TABLE IF NOT EXISTS tblLocations "
-                  "(locId text, locType text, locName text, locLon real, "
+                  "(locId integer PRIMARY KEY, locCode text, "
+                  "locType text, locName text, locLon real, "
                   "locLat real, locElev real, locCountry text, "
-                  "locSource text, Comments text, dtCreated timestamp)")
+                  "locSource text, Comments text, "
+                  "dtCreated timestamp)")
 
 # Events:
 tblEventsDef = ("CREATE TABLE IF NOT EXISTS tblEvents "
-                "(eventId text, eventFile text, eventTrackFile text, "
+                "(eventNumber integer PRIMARY KEY, eventId text, "
+                "eventFile text, eventTrackFile text, "
                 "eventMaxWind real, eventMinPressure real, "
                 "dtTrackFile timestamp, dtWindfieldFile timestamp, "
                 "tcrmVersion text, Comments text, dtCreated timestamp)")
 
 #Station wind speed from events:
 tblWindSpeedDef = ("CREATE TABLE IF NOT EXISTS tblWindSpeed "
-                   "(locId text, eventId text, wspd real, umax real, "
+                   "(locId integer, eventNumber integer, wspd real, umax real, "
                    "vmax real, pmin real, Comments text, "
                    "dtCreated timestamp)")
 
 # Station hazard levels:
 tblHazardDef = ("CREATE TABLE IF NOT EXISTS tblHazard "
-                "(locId text, returnPeriod real, wspd real, "
+                "(locId integer, returnPeriod real, wspd real, "
                 " wspdUpper real, wspdLower real, loc real, "
                 "scale real, shape real, tcrmVersion text, "
                 "dtHazardFile timestamp, Comments text, "
@@ -70,15 +72,15 @@ tblHazardDef = ("CREATE TABLE IF NOT EXISTS tblHazard "
 
 # Proximity of tracks to stations:
 tblTracksDef = ("CREATE TABLE IF NOT EXISTS tblTracks "
-                "(locId text, eventId text, distClosest real, "
+                "(locId integer, eventNumber integer, distClosest real, "
                 "prsClosest real, dtClosest timestamp, Comments text, "
                 "dtCreated timestamp)")
 
 # Insert locations:
-insLocations = "INSERT INTO tblLocations VALUES (?,?,?,?,?,?,?,?)"
+insLocations = "INSERT INTO tblLocations VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 
 # Insert event record:
-insEvents = "INSERT INTO tblEvents VALUES (?,?,?,?,?,?,?,?,?,?)"
+insEvents = "INSERT INTO tblEvents VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 
 # Insert wind speed record:
 insWindSpeed = "INSERT INTO tblWindSpeed VALUES (?,?,?,?,?,?,?,?)"
@@ -387,32 +389,59 @@ def build_location_database(location_db, location_file, location_type='AWS'):
     """
     Build a database of locations, using a poin shape file of the locations.
     The locations *must* be represented in a geographic coordinate system.
+
+    This version is hard coded to work with the `stationlist` file that is
+    provided with the RIP4 graphics package, which has in turn been stored
+    as a shapefile.
+
+    Users can augment the basic location database with their own data, noting
+    the schema for ``tblLocations``.
     
     :param str location_db: Path to the location database.
     :param str location_file: Path to a shape file containing location data.
 
     :returns: List of tuples containing location Id, name, longitude,
-              latitude, elevation, country, comments and current datetime. 
+              latitude, elevation, country, comments and current datetime.
 
+    TODO: Build a way to ingest user-defined list of fields that correspond
+          to the required fields in tblLocations. e.g. using a mappings dict::
+    
+              mappings = {
+                  'locCode' : 'WMO',
+                  'locName' : 'Place'
+                  'locCountry' : 'Cou'
+                  'locElev' : 'Elevation'
+                  'Comments' : 'ICAO'
+                  }
+
+              columns = ('locCode', 'locName', 'locCountry', 'locElev', 'Comments')
+
+              for col in columns:
+                  if mappings.has_key(col):
+                      field = shpGetField(location_file, mappings[col])
+                      
     """
     from Utilities.shptools import shpReadShapeFile
     locations = []
-    vertices, records = shpReadShapeFile(locationFile)
+    vertices, records = shpReadShapeFile(location_file)
     for v, r in zip(vertices.values(), records):
         locLon, locLat = v[0]
         locLon = np.mod(locLon, 360.)
-        locId = str(r[0])
+        locCode = str(r[0])
         locName = r[2]
         locCountry = r[4]
         locElev = r[7]
-        locations.append((locId, locName, location_type,
+        locComment = r[1]
+        locations.append((None, locCode, locName, location_type,
                           locLon, locLat, locElev, locCountry,
-                          os.path.basename(locationFile),
-                          '', datetime.now()))
+                          os.path.basename(location_file),
+                          locComment, datetime.now()))
 
     locdb = sqlite3.connect(location_db, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
     locdb.execute(tblLocationsDef)
     locdb.executemany(insLocations, locations)
+    locdb.commit()
+    locdb.close()
 
 
 def location_records_exceeding(hazdb, locId, windSpeed):
@@ -443,7 +472,7 @@ def location_records_exceeding(hazdb, locId, windSpeed):
              "w.eventFile "
              "FROM tblLocations l "
              "INNER JOIN tblWindSpeed w ON l.locId = w.locId "
-             "JOIN tblEvents e ON e.eventId = w.eventId "
+             "JOIN tblEvents e ON e.eventNumber = w.eventNumber "
              "WHERE w.wspd > ? and l.locId = ?")
 
     c = hazdb.execute(query, (windSpeed, locId,))
@@ -456,7 +485,7 @@ def location_records(hazard_db, locId):
              "FROM tblLocations l "
              "INNER JOIN tblWindSpeed w "
              "ON l.locId = w.locId "
-             "JOIN tblEvents e ON e.eventId = w.eventId "
+             "JOIN tblEvents e ON e.eventNumber = w.evenNumber "
              "WHERE l.locId = ? ORDER BY w.wspd ASC")
     c = hazard_db.execute(query, (locId,))
     results = c.fetchall()
