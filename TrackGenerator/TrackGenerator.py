@@ -9,17 +9,17 @@ Track generation can be run in parallel using MPI if the :term:`pypar`
 library is found and TCRM is run using the :term:`mpirun` command. For
 example, to run with 10 processors::
 
-    mpirun -n 10 python main.py cairns.ini
+    $ mpirun -n 10 python main.py cairns.ini
 
 :class:`TrackGenerator` can be correctly initialised and started by
-calling the :meth: `run` with the location of a *configFile*::
+calling :meth:`run` with the location of a configuration file::
 
-    import TrackGenerator
-    TrackGenerator.run('cairns.ini')
+    >>> import TrackGenerator
+    >>> TrackGenerator.run('cairns.ini')
 
 Alternatively, it can be run from the command line::
 
-    python TrackGenerator.py cairns.ini
+    $ python TrackGenerator.py cairns.ini
 
 """
 

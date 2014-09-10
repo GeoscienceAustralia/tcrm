@@ -7,13 +7,14 @@ Based on the central pressure deficit at landfall and the time over
 land, calculate the revised pressure deficit.
 
 References:
-Vickery, P. J. and L. A. Twisdale (1995). Wind-Field and Filling
-Models for Hurricane Wind-Speed Predictions. Journal of Structural
-Engineering 121(11): 1700-1709.
-Powell, M., G. Soukup, S. Cocke, S. Gulati, N. Morriseau-Leroy,
-S. Hamid, N. Dorst and L. Axe (2005). State of Florida hurricane
-loss projection model: Atmospheric science component. Journal of
-Wind Engineering and Industrial Aerodynamics, 93(8): 651-674.
+
+* Vickery, P. J. and L. A. Twisdale (1995). Wind-Field and Filling
+  Models for Hurricane Wind-Speed Predictions. Journal of Structural
+  Engineering 121(11): 1700-1709.
+* Powell, M., G. Soukup, S. Cocke, S. Gulati, N. Morriseau-Leroy,
+  S. Hamid, N. Dorst and L. Axe (2005). State of Florida hurricane
+  loss projection model: Atmospheric science component. Journal of
+  Wind Engineering and Industrial Aerodynamics, 93(8): 651-674.
 
 """
 
@@ -36,7 +37,6 @@ class LandfallDecay:
     of Powell et al. (2005). The model is tuned for Florida conditions,
     and so may require some further tuning for the region of interest.
 
-    Parameters:
     :param str configFile: Configuration file
     :param float dt: time step of the generated cyclone tracks
 

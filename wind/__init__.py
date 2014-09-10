@@ -79,8 +79,8 @@ class Track(object):
     then the central pressure column can be printed out with the
     code::
 
-        t = Track(data)
-        print(t.CentralPressure)
+        >>> t = Track(data)
+        >>> print(t.CentralPressure)
 
 
     :type  data: numpy.ndarray
@@ -448,6 +448,14 @@ class WindfieldGenerator(object):
         self.domain = domain
 
     def setGridLimit(self, track):
+        """
+        Set the outer bounds of the grid to encapsulate
+        the extent of a single TC track.
+
+        :param track: :class:`Track` object.
+
+        """
+        
         track_limits = {'xMin':9999, 'xMax':-9999, 'yMin':9999, 'yMax':-9999}
         track_limits['xMin'] = min(track_limits['xMin'], track.Longitude.min())
         track_limits['xMax'] = max(track_limits['xMax'], track.Longitude.max())
