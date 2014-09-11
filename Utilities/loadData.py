@@ -101,7 +101,7 @@ bdeck = {
     "delimiter": ",",
     "names" : ("basin", "num", "date", "lat", "lon", "vmax", "pressure", "rmax"),
     "dtype" : ("|S2", "i", "object", "f8", "f8", "f8", "f8", "f8"),
-    "usecols" : (0, 1, 2, 6, 7, 8, 9, 11),
+    "usecols" : (0, 1, 2, 6, 7, 8, 9, 18),
     "converters" : {
                 0: lambda s: s.strip(),
                 1: lambda s: s.strip(),
@@ -382,7 +382,7 @@ def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):
 
     for i in xrange(len(dates)):
         try:
-            d = datetime.strptime(dates[i], datefmt)
+            d = datetime.strptime(str(dates[i]), datefmt)
         except ValueError:
             raise ValueError("Error in date information for record %d" % i)
         else:
