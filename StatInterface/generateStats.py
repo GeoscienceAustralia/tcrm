@@ -12,7 +12,9 @@
 
 """
 
-import os, pdb, logging, sys
+import os
+import logging
+import sys
 
 import numpy as np
 
@@ -66,7 +68,8 @@ class parameters(object):
         self.lmin = np.zeros(numCells)
 
 class GenerateStats:
-    """GenerateStats:
+    """
+    Generate the main statistical distributions across the grid domain. 
 
     :type  parameter: :class:`numpy.ndarray` or str
     :param parameter: contains the data on which the statistical
@@ -115,7 +118,7 @@ class GenerateStats:
         
         self.logger = logging.getLogger()
         self.logger.debug('Initialising GenerateStats')
-
+        
         self.gridLimit = gridLimit
         self.gridSpace = gridSpace
         self.gridInc = gridInc

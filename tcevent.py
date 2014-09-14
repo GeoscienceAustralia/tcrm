@@ -2,8 +2,10 @@
 :mod:`tcevent` -- run the windfield module for a single TC track
 ================================================================
 
+.. module:: tcevent
+    :synopsis: Run the wind field module for a single TC track.
 
-Run the :mod:`wind.windmodels` to calculate the wind field for a
+Run the :mod:`wind.windmodels` module to calculate the wind field for a
 single TC event. The track of the TC is interpolated to a fine
 temporal resolution, then the maximum wind field evaluated.
 
@@ -11,11 +13,11 @@ Data at selected points within the model domain can be extracted
 at each time step, giving a time history of wind speed, direction
 and estimated sea level pressure for the location(s).
 
-
-Tropical Cyclone Risk Model
-Copyright (c) 2014 Commonwealth of Australia (Geoscience Australia)
+See the :ref:`Scenario modelling <scenariomodelling>` section of
+the TCRM User Guide for details on running this script.
 
 """
+
 import logging as log
 if 'NullHandler' not in dir(log):
     from Utilities import py26compat
@@ -91,8 +93,12 @@ def doOutputDirectoryCreation(configFile):
 
 def doTimeseriesPlotting(configFile):
     """
-    Run functions to plot time series output
+    Run functions to plot time series output.
+
+    :param str configFile: Path to configuration file.
+    
     """
+
     config = ConfigParser()
     config.read(configFile)
 
@@ -146,7 +152,12 @@ def doWindfieldPlotting(configFile):
 
 @timer
 def main(configFile):
+    """
+    Main function to execute the :mod:`wind`.
 
+    :param str configFile: Path to configuration file.
+
+    """
     config = ConfigParser()
     config.read(configFile)
     doOutputDirectoryCreation(configFile)
@@ -177,6 +188,11 @@ def main(configFile):
     doTimeseriesPlotting(configFile)
 
 def startup():
+    """
+    Parse the command line arguments and call the :func:`main`
+    function.
+    
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config_file',
                         help='Path to configuration file')
