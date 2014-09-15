@@ -4,21 +4,20 @@
 
 .. module:: tsmultipliers
     :synopsis: Multiply the wind speed in a timeseries file by the
-               appropriate multiplier values. Still a very rudimentary process. 
+               appropriate multiplier values. Still a very rudimentary
+               process.
 
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
 """
 
-import os, sys, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
+import os
+import sys
+import logging
 
-import numpy
+
+import numpy as np
 from files import flLoadFile, flSaveFile
-
-__version__ = '$Id: tsmultipliers.py 642 2012-02-21 07:54:04Z nsummons $'
 
 def tsmultiply(inputFile):
     """
@@ -37,34 +36,35 @@ def tsmultiply(inputFile):
     gust = tsdata[:,3]
     uu = tsdata[:,4]
     vv = tsdata[:,5]
-    bearing = tsdata[:,6]
-    bearing = numpy.mod((180./numpy.pi)*numpy.arctan2(-uu,-vv),360.)
+    bear = tsdata[:,6]
+    pressure = tsdata[:,7]
+    bear = np.mod((180./np.pi)*np.arctan2(-uu,-vv),360.)
 
     # Multipliers are stored in the data file:
-    mse = tsdata[0,7]
-    msne = tsdata[0,8]
-    msn = tsdata[0,9]
-    msnw = tsdata[0,10]
-    msse = tsdata[0,11]
-    mss = tsdata[0,12]
-    mssw = tsdata[0,13]
-    msw = tsdata[0,14]
-    mze = tsdata[0,15]
-    mzne = tsdata[0,16]
-    mzn = tsdata[0,17]
-    mznw = tsdata[0,18]
-    mzse = tsdata[0,19]
-    mzs = tsdata[0,20]
-    mzsw = tsdata[0,21]
-    mzw = tsdata[0,22]
-    mhe = tsdata[0,23]
-    mhne = tsdata[0,24]
-    mhn = tsdata[0,25]
-    mhnw = tsdata[0,26]
-    mhse = tsdata[0,27]
-    mhs = tsdata[0,28]
-    mhsw = tsdata[0,29]
-    mhw = tsdata[0,30]
+    mse = tsdata[0,8]
+    msne = tsdata[0,9]
+    msn = tsdata[0,10]
+    msnw = tsdata[0,11]
+    msse = tsdata[0,12]
+    mss = tsdata[0,13]
+    mssw = tsdata[0,14]
+    msw = tsdata[0,15]
+    mze = tsdata[0,16]
+    mzne = tsdata[0,17]
+    mzn = tsdata[0,18]
+    mznw = tsdata[0,19]
+    mzse = tsdata[0,20]
+    mzs = tsdata[0,21]
+    mzsw = tsdata[0,22]
+    mzw = tsdata[0,23]
+    mhe = tsdata[0,24]
+    mhne = tsdata[0,25]
+    mhn = tsdata[0,26]
+    mhnw = tsdata[0,27]
+    mhse = tsdata[0,28]
+    mhs = tsdata[0,29]
+    mhsw = tsdata[0,30]
+    mhw = tsdata[0,31]
 
     # Combine multipliers into a single value:
     mce = mse * mze * mhe
@@ -77,46 +77,54 @@ def tsmultiply(inputFile):
     mcw = msw * mzw * mhw
 
     # Apply multipliers:
-    """ii = numpy.where((bearing < 22.5) | (bearing >= 337.5))
+    """ii = np.where((bear < 22.5) | (bear >= 337.5))
     gust[ii] *= mcn
-    ii = numpy.where((bearing >= 22.5) & (bearing < 67.5))
+    ii = np.where((bear >= 22.5) & (bear < 67.5))
     gust[ii] *= mcne
-    ii = numpy.where((bearing >= 67.5) & (bearing < 112.5))
+    ii = np.where((bear >= 67.5) & (bear < 112.5))
     gust[ii] *= mce
-    ii = numpy.where((bearing >= 112.5) & (bearing < 157.5))
+    ii = np.where((bear >= 112.5) & (bear < 157.5))
     gust[ii] *= mcse
-    ii = numpy.where((bearing >= 157.5) & (bearing < 202.5))
+    ii = np.where((bear >= 157.5) & (bear < 202.5))
     gust[ii] *= mcs
-    ii = numpy.where((bearing >= 202.5) & (bearing < 247.5))
+    ii = np.where((bear >= 202.5) & (bear < 247.5))
     gust[ii] *= mcsw
-    ii = numpy.where((bearing >= 247.5) & (bearing < 292.5))
+    ii = np.where((bear >= 247.5) & (bear < 292.5))
     gust[ii] *= mcw
-    ii = numpy.where((bearing >= 292.5) & (bearing < 337.5))
+    ii = np.where((bear >= 292.5) & (bear < 337.5))
     gust[ii] *= mcnw
 
     """
-    ii = numpy.where((bearing >= 0.0) & (bearing<45.))
-    gust[ii] *= (1./45.)*(mcn*(bearing[ii]-0.0) + mcne*(45. - bearing[ii]))
-    ii = numpy.where((bearing >= 45.0) & (bearing < 90.))
-    gust[ii] *= (1./45.)*(mcne*(bearing[ii]-45.0) + mce*(90. - bearing[ii]))
-    ii = numpy.where((bearing >= 90.0) & (bearing < 135.))
-    gust[ii] *= (1./45.)*(mce*(bearing[ii]-90.0) + mcse*(135. - bearing[ii]))
-    ii = numpy.where((bearing >= 135.0) & (bearing < 180.))
-    gust[ii] *= (1./45.)*(mcse*(bearing[ii]-135.0) + mcs*(180. - bearing[ii]))
-    ii = numpy.where((bearing >= 180.0) & (bearing < 225.))
-    gust[ii] *= (1./45.)*(mcs*(bearing[ii]-180.0) + mcsw*(225. - bearing[ii]))
-    ii = numpy.where((bearing >= 225.0) & (bearing < 270.))
-    gust[ii] *= (1./45.)*(mcsw*(bearing[ii]-225.0) + mcw*(270. - bearing[ii]))
-    ii = numpy.where((bearing >= 270.0) & (bearing < 315.))
-    gust[ii] *= (1./45.)*(mcw*(bearing[ii]-270.0) + mcnw*(315. - bearing[ii]))
-    ii = numpy.where((bearing >= 315.0) & (bearing <= 360.))
-    gust[ii] *= (1./45.)*(mcnw*(bearing[ii]-315.0) + mcn*(360. - bearing[ii]))
+    ii = np.where((bear >= 0.0) & (bear < 45.))
+    gust[ii] *= (1./45.)*(mcn*(bear[ii]-0.0) +
+                          mcne*(45. - bear[ii]))
+    ii = np.where((bear >= 45.0) & (bear < 90.))
+    gust[ii] *= (1./45.)*(mcne*(bear[ii] - 45.0) +
+                          mce*(90. - bear[ii]))
+    ii = np.where((bear >= 90.0) & (bear < 135.))
+    gust[ii] *= (1./45.)*(mce*(bear[ii] - 90.0) +
+                          mcse*(135. - bear[ii]))
+    ii = np.where((bear >= 135.0) & (bear < 180.))
+    gust[ii] *= (1./45.)*(mcse*(bear[ii] - 135.0) +
+                          mcs*(180. - bear[ii]))
+    ii = np.where((bear >= 180.0) & (bear < 225.))
+    gust[ii] *= (1./45.)*(mcs*(bear[ii] - 180.0) +
+                          mcsw*(225. - bear[ii]))
+    ii = np.where((bear >= 225.0) & (bear < 270.))
+    gust[ii] *= (1./45.)*(mcsw*(bear[ii] - 225.0) +
+                          mcw*(270. - bear[ii]))
+    ii = np.where((bear >= 270.0) & (bear < 315.))
+    gust[ii] *= (1./45.)*(mcw*(bear[ii] - 270.0) +
+                          mcnw*(315. - bear[ii]))
+    ii = np.where((bear >= 315.0) & (bear <= 360.))
+    gust[ii] *= (1./45.)*(mcnw*(bear[ii] - 315.0) +
+                          mcn*(360. - bear[ii]))
 
 
-    ii = numpy.where(gust==0)
-    bearing[ii]=0
+    ii = np.where(gust==0)
+    bear[ii]=0
 
-    data = numpy.transpose([tstep, lon, lat, gust, uu, vv, bearing])
+    data = np.transpose([tstep, lon, lat, gust, uu, vv, bear])
     header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing'
     flSaveFile(inputFile, data, header, ',', '%f')
 
