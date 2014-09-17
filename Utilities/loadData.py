@@ -635,7 +635,7 @@ def ltmPressure(jdays, time, lon, lat, ncfile):
 
     data = nctools.ncGetData(ncobj, 'slp')
     # Get the MSLP by interpolating to the location of the TC:
-    penv = interp3d.interp3d(data, coords, scale=[365., 90., 360.],
+    penv = interp3d.interp3d(data, coords, scale=[365., 180., 360.],
                              offset=[0., -90., 0.])
     penv = metutils.convert(penv, slpunits, 'hPa')
     del data
