@@ -129,19 +129,30 @@ def doWindfieldPlotting(configFile):
     # Note the assumption about the file name!
     outputWindFile = pjoin(windfieldPath, 'gust.interp.nc')
     plotPath = pjoin(outputPath, 'plots', 'maxwind.png')
-    
+
     f = Dataset(outputWindFile, 'r')
 
     xdata = f.variables['lon'][:]
     ydata = f.variables['lat'][:]
 
     vdata = f.variables['vmax'][:]
-
-    [xgrid, ygrid] = np.meshgrid(xdata, ydata)
-    map_kwargs = dict(llcrnrlon=xdata.min(),
-                      llcrnrlat=ydata.min(),
-                      urcrnrlon=xdata.max(),
-                      urcrnrlat=ydata.max(),
+    
+    gridLimit = None
+    if config.has_option('Region','gridLimit'):
+        gridLimit = config.geteval('Region', 'gridLimit')
+        ii = np.where((xdata >= gridLimit['xMin']) &
+                      (xdata <= gridLimit['xMax']))
+        jj = np.where((ydata >= gridLimit['yMin']) &
+                      (ydata <= gridLimit['yMax']))
+        [xgrid, ygrid] = np.meshgrid(xdata[ii], ydata[jj])
+        ig, jg = np.meshgrid(ii, jj)
+        vdata = vdata[jg, ig]
+    else:
+        [xgrid, ygrid] = np.meshgrid(xdata, ydata)
+    map_kwargs = dict(llcrnrlon=xgrid.min(),
+                      llcrnrlat=ygrid.min(),
+                      urcrnrlon=xgrid.max(),
+                      urcrnrlat=ygrid.max(),
                       projection='merc',
                       resolution='i')
     title = "Maximum wind speed"
