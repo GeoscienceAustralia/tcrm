@@ -89,7 +89,7 @@ If the ``-v`` option is included, then all logging messages will be
 printed to the console. The level of logging detail is set in the
 configuration file.
 
-:note: `tcevent.py` cannot be executed in parallel. 
+:Note: `tcevent.py` cannot be executed in parallel. 
 
 .. _scenariocmdlineargs:
 Command line arguments
@@ -124,6 +124,18 @@ numbered sequentially through the locations.
 
 The data is stored in a separate csv file for each location, and data
 is plotted on a simple figure for visual inspection.
+
+.. figure:: ./maxwind_example.png
+    :align: center
+    :alt: Maximum wind speed swath of Typhoon *Haiyan*
+    :figclass: align-center
+
+    Estimated maximum wind speed swath of Super Typhoon
+    *Haiyan* (2013) across the Philippine archipelago. This simulation
+    used the best track estimate from the Joint Typhoon Warning Center
+    to establish the intensity and radius to maximum winds of the
+    typhoon. No attempt is made to fit the radial profile to defined
+    wind radii (e.g. radius of 46-, 50- or 34-knots).
 
 .. figure:: ./timeseries_example.png
     :align: center

@@ -75,6 +75,18 @@ those simulated years, calculate the hazard (return period wind
 speeds) for the region and plot the output as maps and a return period
 curve for Port Hedland. The hazard data are also stored in netCDF
 (version 4) files.</p>
+<div class="align-center figure">
+<img alt="100-year return period wind speed near Port Hedland, Australia." src="../_images/hazard_example.png" />
+<p class="caption">100-year return period wind speed near Port Hedland,
+Australia. Wind speeds represent a 3-second gust wind speed, 10
+metres above ground level in open, flat terrain.</p>
+</div>
+<div class="align-center figure">
+<img alt="Example hazard curve for Port Hedland, Australia." src="../_images/hazard_curve.png" />
+<p class="caption">Hazard curve for Port Hedland, Australia, based on 1000 years of
+synthetic tropical cyclone events. The grey shading indicates the
+90th percentile range, based on a bootstrap resampling procedure.</p>
+</div>
 <div class="section" id="running-in-an-mpi-environment">
 <h3>Running in an MPI environment<a class="headerlink" href="#running-in-an-mpi-environment" title="Permalink to this headline">¶</a></h3>
 <p>For a multiprocessor environment using MPI and Pypar, the example can
@@ -83,7 +95,7 @@ be run with:</p>
 </pre></div>
 </div>
 <p>This will execute TCRM across 16 CPUs (if available).</p>
-<p>TCRM has been tested on systems up to 256 CPUs. Testing with large
+<p>TCRM has been tested on systems up to 256 CPUs. Testing with moderate
 event sets (4000 events) indicate &gt; 23 times speedup when run across
 32 CPUs.</p>
 </div>
@@ -91,8 +103,14 @@ event sets (4000 events) indicate &gt; 23 times speedup when run across
 <div class="section" id="scenario-simulation">
 <h2>Scenario simulation<a class="headerlink" href="#scenario-simulation" title="Permalink to this headline">¶</a></h2>
 <p>An example scenario is also included with the code to demonstrate an
-individual event simulation. This uses TC xx (YYYY), which impacted
-Blah.</p>
+individual event simulation. This uses Tropical Cyclone <em>Tracy</em>, which
+impacted Darwin, Australia in 1974. The example simulation uses the
+best track data captured in the IBTrACS dataset, with the radius to
+maximum winds sourced from JTWC. TC <em>Tracy</em> struck Darwin early on
+Christmas Morning (1974), and resulted in 68 deaths and the largest
+peacetime evacuation of a city in Australia&#8217;s history. A more detailed
+simulation of TC Tracy using TCRM is given in Schofield <em>et al.</em>
+(2009).</p>
 </div>
 </div>
 
@@ -165,7 +183,7 @@ Blah.</p>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Sep 10, 2014.
+      Last updated on Sep 14, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

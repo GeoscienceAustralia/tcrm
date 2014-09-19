@@ -139,15 +139,46 @@ function will accept hPa and automatically convert to Pa.</p>
 </div>
 <div class="section" id="module-wind.windmodels">
 <span id="wind-windmodels-module"></span><h2>wind.windmodels module<a class="headerlink" href="#module-wind.windmodels" title="Permalink to this headline">¶</a></h2>
-<p>Wind Models</p>
+<p>This provides classes and methods that calculate the gradient level
+and surface (10-m above ground) wind speed, based on a number of
+parametric profiles and boundary layer models. These classes and
+methods provide the wind field at a single point in time. The complete
+wind swath is evaluated in the calling classes.</p>
+<p>The <tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> classes define the
+wind-pressure relations that define the maximum wind speed for a given
+central pressure deficit.</p>
+<p>The <tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindProfileModel</span></tt> classes define parametric
+radial profiles of gradient level wind speed around the primary TC
+vortex. These do not account for TC motion or interaction with the
+surface.</p>
+<p>The <tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindFieldModel</span></tt> classes define the boundary
+layer models implemented, which relate the gradient level vortex to
+the surface wind speed, incorporating the wavenumber-1 assymetry due
+to storm forward motion, and the effects of (uniform) surface
+roughness.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body">Not all models are fully implemented - some cannot be fully
+implemented, as the mathematical formulation results in
+discontinuous profiles (e.g. Rankine vortex), for which a
+mathematical representation of the vorticity cannot be
+defined. The vorticity is required for the
+<tt class="xref py py-class docutils literal"><span class="pre">windmodels.KepertWindFieldModel</span></tt>. Users should
+carefully select the combinations of wind profiles and wind
+fields to ensure sensible results.</td>
+</tr>
+</tbody>
+</table>
 <dl class="class">
 <dt id="wind.windmodels.AtkinsonWindSpeed">
 <em class="property">class </em><tt class="descname">AtkinsonWindSpeed</tt><big>(</big><em>windProfileModel</em><big>)</big><a class="headerlink" href="#wind.windmodels.AtkinsonWindSpeed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindSpeedModel" title="wind.windmodels.WindSpeedModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindSpeedModel</span></tt></a></p>
-<p>Atkinson and Holliday (1977), Tropical Cyclone Minimum Sea
+<p>Atkinson and Holliday (1977), <em>Tropical Cyclone Minimum Sea
 Level Pressure / Maximum Sustained Wind Relationship for
-the Western North Pacific. Mon. Wea. Rev., 105, 421-427
-Maximum 10m, 1-minute wind speed. Uses pEnv as 1010 hPa</p>
+the Western North Pacific</em> . Mon. Wea. Rev., <strong>105</strong>, 421-427
+Maximum 10m, 1-minute wind speed. Uses <tt class="docutils literal"><span class="pre">pEnv</span></tt> as 1010 hPa.</p>
 <dl class="method">
 <dt id="wind.windmodels.AtkinsonWindSpeed.maximum">
 <tt class="descname">maximum</tt><big>(</big><big>)</big><a class="headerlink" href="#wind.windmodels.AtkinsonWindSpeed.maximum" title="Permalink to this definition">¶</a></dt>
@@ -159,10 +190,30 @@ Maximum 10m, 1-minute wind speed. Uses pEnv as 1010 hPa</p>
 <dt id="wind.windmodels.DoubleHollandWindProfile">
 <em class="property">class </em><tt class="descname">DoubleHollandWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta1</em>, <em>beta2</em>, <em>rMax2=150.0</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.HollandWindSpeed'&gt;</em><big>)</big><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></tt></a></p>
-<p>McConochie et al&#8217;s double Holland vortex model (based on Cardone et
-al, 1994).  This application is the Coral Sea adaptation of the
+<p>McConochie <em>et al</em>&#8216;s double Holland vortex model (based on Cardone <em>et
+al</em>, 1994).  This application is the Coral Sea adaptation of the
 double vortex model (it can also be used for concentric eye-wall
 configurations).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lat</strong> (<em>float</em>) &#8211; Latitude of TC centre.</li>
+<li><strong>lon</strong> (<em>float</em>) &#8211; Longitude of TC centre.</li>
+<li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
+<li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
+<li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
+<li><strong>beta1</strong> (<em>float</em>) &#8211; β parameter for the primary vortex.</li>
+<li><strong>beta2</strong> (<em>float</em>) &#8211; β parameter for the secondary vortex.</li>
+<li><strong>rmax2</strong> (<em>float</em>) &#8211; Optional. Radius to the secondary wind
+maximum (default=250 km).</li>
+<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="wind.windmodels.DoubleHollandWindProfile.secondDerivative">
 <tt class="descname">secondDerivative</tt><big>(</big><big>)</big><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile.secondDerivative" title="Permalink to this definition">¶</a></dt>
@@ -172,12 +223,42 @@ configurations).</p>
 <dl class="method">
 <dt id="wind.windmodels.DoubleHollandWindProfile.velocity">
 <tt class="descname">velocity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate velocity as a function of radial distance.
+Represents the velocity of teh gradient level vortex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+the TC centre.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level wind speed.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.DoubleHollandWindProfile.vorticity">
 <tt class="descname">vorticity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the vorticity associated with the (gradient level)
+vortex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+the TC centre.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level (relative) vorticity.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -185,24 +266,71 @@ configurations).</p>
 <dt id="wind.windmodels.HollandWindProfile">
 <em class="property">class </em><tt class="descname">HollandWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.HollandWindSpeed'&gt;</em><big>)</big><a class="headerlink" href="#wind.windmodels.HollandWindProfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></tt></a></p>
-<p>Holland profile. For r &lt; rMax, we reset the wind field to a
+<p>Holland profile. For <cite>r &lt; rMax</cite>, we reset the wind field to a
 cubic profile to avoid the barotropic instability mentioned in
 Kepert &amp; Wang (2001).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lat</strong> (<em>float</em>) &#8211; Latitude of TC centre.</li>
+<li><strong>lon</strong> (<em>float</em>) &#8211; Longitude of TC centre.</li>
+<li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
+<li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
+<li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
+<li><strong>beta</strong> (<em>float</em>) &#8211; β parameter.</li>
+<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="wind.windmodels.HollandWindProfile.secondDerivative">
 <tt class="descname">secondDerivative</tt><big>(</big><big>)</big><a class="headerlink" href="#wind.windmodels.HollandWindProfile.secondDerivative" title="Permalink to this definition">¶</a></dt>
-<dd><p>Second derivative of profile at rMax</p>
+<dd><p>Second derivative of profile at rMax.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.HollandWindProfile.velocity">
 <tt class="descname">velocity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.HollandWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate velocity as a function of radial distance.
+Represents the velocity of teh gradient level vortex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+the TC centre.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level wind speed.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.HollandWindProfile.vorticity">
 <tt class="descname">vorticity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.HollandWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the vorticity associated with the (gradient level)
+vortex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+the TC centre.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level (relative) vorticity.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -212,7 +340,7 @@ Kepert &amp; Wang (2001).</p>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindSpeedModel" title="wind.windmodels.WindSpeedModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindSpeedModel</span></tt></a></p>
 <p>Holland (1980), An Analytic Model of the Wind and Pressure Profiles
 in Hurricanes. Mon. Wea. Rev, 108, 1212-1218 Density of air is
-assumed to be 1.15 kg/m^3.  beta is assumed to be 1.3. Other values
+assumed to be 1.15 kg/m^3.  β is assumed to be 1.3. Other values
 can be specified.  Gradient level wind (assumed maximum).</p>
 <dl class="method">
 <dt id="wind.windmodels.HollandWindSpeed.maximum">
@@ -227,7 +355,26 @@ can be specified.  Gradient level wind (assumed maximum).</p>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindFieldModel" title="wind.windmodels.WindFieldModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindFieldModel</span></tt></a></p>
 <p>Hubbert, G.D., G.J. Holland, L.M. Leslie and M.J. Manton, 1991:
 A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
-Weather and Forecasting, 6, 86-97</p>
+<em>Weather and Forecasting</em>, <strong>6</strong>, 86-97</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>R</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; Distance from the storm centre to the grid (km).</li>
+<li><strong>lam</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; Direction (geographic bearing, positive clockwise)
+from storm centre to the grid.</li>
+<li><strong>vFm</strong> (<em>float</em>) &#8211; Foward speed of the storm (m/s).</li>
+<li><strong>thetaFm</strong> (<em>float</em>) &#8211; Forward direction of the storm (geographic
+bearing, positive clockwise).</li>
+<li><strong>thetaMax</strong> (<em>float</em>) &#8211; Bearing of the location of the maximum
+wind speed, relative to the direction of
+motion.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="wind.windmodels.HubbertWindField.field">
 <tt class="descname">field</tt><big>(</big><em>R</em>, <em>lam</em>, <em>vFm</em>, <em>thetaFm</em>, <em>thetaMax=0.0</em><big>)</big><a class="headerlink" href="#wind.windmodels.HubbertWindField.field" title="Permalink to this definition">¶</a></dt>
@@ -239,16 +386,62 @@ Weather and Forecasting, 6, 86-97</p>
 <dt id="wind.windmodels.JelesnianskiWindProfile">
 <em class="property">class </em><tt class="descname">JelesnianskiWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.WilloughbyWindSpeed'&gt;</em><big>)</big><a class="headerlink" href="#wind.windmodels.JelesnianskiWindProfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></tt></a></p>
-<p>Jelesnianski model of the wind profile</p>
+<p>Jelesnianski model of the wind profile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lat</strong> (<em>float</em>) &#8211; Latitude of TC centre.</li>
+<li><strong>lon</strong> (<em>float</em>) &#8211; Longitude of TC centre.</li>
+<li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
+<li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
+<li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
+<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="wind.windmodels.JelesnianskiWindProfile.velocity">
 <tt class="descname">velocity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.JelesnianskiWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate velocity as a function of radial distance.
+Represents the velocity of teh gradient level vortex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+the TC centre.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level wind speed.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.JelesnianskiWindProfile.vorticity">
 <tt class="descname">vorticity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.JelesnianskiWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the vorticity associated with the (gradient level)
+vortex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+the TC centre.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level (relative) vorticity.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -262,7 +455,26 @@ Tropical Cyclone Core. Part I: Linear Theory.  J. Atmos. Sci., 58,
 <dl class="method">
 <dt id="wind.windmodels.KepertWindField.field">
 <tt class="descname">field</tt><big>(</big><em>R</em>, <em>lam</em>, <em>vFm</em>, <em>thetaFm</em>, <em>thetaMax=0.0</em><big>)</big><a class="headerlink" href="#wind.windmodels.KepertWindField.field" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>R</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; Distance from the storm centre to the grid (km).</li>
+<li><strong>lam</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; Direction (geographic bearing, positive clockwise)
+from storm centre to the grid.</li>
+<li><strong>vFm</strong> (<em>float</em>) &#8211; Foward speed of the storm (m/s).</li>
+<li><strong>thetaFm</strong> (<em>float</em>) &#8211; Forward direction of the storm (geographic
+bearing, positive clockwise).</li>
+<li><strong>thetaMax</strong> (<em>float</em>) &#8211; Bearing of the location of the maximum
+wind speed, relative to the direction of
+motion.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -272,11 +484,30 @@ Tropical Cyclone Core. Part I: Linear Theory.  J. Atmos. Sci., 58,
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindFieldModel" title="wind.windmodels.WindFieldModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindFieldModel</span></tt></a></p>
 <p>McConochie, J.D., T.A. Hardy and L.B. Mason, 2004:
 Modelling tropical cyclone over-water wind and pressure fields.
-Ocean Engineering, 31, 1757-1782</p>
+Ocean Engineering, 31, 1757-1782.</p>
 <dl class="method">
 <dt id="wind.windmodels.McConochieWindField.field">
 <tt class="descname">field</tt><big>(</big><em>R</em>, <em>lam</em>, <em>vFm</em>, <em>thetaFm</em>, <em>thetaMax=0.0</em><big>)</big><a class="headerlink" href="#wind.windmodels.McConochieWindField.field" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>R</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; Distance from the storm centre to the grid (km).</li>
+<li><strong>lam</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; Direction (geographic bearing, positive clockwise)
+from storm centre to the grid.</li>
+<li><strong>vFm</strong> (<em>float</em>) &#8211; Foward speed of the storm (m/s).</li>
+<li><strong>thetaFm</strong> (<em>float</em>) &#8211; Forward direction of the storm (geographic
+bearing, positive clockwise).</li>
+<li><strong>thetaMax</strong> (<em>float</em>) &#8211; Bearing of the location of the maximum
+wind speed, relative to the direction of
+motion.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -289,15 +520,64 @@ vary linearly outside the radius of maximum wind. i.e. rather than
 take the sqare root, the exponent varies around 0.5.  Currently
 this version does not have a corresponding vorticity profile set up
 in windVorticity, so it cannot be applied in wind field modelling.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lat</strong> (<em>float</em>) &#8211; Latitude of TC centre.</li>
+<li><strong>lon</strong> (<em>float</em>) &#8211; Longitude of TC centre.</li>
+<li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
+<li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
+<li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
+<li><strong>rGale</strong> (<em>float</em>) &#8211; Radius of gale force winds (default=150 km).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="wind.windmodels.NewHollandWindProfile.velocity">
 <tt class="descname">velocity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.NewHollandWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>In this incarnation, we are assuming the pressure rate of
+change and forward velocity is zero, so there is no
+requirement for a first-pass guess at <cite>x</cite>.</p>
+<p>Calculate velocity as a function of radial distance.
+Represents the velocity of teh gradient level vortex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+the TC centre.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level wind speed.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.NewHollandWindProfile.vorticity">
 <tt class="descname">vorticity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.NewHollandWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the vorticity associated with the (gradient level)
+vortex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+the TC centre.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level (relative) vorticity.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -305,12 +585,28 @@ in windVorticity, so it cannot be applied in wind field modelling.</p>
 <dt id="wind.windmodels.PowellWindProfile">
 <em class="property">class </em><tt class="descname">PowellWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em><big>)</big><a class="headerlink" href="#wind.windmodels.PowellWindProfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.HollandWindProfile" title="wind.windmodels.HollandWindProfile"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.HollandWindProfile</span></tt></a></p>
-<p>Powell et al, 2005. Another definition of the beta parameter
+<p>Powell <em>et al</em>, 2005. Another definition of the beta parameter
 inserted into the Holland model.  Unlike Willoughby and Rahn&#8217;s
-model, there is no reliance on vMax.  Powell et al. also included a
+model, there is no reliance on vMax.  Powell <em>et al</em>. also included a
 small random term, but since the beta value is also used in the
 vorticity calculation, we need to ensure the values used in this
 function and the corresponding vorticity function match.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lat</strong> (<em>float</em>) &#8211; Latitude of TC centre.</li>
+<li><strong>lon</strong> (<em>float</em>) &#8211; Longitude of TC centre.</li>
+<li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
+<li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
+<li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
+<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
@@ -319,15 +615,64 @@ function and the corresponding vorticity function match.</p>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></tt></a></p>
 <p>Rankine vortex profile. Vmax determined by dp using, by default,
 the Willoughby &amp; Rahn method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lat</strong> (<em>float</em>) &#8211; Latitude of TC centre.</li>
+<li><strong>lon</strong> (<em>float</em>) &#8211; Longitude of TC centre.</li>
+<li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
+<li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
+<li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
+<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="wind.windmodels.RankineWindProfile.velocity">
 <tt class="descname">velocity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.RankineWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate velocity as a function of radial distance.
+Represents the velocity of teh gradient level vortex.</p>
+<p>This includes an assumption about the shape of the profile
+outside Rmax. The literature indicates 0.4 &lt; alpha &lt; 0.6
+(e.g. see Holland, 1980).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+the TC centre.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level wind speed.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.RankineWindProfile.vorticity">
 <tt class="descname">vorticity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.RankineWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the vorticity associated with the (gradient level)
+vortex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+the TC centre.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level (relative) vorticity.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -336,19 +681,51 @@ the Willoughby &amp; Rahn method.</p>
 <em class="property">class </em><tt class="descname">SchloemerWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em><big>)</big><a class="headerlink" href="#wind.windmodels.SchloemerWindProfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.HollandWindProfile" title="wind.windmodels.HollandWindProfile"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.HollandWindProfile</span></tt></a></p>
 <p>Schloemer&#8217;s (1954) is the same as the Holland relation with
-beta = 1</p>
+β = 1</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lat</strong> (<em>float</em>) &#8211; Latitude of TC centre.</li>
+<li><strong>lon</strong> (<em>float</em>) &#8211; Longitude of TC centre.</li>
+<li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
+<li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
+<li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
+<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
 <dt id="wind.windmodels.WilloughbyWindProfile">
 <em class="property">class </em><tt class="descname">WilloughbyWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.WilloughbyWindSpeed'&gt;</em><big>)</big><a class="headerlink" href="#wind.windmodels.WilloughbyWindProfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.HollandWindProfile" title="wind.windmodels.HollandWindProfile"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.HollandWindProfile</span></tt></a></p>
-<p>The Willoughby &amp; Rahn (2004) relation, which makes beta a function
+<p>The Willoughby &amp; Rahn (2004) relation, which makes β a function
 of Vmax, rMax and latitude. We use Willoughby &amp; Rahn&#8217;s (2004)
-relation for Vmax <em>only</em>.  This determines the beta parameter then
+relation for Vmax <em>only</em>.  This determines the β parameter then
 calls Holland (which means the profile is cubic within Rmax) to
-calculate the wind profile.  The beta term calculation is based on
+calculate the wind profile.  The β term calculation is based on
 Atlantic and Eastern Pacific cyclone data, not Australian data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lat</strong> (<em>float</em>) &#8211; Latitude of TC centre.</li>
+<li><strong>lon</strong> (<em>float</em>) &#8211; Longitude of TC centre.</li>
+<li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
+<li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
+<li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
+<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="class">
@@ -369,7 +746,19 @@ Holland (1980) Model.  Mon. Wea. Rev., 132, 3033-3048</p>
 <dt id="wind.windmodels.WindFieldModel">
 <em class="property">class </em><tt class="descname">WindFieldModel</tt><big>(</big><em>windProfileModel</em><big>)</big><a class="headerlink" href="#wind.windmodels.WindFieldModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Wind field model.</p>
+<p>Wind field (boundary layer) models. These define the boundary
+layer models implemented, which relate the gradient level vortex
+to the surface wind speed, incorporating the wavenumber-1
+assymetry due to storm forward motion, and the effects of
+(uniform) surface roughness.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>windProfileModel</strong> &#8211; A <cite>wind.WindProfileModel</cite> instance.</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="wind.windmodels.WindFieldModel.f">
 <tt class="descname">f</tt><a class="headerlink" href="#wind.windmodels.WindFieldModel.f" title="Permalink to this definition">¶</a></dt>
@@ -410,7 +799,23 @@ from the wind profile or the precalculated attribute.</p>
 <dt id="wind.windmodels.WindProfileModel">
 <em class="property">class </em><tt class="descname">WindProfileModel</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel</em><big>)</big><a class="headerlink" href="#wind.windmodels.WindProfileModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Wind profile model.</p>
+<p>The base wind profile model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lat</strong> (<em>float</em>) &#8211; Latitude of TC centre.</li>
+<li><strong>lon</strong> (<em>float</em>) &#8211; Longitude of TC centre.</li>
+<li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
+<li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
+<li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
+<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="wind.windmodels.WindProfileModel.dP">
 <tt class="descname">dP</tt><a class="headerlink" href="#wind.windmodels.WindProfileModel.dP" title="Permalink to this definition">¶</a></dt>
@@ -426,13 +831,41 @@ from the wind profile or the precalculated attribute.</p>
 <dl class="method">
 <dt id="wind.windmodels.WindProfileModel.velocity">
 <tt class="descname">velocity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.WindProfileModel.velocity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wind velocity at radiuses <cite>R</cite>.</p>
+<dd><p>Calculate velocity as a function of radial distance <cite>R</cite>.
+Represents the velocity of teh gradient level vortex.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+the TC centre.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level wind speed.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.WindProfileModel.vorticity">
 <tt class="descname">vorticity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.WindProfileModel.vorticity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wind vorticity at radiuses <cite>R</cite>.</p>
+<dd><p>Calculate the vorticity associated with the (gradient level)
+vortex at radius <cite>R</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+the TC centre.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level (relative) vorticity.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -1058,7 +1491,7 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Sep 10, 2014.
+      Last updated on Sep 19, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

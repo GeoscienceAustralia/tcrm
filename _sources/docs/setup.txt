@@ -1,9 +1,10 @@
 .. |beta|   unicode:: U+003B2 .. GREEK SMALL LETTER BETA
 
 .. _modelsetup:
-=====================
- Setting up the model
-=====================
+
+====================
+Setting up the model
+====================
 
 Execution of TCRM is controlled by reading the simulation settings
 from a configuration file. The configuration file is a text file, and
@@ -13,6 +14,7 @@ folder to give users a starting point.
 
 
 .. _configurationfile:
+
 The configuration file
 ======================
 
@@ -23,25 +25,26 @@ has no default is the Region gridLimit option. This defines the model
 domain and must be set in any configuration file used.
 
 .. _configureactions:
-Actions 
+
+Actions
 ------- 
 
 This section defines which components of TCRM will be
 executed. The options are:
 
-* DownloadData - download input datasets (defaults are included)
-* DataProcess - process the input TC track database
-* ExecuteStat - calculate the TC statistics over the model domain
-* ExecuteTrackGenerator - generate a set of stochastic TC tracks
-* ExecuteWindfield - Calculate the wind field around a set of TC
+* `DownloadData` - download input datasets (defaults are included)
+* `DataProcess` - process the input TC track database
+* `ExecuteStat` - calculate the TC statistics over the model domain
+* `ExecuteTrackGenerator` - generate a set of stochastic TC tracks
+* `ExecuteWindfield` - Calculate the wind field around a set of TC
   tracks
-* ExecuteHazard - Calculate the return period wind speeds from a set
+* `ExecuteHazard` - Calculate the return period wind speeds from a set
   of wind field files
-* PlotHazard - Plot the return period wind speed maps and return
+* `PlotHazard` - Plot the return period wind speed maps and return
   period curves for locations in the model domain
-* PlotData - Plot some basic statistical analyses of the input TC
+* `PlotData` - Plot some basic statistical analyses of the input TC
   track database
-* ExecuteEvaluate - Evaluate a set of stochastic TC tracks, comparing
+* `ExecuteEvaluate` - Evaluate a set of stochastic TC tracks, comparing
   to the input TC track database.
 
 All options are boolean (i.e. ``True`` or ``False``). ::
@@ -58,6 +61,7 @@ All options are boolean (i.e. ``True`` or ``False``). ::
     DownloadData = True
 
 .. _configureregion:
+
 Region
 ------
 
@@ -71,7 +75,7 @@ cells, which are used for calculating statistics. At this time, the
 values here must be integer values, but can be different in the ``x``
 (east-west) and ``y`` (north-south) directions. The ``gridInc`` option
 control the incremental increase in grid cell size when insufficient
-observations are located within a grid cell (see the :mod:`StatInterface
+observations are located within a grid cell (see the :mod:`StatInterface`
 description)::
 
     [Region]
@@ -80,6 +84,7 @@ description)::
     gridInc = {'x':1.0,'y':0.5}
 
 .. _configuredataprocess:
+
 DataProcess
 -----------
 
@@ -110,6 +115,7 @@ performed and the full input track database is used. ::
     Source = IBTRACS
 
 .. _configurestatinterface:
+
 StatInterface
 -------------
 
@@ -137,6 +143,7 @@ the ``gridInc`` values) until sufficient observations are found. ::
     minSamplesCell = 100
 
 .. _configuretrackgenerator:
+
 TrackGenerator
 --------------
 
@@ -174,6 +181,7 @@ each individual processor. ::
 
 
 .. _configurewindfield:
+
 WindfieldInterface
 ------------------
 
@@ -236,6 +244,7 @@ an underestimation of the maximum wind speeds. ::
     Resolution = 0.05
 
 .. _configurehazard:
+
 Hazard
 ------
 
@@ -266,6 +275,7 @@ procedure for calculating the confidence range. ::
     PlotSpeedUnits = mps
 
 .. _configurermw:
+
 RMW
 ----
 
@@ -277,6 +287,7 @@ on the radius to maximum winds. ::
     GetRMWDistFromInputData = False
 
 .. _configureinput:
+
 Input
 -----
 
@@ -333,6 +344,7 @@ are used in the :mod:`Evaluate.landfallRates` module. ::
     filename = slp.day.ltm.nc
 
 .. _configureoutput:
+
 Output
 ------
 
@@ -345,6 +357,7 @@ the working directory named ``output``. ::
     Path = output
 
 .. _configurelogging:
+
 Logging
 -------
 
@@ -373,6 +386,7 @@ system, or if it is run in batch mode. ::
     ProgressBar = False
 
 .. _configuresource:
+
 Source format options
 ---------------------
 
@@ -420,6 +434,7 @@ formats.  ::
     SpeedUnits=kph
  
 .. _references:
+
 References
 ----------
 

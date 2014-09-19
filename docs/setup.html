@@ -53,37 +53,37 @@
           <div class="body">
             
   <div class="section" id="setting-up-the-model">
-<h1>Setting up the model<a class="headerlink" href="#setting-up-the-model" title="Permalink to this headline">¶</a></h1>
+<span id="modelsetup"></span><h1>Setting up the model<a class="headerlink" href="#setting-up-the-model" title="Permalink to this headline">¶</a></h1>
 <p>Execution of TCRM is controlled by reading the simulation settings
 from a configuration file. The configuration file is a text file, and
 can be edited in any text editor (e.g. Notepad, Wordpad, vi, emacs,
 gedit). An example configuration file is provided in the examples
 folder to give users a starting point.</p>
 <div class="section" id="the-configuration-file">
-<h2>The configuration file<a class="headerlink" href="#the-configuration-file" title="Permalink to this headline">¶</a></h2>
+<span id="configurationfile"></span><h2>The configuration file<a class="headerlink" href="#the-configuration-file" title="Permalink to this headline">¶</a></h2>
 <p>The TCRM configuration file is divided into a series of sections, each
 with a set of option/value pairs. Most options have default values and
 may not need to be specified in the configuration file. One value that
 has no default is the Region gridLimit option. This defines the model
 domain and must be set in any configuration file used.</p>
 <div class="section" id="actions">
-<h3>Actions<a class="headerlink" href="#actions" title="Permalink to this headline">¶</a></h3>
+<span id="configureactions"></span><h3>Actions<a class="headerlink" href="#actions" title="Permalink to this headline">¶</a></h3>
 <p>This section defines which components of TCRM will be
 executed. The options are:</p>
 <ul class="simple">
-<li>DownloadData - download input datasets (defaults are included)</li>
-<li>DataProcess - process the input TC track database</li>
-<li>ExecuteStat - calculate the TC statistics over the model domain</li>
-<li>ExecuteTrackGenerator - generate a set of stochastic TC tracks</li>
-<li>ExecuteWindfield - Calculate the wind field around a set of TC
+<li><cite>DownloadData</cite> - download input datasets (defaults are included)</li>
+<li><cite>DataProcess</cite> - process the input TC track database</li>
+<li><cite>ExecuteStat</cite> - calculate the TC statistics over the model domain</li>
+<li><cite>ExecuteTrackGenerator</cite> - generate a set of stochastic TC tracks</li>
+<li><cite>ExecuteWindfield</cite> - Calculate the wind field around a set of TC
 tracks</li>
-<li>ExecuteHazard - Calculate the return period wind speeds from a set
+<li><cite>ExecuteHazard</cite> - Calculate the return period wind speeds from a set
 of wind field files</li>
-<li>PlotHazard - Plot the return period wind speed maps and return
+<li><cite>PlotHazard</cite> - Plot the return period wind speed maps and return
 period curves for locations in the model domain</li>
-<li>PlotData - Plot some basic statistical analyses of the input TC
+<li><cite>PlotData</cite> - Plot some basic statistical analyses of the input TC
 track database</li>
-<li>ExecuteEvaluate - Evaluate a set of stochastic TC tracks, comparing
+<li><cite>ExecuteEvaluate</cite> - Evaluate a set of stochastic TC tracks, comparing
 to the input TC track database.</li>
 </ul>
 <p>All options are boolean (i.e. <tt class="docutils literal"><span class="pre">True</span></tt> or <tt class="docutils literal"><span class="pre">False</span></tt>).</p>
@@ -101,7 +101,7 @@ to the input TC track database.</li>
 </div>
 </div>
 <div class="section" id="region">
-<h3>Region<a class="headerlink" href="#region" title="Permalink to this headline">¶</a></h3>
+<span id="configureregion"></span><h3>Region<a class="headerlink" href="#region" title="Permalink to this headline">¶</a></h3>
 <p>This section defines the model domain and the size of the grid over
 which statistics are calculated. The model domain (<tt class="docutils literal"><span class="pre">gridLimit</span></tt>) is
 specified as a Python dict with keys of <tt class="docutils literal"><span class="pre">xMin</span></tt>, <tt class="docutils literal"><span class="pre">xMax</span></tt>, <tt class="docutils literal"><span class="pre">yMin</span></tt>
@@ -112,7 +112,7 @@ cells, which are used for calculating statistics. At this time, the
 values here must be integer values, but can be different in the <tt class="docutils literal"><span class="pre">x</span></tt>
 (east-west) and <tt class="docutils literal"><span class="pre">y</span></tt> (north-south) directions. The <tt class="docutils literal"><span class="pre">gridInc</span></tt> option
 control the incremental increase in grid cell size when insufficient
-observations are located within a grid cell (see the :mod:<a href="#id1"><span class="problematic" id="id2">`</span></a>StatInterface
+observations are located within a grid cell (see the <a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><tt class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></tt></a>
 description):</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Region</span><span class="p">]</span>
 <span class="n">gridLimit</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;xMin&#39;</span><span class="p">:</span> <span class="mf">113.0</span><span class="p">,</span> <span class="s">&#39;xMax&#39;</span><span class="p">:</span> <span class="mf">124.0</span><span class="p">,</span> <span class="s">&#39;yMin&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">24.0</span><span class="p">,</span> <span class="s">&#39;yMax&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">13.0</span><span class="p">}</span>
@@ -122,7 +122,7 @@ description):</p>
 </div>
 </div>
 <div class="section" id="dataprocess">
-<h3>DataProcess<a class="headerlink" href="#dataprocess" title="Permalink to this headline">¶</a></h3>
+<span id="configuredataprocess"></span><h3>DataProcess<a class="headerlink" href="#dataprocess" title="Permalink to this headline">¶</a></h3>
 <p>This section controls aspects of the processing of the input track
 database. Firstly, the <tt class="docutils literal"><span class="pre">InputFile</span></tt> option specifies the file to be
 processed. A relative or absolute path can be used. If no path name is
@@ -149,7 +149,7 @@ performed and the full input track database is used.</p>
 </div>
 </div>
 <div class="section" id="statinterface">
-<h3>StatInterface<a class="headerlink" href="#statinterface" title="Permalink to this headline">¶</a></h3>
+<span id="configurestatinterface"></span><h3>StatInterface<a class="headerlink" href="#statinterface" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">StatInterface</span></tt> section controls the methods used to calculate
 distributions of TC parameters from the input track database.</p>
 <p><tt class="docutils literal"><span class="pre">kdeType</span></tt> and <tt class="docutils literal"><span class="pre">kde2DType</span></tt> specify the kernel used in the kernel
@@ -173,7 +173,7 @@ the <tt class="docutils literal"><span class="pre">gridInc</span></tt> values) u
 </div>
 </div>
 <div class="section" id="trackgenerator">
-<h3>TrackGenerator<a class="headerlink" href="#trackgenerator" title="Permalink to this headline">¶</a></h3>
+<span id="configuretrackgenerator"></span><h3>TrackGenerator<a class="headerlink" href="#trackgenerator" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">TrackGenerator</span></tt> section controls the stochastic track
 generation module. It is here that users can control the number of
 events and the number of years generated.</p>
@@ -205,34 +205,34 @@ each individual processor.</p>
 </div>
 </div>
 <div class="section" id="windfieldinterface">
-<h3>WindfieldInterface<a class="headerlink" href="#windfieldinterface" title="Permalink to this headline">¶</a></h3>
+<span id="configurewindfield"></span><h3>WindfieldInterface<a class="headerlink" href="#windfieldinterface" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">WindfieldInterface</span></tt> section controls how the wind fields from
 each track in the simulated tracks are calculated. There are two main
 components to the wind field &#8211; the radial profile and the boundary
 layer model.</p>
 <p>The <tt class="docutils literal"><span class="pre">profileType</span></tt> option sets the radial profile used. Valid values are:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">holland</span></tt> &#8211; the radial profile of Holland (1980) <a class="footnote-reference" href="#id13" id="id3">[1]</a></li>
+<li><tt class="docutils literal"><span class="pre">holland</span></tt> &#8211; the radial profile of Holland (1980) <a class="footnote-reference" href="#id11" id="id1">[1]</a></li>
 <li><tt class="docutils literal"><span class="pre">powell</span></tt> &#8211; Similar to the Holland profile, but uses a variable
-beta parameter that is a function of latitude and size. <a class="footnote-reference" href="#id14" id="id4">[2]</a></li>
+beta parameter that is a function of latitude and size. <a class="footnote-reference" href="#id12" id="id2">[2]</a></li>
 <li><tt class="docutils literal"><span class="pre">schloemer</span></tt> &#8211; From Schloemer (1954) &#8211; essentially the Holland
-profile with a beta value of 1 <a class="footnote-reference" href="#id15" id="id5">[3]</a></li>
+profile with a beta value of 1 <a class="footnote-reference" href="#id13" id="id3">[3]</a></li>
 <li><tt class="docutils literal"><span class="pre">willoughby</span></tt> &#8211; From Willoughby and Rahn (2004). Again, the
 Holland profile, with beta a function of the maximum wind speed,
-radius to maximum wind and latitude <a class="footnote-reference" href="#id16" id="id6">[4]</a></li>
-<li><tt class="docutils literal"><span class="pre">jelesnianski</span></tt> &#8211; From Jelesnianski (1966). <a class="footnote-reference" href="#id17" id="id7">[5]</a></li>
+radius to maximum wind and latitude <a class="footnote-reference" href="#id14" id="id4">[4]</a></li>
+<li><tt class="docutils literal"><span class="pre">jelesnianski</span></tt> &#8211; From Jelesnianski (1966). <a class="footnote-reference" href="#id15" id="id5">[5]</a></li>
 <li><tt class="docutils literal"><span class="pre">doubleHolland</span></tt> &#8211; A double exponential profile from McConochie
-<em>et al.</em> (2004) <a class="footnote-reference" href="#id18" id="id8">[6]</a></li>
+<em>et al.</em> (2004) <a class="footnote-reference" href="#id16" id="id6">[6]</a></li>
 </ul>
 <p>The <tt class="docutils literal"><span class="pre">windFieldType</span></tt> value selects the boundary layer model
 used. Three boundary layer models have been implemented:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">kepert</span></tt> &#8211; the linearised boundary layer model of Kepert (2001)
-<a class="footnote-reference" href="#id19" id="id9">[7]</a></li>
+<a class="footnote-reference" href="#id17" id="id7">[7]</a></li>
 <li><tt class="docutils literal"><span class="pre">hubbert</span></tt> &#8211; a vector addition of forward speed and tangential
-wind speed from Hubbert <em>et al.</em> (1994) <a class="footnote-reference" href="#id20" id="id10">[8]</a></li>
+wind speed from Hubbert <em>et al.</em> (1994) <a class="footnote-reference" href="#id18" id="id8">[8]</a></li>
 <li><tt class="docutils literal"><span class="pre">mcconochie</span></tt> &#8211; a second vector addition model, from McConochie
-<em>et al.</em> (2004) <a class="footnote-reference" href="#id18" id="id11">[6]</a></li>
+<em>et al.</em> (2004) <a class="footnote-reference" href="#id16" id="id9">[6]</a></li>
 </ul>
 <p>The <tt class="docutils literal"><span class="pre">beta</span></tt> option specifies the β parameter used in the Holland
 wind profile. The additional β options (<tt class="docutils literal"><span class="pre">beta1</span></tt> and <tt class="docutils literal"><span class="pre">beta2</span></tt>)
@@ -262,7 +262,7 @@ an underestimation of the maximum wind speeds.</p>
 </div>
 </div>
 <div class="section" id="hazard">
-<h3>Hazard<a class="headerlink" href="#hazard" title="Permalink to this headline">¶</a></h3>
+<span id="configurehazard"></span><h3>Hazard<a class="headerlink" href="#hazard" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">Hazard</span></tt> section controls how the model calculates the return
 period wind speeds, and whether to calculate confidence ranges.</p>
 <p>The <tt class="docutils literal"><span class="pre">Years</span></tt> option is a comma separated list of integer values that
@@ -289,7 +289,7 @@ procedure for calculating the confidence range.</p>
 </div>
 </div>
 <div class="section" id="rmw">
-<h3>RMW<a class="headerlink" href="#rmw" title="Permalink to this headline">¶</a></h3>
+<span id="configurermw"></span><h3>RMW<a class="headerlink" href="#rmw" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">RMW</span></tt> section contains a single option: <tt class="docutils literal"><span class="pre">GetRMWDistFromInputData</span></tt>.
 Set this value to <tt class="docutils literal"><span class="pre">True</span></tt> if the input track database has reliable data
 on the radius to maximum winds.</p>
@@ -299,7 +299,7 @@ on the radius to maximum winds.</p>
 </div>
 </div>
 <div class="section" id="input">
-<h3>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h3>
+<span id="configureinput"></span><h3>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">Input</span></tt> section sets the source of some supplementary data, as
 well as the datasets to be automatically downloaded. The <tt class="docutils literal"><span class="pre">LandMask</span></tt>
 option specifies the path to a netcdf file (supplied) that contains a
@@ -350,7 +350,7 @@ filename = slp.day.ltm.nc
 </div>
 </div>
 <div class="section" id="output">
-<h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
+<span id="configureoutput"></span><h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">Output</span></tt> section defines the destination of the model output. Set the
 <tt class="docutils literal"><span class="pre">Path</span></tt> option to the directory where you wish to store the data. Paths can
 be relative or absolute. By default, output is stored in a subdirectory of
@@ -361,7 +361,7 @@ the working directory named <tt class="docutils literal"><span class="pre">outpu
 </div>
 </div>
 <div class="section" id="logging">
-<h3>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h3>
+<span id="configurelogging"></span><h3>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h3>
 <p>The <tt class="docutils literal"><span class="pre">Logging</span></tt> section controls how the model records progress to
 file (and optionally STDOUT). <tt class="docutils literal"><span class="pre">LogFile</span></tt> option specifies the name of
 the log file. If no path is given, then the log file will be stored in
@@ -386,7 +386,7 @@ system, or if it is run in batch mode.</p>
 </div>
 </div>
 <div class="section" id="source-format-options">
-<h3>Source format options<a class="headerlink" href="#source-format-options" title="Permalink to this headline">¶</a></h3>
+<span id="configuresource"></span><h3>Source format options<a class="headerlink" href="#source-format-options" title="Permalink to this headline">¶</a></h3>
 <p>For the input data source specified in the <tt class="docutils literal"><span class="pre">DataProcess</span> <span class="pre">--</span> <span class="pre">Source</span></tt>
 option, there must be a corresponding section of the given name. In
 this example case, the source is specified as <tt class="docutils literal"><span class="pre">IBTRACS</span></tt> (the same as
@@ -428,68 +428,68 @@ SpeedUnits=kph
 </pre></div>
 </div>
 </div>
-<div class="section" id="id12">
-<h3>References<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
-<table class="docutils footnote" frame="void" id="id13" rules="none">
+<div class="section" id="references">
+<span id="id10"></span><h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
+<table class="docutils footnote" frame="void" id="id11" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td>Holland, G. J. (1980): An Analytic Model of the Wind and Pressure
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Holland, G. J. (1980): An Analytic Model of the Wind and Pressure
 Profiles in Hurricanes. <em>Monthly Weather Review</em>, <strong>108</strong></td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id14" rules="none">
+<table class="docutils footnote" frame="void" id="id12" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td>Powell, M., G. Soukup, S. Cocke, S. Gulati, N. Morisseau-Leroy, S.
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>Powell, M., G. Soukup, S. Cocke, S. Gulati, N. Morisseau-Leroy, S.
 Hamid, N. Dorst, and L. Axe (2005): State of Florida hurricane loss
 projection model: Atmospheric science component. <em>Journal of Wind
 Engineering and Industrial Aerodynamics</em>, <strong>93</strong>, 651&#8211;674</td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id15" rules="none">
+<table class="docutils footnote" frame="void" id="id13" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[3]</a></td><td>Schloemer, R. W. (1954): Analysis and synthesis of hurricane wind
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td>Schloemer, R. W. (1954): Analysis and synthesis of hurricane wind
 patterns over Lake Okeechobee. <em>NOAA Hydrometeorology Report</em> <strong>31</strong>,
 1954</td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id16" rules="none">
+<table class="docutils footnote" frame="void" id="id14" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id6">[4]</a></td><td>Willoughby, H. E. and M. E. Rahn (2004): Parametric Representation
+<tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td>Willoughby, H. E. and M. E. Rahn (2004): Parametric Representation
 of the Primary Hurricane Vortex. Part I: Observations and
 Evaluation of the Holland (1980) Model. <em>Monthly Weather Review</em>,
 <strong>132</strong>, 3033&#8211;3048</td></tr>
 </tbody>
 </table>
+<table class="docutils footnote" frame="void" id="id15" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[5]</a></td><td>Jelesnianski, C. P. (1966): Numerical Computations of Storm Surges
+without Bottom Stress. <em>Monthly Weather Review</em>, <strong>94</strong>, 379&#8211;394</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id16" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[6]</td><td><em>(<a class="fn-backref" href="#id6">1</a>, <a class="fn-backref" href="#id9">2</a>)</em> McConochie, J. D., T. A. Hardy, and L. B.  Mason (2004):  Modelling
+tropical cyclone over-water wind and pressure fields. <em>Ocean
+Engineering</em>, <strong>31</strong>, 1757&#8211;1782</td></tr>
+</tbody>
+</table>
 <table class="docutils footnote" frame="void" id="id17" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id7">[5]</a></td><td>Jelesnianski, C. P. (1966): Numerical Computations of Storm Surges
-without Bottom Stress. <em>Monthly Weather Review</em>, <strong>94</strong>, 379&#8211;394</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id7">[7]</a></td><td>Kepert, J. D. (2001): The Dynamics of Boundary Layer Jets
+within the Tropical Cyclone Core. Part I: Linear Theory.
+<em>J. Atmos. Sci.</em>, <strong>58</strong>, 2469&#8211;2484</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id18" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label">[6]</td><td><em>(<a class="fn-backref" href="#id8">1</a>, <a class="fn-backref" href="#id11">2</a>)</em> McConochie, J. D., T. A. Hardy, and L. B.  Mason (2004):  Modelling
-tropical cyclone over-water wind and pressure fields. <em>Ocean
-Engineering</em>, <strong>31</strong>, 1757&#8211;1782</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id19" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id9">[7]</a></td><td>Kepert, J. D. (2001): The Dynamics of Boundary Layer Jets
-within the Tropical Cyclone Core. Part I: Linear Theory.
-<em>J. Atmos. Sci.</em>, <strong>58</strong>, 2469&#8211;2484</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id20" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id10">[8]</a></td><td>Hubbert, G. D., G. J. Holland, L. M. Leslie and M. J. Manton (1991):
+<tr><td class="label"><a class="fn-backref" href="#id8">[8]</a></td><td>Hubbert, G. D., G. J. Holland, L. M. Leslie and M. J. Manton (1991):
 A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
 <em>Weather and Forecasting</em>, <strong>6</strong>, 86&#8211;97</td></tr>
 </tbody>
@@ -523,7 +523,7 @@ A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
 <li><a class="reference internal" href="#output">Output</a></li>
 <li><a class="reference internal" href="#logging">Logging</a></li>
 <li><a class="reference internal" href="#source-format-options">Source format options</a></li>
-<li><a class="reference internal" href="#id12">References</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
 </ul>
@@ -578,7 +578,7 @@ A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Sep 10, 2014.
+      Last updated on Sep 19, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

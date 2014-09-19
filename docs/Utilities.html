@@ -3789,7 +3789,7 @@ in the range [low to high]</p>
 
 <dl class="data">
 <dt id="Utilities.stats.logger">
-<tt class="descname">logger</tt><em class="property"> = &lt;logging.RootLogger object at 0x02F9BE10&gt;</em><a class="headerlink" href="#Utilities.stats.logger" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">logger</tt><em class="property"> = &lt;logging.RootLogger object at 0x02F15EF0&gt;</em><a class="headerlink" href="#Utilities.stats.logger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Functions:</p>
 <dl class="docutils">
 <dt>cdf(x,y) <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
@@ -4065,6 +4065,24 @@ values at the given location</p>
 
 </dd></dl>
 
+<dl class="function">
+<dt id="Utilities.timeseries.tsmultiply">
+<tt class="descname">tsmultiply</tt><big>(</big><em>inputFile</em><big>)</big><a class="headerlink" href="#Utilities.timeseries.tsmultiply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply multipliers to a single file. Values are combined then written
+back to the source file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputFile</strong> (<em>str</em>) &#8211; Path to the input timeseries file. This will need
+to contain the values of the three multipliers
+(topography, terrain and shielding) for each of
+eight directions.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 </div>
 <div class="section" id="module-Utilities.track">
@@ -4171,7 +4189,7 @@ when attempting to save the file.</p>
 <div class="section" id="module-Utilities.tsmultipliers">
 <span id="utilities-tsmultipliers-module"></span><h2>Utilities.tsmultipliers module<a class="headerlink" href="#module-Utilities.tsmultipliers" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-tsmultipliers">
-<span id="tsmultipliers-apply-site-exposure-multipliers-to-time-series-output"></span><h3><a class="reference internal" href="#module-tsmultipliers" title="tsmultipliers: Multiply the wind speed in a timeseries file by the appropriate multiplier values. Still a very rudimentary process. "><tt class="xref py py-mod docutils literal"><span class="pre">tsmultipliers</span></tt></a> &#8211; apply site-exposure multipliers to time series output<a class="headerlink" href="#module-tsmultipliers" title="Permalink to this headline">¶</a></h3>
+<span id="tsmultipliers-apply-site-exposure-multipliers-to-time-series-output"></span><h3><a class="reference internal" href="#module-tsmultipliers" title="tsmultipliers: Multiply the wind speed in a timeseries file by the appropriate multiplier values. Still a very rudimentary process."><tt class="xref py py-mod docutils literal"><span class="pre">tsmultipliers</span></tt></a> &#8211; apply site-exposure multipliers to time series output<a class="headerlink" href="#module-tsmultipliers" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="Utilities.tsmultipliers.tsmultiply">
 <tt class="descname">tsmultiply</tt><big>(</big><em>inputFile</em><big>)</big><a class="headerlink" href="#Utilities.tsmultipliers.tsmultiply" title="Permalink to this definition">¶</a></dt>
@@ -4502,7 +4520,7 @@ dimension.</p>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Sep 10, 2014.
+      Last updated on Sep 19, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

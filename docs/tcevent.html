@@ -46,16 +46,16 @@
             
   <div class="section" id="module-tcevent">
 <span id="tcevent-module"></span><h1>tcevent module<a class="headerlink" href="#module-tcevent" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="tcevent-run-the-windfield-module-for-a-single-tc-track">
-<h2><a class="reference internal" href="#module-tcevent" title="tcevent"><tt class="xref py py-mod docutils literal"><span class="pre">tcevent</span></tt></a> &#8211; run the windfield module for a single TC track<a class="headerlink" href="#tcevent-run-the-windfield-module-for-a-single-tc-track" title="Permalink to this headline">¶</a></h2>
-<p>Run the <a class="reference internal" href="wind.html#module-wind.windmodels" title="wind.windmodels"><tt class="xref py py-mod docutils literal"><span class="pre">wind.windmodels</span></tt></a> to calculate the wind field for a
+<div class="section" id="module-tcevent">
+<span id="tcevent-run-the-windfield-module-for-a-single-tc-track"></span><h2><a class="reference internal" href="#module-tcevent" title="tcevent: Run the wind field module for a single TC track."><tt class="xref py py-mod docutils literal"><span class="pre">tcevent</span></tt></a> &#8211; run the windfield module for a single TC track<a class="headerlink" href="#module-tcevent" title="Permalink to this headline">¶</a></h2>
+<p>Run the <a class="reference internal" href="wind.html#module-wind.windmodels" title="wind.windmodels"><tt class="xref py py-mod docutils literal"><span class="pre">wind.windmodels</span></tt></a> module to calculate the wind field for a
 single TC event. The track of the TC is interpolated to a fine
 temporal resolution, then the maximum wind field evaluated.</p>
 <p>Data at selected points within the model domain can be extracted
 at each time step, giving a time history of wind speed, direction
 and estimated sea level pressure for the location(s).</p>
-<p>Tropical Cyclone Risk Model
-Copyright (c) 2014 Commonwealth of Australia (Geoscience Australia)</p>
+<p>See the <a class="reference internal" href="scenarios.html#scenariomodelling"><em>Scenario modelling</em></a> section of
+the TCRM User Guide for details on running this script.</p>
 <dl class="function">
 <dt id="tcevent.doOutputDirectoryCreation">
 <tt class="descname">doOutputDirectoryCreation</tt><big>(</big><em>configFile</em><big>)</big><a class="headerlink" href="#tcevent.doOutputDirectoryCreation" title="Permalink to this definition">¶</a></dt>
@@ -75,7 +75,15 @@ Copyright (c) 2014 Commonwealth of Australia (Geoscience Australia)</p>
 <dl class="function">
 <dt id="tcevent.doTimeseriesPlotting">
 <tt class="descname">doTimeseriesPlotting</tt><big>(</big><em>configFile</em><big>)</big><a class="headerlink" href="#tcevent.doTimeseriesPlotting" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run functions to plot time series output</p>
+<dd><p>Run functions to plot time series output.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) &#8211; Path to configuration file.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -97,12 +105,23 @@ Copyright (c) 2014 Commonwealth of Australia (Geoscience Australia)</p>
 <dl class="function">
 <dt id="tcevent.main">
 <tt class="descname">main</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tcevent.main" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Main function to execute the <a class="reference internal" href="wind.html#module-wind" title="wind"><tt class="xref py py-mod docutils literal"><span class="pre">wind</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) &#8211; Path to configuration file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
 <dt id="tcevent.startup">
 <tt class="descname">startup</tt><big>(</big><big>)</big><a class="headerlink" href="#tcevent.startup" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parse the command line arguments and call the <a class="reference internal" href="#tcevent.main" title="tcevent.main"><tt class="xref py py-func docutils literal"><span class="pre">main()</span></tt></a>
+function.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="tcevent.timer">
@@ -125,7 +144,7 @@ Copyright (c) 2014 Commonwealth of Australia (Geoscience Australia)</p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">tcevent module</a><ul>
-<li><a class="reference internal" href="#tcevent-run-the-windfield-module-for-a-single-tc-track"><tt class="docutils literal"><span class="pre">tcevent</span></tt> &#8211; run the windfield module for a single TC track</a></li>
+<li><a class="reference internal" href="#module-tcevent"><tt class="docutils literal"><span class="pre">tcevent</span></tt> &#8211; run the windfield module for a single TC track</a></li>
 </ul>
 </li>
 </ul>
@@ -166,7 +185,7 @@ Copyright (c) 2014 Commonwealth of Australia (Geoscience Australia)</p>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Sep 10, 2014.
+      Last updated on Sep 19, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

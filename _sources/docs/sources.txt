@@ -1,5 +1,6 @@
 
 .. _sourceformats:
+
 ==================
 Source formats 
 ==================
@@ -32,7 +33,7 @@ The first few lines of the IBTrACS database are shown below. ::
     1848011S09080,1848,02, SI, MM,XXXX848003,1848-01-17 06:00:00, NR,-16.50,  67.00,  0.0,    0.0,reunion,-100.000,-100.000,main
     1848011S09080,1848,02, SI, MM,XXXX848003,1848-01-18 06:00:00, NR,-18.00,  67.40,  0.0,    0.0,reunion,-100.000,-100.000,main
 
-.. _configuresource:
+.. _configuringsource:
 
 Setting the configuration options
 ---------------------------------
