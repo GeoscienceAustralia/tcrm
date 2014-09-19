@@ -1,6 +1,34 @@
 """
-Wind Models
+This provides classes and methods that calculate the gradient level
+and surface (10-m above ground) wind speed, based on a number of
+parametric profiles and boundary layer models. These classes and
+methods provide the wind field at a single point in time. The complete
+wind swath is evaluated in the calling classes.
 
+The :class:`windmodels.WindSpeedModel` classes define the
+wind-pressure relations that define the maximum wind speed for a given
+central pressure deficit.
+
+The :class:`windmodels.WindProfileModel` classes define parametric
+radial profiles of gradient level wind speed around the primary TC
+vortex. These do not account for TC motion or interaction with the
+surface.
+
+The :class:`windmodels.WindFieldModel` classes define the boundary
+layer models implemented, which relate the gradient level vortex to
+the surface wind speed, incorporating the wavenumber-1 assymetry due
+to storm forward motion, and the effects of (uniform) surface
+roughness.
+
+:Note: Not all models are fully implemented - some cannot be fully
+       implemented, as the mathematical formulation results in
+       discontinuous profiles (e.g. Rankine vortex), for which a
+       mathematical representation of the vorticity cannot be
+       defined. The vorticity is required for the
+       :class:`windmodels.KepertWindFieldModel`. Users should
+       carefully select the combinations of wind profiles and wind
+       fields to ensure sensible results.
+ 
 """
 
 import numpy as np
@@ -72,10 +100,13 @@ class WilloughbyWindSpeed(WindSpeedModel):
 class HollandWindSpeed(WindSpeedModel):
 
     """
+    .. |beta|   unicode:: U+003B2 .. GREEK SMALL LETTER BETA
+    
     Holland (1980), An Analytic Model of the Wind and Pressure Profiles
     in Hurricanes. Mon. Wea. Rev, 108, 1212-1218 Density of air is
-    assumed to be 1.15 kg/m^3.  beta is assumed to be 1.3. Other values
+    assumed to be 1.15 kg/m^3.  |beta| is assumed to be 1.3. Other values
     can be specified.  Gradient level wind (assumed maximum).
+    
     """
 
     def maximum(self):
@@ -87,10 +118,10 @@ class HollandWindSpeed(WindSpeedModel):
 class AtkinsonWindSpeed(WindSpeedModel):
 
     """
-    Atkinson and Holliday (1977), Tropical Cyclone Minimum Sea
+    Atkinson and Holliday (1977), *Tropical Cyclone Minimum Sea
     Level Pressure / Maximum Sustained Wind Relationship for
-    the Western North Pacific. Mon. Wea. Rev., 105, 421-427
-    Maximum 10m, 1-minute wind speed. Uses pEnv as 1010 hPa
+    the Western North Pacific* . Mon. Wea. Rev., **105**, 421-427
+    Maximum 10m, 1-minute wind speed. Uses ``pEnv`` as 1010 hPa.
     """
 
     def maximum(self):
@@ -101,7 +132,16 @@ class AtkinsonWindSpeed(WindSpeedModel):
 class WindProfileModel(object):
 
     """
-    Wind profile model.
+    The base wind profile model.
+
+    :param float lat: Latitude of TC centre.
+    :param float lon: Longitude of TC centre.
+    :param float eP: environmental pressure (hPa).
+    :param float cP: centrral pressure of the TC (hPa).
+    :param float rMax: Radius to maximum wind (km).
+    :param windSpeedModel: A maximum wind speed model to apply.
+    :type  windSpeedModel: :class:`windmodels.WindSpeedModel` instance.
+
     """
 
     def __init__(self, lat, lon, eP, cP, rMax, windSpeedModel):
@@ -136,18 +176,36 @@ class WindProfileModel(object):
     def vMax(self, value):
         """
         Set the maximum wind speed.
+
+        :param float value: The maximum wind speed value to set.
         """
         self.vMax_ = value
 
     def velocity(self, R):
         """
-        Wind velocity at radiuses `R`.
+        Calculate velocity as a function of radial distance `R`.
+        Represents the velocity of teh gradient level vortex.
+
+        :param R: :class:`numpy.ndarray` of distance of grid from
+                  the TC centre.
+
+        :returns: Array of gradient level wind speed.
+        :rtype: :class:`numpy.ndarray`
+
         """
         raise NotImplementedError
 
     def vorticity(self, R):
         """
-        Wind vorticity at radiuses `R`.
+        Calculate the vorticity associated with the (gradient level)
+        vortex at radius `R`.
+
+        :param R: :class:`numpy.ndarray` of distance of grid from
+                  the TC centre.
+
+        :returns: Array of gradient level (relative) vorticity.
+        :rtype: :class:`numpy.ndarray`
+        
         """
         raise NotImplementedError
 
@@ -155,7 +213,16 @@ class WindProfileModel(object):
 class JelesnianskiWindProfile(WindProfileModel):
 
     """
-    Jelesnianski model of the wind profile
+    Jelesnianski model of the wind profile.
+
+    :param float lat: Latitude of TC centre.
+    :param float lon: Longitude of TC centre.
+    :param float eP: environmental pressure (hPa).
+    :param float cP: centrral pressure of the TC (hPa).
+    :param float rMax: Radius to maximum wind (km).
+    :param windSpeedModel: A maximum wind speed model to apply.
+    :type  windSpeedModel: :class:`windmodels.WindSpeedModel` instance.
+
     """
 
     def __init__(self, lat, lon, eP, cP, rMax,
@@ -164,11 +231,33 @@ class JelesnianskiWindProfile(WindProfileModel):
                                   windSpeedModel)
 
     def velocity(self, R):
+        """
+        Calculate velocity as a function of radial distance.
+        Represents the velocity of teh gradient level vortex.
+
+        :param R: :class:`numpy.ndarray` of distance of grid from
+                  the TC centre.
+
+        :returns: Array of gradient level wind speed.
+        :rtype: :class:`numpy.ndarray`
+
+        """
         V = 2 * self.vMax * self.rMax * R / (self.rMax ** 2 + R ** 2)
         V = np.sign(self.f) * V
         return V
 
     def vorticity(self, R):
+        """
+        Calculate the vorticity associated with the (gradient level)
+        vortex.
+
+        :param R: :class:`numpy.ndarray` of distance of grid from
+                  the TC centre.
+
+        :returns: Array of gradient level (relative) vorticity.
+        :rtype: :class:`numpy.ndarray`
+
+        """
         Z = (np.sign(self.f) * 2 * self.vMax * self.rMax / (self.rMax
              ** 2 + R ** 2) + np.sign(self.f) * 2 * self.vMax *
              self.rMax * (self.rMax ** 2 - R ** 2) /
@@ -179,9 +268,21 @@ class JelesnianskiWindProfile(WindProfileModel):
 class HollandWindProfile(WindProfileModel):
 
     """
-    Holland profile. For r < rMax, we reset the wind field to a
+    .. |beta|   unicode:: U+003B2 .. GREEK SMALL LETTER BETA
+
+    Holland profile. For `r < rMax`, we reset the wind field to a
     cubic profile to avoid the barotropic instability mentioned in
     Kepert & Wang (2001).
+
+    :param float lat: Latitude of TC centre.
+    :param float lon: Longitude of TC centre.
+    :param float eP: environmental pressure (hPa).
+    :param float cP: centrral pressure of the TC (hPa).
+    :param float rMax: Radius to maximum wind (km).
+    :param float beta: |beta| parameter.
+    :param windSpeedModel: A maximum wind speed model to apply.
+    :type  windSpeedModel: :class:`windmodels.WindSpeedModel` instance.
+
     """
 
     def __init__(self, lat, lon, eP, cP, rMax, beta,
@@ -192,7 +293,7 @@ class HollandWindProfile(WindProfileModel):
 
     def secondDerivative(self):
         """
-        Second derivative of profile at rMax
+        Second derivative of profile at rMax.
         """
 
         beta = self.beta
@@ -217,6 +318,18 @@ class HollandWindProfile(WindProfileModel):
         return d2Vm
 
     def velocity(self, R):
+        """
+        Calculate velocity as a function of radial distance.
+        Represents the velocity of teh gradient level vortex.
+
+        :param R: :class:`numpy.ndarray` of distance of grid from
+                  the TC centre.
+
+        :returns: Array of gradient level wind speed.
+        :rtype: :class:`numpy.ndarray`
+        
+        """
+
         d2Vm = self.secondDerivative()
         aa = ((d2Vm / 2. - (-self.vMax / self.rMax) / self.rMax) /
               self.rMax)
@@ -235,6 +348,18 @@ class HollandWindProfile(WindProfileModel):
         return V
 
     def vorticity(self, R):
+        """
+        Calculate the vorticity associated with the (gradient level)
+        vortex.
+
+        :param R: :class:`numpy.ndarray` of distance of grid from
+                  the TC centre.
+
+        :returns: Array of gradient level (relative) vorticity.
+        :rtype: :class:`numpy.ndarray`
+        
+        """
+         
         beta = self.beta
         delta = (self.rMax / R) ** beta
         edelta = np.exp(-delta)
@@ -264,12 +389,23 @@ class HollandWindProfile(WindProfileModel):
 class WilloughbyWindProfile(HollandWindProfile):
 
     """
-    The Willoughby & Rahn (2004) relation, which makes beta a function
+    .. |beta|   unicode:: U+003B2 .. GREEK SMALL LETTER BETA
+
+    The Willoughby & Rahn (2004) relation, which makes |beta| a function
     of Vmax, rMax and latitude. We use Willoughby & Rahn's (2004)
-    relation for Vmax *only*.  This determines the beta parameter then
+    relation for Vmax *only*.  This determines the |beta| parameter then
     calls Holland (which means the profile is cubic within Rmax) to
-    calculate the wind profile.  The beta term calculation is based on
+    calculate the wind profile.  The |beta| term calculation is based on
     Atlantic and Eastern Pacific cyclone data, not Australian data.
+
+    :param float lat: Latitude of TC centre.
+    :param float lon: Longitude of TC centre.
+    :param float eP: environmental pressure (hPa).
+    :param float cP: centrral pressure of the TC (hPa).
+    :param float rMax: Radius to maximum wind (km).
+    :param windSpeedModel: A maximum wind speed model to apply.
+    :type  windSpeedModel: :class:`windmodels.WindSpeedModel` instance.
+
     """
 
     def __init__(self, lat, lon, eP, cP, rMax,
@@ -286,6 +422,15 @@ class RankineWindProfile(WindProfileModel):
     """
     Rankine vortex profile. Vmax determined by dp using, by default,
     the Willoughby & Rahn method.
+
+    :param float lat: Latitude of TC centre.
+    :param float lon: Longitude of TC centre.
+    :param float eP: environmental pressure (hPa).
+    :param float cP: centrral pressure of the TC (hPa).
+    :param float rMax: Radius to maximum wind (km).
+    :param windSpeedModel: A maximum wind speed model to apply.
+    :type  windSpeedModel: :class:`windmodels.WindSpeedModel` instance.
+
     """
 
     def __init__(self, lat, lon, eP, cP, rMax,
@@ -295,9 +440,22 @@ class RankineWindProfile(WindProfileModel):
         self.alpha = 0.5
 
     def velocity(self, R):
-        # An assumption about the shape of the profile outside Rmax.
-        # The literature indicates 0.4 < alpha < 0.6 (e.g. see Holland,
-        # 1980)
+        """
+        Calculate velocity as a function of radial distance.
+        Represents the velocity of teh gradient level vortex.
+
+        This includes an assumption about the shape of the profile
+        outside Rmax. The literature indicates 0.4 < alpha < 0.6
+        (e.g. see Holland, 1980). 
+
+        :param R: :class:`numpy.ndarray` of distance of grid from
+                  the TC centre.
+
+        :returns: Array of gradient level wind speed.
+        :rtype: :class:`numpy.ndarray`
+        
+        """
+       
         V = self.vMax * (self.rMax / R) ** self.alpha
         icore = np.where(R <= self.rMax)
         V[icore] = self.vMax * (R[icore] / self.rMax)
@@ -305,6 +463,18 @@ class RankineWindProfile(WindProfileModel):
         return V
 
     def vorticity(self, R):
+        """
+        Calculate the vorticity associated with the (gradient level)
+        vortex.
+
+        :param R: :class:`numpy.ndarray` of distance of grid from
+                  the TC centre.
+
+        :returns: Array of gradient level (relative) vorticity.
+        :rtype: :class:`numpy.ndarray`
+        
+        """
+
         Z = (self.vMax * ((self.rMax / R) **
              self.alpha) / R - self.alpha * self.vMax * (self.rMax **
              self.alpha) / (R ** self.alpha))
@@ -318,8 +488,19 @@ class RankineWindProfile(WindProfileModel):
 class SchloemerWindProfile(HollandWindProfile):
 
     """
+    .. |beta|   unicode:: U+003B2 .. GREEK SMALL LETTER BETA
+
     Schloemer's (1954) is the same as the Holland relation with
-    beta = 1
+    |beta| = 1
+
+    :param float lat: Latitude of TC centre.
+    :param float lon: Longitude of TC centre.
+    :param float eP: environmental pressure (hPa).
+    :param float cP: centrral pressure of the TC (hPa).
+    :param float rMax: Radius to maximum wind (km).
+    :param windSpeedModel: A maximum wind speed model to apply.
+    :type  windSpeedModel: :class:`windmodels.WindSpeedModel` instance.
+
     """
 
     def __init__(self, lat, lon, eP, cP, rMax):
@@ -329,10 +510,25 @@ class SchloemerWindProfile(HollandWindProfile):
 class DoubleHollandWindProfile(WindProfileModel):
 
     """
-    McConochie et al's double Holland vortex model (based on Cardone et
-    al, 1994).  This application is the Coral Sea adaptation of the
+    .. |beta|   unicode:: U+003B2 .. GREEK SMALL LETTER BETA
+    
+    McConochie *et al*'s double Holland vortex model (based on Cardone *et
+    al*, 1994).  This application is the Coral Sea adaptation of the
     double vortex model (it can also be used for concentric eye-wall
     configurations).
+
+    :param float lat: Latitude of TC centre.
+    :param float lon: Longitude of TC centre.
+    :param float eP: environmental pressure (hPa).
+    :param float cP: centrral pressure of the TC (hPa).
+    :param float rMax: Radius to maximum wind (km).
+    :param float beta1: |beta| parameter for the primary vortex.
+    :param float beta2: |beta| parameter for the secondary vortex.
+    :param float rmax2: Optional. Radius to the secondary wind
+                        maximum (default=250 km). 
+    :param windSpeedModel: A maximum wind speed model to apply.
+    :type  windSpeedModel: :class:`windmodels.WindSpeedModel` instance.
+
     """
 
     def __init__(self, lat, lon, eP, cP, rMax, beta1, beta2, rMax2=150.,
@@ -414,6 +610,17 @@ class DoubleHollandWindProfile(WindProfileModel):
         return d2Vm
 
     def velocity(self, R):
+        """
+        Calculate velocity as a function of radial distance.
+        Represents the velocity of teh gradient level vortex.
+
+        :param R: :class:`numpy.ndarray` of distance of grid from
+                  the TC centre.
+
+        :returns: Array of gradient level wind speed.
+        :rtype: :class:`numpy.ndarray`
+        
+        """
         rMax = self.rMax
         rMax2 = self.rMax2
 
@@ -457,7 +664,17 @@ class DoubleHollandWindProfile(WindProfileModel):
         return V
 
     def vorticity(self, R):
+        """
+        Calculate the vorticity associated with the (gradient level)
+        vortex.
 
+        :param R: :class:`numpy.ndarray` of distance of grid from
+                  the TC centre.
+
+        :returns: Array of gradient level (relative) vorticity.
+        :rtype: :class:`numpy.ndarray`
+        
+        """
         # Scale dp2 if dP is less than 1500 Pa:
         if self.dP < 1500.:
             dp2 = (self.dP / 1500.) * (800. + (self.dP - 800.) / 2000.)
@@ -507,12 +724,21 @@ class DoubleHollandWindProfile(WindProfileModel):
 class PowellWindProfile(HollandWindProfile):
 
     """
-    Powell et al, 2005. Another definition of the beta parameter
+    Powell *et al*, 2005. Another definition of the beta parameter
     inserted into the Holland model.  Unlike Willoughby and Rahn's
-    model, there is no reliance on vMax.  Powell et al. also included a
+    model, there is no reliance on vMax.  Powell *et al*. also included a
     small random term, but since the beta value is also used in the
     vorticity calculation, we need to ensure the values used in this
     function and the corresponding vorticity function match.
+
+    :param float lat: Latitude of TC centre.
+    :param float lon: Longitude of TC centre.
+    :param float eP: environmental pressure (hPa).
+    :param float cP: centrral pressure of the TC (hPa).
+    :param float rMax: Radius to maximum wind (km).
+    :param windSpeedModel: A maximum wind speed model to apply.
+    :type  windSpeedModel: :class:`windmodels.WindSpeedModel` instance.
+
     """
 
     def __init__(self, lat, lon, eP, cP, rMax):
@@ -533,6 +759,14 @@ class NewHollandWindProfile(WindProfileModel):
     take the sqare root, the exponent varies around 0.5.  Currently
     this version does not have a corresponding vorticity profile set up
     in windVorticity, so it cannot be applied in wind field modelling.
+
+    :param float lat: Latitude of TC centre.
+    :param float lon: Longitude of TC centre.
+    :param float eP: environmental pressure (hPa).
+    :param float cP: centrral pressure of the TC (hPa).
+    :param float rMax: Radius to maximum wind (km).
+    :param float rGale: Radius of gale force winds (default=150 km).
+    
     """
 
     def __init__(self, lat, lon, eP, cP, rMax, rGale=150.):
@@ -540,10 +774,22 @@ class NewHollandWindProfile(WindProfileModel):
         self.rGale = rGale
 
     def velocity(self, R):
-        # In this incarnation, we are assuming the pressure rate of
-        # change and forward velocity is zero, so there is no
-        # requirement for a first-pass guess at x
+        """
+        In this incarnation, we are assuming the pressure rate of
+        change and forward velocity is zero, so there is no
+        requirement for a first-pass guess at `x`.
+        
+        Calculate velocity as a function of radial distance.
+        Represents the velocity of teh gradient level vortex.
 
+        :param R: :class:`numpy.ndarray` of distance of grid from
+                  the TC centre.
+
+        :returns: Array of gradient level wind speed.
+        :rtype: :class:`numpy.ndarray`
+        
+        """
+        
         Bs = (-0.000044 * (self.dP / 100.) ** 2. + 0.01 * (self.dP /
               100.) - 0.014 * np.abs(self.lat) + 1.0)
 
@@ -566,13 +812,31 @@ class NewHollandWindProfile(WindProfileModel):
         return V
 
     def vorticity(self, R):
+        """
+        Calculate the vorticity associated with the (gradient level)
+        vortex.
+
+        :param R: :class:`numpy.ndarray` of distance of grid from
+                  the TC centre.
+
+        :returns: Array of gradient level (relative) vorticity.
+        :rtype: :class:`numpy.ndarray`
+        
+        """
         raise Exception
 
 
 class WindFieldModel(object):
 
     """
-    Wind field model.
+    Wind field (boundary layer) models. These define the boundary
+    layer models implemented, which relate the gradient level vortex
+    to the surface wind speed, incorporating the wavenumber-1
+    assymetry due to storm forward motion, and the effects of
+    (uniform) surface roughness.
+
+    :param windProfileModel: A `wind.WindProfileModel` instance.
+    
     """
 
     def __init__(self, windProfileModel):
@@ -628,7 +892,19 @@ class HubbertWindField(WindFieldModel):
     """
     Hubbert, G.D., G.J. Holland, L.M. Leslie and M.J. Manton, 1991:
     A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
-    Weather and Forecasting, 6, 86-97
+    *Weather and Forecasting*, **6**, 86-97
+
+    :param R: Distance from the storm centre to the grid (km).
+    :type  R: :class:`numpy.ndarray`
+    :param lam: Direction (geographic bearing, positive clockwise)
+                from storm centre to the grid.
+    :type  lam: :class:`numpy.ndarray`
+    :param float vFm: Foward speed of the storm (m/s).
+    :param float thetaFm: Forward direction of the storm (geographic
+                          bearing, positive clockwise).
+    :param float thetaMax: Bearing of the location of the maximum
+                           wind speed, relative to the direction of
+                           motion. 
     """
 
     def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
@@ -652,14 +928,27 @@ class HubbertWindField(WindFieldModel):
 
 
 class McConochieWindField(WindFieldModel):
-
     """
     McConochie, J.D., T.A. Hardy and L.B. Mason, 2004:
     Modelling tropical cyclone over-water wind and pressure fields.
-    Ocean Engineering, 31, 1757-1782
+    Ocean Engineering, 31, 1757-1782.
+     
     """
 
     def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
+        """
+        :param R: Distance from the storm centre to the grid (km).
+        :type  R: :class:`numpy.ndarray`
+        :param lam: Direction (geographic bearing, positive clockwise)
+                    from storm centre to the grid.
+        :type  lam: :class:`numpy.ndarray`
+        :param float vFm: Foward speed of the storm (m/s).
+        :param float thetaFm: Forward direction of the storm (geographic
+                              bearing, positive clockwise).
+        :param float thetaMax: Bearing of the location of the maximum
+                               wind speed, relative to the direction of
+                               motion.
+        """
         V = self.velocity(R)
 
         inflow = 25. * np.ones(np.shape(R))
@@ -697,9 +986,25 @@ class KepertWindField(WindFieldModel):
     Kepert, J., 2001: The Dynamics of Boundary Layer Jets within the
     Tropical Cyclone Core. Part I: Linear Theory.  J. Atmos. Sci., 58,
     2469-2484
+    
     """
 
     def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
+        """
+        :param R: Distance from the storm centre to the grid (km).
+        :type  R: :class:`numpy.ndarray`
+        :param lam: Direction (geographic bearing, positive clockwise)
+                    from storm centre to the grid.
+        :type  lam: :class:`numpy.ndarray`
+        :param float vFm: Foward speed of the storm (m/s).
+        :param float thetaFm: Forward direction of the storm (geographic
+                              bearing, positive clockwise).
+        :param float thetaMax: Bearing of the location of the maximum
+                               wind speed, relative to the direction of
+                               motion.
+                               
+        """
+        
         V = self.velocity(R)
         Z = self.vorticity(R)
         K = 50.  # Diffusivity
