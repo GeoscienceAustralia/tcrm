@@ -1,13 +1,19 @@
 .. _installation:
+
 Installation
 ============
 
-Installing TCRM is intended to be a simple process, requiring only a small amount of compilation and basic understanding of command line operations. TCRM has been installed and (lightly) tested on a range of unix-based systems, Windows and Mac OS/X systems.
+Installing TCRM is intended to be a simple process, requiring only a
+small amount of compilation and basic understanding of command line
+operations. TCRM has been installed and (lightly) tested on a range of
+unix-based systems, Windows and Mac OS/X systems.
 
 .. _dependencies:
+
 Dependencies
 ------------
-For instructions on installation of these dependencies, please see the documentation for each package.
+For instructions on installation of these dependencies, please see the
+documentation for each package.
 
 * `Python <https://www.python.org/>`_ - v2.7 preferred
 * `Numpy <http://www.numpy.org/>`_ - v1.6 or later
@@ -24,6 +30,7 @@ versions can be obtained `here
 <http://www.lfd.uci.edu/~gohlke/pythonlibs/>`_.
 
 .. _compilation:
+
 Compiling the extensions
 ------------------------
 
@@ -38,6 +45,7 @@ For Windows users, the model includes the ``compile.cmd`` script that
 will build these extensions in place.
 
 .. _testing:
+
 Testing the installation
 ------------------------
 
