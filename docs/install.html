@@ -77,6 +77,8 @@ versions can be obtained <a class="reference external" href="http://www.lfd.uci.
 </div>
 <div class="section" id="compiling-the-extensions">
 <span id="compilation"></span><h2>Compiling the extensions<a class="headerlink" href="#compiling-the-extensions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="unix">
+<h3>Unix<a class="headerlink" href="#unix" title="Permalink to this headline">¶</a></h3>
 <p>The model requires a number of C extensions to be compiled before
 execution. These can be built using Python&#8217;s inbuilt <tt class="xref py py-mod docutils literal"><span class="pre">distutils</span></tt>
 module. Copy the required files from the <cite>installer</cite> directory to the
@@ -84,15 +86,20 @@ base directory and then execute the build process:</p>
 <div class="highlight-python"><div class="highlight"><pre>$ python intaller/setup.py build_ext -i
 </pre></div>
 </div>
-<p>For Windows users, the model includes the <tt class="docutils literal"><span class="pre">compile.cmd</span></tt> script that
+</div>
+<div class="section" id="windows">
+<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
+<p>For Windows users, the code includes the <tt class="docutils literal"><span class="pre">compile.cmd</span></tt> script that
 will build these extensions in place.</p>
+</div>
 </div>
 <div class="section" id="testing-the-installation">
 <span id="testing"></span><h2>Testing the installation<a class="headerlink" href="#testing-the-installation" title="Permalink to this headline">¶</a></h2>
 <p>The model code includes a suite of unit tests that ensure elements of
 the code base will work as expected, even if a user makes
 modificaitons to the code.</p>
-<p>The test suite can be run from the main directory:</p>
+<p>The test suite can be run from the main directory. On Windows, run the
+<tt class="docutils literal"><span class="pre">run_test_all.cmd</span></tt> script. On Unix, use the command:</p>
 <div class="highlight-python"><div class="highlight"><pre>$ python ./tests/run.py
 </pre></div>
 </div>
@@ -132,7 +139,11 @@ AssertionError: &#39;tcrm/tests&#39; != &#39;tcrm\\tests&#39;
   <ul>
 <li><a class="reference internal" href="#">Installation</a><ul>
 <li><a class="reference internal" href="#dependencies">Dependencies</a></li>
-<li><a class="reference internal" href="#compiling-the-extensions">Compiling the extensions</a></li>
+<li><a class="reference internal" href="#compiling-the-extensions">Compiling the extensions</a><ul>
+<li><a class="reference internal" href="#unix">Unix</a></li>
+<li><a class="reference internal" href="#windows">Windows</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#testing-the-installation">Testing the installation</a><ul>
 <li><a class="reference internal" href="#special-note-for-windows-systems">Special note for Windows systems</a></li>
 </ul>
