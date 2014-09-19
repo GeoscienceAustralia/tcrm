@@ -1,9 +1,9 @@
 .. |beta|   unicode:: U+003B2 .. GREEK SMALL LETTER BETA
 
 .. _modelsetup:
-=====================
- Setting up the model
-=====================
+====================
+Setting up the model
+====================
 
 Execution of TCRM is controlled by reading the simulation settings
 from a configuration file. The configuration file is a text file, and
@@ -23,25 +23,25 @@ has no default is the Region gridLimit option. This defines the model
 domain and must be set in any configuration file used.
 
 .. _configureactions:
-Actions 
+Actions
 ------- 
 
 This section defines which components of TCRM will be
 executed. The options are:
 
-* DownloadData - download input datasets (defaults are included)
-* DataProcess - process the input TC track database
-* ExecuteStat - calculate the TC statistics over the model domain
-* ExecuteTrackGenerator - generate a set of stochastic TC tracks
-* ExecuteWindfield - Calculate the wind field around a set of TC
+* `DownloadData` - download input datasets (defaults are included)
+* `DataProcess` - process the input TC track database
+* `ExecuteStat` - calculate the TC statistics over the model domain
+* `ExecuteTrackGenerator` - generate a set of stochastic TC tracks
+* `ExecuteWindfield` - Calculate the wind field around a set of TC
   tracks
-* ExecuteHazard - Calculate the return period wind speeds from a set
+* `ExecuteHazard` - Calculate the return period wind speeds from a set
   of wind field files
-* PlotHazard - Plot the return period wind speed maps and return
+* `PlotHazard` - Plot the return period wind speed maps and return
   period curves for locations in the model domain
-* PlotData - Plot some basic statistical analyses of the input TC
+* `PlotData` - Plot some basic statistical analyses of the input TC
   track database
-* ExecuteEvaluate - Evaluate a set of stochastic TC tracks, comparing
+* `ExecuteEvaluate` - Evaluate a set of stochastic TC tracks, comparing
   to the input TC track database.
 
 All options are boolean (i.e. ``True`` or ``False``). ::
@@ -71,7 +71,7 @@ cells, which are used for calculating statistics. At this time, the
 values here must be integer values, but can be different in the ``x``
 (east-west) and ``y`` (north-south) directions. The ``gridInc`` option
 control the incremental increase in grid cell size when insufficient
-observations are located within a grid cell (see the :mod:`StatInterface
+observations are located within a grid cell (see the :mod:`StatInterface`
 description)::
 
     [Region]
