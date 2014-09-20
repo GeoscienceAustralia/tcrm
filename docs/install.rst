@@ -34,6 +34,8 @@ versions can be obtained `here
 Compiling the extensions
 ------------------------
 
+Unix
+~~~~
 The model requires a number of C extensions to be compiled before
 execution. These can be built using Python's inbuilt :mod:`distutils`
 module. Copy the required files from the `installer` directory to the
@@ -41,7 +43,11 @@ base directory and then execute the build process::
 
     $ python intaller/setup.py build_ext -i
 
-For Windows users, the model includes the ``compile.cmd`` script that
+
+Windows
+~~~~~~~
+
+For Windows users, the code includes the ``compile.cmd`` script that
 will build these extensions in place.
 
 .. _testing:
@@ -53,7 +59,8 @@ The model code includes a suite of unit tests that ensure elements of
 the code base will work as expected, even if a user makes
 modificaitons to the code.
 
-The test suite can be run from the main directory::
+The test suite can be run from the main directory. On Windows, run the
+``run_test_all.cmd`` script. On Unix, use the command::
 
     $ python ./tests/run.py
 
