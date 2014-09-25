@@ -14,12 +14,28 @@
 import os
 import sys
 import logging
+import argparse
+import traceback
 
+from os.path import join as pjoin, dirname, realpath, isdir
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 import numpy as np
-from files import flLoadFile, flSaveFile
+from Utilities.files import flLoadFile, flSaveFile, flStartLog
+from Utilities.config import ConfigParser
+from Utilities import shapefile
+from Utilities import pathLocator
 
-def tsmultiply(inputFile):
+OUTPUTFMT = ['%s', '%7.3f', '%7.3f', 
+              '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
+              '%7.2f']
+INPUTFMT = ('|S16', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
+INPUTNAMES = ('Time', 'longitude', 'latitude','gust','uu','vv',
+              'bearing', 'pressure')
+
+def tsmultiply(inputFile, multipliers):
     """
     Apply multipliers to a single file. Values are combined then written
     back to the source file. 
@@ -28,75 +44,32 @@ def tsmultiply(inputFile):
                           to contain the values of the three multipliers
                           (topography, terrain and shielding) for each of
                           eight directions.
+    :param tuple multipliers: The eight combined multiplier values for the
+                              location.
+
+    
     """
-    tsdata = flLoadFile(inputFile, delimiter=',')
-    tstep = tsdata[:,0]
-    lon = tsdata[:,1]
-    lat = tsdata[:,2]
-    gust = tsdata[:,3]
-    uu = tsdata[:,4]
-    vv = tsdata[:,5]
-    bear = tsdata[:,6]
-    pressure = tsdata[:,7]
-    bear = np.mod((180./np.pi)*np.arctan2(-uu,-vv),360.)
-
-    # Multipliers are stored in the data file:
-    mse = tsdata[0,8]
-    msne = tsdata[0,9]
-    msn = tsdata[0,10]
-    msnw = tsdata[0,11]
-    msse = tsdata[0,12]
-    mss = tsdata[0,13]
-    mssw = tsdata[0,14]
-    msw = tsdata[0,15]
-    mze = tsdata[0,16]
-    mzne = tsdata[0,17]
-    mzn = tsdata[0,18]
-    mznw = tsdata[0,19]
-    mzse = tsdata[0,20]
-    mzs = tsdata[0,21]
-    mzsw = tsdata[0,22]
-    mzw = tsdata[0,23]
-    mhe = tsdata[0,24]
-    mhne = tsdata[0,25]
-    mhn = tsdata[0,26]
-    mhnw = tsdata[0,27]
-    mhse = tsdata[0,28]
-    mhs = tsdata[0,29]
-    mhsw = tsdata[0,30]
-    mhw = tsdata[0,31]
-
-    # Combine multipliers into a single value:
-    mce = mse * mze * mhe
-    mcne = msne * mzne * mhne
-    mcn = msn * mzn * mhn
-    mcnw = msnw * mznw * mhnw
-    mcse = msse * mzse * mhse
-    mcs = mss * mzs * mhs
-    mcsw = mssw * mzsw * mhsw
-    mcw = msw * mzw * mhw
-
+    #tsdata = flLoadFile(inputFile, delimiter=',',comments='%')
+    log.info("Processing {0}".format(inputFile))
+    tsdata = np.genfromtxt(inputFile, dtype=INPUTFMT, names=INPUTNAMES,
+                           delimiter=',', skip_header=1) 
+    tstep = tsdata['Time']
+    lon = tsdata['longitude']
+    lat = tsdata['latitude']
+    gust = tsdata['gust']
+    uu = tsdata['uu']
+    vv = tsdata['vv']
+    bear = tsdata['bearing']
+    pressure = tsdata['pressure']
+    bear = 2*np.pi - (np.arctan2(-vv, -uu) - np.pi/2)
+    bear = (180./np.pi) * np.mod(bear, 2.*np.pi)
+    
+    mcn, mcne, mce, mcse, mcs, mcsw, mcw, mcnw = multipliers
+   
     # Apply multipliers:
-    """ii = np.where((bear < 22.5) | (bear >= 337.5))
-    gust[ii] *= mcn
-    ii = np.where((bear >= 22.5) & (bear < 67.5))
-    gust[ii] *= mcne
-    ii = np.where((bear >= 67.5) & (bear < 112.5))
-    gust[ii] *= mce
-    ii = np.where((bear >= 112.5) & (bear < 157.5))
-    gust[ii] *= mcse
-    ii = np.where((bear >= 157.5) & (bear < 202.5))
-    gust[ii] *= mcs
-    ii = np.where((bear >= 202.5) & (bear < 247.5))
-    gust[ii] *= mcsw
-    ii = np.where((bear >= 247.5) & (bear < 292.5))
-    gust[ii] *= mcw
-    ii = np.where((bear >= 292.5) & (bear < 337.5))
-    gust[ii] *= mcnw
 
-    """
     ii = np.where((bear >= 0.0) & (bear < 45.))
-    gust[ii] *= (1./45.)*(mcn*(bear[ii]-0.0) +
+    gust[ii] *= (1./45.)*(mcn*(bear[ii] - 0.0) +
                           mcne*(45. - bear[ii]))
     ii = np.where((bear >= 45.0) & (bear < 90.))
     gust[ii] *= (1./45.)*(mcne*(bear[ii] - 45.0) +
@@ -124,17 +97,111 @@ def tsmultiply(inputFile):
     ii = np.where(gust==0)
     bear[ii]=0
 
-    data = np.transpose([tstep, lon, lat, gust, uu, vv, bear])
-    header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing'
-    flSaveFile(inputFile, data, header, ',', '%f')
+    data = np.array([tstep, lon, lat, gust, uu, vv, bear, pressure]).T
+    header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
+    np.savetxt(inputFile, data, fmt='%s', delimiter=',',
+               header=header)
 
-if __name__=='__main__':
-    try:
-        inputPath = sys.argv[1]
-    except:
-        inputPath = eval(raw_input("Enter input path: "))
-    ls = os.listdir(inputPath)
-    for f in ls:
-        inputFile = os.path.join(inputPath,f)
-        tsmultiply(inputFile)
+    return True
 
+
+def process_timeseries(config_file):
+    """
+    Process a set of timeseries files to include the multiplier values.
+
+    The combined multiplier values are stored in a shape file as fields,
+    and records are keyed by the same code that is used to select
+    stations for sampling.
+
+    :param str config_file: Path to a configuration file. 
+
+    """
+
+    config = ConfigParser()
+    config.read(config_file)
+
+    stnFile = config.get('Timeseries', 'StationFile')
+    key_name = config.get('Timeseries', 'StationID')
+    tsPath = pjoin(config.get('Output', 'Path'), 
+                              'process', 'timeseries')
+
+    log.info("Loading stations from %s"%stnFile)
+    log.info("Timeseries data will be written into %s"%tsPath)
+
+    directions = ['n','ne','e','se','s','sw','w','nw']
+
+    sf = shapefile.Reader(stnFile)
+    field_names = [sf.fields[i][0] for i in range(1,len(sf.fields))]
+    key_index = field_names.index(key_name)
+    records = sf.records()
+    indexes = []
+    for d in directions:
+        fieldname = 'm4_%s' % d
+        indexes.append(field_names.index(fieldname))
+
+    for record in records:
+        stnId = record[key_index]
+        tsFile = pjoin(tsPath, 'ts.{0}.csv'.format(stnId))
+        if os.path.isfile(tsFile):
+            # Load multipliers for this location:
+            m = [float(record[i]) for i in indexes]
+            tsmultiply(tsFile, tuple(m))
+        else:
+            log.debug("No timeseries file for {0}".format(stnId))
+            pass
+        
+def startup():
+    """
+    Parse command line arguments and call the :func:`main` function.
+
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config_file',
+                        help='Path to configuration file')
+    parser.add_argument('-v', '--verbose', help='Verbose output',
+                        action='store_true')
+    parser.add_argument('-d', '--debug', help='Allow pdb traces',
+                        action='store_true')
+    args = parser.parse_args()
+    config_file = args.config_file
+    config = ConfigParser()
+    config.read(config_file)
+
+    rootdir = pathLocator.getRootDirectory()
+    os.chdir(rootdir)
+
+    logfile = config.get('Logging', 'LogFile')
+    logdir = dirname(realpath(logfile))
+    # If log file directory does not exist, create it
+    if not isdir(logdir):
+        try:
+            os.makedirs(logdir)
+        except OSError:
+            logfile = pjoin(os.getcwd(), 'tsmultipliers.log')
+
+    logLevel = config.get('Logging', 'LogLevel')
+    verbose = config.getboolean('Logging', 'Verbose')
+    datestamp = config.getboolean('Logging', 'Datestamp')
+    debug = False
+
+    if args.verbose:
+        verbose = True
+
+    if args.debug:
+        debug = True
+
+    flStartLog(logfile, logLevel, verbose, datestamp)
+    
+    if debug:
+        process_timeseries(config_file)
+    else:
+        try:
+            process_timeseries(config_file)
+        except Exception:  # pylint: disable=W0703
+            # Catch any exceptions that occur and log them (nicely):
+            tblines = traceback.format_exc().splitlines()
+            for line in tblines:
+                log.critical(line.lstrip())
+                
+if __name__ == "__main__":
+    startup()
