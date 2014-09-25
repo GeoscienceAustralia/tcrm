@@ -53,16 +53,16 @@ def parseData(data):
     """
     Parse a dict of dicts to generate a list of lists describing
     the fields, and an array of the corresponding data records
-    
-    :param dict data: a dict of dicts with field names as keys, and each 
-                      sub-dict containing keys of 'Type', 'Length', 
-                      'Precision' and 'Data'. 
-                      
+
+    :param dict data: a dict of dicts with field names as keys, and each
+                      sub-dict containing keys of 'Type', 'Length',
+                      'Precision' and 'Data'.
+
     :returns: fields, records
     :rtype: list
-    
+
     """
-    
+
     fields = []
     records = []
     for k in data.keys():
@@ -90,13 +90,13 @@ def parseData(data):
 def shpCreateFile(outputFile, shapes, data, shpType):
     """
     Create a shapefile of the give type, containing the given fields.
-    
+
     :param str outputFile: full path (excluding extension!) to the shapefile
                            to create.
-    :param shapes: Collection of shape objects representing the geometry of 
+    :param shapes: Collection of shape objects representing the geometry of
                    features.
     :type shapes: :class:`shapefile._Shape`
-    
+
     :param int shptype: :class:`shapefile` object type (these are integer
                         values, but you can also use the shapelib.SHPT value).
     :param dict fields: a dictionary of dictionaries with field names as
@@ -109,7 +109,7 @@ def shpCreateFile(outputFile, shapes, data, shpType):
                         4 - Invalid
 
     :raises: :mod:`shapefile.ShapefileException` if unable to write the file.
-    
+
     """
     fields, records = parseData(data)
 
@@ -145,18 +145,18 @@ def shpSaveTrackFile(outputFile, tracks, fmt="point"):
     Save track data to shapefile. The fields are sorted using the same
     function as in shpCreateFile, so the fields should be in the correct
     order.
-    
+
     :param str outputFile: name for the output shapefile, excluding extension.
     :param tracks: collection of track features.
     :type tracks: :class:`Track` object
     :param format: Type of features to save. "point" will save each record as a
-                   single point. "lines" will save each individual TC track as 
-                   a single (POLYLINE) feature. "segments" will save each 
-                   segment of a track to a line feature between consecutive 
+                   single point. "lines" will save each individual TC track as
+                   a single (POLYLINE) feature. "segments" will save each
+                   segment of a track to a line feature between consecutive
                    observations.
-                   
+
     """
-    
+
     if fmt == "points":
         tracks2point(tracks, outputFile)
     elif fmt == "lines":
@@ -166,7 +166,7 @@ def shpSaveTrackFile(outputFile, tracks, fmt="point"):
     else:
         log.critical(("Unknown output format - must be one of 'points', "
                         "'lines' or 'segments'"))
-        return 
+        return
 
 
 
@@ -188,7 +188,7 @@ def shpWriteShapeFile(outputFile, shpType, fields, shapes, records):
                       4 - Invalid
 
     :raises: :mod:`shapefile.ShapefileException` if unable to write the file.
-    
+
     """
     log.info("Writing data to {0}.shp".format(outputFile))
     w = shapefile.Writer(shpType)
@@ -232,8 +232,8 @@ def shpGetVertices(shape_file, key_name=None):
     If any records share the same value for the chosen key, then only
     one record will be retained in the returned values.
 
-    Input: 
-    :type  shape_file: str 
+    Input:
+    :type  shape_file: str
     :param shape_file: path to a shape file, excluding the extension
 
     :type  key_name: optional str
@@ -249,7 +249,7 @@ def shpGetVertices(shape_file, key_name=None):
     Example: vertices = shpGetVertices('/foo/bar/baz/shp', 'FIELD1')
 
     This function is retained for backwards compatibility.
-    We recommend using the shapefile interface directly for extracting 
+    We recommend using the shapefile interface directly for extracting
     shapes and records.
 
     """
@@ -267,7 +267,7 @@ def shpGetVertices(shape_file, key_name=None):
         field_names = [fields[i][0] for i in range(len(fields))]
         if key_name and (key_name in field_names):
             keyIndex = field_names.index(key_name)
-        
+
         vertices = {}
 
         for i, shprec in enumerate(sf.shapeRecords()):
@@ -292,9 +292,9 @@ def shpGetField(shape_file, field_name, dtype=float):
                       shape file (.dbf)
 
     :type  dtype: `dtype`
-    :param dtype: type of values in the requested field. Default is 
+    :param dtype: type of values in the requested field. Default is
                   float
-                  
+
     :return: the value of the given field for each feature
     :rtype: array or list (if `dtype` is a string)
 
@@ -317,7 +317,7 @@ def shpGetField(shape_file, field_name, dtype=float):
             log.warn("No field '{0}' in the list of fieldnames" .
                     format(field_name))
             log.warn("Unable to proceed with processing")
-        raise ValueError
+            raise ValueError
 
     records = sf.records()
     nrecords = len(records)
@@ -340,9 +340,9 @@ def shpGetField(shape_file, field_name, dtype=float):
 def shpReadShapeFile(shape_file):
     """
     Return the vertices and records for the given shape file
-    
+
     :param str shape_file: path of input shape file.
-    
+
     :return: vertices
     :rtype: dict
     :return: records
@@ -361,7 +361,7 @@ def shpReadShapeFile(shape_file):
         vertices = shpGetVertices(shape_file)
 
     return vertices, records
-    
+
 def tracks2point(tracks, outputFile):
     """
     Writes tracks to a shapefile as a collection of point features
@@ -374,7 +374,7 @@ def tracks2point(tracks, outputFile):
     """
     sf = shapefile.Writer(shapefile.POINT)
     sf.fields = OBSFIELDS
-    
+
     for track in tracks:
         for x, y, rec in zip(track.Longitude, track.Latitude, track.data):
             sf.point(x, y)
@@ -422,11 +422,11 @@ def tracks2line(tracks, outputFile, dissolve=False):
                     parts = []
                     lines = izip(track.Longitude[:idx],
                                  track.Latitude[:idx])
-                    
+
                     parts.append(lines)
                     lines = izip(track.Longitude[idx+1:],
                                  track.Latitude[idx+1:])
-                    
+
                     parts.append(lines)
                     sf.line(parts)
                 else:
@@ -439,9 +439,9 @@ def tracks2line(tracks, outputFile, dissolve=False):
 
             minPressure = track.trackMinPressure
             maxWind = track.trackMaxWind
-            
+
             age = track.TimeElapsed.max()
-            
+
             startYear = track.Year[0]
             startMonth = track.Month[0]
             startDay = track.Day[0]
@@ -450,7 +450,7 @@ def tracks2line(tracks, outputFile, dissolve=False):
             record = [track.CycloneNumber[0], startYear, startMonth, startDay,
                       startHour, startMin, age, minPressure, maxWind]
             sf.record(*record)
-            
+
         else:
             if len(track.data) == 1:
                 line = [[[track.Longitude, track.Latitude],
@@ -465,17 +465,17 @@ def tracks2line(tracks, outputFile, dissolve=False):
                         segment = [[[track.Longitude[n], track.Latitude[n]],
                                    [track.Longitude[n], track.Latitude[n]]]]
                     else:
-                        segment = [[[track.Longitude[n], 
+                        segment = [[[track.Longitude[n],
                                      track.Latitude[n]],
-                                    [track.Longitude[n + 1], 
+                                    [track.Longitude[n + 1],
                                      track.Latitude[n + 1]]]]
-                    sf.line(segment) 
+                    sf.line(segment)
                     sf.record(*track.data[n])
-                    
+
                 # Last point in the track:
-                sf.line([[[track.Longitude[n + 1], 
+                sf.line([[[track.Longitude[n + 1],
                            track.Latitude[n + 1]],
-                              [track.Longitude[n + 1], 
+                              [track.Longitude[n + 1],
                                track.Latitude[n + 1]]]])
                 sf.record(*track.data[n+1])
 
