@@ -187,9 +187,16 @@ Some common errors when running a scenario.
 ``MemoryError``
 ~~~~~~~~~~~~~~~
 
-In isolated cases, ``tcevent.py`` may fail and report a message that ends with ``MemoryError``. This arises when the size of arrays in Python exceed 2GB (on 32-bit systems). Conditions that lead to this error are not clear. To resolve the problem, it is recommended to reduce the domain of the wind field by adding a ``Region`` section to the configuration file.::
+In isolated cases, ``tcevent.py`` may fail and report a message that
+ends with ``MemoryError``. This arises when the size of arrays in
+Python exceed 2GB (on 32-bit systems). Conditions that lead to this
+error are not clear. To resolve the problem, it is recommended to
+reduce the domain of the wind field by adding a ``Region`` section to
+the configuration file.::
 
     [Region]
     gridLimit = {'xMin':118., 'xMax':122., 'yMin':-23., 'yMax':-17.}
 
-This will restrict calculation of the wind field to the defined domain. The ``gridLimit`` value is described in the :ref:`configureregion` section.
+This will restrict calculation of the wind field to the defined
+domain. The ``gridLimit`` value is described in the
+:ref:`configureregion` section.
