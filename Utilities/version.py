@@ -13,7 +13,7 @@
 import os
 import sys
 import subprocess
-from datetime import datetime
+from files import flModulePath, flModDate
 
 # Monkey patch check_output into subprocess for python 2.6.X
 if 'check_output' not in dir(subprocess):
@@ -91,6 +91,11 @@ def version():
     try:
         vers = git('log -1 --date=iso --pretty=format:"%H"')
     except subprocess.CalledProcessError:
-        pass
+        # Case for missing git:
+        import inspect
+        path, name, ext = flModulePath(len(inspect.stack()))
+        fname = os.path.join(path, name+ext)
+        fdate = flModDate(fname)
+        vers = '{0} modified {1}'.format(fname, fdate)
     
     return vers

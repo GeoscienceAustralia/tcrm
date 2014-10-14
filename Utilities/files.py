@@ -34,6 +34,7 @@ def flModulePath(level=1):
     """
     filename = os.path.realpath(sys._getframe(level).f_code.co_filename)
     path, fname = os.path.split(filename)
+    path.replace(os.path.sep, '/')
     base, ext = os.path.splitext(fname)
     return path, base, ext
 
