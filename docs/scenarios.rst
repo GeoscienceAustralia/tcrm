@@ -29,44 +29,76 @@ spatial interpolation methods (e.g. kriging).
 Setting up a scenario
 ---------------------
 
+Track file requirements
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Simulating an individual event requires details of the track of the
+cyclone. As a minimum, a track file must contain the following fields:
+``index``, ``indicator`` or ``tcserialno`` (to uniquely identify an
+event); date/time information (either as a single field, or as
+individual components); latitudel; longitude; central pressure and
+radius to maximum winds.
+
+The ``index`` field (or the alternatives) is required as the software
+uses the same methods to read the source data for both individual
+events and best-track databases that contain many events. The example
+configuration below uses an ``index`` field, with ``1`` in the first
+row and ``0`` in all subsequent rows.
+
+The radius to maximum wind is required in individual events, as it
+cannot be artificially generated, as is the case in the generation of
+synthetic events.
+
+Configuration
+~~~~~~~~~~~~~
+
 Users will need to manually edit a configuration file to execute a
 scenario simulation. Many of the options in the main TCRM
 configuration file are not required for scenario simulation, so it is
 recommended to create a reduced configuration file that contains only
-the required sections and options.
+the required sections and options. 
 
 A basic configuration file for a scenario simulation would look like
 this::
 
     [DataProcess]
-    InputFile=scenario.csv
+    InputFile = scenario.csv
+    Source = NRL
+    FilterSeasons = False
 
     [WindfieldInterface]
-    Source=NRL    # Naval Research Laboratory
-    Margin=3
-    Resolution=0.02
-    profileType=powell
-    beta=1.6
-    windFieldType=kepert
-    TimeStep=0.0833333333
+    Margin = 3
+    Resolution = 0.02
+    profileType = powell
+    windFieldType = kepert
 
     [Timeseries]
-    Extract=True
-    StationFile=./input/stationlist.shp
-    StationID=WMO
+    Extract = True
+    StationFile = ./input/stationlist.shp
+    StationID = WMO
+ 
+    [Input]
+    landmask = input/landmask.nc
+    mslpfile = MSLP/slp.day.ltm.nc
 
     [Output]
     Path = ./output/scenario
     
     [NRL]
-    Columns=index,skip,skip,date,lat,lon,skip,skip,pressure,rmax
-    FieldDelimiter=,
-    NumberOfHeadingLines=0
-    PressureUnits=hPa
-    SpeedUnits=kts
-    LengthUnits=km
-    DateFormat=%Y%m%d %H:%M
+    Columns = index,skip,skip,date,lat,lon,skip,skip,pressure,rmax
+    FieldDelimiter = ,
+    NumberOfHeadingLines = 0
+    PressureUnits = hPa
+    SpeedUnits = kts
+    LengthUnits = km
+    DateFormat = %Y%m%d %H:%M
 
+    [Logging]
+    LogFile = output/scenario/log/scenario.log
+    LogLevel = INFO
+    Verbose = True
+    NewLog = True
+    DateStamp = True
 
 
 .. _runningscenario:
@@ -147,3 +179,17 @@ is plotted on a simple figure for visual inspection.
 :Note: The double labels on the secondary (right-hand) y-axis require
        Matplotlib version 1.3 or later.
 
+Troubleshooting
+---------------
+
+Some common errors when running a scenario.
+
+``MemoryError``
+~~~~~~~~~~~~~~~
+
+In isolated cases, ``tcevent.py`` may fail and report a message that ends with ``MemoryError``. This arises when the size of arrays in Python exceed 2GB (on 32-bit systems). Conditions that lead to this error are not clear. To resolve the problem, it is recommended to reduce the domain of the wind field by adding a ``Region`` section to the configuration file.::
+
+    [Region]
+    gridLimit = {'xMin':118., 'xMax':122., 'yMin':-23., 'yMax':-17.}
+
+This will restrict calculation of the wind field to the defined domain. The ``gridLimit`` value is described in the :ref:`configureregion` section.

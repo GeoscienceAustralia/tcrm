@@ -14,7 +14,7 @@ estimating the wind hazard from tropical cyclones.
 
 Due to the relatively short record of quality-controlled, consistent
 tropical cyclone observations, it is difficult to estimate average
-recurrence interval wind speeds ue to tropical cyclones. To overcome
+recurrence interval wind speeds due to tropical cyclones. To overcome
 the restriction of observed data, TCRM uses an autoregressive model to
 generate thousands of years of events that are statistically similar
 to the historical record. To translate these events to estimated wind
@@ -34,13 +34,23 @@ Features
 * **Globally applicable**: Users can set up a domain in any TC basin 
   in the globe. The model is not tuned to any one region of the 
   globe. Rather, the model is designed to draw sufficient 
-  information from best-track archives;
+  information from best-track archives or TC databases;
 * **Evaluation metrics**: Offers capability to run objective 
   evaluation of track model metrics (e.g. landfall rates);
 * **Single scenarios**: Users can run a single TC event (e.g. using 
   a b-deck format track file) at high temporal resolution and 
   extract time series data at chosen locations;
 
+Releases
+========
+
+Latest releases can be downloaded from the `Geoscience Australia GitHub repository <https://github.com/GeoscienceAustralia/tcrm/releases>`_. 
+
+Bleeding edge versions are accessible `here <https://github.com/GeoscienceAustralia/tcrm/archive/master.zip>`_. 
+
+Contributions are welcome -- create a `fork
+<https://github.com/GeoscienceAustralia/tcrm/fork>`_ or clone the
+repo.
 
 Contents
 ========
