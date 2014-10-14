@@ -35,7 +35,7 @@ INPUTFMT = ('|S16', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
 INPUTNAMES = ('Time', 'longitude', 'latitude','gust','uu','vv',
               'bearing', 'pressure')
 
-def tsmultiply(inputFile, multipliers):
+def tsmultiply(inputFile, multipliers, outputFile):
     """
     Apply multipliers to a single file. Values are combined then written
     back to the source file. 
@@ -46,10 +46,11 @@ def tsmultiply(inputFile, multipliers):
                           eight directions.
     :param tuple multipliers: The eight combined multiplier values for the
                               location.
+    :param str outputFile: Destination for the processed file.
 
     
     """
-    #tsdata = flLoadFile(inputFile, delimiter=',',comments='%')
+    
     log.info("Processing {0}".format(inputFile))
     tsdata = np.genfromtxt(inputFile, dtype=INPUTFMT, names=INPUTNAMES,
                            delimiter=',', skip_header=1) 
@@ -99,7 +100,7 @@ def tsmultiply(inputFile, multipliers):
 
     data = np.array([tstep, lon, lat, gust, uu, vv, bear, pressure]).T
     header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
-    np.savetxt(inputFile, data, fmt='%s', delimiter=',',
+    np.savetxt(outputFile, data, fmt='%s', delimiter=',',
                header=header)
 
     return True
@@ -122,16 +123,23 @@ def process_timeseries(config_file):
 
     stnFile = config.get('Timeseries', 'StationFile')
     key_name = config.get('Timeseries', 'StationID')
-    tsPath = pjoin(config.get('Output', 'Path'), 
-                              'process', 'timeseries')
-
+    inputPath = pjoin(config.get('Output', 'Path'), 
+                                  'process', 'timeseries')
+    outputPath = pjoin(inputPath, 'local')
+    
+    if not isdir(outputPath):
+        try:
+            os.makedirs(outputPath)
+        except OSError:
+            raise
+        
     log.info("Loading stations from %s"%stnFile)
-    log.info("Timeseries data will be written into %s"%tsPath)
+    log.info("Timeseries data will be written into %s"%outputPath)
 
-    directions = ['n','ne','e','se','s','sw','w','nw']
+    directions = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
 
     sf = shapefile.Reader(stnFile)
-    field_names = [sf.fields[i][0] for i in range(1,len(sf.fields))]
+    field_names = [sf.fields[i][0] for i in range(1, len(sf.fields))]
     key_index = field_names.index(key_name)
     records = sf.records()
     indexes = []
@@ -141,11 +149,12 @@ def process_timeseries(config_file):
 
     for record in records:
         stnId = record[key_index]
-        tsFile = pjoin(tsPath, 'ts.{0}.csv'.format(stnId))
-        if os.path.isfile(tsFile):
+        inputFile = pjoin(inputPath, 'ts.{0}.csv'.format(stnId))
+        outputFile = pjoin(outputPath, 'ts.{0}.csv'.format(stnId))
+        if os.path.isfile(inputFile):
             # Load multipliers for this location:
             m = [float(record[i]) for i in indexes]
-            tsmultiply(tsFile, tuple(m))
+            tsmultiply(inputFile, tuple(m), outputFile)
         else:
             log.debug("No timeseries file for {0}".format(stnId))
             pass
