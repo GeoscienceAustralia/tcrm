@@ -3423,8 +3423,8 @@ the fields, and an array of the corresponding data records</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> (<em>dict</em>) &#8211; a dict of dicts with field names as keys, and each 
-sub-dict containing keys of &#8216;Type&#8217;, &#8216;Length&#8217;, 
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> (<em>dict</em>) &#8211; a dict of dicts with field names as keys, and each
+sub-dict containing keys of &#8216;Type&#8217;, &#8216;Length&#8217;,
 &#8216;Precision&#8217; and &#8216;Data&#8217;.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">fields, records</td>
@@ -3446,7 +3446,7 @@ sub-dict containing keys of &#8216;Type&#8217;, &#8216;Length&#8217;,
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>outputFile</strong> (<em>str</em>) &#8211; full path (excluding extension!) to the shapefile
 to create.</li>
-<li><strong>shapes</strong> (<tt class="xref py py-class docutils literal"><span class="pre">shapefile._Shape</span></tt>) &#8211; Collection of shape objects representing the geometry of 
+<li><strong>shapes</strong> (<tt class="xref py py-class docutils literal"><span class="pre">shapefile._Shape</span></tt>) &#8211; Collection of shape objects representing the geometry of
 features.</li>
 <li><strong>shptype</strong> (<em>int</em>) &#8211; <tt class="xref py py-class docutils literal"><span class="pre">shapefile</span></tt> object type (these are integer
 values, but you can also use the shapelib.SHPT value).</li>
@@ -3481,7 +3481,7 @@ to fieldname.</p>
 <li><strong>shpFile</strong> (<em>str</em>) &#8211; path to a valid shape file</li>
 <li><strong>fieldname</strong> (<em>str</em>) &#8211; name of a field in the attribute table of the
 shape file (.dbf)</li>
-<li><strong>dtype</strong> (<cite>dtype</cite>) &#8211; type of values in the requested field. Default is 
+<li><strong>dtype</strong> (<cite>dtype</cite>) &#8211; type of values in the requested field. Default is
 float</li>
 </ul>
 </td>
@@ -3508,8 +3508,8 @@ number) is used.</p>
 <p>WARNING:
 If any records share the same value for the chosen key, then only
 one record will be retained in the returned values.</p>
-<p>Input: 
-:type  shape_file: str 
+<p>Input:
+:type  shape_file: str
 :param shape_file: path to a shape file, excluding the extension</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3529,7 +3529,7 @@ corresponding shape object.</td>
 </table>
 <p>Example: vertices = shpGetVertices(&#8216;/foo/bar/baz/shp&#8217;, &#8216;FIELD1&#8217;)</p>
 <p>This function is retained for backwards compatibility.
-We recommend using the shapefile interface directly for extracting 
+We recommend using the shapefile interface directly for extracting
 shapes and records.</p>
 </dd></dl>
 
@@ -3569,9 +3569,9 @@ order.</p>
 <li><strong>outputFile</strong> (<em>str</em>) &#8211; name for the output shapefile, excluding extension.</li>
 <li><strong>tracks</strong> (<tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt> object) &#8211; collection of track features.</li>
 <li><strong>format</strong> &#8211; Type of features to save. &#8220;point&#8221; will save each record as a
-single point. &#8220;lines&#8221; will save each individual TC track as 
-a single (POLYLINE) feature. &#8220;segments&#8221; will save each 
-segment of a track to a line feature between consecutive 
+single point. &#8220;lines&#8221; will save each individual TC track as
+a single (POLYLINE) feature. &#8220;segments&#8221; will save each
+segment of a track to a line feature between consecutive
 observations.</li>
 </ul>
 </td>
@@ -3789,7 +3789,7 @@ in the range [low to high]</p>
 
 <dl class="data">
 <dt id="Utilities.stats.logger">
-<tt class="descname">logger</tt><em class="property"> = &lt;logging.RootLogger object at 0x02FB5EF0&gt;</em><a class="headerlink" href="#Utilities.stats.logger" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">logger</tt><em class="property"> = &lt;logging.RootLogger object at 0x02FD8F90&gt;</em><a class="headerlink" href="#Utilities.stats.logger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Functions:</p>
 <dl class="docutils">
 <dt>cdf(x,y) <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
@@ -4065,24 +4065,6 @@ values at the given location</p>
 
 </dd></dl>
 
-<dl class="function">
-<dt id="Utilities.timeseries.tsmultiply">
-<tt class="descname">tsmultiply</tt><big>(</big><em>inputFile</em><big>)</big><a class="headerlink" href="#Utilities.timeseries.tsmultiply" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply multipliers to a single file. Values are combined then written
-back to the source file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputFile</strong> (<em>str</em>) &#8211; Path to the input timeseries file. This will need
-to contain the values of the three multipliers
-(topography, terrain and shielding) for each of
-eight directions.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 </div>
 </div>
 <div class="section" id="module-Utilities.track">
@@ -4191,18 +4173,47 @@ when attempting to save the file.</p>
 <div class="section" id="module-tsmultipliers">
 <span id="tsmultipliers-apply-site-exposure-multipliers-to-time-series-output"></span><h3><a class="reference internal" href="#module-tsmultipliers" title="tsmultipliers: Multiply the wind speed in a timeseries file by the appropriate multiplier values. Still a very rudimentary process."><tt class="xref py py-mod docutils literal"><span class="pre">tsmultipliers</span></tt></a> &#8211; apply site-exposure multipliers to time series output<a class="headerlink" href="#module-tsmultipliers" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
+<dt id="Utilities.tsmultipliers.process_timeseries">
+<tt class="descname">process_timeseries</tt><big>(</big><em>config_file</em><big>)</big><a class="headerlink" href="#Utilities.tsmultipliers.process_timeseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a set of timeseries files to include the multiplier values.</p>
+<p>The combined multiplier values are stored in a shape file as fields,
+and records are keyed by the same code that is used to select
+stations for sampling.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config_file</strong> (<em>str</em>) &#8211; Path to a configuration file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="Utilities.tsmultipliers.startup">
+<tt class="descname">startup</tt><big>(</big><big>)</big><a class="headerlink" href="#Utilities.tsmultipliers.startup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse command line arguments and call the <tt class="xref py py-func docutils literal"><span class="pre">main()</span></tt> function.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="Utilities.tsmultipliers.tsmultiply">
-<tt class="descname">tsmultiply</tt><big>(</big><em>inputFile</em><big>)</big><a class="headerlink" href="#Utilities.tsmultipliers.tsmultiply" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">tsmultiply</tt><big>(</big><em>inputFile</em>, <em>multipliers</em>, <em>outputFile</em><big>)</big><a class="headerlink" href="#Utilities.tsmultipliers.tsmultiply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply multipliers to a single file. Values are combined then written
 back to the source file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inputFile</strong> (<em>str</em>) &#8211; Path to the input timeseries file. This will need
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inputFile</strong> (<em>str</em>) &#8211; Path to the input timeseries file. This will need
 to contain the values of the three multipliers
 (topography, terrain and shielding) for each of
-eight directions.</td>
+eight directions.</li>
+<li><strong>multipliers</strong> (<em>tuple</em>) &#8211; The eight combined multiplier values for the
+location.</li>
+<li><strong>outputFile</strong> (<em>str</em>) &#8211; Destination for the processed file.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -4520,7 +4531,7 @@ dimension.</p>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Sep 19, 2014.
+      Last updated on Oct 14, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

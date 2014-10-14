@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Source formats &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
+    <title>Using different TC databases - source formats &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -52,8 +52,8 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="source-formats">
-<span id="sourceformats"></span><h1>Source formats<a class="headerlink" href="#source-formats" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="using-different-tc-databases-source-formats">
+<span id="sourceformats"></span><h1>Using different TC databases - source formats<a class="headerlink" href="#using-different-tc-databases-source-formats" title="Permalink to this headline">¶</a></h1>
 <p>There are a wide variety of formats of tropical cyclone track
 databases available, both observational and model generated (e.g. we
 have used tropical cyclone-like vortices derived from regional and
@@ -62,6 +62,18 @@ the format for the <a class="reference external" href="http://www.ncdc.noaa.gov/
 Stewardship</a> (IBTrACS-WMO
 format). The default action for TCRM is to download the current
 version (v03r05 at August 2014) and use this to calibrate the model.</p>
+<div class="section" id="required-fields">
+<span id="requiredfields"></span><h2>Required fields<a class="headerlink" href="#required-fields" title="Permalink to this headline">¶</a></h2>
+<p>As a bare minimum, TCRM requires data on the date/time, longitude,
+latitude, central pressure of each cyclone observation. It also
+requires a field that indicates each unique TC event in the
+database. This can be a <tt class="docutils literal"><span class="pre">tcserialno</span></tt> - a unique string for each
+event; a TC <tt class="docutils literal"><span class="pre">num</span></tt> which is an integer value for each event in a
+season; or an <tt class="docutils literal"><span class="pre">indicator</span></tt> field, which is set to <tt class="docutils literal"><span class="pre">1</span></tt> for the first
+observation of a new TC, and <tt class="docutils literal"><span class="pre">0</span></tt> otherwise.</p>
+<p>For individual scenario modelling, an additional field containing the
+radius to maximum winds (<tt class="docutils literal"><span class="pre">rmax</span></tt>) must be included.</p>
+</div>
 <div class="section" id="database-format">
 <span id="databaseformat"></span><h2>Database format<a class="headerlink" href="#database-format" title="Permalink to this headline">¶</a></h2>
 <p>The first few lines of the IBTrACS database are shown below.</p>
@@ -152,7 +164,8 @@ SpeedUnits = kph
             </a></p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Source formats</a><ul>
+<li><a class="reference internal" href="#">Using different TC databases - source formats</a><ul>
+<li><a class="reference internal" href="#required-fields">Required fields</a></li>
 <li><a class="reference internal" href="#database-format">Database format</a></li>
 <li><a class="reference internal" href="#setting-the-configuration-options">Setting the configuration options</a></li>
 </ul>
@@ -207,7 +220,7 @@ SpeedUnits = kph
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Sep 19, 2014.
+      Last updated on Oct 14, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

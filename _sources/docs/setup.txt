@@ -92,11 +92,11 @@ This section controls aspects of the processing of the input track
 database. Firstly, the ``InputFile`` option specifies the file to be
 processed. A relative or absolute path can be used. If no path name is
 included (as in the example below), then TCRM assumes the file is
-stored in the ``input`` path. If using an automatically `downloaded
-:download:` dataset, then this file name must match the name specified
-in the appropriate dataset section (which is named by the ``Source``
-option in this section) of the configuration file (further details
-below).
+stored in the ``input`` path. If using an automatically
+downloaded dataset, then this file name must match the name
+specified in the appropriate dataset section (which is named by the
+``Source`` option in this section) of the configuration file (further
+details below).
 
 The ``Source`` option is a string value that acts as a pointer to a
 subsequent section in the configuration file, that holds details of
@@ -390,7 +390,7 @@ system, or if it is run in batch mode. ::
 Source format options
 ---------------------
 
-For the input data source specified in the ``DataProcess -- Source``
+For the input data source specified in the :menuselection:`DataProcess --> Source`
 option, there must be a corresponding section of the given name. In
 this example case, the source is specified as ``IBTRACS`` (the same as
 one of the ``Dataset`` options). The ``IBTRACS`` section therefore

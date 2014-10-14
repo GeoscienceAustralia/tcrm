@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" />
     <link rel="next" title="Utilities package" href="Utilities.html" />
-    <link rel="prev" title="Source formats" href="sources.html" /> 
+    <link rel="prev" title="Using different TC databases - source formats" href="sources.html" /> 
   </head>
   <body>
     <div class="related">
@@ -41,7 +41,7 @@
           <a href="Utilities.html" title="Utilities package"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="sources.html" title="Source formats"
+          <a href="sources.html" title="Using different TC databases - source formats"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
@@ -53,7 +53,7 @@
           <div class="body">
             
   <div class="section" id="scenario-modelling">
-<h1>Scenario modelling<a class="headerlink" href="#scenario-modelling" title="Permalink to this headline">¶</a></h1>
+<span id="scenariomodelling"></span><h1>Scenario modelling<a class="headerlink" href="#scenario-modelling" title="Permalink to this headline">¶</a></h1>
 <p>TCRM can also be used to simulate the wind field from an individual
 event. Given the track of a tropical cyclone, users can run the
 <a class="reference internal" href="wind.html#module-wind" title="wind"><tt class="xref py py-mod docutils literal"><span class="pre">wind</span></tt></a> module only, and generate the maximum wind swath from a
@@ -75,7 +75,26 @@ tropical cyclone, the simulated winds from TCRM should be combined
 with observed maximum wind speeds in the vicinity of the cyclone using
 spatial interpolation methods (e.g. kriging).</p>
 <div class="section" id="setting-up-a-scenario">
-<h2>Setting up a scenario<a class="headerlink" href="#setting-up-a-scenario" title="Permalink to this headline">¶</a></h2>
+<span id="scenariosetup"></span><h2>Setting up a scenario<a class="headerlink" href="#setting-up-a-scenario" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="track-file-requirements">
+<h3>Track file requirements<a class="headerlink" href="#track-file-requirements" title="Permalink to this headline">¶</a></h3>
+<p>Simulating an individual event requires details of the track of the
+cyclone. As a minimum, a track file must contain the following fields:
+<tt class="docutils literal"><span class="pre">index</span></tt>, <tt class="docutils literal"><span class="pre">indicator</span></tt> or <tt class="docutils literal"><span class="pre">tcserialno</span></tt> (to uniquely identify an
+event); date/time information (either as a single field, or as
+individual components); latitudel; longitude; central pressure and
+radius to maximum winds.</p>
+<p>The <tt class="docutils literal"><span class="pre">index</span></tt> field (or the alternatives) is required as the software
+uses the same methods to read the source data for both individual
+events and best-track databases that contain many events. The example
+configuration below uses an <tt class="docutils literal"><span class="pre">index</span></tt> field, with <tt class="docutils literal"><span class="pre">1</span></tt> in the first
+row and <tt class="docutils literal"><span class="pre">0</span></tt> in all subsequent rows.</p>
+<p>The radius to maximum wind is required in individual events, as it
+cannot be artificially generated, as is the case in the generation of
+synthetic events.</p>
+</div>
+<div class="section" id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
 <p>Users will need to manually edit a configuration file to execute a
 scenario simulation. Many of the options in the main TCRM
 configuration file are not required for scenario simulation, so it is
@@ -84,38 +103,49 @@ the required sections and options.</p>
 <p>A basic configuration file for a scenario simulation would look like
 this:</p>
 <div class="highlight-python"><div class="highlight"><pre>[DataProcess]
-InputFile=scenario.csv
+InputFile = scenario.csv
+Source = NRL
+FilterSeasons = False
 
 [WindfieldInterface]
-Source=NRL    # Naval Research Laboratory
-Margin=3
-Resolution=0.02
-profileType=powell
-beta=1.6
-windFieldType=kepert
-TimeStep=0.0833333333
+Margin = 3
+Resolution = 0.02
+profileType = powell
+windFieldType = kepert
 
 [Timeseries]
-Extract=True
-StationFile=./input/stationlist.shp
-StationID=WMO
+Extract = True
+StationFile = ./input/stationlist.shp
+StationID = WMO
+
+[Input]
+landmask = input/landmask.nc
+mslpfile = MSLP/slp.day.ltm.nc
 
 [Output]
 Path = ./output/scenario
 
 [NRL]
-Columns=index,skip,skip,date,lat,lon,skip,skip,pressure,rmax
-FieldDelimiter=,
-NumberOfHeadingLines=0
-PressureUnits=hPa
-SpeedUnits=kts
-LengthUnits=km
-DateFormat=%Y%m%d %H:%M
+Columns = index,skip,skip,date,lat,lon,skip,skip,pressure,rmax
+FieldDelimiter = ,
+NumberOfHeadingLines = 0
+PressureUnits = hPa
+SpeedUnits = kts
+LengthUnits = km
+DateFormat = %Y%m%d %H:%M
+
+[Logging]
+LogFile = output/scenario/log/scenario.log
+LogLevel = INFO
+Verbose = True
+NewLog = True
+DateStamp = True
 </pre></div>
 </div>
 </div>
+</div>
 <div class="section" id="running-the-scenario">
-<h2>Running the scenario<a class="headerlink" href="#running-the-scenario" title="Permalink to this headline">¶</a></h2>
+<span id="runningscenario"></span><h2>Running the scenario<a class="headerlink" href="#running-the-scenario" title="Permalink to this headline">¶</a></h2>
 <p>The <cite>tcevent.py</cite> script loads the track file, performs the temporal
 interpolation and then passes the interpolated track file to the
 <a class="reference internal" href="wind.html#module-wind" title="wind"><tt class="xref py py-mod docutils literal"><span class="pre">wind</span></tt></a> module. Since the <tt class="docutils literal"><span class="pre">Region</span></tt> section has been removed, the
@@ -140,7 +170,7 @@ configuration file.</p>
 </table>
 </div>
 <div class="section" id="command-line-arguments">
-<h2>Command line arguments<a class="headerlink" href="#command-line-arguments" title="Permalink to this headline">¶</a></h2>
+<span id="scenariocmdlineargs"></span><h2>Command line arguments<a class="headerlink" href="#command-line-arguments" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><table class="docutils option-list" frame="void" rules="none">
 <col class="option" />
@@ -165,7 +195,7 @@ start the Python debugger (<tt class="xref py py-mod docutils literal"><span cla
 </div></blockquote>
 </div>
 <div class="section" id="extract-time-series-data">
-<h2>Extract time series data<a class="headerlink" href="#extract-time-series-data" title="Permalink to this headline">¶</a></h2>
+<span id="timeseries"></span><h2>Extract time series data<a class="headerlink" href="#extract-time-series-data" title="Permalink to this headline">¶</a></h2>
 <p>When running a scenario, it is possible to extract a time series of
 the wind speed and sea level pressure values from the grid at selected
 locations. The locations are defined in a user-supplied point shape
@@ -206,6 +236,26 @@ Matplotlib version 1.3 or later.</td>
 </tbody>
 </table>
 </div>
+<div class="section" id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<p>Some common errors when running a scenario.</p>
+<div class="section" id="memoryerror">
+<h3><tt class="docutils literal"><span class="pre">MemoryError</span></tt><a class="headerlink" href="#memoryerror" title="Permalink to this headline">¶</a></h3>
+<p>In isolated cases, <tt class="docutils literal"><span class="pre">tcevent.py</span></tt> may fail and report a message that
+ends with <tt class="docutils literal"><span class="pre">MemoryError</span></tt>. This arises when the size of arrays in
+Python exceed 2GB (on 32-bit systems). Conditions that lead to this
+error are not clear. To resolve the problem, it is recommended to
+reduce the domain of the wind field by adding a <tt class="docutils literal"><span class="pre">Region</span></tt> section to
+the configuration file.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Region</span><span class="p">]</span>
+<span class="n">gridLimit</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;xMin&#39;</span><span class="p">:</span><span class="mf">118.</span><span class="p">,</span> <span class="s">&#39;xMax&#39;</span><span class="p">:</span><span class="mf">122.</span><span class="p">,</span> <span class="s">&#39;yMin&#39;</span><span class="p">:</span><span class="o">-</span><span class="mf">23.</span><span class="p">,</span> <span class="s">&#39;yMax&#39;</span><span class="p">:</span><span class="o">-</span><span class="mf">17.</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>This will restrict calculation of the wind field to the defined
+domain. The <tt class="docutils literal"><span class="pre">gridLimit</span></tt> value is described in the
+<a class="reference internal" href="setup.html#configureregion"><em>Region</em></a> section.</p>
+</div>
+</div>
 </div>
 
 
@@ -220,17 +270,25 @@ Matplotlib version 1.3 or later.</td>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Scenario modelling</a><ul>
-<li><a class="reference internal" href="#setting-up-a-scenario">Setting up a scenario</a></li>
+<li><a class="reference internal" href="#setting-up-a-scenario">Setting up a scenario</a><ul>
+<li><a class="reference internal" href="#track-file-requirements">Track file requirements</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#running-the-scenario">Running the scenario</a></li>
 <li><a class="reference internal" href="#command-line-arguments">Command line arguments</a></li>
 <li><a class="reference internal" href="#extract-time-series-data">Extract time series data</a></li>
+<li><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li><a class="reference internal" href="#memoryerror"><tt class="docutils literal"><span class="pre">MemoryError</span></tt></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="sources.html"
-                        title="previous chapter">Source formats</a></p>
+                        title="previous chapter">Using different TC databases - source formats</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="Utilities.html"
                         title="next chapter">Utilities package</a></p>
@@ -269,14 +327,14 @@ Matplotlib version 1.3 or later.</td>
           <a href="Utilities.html" title="Utilities package"
              >next</a> |</li>
         <li class="right" >
-          <a href="sources.html" title="Source formats"
+          <a href="sources.html" title="Using different TC databases - source formats"
              >previous</a> |</li>
         <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Sep 14, 2014.
+      Last updated on Oct 14, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>

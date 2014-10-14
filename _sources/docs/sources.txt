@@ -1,9 +1,9 @@
 
 .. _sourceformats:
 
-==================
-Source formats 
-==================
+==============================================
+Using different TC databases - source formats 
+==============================================
 
 There are a wide variety of formats of tropical cyclone track
 databases available, both observational and model generated (e.g. we
@@ -13,6 +13,21 @@ the format for the `International Best Tracks Archive for Climate
 Stewardship <http://www.ncdc.noaa.gov/oa/ibtracs/>`_ (IBTrACS-WMO
 format). The default action for TCRM is to download the current
 version (v03r05 at August 2014) and use this to calibrate the model.
+
+.. _requiredfields:
+
+Required fields
+---------------
+As a bare minimum, TCRM requires data on the date/time, longitude,
+latitude, central pressure of each cyclone observation. It also
+requires a field that indicates each unique TC event in the
+database. This can be a ``tcserialno`` - a unique string for each
+event; a TC ``num`` which is an integer value for each event in a
+season; or an ``indicator`` field, which is set to ``1`` for the first
+observation of a new TC, and ``0`` otherwise.
+
+For individual scenario modelling, an additional field containing the
+radius to maximum winds (``rmax``) must be included.
 
 .. _databaseformat:
 
