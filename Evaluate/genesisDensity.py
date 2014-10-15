@@ -35,7 +35,7 @@ import Utilities.Intersections as Int
 from shapely.geometry import Point, LineString, Polygon
 
 from PlotInterface.maps import ArrayMapFigure, saveFigure
-from PlotInterface.plotTracks import TrackMapFigure
+from PlotInterface.tracks import TrackMapFigure
 
 # Importing :mod:`colours` makes a number of additional colour maps available:
 from Utilities import colours
