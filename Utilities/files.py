@@ -1,6 +1,11 @@
 import os
 import sys
 import logging
+
+if 'NullHandler' not in dir(logging):
+    from Utilities import py26compat
+    logging.NullHandler = py26compat.NullHandler
+
 import datetime
 import numpy as np
 from time import ctime, localtime, strftime

@@ -11,7 +11,7 @@ TEST_DIR = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda _: None)
 class TestModuleUtilities(unittest.TestCase):
 
     def setUp(self):
-        self.filename = os.path.realpath(__file__)
+        self.filename = os.path.abspath(inspect.getsourcefile(lambda _:None))
         self.path, self.fname = os.path.split(self.filename)
         self.base, self.ext = os.path.splitext(self.fname)
         #self.path = self.path.replace(os.path.sep, '/')
