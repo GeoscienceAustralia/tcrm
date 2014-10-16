@@ -20,5 +20,6 @@ install:
   - export PATH=$HOME/py/bin:$PATH
   - pip install pycurl
   - pip -v install -r requirements.txt
-script: python intaller/setup.py build_ext -i
-script: python tests/run.py
+script: 
+  - python installer/setup.py build_ext -i
+  - python tests/run.py
