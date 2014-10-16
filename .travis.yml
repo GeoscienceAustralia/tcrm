@@ -13,6 +13,6 @@ before_install:
 # install Python dependencies
 install:
   - pip install pycurl
-  - travis_wait pip install -r requirements.txt
+  - travis_wait pip -v install -r requirements.txt
 script: python intaller/setup.py build_ext -i
 script: python tests/run.py
