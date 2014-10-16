@@ -2,6 +2,8 @@ argparse==1.2.1
 numpy>=1.7.1
 scipy>=0.12.0
 six>=1.7.3
+--allow-external dateutil
+--allow-unverified dateutil
 dateutil
 tornado
 pyparsing
