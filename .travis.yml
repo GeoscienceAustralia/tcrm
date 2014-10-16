@@ -19,6 +19,6 @@ install:
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   - pip install pycurl
-  - travis_wait pip -v install -r requirements.txt
+  - pip -v install -r requirements.txt
 script: python intaller/setup.py build_ext -i
 script: python tests/run.py
