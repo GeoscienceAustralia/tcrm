@@ -11,5 +11,7 @@ matplotlib>=1.2.1
 netCDF4>=1.0.8
 pytz==2014.4
 simplejson==3.6.0
+--allow-external basemap
+--allow-unverified basemap
 basemap>=1.0.7
 Shapely>=1.2.15
