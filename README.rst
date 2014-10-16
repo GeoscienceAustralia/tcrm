@@ -43,7 +43,8 @@ Dependencies
 Status
 ======
 
-[![Build Status](https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=master)](https://travis-ci.org/GeoscienceAustralia/tcrm)
+.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=master
+    :target: https://travis-ci.org/GeoscienceAustralia/tcrm
 
 Screenshot
 ==========
