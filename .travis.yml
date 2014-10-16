@@ -15,7 +15,7 @@ before_install:
 install:
   - sudo pip install conda
   - sudo conda init
-  - deps='pip numpy scipy natplotlib basemap'
+  - deps='pip numpy scipy matplotlib basemap'
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   - pip install pycurl
