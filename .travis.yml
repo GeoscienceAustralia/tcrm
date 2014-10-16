@@ -15,11 +15,11 @@ before_install:
 install:
   - sudo pip install conda
   - sudo conda init
-  - deps='pip numpy scipy matplotlib basemap nose'
+  - deps='pip numpy scipy matplotlib basemap nose coverage'
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
   - pip install pycurl
   - pip -v install -r requirements.txt
 script: 
   - python installer/setup.py build_ext -i
-  - nosetests -w tests/ -v
+  - nosetests -w tests/ -v --with-coverage
