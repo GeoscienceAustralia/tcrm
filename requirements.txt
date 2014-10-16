@@ -1,10 +1,13 @@
 argparse==1.2.1
 numpy>=1.7.1
 scipy>=0.12.0
+six>=1.7.3
+dateutil
+tornado
+pyparsing
 matplotlib>=1.2.1
 netCDF4>=1.0.8
 pytz==2014.4
 simplejson==3.6.0
 basemap>=1.0.7
 Shapely>=1.2.15
-six>=1.7.3
