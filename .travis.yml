@@ -10,7 +10,7 @@ before_install:
   - sudo apt-get install libgeos-dev
   - sudo apt-get install python-dev
   - sudo apt-get install libatlas-base-dev gfortran
-  - suso apt-get install libblas3gf libc6 libgcc1 libgfortran3 liblapack3gf libumfpack5.4.0 libstdc++6
+  - sudo apt-get install libblas3gf libc6 libgcc1 libgfortran3 liblapack3gf libumfpack5.4.0 libstdc++6
 # install Python dependencies
 install:
   - pip install pycurl
