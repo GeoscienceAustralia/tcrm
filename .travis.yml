@@ -14,6 +14,6 @@ before_install:
 # install Python dependencies
 install:
   - pip install pycurl
-  - pip -v install -r requirements.txt
+  - pip install -r requirements.txt
 script: python intaller/setup.py build_ext -i
 script: python tests/run.py
