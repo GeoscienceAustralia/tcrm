@@ -40,6 +40,12 @@ Dependencies
   <https://code.google.com/p/netcdf4-python/>`_ and a C compiler;
 * For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
 
+Status
+======
+
+.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=master
+    :target: https://travis-ci.org/GeoscienceAustralia/tcrm
+
 Screenshot
 ==========
 
