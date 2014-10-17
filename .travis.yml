@@ -1,7 +1,6 @@
 language: python
 python:
   - "2.7"
-  - "2.6"
 # install system dependencies
 before_install:
   - sudo apt-get update -qq
