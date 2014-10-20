@@ -37,7 +37,8 @@ Dependencies
   `Numpy <http://www.numpy.org/>`_, `Scipy <http://www.scipy.org/>`_,
   `Matplotlib <http://matplotlib.org/>`_, `Basemap
   <http://matplotlib.org/basemap/index.html>`_, `netcdf4-python
-  <https://code.google.com/p/netcdf4-python/>`_ and a C compiler;
+  <https://code.google.com/p/netcdf4-python/>`_, 
+  `Shapely <https://github.com/Toblerity/Shapely>`_ and a C compiler;
 * For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
 
 Status
