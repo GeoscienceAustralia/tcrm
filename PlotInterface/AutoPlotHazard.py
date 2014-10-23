@@ -20,7 +20,7 @@ import logging
 import numpy as np
 import numpy.ma as ma
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('Agg', warn=False)
 
 try:
     from mpl_toolkits.basemap import Basemap

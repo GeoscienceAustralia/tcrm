@@ -33,6 +33,8 @@ from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities.version import version
 from Utilities import pathLocator
 
+import matplotlib
+matplotlib.use('Agg', warn=False)  # Use matplotlib backend
 
 # Set Basemap data path if compiled with py2exe
 if pathLocator.is_frozen():
@@ -247,8 +249,6 @@ def doDataPlotting(configFile):
     :param str configFile: Name of configuration file.
 
     """
-    import matplotlib
-    matplotlib.use('Agg')  # Use matplotlib backend
 
     config = ConfigParser()
     config.read(configFile)
@@ -413,9 +413,6 @@ def doHazardPlotting(configFile):
     :param str configFile: Name of configuration file.
 
     """
-
-    import matplotlib
-    matplotlib.use('Agg')  # Use matplotlib backend
 
     config = ConfigParser()
     config.read(configFile)

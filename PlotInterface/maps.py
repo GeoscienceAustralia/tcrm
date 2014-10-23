@@ -5,7 +5,7 @@ import numpy as np
 import scipy.stats as stats
 
 import matplotlib
-matplotlib.use("Agg")
+matplotlib.use("Agg", warn=False)
 matplotlib.rc_file_defaults()
 
 from matplotlib import pyplot

@@ -24,7 +24,7 @@ from scipy.stats import scoreatpercentile as percentile
 from datetime import datetime
 
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('Agg', warn=False)
 
 from matplotlib import cm
 from mpl_toolkits.basemap import Basemap
