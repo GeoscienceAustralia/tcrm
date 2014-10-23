@@ -24,13 +24,13 @@ import time
 import sys
 import os
 
-from os.path import join as pjoin, realpath, isdir, dirname, abspath
+from os.path import join as pjoin, realpath, isdir, dirname
 from functools import wraps
 from Utilities.progressbar import SimpleProgressBar as ProgressBar
-from Utilities.files import flStartLog, flLoadFile, flModDate
+from Utilities.files import flStartLog, flLoadFile
 from Utilities.config import ConfigParser
 from Utilities.parallel import attemptParallel, disableOnWorkers
-from Utilities.version import version, status
+from Utilities.version import version
 from Utilities import pathLocator
 
 
@@ -62,7 +62,7 @@ def timer(f):
 
 
 # Set global version string (for output metadata purposes):
-__version__  = version()
+__version__  = version() # pylint: disable-msg=C0103
 
 
 
