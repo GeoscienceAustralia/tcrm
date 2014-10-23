@@ -1082,6 +1082,10 @@ def run(configFile, callback=None):
                 log.debug("Timeseries data will be extracted")
                 ts = Timeseries(configFile)
                 timestepCallback = ts.extract
+            else:
+                def timestepCallback(*args):
+                    """Dummy timestepCallback function"""
+                    pass
 
     else:
         def timestepCallback(*args):
