@@ -22,9 +22,9 @@ def parseBool(txt):
 
     :returns: ``True`` if the string is 'True', ``False`` otherwise.
     :rtype: boolean
-    
+
     """
-    
+
     return txt == 'True'
 
 def parseList(txt):
@@ -37,7 +37,7 @@ def parseList(txt):
     :rtype: list
 
     """
-    
+
     return txt.split(',')
 
 
@@ -49,9 +49,9 @@ def formatList(lst):
 
     :return: A string comprised of the list elements joined by commas.
     :rtype: str
-    
+
     """
-    
+
     return ','.join(map(str, lst))
 
 
@@ -253,33 +253,33 @@ class ConfigParser(RawConfigParser):
     def __init__(self, defaults=DEFAULTS):
         RawConfigParser.__init__(self)
         self.readfp(io.BytesIO(defaults))
-        self.read_once = False
+        self.readonce = False
 
     def geteval(self, section, option):
         """
         :param str section: Section name to evaluate.
         :param str option: Option name to evaluate.
-        
+
         :return: an evaluated setting.
-        
+
         """
         return self._get(section, eval, option)
 
     def read(self, filename):
         """
-        Read a configuration file, and set the :attr:`read_once` attribute
+        Read a configuration file, and set the :attr:`readonce` attribute
         to ``True``.
 
         :param str filename: Path to the configuration file to read.
 
         """
-        
+
         if filename is None:
             return
-        if self.read_once:
+        if self.readonce:
             return
         RawConfigParser.read(self, filename)
-        self.read_once = True
+        self.readonce = True
 
     def items(self, section):
         """
@@ -291,7 +291,7 @@ class ConfigParser(RawConfigParser):
         :rtype: list
 
         """
-        
+
         raw = RawConfigParser.items(self, section)
         parsed = {}
         for name, value in raw:
@@ -311,7 +311,7 @@ class ConfigParser(RawConfigParser):
         :param value: Value to set.
 
         """
-        
+
         try:
             formatter = FORMATERS['%s_%s' % (section, option)]
             newvalue = formatter(value)

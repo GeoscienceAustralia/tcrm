@@ -8,11 +8,9 @@
 
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 """
-import os, sys, pdb, logging
+import re
 
 __version__ = '$Id: template.py 680 2012-03-19 01:52:37Z carthur $'
-
-import re
 
 def replace(infile, outfile, replacements):
     """
@@ -42,8 +40,8 @@ def replace(infile, outfile, replacements):
     fo = open(outfile, 'w')
     for line in fi:
         newline = line
-        for k,v in replacements.items():
-            newline = re.sub('{'+k+'}', v, newline)
+        for key,val in replacements.items():
+            newline = re.sub('{'+key+'}', val, newline)
             
         fo.write(newline)
     fi.close()

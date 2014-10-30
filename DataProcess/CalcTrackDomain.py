@@ -63,9 +63,10 @@ class CalcTrackDomain(object):
         """
 
         tg_domain = self.wf_domain.copy()
-        track_limits = {'xMin':9999,'xMax':-9999,'yMin':9999,'yMax':-9999}
-        for [idx, lon, lat] in zip(index, lons, lats):
+        track_limits = {'xMin':9999, 'xMax':-9999,
+                        'yMin':9999, 'yMax':-9999}
 
+        for [idx, lon, lat] in zip(index, lons, lats):
             if idx == 1:
                 # Reset cyclone lon/lon limits
                 track_limits = {'xMin':9999, 'xMax':-9999,

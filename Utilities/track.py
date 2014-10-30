@@ -3,7 +3,7 @@ Track-related attributes
 """
 
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
 
 trackFields = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
                'Day', 'Hour', 'Minute', 'TimeElapsed', 'Datetime','Longitude',
@@ -61,6 +61,7 @@ class Track(object):
         """
         if key.startswith('__') and key.endswith('__'):
             return super(Track, self).__getattr__(key)
+
         return self.data[key]
 
     def inRegion(self, gridLimit):

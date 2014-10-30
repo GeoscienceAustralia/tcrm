@@ -19,14 +19,14 @@ $Id: plotWindfield.py 549 2007-10-22 01:34:48Z carthur $
 import os, sys, pdb, logging
 
 import pylab
-from numpy import *
+import numpy as np
 from mpl_toolkits.basemap import Basemap
 import Utilities.metutils as metutils
 
 
 def plotWindfield(xGrid, yGrid, speed, title='Cyclone wind field',
                     xlabel='Longitude', ylabel='Latitude',
-                    InfoString='', fileName=None, i=0):
+                    infostring='', fileName=None, i=0):
     """
     Plot the wind field for a given grid.
     xGrid, yGrid and speed are arrays of the same size. (xGrid and yGrid
@@ -34,16 +34,16 @@ def plotWindfield(xGrid, yGrid, speed, title='Cyclone wind field',
     """
 
     vMax = speed.max()
-    InfoString = "%s \nMaximum speed: %2.1f m/s" % (InfoString, vMax)
+    infostring = "%s \nMaximum speed: %2.1f m/s" % (infostring, vMax)
     pylab.clf()
     dl = 5.
-    llLon = min(xGrid[0,:])
-    urLon = max(xGrid[0,:])
-    llLat = min(yGrid[:,0])
-    urLat = max(yGrid[:,0])
-    meridians = arange(dl*floor(llLon/dl), dl*ceil(urLon/dl), dl)
-    parallels = arange(dl*floor(llLat/dl), dl*ceil(urLat/dl), dl)
-    levels = arange(0, 101, 5)
+    llLon = min(xGrid[0, :])
+    urLon = max(xGrid[0, :])
+    llLat = min(yGrid[:, 0])
+    urLat = max(yGrid[:, 0])
+    meridians = np.arange(dl*floor(llLon/dl), dl*ceil(urLon/dl), dl)
+    parallels = np.arange(dl*floor(llLat/dl), dl*ceil(urLat/dl), dl)
+    levels = np.arange(0, 101, 5)
 
     m = Basemap(projection='cyl',
                 resolution='i',
@@ -57,11 +57,13 @@ def plotWindfield(xGrid, yGrid, speed, title='Cyclone wind field',
 
     pylab.colorbar()
     pylab.title(title)
-    #pylab.figtext(0.175,0.86,InfoString,color='b',horizontalalignment='left',verticalalignment='top',fontsize=10)
+    #pylab.figtext(0.175, 0.86, infostring, color='b',
+    #              horizontalalignment='left',
+    #              verticalalignment='top', fontsize=10)
 
     m.drawcoastlines()
-    m.drawparallels(parallels, labels=[1,0,0,1], fontsize=9)
-    m.drawmeridians(meridians, labels=[1,0,0,1], fontsize=9)
+    m.drawparallels(parallels, labels=[1, 0, 0, 1], fontsize=9)
+    m.drawmeridians(meridians, labels=[1, 0, 0, 1], fontsize=9)
     """
     if cfgPlot['Basemap.fill_continents']:
         m.fillcontinents()
@@ -74,7 +76,7 @@ def plotWindfield(xGrid, yGrid, speed, title='Cyclone wind field',
 
 def plotPressurefield(xGrid, yGrid, pressure, title='Cyclone pressure field',
                     xlabel='Longitude', ylabel='Latitude',
-                    InfoString='', fileName=None, i=0):
+                    infostring='', fileName=None):
     """
     Plot the wind field for a given grid.
     xGrid, yGrid and speed are arrays of the same size. (xGrid and yGrid
@@ -85,13 +87,13 @@ def plotPressurefield(xGrid, yGrid, pressure, title='Cyclone pressure field',
         pressure = metutils.convert(pressure, 'Pa', 'hPa')
     pylab.clf()
     dl = 5.
-    llLon=min(xGrid[0,:])
-    urLon=max(xGrid[0,:])
-    llLat=min(yGrid[:,0])
-    urLat=max(yGrid[:,0])
-    meridians=arange(dl*floor(llLon/dl), dl*ceil(urLon/dl), dl)
-    parallels=arange(dl*floor(llLat/dl), dl*ceil(urLat/dl), dl)
-    levels = array(arange(900, 1020, 5))
+    llLon = min(xGrid[0, :])
+    urLon = max(xGrid[0, :])
+    llLat = min(yGrid[:, 0])
+    urLat = max(yGrid[:, 0])
+    meridians = np.arange(dl*floor(llLon/dl), dl*ceil(urLon/dl), dl)
+    parallels = np.arange(dl*floor(llLat/dl), dl*ceil(urLat/dl), dl)
+    levels = np.arange(900, 1020, 5)
 
     m = Basemap(projection='cyl',
                 resolution='i',
@@ -107,8 +109,8 @@ def plotPressurefield(xGrid, yGrid, pressure, title='Cyclone pressure field',
     pylab.title(title)
 
     m.drawcoastlines()
-    m.drawparallels(parallels, labels=[1,0,0,1], fontsize=9)
-    m.drawmeridians(meridians, labels=[1,0,0,1], fontsize=9)
+    m.drawparallels(parallels, labels=[1, 0, 0, 1], fontsize=9)
+    m.drawmeridians(meridians, labels=[1, 0, 0, 1], fontsize=9)
     """
     if cfgPlot['Basemap.fill_continents']:
         m.fillcontinents()

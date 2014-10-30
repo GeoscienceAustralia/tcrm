@@ -6,7 +6,9 @@ from matplotlib.dates import DayLocator, HourLocator, DateFormatter
 from matplotlib.ticker import MultipleLocator
 
 class TimeSeriesFigure(Figure):
-
+    """
+    Base class for plotting time series data
+    """
     def __init__(self):
         Figure.__init__(self)
         self.subfigures = []
@@ -103,7 +105,8 @@ class TimeSeriesFigure(Figure):
 
         lines = [p0, p1, p2]
         l = axes.legend(lines, [p.get_label() for p in lines])
-        for t in l.get_texts(): t.set_fontsize('xx-small')
+        for t in l.get_texts():
+            t.set_fontsize('xx-small')
 
         axes.set_xlabel('Time')
         self.formatXticks(axes)
@@ -126,7 +129,8 @@ class TimeSeriesFigure(Figure):
             position += 0.1
 
         l = axes.legend(plots, [p.get_label() for p in plots])
-        for t in l.get_texts(): t.set_fontsize('xx-small')
+        for t in l.get_texts():
+            t.set_fontsize('xx-small')
         axes.set_xlabel('Time')
         self.formatXticks(axes)
         self.addGrid(axes)
@@ -135,7 +139,8 @@ class TimeSeriesFigure(Figure):
     def addLegend(self, axes):
         l = axes.legend(loc=2, handletextpad=0.1, borderpad=0.07, 
                         labelspacing=0.07)
-        for t in l.get_texts(): t.set_fontsize('xx-small')
+        for t in l.get_texts():
+            t.set_fontsize('xx-small')
 
     def formatXticks(self, axes):
         axes.xaxis.set_major_locator(self.dayLocator)

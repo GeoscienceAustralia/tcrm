@@ -16,6 +16,8 @@
 import random
 import math
 
+#pylint: disable-msg=R0904
+
 class Random(random.Random):
     """
     An extension of the standard :mod:`random` library to
@@ -23,8 +25,8 @@ class Random(random.Random):
 
     """
     
-    def __init__(self, x=None):
-        random.Random.__init__(self, x)
+    def __init__(self, value=None):
+        random.Random.__init__(self, value)
     
     def logisticvariate(self, mu, sigma):
         """

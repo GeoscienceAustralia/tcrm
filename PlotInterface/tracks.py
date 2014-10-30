@@ -8,21 +8,19 @@
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
 """
-import os
 import sys
-import logging
+import logging as log
 
 import numpy as np
 
 import Utilities.shptools as shptools
-from Utilities.config import ConfigParser
-from Utilities.files import flStartLog
-from Utilities.stats import between
 
 from maps import MapFigure, saveFigure
 
 class TrackMapFigure(MapFigure):
-
+    """
+    Base class for plotting track maps
+    """
     def add(self, tracks, xgrid, ygrid, title, map_kwargs):
         self.subfigures.append((tracks, xgrid, ygrid, title, map_kwargs))
 
@@ -30,8 +28,8 @@ class TrackMapFigure(MapFigure):
         tracks, xgrid, ygrid, title, map_kwargs = subfigure
         mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
 
-        for t in tracks:
-            mlon, mlat = mapobj(t.Longitude, t.Latitude)
+        for track in tracks:
+            mlon, mlat = mapobj(track.Longitude, track.Latitude)
             mapobj.plot(mlon, mlat, 'k-', linewidth=1.5)
         axes.set_title(title)
         self.labelAxes(axes)

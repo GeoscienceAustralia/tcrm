@@ -178,15 +178,15 @@ class Timeseries(object):
                  values at the given location
         :rtype: tuple
         """
-        x = find_index(gridx, float(lon))
-        y = find_index(gridy, float(lat))
-        s = spd[y, x]
-        u = uu[y, x]
-        v = vv[y, x]
-        b = np.mod((180. / np.pi) * np.arctan2(-u, -v), 360.)
-        p = prs[y, x]
+        xx = find_index(gridx, float(lon))
+        yy = find_index(gridy, float(lat))
+        ss = spd[yy, xx]
+        uu = uu[yy, xx]
+        vv = vv[yy, xx]
+        bb = np.mod((180. / np.pi) * np.arctan2(-uu, -vv), 360.)
+        pp = prs[yy, xx]
         
-        return (s, u, v, b, p)
+        return (ss, uu, vv, bb, pp)
         
 
     def extract(self, dt, spd, uu, vv, prs, gridx, gridy):
@@ -209,8 +209,8 @@ class Timeseries(object):
             if stn.insideGrid(gridx, gridy):
                 result = self.sample(stn.lon, stn.lat, spd, uu, vv, prs,
                                       gridx, gridy)
-                s, u, v, b, p = result
-                stn.data.append((dt, stn.lon, stn.lat, s, u, v, b, p))
+                ss, uu, vv, bb, pp = result
+                stn.data.append((dt, stn.lon, stn.lat, ss, uu, vv, bb, pp))
 
             else:
                 stn.data.append((dt, stn.lon, stn.lat, 0.0, 0.0,  

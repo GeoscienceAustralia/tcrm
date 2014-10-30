@@ -12,7 +12,6 @@
 """
 
 import os
-import sys
 import logging
 import argparse
 import traceback
@@ -23,7 +22,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 import numpy as np
-from Utilities.files import flLoadFile, flSaveFile, flStartLog
+from Utilities.files import flStartLog
 from Utilities.config import ConfigParser
 from Utilities import shapefile
 from Utilities import pathLocator
@@ -32,7 +31,7 @@ OUTPUTFMT = ['%s', '%7.3f', '%7.3f',
               '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
               '%7.2f']
 INPUTFMT = ('|S16', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
-INPUTNAMES = ('Time', 'longitude', 'latitude','gust','uu','vv',
+INPUTNAMES = ('Time', 'longitude', 'latitude', 'gust', 'uu', 'vv',
               'bearing', 'pressure')
 
 def tsmultiply(inputFile, multipliers, outputFile):
@@ -96,7 +95,7 @@ def tsmultiply(inputFile, multipliers, outputFile):
 
 
     ii = np.where(gust==0)
-    bear[ii]=0
+    bear[ii] = 0
 
     data = np.array([tstep, lon, lat, gust, uu, vv, bear, pressure]).T
     header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
@@ -143,8 +142,8 @@ def process_timeseries(config_file):
     key_index = field_names.index(key_name)
     records = sf.records()
     indexes = []
-    for d in directions:
-        fieldname = 'm4_%s' % d
+    for dir in directions:
+        fieldname = 'm4_%s' % dir
         indexes.append(field_names.index(fieldname))
 
     for record in records:
@@ -153,11 +152,11 @@ def process_timeseries(config_file):
         outputFile = pjoin(outputPath, 'ts.{0}.csv'.format(stnId))
         if os.path.isfile(inputFile):
             # Load multipliers for this location:
-            m = [float(record[i]) for i in indexes]
-            tsmultiply(inputFile, tuple(m), outputFile)
+            mvals = [float(record[i]) for i in indexes]
+            tsmultiply(inputFile, tuple(mvals), outputFile)
         else:
             log.debug("No timeseries file for {0}".format(stnId))
-            pass
+            
         
 def startup():
     """

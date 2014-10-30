@@ -94,9 +94,9 @@ class CalcFrequency:
         freq = np.round(freq*100)/100
 
         fname = pjoin(self.outputPath, 'process', 'region_frequency')
-        X = np.array([np.arange(min_year,max_year + 1), 
+        data = np.array([np.arange(min_year, max_year + 1), 
                       freq_count[min_year:max_year + 1]])
         header = "Year,count"
-        np.savetxt(fname, X.T, fmt="%d", delimiter=",", header=header)
+        np.savetxt(fname, data.T, fmt="%d", delimiter=",", header=header)
 
         return freq

@@ -10,12 +10,9 @@
 
 """
 
-import os
-import sys
-import logging
-import numpy
-
+import numpy as np
 import metutils
+
 __version__ = '$Id: vorticity.py 686 2012-03-29 04:24:59Z carthur $'
 
 def relative(u, v, lon, lat):
@@ -38,25 +35,27 @@ def relative(u, v, lon, lat):
     :return: 2-d :class:`numpy.ndarray` of relative vorticity values.
     
     """
-    dx = numpy.zeros((len(lat), len(lon)-2))
-    dy = numpy.zeros((len(lat)-2, len(lon)))
-    du = numpy.zeros((len(lat)-2, len(lon)))
-    dv = numpy.zeros((len(lat), len(lon)-2))
-    zeta = numpy.zeros((len(lat)-2, len(lon)-2))
+    dx = np.zeros((len(lat), len(lon)-2))
+    dy = np.zeros((len(lat)-2, len(lon)))
+    du = np.zeros((len(lat)-2, len(lon)))
+    dv = np.zeros((len(lat), len(lon)-2))
+    zeta = np.zeros((len(lat)-2, len(lon)-2))
 
     for i in xrange(1, len(lon)-1):
         for j in xrange(0, len(lat)):
-            dx[j,i-1] = metutils.convert((lon[i+1]-lon[i-1])*numpy.cos(pi*lat[j]/180.), "deg", "m")
-            dv[j,i-1] = v[i+1,j]-v[i-1,j]
+            dx[j, i-1] = metutils.convert((lon[i+1] - lon[i-1]) * \
+                                          np.cos(np.pi*lat[j]/180.),
+                                          "deg", "m")
+            dv[j, i-1] = v[i+1, j] - v[i-1, j]
 
     for i in xrange(0, len(lon)):
-        for j in xrange(1,len(lat)-1):
-            dy[j-1,i] = metutils.convert((lat[j+1]-lat[j-1]), "deg", "m")
-            du[j-1,i] = u[i,j+1]-u[i,j-1]
+        for j in xrange(1, len(lat)-1):
+            dy[j-1, i] = metutils.convert((lat[j+1] - lat[j-1]), "deg", "m")
+            du[j-1, i] = u[i, j+1] - u[i, j-1]
 
-    for i in xrange(len(lat)-2):
-        for j in xrange(len(lon)-2):
-            zeta[i,j] = dv[i,j]/dx[i,j] - du[i,j]/dy[i,j]
+    for i in xrange(len(lat) - 2):
+        for j in xrange(len(lon) - 2):
+            zeta[i, j] = dv[i, j]/dx[i, j] - du[i, j]/dy[i, j]
     return zeta
 
 def absolute(u, v, lon, lat):
@@ -79,24 +78,27 @@ def absolute(u, v, lon, lat):
     :return: 2-d :class:`numpy.ndarray` of absolute vorticity values.
 
     """
-    dx = numpy.zeros((len(lat), len(lon)-2))
-    dy = numpy.zeros((len(lat)-2, len(lon)))
-    du = numpy.zeros((len(lat)-2, len(lon)))
-    dv = numpy.zeros((len(lat), len(lon)-2))
-    zeta = numpy.zeros((len(lat)-2, len(lon)-2))
+    dx = np.zeros((len(lat), len(lon) - 2))
+    dy = np.zeros((len(lat) - 2, len(lon)))
+    du = np.zeros((len(lat) - 2, len(lon)))
+    dv = np.zeros((len(lat), len(lon) - 2))
+    zeta = np.zeros((len(lat) - 2, len(lon) - 2))
 
-    for i in xrange(1, len(lon)-1):
+    for i in xrange(1, len(lon) - 1):
         for j in xrange(0, len(lat)):
-            dx[j,i-1] = metutils.convert((lon[i+1]-lon[i-1])*numpy.cos(pi*lat[j]/180.), "deg", "m")
-            dv[j,i-1] = v[i+1,j]-v[i-1,j]
+            dx[j, i-1] = metutils.convert((lon[i+1] - lon[i-1]) * \
+                                          np.cos(np.pi*lat[j]/180.),
+                                          "deg", "m")
+            dv[j, i-1] = v[i+1, j] - v[i-1, j]
 
     for i in xrange(0, len(lon)):
-        for j in xrange(1, len(lat)-1):
-            dy[j-1,i] = metutils.convert((lat[j+1]-lat[j-1]), "deg", "m")
-            du[j-1,i] = u[i,j+1]-u[i,j-1]
+        for j in xrange(1, len(lat) - 1):
+            dy[j-1, i] = metutils.convert((lat[j+1] - lat[j-1]), "deg", "m")
+            du[j-1, i] = u[i, j+1] - u[i, j-1]
 
-    for i in xrange(len(lat)-2):
-        for j in xrange(len(lon)-2):
-            zeta[i,j] = dv[i,j]/dx[i,j] - du[i,j]/dy[i,j] + metutils.coriolis(lat[i+1])
+    for i in xrange(len(lat) - 2):
+        for j in xrange(len(lon) - 2):
+            zeta[i, j] = dv[i, j]/dx[i, j] - du[i, j]/dy[i, j] + \
+               metutils.coriolis(lat[i+1])
 
     return zeta

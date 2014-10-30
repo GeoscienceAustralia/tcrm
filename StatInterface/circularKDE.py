@@ -14,13 +14,13 @@ on [0,2*pi).
 
 """
 
-import numpy
+import numpy as np
 import KPDF
 from scipy.special import i0
 from math import pi
 import stats
 
-def circularKDE(parameters, kdeStep=pi/16.):
+def circularKDE(parameters, kdeStep=np.pi/16.):
     """
     Create a probability distribution function for radial-type data,
     e.g. bearings. Returns the grid on which the PDF is defined, the
@@ -36,11 +36,11 @@ def circularKDE(parameters, kdeStep=pi/16.):
     
     """
     bw = KPDF.UPDFOptimumBandwidth(parameters)
-    grid = numpy.arange(0, 2*pi+kdeStep, kdeStep)
-    pdf = numpy.empty(len(grid), 'float')
-    chi = 1./(2*pi*i0(bw))
+    grid = np.arange(0, 2 * np.pi +kdeStep, kdeStep)
+    pdf = np.empty(len(grid), 'float')
+    chi = 1./(2 * np.pi * i0(bw))
     for k in parameters:
-        kH = chi*numpy.exp(bw*numpy.cos(grid-k))
+        kH = chi * np.exp(bw * np.cos(grid-k))
         pdf += kH/kH.sum()
 
     pdf = pdf/len(pdf)
