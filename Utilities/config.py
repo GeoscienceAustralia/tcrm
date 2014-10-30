@@ -234,9 +234,9 @@ filename=slp.day.ltm.nc
 def singleton(cls):
     instances = {}
 
-    def getinstance():
+    def getinstance(*args, **kwargs):
         if cls not in instances:
-            instances[cls] = cls()
+            instances[cls] = cls(*args, **kwargs)
         return instances[cls]
     return getinstance
 
@@ -250,9 +250,9 @@ class ConfigParser(RawConfigParser):
     and default options.
     """
 
-    def __init__(self):
+    def __init__(self, defaults=DEFAULTS):
         RawConfigParser.__init__(self)
-        self.readfp(io.BytesIO(DEFAULTS))
+        self.readfp(io.BytesIO(defaults))
         self.read_once = False
 
     def geteval(self, section, option):
