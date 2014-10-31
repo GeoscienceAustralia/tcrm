@@ -330,7 +330,7 @@ corresponding section in the <tt class="docutils literal"><span class="pre">conf
 <span id="config-reading-configuration-files"></span><h3><a class="reference internal" href="#module-config" title="config: Provides functions for manipulating configuration files e.g. reading setting from a configuration file."><tt class="xref py py-mod docutils literal"><span class="pre">config</span></tt></a> &#8211; reading configuration files<a class="headerlink" href="#module-config" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="Utilities.config.ConfigParser">
-<tt class="descname">ConfigParser</tt><big>(</big><big>)</big><a class="headerlink" href="#Utilities.config.ConfigParser" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">ConfigParser</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Utilities.config.ConfigParser" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -3789,7 +3789,7 @@ in the range [low to high]</p>
 
 <dl class="data">
 <dt id="Utilities.stats.logger">
-<tt class="descname">logger</tt><em class="property"> = &lt;logging.RootLogger object at 0x02FB9030&gt;</em><a class="headerlink" href="#Utilities.stats.logger" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">logger</tt><em class="property"> = &lt;logging.RootLogger object at 0x02F62030&gt;</em><a class="headerlink" href="#Utilities.stats.logger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Functions:</p>
 <dl class="docutils">
 <dt>cdf(x,y) <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
@@ -3883,7 +3883,7 @@ Used for arranging the cells to be evenly spaced</p>
 <h3><tt class="xref py py-mod docutils literal"><span class="pre">tcrandom</span></tt> &#8211; extended version of Python&#8217;s <tt class="xref py py-class docutils literal"><span class="pre">random</span></tt> library<a class="headerlink" href="#tcrandom-extended-version-of-python-s-random-library" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="Utilities.tcrandom.Random">
-<em class="property">class </em><tt class="descname">Random</tt><big>(</big><em>x=None</em><big>)</big><a class="headerlink" href="#Utilities.tcrandom.Random" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">Random</tt><big>(</big><em>value=None</em><big>)</big><a class="headerlink" href="#Utilities.tcrandom.Random" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">random.Random</span></tt></p>
 <p>An extension of the standard <tt class="xref py py-mod docutils literal"><span class="pre">random</span></tt> library to
 allow sampling from additional distributions.</p>
@@ -3981,13 +3981,38 @@ To include site-specific effects, you will first need to include the multiplier
 values for each site in the station file, then run tsmultipliers.py
 to apply said multipliers to the output.</p>
 <dl class="class">
+<dt id="Utilities.timeseries.DynamicRecArray">
+<em class="property">class </em><tt class="descname">DynamicRecArray</tt><big>(</big><em>dtype</em><big>)</big><a class="headerlink" href="#Utilities.timeseries.DynamicRecArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A dynamic record array to enable appending/extending an array</p>
+<dl class="method">
+<dt id="Utilities.timeseries.DynamicRecArray.append">
+<tt class="descname">append</tt><big>(</big><em>rec</em><big>)</big><a class="headerlink" href="#Utilities.timeseries.DynamicRecArray.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append a record to the array</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Utilities.timeseries.DynamicRecArray.data">
+<tt class="descname">data</tt><a class="headerlink" href="#Utilities.timeseries.DynamicRecArray.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Utilities.timeseries.DynamicRecArray.extend">
+<tt class="descname">extend</tt><big>(</big><em>recs</em><big>)</big><a class="headerlink" href="#Utilities.timeseries.DynamicRecArray.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extend a record array  with many records</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="Utilities.timeseries.Station">
-<em class="property">class </em><tt class="descname">Station</tt><big>(</big><em>station_id</em>, <em>longitude</em>, <em>latitude</em><big>)</big><a class="headerlink" href="#Utilities.timeseries.Station" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">Station</tt><big>(</big><em>stationid</em>, <em>longitude</em>, <em>latitude</em><big>)</big><a class="headerlink" href="#Utilities.timeseries.Station" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <dl class="method">
 <dt id="Utilities.timeseries.Station.insideGrid">
 <tt class="descname">insideGrid</tt><big>(</big><em>gridx</em>, <em>gridy</em><big>)</big><a class="headerlink" href="#Utilities.timeseries.Station.insideGrid" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Determine if a point is within the defined grid</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -4531,7 +4556,7 @@ dimension.</p>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Oct 17, 2014.
+      Last updated on Oct 31, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
