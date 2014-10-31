@@ -390,8 +390,11 @@ def convert(value, input, output):
     if input == output:
         # Do nothing:
         return value
-    if input=='kmh':
+    if input == 'kmh':
         input = 'kph'
+    if input == "m/s":
+        input = "mps"
+
     # Speeds:
     mps = {"kph":3.6, "kts":1.944, "mph":2.2369}
     mph = {"kph":1.60934, "kts":0.86898, "mps":0.44704}
