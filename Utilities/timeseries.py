@@ -181,12 +181,12 @@ class Timeseries(object):
         xx = find_index(gridx, float(lon))
         yy = find_index(gridy, float(lat))
         ss = spd[yy, xx]
-        uu = uu[yy, xx]
-        vv = vv[yy, xx]
-        bb = np.mod((180. / np.pi) * np.arctan2(-uu, -vv), 360.)
+        ux = uu[yy, xx]
+        vy = vv[yy, xx]
+        bb = np.mod((180. / np.pi) * np.arctan2(-ux, -vy), 360.)
         pp = prs[yy, xx]
         
-        return (ss, uu, vv, bb, pp)
+        return (ss, ux, vy, bb, pp)
         
 
     def extract(self, dt, spd, uu, vv, prs, gridx, gridy):
