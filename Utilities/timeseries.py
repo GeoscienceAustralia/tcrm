@@ -209,8 +209,8 @@ class Timeseries(object):
             if stn.insideGrid(gridx, gridy):
                 result = self.sample(stn.lon, stn.lat, spd, uu, vv, prs,
                                       gridx, gridy)
-                ss, uu, vv, bb, pp = result
-                stn.data.append((dt, stn.lon, stn.lat, ss, uu, vv, bb, pp))
+                ss, ux, vy, bb, pp = result
+                stn.data.append((dt, stn.lon, stn.lat, ss, ux, vy, bb, pp))
 
             else:
                 stn.data.append((dt, stn.lon, stn.lat, 0.0, 0.0,  
