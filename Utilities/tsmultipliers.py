@@ -12,6 +12,7 @@
 """
 
 import os
+import sys
 import logging
 import argparse
 import traceback
@@ -24,15 +25,24 @@ log.addHandler(logging.NullHandler())
 import numpy as np
 from Utilities.files import flStartLog
 from Utilities.config import ConfigParser
+from Utilities.dynarray import DynamicRecArray
 from Utilities import shapefile
 from Utilities import pathLocator
+
 
 OUTPUTFMT = ['%s', '%7.3f', '%7.3f', 
               '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
               '%7.2f']
 INPUTFMT = ('|S16', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
-INPUTNAMES = ('Time', 'longitude', 'latitude', 'gust', 'uu', 'vv',
-              'bearing', 'pressure')
+INPUTNAMES = ('Time', 'Longitude', 'Latitude', 'Speed', 'UU', 'VV',
+              'Bearing', 'Pressure')
+
+MINMAX_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
+                'Speed', 'UU', 'VV', 'Bearing', 'Pressure')
+MINMAX_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
+MINMAX_FMT = ['%s', '%s', '%7.3f', '%7.3f', 
+              '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
+              '%7.2f']
 
 def tsmultiply(inputFile, multipliers, outputFile):
     """
@@ -47,6 +57,8 @@ def tsmultiply(inputFile, multipliers, outputFile):
                               location.
     :param str outputFile: Destination for the processed file.
 
+    :returns: The records corresponding to the maximum (localised) wind speed
+              and minimum pressure.
     
     """
     
@@ -54,13 +66,13 @@ def tsmultiply(inputFile, multipliers, outputFile):
     tsdata = np.genfromtxt(inputFile, dtype=INPUTFMT, names=INPUTNAMES,
                            delimiter=',', skip_header=1) 
     tstep = tsdata['Time']
-    lon = tsdata['longitude']
-    lat = tsdata['latitude']
-    gust = tsdata['gust']
-    uu = tsdata['uu']
-    vv = tsdata['vv']
-    bear = tsdata['bearing']
-    pressure = tsdata['pressure']
+    lon = tsdata['Longitude']
+    lat = tsdata['Latitude']
+    gust = tsdata['Speed']
+    uu = tsdata['UU']
+    vv = tsdata['VV']
+    bear = tsdata['Bearing']
+    pressure = tsdata['Pressure']
     bear = 2*np.pi - (np.arctan2(-vv, -uu) - np.pi/2)
     bear = (180./np.pi) * np.mod(bear, 2.*np.pi)
     
@@ -96,13 +108,19 @@ def tsmultiply(inputFile, multipliers, outputFile):
 
     ii = np.where(gust==0)
     bear[ii] = 0
-
+    
     data = np.array([tstep, lon, lat, gust, uu, vv, bear, pressure]).T
+
+    maxidx = np.argmax(gust)
+    minidx = np.argmin(pressure)
+    maxdata = data[maxidx, :]
+    mindata = data[minidx, :]
+
     header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
     np.savetxt(outputFile, data, fmt='%s', delimiter=',',
                header=header)
-
-    return True
+    
+    return maxdata, mindata
 
 
 def process_timeseries(config_file):
@@ -139,7 +157,17 @@ def process_timeseries(config_file):
 
     sf = shapefile.Reader(stnFile)
     field_names = [sf.fields[i][0] for i in range(1, len(sf.fields))]
-    key_index = field_names.index(key_name)
+    try:
+        key_index = field_names.index(key_name)
+    except ValueError:
+        log.exception("{0} not a field in {1}".format(key_name, stnFile))
+        raise
+
+    min_data = DynamicRecArray(dtype={'names': MINMAX_NAMES,
+                                      'formats': MINMAX_TYPES})
+    max_data = DynamicRecArray(dtype={'names': MINMAX_NAMES,
+                                      'formats': MINMAX_TYPES})
+
     records = sf.records()
     indexes = []
     for dir in directions:
@@ -153,9 +181,22 @@ def process_timeseries(config_file):
         if os.path.isfile(inputFile):
             # Load multipliers for this location:
             mvals = [float(record[i]) for i in indexes]
-            tsmultiply(inputFile, tuple(mvals), outputFile)
+            maxdata, mindata = tsmultiply(inputFile, tuple(mvals), outputFile)
+            min_data.append((str(stnId),) + tuple(mindata))
+            max_data.append((str(stnId),) + tuple(maxdata))
+
         else:
             log.debug("No timeseries file for {0}".format(stnId))
+
+    # Save local minima/maxima
+    maxfile = pjoin(outputPath, 'local_maxima.csv')
+    minfile = pjoin(outputPath, 'local_minima.csv')
+    maxheader = ('Station,Time,Longitude,Latitude,Speed,'
+                        'UU,VV,Bearing,Pressure')
+    np.savetxt(maxfile, max_data.data, fmt=MINMAX_FMT, delimiter=',',
+               header=maxheader)
+    np.savetxt(minfile, min_data.data, fmt=MINMAX_FMT, delimiter=',',
+               header=maxheader)
             
         
 def startup():
@@ -210,6 +251,7 @@ def startup():
             tblines = traceback.format_exc().splitlines()
             for line in tblines:
                 log.critical(line.lstrip())
-                
+    
+    log.info("Completed {0}".format(sys.argv[0]))
 if __name__ == "__main__":
     startup()

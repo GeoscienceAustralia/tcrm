@@ -4,9 +4,9 @@
 
 Extract station timeseries from each timestep of a simulation.
 This samples the regional wind speed, not the site-specific wind speed.
-To include site-specific effects, you will first need to include the multiplier
-values for each site in the station file, then run tsmultipliers.py
-to apply said multipliers to the output.
+To include site-specific effects, you will first need to include the 
+multiplier values for each site in the station file, then run 
+tsmultipliers.py to apply said multipliers to the output.
 
 """
 
@@ -19,6 +19,7 @@ from ConfigParser import NoOptionError
 from Utilities.config import ConfigParser
 from Utilities.files import flLoadFile
 from Utilities.maputils import find_index
+from Utilities.dynarray import DynamicRecArray
 from shptools import shpGetVertices
 
 #from config import NoOptionError
@@ -35,41 +36,17 @@ OUTPUT_FMT = ['%s', '%7.3f', '%7.3f',
               '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
               '%7.2f']
 
+MINMAX_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
+                'Speed', 'UU', 'VV', 'Bearing', 'Pressure')
+MINMAX_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
+MINMAX_FMT = ['%s', '%s', '%7.3f', '%7.3f', 
+              '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
+              '%7.2f']
+
 CONFIG_DEFAULTS = """
 [Timeseries]
 StationID=None
 """
-
-class DynamicRecArray(object):
-    """
-    A dynamic record array to enable appending/extending an array
-    """
-    def __init__(self, dtype):
-        self.dtype = np.dtype(dtype)
-        self.length = 0
-        self.size = 10
-        self._data = np.empty(self.size, self.dtype)
-
-    def __len__(self):
-        return self.length
-
-    def append(self, rec):
-        """Append a record to the array"""
-        if self.length == self.size:
-            self.size = int(1.5 * self.size)
-            self._data = np.resize(self._data, self.size)
-        self._data[self.length] = rec
-        self.length += 1
-
-    def extend(self, recs):
-        """Extend a record array  with many records"""
-        for rec in recs:
-            self.append(rec)
-
-    @property
-    def data(self):
-        return self._data[:self.length]
-    
 
 class Station(object):
     def __init__(self, stationid, longitude, latitude):
@@ -131,6 +108,12 @@ class Timeseries(object):
         stnFile = config.get('Timeseries', 'StationFile')
         self.outputPath = pjoin(config.get('Output', 'Path'), 
                                     'process', 'timeseries')
+
+        self.maxfile = pjoin(config.get('Output', 'Path'), 
+                                    'process', 'maxima.csv')
+        self.minfile = pjoin(config.get('Output', 'Path'), 
+                                    'process', 'minima.csv')
+
 
         log.debug("Loading stations from %s"%stnFile)
         log.debug("Timeseries data will be written into %s"%self.outputPath)
@@ -223,17 +206,31 @@ class Timeseries(object):
         """
 
         header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
-        #maxheader = ('Station,Longitude,Latitude,Time,Speed,'
-        #                'UU,VV,Bearing,Pressure')
-                
+        maxheader = ('Station,Time,Longitude,Latitude,Speed,'
+                        'UU,VV,Bearing,Pressure')
+        
+        max_data = DynamicRecArray(dtype={'names': MINMAX_NAMES,
+                                          'formats':MINMAX_TYPES})
+
+        min_data = DynamicRecArray(dtype={'names': MINMAX_NAMES,
+                                          'formats':MINMAX_TYPES})
+
         for stn in self.stations:
             
             if np.any(stn.data.data['Speed'] > 0.0):
                 fname = pjoin(self.outputPath, 'ts.%s.csv' % str(stn.id))
                 np.savetxt(fname, np.array(stn.data.data), fmt=OUTPUT_FMT,
                            delimiter=',', header=header)
+                max_step = np.argmax(stn.data.data['Speed'])
+                min_step = np.argmin(stn.data.data['Pressure'])
+                max_data.append((str(stn.id),) + tuple(stn.data.data[max_step]))
+                min_data.append((str(stn.id),) + tuple(stn.data.data[min_step]))
+                
         
-
+        np.savetxt(self.maxfile, max_data.data, fmt=MINMAX_FMT, delimiter=',',
+                    header=maxheader)
+        np.savetxt(self.minfile, min_data.data, fmt=MINMAX_FMT, delimiter=',',
+                    header=maxheader)
         """
         for stn in self.stations:
             if type(self.maxdata[stn.id][3]) == datetime.datetime:
