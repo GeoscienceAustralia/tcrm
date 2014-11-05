@@ -87,9 +87,9 @@ def plotTimeseries(inputPath, outputPath, locID=None):
         saveFigure(fig, outputFile)
         
     else:
-        inputFileList = os.listdir(inputPath)
+        files = os.listdir(inputPath)
+        inputFileList = [os.path.join(inputPath, f) for f in files if f.startswith('ts.')]
         for f in inputFileList:
-            inputFile = os.path.join(inputPath,f)
             # Here we assume the timeseries files are named ts.<location ID>.dat
             locID = f.rstrip('.csv').lstrip('ts.')
             outputFile = os.path.join(outputPath, '%s.png' % f.rstrip('.csv'))
