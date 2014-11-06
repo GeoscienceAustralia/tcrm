@@ -246,7 +246,9 @@ def maxWindSpeed(index, deltatime, lon, lat, pressure, penv,
     dpt[1:] = np.diff(pressure)
     dpdt = dpt / deltatime
     np.putmask(dpdt, index, 0)
-    np.putmask(dpdt, np.isnan(dpdt) | np.isinf(dpdt), 0)
+    np.putmask(dpdt, np.isnan(dpdt) |
+               np.isinf(dpdt) |
+               (np.abs(dpdt) > 5.), 0)
 
     # Estimated pressure at the radius of maximum wind:
     prmw = pressure + deltap / 3.7
@@ -273,7 +275,7 @@ def maxWindSpeed(index, deltatime, lon, lat, pressure, penv,
     np.putmask(v, (np.isnan(v) |
                    np.isinf(v) |
                    (pressure >= 10e+7) |
-                   (pressure < 0) |
+                   (pressure <= 0) |
                    (speed >= 10e+7)), 0)
 
     return v
