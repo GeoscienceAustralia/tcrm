@@ -19,7 +19,7 @@ install:
   - deps='pip numpy scipy matplotlib basemap nose coverage'
   - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
   - export PATH=$HOME/py/bin:$PATH
-  - if [[ $TRAVIS_PYTHON_VERSION == 2.6 ]]; then pip install ordereddict
+  - if [[ $TRAVIS_PYTHON_VERSION == 2.6 ]]; then pip install ordereddict; fi
   - pip install pycurl
   - pip -v install -r requirements.txt
 script: 
