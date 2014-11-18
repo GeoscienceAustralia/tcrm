@@ -63,8 +63,8 @@ class TestSamplingOrigin(NumpyTestCase.NumpyTestCase):
 
     def test_GenerateOneSample(self):
         """Testing GenerateOneSample"""
-        xp = 151.89999999999529
-        yp = -9.4
+        xp = 151.6999999999
+        yp = -8.5
         
         x, y = self.sampOrg.generateOneSample()
         self.assertAlmostEqual(xp, x, 4)

@@ -51,7 +51,6 @@ class StatInterface(object):
         log.info("Initialising StatInterface")
 
         self.kdeType = config.get('StatInterface', 'kdeType')
-        self.kde2DType = config.get('StatInterface','kde2DType')
         minSamplesCell = config.getint('StatInterface', 'minSamplesCell')
         self.kdeStep = config.getfloat('StatInterface', 'kdeStep')
         self.outputPath = config.get('Output', 'Path')
@@ -98,10 +97,10 @@ class StatInterface(object):
         log.debug('Reading data from %s',
                   pjoin(self.processPath, 'origin_lon_lat'))
 
-        kde = KDEOrigin.KDEOrigin(self.configFile, self.kde2DType,
+        kde = KDEOrigin.KDEOrigin(self.configFile, 
                                   self.gridLimit, 0.1,
                                   progressbar=self.progressbar)
-        kde.generateKDE(None, save=True)
+        kde.generateKDE(None, save=True, plot=True)
         kde.generateCdf()
 
     def kdeGenesisDate(self):
