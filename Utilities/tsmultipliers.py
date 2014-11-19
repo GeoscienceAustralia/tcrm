@@ -1,154 +1,257 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`tsmultipliers` -- apply site-exposure multipliers to time series output
+=============================================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: tsmultipliers
+    :synopsis: Multiply the wind speed in a timeseries file by the
+               appropriate multiplier values. Still a very rudimentary
+               process.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- Title: tsmultipliers.py
- Author: Craig Arthur, craig.arthur@ga.gov.au
- CreationDate: 2008-10-09 2:12:PM
- Description: Multiply the wind speed in a timeseries file by the
- appropriate multiplier values. Still a very rudimentary process.
-
- Version : 46
- First version
-
- Version: 74
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate: 2009-02-05 12:13:PM
- Modification: Included correct bearing value in timeseries.
-
- Version: $Rev: 642 $
- ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
- ModifiedDate: 2009-08-25 3:43:PM
- Modification: Interpolate multiplier values to actual bearing rather
-               than classifying - still need to test value of performing
-               interpolation
- $Id: tsmultipliers.py 642 2012-02-21 07:54:04Z nsummons $
 """
 
-import os, sys, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
+import os
+import sys
+import logging
+import argparse
+import traceback
 
-import numpy
-from files import flLoadFile, flSaveFile
+from os.path import join as pjoin, dirname, realpath, isdir
 
-__version__ = '$Id: tsmultipliers.py 642 2012-02-21 07:54:04Z nsummons $'
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
-def tsmultiply(inputFile):
+import numpy as np
+from Utilities.files import flStartLog
+from Utilities.config import ConfigParser
+from Utilities.dynarray import DynamicRecArray
+from Utilities import shapefile
+from Utilities import pathLocator
+
+
+OUTPUTFMT = ['%s', '%7.3f', '%7.3f', 
+              '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
+              '%7.2f']
+INPUTFMT = ('|S16', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
+INPUTNAMES = ('Time', 'Longitude', 'Latitude', 'Speed', 'UU', 'VV',
+              'Bearing', 'Pressure')
+
+MINMAX_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
+                'Speed', 'UU', 'VV', 'Bearing', 'Pressure')
+MINMAX_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
+MINMAX_FMT = ['%s', '%s', '%7.3f', '%7.3f', 
+              '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
+              '%7.2f']
+
+def tsmultiply(inputFile, multipliers, outputFile):
     """
-    Apply multipliers to a single file.
+    Apply multipliers to a single file. Values are combined then written
+    back to the source file. 
+
+    :param str inputFile: Path to the input timeseries file. This will need
+                          to contain the values of the three multipliers
+                          (topography, terrain and shielding) for each of
+                          eight directions.
+    :param tuple multipliers: The eight combined multiplier values for the
+                              location.
+    :param str outputFile: Destination for the processed file.
+
+    :returns: The records corresponding to the maximum (localised) wind speed
+              and minimum pressure.
+    
     """
-    tsdata = flLoadFile(inputFile, delimiter=',')
-    tstep = tsdata[:,0]
-    lon = tsdata[:,1]
-    lat = tsdata[:,2]
-    gust = tsdata[:,3]
-    uu = tsdata[:,4]
-    vv = tsdata[:,5]
-    bearing = tsdata[:,6]
-    bearing = numpy.mod((180./numpy.pi)*numpy.arctan2(-uu,-vv),360.)
-
-    # Multipliers are stored in the data file:
-    mse = tsdata[0,7]
-    msne = tsdata[0,8]
-    msn = tsdata[0,9]
-    msnw = tsdata[0,10]
-    msse = tsdata[0,11]
-    mss = tsdata[0,12]
-    mssw = tsdata[0,13]
-    msw = tsdata[0,14]
-    mze = tsdata[0,15]
-    mzne = tsdata[0,16]
-    mzn = tsdata[0,17]
-    mznw = tsdata[0,18]
-    mzse = tsdata[0,19]
-    mzs = tsdata[0,20]
-    mzsw = tsdata[0,21]
-    mzw = tsdata[0,22]
-    mhe = tsdata[0,23]
-    mhne = tsdata[0,24]
-    mhn = tsdata[0,25]
-    mhnw = tsdata[0,26]
-    mhse = tsdata[0,27]
-    mhs = tsdata[0,28]
-    mhsw = tsdata[0,29]
-    mhw = tsdata[0,30]
-
-    # Combine multipliers into a single value:
-    mce = mse * mze * mhe
-    mcne = msne * mzne * mhne
-    mcn = msn * mzn * mhn
-    mcnw = msnw * mznw * mhnw
-    mcse = msse * mzse * mhse
-    mcs = mss * mzs * mhs
-    mcsw = mssw * mzsw * mhsw
-    mcw = msw * mzw * mhw
-
+    
+    log.info("Processing {0}".format(inputFile))
+    tsdata = np.genfromtxt(inputFile, dtype=INPUTFMT, names=INPUTNAMES,
+                           delimiter=',', skip_header=1) 
+    tstep = tsdata['Time']
+    lon = tsdata['Longitude']
+    lat = tsdata['Latitude']
+    gust = tsdata['Speed']
+    uu = tsdata['UU']
+    vv = tsdata['VV']
+    bear = tsdata['Bearing']
+    pressure = tsdata['Pressure']
+    bear = 2*np.pi - (np.arctan2(-vv, -uu) - np.pi/2)
+    bear = (180./np.pi) * np.mod(bear, 2.*np.pi)
+    
+    mcn, mcne, mce, mcse, mcs, mcsw, mcw, mcnw = multipliers
+   
     # Apply multipliers:
-    """ii = numpy.where((bearing < 22.5) | (bearing >= 337.5))
-    gust[ii] *= mcn
-    ii = numpy.where((bearing >= 22.5) & (bearing < 67.5))
-    gust[ii] *= mcne
-    ii = numpy.where((bearing >= 67.5) & (bearing < 112.5))
-    gust[ii] *= mce
-    ii = numpy.where((bearing >= 112.5) & (bearing < 157.5))
-    gust[ii] *= mcse
-    ii = numpy.where((bearing >= 157.5) & (bearing < 202.5))
-    gust[ii] *= mcs
-    ii = numpy.where((bearing >= 202.5) & (bearing < 247.5))
-    gust[ii] *= mcsw
-    ii = numpy.where((bearing >= 247.5) & (bearing < 292.5))
-    gust[ii] *= mcw
-    ii = numpy.where((bearing >= 292.5) & (bearing < 337.5))
-    gust[ii] *= mcnw
+
+    ii = np.where((bear >= 0.0) & (bear < 45.))
+    gust[ii] *= (1./45.)*(mcn*(bear[ii] - 0.0) +
+                          mcne*(45. - bear[ii]))
+    ii = np.where((bear >= 45.0) & (bear < 90.))
+    gust[ii] *= (1./45.)*(mcne*(bear[ii] - 45.0) +
+                          mce*(90. - bear[ii]))
+    ii = np.where((bear >= 90.0) & (bear < 135.))
+    gust[ii] *= (1./45.)*(mce*(bear[ii] - 90.0) +
+                          mcse*(135. - bear[ii]))
+    ii = np.where((bear >= 135.0) & (bear < 180.))
+    gust[ii] *= (1./45.)*(mcse*(bear[ii] - 135.0) +
+                          mcs*(180. - bear[ii]))
+    ii = np.where((bear >= 180.0) & (bear < 225.))
+    gust[ii] *= (1./45.)*(mcs*(bear[ii] - 180.0) +
+                          mcsw*(225. - bear[ii]))
+    ii = np.where((bear >= 225.0) & (bear < 270.))
+    gust[ii] *= (1./45.)*(mcsw*(bear[ii] - 225.0) +
+                          mcw*(270. - bear[ii]))
+    ii = np.where((bear >= 270.0) & (bear < 315.))
+    gust[ii] *= (1./45.)*(mcw*(bear[ii] - 270.0) +
+                          mcnw*(315. - bear[ii]))
+    ii = np.where((bear >= 315.0) & (bear <= 360.))
+    gust[ii] *= (1./45.)*(mcnw*(bear[ii] - 315.0) +
+                          mcn*(360. - bear[ii]))
+
+
+    ii = np.where(gust==0)
+    bear[ii] = 0
+    
+    data = np.array([tstep, lon, lat, gust, uu, vv, bear, pressure]).T
+
+    maxidx = np.argmax(gust)
+    minidx = np.argmin(pressure)
+    maxdata = data[maxidx, :]
+    mindata = data[minidx, :]
+
+    header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
+    np.savetxt(outputFile, data, fmt='%s', delimiter=',',
+               header=header)
+    
+    return maxdata, mindata
+
+
+def process_timeseries(config_file):
+    """
+    Process a set of timeseries files to include the multiplier values.
+
+    The combined multiplier values are stored in a shape file as fields,
+    and records are keyed by the same code that is used to select
+    stations for sampling.
+
+    :param str config_file: Path to a configuration file. 
 
     """
-    ii = numpy.where((bearing >= 0.0) & (bearing<45.))
-    gust[ii] *= (1./45.)*(mcn*(bearing[ii]-0.0) + mcne*(45. - bearing[ii]))
-    ii = numpy.where((bearing >= 45.0) & (bearing < 90.))
-    gust[ii] *= (1./45.)*(mcne*(bearing[ii]-45.0) + mce*(90. - bearing[ii]))
-    ii = numpy.where((bearing >= 90.0) & (bearing < 135.))
-    gust[ii] *= (1./45.)*(mce*(bearing[ii]-90.0) + mcse*(135. - bearing[ii]))
-    ii = numpy.where((bearing >= 135.0) & (bearing < 180.))
-    gust[ii] *= (1./45.)*(mcse*(bearing[ii]-135.0) + mcs*(180. - bearing[ii]))
-    ii = numpy.where((bearing >= 180.0) & (bearing < 225.))
-    gust[ii] *= (1./45.)*(mcs*(bearing[ii]-180.0) + mcsw*(225. - bearing[ii]))
-    ii = numpy.where((bearing >= 225.0) & (bearing < 270.))
-    gust[ii] *= (1./45.)*(mcsw*(bearing[ii]-225.0) + mcw*(270. - bearing[ii]))
-    ii = numpy.where((bearing >= 270.0) & (bearing < 315.))
-    gust[ii] *= (1./45.)*(mcw*(bearing[ii]-270.0) + mcnw*(315. - bearing[ii]))
-    ii = numpy.where((bearing >= 315.0) & (bearing <= 360.))
-    gust[ii] *= (1./45.)*(mcnw*(bearing[ii]-315.0) + mcn*(360. - bearing[ii]))
 
+    config = ConfigParser()
+    config.read(config_file)
 
-    ii = numpy.where(gust==0)
-    bearing[ii]=0
+    stnFile = config.get('Timeseries', 'StationFile')
+    key_name = config.get('Timeseries', 'StationID')
+    inputPath = pjoin(config.get('Output', 'Path'), 
+                                  'process', 'timeseries')
+    outputPath = pjoin(inputPath, 'local')
+    
+    if not isdir(outputPath):
+        try:
+            os.makedirs(outputPath)
+        except OSError:
+            raise
+        
+    log.info("Loading stations from %s"%stnFile)
+    log.info("Timeseries data will be written into %s"%outputPath)
 
-    data = numpy.transpose([tstep, lon, lat, gust, uu, vv, bearing])
-    header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing'
-    flSaveFile(inputFile, data, header, ',', '%f')
+    directions = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
 
-if __name__=='__main__':
+    sf = shapefile.Reader(stnFile)
+    field_names = [sf.fields[i][0] for i in range(1, len(sf.fields))]
     try:
-        inputPath = sys.argv[1]
-    except:
-        inputPath = eval(raw_input("Enter input path: "))
-    ls = os.listdir(inputPath)
-    for f in ls:
-        inputFile = os.path.join(inputPath,f)
-        tsmultiply(inputFile)
+        key_index = field_names.index(key_name)
+    except ValueError:
+        log.exception("{0} not a field in {1}".format(key_name, stnFile))
+        raise
 
+    min_data = DynamicRecArray(dtype={'names': MINMAX_NAMES,
+                                      'formats': MINMAX_TYPES})
+    max_data = DynamicRecArray(dtype={'names': MINMAX_NAMES,
+                                      'formats': MINMAX_TYPES})
+
+    records = sf.records()
+    indexes = []
+    for dir in directions:
+        fieldname = 'm4_%s' % dir
+        indexes.append(field_names.index(fieldname))
+
+    for record in records:
+        stnId = record[key_index]
+        inputFile = pjoin(inputPath, 'ts.{0}.csv'.format(stnId))
+        outputFile = pjoin(outputPath, 'ts.{0}.csv'.format(stnId))
+        if os.path.isfile(inputFile):
+            # Load multipliers for this location:
+            mvals = [float(record[i]) for i in indexes]
+            maxdata, mindata = tsmultiply(inputFile, tuple(mvals), outputFile)
+            min_data.append((str(stnId),) + tuple(mindata))
+            max_data.append((str(stnId),) + tuple(maxdata))
+
+        else:
+            log.debug("No timeseries file for {0}".format(stnId))
+
+    # Save local minima/maxima
+    maxfile = pjoin(outputPath, 'local_maxima.csv')
+    minfile = pjoin(outputPath, 'local_minima.csv')
+    maxheader = ('Station,Time,Longitude,Latitude,Speed,'
+                        'UU,VV,Bearing,Pressure')
+    np.savetxt(maxfile, max_data.data, fmt=MINMAX_FMT, delimiter=',',
+               header=maxheader)
+    np.savetxt(minfile, min_data.data, fmt=MINMAX_FMT, delimiter=',',
+               header=maxheader)
+            
+        
+def startup():
+    """
+    Parse command line arguments and call the :func:`main` function.
+
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config_file',
+                        help='Path to configuration file')
+    parser.add_argument('-v', '--verbose', help='Verbose output',
+                        action='store_true')
+    parser.add_argument('-d', '--debug', help='Allow pdb traces',
+                        action='store_true')
+    args = parser.parse_args()
+    config_file = args.config_file
+    config = ConfigParser()
+    config.read(config_file)
+
+    rootdir = pathLocator.getRootDirectory()
+    os.chdir(rootdir)
+
+    logfile = config.get('Logging', 'LogFile')
+    logdir = dirname(realpath(logfile))
+    # If log file directory does not exist, create it
+    if not isdir(logdir):
+        try:
+            os.makedirs(logdir)
+        except OSError:
+            logfile = pjoin(os.getcwd(), 'tsmultipliers.log')
+
+    logLevel = config.get('Logging', 'LogLevel')
+    verbose = config.getboolean('Logging', 'Verbose')
+    datestamp = config.getboolean('Logging', 'Datestamp')
+    debug = False
+
+    if args.verbose:
+        verbose = True
+
+    if args.debug:
+        debug = True
+
+    flStartLog(logfile, logLevel, verbose, datestamp)
+    
+    if debug:
+        process_timeseries(config_file)
+    else:
+        try:
+            process_timeseries(config_file)
+        except Exception:  # pylint: disable=W0703
+            # Catch any exceptions that occur and log them (nicely):
+            tblines = traceback.format_exc().splitlines()
+            for line in tblines:
+                log.critical(line.lstrip())
+    
+    log.info("Completed {0}".format(sys.argv[0]))
+if __name__ == "__main__":
+    startup()

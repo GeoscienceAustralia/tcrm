@@ -1,49 +1,32 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`convolve` -- convolve two 2-d fields
+==========================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: convolve
+    :synopsis: Convolve two 2-d fields to apply a smoother (e.g. directional
+               filtering, gaussian smoother).
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- Title: convolve.py
- Author: Craig Arthur, craig.arthur@ga.gov.au
- CreationDate: 2009-10-13 1:02:PM
- Description: Provides functions to convolve two 2D fields
- References: From: http://scipy.org/Cookbook/SignalSmooth
-
- Version :$Rev: 642 $
-
- $Id: convolve.py 642 2012-02-21 07:54:04Z nsummons $
 """
-import os, sys, pdb, logging
 
 import numpy
 from scipy import signal
 
 def getKernel(d,m,r=25.,h=5.):
     """
-    Define an appropriate kernel for smoothing the data:
+    Define an appropriate kernel for smoothing the data
 
-    Input: d - direction - one of ['N','NE','E','SE','S','SW','W','NW']
-           m - multiplier type - either 'terrain' or 'shield'
-           r - resolution of the dataset (in metres) (default is 25)
-           h - nominal height of buildings, for use in evaluating the
-               shielding multiplier (default is 5)
+    :param str d: Wind direction - one of ['N','NE','E','SE','S','SW','W','NW']
+    :param str m: Multiplier type - either 'terrain' or 'shield'
+    :param float r: Resolution of the dataset (in metres) (default is 25)
+    :param float h: Nominal height of buildings, for use in evaluating the
+                    shielding multiplier (default is 5)
 
-    Output: 2-d kernel to apply to the raw multiplier values to generate
-            directional multiplier values.
+    :returns: kernel to apply to the raw multiplier values to generate
+              directional multiplier values.
+    :rtype: 2-d :class:`numpy.ndarray`
 
-    Example: g = getKernel( 'NE', 'terrain', 25., 5. )
     """
 
     if d not in ['N','NE','E','SE','S','SW','W','NW']:
@@ -115,22 +98,23 @@ def getKernel(d,m,r=25.,h=5.):
 
 def convolve(im, direction, m="terrain", res=25.,height=5.):
     """
-    Smooth a 2D array im by convolving with a kernel of size n
-    Input:
-    im (2D array): Array of values to be smoothed
-    dir (string): one of 'N','NE','E','SE','S','SW','W','NW' to define the
-        direction of the site multiplier to evaluate
-    m (string): model type = either "terrain" or "shield"
-    res (float): resolution of the input grid dataset
-    height (float): nominal height of the buildings to be used in evaluating
-        the shielding multiplier.
+    Smooth a 2D array im by convolving with a kernel of size n.
 
-    Output: 2D array of convolved data (convolved with the appropriate kernel)
-            The output array is the same size as the input array, with 
-            boundary values set to be filled to a value of 1.0
+    :param im: 2-d array of values to be smoothed.
+    :param str dir: One of 'N','NE','E','SE','S','SW','W','NW' to define the
+                    direction of the site multiplier to evaluate.
+    :param str m: Model type = either "terrain" or "shield".
+    :param float res: Resolution of the input grid dataset.
+    :param float height: nominal height of the buildings to be used in evaluating
+                         the shielding multiplier.
+    :type  im: :class:`numpy.ndarray`
 
-    Example: arr = convolve(im, 'NW', 'terrain', 25., 5. )
+    :returns: 2-d array of convolved data (convolved with the appropriate kernel)
+              The output array is the same size as the input array, with 
+              boundary values set to be filled to a value of 1.0
+    :rtype: :class:`numpy.ndarray`
+
     """
     g = getKernel(direction,m,res,height)
-    improc = signal.convolve2d(im, g, mode='same', boundary='fill',fillvalue=1.0)
+    improc = signal.convolve2d(im, g, mode='same', boundary='fill', fillvalue=1.0)
     return(improc)

@@ -1,3 +1,20 @@
+"""
+:mod:`DataProcess` -- basic processing of input database
+========================================================
+
+.. module:: DataProcess
+    :synopsis: Processes the database of historical TCs into
+               suitably formatted text files.
+
+Processes the database of historical TCs into simply formatted
+text files. Extracts locations, including genesis location, and
+calculates speed, bearing, genesis day (as the day of the year)
+annual frequency (of the complete database), pressure rates of
+change, speed rates of change and bearing rates of change.
+
+
+"""
+
 import os
 import sys
 import logging
@@ -20,8 +37,7 @@ import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
-class DataProcess:
-
+class DataProcess(object):
     """
     Processes the database of historical TCs into suitably formatted
     text files.  Data is written to plain text files for ease of
@@ -29,50 +45,27 @@ class DataProcess:
     Currently extracts fields containing the value of cyclone
     parameters, but no information on the change of parameters.
 
-    Parameters
-    -------
-    files: Dictionary containing input and output file names.
-
-    Members
-    -------
-    :type  configFile: string
+    :type  configFile: str
     :param configFile: Configuration file containing simulation settings
 
     :type  progressbar: :class:`progressbar`
     :param progressbar: :attr:`progressbar` object to print progress to 
                         STDOUT
 
-    Methods
-    -------
-    processdata()
-        process initial raw data into ASCII data that is readable by the
-        program
-
-    Internal Methods
-    -------
-    _lonLat(lon, lat, indicator)
-        Extract longitudes and latitudes
-    _bearing(bear, indicator)
-        Extract bearings
-    _speed(dist, dt, indicator)
-        Extract speeds
-    _pressure(pressure, indicator)
-        Extract pressures
-    _pressureRate(pressure, dt, indicator)
-        Extract rate of presssure change
-    _speedRate(dist, dt, indicator)
-        Extract the acceleration (rate of change of speed)
-    _bearingChange(bear, dt, indicator)
-        Extract the rate of change of bearing
-    _windSpeed(vmax, indicator)
-        Extract the maximum sustained wind speed
+    Internal Methods:
+    _lonLat(lon, lat, indicator) Extract longitudes and latitudes
+    _bearing(bear, indicator) Extract bearings
+    _speed(dist, dt, indicator) Extract speeds
+    _pressure(pressure, indicator) Extract pressures
+    _pressureRate(pressure, dt, indicator) Extract rate of presssure change
+    _speedRate(dist, dt, indicator) Extract the acceleration (rate of change of speed)
+    _bearingChange(bear, dt, indicator) Extract the rate of change of bearing
+    _windSpeed(vmax, indicator) Extract the maximum sustained wind speed
+    
     """
 
     def __init__(self, configFile, progressbar=None):
-        """
-        Initialize the data include tool instance, Nan value and all
-        full path names of the files in which data will be stored.
-        """
+
         #CalcTD = CalcTrackDomain(configFile)
         #self.domain = CalcTD.calc()
         self.configFile = configFile
@@ -120,20 +113,25 @@ class DataProcess:
             self.logger.debug("Output format is text")
             self.origin_year = pjoin(self.processPath, 'origin_year')
 
-    def __doc__(self):
-        return 'Processes the database of historical TCs into \
-            suitably formatted text files. Data is written to \
-            plain text files for ease of access (this may be  \
-            upgraded in future versions to netCDF format files).\
-            Currently extracts fields containing the value of \
-            cyclone parameters, but no information on the \
-            change of parameters.'
-
     def extractTracks(self, index, lon, lat):
         """
         Extract tracks that only *start* within the pre-defined domain.
         The function returns the indices of the tracks that begin within
         the domain.
+
+        :param index: indicator of initial positions of TCs (1 = new TC,
+                      0 = continuation of previous TC).
+        :param lon: longitudes of TC positions
+        :param lat: latitudes of TC positions
+
+        :type index: `numpy.ndarray`
+        :type lon: `numpy.ndarray`
+        :type lat: `numpy.ndarray`
+
+        :returns: indices corresponding to all points of all tracks that
+                  form within the model domain
+        :rtype: `numpy.ndarray`
+        
         """
         outIndex = []
         flag = 0
@@ -160,6 +158,10 @@ class DataProcess:
         Process raw data into ASCII files that can be read by the main
         components of the system
 
+        :param bool restrictToWindfieldDomain: if True, only process data
+            within the wind field domain, otherwise, process data from
+            across the track generation domain.
+            
         """
         config = ConfigParser()
         config.read(self.configFile)
@@ -216,6 +218,7 @@ class DataProcess:
         except (ValueError, KeyError):
 
             try:
+                self.logger.info("Filtering input data by season: season > %d"%startSeason)
                 # Find indicies that satisfy minimum season filter
                 idx = np.where(inputData['season'] >= startSeason)[0]
                 # Filter records:
@@ -741,6 +744,7 @@ class DataProcess:
                            observations (including TCs with a single
                            observation)
         Output: None - data is written to file
+        
         """
         self.logger.info('Extracting the rate of size change')
 
@@ -754,7 +758,8 @@ class DataProcess:
 
         # Mask rates corresponding to initial times and times when
         # the rmax is known to be missing.
-        self.logger.debug('Outputting data into %s' % self.rmax_rate)
+        self.logger.debug('Outputting data into %s' %
+                          pjoin(self.processPath, 'rmax_rate'))
         np.putmask(rmaxRate, indicator, sys.maxint)
         np.putmask(rmaxRate, rmax >= sys.maxint, sys.maxint)
         np.putmask(rmaxRate, (rmaxRate >= sys.maxint) |
@@ -769,8 +774,10 @@ class DataProcess:
             flSaveFile(rmax_rate, rmaxRate, header, fmt='%6.2f')
 
     def _frequency(self, years, indicator):
-        # Generate a histogram of the annual frequency of events from the input
-        # data
+        """
+        Generate a histogram of the annual frequency of events from the input
+        data
+        """
         self.logger.info('Extracting annual frequency of events')
         minYr = years.min()
         maxYr = years.max()

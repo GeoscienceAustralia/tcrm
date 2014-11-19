@@ -1,79 +1,30 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`stats` -- helper functions for statistical methods
+========================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: stats
+    :synopsis: Miscellaneous tools required for statistics-related classes.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Geoff Xu <geoff.xu@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Title: stats.py - helper functions for statistical methods
-Author: Geoff Xu, geoff.xu@ga.gov.au
-CreationDate: 2005-12-23
-Description: Miscellaneous tools required for statistics-related classes.
-SeeAlso:
-Constraints:
-Version: $Rev: 686 $
-
-ModifiedBy: Geoff Xu, geoff.xu@ga.gov.au
-ModifiedDate: 2006-01-25
-Modifications:
-
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 2006-11-07
-Modification: Changed to a module in utils
-
-ModifiedBy: N. Habili, nariman.habili@ga.gov.au
-ModifiedDate: 2006-11-30
-Modification: Upgrade to numpy
-
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 2006-12-07
-Modification: Added getCellNum, getMinRange, getMaxRange,
-            getOccurence (last three deprecated)
-
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 2006-12-12
-Modification: Added getCellLonLat, validCellNum
-
-ModifiedBy: N. Habili, nariman.habili@ga.gov.au
-ModifiedDate: 2006-12-22
-Modification: Added maxCellNum
-          Modified getCellNum. Index out of range will now assert.
-
-Version: $Rev: 686 $
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 2009-04-24 4:07:PM
-Modification: Added statCellFraction
-
-$Id: stats.py 686 2012-03-29 04:24:59Z carthur $
 """
-import os, sys, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
+
+import os
+import sys
+import logging
+
 import math
 from scipy import array, arange, size, zeros
 from numpy import *
 
 from grid import grdRead
 
-__version__ = '$Id: stats.py 686 2012-03-29 04:24:59Z carthur $'
-
 logger = logging.getLogger()
 
 
 """
 Functions:
--------
+
 cdf(x,y) : 1D array of float
     Cumulative Density Function extracted from cdf_lin.m
 cdf2d(x,y,z): 2D array of float
@@ -93,6 +44,8 @@ maxCellNum(gridLimit, gridSpace): int
 def cdf(x, y):
     """
     Cumulative Density Function extracted from cdf_lin.m
+
+    
     """
 
     h = abs(x[1] - x[0])
@@ -269,15 +222,15 @@ def statCellFraction(gridLimit, gridSpace, valueFile):
     """
     Calculate the fractional value of each grid cell, based on the
     values stored in valueFile.
-    Input: gridLimit - dictionary of bounds of the grid
-           gridSpace - resolution of the grid to calculate values.
-           valueFile - path to the ascii grid file containing values to
-                       sample
-    Output: array of fractional values, with length equal to the number
-            of cells
-    Example:
+    :param dict gridLimit: Dictionary of bounds of the grid.
+    :param dict gridSpace: Resolution of the grid to calculate values.
+    :param str valueFile: Path to the ascii grid file containing values to sample.
+                           
+    :returns: :class:`numpy.ndarray` of fractional values, with length equal to the number
+              of cells
+
     Notes: Still need to include bounds checking to ensure the valueFile
-           data actually covers the gridLimits.
+    data actually covers the gridLimits.
     """
     gLon, gLat, gData = grdRead(valueFile)
     nCells = maxCellNum(gridLimit, gridSpace) + 1
@@ -315,27 +268,13 @@ def between(value, minval, maxval, fuzz=2, inclusive=True):
     minval = 0.99999999999999978 and maxval = 2.0000000000000009 before doing
     comparisons.
 
-    Parameters
-    ----------
-    val : float
-        Value being tested.
+    :param float val: Value being tested.
+    :param float minval: Lower bound of range. Must be lower than `maxval`.
+    :param float maxval: Upper bound of range. Must be higher than `minval`.
+    :param int fuzz: Number of times to expand bounds using `numpy.nextafter`.
+    :param boolean inclusive: Set whether endpoints are within the range.
 
-    minval : float
-        Lower bound of range. Must be lower than `maxval`.
-
-    maxval : float
-        Upper bound of range. Must be higher than `minval`.
-
-    fuzz : int, optional
-        Number of times to expand bounds using numpy.nextafter.
-
-    inclusive : bool, optional
-        Set whether endpoints are within the range.
-
-    Returns
-    -------
-    between : bool
-        True if `val` is between `minval` and `maxval`, False otherwise.
+    :returns: True if `val` is between `minval` and `maxval`, false otherwise.
 
     From http://penandpants.com/category/python/numpy/
     """

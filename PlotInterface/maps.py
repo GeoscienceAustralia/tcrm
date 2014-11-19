@@ -1,21 +1,17 @@
 from __future__ import division
 
-import sys
 import numpy as np
-import scipy.stats as stats
 
 import matplotlib
-matplotlib.use("Agg")
+matplotlib.use("Agg", warn=False)
 matplotlib.rc_file_defaults()
 
-from matplotlib import pyplot
 from matplotlib.figure import Figure
 from mpl_toolkits.basemap import Basemap
 
-
+import Utilities.colours 
 from Utilities.smooth import smooth
 
-import pdb
 
 class MapFigure(Figure, Basemap):
 

@@ -1,68 +1,14 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`KDEOrigin` -- kernel density estimation for genesis probability
+=====================================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: KDEOrigin
+    :synopsis: Kernel density estimation for genesis probability.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Geoff Xu <geoff.xu@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-Title: KDEOrigin.py - Define Class for KDE Origin
-Author: Geoff Xu, geoff.xu@ga.gov.au
-CreationDate: 2006-01-10
-Description:
-Python code developed from Xun Guo Lin's Matlab code on PDF &
-CDF of cyclone origin using 2D KDE
-Version: $Rev: 810 $
-
-ModifiedBy: C. Arthur
-ModifiedDate: 2006-10-24
-Modification: Added descriptive headers and metadata
-
-ModifiedBy: N. Habili
-ModifiedDate: 2006-11-29
-Modification: File names passed by dictionaries instead of individual
-              file names.
-Upgrade to ndarray
-Conformance with style guide
-
-ModifiedBy: N. Habili
-ModifiedDate: 2006-12-14
-Modification:
-Results will be returned if files=0.
-Removed method generateOldKde().
-
-ModifiedBy: N. Habili
-ModifiedDate: 2006-12-15
-Modification:
-Method name changed from generateNewKde to generateKDE
-
-Version: 83
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 10/04/08 11:42:AM
-Modification: Changed logging method
-
-Version: 299
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 2008-07-02 2:31:PM
-Modification: Write PDF & CDF to ascii grid files (these can be read
-by GIS packages), eliminating the need for multiple files to be created
-
-Version: $Rev: 810 $
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 2011-03-21 1:18:PM
-Modification: Write 2-D grid of genesis PDF to netCDF.
-
-Id: KDEOrigin.py 219 2009-10-02 03:20:56Z carthur $
+Calculate a genesis probability distribution, based on the observed
+genesis locations and applying a 2-d kernel density estimation method.
 
 """
 
@@ -79,61 +25,37 @@ from Utilities.config import ConfigParser
 
 class KDEOrigin:
     """
-    Parameters
-    ----------
-    files : dictionary
-        dictionary containing input/output file names and paths.
+    Initialise the class for generating the genesis probability distribution.
+    Initialisation will load the required data (genesis locations) and
+    calculate the optimum bandwidth for the kernel density method.
+    
+    :param str configFile: Path to the configuration file.
+    :param str kdeType: Name of the (multivariate) kernel to apply.
+                        Should be one of ``Epanecnikov`` or
+                        ``Gaussian``. 
+    :param dict gridLimit: The bounds of the model domain. The
+                           :class:`dict` should contain the keys
+                           :attr:`xMin`, :attr:`xMax`, :attr:`yMin`
+                           and :attr:`yMax`. The *x* variable bounds
+                           the longitude and the *y* variable 
+                           bounds the latitude.
+    :param float kdeStep: Increment of the ordinate values at which
+                          the distributions will be calculated.
+                          Default=`0.1`
+    :param lonLat: If given, a 2-d array of the longitude and latitude
+                   of genesis locations. If not given, attempt to load
+                   an ``init_lon_lat`` file from the processed files. 
+    :param progressbar: A :meth:`SimpleProgressBar` object to print
+                        progress to STDOUT.
+    :type  lonLat: :class:`numpy.ndarray`
+    :type  progressbar: :class:`Utilities.progressbar` object.
 
-    Members
-    -------
-    aus_blat : 1D array of float
-        Latitidue data for Australian coast line from australia_bndy.txt
-        with Tasmania removed
-    aus_blon : 1D array of float
-        Longitude data for Austrlian coast line from australia_bndy.txt
-        with Tasmania removed
-    lonLat : 1D array of float
-        Longitude and latitude dataset for cyclone origins from lon_lat
-        file
-    kde_origin_x : string (file name including path)
-        Path and name of created data for x coordinates of KDE result
-    kde_origin_y : string (file name including path)
-        Path and name of created data for y coordinates of KDE result
-    kde_origin_z : string (file name including path)
-        Path and name of created data for z coordinates of KDE result
-    cdf_origin_cz : string (file name including path)
-        Path and name of created data for z coordinates of CDF result
-
-    Methods
-    -------
-    generateKDE(user,option,bw)
-        Generate the PDF for cyclone origins using kernel density
-        estimation technique then save it to a file path provided by
-        user
-    generateCdf()
-        Generate the CDFs corresponding to PDFs of cyclone origins,
-        then save it on a file path provided by user
-    plotKde()
-        Plot the PDF using 2D kernel density estimation technique
-    plotColour()
-        Wrap a colour layer on top of 3D plots, can be slow
-    plotCdf()
-        Plot the CDFs corresponding to pdfs of cyclone origins
-
-    Internal Methods
-    ----------------
-    _generatePDF(option,grid,bw) : 1D array of float
-        Sub-function that generates the PDFs of 2D kernel density
-        estimation from raw dataset
-
+    
     """
 
     def __init__(self, configFile, kdeType, gridLimit, kdeStep, lonLat=None, progressbar=None):
         """
-        Initialize the required datasets
-        lon & lat for cyclone origins,
-        new_kde_origin coordinates for pathname to save the generated
-        kde values and bw for bandwidth of kde estimates
+        
         """
         self.logger = logging.getLogger()
         self.progressbar = progressbar
@@ -164,16 +86,20 @@ class KDEOrigin:
         self.bw = KPDF.MPDFOptimumBandwidth(self.lonLat)
         self.logger.debug("Optimal bandwidth: %f"%self.bw)
 
-    def __doc__(self):
-        """
-        documentation on what this class does
-        """
-        return "Plot tropical cyclone origins using 2D kernel density estimation technique"
-
     def _generatePDF(self, grid, bw):
         """
-        Sub-function that generates the PDFs of 2D kernel density
-        estimation from raw dataset
+        Generate the PDF for cyclone origins using kernel density
+        estimation technique then save it to a file path provided by
+        user.
+
+        :param grid: Array of grid points on which to calculate the PDF.
+        :param float bw: Bandwidth of the distribution.
+        :type  grid: :class:`numpy.ndarray`
+        
+        :returns: 2-d PDF of genesis probability calculated on the given grid.
+        :raises ValueError: If the bandwidth is <= 0.
+        :raises AttributeError: If the chosen KDE method is not available.
+
         """
         if bw <= 0:
             self.logger.critical("bw = %d. Bandwidth cannot be negative or zero"%bw)
@@ -192,6 +118,15 @@ class KDEOrigin:
         Generate the PDF for cyclone origins using kernel density
         estimation technique then save it to a file path provided by
         user.
+
+        :param float bw: Optional, bandwidth to use for generating the PDF.
+                         If not specified, use the :attr:`bw` attribute.
+        :param boolean save: If ``True``, save the resulting PDF to a
+                             netCDF file called 'originPDF.nc'.
+        :param boolean plot: If ``True``, plot the resulting PDF.
+
+        :returns: ``x`` and ``y`` grid and the PDF values.
+        
         """
         grid2d = KPDF.MPDF2DGrid2Array(self.x, self.y, 1)
         if bw:
@@ -210,10 +145,10 @@ class KDEOrigin:
                     'name': 'lat',
                     'values': self.y,
                     'dtype': 'f',
-                    'atts': { 
+                    'atts': {
                         'long_name':' Latitude',
                         'units': 'degrees_north'
-                        } 
+                        }
                     },
                 1: {
                     'name': 'lon',
@@ -222,8 +157,8 @@ class KDEOrigin:
                     'atts': {
                         'long_name': 'Longitude',
                         'units': 'degrees_east'
-                        } 
-                    } 
+                        }
+                    }
                 }
 
             variables = {
@@ -235,17 +170,15 @@ class KDEOrigin:
                     'atts': {
                         'long_name': 'TC Genesis probability distribution',
                         'units': ''
-                        } 
-                    } 
+                        }
+                    }
                 }
 
             ncSaveGrid(outputFile, dimensions, variables)
 
         if plot:
             from Utilities.plotField import plotField
-
-            [gx,gy] = numpy.meshgrid(self.x,self.y)
-
+            from PlotInterface.maps import FilledContourMapFigure, saveFigure
             # Automatically determine appropriate contour levels
             min_lvls = 6.0
             lvls_options = numpy.array([1.0, 0.5, 0.25, 0.2, 0.1])
@@ -254,32 +187,41 @@ class KDEOrigin:
             significand = pdfMax * 10**-exponent
             lvl_step = lvls_options[numpy.where((significand/lvls_options) > min_lvls)[0][0]]
             lvls = numpy.arange(0, pdf.max(), lvl_step*(10.0**exponent))
+            [gx,gy] = numpy.meshgrid(self.x,self.y)
+            map_kwargs = dict(llcrnrlon=self.x.min(),
+                              llcrnrlat=self.y.min(),
+                              urcrnrlon=self.x.max(),
+                              urcrnrlat=self.y.max(),
+                              projection='merc',
+                              resolution='i')
+            
+            cbarlabel = r'Genesis probability ($\times 10^{' + str(exponent) + '}$)'
+            title = 'TC Genesis probability'
+            figure = FilledContourMapFigure()
+            figure.add(pdf, gx, gy, title, lvls, cbarlabel, map_kwargs)
+            figure.plot()
 
-            plotField(gx, gy, (10.0**-exponent)*pdf, res='l',levels=(10.0**-exponent)*lvls, cmap='jet', smoothing=False,
-              title=None, xlab='Lonigtude', ylab='Latitude', clab=r'Genesis probability ($\times 10^{' + str(exponent) + '}$)',
-              maskland=True,outputFile=os.path.join(self.outputPath, 'plots', 'stats', 'originPDF_contour.png'),
-              fill=False)
-            plotField(gx, gy, (10.0**-exponent)*pdf, res='l',levels=(10.0**-exponent)*lvls, cmap='jet', smoothing=False,
-              title=None, xlab='Lonigtude', ylab='Latitude', clab=r'Genesis probability ($\times 10^{' + str(exponent) + '}$)',
-              maskland=False,outputFile=os.path.join(self.outputPath, 'plots', 'stats', 'originPDF_fill.png'),
-              fill=True)
-            self.logger.debug("Saving origin PDF to file")
-            #grdSave(os.path.join(self.processPath, 'originPDF.txt'),
-            #        pdf, self.x, self.y, self.kdeStep)
-        
+            outputFile = os.path.join(self.outputPath, 'plots', 'stats', 'originPDF_fill.png')
+            saveFigure(figure, outputFile)
+
         return self.x, self.y, self.pdf
 
     def generateCdf(self, save=False):
         """
         Generate the CDFs corresponding to PDFs of cyclone origins,
         then save it on a file path provided by user
+
+        :param boolean save: If ``True``, save the CDF to a netcdf file
+                             called 'originCDF.nc'. If ``False``, return
+                             the CDF. 
+    
         """
         self.cz = stats.cdf2d(self.x, self.y, self.pdf)
         if save:
             self.logger.debug("Saving origin CDF to file")
             grdSave(self.processPath+'originCDF.txt', self.cz, self.x,
                     self.y, self.kdeStep)
-                    
+
         if save:
             outputFile = os.path.join(self.processPath, 'originCDF.nc')
             dimensions = {
@@ -287,22 +229,22 @@ class KDEOrigin:
                 'name': 'lat',
                 'values': self.y,
                 'dtype': 'f',
-                'atts': { 
+                'atts': {
                     'long_name': 'Latitude',
                     'units': 'degrees_north'
-                    } 
+                    }
                 },
-            1: { 
+            1: {
                 'name': 'lon',
                 'values': self.x,
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Longitude',
                     'units':'degrees_east'
-                    } 
-                } 
+                    }
+                }
             }
-            
+
             variables =  {
                 0: {
                     'name': 'gcdf',
@@ -312,9 +254,9 @@ class KDEOrigin:
                     'atts': {
                         'long_name': ('TC Genesis cumulative '
                                         'distribution'),
-                        'units': '' 
-                        } 
-                    } 
+                        'units': ''
+                        }
+                    }
                 }
 
             ncSaveGrid(outputFile, dimensions, variables)
@@ -324,6 +266,10 @@ class KDEOrigin:
     def updateProgressBar(self, n, nMax):
         """
         Callback function to update progress bar from C code
+
+        :param int n: Current step.
+        :param int nMax: Maximum step. 
+        
         """
         if self.progressbar:
             self.progressbar.update(n/float(nMax), 0.0, 0.7)

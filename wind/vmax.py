@@ -1,24 +1,14 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`vmax` -- calculate maximum wind speed from pressure deficit
+=================================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: vmax
+    :synopsis: Calculate maximum wind speed in a cyclone from the
+               pressure deficit.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
 
-Title: vmax.py - Calculate maximum wind speed in a cyclone
-
-Author: Craig Arthur, craig.arthur@ga.gov.au
 CreationDate: 2006-10-30
 Description: Calculate Vmax from pressure difference and vice versa.
 Offers three relations for calculating Vmax based on the pressure
@@ -42,26 +32,23 @@ Version: 267
 ModifiedBy: Craig Arthur
 ModifiedDate: 2007-02-19
 Modification: Normalised all vmax relations to provide 10m AGL,
-              10-minute-mean wind speeds
+10-minute-mean wind speeds
 
-References:
-Atkinson and Holliday 1977:
-    Tropical Cyclone Minimum Sea Level Pressure / Maximum Sustained Wind
-    Relationship for the Wetern North Pacific.
-    Mon. Wea. Rev., 105, 421-427
-Holland, G. 1980:
-    An Analytic Model of the Wind and Pressure Profiles in Hurricanes.
-    Mon. Wea. Rev, 108, 1212-1218
-Willoughby, H.E. and M.E. Rahn, 2004:
-    Parametric Representation of the Primary Hurricane Vortex. Part I:
-    Observations and Evaluation of the Holland (1980) Model.
-    Mon. Wea. Rev., 132, 3033-3048
-Harper, B.A. 2002:
-    Tropical Cyclone Parameter Estimation in the Australian Region:
-    Wind-Pressure Relationships and Related Issues for Engineering
-    Planning and Design.
+References
+ * Atkinson and Holliday 1977: Tropical Cyclone Minimum Sea Level Pressure /
+   Maximum Sustained Wind Relationship for the Wetern North Pacific.
+   Mon. Wea. Rev., 105, 421-427
+ * Holland, G. 1980: An Analytic Model of the Wind and Pressure Profiles in
+   Hurricanes.  Mon. Wea. Rev, 108, 1212-1218
+ * Willoughby, H.E. and M.E. Rahn, 2004: Parametric Representation of the
+   Primary Hurricane Vortex. Part I: Observations and Evaluation of the Holland
+   (1980) Model. Mon. Wea. Rev., 132, 3033-3048
+ * Harper, B.A. 2002: Tropical Cyclone Parameter Estimation in the Australian
+   Region: Wind-Pressure Relationships and Related Issues for Engineering
+   Planning and Design.
 
 $Id: vmax.py 810 2012-02-21 07:52:50Z nsummons $
+
 """
 
 import os, sys, pdb, logging
@@ -72,20 +59,25 @@ import Utilities.metutils as metutils
 
 def vmax(pCentre, pEnv, type="holland", beta=1.3, rho=1.15):
     """
-    Vmax: calculate the maximum wind speed from the pressure difference.
-    Input:  pc - central pressure (Pa)
-            pe - environmental pressure (Pa)
-            type - which Vmax relation to use (Willoughby & Rahn,
-                   Holland or Atkinson & Holliday)
-            beta - Holland's (1980) beta parameter. Only used for the
-                   Holland estimation (type=holland)
-    Output: vmax - maximum wind speed. For types 1 & 2, this is a
-                   gradient level wind. The relation used in type 3
-                   (Atkinson & Holliday) was determined using surface
-                   wind observations so should be used with caution at
-                   the gradient level.
-    Notes: The pressure should ideally be passed in units of Pa, but the
+    Calculate the maximum wind speed from the pressure difference.
+
+    :param float pc: central pressure (Pa)
+    :param float pe: environmental pressure (Pa)
+    :param str type: which Vmax relation to use (Willoughby & Rahn,
+                     Holland or Atkinson & Holliday)
+    :param float beta: Holland's (1980) beta parameter. Only used for the
+                       Holland estimation (type=holland)
+    :param float rho: air density (default=1.15 kg/m^3)
+    :return: maximum wind speed. For types 1 & 2, this is a
+             gradient level wind. The relation used in type 3
+             (Atkinson & Holliday) was determined using surface
+             wind observations so should be used with caution at
+             the gradient level.
+    :raises ValueError: if environmental pressure is lower than central pressure
+    
+    Note: The pressure should ideally be passed in units of Pa, but the
     function will accept hPa and automatically convert to Pa.
+    
     """
     # Convert from hPa to Pa if necessary:
     if pCentre < 10000:
@@ -128,6 +120,7 @@ def pDiff(vMax, pEnv, vMaxType="holland", beta=1.3, rho=1.15):
     Inverse functions to calculate central pressure from vMax
     Assumes vMax is given in metres/second.
     Returns pCentre in Pa.
+    
     """
     if pEnv < 10000:
         pEnv = metutils.convert(pEnv, "hPa", "Pa")

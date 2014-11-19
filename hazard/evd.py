@@ -1,5 +1,12 @@
 """
-Calculate extreme value distributions
+:mod:`evd` -- Calculate extreme value distributions
+===================================================
+
+.. module: evd
+    :synopsis: Calculate parameters for the GEV distribution
+               using L-moments
+
+.. moduleauthor: Craig Arthur <craig.arthur@ga.gov.au>
 
 Calculate the parameters for the GEV distribution, using the method of
 L-moments to estimate the parameters. The function will not only fit
@@ -7,10 +14,10 @@ the distribution parameters, but also calculate the return period
 values for specified return periods.
 
 References:
+Hosking, J. R. M., 1990: L-moments: Analysis and Estimation of
+Distributions using Linear Combinations of Order Statistics. Journal
+of the Royal Statistical Society, 52, 1, 105-124.
 
-    Hosking, J. R. M., 1990: L-moments: Analysis and Estimation of
-    Distributions using Linear Combinations of Order Statistics.
-    Journal of the Royal Statistical Society, 52, 1, 105-124.
 
 """
 
@@ -44,6 +51,7 @@ def estimateEVD(v, years, missingValue=-9999., minRecords=50, yrspersim=1):
     :rtype: :class:`numpy.ndarray`
     :return: location, shape and scale parameters of the distribution
     :rtype: float
+    
     """
     # Convert to float to prevent integer division & ensure consistent data
     # types for output variables

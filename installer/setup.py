@@ -52,17 +52,17 @@ exts = [
     Extension('Utilities.Cmap',
               sources=[pjoin('Utilities', 'Cmap.c')],
               include_dirs=[pjoin(numpy.get_include(), 'numpy')],
-              extra_compile_args=['-std=c99']),
+              extra_compile_args=['-std=gnu99']),
 
     Extension('Utilities.Cstats',
               sources=[pjoin('Utilities', 'Cstats.c')],
               include_dirs=[pjoin(numpy.get_include(), 'numpy')],
-              extra_compile_args=['-std=c99']),
+              extra_compile_args=['-std=gnu99']),
 
     Extension('Utilities.KPDF',
               sources=[pjoin('Utilities', 'KPDF.c')],
               include_dirs=[pjoin(numpy.get_include(), 'numpy')],
-              extra_compile_args=['-std=c99'])
+              extra_compile_args=['-std=gnu99'])
 ]
 
 basemapData = pjoin('mpl_toolkits', 'basemap', 'data')
@@ -72,9 +72,17 @@ data = matplotlib.get_py2exe_datafiles() + \
        [('MSLP', glob(pjoin('MSLP', '*.nc')))] + \
        [('.', [pjoin('.', 'matplotlibrc')])]
 
+requires = [
+    'matplotlib >= 1.1.1',
+    'basemap >= 1.0.2',
+    'netCDF4 >= 1.0.1',
+    'numpy >= 1.7.1',
+    'scipy >= 0.12.0']
+
 setup(name='tcrm',
       version='1.0',
       options=opts,
       ext_modules=exts,
       data_files=data,
+      install_requires=requires,
       **py2exe)

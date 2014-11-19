@@ -3,12 +3,12 @@ Track-related attributes
 """
 
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from shapely.geometry import Point, LineString
 
 trackFields = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
-               'Day', 'Hour', 'Minute', 'TimeElapsed', 'Datetime','Longitude',
+               'Day', 'Hour', 'Minute', 'TimeElapsed', 'Datetime', 'Longitude',
                'Latitude', 'Speed', 'Bearing', 'CentralPressure',
                'WindSpeed', 'rMax', 'EnvPressure')
 
@@ -61,8 +61,9 @@ class Track(object):
         :type  key: str
         :param key: the key to lookup in the `data` object.
         """
-        if key.startswith('__') and key.endswith('__'):
+        if (key.startswith('__') and key.endswith('__')) or (key == 'data'):
             return super(Track, self).__getattr__(key)
+
         return self.data[key]
 
     def inRegion(self, gridLimit):

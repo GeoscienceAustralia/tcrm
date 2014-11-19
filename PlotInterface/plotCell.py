@@ -43,18 +43,16 @@
 #-------------------------------------------------------------------------------
 # Imports:
 #-------------------------------------------------------------------------------
-import os, sys, pdb, logging
-
+import os
+import sys
 import pylab
 from matplotlib import cm
-from scipy import array, arange, histogram
-from numpy import *
+import numpy as np
 
 import Utilities.stats as stats
 import Utilities.files as files
 import Utilities.config as config
 import Utilities.my_tool as myutils
-import Utilities.plot_tools as plotutils
 
 #-------------------------------------------------------------------------------
 # 'PlotCell' class:
@@ -136,13 +134,6 @@ class PlotCell:
         self.cellNum = cellNum
         self.extractParameters(cellNum)
 
-
-    def __doc__(self):
-        """
-        documentation on what this class does
-        """
-        return "Plot the cyclone parameter histograms of a particular cell"
-
     def extractParameters(self, cellNum):
         """
         Extracts cyclone parameters for a given cell
@@ -156,7 +147,8 @@ class PlotCell:
         eLon = wLon + self.gridSpace['x']
         sLat = nLat - self.gridSpace['y']
 
-        indij = where(((lat >= sLat) & (lat < nLat)) & (lon >= wLon) & (lon < eLon))
+        indij = np.where(((lat >= sLat) & (lat < nLat)) & \
+                         (lon >= wLon) & (lon < eLon))
         self.bearing = myutils.removeNum(self.bearing_list[indij])
         self.speed = myutils.removeNum(self.speed_list[indij])
         self.pressure = myutils.removeNum(self.pressure_list[indij])
@@ -170,12 +162,13 @@ class PlotCell:
         """
         fig = pylab.figure()
         ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
-        theta = arange(0.0, 2*pi, pi/6.)
+        theta = np.arange(0.0, 2*np.pi, np.pi/6.)
 
-        bearing = (pi/2.-self.bearing*pi/180.)
-        ii = where(bearing < 0)
-        bearing[ii] += 2*pi
-        rads, bins = histogram(bearing, bins=12, range=(0., 2.*pi), new=True)
+        bearing = (np.pi/2. - self.bearing * np.pi/180.)
+        ii = np.where(bearing < 0)
+        bearing[ii] += 2 * np.pi
+        rads, bins = np.histogram(bearing, bins=12,
+                                  range=(0., 2.*pi), new=True)
 
         bars = ax.bar(theta, rads, width=pi/6., bottom=0.0)
 
@@ -226,7 +219,7 @@ class PlotCell:
         Plot histogram of TC central pressure
         """
         pylab.figure()
-        pylab.hist(self.pressure,range(900, 1011, 5))
+        pylab.hist(self.pressure, range(900, 1011, 5))
         pylab.title('Central Pressure (hPa)', fontsize=10)
         pylab.ylabel('Counts', fontsize=8)
         pylab.xlim(900, 1010)
@@ -238,7 +231,7 @@ class PlotCell:
         Plot histogram of pressure rate of change
         """
         pylab.figure()
-        pylab.hist(self.pressureRate,range(-10, 10, 1))
+        pylab.hist(self.pressureRate, range(-10, 10, 1))
         pylab.title('Pressure Rate (hPa/h)', fontsize=10)
         pylab.ylabel('Counts', fontsize=8)
         pylab.xlim(-10, 10)

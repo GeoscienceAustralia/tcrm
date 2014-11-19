@@ -2,36 +2,19 @@
 :mod:`generateStats` -- calculation of statistical values
 =========================================================
 
-Calculates the basic statistical values used in the track generation
-module, on a per grid cell basis. 
+.. module:: generateStats
+    :synopsis: Calculates the mean, variance and
+               autocorrelation statistics for all grid
+               cells in the domain, for a given parameter.
+
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
 
-Title: generateStats.py
-Author: Craig Arthur, craig.arthur@ga.gov.au
-CreationDate: 11/27/07 2:58:PM
-Description: Calculates the mean, variance and autocorrelation
-statistics for all grid cells in the domain, for a given parameter
-(speed, bearing, etc).  The statistics calculated herein provide
-information used in generating synthetic TC tracks. The method is based
-on the approached described by Hall & Jewson (2007)
-
-References:
-Hall, T.M. and Jewson, S. (2007): Statistical modelling of North
-Atlantic tropical cyclone tracks.
-Tellus A, 59(4), doi:10.1111/j.1600-0870.2007.00240.x, pp486-498
-
-Constraints:
-SeeAlso:
-
-Version: $Rev: 810 $
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 10/04/08 11:42:AM
-Modification: Changed logging method
-
-$Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
-import os, pdb, logging, sys
+import os
+import logging
+import sys
 
 import numpy as np
 
@@ -42,8 +25,6 @@ from Utilities.config import ConfigParser
 
 from scipy.stats import scoreatpercentile as percentile
 from PlotInterface.curves import RangeCurve, saveFigure
-
-__version__ = '$Id: generateStats.py 810 2012-02-21 07:52:50Z nsummons $'
 
 def acf(p, nlags=1):
     """
@@ -61,16 +42,11 @@ def acf(p, nlags=1):
     
 
 class parameters(object):
-    """parameters:
+    """
+    Description: Create an object that holds :class:`numpy.ndarray`s
+    of the statistical properties of each grid cell. There are
+    :class:`numpy.ndarray` for both land and sea cells.
 
-    Description: Create an object that holds `numpy` arrays of the 
-    statistical properties of each grid cell. There are `numpy` 
-    arrays for both land and sea cells.
-
-    Parameters:
-    None
-
-    Members:
     mu/lmu : array of mean values of parameter for each grid cell
     sig/lsig : array of variance values of parameter for each grid cell
     alpha/lalpha : array of autoregression coefficients of parameter for
@@ -92,43 +68,57 @@ class parameters(object):
         self.lmin = np.zeros(numCells)
 
 class GenerateStats:
-    """GenerateStats:
-
-    Description:
-
-    Parameters:
-    parameter: np.array or String (representing filename)
-               Contains the data which the statistical values will be
-               based
-    lonLat:    np.array or String (representing filename)
-               Contains the longitude and latitude of each of the
-               observations in the np.array parameter
-    gridLimit: dictionary containing limits of regional grid
-               Contains keys 'xMin', 'xMax', 'yMin', 'yMax'
-    gridSpace: Dictionary containing spacing of grid
-               Contains keys 'x' and 'y'
-    gridInc:   Dictionary containing increments for grid to be used when
-               insufficient observations exist in the cell being
-               analysed.
-               Contain keys 'x' and 'y'
-    minSample: Integer
-               The minimum required number of observations in a given
-               cell to calculate meaningful statistics.
-    angular:   Boolean
-               True = the data in np.array 'parameter' is angular in nature
-               (e.g. bearings)
-               False = the data in np.array 'parameter' is not angular.
-    Members:
-    Methods:
-    Internal methods:
     """
-    def __init__(self, parameter, lonLat, gridLimit,
-                 gridSpace, gridInc, minSample=100, angular=False, missingValue=sys.maxint, 
-                 progressbar=None, prgStartValue=0, prgEndValue=1, calculateLater=False):
+    Generate the main statistical distributions across the grid domain. 
 
+    :type  parameter: :class:`numpy.ndarray` or str
+    :param parameter: contains the data on which the statistical
+                      values will be based. If `str`, then
+                      represents the name of a file that contains
+                      the data
+    :type  lonLat: :class:`numpy.ndarray` or str
+    :param lonLat: Contains the longitude and latitude of each
+                   of the observations in the :class:`numpy.ndarray`
+                   parameter
+    :param dict gridLimit: dictionary containing limits of regional grid
+               Contains keys 'xMin', 'xMax', 'yMin', 'yMax'
+    :param dict gridLimit: The bounds of the model domain. The
+                           :class:`dict` should contain the keys
+                           :attr:`xMin`, :attr:`xMax`, :attr:`yMin`
+                           and :attr:`yMax`. The *x* variable bounds
+                           the longitude and the *y* variable 
+                           bounds the latitude.
+    :param dict gridSpace: The default grid cell size. The :class:`dict`
+                           should contain keys of :attr:`x` and
+                           :attr:`y`. The *x* variable defines the
+                           longitudinal grid size, and the *y*
+                           variable defines the latitudinal size.
+    :param dict gridInc: The increment in grid size, for those cells
+                         that do not contain sufficient observations
+                         for generating distributions. The :class:`dict`
+                         should contain the keys :attr:`x` and
+                         :attr:`y`. The *x* variable defines the
+                         longitudinal grid increment, and the *y*
+                         variable defines the latitudinal increment.
+
+    :param int minSample: Minimum number of valid observations
+                          required to generate distributions. If
+                          insufficient observations are found in a
+                          grid cell, then it is incrementally expanded
+                          until ``minSample`` is reached.
+    :param boolean angular: If ``True`` the data represents an angular
+                            variable (e.g. bearings). Default is ``False``.
+
+    """
+
+    def __init__(self, parameter, lonLat, gridLimit,
+                 gridSpace, gridInc, minSample=100, angular=False,
+                 missingValue=sys.maxint, progressbar=None,
+                 prgStartValue=0, prgEndValue=1, calculateLater=False):
+        
         self.logger = logging.getLogger()
         self.logger.debug('Initialising GenerateStats')
-
+        
         self.gridLimit = gridLimit
         self.gridSpace = gridSpace
         self.gridInc = gridInc
@@ -157,6 +147,11 @@ class GenerateStats:
             self.calculateStatistics()
 
     def calculateStatistics(self):
+        """
+        Cycle through the cells and calculate the statistics
+        for the variable.
+        
+        """
         progressbar = self.progressbar
         prgStartValue = self.prgStartValue
         prgEndValue = self.prgEndValue
@@ -229,6 +224,13 @@ class GenerateStats:
         autocorrelation and regularized anomaly coefficient) for the
         given cell.
 
+        :param int cellNum: The cell number to process.
+        :param boolean onLand: If ``True``, then the cell is (mostly
+                               or entirely) over land. If ``False``,
+                               the cell is over water.
+
+        :returns: mean, standard deviation, autocorrelation, residual
+                  correlation and the minimum parameter value.
         """
 
         p = self.extractParameter(cellNum, onLand)
@@ -253,7 +255,7 @@ class GenerateStats:
         return mu, sig, alpha, phi, mn
 
     def extractParameter(self, cellNum, onLand):
-        """extractParameter(cellNum):
+        """
         Extracts the cyclone parameter data for the given cell.
         If the population of a cell is insufficient for generating a
         PDF, the bounds of the cell are expanded until the population is
@@ -261,6 +263,12 @@ class GenerateStats:
 
         Null/missing values are removed.
 
+        :param int cellNum: The cell number to process.
+        :returns: None. The :attr:`parameter` attribute is updated.
+        :raises InvalidArguments: if the cell number is not valid
+                                  (i.e. if it is outside the possible
+                                  range of cell numbers).
+        
         """
 
         if not stats.validCellNum(cellNum, self.gridLimit, self.gridSpace):
@@ -381,6 +389,13 @@ class GenerateStats:
         return wLon, eLon, nLat, sLat
 
     def load(self, filename):
+        """
+        Load pre-calculated statistics from a netcdf file.
+
+        :param str filename: Path to the netcdf-format file containing
+                             the statistics.
+
+        """
         
         self.logger.debug('Loading statistics from %s' % filename)
         from netCDF4 import Dataset
@@ -390,6 +405,14 @@ class GenerateStats:
         #TODO: maybe save and check grid settings?
 
     def save(self, filename, description=''):
+        """
+        Save parameters to a netcdf file for later access.
+
+        :param str filename: Path to the netcdf file to be created.
+        :param str description: Name of the parameter.
+
+        """
+        
         description = ' ' + description.strip()
         self.logger.debug('Saving' + description + ' statistics to %s' % filename)
 

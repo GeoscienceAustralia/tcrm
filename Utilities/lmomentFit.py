@@ -1,50 +1,58 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`lmomentFit` -- fit GEV functions
+======================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: lmomentFit
+    :synopsis: Functions translated from the LMOMENTS Fortran
+               package for fitting a GEV function.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Nicholas Summons <nicholas.summons@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+Two functions {pelgev, samlmu} from the LMOMENTS Fortran package
+ported to Python to fit a Generalised Extreme Value Distribution
+function. Original code developed by: J. R. M. HOSKING, IBM RESEARCH
+DIVISION, T. J. WATSON RESEARCH CENTER, YORKTOWN HEIGHTS, NEW YORK
+10598, U.S.A.
 
-Title: lmomentFit.py
-Author: Nicholas Summons, nicholas.summons@ga.gov.au
-CreationDate: 2010-11-15 (Original Author's Code: August 1996)
-Description: Two functions {pelgev, samlmu} from the LMOMENTS
-             Fortran package ported to Python to fit a Generalised
-             Extreme Value Distribution function.
-             Original code developed by:
-             J. R. M. HOSKING, IBM RESEARCH DIVISION, T. J. WATSON RESEARCH
-             CENTER, YORKTOWN HEIGHTS, NEW YORK 10598, U.S.A.
+.. note::
+    Permission to use, copy, modify and distribute this software for
+    any purpose and without fee is hereby granted, provided that this
+    copyright and permission notice appear on all copies of the
+    software. The name of the IBM Corporation may not be used in any
+    advertising or publicity pertaining to the use of the
+    software. IBM makes no warranty or representations about the
+    suitability of the software for any purpose. It is provided "AS
+    IS" without any express or implied warranty, including the implied
+    warranties of merchantability, fitness for a particular purpose
+    and non-infringement. IBM shall not be liable for any direct,
+    indirect, special or consequential damages resulting from the loss
+    of use, data or projects, whether in an action of contract or
+    tort, arising out of or in connection with the use or performance
+    of this software.
 
- Original Software Disclaimer:
- "Permission to use, copy, modify and distribute this software for any purpose
- and without fee is hereby granted, provided that this copyright and permission
- notice appear on all copies of the software. The name of the IBM Corporation
- may not be used in any advertising or publicity pertaining to the use of the
- software. IBM makes no warranty or representations about the suitability of the
- software for any purpose. It is provided "AS IS" without any express or implied
- warranty, including the implied warranties of merchantability, fitness for a
- particular purpose and non-infringement. IBM shall not be liable for any direct,
- indirect, special or consequential damages resulting from the loss of use, data
- or projects, whether in an action of contract or tort, arising out of or in
- connection with the use or performance of this software. "
-
-$Id: lmomentFit.py 686 2012-03-29 04:24:59Z carthur $
 """
+
 import numpy
 from scipy import special
 __version__ = "$Id: lmomentFit.py 686 2012-03-29 04:24:59Z carthur $"
 
 def pelgev(XMOM):
+    """
+    Parameter estimation via L-moments for the Generalised Extreme
+    Value Distribution. For -0.8 <= TAU3 < 1., K is approximated by
+    rational functions as in Donaldson (1996,
+    Commun. Statist. Simul. Comput.). If TAU3 is outside this range,
+    Newton-Raphson iteration is used.
+
+    :param XMOM: Array of length 3, containing the L-moments Lambda-1,
+                 Lambda-2 and TAU3.
+    :type  XMOM: List or :class:`numpy.ndarray`
+
+    :returns: Location, scale and shape parameters of the GEV
+              distribution.
+    :rtype: :class:`numpy.ndarray`
+
+    """
     #***********************************************************************
     #*                                                                     *
     #*  FORTRAN CODE WRITTEN FOR INCLUSION IN IBM RESEARCH REPORT RC20525, *
@@ -181,6 +189,16 @@ def pelgpa(XMOM):
     return PARA
 
 def samlmu(X, NMOM):
+    """
+    Sample L-moments for a data array.
+
+    :param X: Array of length N, containing the data in ascending order.
+    :type  X: :class:`numpy.ndarray`
+    :param NMOM: Number of L-moments to be found (maximum 100).
+
+    :returns: The sample L-moments.
+    :rtype: :class:`numpy.ndarray`
+    """
     #***********************************************************************
     #*                                                                     *
     #*  FORTRAN CODE WRITTEN FOR INCLUSION IN IBM RESEARCH REPORT RC20525, *
@@ -293,8 +311,15 @@ def samlmu(X, NMOM):
 
 
 def samlmu3(X):
-    # Function equivalent to lmoments.samlmu(X, 3)
-    # Vectorised for speed but still about half speed of original fortran package
+    """
+    Functional equivalent to lmoments.samlmu(X, 3). Vectorised for
+    speed but still about half speed of original fortran package.
+
+    :param X: Array of length N, containing the data in ascending order.
+    :returns: First 3 L-moments.
+    :rtype: :class:`numpy.ndarray`
+    
+    """
     X = numpy.array(X)
     N = numpy.size(X)
     XMOM = numpy.zeros(3)

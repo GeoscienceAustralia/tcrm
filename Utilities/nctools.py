@@ -1,10 +1,13 @@
 """
-:mod: `nctools` -- NetCDF utility functions
+:mod:`nctools` -- NetCDF utility functions
 ===========================================
 
-This modlue contains basic utilities for manipulating
-netCDF format files. It relies on the netCDF4 module
-(https://code.google.com/p/netcdf4-python/)
+.. module:: nctools
+    :synopsis: This modlue contains basic utilities for manipulating
+               netCDF format files. It relies on the netCDF4 module
+               (https://code.google.com/p/netcdf4-python/)
+
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
 """
 
@@ -41,7 +44,8 @@ def ncLoadFile(filename):
     return ncobj
 
 def ncFileInfo(filename, group=None, variable=None, dimension=None):
-    """Print summary information about a netCDF file.
+    """
+    Print summary information about a netCDF file.
 
     Based on ncinfo (https://code.google.com/p/netcdf4-python/source/browse/trunk/utils/ncinfo)
 
@@ -104,20 +108,22 @@ def ncGetDims(ncobj, dim, dtype=float):
     return np.array(data, copy=True, dtype=dtype)
 
 def ncGetData(ncobj, var):
-    """Extract data values from a variable in a netCDF file.
+    """
+    Extract data values from a variable in a netCDF file.
     
     Note that the variable object is a better way to manipulate
     the variables, as the object includes all attributes (e.g. units,
     range, long_name, etc) - use `ncGetVar` for that purpose.
 
     :param ncobj: :class:`NetCDF4.Dataset` object.
-    :type ncobj::class:`NetCDF4.Dataset` 
+    :type ncobj: :class:`NetCDF4.Dataset` 
     :param str var: Name of the variable in the dataset to extract.
-
-    :return: `numpy.masked_array` containing the data of the variable, with missing values masked.
+    
+    :return: `numpy.masked_array` containing the data of the variable,
+              with missing values masked.
     :rtype: `numpy.ndarray`
 
-    :raise KeyError: If variable does not exist in the given file.
+    :raises KeyError: If variable does not exist in the given file.
     
     """
     
@@ -138,10 +144,11 @@ def ncGetData(ncobj, var):
     return data
 
 def ncGetVar(ncobj, name):
-    """Return a `netCDF4.variable` object.
+    """
+    Return a `netCDF4.variable` object.
     
-    :param ncobj: :class:`netCDF.Group` or `netCDF.Dataset` instance.
-    :type ncobj: :class:`netCDF.Group` or :class:`netCDF.Dataset
+    :param ncobj: :class:`netCDF.Group` or :class:`netCDF.Dataset` instance.
+    :type ncobj: :class:`netCDF.Group` or :class:`netCDF.Dataset`
     :param str name: Name of the desired variable.
 
     :return varobj: :class:`netCDF.Variable` instance
@@ -230,7 +237,8 @@ def ncCreateVar(ncobj, name, dimensions, dtype, data=None, atts=None, **kwargs):
                    :class:`netCDF4.Variable` constructor
 
     :return: :class:`netCDF4.Variable` instance
-    :rtype: :class:`netCDF4.Variable` 
+    :rtype: :class:`netCDF4.Variable`
+    
     """
     logger.debug("Creating variable %s" % name)
     

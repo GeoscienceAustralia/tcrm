@@ -25,7 +25,7 @@
 #** CreationDate: 2006-01-19
 #**
 #** Description: Define the class for PlotOriginGUI. This is a Python
-                 implementation
+#**              implementation
 #**              implementation of a graphical user interface for the
 #**              PlotOrigin class.  This is a revision of the Python
 #**              code written by Geoff Xu (2006).

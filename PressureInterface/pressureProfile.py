@@ -1,28 +1,13 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`pressureProfile` -- radial pressure profile for a TC
+==========================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: pressureProfile
+    :synopsis: Returns the radial pressure field for a range
+               of parametric radial wind models.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-Title: windProfile.py - radial wind profile for a given instance of a
-       cyclone
-
-Author: Craig Arthur, craig.arthur@ga.gov.au
-CreationDate: 2006-11-20
-Description: Return the radial velocity field for a range of wind
-             profiles.
 The available wind profiles are:
 Rankine vortex - undefined!
 Jelesnianski - undefined!
@@ -38,28 +23,25 @@ Version: $Rev: 810 $
 
 References:
 Holland, G.J., 1980:
-    An Analytic model of the Wind and Pressure Profiles in Hurricanes.
-    Mon. Wea. Rev., 108, 1212-1218.
+An Analytic model of the Wind and Pressure Profiles in Hurricanes.
+Mon. Wea. Rev., 108, 1212-1218.
 Jelesnianski, C.P., 1966:
-    Numerical Computations of Storm Surges without Bottom Stress.
-    Mon. Wea. Rev., 94(6), 379-394
+Numerical Computations of Storm Surges without Bottom Stress.
+Mon. Wea. Rev., 94(6), 379-394
 McConochie, J.D., T.A. Hardy and L.B. Mason, 2004:
-    Modelling tropical cyclone over-water wind and pressure fields.
-    Ocean Engineering, 31, 1757-1782
+Modelling tropical cyclone over-water wind and pressure fields.
+Ocean Engineering, 31, 1757-1782
 Powell, M., G. Soukup, S. Cocke, S. Gulati, N. Morrisuea-Leroy,
-    S. Hamid, N. Dorst and L. Axe, 2005:
-    State of Florida hurricane loss projection model: Atmospheric
-    science component.
-    Journal of Wind Engineering and Industrial Aerodynamics, 93 (8),
-    651-674
+S. Hamid, N. Dorst and L. Axe, 2005:
+State of Florida hurricane loss projection model: Atmospheric science component.
+Journal of Wind Engineering and Industrial Aerodynamics, 93 (8), 651-674
 Schloemer, R.W., 1954:
-    Analysis and synthesis of hurricane wind patterns over Lake
-    Okeechobee.
-    NOAA Hydromet. Rep. 31, 49 pp.
+Analysis and synthesis of hurricane wind patterns over Lake Okeechobee.
+NOAA Hydromet. Rep. 31, 49 pp.
 Willoughby, H.E. and M.E. Rahn, 2004:
-    Parametric Representation of the Primary Hurricane Vortex. Part I:
-    Observations and Evaluation of the Holland (1980) Model.
-    Mon. Wea. Rev., 132, 3033-3048
+Parametric Representation of the Primary Hurricane Vortex. Part I:
+Observations and Evaluation of the Holland (1980) Model.
+Mon. Wea. Rev., 132, 3033-3048
 
 $Id: pressureProfile.py 810 2012-02-21 07:52:50Z nsummons $
 """
@@ -132,23 +114,6 @@ class PrsProfile:
         self.logger = logging.getLogger()
         self.logger.debug("Storm centre: %3f %3f" %(self.cLon, self.cLat))
         self.logger.debug("Coriolis parameter: %3f" % self.f)
-
-
-    def __doc__(self):
-        """
-        Documentation on the function of the class:
-        """
-        return 'Generate the radial pressure profile for a given instance of a \
-                tropical cyclone. \
-                Profiles available are: \
-                (Rankine vortex) \
-                (Jelesnianski) \
-                Holland \
-                Schloemer (a simplification of the Holland profile) \
-                Willoughby & Rahn (a more complex version of the Holland profile) \
-                McConochie (double Holland vortex)\
-                For the first two, the maximum wind speed is required - this can \
-                be calculated using vmax.py '
 
 #    def rankine(self, vMaxType="willoughby"):
 #        """
@@ -286,6 +251,6 @@ class PrsProfile:
             beta = 0.8
         elif beta > 2.2:
             beta = 2.2
-            
+
         P = self.holland(beta)
         return P

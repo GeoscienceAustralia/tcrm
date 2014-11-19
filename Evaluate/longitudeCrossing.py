@@ -22,7 +22,7 @@ from scipy.stats import scoreatpercentile as percentile
 from datetime import datetime
 
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('Agg', warn=False)
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 

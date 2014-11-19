@@ -1,46 +1,28 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`grid` -- read, write and sample ascii grid files
+======================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Provide functions to read, write and sample ascii grid files. The
+ascii files are assumend to have and ArcGIS GIRD format::
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    ncols        nx
+    nrows        ny
+    xllcorner    xll
+    yllcorner    yll
+    cellsize     dx
+    NODATA_value -9999
+    data data data ...
+     :    :    :
+     :    :    :
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- Title: grid.py
- Author: Craig Arthur, craig.arthur@ga.gov.au
- CreationDate: 07/01/08 3:28:PM
- Description: Provide basic functions to read, write and sample ascii
- grid files. These files are assumed to have an ArcGIS GRID format:
+.. module:: grid
+    :synopsis: Read, write and sample ascii grid files.
 
- ncols        nx
- nrows        ny
- xllcorner    xll
- yllcorner    yll
- cellsize     dx
- NODATA_value -9999
- data data data ...
-  :    :    :
-  :    :    :
- Constraints:
- SeeAlso: files.py, config.py
- Version: 74
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-Version: $Rev: 685 $
-ModifiedBy: Craig Arthur, craig.arthur@ga.gov.au
-ModifiedDate: 2009-04-30 1:09:PM
-Modification: Standardised function names
-
-$Id: grid.py 685 2012-03-29 04:22:32Z carthur $
 """
+
 import os, sys
 import logging as log
 
@@ -50,8 +32,6 @@ from lat_long_UTM_conversion import LLtoUTM, UTMtoLL
 import metutils
 import nctools
 
-__version__ = '$Id: grid.py 685 2012-03-29 04:22:32Z carthur $'
-
 
 def grdSave(filename, data, lon, lat, delta, delimiter=' ', nodata=-9999,
             fmt='%.10e', coords='latlon'):
@@ -60,17 +40,27 @@ def grdSave(filename, data, lon, lat, delta, delimiter=' ', nodata=-9999,
     The files have 6 header lines describing the data, followed by the
     data in a gridded format.
 
-    Headers:
-    ncols
-    nrows
-    xllcorner
-    yllcorner
-    cellsize
-    NODATA_value
+    :param str filename: Path to the file to be written.
+    :param data: 2-d array of data values to store.
+    :param lon: Array of longitudes corresponding to data points.
+    :param lat: Array of latitudes corresponding to data points.
+    :param float delta: Spacing between grid points.
+    :param str delimiter: Delimiter to put between data points (default ' ').
+    :param float nodata: Value to indicate missing values (default -9999).
+    :param str fmt: String format statement.
+    :param str coords: Optionally store the data in UTM
+                       coordinates. Default is to store the data in
+                       geographic coordinates (``coords='latlon'``).
+                       If ``coords='UTM'``, then the latitude &
+                       longitudes are converted to the local UTM
+                       coordinate system.
+                       
+    :raises ValueError: If the ``filename`` is not a string of file handle.
 
-    Usage:
-    grdSave(filename, data, lon, lat, delta, delimiter=' ',
-            nodata=-9999, fmt='%.10e, coords='latlon')
+    Usage::
+
+     >>> grdSave(filename, data, lon, lat, delta, delimiter=' ',
+                 nodata=-9999, fmt='%.10e, coords='latlon')
     """
 
     if filename and os.path.isfile(filename):
@@ -114,21 +104,17 @@ def grdSave(filename, data, lon, lat, delta, delimiter=' ', nodata=-9999,
 
 def grdReadFromNetcdf(filename):
     """
-    Read formatted data from an ascii grid format file.
-    Returns the longitude and latitude of the grid and the data values
-    The files have 6 header lines describing the data, followed by the
-    data in a gridded format.
+    Read formatted data from a netcdf file.
+    Returns the longitude and latitude of the grid and the data
+    values. Assumes that there is only one (non-coordinate) variable
+    in the file, which is only 2 dimensional. 
 
-    Headers:
-    ncols
-    nrows
-    xllcorner
-    yllcorner
-    cellsize
-    NODATA_value
+    :param str filename: Path to a netcdf file to read.
 
+    :returns: longitude, latitude and grid data.
+    
     Usage:
-    longitude, latitude, data = grdRead(filename, [delimiter])
+    longitude, latitude, data = grdReadFromNetcdf(filename)
     """
     from netCDF4 import Dataset
 
@@ -154,16 +140,12 @@ def grdRead(filename, delimiter=None):
     """
     Read formatted data from an ascii grid format file.
     Returns the longitude and latitude of the grid and the data values
-    The files have 6 header lines describing the data, followed by the
-    data in a gridded format.
 
-    Headers:
-    ncols
-    nrows
-    xllcorner
-    yllcorner
-    cellsize
-    NODATA_value
+    :param str filename: Path to an ascii grid format or netcdf file.
+    :param delimiter: Delimiter for the ascii format file (optional).
+
+    :returns: longitude, latitude, data
+    :rtype: :class:`numpy.ndarray`
 
     Usage:
     longitude, latitude, data = grdRead(filename, [delimiter])
@@ -233,34 +215,18 @@ def grdRead(filename, delimiter=None):
 
 class SampleGrid:
     """
-    Description: Sample data from an ascii grid file
-    The files have 6 header lines describing the data, followed by the
-    data in a gridded format.
+    Sample data from a gridded data file. The class is instantiated
+    with a gridded data file (either an ascii file or a netcdf file
+    with single 2-d variable), and the :meth:`SampleGrid.sampleGrid`
+    method returns the value of the grid point closest to the given
+    longitude and latitude.
 
-    Headers:
-    ncols
-    nrows
-    xllcorner
-    yllcorner
-    cellsize
-    NODATA_value
+    :param str filename: Path to a file containing gridded data.
 
-    Usage:
-    grid = SampleGrid(filename)
-    value = grid.sampleGrid(lon, lat)
-
-    Parameters: file (filename) containing gridded data in ascii grd
-                format.
-
-    Members:
-    sampleGrid(cLon, cLat): sample a value from the grid at the given cLon, cLat
-        At this time, does not interplolate from teh input grid to the given location
-
-    Methods:
-    sampleGrid(cLon, cLat): sample a value from the grid at the given cLon, cLat
-        At this time, does not interplolate from the input grid to the given location.
-
-    Internal Methods:
+    Example::
+        
+          >>> grid = SampleGrid( '/foo/bar/grid.nc' )
+          >>> value = grid.sampleGrid( 100., -25. )
 
     """
 
@@ -274,39 +240,16 @@ class SampleGrid:
             self.lon, self.lat, self.grid = grdRead(filename)
         self.grid = numpy.flipud(self.grid)
 
-    def __doc__(self):
-        """
-        Documentation on the function of the class:
-        """
-        return 'Sample data from an ascii grid file \
-    The files have 6 header lines describing the data, followed by the \
-    data in a gridded format.\
-    \
-    Headers:\
-    ncols\
-    nrows\
-    xllcorner\
-    yllcorner\
-    cellsize\
-    NODATA_value\
-    \
-    Usage:\
-    grid = SampleGrid(filename)\
-    value = grid.sampleGrid(lon, lat)'
-
     def sampleGrid(self, lon, lat):
-        """sampleGrid(self, lon, lat):
+        """
         Sample a value from the grid at the given cLon, cLat
-        At this time, does not interplolate from the input grid to the given location
-        
-        Input: lon - longitude of the point to sample
-               lat - latitude of the point to sample
-        Output: value of the nearest grid point to the given lon/lat point
-        
-        Example:
-        
-        grid = SampleGrid( '/foo/bar/grid.nc' )
-        value = grid.sampleGrid( 100., -25. )
+        At this time, does not interplolate from the input grid to the
+        given location.
+
+        :param float lon: Longitude of the point to sample.
+        :param float lat: Latitude of the point to sample.
+
+        :returns: Value of the nearest grid point to the given lon/lat point.
 
         """
         indi = self.lon.searchsorted(lon)

@@ -992,7 +992,7 @@ class EvalTrackDensity(Evaluate):
 
 class EvalLongitudeCrossings(Evaluate):
 
-    def __init__(self, *args, *kwargs):
+    def __init__(self, *args, **kwargs):
 
         Evaluate.__init__(self, *args, **kwargs)
         self.lonCrossingHist = np.empty((len(self.gateLats) - 1,

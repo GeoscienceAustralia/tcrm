@@ -1,16 +1,57 @@
+"""
+:mod:`config` -- reading configuration files
+============================================
+
+.. module:: config
+    :synopsis: Provides functions for manipulating configuration files
+               e.g. reading setting from a configuration file.
+
+.. moduleauthor:: Dale Roberts <dale.roberts@ga.gov.au>
+
+"""
+
 import io
 from ConfigParser import RawConfigParser
 
 
 def parseBool(txt):
+    """
+    Parser for boolean options
+
+    :param str txt: String from config file to parse.
+
+    :returns: ``True`` if the string is 'True', ``False`` otherwise.
+    :rtype: boolean
+
+    """
+
     return txt == 'True'
 
-
 def parseList(txt):
+    """
+    Parse a comma-separated line into a list.
+
+    :param str txt: String from config file to parse.
+
+    :return: List, based on the input string.
+    :rtype: list
+
+    """
+
     return txt.split(',')
 
 
 def formatList(lst):
+    """
+    Convert a list into a comma-joined string.
+
+    :param list lst: Input list to join.
+
+    :return: A string comprised of the list elements joined by commas.
+    :rtype: str
+
+    """
+
     return ','.join(map(str, lst))
 
 
@@ -45,6 +86,7 @@ PARSERS = {
     'Logging_loglevel': str,
     'Logging_progressbar': parseBool,
     'Logging_verbose': parseBool,
+    'Logging_datestamp':parseBool,
     'Output_path': str,
     'Process_datfile': str,
     'Process_excludepastprocessed': parseBool,
@@ -79,6 +121,7 @@ PARSERS = {
     'WindfieldInterface_margin': float,
     'WindfieldInterface_profiletype': str,
     'WindfieldInterface_resolution': float,
+    'WindfieldInterface_domain': str,
     'WindfieldInterface_source': str,
     'WindfieldInterface_thetamax': float,
     'WindfieldInterface_trackfile': str,
@@ -132,6 +175,7 @@ thetaMax=70.0
 Margin=2
 Resolution=0.05
 PlotOutput=False
+Domain=bounded
 
 [Hazard]
 Years=2,5,10,20,25,50,100,200,250,500,1000
@@ -158,6 +202,7 @@ ProgressBar=False
 LogFile=main.log
 LogLevel=INFO
 Verbose=False
+Datestamp=False
 
 [Source]
 FieldDelimiter=,
@@ -189,9 +234,9 @@ filename=slp.day.ltm.nc
 def singleton(cls):
     instances = {}
 
-    def getinstance():
+    def getinstance(*args, **kwargs):
         if cls not in instances:
-            instances[cls] = cls()
+            instances[cls] = cls(*args, **kwargs)
         return instances[cls]
     return getinstance
 
@@ -205,26 +250,48 @@ class ConfigParser(RawConfigParser):
     and default options.
     """
 
-    def __init__(self):
+    def __init__(self, defaults=DEFAULTS):
         RawConfigParser.__init__(self)
-        self.readfp(io.BytesIO(DEFAULTS))
-        self.read_once = False
+        self.readfp(io.BytesIO(defaults))
+        self.readonce = False
 
     def geteval(self, section, option):
         """
+        :param str section: Section name to evaluate.
+        :param str option: Option name to evaluate.
+
         :return: an evaluated setting.
+
         """
         return self._get(section, eval, option)
 
     def read(self, filename):
+        """
+        Read a configuration file, and set the :attr:`readonce` attribute
+        to ``True``.
+
+        :param str filename: Path to the configuration file to read.
+
+        """
+
         if filename is None:
             return
-        if self.read_once:
+        if self.readonce:
             return
         RawConfigParser.read(self, filename)
-        self.read_once = True
+        self.readonce = True
 
     def items(self, section):
+        """
+        Return the parsed option, value pairs for a section of the configuration.
+
+        :param str section: Section name.
+
+        :returns: (Option, value) tuple pairs for the given section.
+        :rtype: list
+
+        """
+
         raw = RawConfigParser.items(self, section)
         parsed = {}
         for name, value in raw:
@@ -236,6 +303,15 @@ class ConfigParser(RawConfigParser):
         return parsed.items()
 
     def set(self, section, option, value):
+        """
+        Set the value of a specific section and option in the configuration.
+
+        :param str section: Section to be updated.
+        :param str option: Option to be updated.
+        :param value: Value to set.
+
+        """
+
         try:
             formatter = FORMATERS['%s_%s' % (section, option)]
             newvalue = formatter(value)
@@ -248,6 +324,18 @@ def cnfGetIniValue(configFile, section, option, default=None):
     """
     Helper function to interface with code that uses the
     old config parser.
+
+    :param str configFile: path to the configuration file to read.
+    :param str section: Section name to read.
+    :param str option: Option name to read.
+    :param default: Optional default value to use if the section/option
+                    pair is not present in the file.
+
+    :returns: Value recorded in the section/option of the config file, if
+              present; the default value otherwise (if defined).
+
+    :raises NoSectionError, NoOptionError: if the section/option is not
+              defined, and no default value given.
     """
     config = ConfigParser()
     config.read(configFile)

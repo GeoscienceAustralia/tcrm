@@ -1,0 +1,2 @@
+[run]
+omit=*FixTk*,*PIL*,*calendar*,*contextlib*,*csv*,*ctypes*,*dateutil*,*decimal*,*distutils*,*encodings*,*getpass*,*gzip*,*httplib*,*importlib*,*io*,*matplotlib*,*mimetools*,*mpl_toolkits*,*netCDF4*,*netcdftime*,*numbers*,*numpy*,*pyparsing*,*PyQt4*,*rfc*,*scipy*,*shapely*,*six*,*sqlite3*,*strptime*,*subprocess*,*urllib*

@@ -1,74 +1,15 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`maputils` -- mapping functions
+====================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: maputils
+    :synopsis: Mapping functions.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+Contains mapping functions that operate on arrays. Supercedes some of
+the functions lying around in some unusual places (like DataProcess).
 
-Title: maputils.py
-
-Author: Craig Arthur
-Email: craig.arthur@ga.gov.au
-CreationDate: 2006-11-03
-
-Description: Contains mapping functions that operate on arrays
-Supercedes some of the functions lying around in some unusual places
-(like DataProcess)
-
-Members:
-- latLon2Azi(lat, lon, ieast) :
-    Calculate the bearing (clockwise positive from true north) and
-    distance between consecutive lat/lon pairs.
-- bear2LonLat(bearing, distance, lon, lat) :
-    Calculate the longitude and latitude of a new point given
-    the bearing and distance from some origin lon/lat position
-- latLon2XY(xr, yr,lat, lon) :
-    Calculate the distance between consecutive lat/lon points - returns
-    two vectors (x,y) containing the northward and eastward distances.
-    Use xy2r to convert (x,y) to a distance.
-- xy2r(x, y) :
-    calculate the distance between consecutive members of the arrays
-    (x,y)
-- gridLatLonDist(clon,clat, lonarray, latarray) :
-    Calculate the distance between a grid of lat/lon points and
-    a given lat/lon point
-- gridLatLonBear(clon,clat, lonarray, latarray) :
-    Calculate the bearing of a grid of points described by the arrays
-    (lonArray, latArray) from the point (cLon, cLat)
-- bearing2theta(angle) :
-    Convert from compass bearing to cartesian angle (uses radians)
-- theta2bearing(angle) :
-    Convert from cartesian angle to compass bearing (uses radians)
-
-Still to be added: - error checking on function inputs
-                   - xy2ll: inverse of ll2xy
-
-
-SeeAlso: (related programs)
-Constraints:
-
-ModifiedBy: C. Arthur
-ModifiedDate: 2006-11-29
-Modification: Added gridLatLonBear(cLon, cLat, lonArray, latArray)
-Version: 304
-
-ModifiedBy: C. Arthur
-ModifiedDate: 2007-01-18
-Modification: Added dist2GC function, check if user requested degrees or
-              radians to be returned from latlon2Azi
-Version: $Rev: 686 $
-
-$Id: maputils.py 686 2012-03-29 04:24:59Z carthur $
 """
 
 import logging
@@ -90,6 +31,14 @@ def xy2r(x, y):
     """
     Given x and y arrays, returns the distance between consecutive
     elements.
+
+    :param x: x-coordinate of points.
+    :param y: y-coordinate of points.
+    :type x: :class:`numpy.ndarray`
+    :type y: :class:`numpy.ndarray`
+
+    :returns: Distance (in native units) between consecutive points.
+    :rtype: :class:`numpy.ndarray`
     """
 
     #if len(x) != len(y):
@@ -98,22 +47,21 @@ def xy2r(x, y):
 
 def latLon2Azi(lat, lon, ieast=1, azimuth=0, wantdeg=True):
     """
-    latLon2Azi: returns the bearing and distance (in km) between
-    consecutive members of the array pair (lat,lon)
-    USE: [azi,length] = ll2azi(lat,lon,ieast)
-          INPUT arrays:
-            lat = arry of latitudes, decimal degrees
-            lon = array of longitudes, decimal degrees
-            ieast   = 1 for longitude increasing towards East
-                      -1 for longitude increasing towards West
-          OUTPUT arrays:
-            azi    = azimuth (+ clockwise from North)
-            length = distance (km) between 2 points (local Cartesian)
-    NOTES: calls xy2r & ll2xy (hence will bomb at North and South poles)
+    Returns the bearing and distance (in km) between consecutive
+    members of the array pair (lat,lon).
 
-    Matlab code by Andres Mendez
-    Conversion to Python by C. Arthur 2006
-    (following the Python code of G. Xu)
+    :param lat: Latitudes of positions.
+    :param lon: Longitudes of positions.
+    :param int ieast: 1 for longitudes increasing towards East, -1 for
+                      longitudes increasing towards West (default 1).
+    :param float azimuth: Local coordinate system constructed with origin at
+                          latr,lonr, X axis ('North') in direction of azimuth,
+                          and Y axis such that X x Y = Z(down)
+                          when going from (lat,lon) to (x,y) (default 0).
+    :param boolean wantdeg: If ``True`` return bearings as degrees, not radians.
+
+    :returns: azimuth (+ve clockwise from north) and distance (in km).
+    
     """
     #if len(lat) != len(lon):
     #   raise ArrayMismatch, "Input array sizes do not match"
@@ -146,7 +94,15 @@ def latLon2Azi(lat, lon, ieast=1, azimuth=0, wantdeg=True):
 def bear2LatLon(bearing, distance, oLon, oLat):
     """
     Calculate the longitude and latitude of a new point from an origin
-    point given a distance and bearing
+    point given a distance and bearing.
+
+    :param bearing: Direction to new position (degrees, +ve clockwise
+                    from north).
+    :param distance: Distance to new position (km).
+    :param oLon: Initial longitude.
+    :param oLat: Initial latitude.
+
+    :returns: new longitude and latitude (in degrees)
     """
     radius = 6367.0 # Earth radius (km)
     oLon = math.radians(oLon)
@@ -164,35 +120,27 @@ def bear2LatLon(bearing, distance, oLon, oLat):
 
 def latLon2XY(xr, yr, lat, lon, ieast=1, azimuth=0):
     """
-    latLon2XY: calculate the cartesian distance between consecutive
-               lat,lon points
+    Calculate the cartesian distance between consecutive lat,lon
+    points. Will bomb at North and South Poles. Assumes geographical
+    coordinates and azimuth in decimal degrees, local Cartesian
+    coordinates in km.
+    
+    :param xr: Reference longitude, normally 0.
+    :param yr: Reference latitude, normally 0.
+    :param lat: Array of latitudes.
+    :param lon: Array of longitudes.
+    :param int ieast: 1 if longitude increases toward the East
+                     (normal case), -1 if longitude increases
+                     toward the West.
+    :param int azimuth: local coordinate system constructed with
+                        origin at latr,lonr, X axis ('North') in
+                        direction of azimuth, and Y axis such that X x
+                        Y = Z(down) when going from (lat,lon) to (x,y)
+                        scalar or array.
 
-    USE: [xn,ye] = ll2xy(xr,yr,latr,lonr,azimuth,ieast)
-           ieast  =  1 if longitude increases toward the East
-                     (normal case)
-                  = -1 if longitude increases toward the West
-           xr,yr  = scalars, normally 0
-           lat    = array, reference point lat
-           lon    = array, reference point lon
-           azimuth= local coordinate system constructed with origin at
-                    latr,lonr, X axis ('North') in direction of azimuth,
-                    and Y axis such that X x Y = Z(down)
-                    when going from (lat,lon) to (x,y)
-                    scalar or array
-    OUTPUT: [xn, ye] = array of northward and eastward distances between
-                       consecutive points. Use xy2r to convert to a
-                       distance between consecutive points.
-
-    NOTES:  * IF INPUT LATR LONR AZIMUTH & XORLAT YORLON ARE ARRAYS,
-              THEY MUST BE OF THE SAME DIMENSION!!!
-              NO ERROR CHECKING DONE!!!
-
-            * assumes geographical coordinates and azimuth in decimal
-              degrees local Cartesian coordinates in km
-
-    BOMB NOTES: will bomb at North and South poles
-    Matlab code by AM & SP
-    Python code by Craig Arthur 2006
+    :returns: Array of northward and eastward distances between
+              consecutive points. use :func:`xy2r` to convert to a
+              distance between consecutive points.
     """
 
     #if len(lat) != len(lon):
@@ -221,19 +169,18 @@ def latLon2XY(xr, yr, lat, lon, ieast=1, azimuth=0):
 
 def distGC(lat, lon):
     """
-    Distance based on the great circle navigation between pairs of points
+    Distance based on the great circle navigation between pairs of points.
 
-    Input:
-    lat - a pair of latitude values for the two points 
-    lon - a pair of longitude values for the two points
+    :param lat: A pair of latitude values for the two points.
+    :param lon: A pair of longitude values for the two points.
 
-    Output:
-    distance (in kilometres) between the two points, based on
-    great circle navigation
+    :returns: Distance (in kilometres) between the two points, based on
+              great circle navigation.
 
-    Example:
+    Example::
 
-    dist = distGC([-20, -40],[120,190])
+        >>> dist = distGC([-20, -40],[120,190])
+        6914.42
     
     """
     radius = 6367.0 # Earth radius (km)
@@ -245,7 +192,7 @@ def distGC(lat, lon):
                        math.cos(lat[0]) * math.cos(lat[1]) * \
                        math.cos(lon[0] - lon[1]))
 
-    return radius*180.0*angular_distance
+    return radius*angular_distance
 
 
 
@@ -261,23 +208,24 @@ def gridLatLonDist(cLon, cLat, lonArray, latArray, units=None):
     Based on m_lldist.m by Rich Pawlowicz (rich@ocgy.ubc.ca)
     Modified by Craig Arthur 2006-11-13
 
-    Input:
-    cLon - longitude of the point to measure the distance from
-    cLat - latitude of the point to measure the distance from
-    lonArray - 1-d array of longitude values that will define the grid over
-               which distances will be calculated
-    latArray - 1-d array of latitude values that will define the grid over
-               which distances will be calculated
-    units - units of distance to be returned (default is kilometre)
 
-    Output:
-    dist - 2-d array containing the distance of the points defined in lonArray 
-           and latArray from the point (cLon, cLat)
+    :param float cLon: Longitude of the point to measure the distance from.
+    :param float cLat: Latitude of the point to measure the distance from.
+    :param lonArray: 1-d array of longitude values that will define the
+                     grid over which distances will be calculated.
+    :param latArray: 1-d array of latitude values that will define the
+                     grid over which distances will be calculated.
+    :param str units: Units of distance to be returned (default is kilometre)
 
-    Example:
-    lonArray = np.arange(90.,100.,0.1)
-    latArray = np.arange(-20.,-10.,0.1)
-    dist = gridLatLonDist( 105., -15., lonArray, latArray,'km') 
+    :returns: 2-d array containing the distance of the points defined in
+             ``lonArray`` and ``latArray`` from the point
+             (``cLon``, ``cLat``).
+
+    Example::
+            
+        >>> lonArray = np.arange(90.,100.,0.1)
+        >>> latArray = np.arange(-20.,-10.,0.1)
+        >>> dist = gridLatLonDist( 105., -15., lonArray, latArray, 'km') 
 
     """
 
@@ -369,23 +317,38 @@ def gridLatLonBear(cLon, cLat, lonArray, latArray):
     (lonArray,latArray) from the point defined by (cLon,cLat).
     (lonArray,latArray) and (cLon,cLat) are in degrees.
     Returns bearing in radians.
-
-    Input:
-    cLon - longitude of the point to measure the bearing from
-    cLat - latitude of the point to measure the bearing from
-    lonArray - 1-d array of longitude values that will define the grid over
-               which bearings will be calculated
-    latArray - 1-d array of latitude values that will define the grid over
-               which bearingss will be calculated
     
-    Output:
-    bear - 2-d array containing the bearing (direction) of the points defined in 
-           lonArray and latArray from the point (cLon, cLat)
+    :param float cLon: Longitude of the point to measure the distance from.
+    :param float cLat: Latitude of the point to measure the distance from.
+    :param lonArray: 1-d array of longitude values that will define the
+                     grid over which distances will be calculated.
+    :param latArray: 1-d array of latitude values that will define the
+                     grid over which distances will be calculated.
+    :returns: 2-d array containing the bearing (direction) of the points
+              defined in ``lonArray`` and ``latArray`` from the point
+              (``cLon``, ``cLat``)
 
-    Example:
-    lonArray = np.arange(90.,100.,0.1)
-    latArray = np.arange(-20.,-10.,0.1)
-    bear = gridLatLonBear( 105., -15., lonArray, latArray )
+    Example::
+
+        >>> from maputils import gridLatLonBear
+        >>> import numpy as np
+        >>> lonArray = np.arange(90.,100.,0.1)
+        >>> latArray = np.arange(-20.,-10.,0.1)
+        >>> gridLatLonBear( 105., -15., lonArray, latArray)
+        array([[-1.94475949, -1.94659552, -1.94845671, ..., -2.36416927,
+                -2.37344337, -2.38290081],
+               [-1.93835542, -1.94015859, -1.94198663, ..., -2.35390045,
+                -2.36317282, -2.37263233],
+               [-1.93192776, -1.93369762, -1.93549204, ..., -2.34343069,
+                -2.35269718, -2.36215458],
+                ..., 
+               [-1.29066433, -1.28850464, -1.28632113, ..., -0.84374983,
+                -0.83405688, -0.82416555],
+               [-1.28446304, -1.28227062, -1.28005406, ..., -0.83332654,
+                -0.82361918, -0.813717  ],
+               [-1.27828819, -1.27606348, -1.27381433, ..., -0.82310335,
+                -0.81338586, -0.80347714]])
+    
     """
 
     # #CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -466,9 +429,15 @@ def gridLatLonBear(cLon, cLat, lonArray, latArray):
 
 def bearing2theta(bearing):
     """
-    Converts bearing in azimuth coordinate system
-    into theta in cartesian coordinate system
-    Assumes -2*pi <= bearing <= 2*pi
+    Converts bearing in azimuth coordinate system into theta in
+    cartesian coordinate system. Assumes -2*pi <= bearing <= 2*pi
+
+    :param bearing: Bearing to convert (in radians) (+ve clockwise
+                    from north).
+
+    :returns: Angle in cartesian coordinate system (+ve anticlockwise
+              from east).
+
     """
     theta = np.pi / 2. - bearing
     theta = np.mod(theta, 2.*np.pi)
@@ -477,9 +446,15 @@ def bearing2theta(bearing):
 
 def theta2bearing(theta):
     """
-    Converts a cartesian angle (in radians) to an azimuthal
-    bearing (in radians).
-    Assumes -2*pi <= theta <= 2*pi
+    Converts a cartesian angle (in radians) to an azimuthal bearing
+    (in radians). Assumes -2*pi <= theta <= 2*pi
+
+    :param theta: Angle in cartesian coordinate system (+ve anticlockwise
+                  from east).
+
+    :returns: Bearing in azimuth coordinate system (+ve clockwise
+                    from north).
+
     """
     bearing = 2. * np.pi - (theta - np.pi / 2.)
     bearing = np.mod(bearing, 2. * np.pi)
@@ -490,9 +465,22 @@ def makeGrid(cLon, cLat, margin=2, resolution=0.01, minLon=None, maxLon=None,
              minLat=None, maxLat=None):
     """
     Generate a grid of the distance and angle of a grid of points
-    surrounding a storm centre given the location of the storm.
-    The grid margin and grid size can be set in configuration files.
-    xMargin, yMargin and gridSize are in degrees
+    surrounding a storm centre given the location of the storm. The
+    grid margin and grid size can be set in configuration
+    files. xMargin, yMargin and gridSize are in degrees.
+
+    :param float cLon: Reference longitude.
+    :param float cLat: Reference latitude.
+    :param float margin: Distance (in degrees) around the centre to fit the
+                         grid.
+    :param float resolution: Resolution of the grid (in degrees).
+    :param float minLon: Minimum longitude of points to include in the grid.
+    :param float maxLon: Maximum longitude of points to include in the grid.
+    :param float minLat: Minimum latitude of points to include in the grid.
+    :param float maxLat: Maximum latitude of points to include in the grid.
+
+    :returns: 2 2-d arrays containing the distance (km) and bearing (azimuthal)
+              of all points in a grid from the ``cLon``, ``cLat``. 
     """
     if (type(cLon)==list or type(cLat)==list or 
         type(cLon)==np.ndarray or type(cLat)==np.ndarray):
@@ -530,11 +518,22 @@ def makeGridDomain(cLon, cLat, minLon, maxLon, minLat, maxLat,
                    margin=2, resolution=0.01):
     """
     Generate a grid of the distance and angle of a grid of points
-    surrounding a storm centre given the location of the storm.
-    The grid margin and grid size can be set in configuration files.
-    xMargin, yMargin and gridSize are in degrees
+    across a complete model domain, given the location of the storm.
+    
+    :param float cLon: Reference longitude.
+    :param float cLat: Reference latitude.
+    :param float minLon: Minimum longitude of points to include in the grid.
+    :param float maxLon: Maximum longitude of points to include in the grid.
+    :param float minLat: Minimum latitude of points to include in the grid.
+    :param float maxLat: Maximum latitude of points to include in the grid.
+    :param float margin: Distance (in degrees) around the centre to fit the
+                         grid.
+    :param float resolution: Resolution of the grid (in degrees).
 
-
+    :returns: 2 2-d arrays containing the distance (km) and bearing (azimuthal)
+              of all points in a grid from the ``cLon``, ``cLat``, spanning the
+              complete region.
+    
     """
     if (type(cLon)==list or type(cLat)==list or 
         type(cLon)==np.ndarray or type(cLat)==np.ndarray):
@@ -556,7 +555,18 @@ def makeGridDomain(cLon, cLat, minLon, maxLon, minLat, maxLat,
 
 def meshLatLon(cLon, cLat, margin=2, resolution=0.01):
     """
-    Create a meshgrid of the lon/lat grid.
+    Create a meshgrid of the longitudes and latitudes of a grid.
+
+    :param float cLon: Longitude of centre of grid.
+    :param float cLat: Latitude of centre of grid.
+    :param float margin: Distance (in degrees) around the centre to
+                         build the grid.
+    :param float resolution: Resolution of the grid (degrees).
+
+    :returns: Coordinate matrices for the longitude and latitude
+              vectors, covering the region within ``margin``
+              degrees of (``cLon``, ``cLat``).
+    
     """
     if (type(cLon)==list or type(cLat)==list or 
         type(cLon)==np.ndarray or type(cLat)==np.ndarray):
@@ -577,7 +587,19 @@ def meshLatLon(cLon, cLat, margin=2, resolution=0.01):
 def meshLatLonDomain(minLon, maxLon, minLat, maxLat, 
                      margin=2, resolution=0.01):
     """
-    Create a meshgrid of the lon/lat grid.
+    Create a meshgrid of the lon/lat grid across th full model domain.
+
+    :param float minLon: Minimum longitude of the domain.
+    :param float maxLon: Maximum longitude of the domain.
+    :param float minLat: Minimum latitude of the domain.
+    :param float maxLat: Maximum latitude of the domain.
+    :param float margin: Distance (in degrees) around the centre to
+                         build the grid.
+    :param float resolution: Resolution of the grid (degrees).
+
+    :returns: Coordinate matrices for the longitude and latitude
+              vectors, covering the full domain, plus an additional
+              margin of ``margin`` degrees. 
     """
     gridSize = int(1000 * resolution)
 
@@ -594,14 +616,28 @@ def meshLatLonDomain(minLon, maxLon, minLat, maxLat,
 
 def dist2GC(cLon1, cLat1, cLon2, cLat2, lonArray, latArray, units="km"):
     """
-    Calculate the distance between an array of points and the great circle
-    joining two (other) points.
-    All input values are in degrees.
-    By default returns distance in km, other units specified by the
-    'units' kwarg.
+    Calculate the distance between an array of points and the great
+    circle joining two (other) points. All input values are in
+    degrees. By default returns distance in km, other units specified
+    by the 'units' kwarg.
 
     Based on a cross-track error formulation from:
     http://williams.best.vwh.net/avform.htm#XTE
+
+    :param float cLon1: Longitude of first point.
+    :param float cLat1: Latitude of first point.
+    :param float cLon2: Longitude of second point.
+    :param float cLat2: Latitude of second point.
+    :param lonArray: :class:`numpy.ndarray` of longitudes for which
+                     the distance to the line joining the two points
+                     will be calculated.
+    :param latArray: :class:`numpy.ndarray` of latitudes for which the
+                      distance to the line joining the two points will
+                      be calculated.
+
+    :returns: 2-d array of distances between the array points and the
+              line joining two points.
+    :rtype: :class:`numpy.ndarray`
     """
 
     # Calculate distance and bearing from first point to array of points:
@@ -611,15 +647,21 @@ def dist2GC(cLon1, cLat1, cLon2, cLat2, lonArray, latArray, units="km"):
     #bearing of the cyclone:
     cyc_bear_ = latLon2Azi([cLon1, cLon2], [cLat1, cLat2])
 
-    dist2GC_ = np.asin(np.sin(dist_) * np.sin(bear_ - cyc_bear_))
+    dist2GC_ = np.arcsin(np.sin(dist_) * np.sin(bear_ - cyc_bear_))
 
     distance = metutils.convert(dist2GC_, "rad", units)
     return distance
 
 def coriolis(lat):
-    """Calculate the Coriolis factor
+    """
     Calculate the Coriolis factor (f) for a given latitude (degrees).
     If a list is passed, return a list, else return a single value.
+
+    :param lat: Latitude (degrees).
+    :type  lat: Array-like.
+
+    :returns: Coriolis factor.
+    
     """
     omega = 2 * np.pi / 24. / 3600.
     f = 2 * omega * np.sin(np.radians(lat))
@@ -632,15 +674,19 @@ def find_index(array, value):
 
     :param array: array of data values.
     :type array: :class:`numpy.ndarray` or `list`.
-    :param value: a value to search :var:`array` for 
-                 (or find the index of the nearest value to :var:`value`).
+    :param value: a value to search `array` for 
+                 (or find the index of the nearest value to `value`).
     
-    :param int idx: index of :var:`array` that most closely matches 
-                    :var:`value`
-    :raises: ValueError if :var:`value` is a :class:`numpy.ndarray` or
+    :param int idx: index of `array` that most closely matches 
+                    `value`
+    :raises: ValueError if `value` is a :class:`numpy.ndarray` or
              a list
-    Example:
-    idx = find_index(np.arange(0., 100., 0.5), 15.25)
+    
+    Example::
+        
+        >>> find_index(np.arange(0., 100., 0.5), 15.25)
+        30
+        
     """
     if type(value) == np.ndarray or type(value) == list:
         raise ValueError, "Value cannot be an array"
@@ -667,13 +713,17 @@ def find_nearest(array, value):
     :type value: int or float
     
     :returns: array[idx], where idx is the index of array that corresponds 
-              to the value closest to 'value'
+              to the value closest to 'value'.
 
-    :raises: ValueError if :var:`value` is a :class:`numpy.ndarray` or
-             a list
-    :raises: IndexError if the :var:`value` cannot be found in the :var:`array`
-    Example:
-    n = find_nearest( np.arange(0,100.,0.5), 15.25 )
+    :raises ValueError: If `value` is a :class:`numpy.ndarray` or
+                        a list.
+    :raises IndexError: If the `value` cannot be found in the `array`
+
+    Example::
+    
+        >>> n = find_nearest( np.arange(0,100.,0.5), 15.25 )
+        15.0
+        
     """
     if type(value) == np.ndarray or type(value) == list:
         raise ValueError, "Value cannot be an array"

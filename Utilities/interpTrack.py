@@ -1,39 +1,18 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`interpTrack` -- interpolate TC track to a shorter time interval
+=====================================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: interpTrack
+    :synopsis: interpolate a TC track to a shorter time interval.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- Title: interpTrack.py
- Author: Craig Arthur, craig.arthur@ga.gov.au
- CreationDate: 2007-10-25 9:51:AM
- Description: Interpolates an historic TC track to a shorter time
- interval.  As an example, the csv data for TC Tracy is included in at
- the bottom of this file.
-
- Version :$Rev: 685 $
-
- ModifiedBy: Nicholas Summons
- ModifiedDate: 2011-02-08
- Modification: Replaced lat/lon interpolation with different spline
-               algorithm that exhibits less overshoot.
-               Pressure and Rmax interpolation was replaced with linear
-               interpolation.
-
- $Id: interpTrack.py 685 2012-03-29 04:22:32Z carthur $
 """
-import os, sys, pdb, logging, getopt
+
+import os
+import sys
+import logging
+import getopt
 
 import scipy.interpolate
 import numpy
@@ -41,7 +20,7 @@ import datetime
 from matplotlib.dates import date2num, num2date
 
 from files import flConfigFile, flModuleName, flSaveFile, flStartLog
-from config import cnfGetIniValue, logger
+from config import cnfGetIniValue
 from columns import colReadCSV
 from loadData import loadTrackFile
 
@@ -51,13 +30,8 @@ import metutils
 
 __version__ = '$Id: interpTrack.py 685 2012-03-29 04:22:32Z carthur $'
 
-__doc__ = """Interpolates an historic TC track to a shorter time \
-interval, for use in modelling a scenario event in TCRM.  
 
-As an example, the csv data for TC Tracy is included in at \
-the bottom of this file."""
-
-def ShowSyntax( exit_code=0 ):
+def _ShowSyntax( exit_code=0 ):
     print sys.argv[0]
     print "Interpolate the observed points of a tropical cyclone temporally"
     print "for use in modelling a scenario event in TCRM"
@@ -74,7 +48,7 @@ def ShowSyntax( exit_code=0 ):
     print __version__
     sys.exit( exit_code )
 
-def main(argv):
+def _main(argv):
     "Main part of the program"
     gConfigFile = flConfigFile()
     logFile = flConfigFile(".log")
@@ -84,12 +58,12 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"hc:l:v",["help","config=","logfile=","verbose",])
     except getopt.GetoptError:
-        usage()
+        _ShowSyntax()
         sys.exit(2)
 
     for opt,arg in opts:
         if opt in ("-h","--help"):
-            usage()
+            _ShowSyntax()
             sys.exit(2)
         elif opt in ("-c", "--config"):
             gConfigFile = arg
@@ -121,25 +95,29 @@ def main(argv):
     fh.close()
     logger.info("Completed %s"%(sys.argv[0]))
 
-def interpolateTrack(configFile,trackFile,source,delta=0.1,interpolation_type=None):
+def interpolateTrack(configFile, trackFile, source, delta=0.1,
+                     interpolation_type=None):
     """
-    Interpolate the data in a track file to the time interval delta hours. 
-    
-    Input:
-    configFile - configuration file that contains information on the source
-                 format of the track file
-    trackFile - path to csv format track file
-    source - string identifying the data source. There must be a corresponding
-             section in the configuration file that contains the description
-             of the data
-    delta - time interval in hours to interpolate to. Default is 0.1 hours
-    interpolation_type - optionally use Akima or linear interpolation for the track
-             positions. Default is linear 1-dimensional spline interpolation.
+    Interpolate the data in a track file to the time interval delta hours.
 
-    Output:
-    Returns 10 arrays (id, time, date, lon, lat, bearing, forward speed, central 
-    pressure, environmental pressure and radius to maximum wind) that describe the
-    track at delta hours intervals.
+    :param str configFile: Configuration file that contains information on the
+                           source format of the track file.
+    :param str trackFile: Path to csv format track file.
+    :param str source: Name of the data source. There must be a corresponding
+                       section in the configuration file that contains the
+                       description of the data.
+    :param float delta: Time interval in hours to interpolate to. Default is
+                        0.1 hours
+    :param str interpolation_type: Optionally use Akima or linear
+                                   interpolation for the track positions.
+                                   Default is linear 1-dimensional spline
+                                   interpolation.
+
+    :returns: 10 arrays (id, time, date, lon, lat, bearing, forward speed,
+              central pressure, environmental pressure and radius to
+              maximum wind) that describe the track at ``delta`` hours
+              intervals.
+
     """
     logger = logging.getLogger()
     indicator,year,month,day,hour,minute,lon,lat,pressure,speed,bearing,windspeed,rmax,penv = loadTrackFile(configFile,trackFile,source)
@@ -207,7 +185,7 @@ def interpolateTrack(configFile,trackFile,source,delta=0.1,interpolation_type=No
 
 # Call the main program:
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    _main(sys.argv[1:])
 
 """
 Test data for interpTrack:

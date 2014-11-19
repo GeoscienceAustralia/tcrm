@@ -1,3 +1,9 @@
+"""
+:mod:`datasets` -- manage downloaded datasets
+=============================================
+
+"""
+
 from urllib2 import urlopen, URLError
 from cStringIO import StringIO
 from Utilities.config import ConfigParser
@@ -7,7 +13,18 @@ DATASETS = []
 
 
 class DataSet(object):
+    """
+    Download a dataset from a url, store in a specified path with a
+    given filename.
 
+    :param str name: Name of the dataset to be downloaded.
+    :param str url: URL of the dataset.
+    :param str path: path name for the storage location of the dataset
+    :param filename: name of the file to be saved (can be different from
+                     the name of the dataset).
+    :type filename: str or None
+    
+    """
     def __init__(self, name, url, path, filename=None):
         self.name = name
         self.url = url
@@ -22,6 +39,18 @@ class DataSet(object):
             self.filename = filename or url.split('/')[-1]
 
     def download(self, callback=None):
+        """
+        Execute the download of the dataset. If the dataset
+        has already been downloaded (the :attr:`isDownloaded` will be set
+        to True), then don't try to download.
+
+        :param callback: Callback function (for reporting status to STDOUT).
+        :type callback: function
+
+        :raises IOError: Unable to download the dataset.
+        
+        """
+        
         if self.isDownloaded():
             return
 
@@ -58,10 +87,23 @@ class DataSet(object):
             raise IOError('Cannot download file')
 
     def isDownloaded(self):
+        """
+        Determine if a file has already been downloaded
+
+        :returns: `True` if the file exists, `False` otherwise.
+        
+        """
         return isfile(pjoin(self.path, self.filename))
 
 
 def loadDatasets():
+    """
+    Load the details of the datasets to be downloaded from the
+    configuration settings. This updates the :data:`DATASETS`
+    list.
+
+    """
+    
     config = ConfigParser()
     datasets = config.get('Input', 'Datasets').split(',')
     
@@ -78,6 +120,16 @@ def loadDatasets():
 
 
 def checkAndDownload(callback=None):
+    """
+    Check the :data:`DATASETS` list and download each, if it
+    has not previously been downoladed.
+
+    :param callback: Callback function (for reporting status to STDOUT).
+    :type callback: function
+    
+
+    """
+    
     for dataset in DATASETS:
         dataset.download(callback)
 

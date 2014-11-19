@@ -39,7 +39,7 @@ goto StartMainpy
 echo.
 echo.
 echo ---------  Starting Hazard Simulation  ---------
-python -Wignore tcrm.py -c %configfile%
+\python27\ArcGIS10.2\python -Wignore tcrm.py -c %configfile%
 echo ------------------------------------------------
 echo.
 echo TCRM has finished running.

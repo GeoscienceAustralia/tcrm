@@ -1,124 +1,101 @@
 """
-Tropical Cyclone Risk Model
-Copyright (c) 2014 Commonwealth of Australia (Geoscience Australia)
+:mod:`tcrm` -- the main TCRM interface
+======================================
+
+.. module:: tcrm
+    :synopsis: The main interface to TCRM. Determines which components
+               of the model system to execute, based on the configuration
+               settings specified.
+
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
+
 """
+# This package needs patching to run on python 2.6
+import logging as log
+
+if 'NullHandler' not in dir(log):
+    from Utilities import py26compat
+    log.NullHandler = py26compat.NullHandler
 
 import Utilities.datasets as datasets
-import logging as log
-import subprocess
 import traceback
 import argparse
 import time
 import sys
 import os
 
-from os.path import join as pjoin, realpath, isdir, dirname, abspath
+from os.path import join as pjoin, realpath, isdir, dirname
 from functools import wraps
 from Utilities.progressbar import SimpleProgressBar as ProgressBar
-from Utilities.files import flStartLog, flLoadFile, flModDate
+from Utilities.files import flStartLog, flLoadFile
 from Utilities.config import ConfigParser
 from Utilities.parallel import attemptParallel, disableOnWorkers
+from Utilities.version import version
 from Utilities import pathLocator
 
+import matplotlib
+matplotlib.use('Agg', warn=False)  # Use matplotlib backend
 
 # Set Basemap data path if compiled with py2exe
 if pathLocator.is_frozen():
     os.environ['BASEMAPDATA'] = pjoin(
         pathLocator.getRootDirectory(), 'mpl-data', 'data')
 
-UPDATE_MSG = """
-----------------------------------------------------------
-Your TCRM version is not up-to-date. The last 3 things that
-have been fixed are:
-
-%s
-
-To update your version of TCRM, try running:
-
-git pull
-
-----------------------------------------------------------
-"""
-
 
 def timer(f):
     """
-    Basic timing functions for entire process
+    A simple timing decorator for the entire process.
+    
     """
     @wraps(f)
     def wrap(*args, **kwargs):
         t1 = time.time()
         res = f(*args, **kwargs)
-        
+
         tottime = time.time() - t1
         msg = "%02d:%02d:%02d " % \
           reduce(lambda ll, b : divmod(ll[0], b) + ll[1:],
                         [(tottime,), 60, 60])
 
-        log.info("Time for %s: %s"%(f.func_name, msg) )
+        log.info("Time for {0}: {1}".format(f.func_name, msg) )
         return res
 
     return wrap
 
-def git(command):
-    """
-    Run a git command and return the output
-    """
-
-    with open(os.devnull) as devnull:
-        return subprocess.check_output('git ' + command,
-                                       shell=True,
-                                       stderr=devnull)
-
-def status():
-    """
-    Check status TCRM of code.
-    """
-    msg = ''
-
-    try:
-        git('fetch')  # update status of remote
-        behind = int(git('rev-list HEAD...origin/master --count'))
-        recent = git('log --pretty=format:" - %s (%ad)" --date=relative ' +
-                     'origin/master HEAD~3..HEAD')
-        if behind != 0:
-            msg = UPDATE_MSG % recent
-    except subprocess.CalledProcessError:
-        pass
-
-    return msg
-
-def version():
-    """
-    Check version of TCRM code. This returns the full hash of the git
-    commit, if git is available on the system. Otherwise, it returns
-    the last modified date of this file. It's assumed that this would be 
-    the case if a user downloads the zip file from the git repository.
-    """
-    
-    vers = ''
-
-    try:
-        vers = git('log -1 --date=iso --pretty=format:"%ad %H"')
-    except subprocess.CalledProcessError:
-        log.info(("Unable to obtain version information "
-                    "- version string will be last modified date of code"))
-        vers = flModDate(abspath(__file__), "%Y-%m-%d_%H:%M")
-    
-    return vers
 
 # Set global version string (for output metadata purposes):
-__version__  = version()
+__version__  = version() # pylint: disable-msg=C0103
+
+
 
 @disableOnWorkers
 def doDataDownload(configFile):
     """
-    Check and download the data files.
+    Check and download the data files listed in the configuration file.
+    Datasets are listed in the `Input` section of the configuration
+    file, with the option `Datasets`. There must also be a corresponding
+    section in the configuration file that inlcudes the url, path where
+    the dataset will be stored and the filename that will be stored, e.g.::
 
+        [Input]
+        Datasets=IBTRACS
+
+        [IBTRACS]
+        URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
+        filename=Allstorms.ibtracs_wmo.v03r05.csv
+        path=input
+
+    This will attempt to download the gzipped csv file from the given URL
+    and save it to the given filename, in the 'input' folder under the current
+    directory. Gzipped files are automatically unzipped. 
+
+    
     :param str configFile: Name of configuration file.
+    :raises IOError: If the data cannot be downloaded.
     
+
     """
-    
+
     log.info('Checking availability of input data sets')
 
     config = ConfigParser()
@@ -150,12 +127,12 @@ def doDataDownload(configFile):
 def doOutputDirectoryCreation(configFile):
     """
     Create all the necessary output folders.
-    
+
     :param str configFile: Name of configuration file.
     :raises OSError: If the directory tree cannot be created.
-    
+
     """
-    
+
     config = ConfigParser()
     config.read(configFile)
 
@@ -182,12 +159,12 @@ def doOutputDirectoryCreation(configFile):
 
 def doTrackGeneration(configFile):
     """
-    Do the tropical cyclone track generation.
+    Do the tropical cyclone track generation in :mod:`TrackGenerator`.
 
     The track generation settings are read from *configFile*.
-    
+
     :param str configFile: Name of configuration file.
-    
+
     """
 
     log.info('Starting track generation')
@@ -211,8 +188,8 @@ def doTrackGeneration(configFile):
 
 def doWindfieldCalculations(configFile):
     """
-    Do the wind field calculations. The wind field settings are read
-    from *configFile*.
+    Do the wind field calculations, using :mod:`wind`. The wind
+    field settings are read from *configFile*.
 
     :param str configFile: Name of configuration file.
 
@@ -241,10 +218,10 @@ def doWindfieldCalculations(configFile):
 def doDataProcessing(configFile):
     """
     Parse the input data and turn it into the necessary format
-    for the model calibration step.
+    for the model calibration step, using the :mod:`DataProcess` module.
 
     :param str configFile: Name of configuration file.
-    
+
     """
 
     config = ConfigParser()
@@ -267,13 +244,11 @@ def doDataProcessing(configFile):
 @disableOnWorkers
 def doDataPlotting(configFile):
     """
-    Plot the data.
+    Plot the pre-processed input data.
 
     :param str configFile: Name of configuration file.
-    
+
     """
-    import matplotlib
-    matplotlib.use('Agg')  # Use matplotlib backend
 
     config = ConfigParser()
     config.read(configFile)
@@ -352,10 +327,10 @@ def doDataPlotting(configFile):
 @disableOnWorkers
 def doStatistics(configFile):
     """
-    Calibrate the model.
+    Calibrate the model with the :mod:`StatInterface` module.
 
     :param str configFile: Name of configuration file.
-    
+
     """
     from DataProcess.CalcTrackDomain import CalcTrackDomain
 
@@ -368,7 +343,7 @@ def doStatistics(configFile):
 
     log.info('Running StatInterface')
     pbar = ProgressBar('Calibrating model: ', showProgressBar)
-    
+
     # Auto-calculate track generator domain
     CalcTD = CalcTrackDomain(configFile)
     domain = CalcTD.calcDomainFromFile()
@@ -404,12 +379,13 @@ def doStatistics(configFile):
 
 def doHazard(configFile):
     """
-    Do the hazard calculations.
+    Do the hazard calculations (extreme value distribution fitting)
+    using the :mod:`hazard` module.
 
     :param str configFile: Name of configuration file.
-    
+
     """
-    
+
     log.info('Running HazardInterface')
 
     config = ConfigParser()
@@ -430,14 +406,13 @@ def doHazard(configFile):
 @disableOnWorkers
 def doHazardPlotting(configFile):
     """
-    Do the hazard plots.
+    Do the hazard plots (hazard maps and curves for all locations within
+    the model domain). Plotting is performed by the
+    :mod:`PlotInterface.AutoPlotHazard` module.
 
     :param str configFile: Name of configuration file.
-    
+
     """
-    
-    import matplotlib
-    matplotlib.use('Agg')  # Use matplotlib backend
 
     config = ConfigParser()
     config.read(configFile)
@@ -458,17 +433,36 @@ def doHazardPlotting(configFile):
 
 def doEvaluation(configFile):
     """
-    Do the track model evaluation processing.
+    Do the track model evaluation processing, using :mod:`Evaluate`.
+
+    To perform this stage, it is recommended to generate an event set
+    with several simulated years (e.g. 10, 20, 30 years) in each
+    simulation.
+
+    A good setting might be::
+
+        [Actions]
+        ExecuteTrackGenerator=True
+        ExecuteEvaluate=True
+        
+        [TrackGenerator]
+        NumSimulations=1000
+        YearsPerSimulation=50
+
+    This will generate 1000 simulations each with 50 years of simulated
+    TC activity. :mod:`Evaluate` will then compare pressure distributions,
+    track density, landfall rates and longitude crossing rates for the
+    input dataset and the full 1000 simulations.
     
     :param str configFile: Name of the configuration file.
-    
+
     """
-    
+
     log.info("Running Evaluation")
-    
+
     import Evaluate
     Evaluate.run(configFile)
-    
+
 
 @timer
 def main(configFile='main.ini'):
@@ -528,7 +522,7 @@ def main(configFile='main.ini'):
 
     if config.getboolean('Actions', 'PlotHazard'):
         doHazardPlotting(configFile)
-        
+
     pp.barrier()
     if config.getboolean('Actions', 'ExecuteEvaluate'):
         doEvaluation(config)
@@ -539,6 +533,12 @@ def main(configFile='main.ini'):
 
 
 def startup():
+    """
+    Parse command line arguments, set up logging and attempt
+    to execute the main TCRM functions.
+
+    """
+    
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config_file', help='The configuration file')
     parser.add_argument('-v', '--verbose', help='Verbose output',
@@ -567,6 +567,7 @@ def startup():
 
     logLevel = config.get('Logging', 'LogLevel')
     verbose = config.getboolean('Logging', 'Verbose')
+    datestamp = config.getboolean('Logging', 'Datestamp')
     debug = False
 
     if args.verbose:
@@ -592,7 +593,7 @@ def startup():
         #codeStatus = status()
         #print __doc__ + codeStatus
 
-    flStartLog(logfile, logLevel, verbose)
+    flStartLog(logfile, logLevel, verbose, datestamp)
 
     # Switch off minor warning messages
     import warnings
@@ -601,14 +602,16 @@ def startup():
     warnings.filterwarnings("ignore", category=UserWarning, module="numpy")
     warnings.filterwarnings("ignore", category=UserWarning,
                             module="matplotlib")
-    
+
     warnings.filterwarnings("ignore", category=RuntimeWarning)
-    
+
     if debug:
         main(configFile)
     else:
         try:
             main(configFile)
+        except ImportError as e:
+            log.critical("Missing module: {0}".format(e.strerror))
         except Exception:  # pylint: disable=W0703
             # Catch any exceptions that occur and log them (nicely):
             tblines = traceback.format_exc().splitlines()

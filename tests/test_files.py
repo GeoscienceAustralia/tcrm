@@ -11,18 +11,17 @@ TEST_DIR = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda _: None)
 class TestModuleUtilities(unittest.TestCase):
 
     def setUp(self):
-        self.filename = os.path.realpath(__file__)
+        self.filename = os.path.abspath(inspect.getsourcefile(lambda _:None))
         self.path, self.fname = os.path.split(self.filename)
         self.base, self.ext = os.path.splitext(self.fname)
-        self.path = self.path.replace(os.path.sep, '/')
+        #self.path = self.path.replace(os.path.sep, '/')
 
     def testModulePath(self):
         """Test flModulePath returns correct path, base & extension"""
         p, b, e = files.flModulePath()
         self.assertEqual(self.path, p)
         self.assertEqual(self.base, b)
-        #FIXME: fails on .pyc case
-        #self.assertEqual(self.ext, e)
+        self.assertEqual(self.ext, e)
 
     def testModuleName(self):
         """Test flModuleName returns correct module name"""

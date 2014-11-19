@@ -1,3 +1,14 @@
+"""
+:mod:`progressbar` -- display progress on STDOUT
+================================================
+
+.. module:: progressbar
+    :synopsis: print a progress bar on to standard output.
+
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
+
+"""
+
 import time
 import sys
 
@@ -55,7 +66,7 @@ class SimpleProgressBar(ProgressBar):
     def update(self, progress, startPos=0, endPos=1, incr=5.):
         prg = progress * (endPos - startPos) + startPos
         percent = prg * 100.
-        if self.showbar:
+        if (self.showbar and sys.stderr.isatty()):
             # throttle output
             if percent >= 99. or percent >= (self.lastPercentage + incr):
                 print >> sys.stderr, ('********* '

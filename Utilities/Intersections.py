@@ -1,63 +1,56 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`Intersections` -- determine line intersections for polygons and lines
+===========================================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: Intersections
+    :synopsis: Functions to determine line intersections for polygons and
+               line features.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- Title: Intersections.py
- Author: Craig Arthur, craig.arthur@ga.gov.au
- CreationDate: 2007-03-13
- Description: Functions to determine line intersections for polygons and line features
- Reference:
- SeeAlso:
- Constraints:
-
- Version: $Rev: 685 $
- ModifiedBy:
- ModifiedDate:
- Modification:
-
- $Id: Intersections.py 685 2012-03-29 04:22:32Z carthur $
 """
-
 import os, math, numpy, pdb
-
-__version__ = '$Id: Intersections.py 685 2012-03-29 04:22:32Z carthur $'
-
-__doc__ = """ Functions to determine line intersections for polygons and line features """
 
 def convert2vertex(a1, a2):
     """
-    Converts 2 1D arrays into a list of Points
+    Converts 2 1D arrays into a list of :class:`Points`.
+
+    :param a1: ordinate
+    :param a2: abscissa
+
+    :returns: List of :class:`Point` objects. 
+
     """
-    result = []
-    for i in xrange(len(a1)):
-        result.append(Point(a1[i], a2[i]))
+
+
+    result = [Point(x, y) for x, y in zip(a1, a2)]
     return result
 
 def inLand(P, V):
     """
-    test to see if a point is within the list of vertices
+    Test to see if a point is within the list of vertices.
+
+    :param P: :class:`Point` object.
+    :param V: List of :class:`Point` objects that represent vertices of
+              the shape to be tested. Must be a closed set.
+
+    :returns: ``True`` if the point lies inside the vertices, ``False``
+              otherwise.
+    :rtype: boolean
+    
     """
     return _cnPnPoly(P, V) and _wnPnPoly(P, V)
 
 def _cnPnPoly(P, V):
     """
-    _cnPnPoly(): crossing number test for a point in a polygon
-        Input:   P = a point,
-                V[] = vertex points of a polygon V[n+1] with V[n]=V[0]
-        Return:  False if point outside, True if inside
+    Crossing number test for a point in a polygon.
+
+    :param P: :class:`Point` object.
+    :param V: List of :class:`Point` objects that represent vertices of
+              the shape to be tested. Must be a closed set.
+
+    :returns: 0 if outside, 1 if inside the polygon.
+
     Copyright 2001, softSurfer (www.softsurfer.com)
     This code may be freely used and modified for any purpose
     providing that this copyright notice is included with it.
@@ -79,11 +72,15 @@ def _cnPnPoly(P, V):
 
 def _wnPnPoly(P, V):
     """
-    _wnPnPoly(): winding number test for a point in a polygon
-        Input:   P = a point,
-                V[] = vertex points of a polygon V[n+1] with V[n]=V[0]
-        Return:  False if point outside, True if inside
-                (the winding number, wn, =0 only if P is outside V[])
+    Winding number test for a point in a polygon. The winding number
+    is zero only if the point is outside the polygon.
+
+    :param P: :class:`Point` object.
+    :param V: List of :class:`Point` objects that represent vertices of
+              the shape to be tested. Must be a closed set.
+
+    :returns: 0 if outside, 1 if inside the polygon.
+    
     Copyright 2001, softSurfer (www.softsurfer.com)
     This code may be freely used and modified for any purpose
     providing that this copyright notice is included with it.
@@ -106,11 +103,16 @@ def _wnPnPoly(P, V):
 
 def _isLeft(P0, P1, P2):
     """
-    "isLeft(): tests if a point is Left|On|Right of an infinite line.
-    Input:  three points P0, P1, and P2
-    Return: >0 for P2 left of the line through P0 and P1
-               =0 for P2 on the line
-               <0 for P2 right of the line
+    Tests if a point is Left|On|Right of an infinite line.
+
+    :param P0: One :clas:`Point` on the line.
+    :param P1: Second :class:`Point` on the line.
+    :param P2: :class:`Point` to be tested.
+
+    :returns: >0 for ``P2`` left of the line through ``P0`` and ``P1``
+              =0 for ``P2`` on the line
+              <0 for ``P2`` right of the line
+              
     Copyright 2001, softSurfer (www.softsurfer.com)
     This code may be freely used and modified for any purpose
     providing that this copyright notice is included with it.
@@ -123,7 +125,10 @@ def _isLeft(P0, P1, P2):
 
 class Intersection:
     """
-    Description: Intersection object
+    An Intersection object.
+
+    :param str state: Initial state of the :class:`Intersection` (default ``None``).
+    
     Parameters: None
     Members: status (string) and points (list)
     Methods: None
@@ -141,15 +146,9 @@ class Intersection:
 
 class Crossings:
     """
-    Description: 
-    Parameters: None
-    Members: 
-    Methods: CircleLine
-             CirclePolygon
-             LineLine
-             LinePolygon
+    Determine if a a line intersects some other geometric feature
+    (another line, a circle, a polygon). 
 
-    Internal Methods: lerp
     """
 
     def __init__(self):
@@ -157,28 +156,24 @@ class Crossings:
         Initialise required fields - none required
         """
 
-    def __doc__(self):
-        """
-        Documentation on the function of the class:
-        """
-        return ' '
-
     def CircleLine(self, c, r, a1, a2):
         """
-        Determine the intersection points of a circle and a line segment
+        Determine the intersection points of a circle and a line segment.
 
-        Input: c - Point object describing the centre of the circle
-               r - radius of the circle in map units
-               a1, a2 - Point objects describing the start and end of the line segment
-        Output: Intersection object - "Inside" means the line segment is wholly contained
-                                      within the circle; "Outside" means the line segment
-                                      is wholly outside the circle; "Intersection" means 
-                                      means the line intersects the circle. In this final
-                                      case, the points attribute of the Intersection object
-                                      is populated with a Point object of the location of 
-                                      the intersection.
+        :param c: :class:`Point` object describing the centre of the circle.
+        :param r: Eadius of the circle in map units.
+        :param a1: :class:`Point` object describing the start of the line segment.
+        :param a2: :class:`Point` object describing the end of the line segment.
 
-        Example: 
+        :returns: :class:`Intersection` object with the
+                  :attr:`Intersection.status` updated. "Inside" means the line
+                  segment is wholly contained within the circle; "Outside"
+                  means the line segment is wholly outside the circle;
+                  "Intersection" means the line intersects the circle. In this
+                  final case, the :attr:`points` attribute of the
+                  :class:`Intersection` object is populated with a
+                  :class:`Point` object of the location of the intersection.
+
         """
 
         a = (a2.x - a1.x) * (a2.x - a1.x) + (a2.y - a1.y) * (a2.y - a1.y)
@@ -212,8 +207,18 @@ class Crossings:
         return result
 
     def CirclePolygon(self, c, r, points):
-        """CirclePolygon(c,r):
-        Determine the intersection points of a circle and a polygon
+        """
+        Determine the intersection points of a circle and a polygon.
+        Uses :func:`Crossings.CircleLine` on each line segment in the
+        polygon to determine if the two features intersect.
+
+        :param c: :class:`Point` representing the centre of the circle.
+        :param r: Radius of the circle in map units.
+        :paran points: Array of :class:`Point` objects representing the
+                       polygon.
+
+        :returns: :class:`Intersection` object with updated status and points
+                  attributes.
         """
 
         result = Intersection("No Intersection")
@@ -240,14 +245,34 @@ class Crossings:
         return result
 
     def lerp(self, a1, a2, u):
-        """lerp(a1, a2, u)
+        """
         Linear interpolation between two points:
+
+        :param a1: First :class:`Point`.
+        :param a2: Second :class:`Point`.
+        :param u: Fractional distance along the line between the two points.
+
+        :return: Coordinates of the interpolated point as a tuple.
         """
         return (a1.x + (a2.x - a1.x) * u, a1.y + (a2.y - a1.y) * u)
 
     def LineLine(self, a1, a2, b1, b2):
-        """LineLine():
-        Determine if two lines intersect
+        """
+        Determine if two line segments intersect.
+
+        :param a1: Starting :class:`Point` of line 1.
+        :param a2: Ending :class:`Point` of line 1.
+        :param b1: Starting :class:`Point` of line 2.
+        :param b2: Ending :class:`Point` of line 2.
+
+        :returns: :class:`Intersection` object with :attr:`status` set to
+                  ``Intersection`` if the lines intersect, ``Coincident``
+                  if the lines overlap, ``Parallel`` if the lines are
+                  parallel or ``No Intersection`` if the lines do not
+                  intersect. If the lines intersect, then the
+                  :attr:`points` attribute is set to the location of the
+                  intersection.
+        
         """
 
         ua_t = (b2.x - b1.x) * (a1.y - b1.y) - (b2.y - b1.y) * (a1.x - b1.x)
@@ -273,8 +298,15 @@ class Crossings:
         return result
 
     def LinePolygon(self, a1, a2, points):
-        """LinePolygon():
-        Determine if a line intersects a polygon
+        """
+        Determine if a line intersects a polygon.
+
+        :param a1: Starting :class:`Point` of the line.
+        :param a2: Ending :class:`Point` of the line.
+        :param points: Collection of :class:`Point` objects that
+                       represent the vertices of a polygon.
+
+        
         """
         result = Intersection("No Intersection")
         if type(points) == list:

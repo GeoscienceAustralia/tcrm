@@ -1,50 +1,17 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+:mod:`KDEParameters` -- generate KDE of cyclone parameters
+==========================================================
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+.. module:: KDEParameters
+    :synopsis: Generate KDEs of TC parameters.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+.. moduleauthor:: Geoff Xu <geoff.xu@ga.gov.au>
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-Title: KDEParameters.py - generate kernel density estimations of cyclone
-parameters
-
-Author: Geoff Xu, geoff.xu@ga.gov.au
-CreationDate: 2006-01-05
-Description:
 Generates the probability density functions (using kernel density
 estimation) of given cyclone parameters (speed, pressure, bearing, etc).
 Each of these PDF's is converted to a cumulative density function for
 use in other sections.
 
-Version: $Rev: 810 $
-
-ModifiedDate: 2006-11-29
-ModifiedBy: N. Habili, nariman.habili@ga.gov.au
-Modifications: Added accessor methods, upgraded to ndarray and conforms
-               with style guide
-
-ModifiedDate: 2006-12-07
-ModifiedBy: C. Arthur, craig.arthur@ga.gov.au
-Modifications: Added a generic generateKDE() method, tidied _generatePDF()
-
-ModifiedDate: 2007-05-01
-ModifiedBy: N. Habili, nariman.habili@ga.gov.au
-Modifications: Removed plotting methods
-               Removed generateKDEAll, generateKDEInit, and
-               generateKDENoInit
-
-$Id: KDEParameters.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 import os, sys, pdb, logging
@@ -60,39 +27,22 @@ from Utilities.config import cnfGetIniValue
 
 class KDEParameters:
     """
-    Parameters
-    ----------
-    kdeType : string
-        kernel density estimation type
+    Generates the probability density functions (using kernel density
+    estimation) of given cyclone parameters (speed, pressure, bearing,
+    etc).  Each of these PDF's is converted to a cumulative density
+    function for use in other sections.
 
-    Members
-    -------
-    parameters : 1D array of float
-        parameters of cyclones
-    kdeType : string
-        kernel density estimation type
-    kdeParameters : string
-        file path for kde parameters
-    cdfParameters : string
-        file path for cdf parameters
+    :param str kdeType: Name of the (univariate) kernel estimator to use
+                        when generating the distribution. Must be one of
+                        ``Epanechnikov``, ``Gaussian``, ``Biweight`` or
+                        ``Triangular``.
 
-    Methods
-    -------
-    generateKde(self, parameters, kdeParameters, cdfParameters)
-        Generate PDF and cdf for a cyclone parameter using kernel
-        density estimation technique. It is then either returned or
-        saved in a file path provided by user
-
-    Internal Methods
-    ----------------
-    generatePDF(option,grid,dataset) : 1D array of float
-        a sub function that generates the PDFs of kernel density
-        estimation from raw dataset
     """
 
     def __init__(self, kdeType):
         """
         Initialize the logger and ensure the requested KDE type exists.
+
         """
         self.logger = logging.getLogger()
         self.logger.info("Initialising KDEParameters")
@@ -104,21 +54,45 @@ class KDEParameters:
             self.logger.error("Invalid KDE type: %s" %kdeType)
             raise NotImplementedError, "Invalid KDE type: %s" %kdeType
 
-    def __doc__(self):
-        """
-        Documentation on what this class does
-        """
-        return "Calculate distributions for the cyclone parameters using \
-                kernel density estimation technique"
-
     def generateKDE(self, parameters, kdeStep, kdeParameters=None,
                     cdfParameters=None, angular=False, periodic=False,
                     missingValue=sys.maxint):
         """
         Generate a PDF and CDF for a given parameter set using the
-        method of kernel density estimators.
-        Optionally return the PDF and CDF as an array, or write both
-        to separate files.
+        method of kernel density estimators. Optionally return the PDF
+        and CDF as an array, or write both to separate files.
+
+        :param parameters: Parameter values. If a string is given,
+                           then it is the path to a file containing
+                           the values. If an array is passed, then it
+                           should hold the parameter values.
+        
+        :param kdeStep: Increment of the ordinate values at which
+                        the distributions will be calculated.
+        :type  kdeStep: float, default=`0.1`
+        :param str kdeParameters: Optional. If given, then the
+                                  cell distributions will be saved to a
+                                  file with this name. If absent,
+                                  the distribution values are returned.
+        :param str cdfParameters: Optional. If given, then the
+                                  cell distributions will be saved to a
+                                  file with this name. If absent,
+                                  the distribution values are returned.
+        :param angular: Does the data represent an angular measure
+                        (e.g. bearing).
+        :type  angular: boolean, default=``False``
+        :param periodic: Does the data represent some form of periodic
+                         data (e.g. day of year). If given, it should
+                         be the period of the data (e.g. for annual data,
+                         ``periodic=365``).
+        :type  periodic: boolean or float, default=``False``
+        :param missingValue: Missing values have this value (default
+                         :attr:`sys.maxint`).
+
+        returns: If ``kdeParameters`` is given, returns ``None``
+                  (data are saved to file), otherwise
+                  :class:`numpy.ndarray` of the parameter grid, the PDF and CDF.
+                 
         """
 
         self.logger.debug("Running generateKDE")
@@ -146,8 +120,8 @@ class KDEParameters:
         if periodic:
             x = np.arange(1, periodic + 1, kdeStep)
             self.grid = np.concatenate( [x - periodic, x, x + periodic] )
-            self.parameters = np.concatenate([self.parameters - periodic, 
-                                              self.parameters, 
+            self.parameters = np.concatenate([self.parameters - periodic,
+                                              self.parameters,
                                               self.parameters + periodic])
         else:
             self.grid = np.arange(xmin, xmax, kdeStep)
@@ -160,11 +134,11 @@ class KDEParameters:
 
         bw = KPDF.UPDFOptimumBandwidth(self.parameters)
         self.pdf = self._generatePDF(self.grid, bw, self.parameters)
-        
+
         if periodic:
             self.pdf = 3.0*self.pdf[(periodic/kdeStep):2*(periodic/kdeStep)]
             self.grid = self.grid[(periodic/kdeStep):2*(periodic/kdeStep)]
-            
+
         self.cy = stats.cdf(self.grid, self.pdf)
         if kdeParameters is None:
             return np.transpose(np.array([self.grid, self.pdf, self.cy]))
@@ -177,11 +151,21 @@ class KDEParameters:
     def generateGenesisDateCDF(self, genDays, lonLat, bw=None, genesisKDE=None):
         """
         Calculate the PDF of genesis day using KDEs.
-        Since the data is periodic, we use a simple method to include the 
-        periodicity in estimating the PDF. We prepend and append the data
-        to itself, then use the central third of the PDF and multiply by three to
-        obtain the required PDF. Probably notquite exact, but it should be
-        sufficient for our purposes. 
+        Since the data is periodic, we use a simple method to include
+        the periodicity in estimating the PDF. We prepend and append
+        the data to itself, then use the central third of the PDF and
+        multiply by three to obtain the required PDF. Probably not
+        quite exact, but it should be sufficient for our purposes.
+
+        :param str genDays: Name of file containing genesis days
+                            (as day of year).
+        :param lonLat: Array of genesis longitudes and latitudes.
+        :param float bw: Optional. Bandwidth of the KDE to use. 
+        :param str genesisKDE: Optional. File name to save resulting CDF to.
+        :type  lonLat: :class:`numpy.ndarray`
+
+        :returns: :class:`numpy.ndarray` containing the days, the PDF and CDF
+                  of the genesis days.
         """
 
         data = flLoadFile( genDays )
@@ -190,7 +174,7 @@ class KDEParameters:
         ndata = np.concatenate( [data - 365, data, data + 365] )
 
         if bw is None:
-            bw = KPDF.UPDFOptimumBandwidth( ndata ) 
+            bw = KPDF.UPDFOptimumBandwidth( ndata )
 
         try:
             kdeMethod = getattr(KPDF, "UPDF%s" %self.kdeType)
@@ -208,7 +192,7 @@ class KDEParameters:
             self.logger.debug("Saving KDE and CDF data to files")
             #flSaveFile(genesisKDE, transpose(numpy.concatenate([days, pdf])))
             flSaveFile(genesisKDE, np.transpose(np.array([days, cy])))
-        
+
 
     def _generatePDF(self, grid, bw, dataset):
         """

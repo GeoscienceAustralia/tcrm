@@ -4,24 +4,22 @@
 
 Extract station timeseries from each timestep of a simulation.
 This samples the regional wind speed, not the site-specific wind speed.
-To include site-specific effects, you will first need to include the multiplier
-values for each site in the station file, then run tsmultipliers.py
-to apply said multipliers to the output.
+To include site-specific effects, you will first need to include the 
+multiplier values for each site in the station file, then run 
+tsmultipliers.py to apply said multipliers to the output.
 
 """
 
 import logging
-import pdb
-
-import datetime
 import numpy as np
 
 from os.path import join as pjoin
 
+from ConfigParser import NoOptionError
 from Utilities.config import ConfigParser
 from Utilities.files import flLoadFile
 from Utilities.maputils import find_index
-from matplotlib.dates import num2date
+from Utilities.dynarray import DynamicRecArray
 from shptools import shpGetVertices
 
 #from config import NoOptionError
@@ -33,7 +31,15 @@ ISO_FORMAT = "%Y-%m-%d %H:%M"
 OUTPUT_NAMES = ('Time', 'Longitude', 'Latitude',
                 'Speed', 'UU', 'VV', 'Bearing',
                 'Pressure')
+OUTPUT_TYPES = ['|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
 OUTPUT_FMT = ['%s', '%7.3f', '%7.3f', 
+              '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
+              '%7.2f']
+
+MINMAX_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
+                'Speed', 'UU', 'VV', 'Bearing', 'Pressure')
+MINMAX_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
+MINMAX_FMT = ['%s', '%s', '%7.3f', '%7.3f', 
               '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
               '%7.2f']
 
@@ -43,12 +49,13 @@ StationID=None
 """
 
 class Station(object):
-    def __init__(self, station_id, longitude, latitude):
+    def __init__(self, stationid, longitude, latitude):
         
-        self.id = station_id
+        self.id = stationid
         self.lon = longitude
         self.lat = latitude
-        self.data = []
+        self.data = DynamicRecArray(dtype={'names': OUTPUT_NAMES,
+                                           'formats':OUTPUT_TYPES})
 
     def __getattr__(self, key):
         """
@@ -58,12 +65,18 @@ class Station(object):
         :param key: the key to lookup in the `data` object.
         """
         if key.startswith('__') and key.endswith('__'):
-            return super(Track, self).__getattr__(key)
-        return self.data[key]
+            return super(Station, self).__getattr__(key)
+        return self.data.data[key]
         
     def insideGrid(self, gridx, gridy):
-        if (float(self.lon) >= gridx.min() and float(self.lon) <= gridx.max() and \
-            float(self.lat) >= gridy.min() and float(self.lat) <= gridy.max()):
+        """
+        Determine if a point is within the defined grid
+
+        """
+        if (float(self.lon) >= gridx.min() \
+            and float(self.lon) <= gridx.max() and \
+            float(self.lat) >= gridy.min() and \
+            float(self.lat) <= gridy.max()):
             return True
         else:
             return False
@@ -96,6 +109,12 @@ class Timeseries(object):
         self.outputPath = pjoin(config.get('Output', 'Path'), 
                                     'process', 'timeseries')
 
+        self.maxfile = pjoin(config.get('Output', 'Path'), 
+                                    'process', 'maxima.csv')
+        self.minfile = pjoin(config.get('Output', 'Path'), 
+                                    'process', 'minima.csv')
+
+
         log.debug("Loading stations from %s"%stnFile)
         log.debug("Timeseries data will be written into %s"%self.outputPath)
         self.stations = []
@@ -122,8 +141,8 @@ class Timeseries(object):
             stnid = stndata[:, 0]
             stnlon = stndata[:, 1].astype(float)
             stnlat = stndata[:, 2].astype(float)
-            for id, lon, lat in zip(stnid, stnlon, stnlat):
-                self.stations.append(Station(id, lon, lat))
+            for sid, lon, lat in zip(stnid, stnlon, stnlat):
+                self.stations.append(Station(sid, lon, lat))
         
     def sample(self, lon, lat, spd, uu, vv, prs, gridx, gridy):
         """
@@ -142,15 +161,15 @@ class Timeseries(object):
                  values at the given location
         :rtype: tuple
         """
-        x = find_index(gridx, float(lon))
-        y = find_index(gridy, float(lat))
-        s = spd[y, x]
-        u = uu[y, x]
-        v = vv[y, x]
-        b = np.mod((180. / np.pi) * np.arctan2(-u, -v), 360.)
-        p = prs[y, x]
+        xx = find_index(gridx, float(lon))
+        yy = find_index(gridy, float(lat))
+        ss = spd[yy, xx]
+        ux = uu[yy, xx]
+        vy = vv[yy, xx]
+        bb = np.mod((180. / np.pi) * np.arctan2(-ux, -vy), 360.)
+        pp = prs[yy, xx]
         
-        return (s, u, v, b, p)
+        return (ss, ux, vy, bb, pp)
         
 
     def extract(self, dt, spd, uu, vv, prs, gridx, gridy):
@@ -173,12 +192,12 @@ class Timeseries(object):
             if stn.insideGrid(gridx, gridy):
                 result = self.sample(stn.lon, stn.lat, spd, uu, vv, prs,
                                       gridx, gridy)
-                s, u, v, b, p = result
-                stn.data.append([dt, stn.lon, stn.lat, s, u, v, b, p])
+                ss, ux, vy, bb, pp = result
+                stn.data.append((dt, stn.lon, stn.lat, ss, ux, vy, bb, pp))
 
             else:
-                stn.data.append([dt, stn.lon, stn.lat, 0.0, 0.0,  
-                                          0.0, 0.0, prs[0, 0]])
+                stn.data.append((dt, stn.lon, stn.lat, 0.0, 0.0,  
+                                          0.0, 0.0, prs[0, 0]))
                     
 
     def shutdown(self):
@@ -187,22 +206,31 @@ class Timeseries(object):
         """
 
         header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
-        #maxheader = ('Station,Longitude,Latitude,Time,Speed,'
-        #                'UU,VV,Bearing,Pressure')
-                
+        maxheader = ('Station,Time,Longitude,Latitude,Speed,'
+                        'UU,VV,Bearing,Pressure')
+        
+        max_data = DynamicRecArray(dtype={'names': MINMAX_NAMES,
+                                          'formats':MINMAX_TYPES})
+
+        min_data = DynamicRecArray(dtype={'names': MINMAX_NAMES,
+                                          'formats':MINMAX_TYPES})
+
         for stn in self.stations:
             
-            if np.any(np.array(stn.data)[:, 3] > 0.0):
-            
-                tmpdata = np.array(stn.data)
+            if np.any(stn.data.data['Speed'] > 0.0):
                 fname = pjoin(self.outputPath, 'ts.%s.csv' % str(stn.id))
-                tmpdata[:, 0] = np.array([tmpdata[i, 0].strftime(ISO_FORMAT) 
-                                    for i in xrange(tmpdata[:, 0].size)])
-
-                np.savetxt(fname, np.array(tmpdata), fmt=OUTPUT_FMT,
+                np.savetxt(fname, np.array(stn.data.data), fmt=OUTPUT_FMT,
                            delimiter=',', header=header)
+                max_step = np.argmax(stn.data.data['Speed'])
+                min_step = np.argmin(stn.data.data['Pressure'])
+                max_data.append((str(stn.id),) + tuple(stn.data.data[max_step]))
+                min_data.append((str(stn.id),) + tuple(stn.data.data[min_step]))
+                
         
-
+        np.savetxt(self.maxfile, max_data.data, fmt=MINMAX_FMT, delimiter=',',
+                    header=maxheader)
+        np.savetxt(self.minfile, min_data.data, fmt=MINMAX_FMT, delimiter=',',
+                    header=maxheader)
         """
         for stn in self.stations:
             if type(self.maxdata[stn.id][3]) == datetime.datetime:
