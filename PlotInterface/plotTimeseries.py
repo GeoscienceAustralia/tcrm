@@ -13,7 +13,11 @@ speed, component wind speeds and bearing.
 
 """
 
-import os, sys, pdb, logging
+import os
+import sys
+import logging
+
+from os.path import join as pjoin
 
 import numpy as np
 from datetime import datetime
@@ -34,7 +38,7 @@ INPUT_UNIT = ('%Y-%m-%d %H:%M', 'degrees', 'degrees', 'm/s', 'm/s', 'm/s','degre
 INPUT_CNVT = {
     0: lambda s: datetime.strptime(s.strip(), INPUT_UNIT[0]),
     7: lambda s: convert(float(s.strip() or 0), INPUT_UNIT[7], 'hPa')
-}
+    }
 
 def loadTimeseriesData(datafile):
     try:
@@ -44,7 +48,7 @@ def loadTimeseriesData(datafile):
                           dtype = {
                             'names': INPUT_COLS,
                             'formats': INPUT_FMTS},
-                            converters = INPUT_CNVT)
+                          converters = INPUT_CNVT)
     except ValueError:
         return np.empty(0, dtype={
                         'names': INPUT_COLS,
@@ -65,8 +69,8 @@ def plotTimeseries(inputPath, outputPath, locID=None):
     """
     if locID:
         # Only plot the data corresponding to the requested location ID:
-        inputFile = os.path.join(inputPath, 'ts.%s.csv' % (locID))
-        outputFile = os.path.join(outputPath, 'ts.%s.png' % (locID))
+        inputFile = pjoin(inputPath, 'ts.%s.csv' % (locID))
+        outputFile = pjoin(outputPath, 'ts.%s.png' % (locID))
         inputData = loadTimeseriesData(inputFile)
 
         stnInfo = {'ID': locID, 'lon': inputData['Longitude'][0],
@@ -76,11 +80,11 @@ def plotTimeseries(inputPath, outputPath, locID=None):
                                                    inputData['Latitude'][0])
         fig = TimeSeriesFigure()
         fig.add(inputData['Time'], inputData['Pressure'],
-                [900,1020], 'Pressure (hPa)', 'Pressure')
+                [900, 1020], 'Pressure (hPa)', 'Pressure')
         fig.add(inputData['Time'], inputData['Speed'],
-                [0,100], 'Wind speed (m/s)', 'Wind speed')
+                [0, 100], 'Wind speed (m/s)', 'Wind speed')
         fig.add(inputData['Time'], inputData['Bearing'],
-                [0,360], 'Direction', 'Wind direction')
+                [0, 360], 'Direction', 'Wind direction')
 
         fig.plot()
         fig.addTitle(title)
@@ -88,12 +92,12 @@ def plotTimeseries(inputPath, outputPath, locID=None):
         
     else:
         files = os.listdir(inputPath)
-        inputFileList = [os.path.join(inputPath, f) for f in files if f.startswith('ts.')]
+        inputFileList = [f for f in files if f.startswith('ts.')]
         for f in inputFileList:
             # Here we assume the timeseries files are named ts.<location ID>.dat
             locID = f.rstrip('.csv').lstrip('ts.')
-            outputFile = os.path.join(outputPath, '%s.png' % f.rstrip('.csv'))
-            inputData = loadTimeseriesData(inputFile)
+            outputFile = pjoin(outputPath, '%s.png' % f.rstrip('.csv'))
+            inputData = loadTimeseriesData(pjoin(inputPath, f))
 
 
             stnInfo = {'ID':locID, 'lon':inputData['Longitude'][0], 
@@ -106,12 +110,12 @@ def plotTimeseries(inputPath, outputPath, locID=None):
             fig = TimeSeriesFigure()
             
             fig.add(inputData['Time'], inputData['Pressure'],
-                    [900,1020], 'Pressure (hPa)',
+                    [900, 1020], 'Pressure (hPa)',
                     'Sea level pressure')
             fig.add(inputData['Time'], inputData['Speed'],
-                    [0,100], 'Wind speed (m/s)', 'Wind speed')
+                    [0, 100], 'Wind speed (m/s)', 'Wind speed')
             fig.add(inputData['Time'], inputData['Bearing'],
-                    [0,360], 'Direction', 'Wind direction')
+                    [0, 360], 'Direction', 'Wind direction')
             fig.plot()
             fig.addTitle(title)
             saveFigure(fig, outputFile)
