@@ -8,6 +8,7 @@ from scipy.interpolate import interp1d, splev, splrep
 from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile
 
+
 TRACKFILE_COLS = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
                   'Day', 'Hour', 'Minute', 'TimeElapsed', 'Datetime',
                   'Longitude', 'Latitude', 'Speed', 'Bearing', 
@@ -64,9 +65,10 @@ def interpolate(track, delta, interpolation_type=None):
                                       track.Minute)]
     timestep = timedelta(delta/24.)
     
-    time_ = np.array([d.toordinal() + d.hour / 24. for d in day_], 'f') 
+    time_ = np.array([d.toordinal() + d.hour/24.0 for d in day_], dtype=float) 
+
     dt_ = 24.0 * np.diff(time_)
-    dt = np.empty(track.Hour.size, 'f')
+    dt = np.empty(track.Hour.size, dtype=float)
     dt[1:] = dt_
 
     # Convert all times to a time after initial observation:
@@ -176,10 +178,10 @@ def interpolate(track, delta, interpolation_type=None):
     
     if len(nLat) >= 2:
         bear_, dist_ = latLon2Azi(nLat, nLon, 1, azimuth=0)
-        nthetaFm = np.zeros(newtime.size, 'f')
+        nthetaFm = np.zeros(newtime.size, dtype=float)
         nthetaFm[:-1] = bear_
         nthetaFm[-1] = bear_[-1]
-        dist = np.zeros(newtime.size, 'f')
+        dist = np.zeros(newtime.size, dtype=float)
         dist[:-1] = dist_
         dist[-1] = dist_[-1]
         nvFm = dist / delta
