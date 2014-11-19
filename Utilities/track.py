@@ -96,7 +96,7 @@ class Track(object):
         the points and the :attr:`Longitude` and :attr:`Latitude`
         attributes share the same coordinate system.
 
-        :param points: sequence of :c;ass:`shapely.geometry.Point` objects.
+        :param points: sequence of :class:`shapely.geometry.Point` objects.
         """
         coords = [(x,y) for x, y in zip(self.Longitude, self.Latitude)]
 

@@ -89,7 +89,7 @@ insWindSpeed = "INSERT INTO tblWindSpeed VALUES (?,?,?,?,?,?,?,?)"
 insHazard = "INSERT INTO tblHazard VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
 
 # Insert track record:
-insTrack = "INSERT INTO tblTracks VALUES (?,?,?,?,?,?)"
+insTrack = "INSERT INTO tblTracks VALUES (?,?,?,?,?,?,?)"
 
 # Select locations within domain:
 selectLocations = ("SELECT * FROM tblLocations WHERE "
@@ -99,7 +99,7 @@ selectLocations = ("SELECT * FROM tblLocations WHERE "
 # Select locId, locLon & locLat from the subset of locations:
 selectLocLonLat = "SELECT locId, locLon, locLat FROM tblLocations "
 
-def windfield_attrs(ncfile):
+def windfieldAttributes(ncfile):
     """
     Extract the required attributes from a netCDF file.
 
@@ -124,14 +124,14 @@ def windfield_attrs(ncfile):
     vmaxobj = ncobj.variables['vmax']
     maxwind = getattr(vmaxobj, 'actual_range')[1]
     ncobj.close()
-    return(trackfile, trackfiledate, tcrm_version, minslp, maxwind)
+    return (trackfile, trackfiledate, tcrm_version, minslp, maxwind)
 
 def singleton(cls):
     instances = {}
 
-    def getinstance(*args):
+    def getinstance(*args, **kwargs):
         if cls not in instances:
-            instances[cls] = cls(*args)
+            instances[cls] = cls(*args, **kwargs)
         return instances[cls]
     return getinstance
 
@@ -168,7 +168,7 @@ class HazardDatabase(sqlite3.Connection):
         import atexit
         atexit.register(self.close)
 
-    def create_database(self):
+    def createDatabase(self):
         """
         Create the database.
 
@@ -183,7 +183,7 @@ class HazardDatabase(sqlite3.Connection):
         self.commit()
         return
 
-    def create_table(self, tblName, tblDef):
+    def createTable(self, tblName, tblDef):
         """
         Create a table.
 
@@ -199,7 +199,7 @@ class HazardDatabase(sqlite3.Connection):
         except sqlite3.Error as e:
             log.exception("Cannot create table: %s" % e.args[0])
 
-    def set_locations(self):
+    def setLocations(self):
         """
         Populate tblLocations in the hazard database with all
         locations, from the default locations database, that lie
@@ -207,7 +207,8 @@ class HazardDatabase(sqlite3.Connection):
 
         """
         
-        conn = sqlite3.connect(self.locationDB, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+        conn = sqlite3.connect(self.locationDB,
+                               detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
         c = conn.execute(selectLocations, (self.domain['xMin'],
                                            self.domain['xMax'],
                                            self.domain['yMin'],
@@ -221,7 +222,7 @@ class HazardDatabase(sqlite3.Connection):
         else:
             log.info("No locations returned")
 
-    def get_locations(self):
+    def getLocations(self):
         """
         Retrieve all locations stored in the hazard database.
         
@@ -231,7 +232,7 @@ class HazardDatabase(sqlite3.Connection):
         locations = c.fetchall()
         return locations
     
-    def generate_event_table(self):
+    def generateEventTable(self):
         """
         Populate _tblEvents_ with the details of the synthetic events
         generated in the simulation. This table only holds the
@@ -250,7 +251,8 @@ class HazardDatabase(sqlite3.Connection):
             log.debug("Processing {0}".format(f))
             si = os.stat(f)
             dtWindfieldFile = datetime.fromtimestamp(int(si.st_mtime))
-            trackfile, dtTrackFile, tcrm_version, minslp, maxwind = windfield_attrs(f)
+            trackfile, dtTrackFile, tcrm_version, minslp, maxwind = \
+                windfieldAttributes(f)
             params.append(("%06d"%n, os.path.basename(f), trackfile,
                            float(maxwind), float(minslp), dtTrackFile,
                            dtWindfieldFile, tcrm_version, "", datetime.now()))
@@ -263,7 +265,7 @@ class HazardDatabase(sqlite3.Connection):
         else:
             self.commit()
 
-    def process_events(self):
+    def processEvents(self):
         """
         Process the events (wind fields) for each location within the
         model domain. This will store the modelled wind speed (or the
@@ -275,7 +277,7 @@ class HazardDatabase(sqlite3.Connection):
         files = [pjoin(self.windfieldPath, f) for f in fileList]
         files = [f for f in files if os.path.isfile(f)]
 
-        locations = self.get_locations()
+        locations = self.getLocations()
 
         for n, f in enumerate(sorted(files)):
             log.info("Processing {0}".format(f))
@@ -311,13 +313,13 @@ class HazardDatabase(sqlite3.Connection):
             else:
                 self.commit()
 
-    def process_hazard(self):
+    def processHazard(self):
         """
         Update the hazard database with the return period wind speed data.
 
         """
 
-        locations = self.get_locations()
+        locations = self.getLocations()
 
         ncobj = Dataset(pjoin(self.hazardPath, 'hazard.nc'))
     
@@ -369,25 +371,23 @@ class HazardDatabase(sqlite3.Connection):
         else:
             self.commit()
 
-    def process_tracks(self):
+    def processTracks(self):
         """
         Populate tblTracks with the details of tracks and their proximity to
         the locations in the domain.
 
         """
-        locations = self.get_locations()
-        points = []
-        for loc in locations:
-            points.append(Point(loc[1], loc[2]))
+        locations = self.getLocations()
+        points = [Point(loc[1], loc[2]) for loc in locations]
 
         for track in tracks:
             distances = track.minimumDistance(points)
             
         pass
         
-def build_location_database(location_db, location_file, location_type='AWS'):
+def buildLocationDatabase(location_db, location_file, location_type='AWS'):
     """
-    Build a database of locations, using a poin shape file of the locations.
+    Build a database of locations, using a point shape file of the locations.
     The locations *must* be represented in a geographic coordinate system.
 
     This version is hard coded to work with the `stationlist` file that is
@@ -444,7 +444,7 @@ def build_location_database(location_db, location_file, location_type='AWS'):
     locdb.close()
 
 
-def location_records_exceeding(hazdb, locId, windSpeed):
+def locationRecordsExceeding(hazdb, locId, windSpeed):
     """
     Select all records where the wind speed at the given location is
     greater than some threshold. 
@@ -464,7 +464,7 @@ def location_records_exceeding(hazdb, locId, windSpeed):
     
         >>> db = HazardDatabase(configFile)
         >>> locId = '00001'
-        >>> records = location_records_exceeding(db, locId, 47.)
+        >>> records = locationRecordsExceeding(db, locId, 47.)
         
     """
 
@@ -479,7 +479,7 @@ def location_records_exceeding(hazdb, locId, windSpeed):
     results = c.fetchall()
     return results
 
-def location_records(hazard_db, locId):
+def locationRecords(hazard_db, locId):
     
     query = ("SELECT l.locId, l.locName, l.locLon, l.locLat, w.wspd, w.eventId "
              "FROM tblLocations l "
