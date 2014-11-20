@@ -1,21 +1,4 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
  Title: testNetCDF.py
  Author: Craig Arthur, craig.arthur@ga.gov.au
  CreationDate: 07/15/08 1:46:PM
@@ -66,10 +49,16 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
         self.time_atts = {'units': 'hours since 2000-01-01 00:00:00',
                           'calendar': 'standard'}
 
-        press_out = 900. + np.arange(self.nrecs*self.nlevs*self.nlats*self.nlons,dtype='f') # 1d array
-        press_out.shape = (self.nrecs,self.nlevs,self.nlats,self.nlons) # reshape to 2d array
-        temp_out = 9. + np.arange(self.nrecs*self.nlevs*self.nlats*self.nlons,dtype='f') # 1d array
-        temp_out.shape = (self.nrecs,self.nlevs,self.nlats,self.nlons) # reshape to 2d array
+        press_out = 900. + np.arange(self.nrecs * self.nlevs * \
+                                     self.nlats*self.nlons,
+                                     dtype='f')
+        press_out.shape = (self.nrecs, self.nlevs,
+                           self.nlats, self.nlons)
+        temp_out = 9. + np.arange(self.nrecs * self.nlevs * \
+                                  self.nlats * self.nlons,
+                                  dtype='f')
+        temp_out.shape = (self.nrecs, self.nlevs,
+                          self.nlats, self.nlons)
 
         
         self.dimensions = {
@@ -223,23 +212,29 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
 
     def test_ncCreateFile(self):
         """Test nctools creates a file successfully"""
-        ncobj = netCDF4.Dataset(self.ncfile, 'w', format='NETCDF4', clobber=True)
+        ncobj = netCDF4.Dataset(self.ncfile, 'w', format='NETCDF4',
+                                clobber=True)
         # output data.
-        press_out = 900. + np.arange(self.nlevs*self.nlats*self.nlons, dtype='f') # 1d array
-        press_out.shape = (self.nlevs, self.nlats, self.nlons) # reshape to 2d array
-        temp_out = 9. + np.arange(self.nlevs*self.nlats*self.nlons, dtype='f') # 1d array
-        temp_out.shape = (self.nlevs, self.nlats, self.nlons) # reshape to 2d array
+        press_out = 900. + np.arange(self.nlevs * self.nlats * \
+                                     self.nlons, dtype='f') 
+        press_out.shape = (self.nlevs, self.nlats, self.nlons) 
+        temp_out = 9. + np.arange(self.nlevs * self.nlats * \
+                                  self.nlons, dtype='f') 
+        temp_out.shape = (self.nlevs, self.nlats, self.nlons) 
         # create the lat and lon dimensions.
         nctools.ncCreateDim(ncobj, 'lat', self.lats_out, 'f', self.lat_atts)
         nctools.ncCreateDim(ncobj, 'lon', self.lons_out, 'f', self.lon_atts)
         # create level dimension.
         nctools.ncCreateDim(ncobj, 'level', np.arange(self.nlevs), 'f')
         # create time dimension (record, or unlimited dimension)
-        nctools.ncCreateDim(ncobj, 'time', np.arange(self.nrecs), 'f', self.time_atts)
+        nctools.ncCreateDim(ncobj, 'time', np.arange(self.nrecs), 'f',
+                            self.time_atts)
         dimensions = ('time', 'level', 'lat', 'lon')
         
-        press = nctools.ncCreateVar(ncobj, 'pressure', dimensions, 'float64')
-        temp = nctools.ncCreateVar(ncobj, 'temperature', dimensions, 'float64')
+        press = nctools.ncCreateVar(ncobj, 'pressure',
+                                    dimensions, 'float64')
+        temp = nctools.ncCreateVar(ncobj, 'temperature',
+                                   dimensions, 'float64')
         
         press.units =  'hPa'
         temp.units = 'celsius'
@@ -301,10 +296,16 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
         self.time_atts = {'units': 'hours since 2000-01-01 00:00:00',
                           'calendar': 'standard'}
 
-        press_out = 900. + np.arange(self.nrecs*self.nlevs*self.nlats*self.nlons,dtype='f') # 1d array
-        press_out.shape = (self.nrecs,self.nlevs,self.nlats,self.nlons) # reshape to 2d array
-        temp_out = 9. + np.arange(self.nrecs*self.nlevs*self.nlats*self.nlons,dtype='f') # 1d array
-        temp_out.shape = (self.nrecs,self.nlevs,self.nlats,self.nlons) # reshape to 2d array
+        press_out = 900. + np.arange(self.nrecs * self.nlevs * \
+                                     self.nlats * self.nlons,
+                                     dtype='f') 
+        press_out.shape = (self.nrecs, self.nlevs,
+                           self.nlats, self.nlons) 
+        temp_out = 9. + np.arange(self.nrecs * self.nlevs * \
+                                  self.nlats * self.nlons,
+                                  dtype='f')
+        temp_out.shape = (self.nrecs, self.nlevs,
+                          self.nlats, self.nlons) 
 
         
         self.dimensions = {
@@ -357,19 +358,25 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
                 }
             }
         
-        ncobj = netCDF4.Dataset(self.ncfile, 'w', format='NETCDF4', clobber=True)
+        ncobj = netCDF4.Dataset(self.ncfile, 'w', format='NETCDF4',
+                                clobber=True)
         # output data.
-        press_out = 900. + np.arange(self.nlevs*self.nlats*self.nlons, dtype='f') # 1d array
-        press_out.shape = (self.nlevs, self.nlats, self.nlons) # reshape to 2d array
-        temp_out = 9. + np.arange(self.nlevs*self.nlats*self.nlons, dtype='f') # 1d array
-        temp_out.shape = (self.nlevs, self.nlats, self.nlons) # reshape to 2d array
+        press_out = 900. + np.arange(self.nlevs * self.nlats * \
+                                     self.nlons, dtype='f') 
+        press_out.shape = (self.nlevs, self.nlats, self.nlons) 
+        temp_out = 9. + np.arange(self.nlevs * self.nlats * \
+                                  self.nlons, dtype='f') 
+        temp_out.shape = (self.nlevs, self.nlats, self.nlons) 
         # create the lat and lon dimensions.
-        nctools.ncCreateDim(ncobj, 'lat', self.lats_out, 'f', self.lat_atts)
-        nctools.ncCreateDim(ncobj, 'lon', self.lons_out, 'f', self.lon_atts)
+        nctools.ncCreateDim(ncobj, 'lat', self.lats_out, 'f',
+                            self.lat_atts)
+        nctools.ncCreateDim(ncobj, 'lon', self.lons_out, 'f',
+                            self.lon_atts)
         # create level dimension.
         nctools.ncCreateDim(ncobj, 'level', np.arange(self.nlevs), 'f')
         # create time dimension (record, or unlimited dimension)
-        nctools.ncCreateDim(ncobj, 'time', np.arange(self.nrecs), 'f', self.time_atts)
+        nctools.ncCreateDim(ncobj, 'time', np.arange(self.nrecs), 'f',
+                            self.time_atts)
         dimensions = ('time', 'level', 'lat', 'lon')
         
         press = nctools.ncCreateVar(ncobj, 'pressure', dimensions, 'float64')
@@ -388,10 +395,12 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
         ncobj = nctools.ncLoadFile(self.ncfile)
         lats_check = -25.0 + 5.0*np.arange(self.nlats, dtype='float')
         lons_check = 125.0 + 5.0*np.arange(self.nlons, dtype='float')
-        press_check = 900. + np.arange(self.nlevs*self.nlats*self.nlons, dtype='float64') # 1d array
-        press_check.shape = (self.nlevs, self.nlats, self.nlons) # reshape to 2d array
-        temp_check = 9. + np.arange(self.nlevs*self.nlats*self.nlons, dtype='float64') # 1d array
-        temp_check.shape = (self.nlevs, self.nlats, self.nlons) # reshape to 2d array
+        press_check = 900. + np.arange(self.nlevs * self.nlats * \
+                                       self.nlons, dtype='float64') 
+        press_check.shape = (self.nlevs, self.nlats, self.nlons) 
+        temp_check = 9. + np.arange(self.nlevs * self.nlats * \
+                                    self.nlons, dtype='float64') 
+        temp_check.shape = (self.nlevs, self.nlats, self.nlons) 
         lats = nctools.ncGetDims(ncobj, 'lat')
         lons = nctools.ncGetDims(ncobj, 'lon')
         self.numpyAssertAlmostEqual(lats_check, lats)
@@ -415,7 +424,7 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
         ncobj = netCDF4.Dataset(self.ncfile)
         times = nctools.ncGetTimes(ncobj)
         start = datetime.strptime(ncobj.variables['time'].units,
-                                      'hours since %Y-%m-%d %H:%M:%S')
+                                  'hours since %Y-%m-%d %H:%M:%S')
         t = np.array([start + timedelta(hours=t) for t in range(self.nrecs)])
         self.numpyAssertEqual(t, times)
         ncobj.close()
