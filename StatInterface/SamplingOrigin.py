@@ -210,20 +210,20 @@ class SamplingOrigin:
         """
         # sum along the column of z to get sum(z(i,:))
         # (check 'help sum' if need)
-        px = self.z.sum(axis=1)
+        px = self.z.sum(axis=0)
         # calculate CDF of (x,Px)
         cdfX = stats.cdf(self.x, px)
         # define Py & CDFy with nx by ny
-        py = np.zeros(self.z.shape, 'd')
-        cdfY = np.zeros(self.z.shape, 'd')
+        py = np.zeros(self.z.shape, 'd').T
+        cdfY = np.zeros(self.z.shape, 'd').T
         # Py=conditional distribution,  CDFy = CDF of Y
         try:
             for i in xrange(len(self.x)):
-                for j in xrange(len(self.z[i, :])):
+                for j in xrange(len(self.z[:, i])):
                     if px[i] == 0:
                         py[i,j] = 0
                     else:
-                        py[i,j] = self.z[i, j]/px[i]
+                        py[i,j] = self.z[j, i]/px[i]
                 cdfTemp = stats.cdf(self.y, py[i, :])
                 for j in xrange(len(cdfTemp)):
                     cdfY[i,j] = cdfTemp[j]
@@ -231,7 +231,7 @@ class SamplingOrigin:
             self.logger.debug("i = %s"%str(i))
             self.logger.debug("j = %s"%str(j))
             self.logger.debug("p_y[%s, %s] = %s"%(str(i), str(j), str(py[i, j])))
-            self.logger.debug("z[%s, %s] = %s"%(str(i), str(j), str(self.z[i, j])))
+            self.logger.debug("z[%s, %s] = %s"%(str(i), str(j), str(self.z[j, i])))
             self.logger.debug("p_x[%s] = %s"%(str(i), str(px[i])))
             self.logger.debug("cdfy dim = %s"%(str(cdfY.shape)))
             self.logger.debug("p_y dim = %s"%(str(py.shape)))

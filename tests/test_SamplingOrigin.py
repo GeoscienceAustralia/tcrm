@@ -50,7 +50,7 @@ class TestSamplingOrigin(NumpyTestCase.NumpyTestCase):
         xp = cPickle.load(pkl_file)
         yp = cPickle.load(pkl_file)
         zp = cPickle.load(pkl_file)
-        self.sampOrg = SamplingOrigin.SamplingOrigin(zp, xp, yp)
+        self.sampOrg = SamplingOrigin.SamplingOrigin(zp.T, xp, yp)
         random.seed(10)
 
     def test_GenerateSamples(self):
