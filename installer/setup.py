@@ -62,7 +62,12 @@ exts = [
     Extension('Utilities.KPDF',
               sources=[pjoin('Utilities', 'KPDF.c')],
               include_dirs=[pjoin(numpy.get_include(), 'numpy')],
-              extra_compile_args=['-std=gnu99'])
+              extra_compile_args=['-std=gnu99']),
+
+    Extension('Utilities._akima',
+              sources=[pjoin('Utilities', 'akima.c')],
+              include_dirs=[pjoin(numpy.get_include(), 'numpy')],
+              extra_compile_args=[])
 ]
 
 basemapData = pjoin('mpl_toolkits', 'basemap', 'data')
