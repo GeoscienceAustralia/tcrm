@@ -16,3 +16,7 @@ ytick.direction: out
 xtick.labelsize: x-small
 ytick.labelsize: x-small
 contour.negative_linestyle: dashed
+figure.dpi: 300
+figure.figsize: 16, 12
+figure.subplot.left: 0.0675
+figure.subplot.right: 0.9125
