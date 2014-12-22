@@ -23,8 +23,8 @@ class MapFigure(Figure, Basemap):
         self.subfigures.append((data, xgrid, ygrid, title, levels, cbarlab, map_kwargs))
 
     def labelAxes(self, axes, xlabel='Longitude', ylabel='Latitude'):
-        axes.set_xlabel(xlabel, labelpad=20)
-        axes.set_ylabel(ylabel, labelpad=25)
+        axes.set_xlabel(xlabel, labelpad=20, fontsize='x-small')
+        axes.set_ylabel(ylabel, labelpad=25, fontsize='x-small')
 
 
     def addGraticule(self, axes, mapobj, dl=10.):
@@ -39,11 +39,13 @@ class MapFigure(Figure, Basemap):
                                 dl*np.ceil(ymax / dl) + dl, dl)
 
         mapobj.drawparallels(parallels, linewidth=0.25,
-                             labels=[1, 0, 0, 1], fontsize='xx-small')
+                             labels=[1, 0, 0, 1], fontsize='xx-small',
+                             style='italic')
         mapobj.drawmeridians(meridians, linewidth=0.25,
-                             labels=[1, 0, 0, 1], fontsize='xx-small')
+                             labels=[1, 0, 0, 1], fontsize='xx-small', 
+                             style='italic')
 
-        axes.tick_params(direction='out', length=4)
+        axes.tick_params(direction='in', length=4)
 
     def addCoastline(self, mapobj):
 
