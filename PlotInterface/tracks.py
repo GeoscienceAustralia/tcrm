@@ -14,7 +14,7 @@ import logging as log
 import numpy as np
 
 from matplotlib.collections import LineCollection
-from matplotlib.colors import Normalize
+from matplotlib.colors import Normalize, BoundaryNorm, ListedColormap
 from matplotlib.cm import get_cmap
 
 import Utilities.shptools as shptools
@@ -55,6 +55,9 @@ class TrackMapFigure(MapFigure):
         z = np.asarray(z)
 
         segments = make_segments(x, y)
+        cmap = ListedColormap(['0.75', '#0FABF6', '#0000FF',
+                                '#00FF00', '#FF8100', '#ff0000'])
+        norm = BoundaryNorm([0, 17.5, 24.5, 32.5, 44.2, 55.5, 1000], cmap.N)
         lc = LineCollection(segments, array=z, cmap=cmap, 
                             norm=norm, linewidth=linewidth, alpha=alpha)
         
