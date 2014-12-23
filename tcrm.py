@@ -436,6 +436,8 @@ def doDatabaseUpdate(configFile):
     Build a database containing info on the events, locations, return
     period wind speeds and tracks.
 
+    :param str configFile: Name of the configuration file.
+    
     """
 
     log.info("Creating hazard database")
@@ -444,13 +446,13 @@ def doDatabaseUpdate(configFile):
     config = ConfigParser()
     config.read(configFile)
 
+
     outputPath = config.get('Output', 'Path')
     location_db = pjoin(outputPath, 'locations.db')
     if not os.path.exists(location_db):
         location_file = config.get('Input', 'LocationFile')
         database.buildLocationDatabase(location_db, location_file) 
 
-    
     db = database.HazardDatabase(configFile)
     db.createDatabase()
     db.generateEventTable()
@@ -458,7 +460,8 @@ def doDatabaseUpdate(configFile):
     db.processEvents()
     db.processHazard()
     db.processTracks()
-
+    db.close()
+    log.info("Created and populated database")
     
 
 def doEvaluation(configFile):
@@ -552,6 +555,11 @@ def main(configFile='main.ini'):
 
     if config.getboolean('Actions', 'PlotHazard'):
         doHazardPlotting(configFile)
+
+    pp.barrier()
+
+    if config.getboolean('Actions', 'CreateDatabase'):
+        doDatabaseUpdate(configFile)
 
     pp.barrier()
     if config.getboolean('Actions', 'ExecuteEvaluate'):

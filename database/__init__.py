@@ -160,8 +160,8 @@ class HazardDatabase(sqlite3.Connection):
         self.hazardPath = pjoin(self.outputPath, 'hazard')
         self.domain = config.geteval('Region', 'gridLimit')
         self.hazardDB = pjoin(self.outputPath, 'hazard.db')
-        self.locationDB = pjoin(self.inputPath, 'locations.db')
-
+        self.locationDB = pjoin(self.outputPath, 'locations.db')
+        
         sqlite3.Connection.__init__(self, self.hazardDB,
                                     detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
 
@@ -199,12 +199,13 @@ class HazardDatabase(sqlite3.Connection):
             self.execute(tblDef)
             self.commit()
         except sqlite3.Error as e:
-            log.exception("Cannot create table: %s" % e.args[0])
-
+            log.exception("Cannot create table %s: %s" % (tblName, e.args[0]))
+            raise
+        
     def setLocations(self):
         """
-        Populate tblLocations in the hazard database with all
-        locations, from the default locations database, that lie
+        Populate _tblLocations_ in the hazard database with all
+        locations from the default locations database that lie
         within the simulation domain.
 
         """
@@ -231,9 +232,14 @@ class HazardDatabase(sqlite3.Connection):
         :returns: List of tuples containing location id, longitude and latitude.
         
         """
-        
-        c = self.execute("SELECT locId, locLon, locLat FROM tblLocations")
-        locations = c.fetchall()
+        try:
+            c = self.execute("SELECT locId, locLon, locLat FROM tblLocations")
+        except sqlite.Error as e:
+            log.exception("Cannot retrieve locations from tblLocations: %s" % e)
+            raise
+        else:
+            locations = c.fetchall()
+            
         return locations
     
     def generateEventTable(self):
@@ -264,7 +270,7 @@ class HazardDatabase(sqlite3.Connection):
         try:
             self.executemany(insEvents, params)
         except sqlite3.Error as e:
-            log.exception("Cannot insert the records: %s" % e.args[0])
+            log.exception("Cannot insert records into tblEvents: %s" % e.args[0])
             raise
         else:
             self.commit()
@@ -272,8 +278,9 @@ class HazardDatabase(sqlite3.Connection):
     def processEvents(self):
         """
         Process the events (wind fields) for each location within the
-        model domain. This will store the modelled wind speed (or the
-        missing value) at each grid point, from each synthetic event.
+        model domain and populate _tblWindSpeed_. This will store the
+        modelled wind speed (or the missing value) at each grid point,
+        from each synthetic event.
 
         """
 
@@ -284,7 +291,7 @@ class HazardDatabase(sqlite3.Connection):
         locations = self.getLocations()
 
         for n, f in enumerate(sorted(files)):
-            log.info("Processing {0}".format(f))
+            log.debug("Processing {0}".format(f))
             eventId = "%06d" % n
             ncobj = Dataset(f)
             lon = ncobj.variables['lon'][:]
@@ -312,14 +319,14 @@ class HazardDatabase(sqlite3.Connection):
             try:
                 self.executemany(insWindSpeed, params)
             except sqlite3.Error as e:
-                log.exception("Cannot access the hazard database: %s" % e.args[0])
+                log.exception("Cannot insert records into tblWindSpeed: %s" % e.args[0])
                 raise
             else:
                 self.commit()
 
     def processHazard(self):
         """
-        Update the hazard database with the return period wind speed data.
+        Update _tblHazard_ with the return period wind speed data.
 
         """
 
@@ -370,7 +377,7 @@ class HazardDatabase(sqlite3.Connection):
         try:
             self.executemany(insHazard, params)
         except sqlite3.Error as e:
-            log.exception("Cannot access the hazard database: %s" % e.args[0])
+            log.exception("Cannot insert records into tblHazard: %s" % e.args[0])
             raise
         else:
             self.commit()
@@ -401,7 +408,7 @@ class HazardDatabase(sqlite3.Connection):
         try:
             self.executemany(insTrack, params)
         except sqlite3.Error as e:
-            log.exception("Cannot access the track table: %s" % e.args[0])
+            log.exception("Cannot insert records into tblTracks: %s" % e.args[0])
             raise
         else:
             self.commit()
@@ -443,9 +450,29 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
                       field = shpGetField(location_file, mappings[col])
                       
     """
+    
     from Utilities.shptools import shpReadShapeFile
     locations = []
     vertices, records = shpReadShapeFile(location_file)
+
+    # Perform a check that locations are in geographic coordinates:
+    lons = []
+    lats = []
+    for v in vertices.values():
+        lon, lat = v[0]
+        lons.append[lon]
+        lats.append[lat]
+
+    msg=("Location shapefile must be in a geograpic coordinate system "
+         "(i.e. it must have lat/lon vertices). It looks like this "
+         "one has vertices in map projection coordinates. You can convert the "
+         "shapefile to geographic coordinates using the shpproj utility from "
+         "the shapelib tools (http://shapelib.maptools.org/shapelib-tools.html)")
+
+    if max(lons) > 721. or min(lons) < -721. or max(lats) > 91. or min(lats) < -91:
+        raise ValueError(msg)
+
+    # Prepare entries:
     for v, r in zip(vertices.values(), records):
         locLon, locLat = v[0]
         locLon = np.mod(locLon, 360.)
@@ -548,7 +575,7 @@ def locationPassage(hazard_db, locId, distance=50):
     results = c.fetchall()
     return results
 
-def locationReturnPeriod(hazard_db, locId, return_period):
+def locationReturnPeriodEvents(hazard_db, locId, return_period):
     """
     Select all records from tblEvents where the wind speed is
     greater than the return period wind speed for the given return period.
@@ -569,7 +596,7 @@ def locationReturnPeriod(hazard_db, locId, return_period):
 
     return results
 
-def locationReturnLevels(hazard_db, locId):
+def locationAllReturnLevels(hazard_db, locId):
     """
     Select all return level wind speeds (including upper and lower
     confidence intervals) for a selected location.
