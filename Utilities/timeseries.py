@@ -105,7 +105,7 @@ class Timeseries(object):
 
         self.meta = False
 
-        stnFile = config.get('Timeseries', 'StationFile')
+        stnFile = config.get('Input', 'LocationFile')
         self.outputPath = pjoin(config.get('Output', 'Path'), 
                                     'process', 'timeseries')
 

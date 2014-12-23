@@ -138,7 +138,7 @@ def process_timeseries(config_file):
     config = ConfigParser()
     config.read(config_file)
 
-    stnFile = config.get('Timeseries', 'StationFile')
+    stnFile = config.get('Input', 'LocationFile')
     key_name = config.get('Timeseries', 'StationID')
     inputPath = pjoin(config.get('Output', 'Path'), 
                                   'process', 'timeseries')

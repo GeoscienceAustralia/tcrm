@@ -81,6 +81,7 @@ PARSERS = {
     'Hazard_samplesize': int,
     'Hazard_percentilerange': int,
     'Input_landmask': str,
+    'Input_locationfile': str,
     'Input_mslpgrid': parseList,
     'Logging_logfile': str,
     'Logging_loglevel': str,
@@ -189,6 +190,7 @@ PlotSpeedUnits=mps
 GetRMWDistFromInputData=False
 
 [Input]
+LocationFile=input/stationlist.shp
 LandMask=input/landmask.nc
 MSLPFile=MSLP/slp.day.ltm.nc
 Datasets=IBTRACS,LTMSLP
