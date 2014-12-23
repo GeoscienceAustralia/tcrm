@@ -36,14 +36,16 @@ import numpy as np
 from Utilities.config import ConfigParser
 from Utilities.files import flModDate
 from Utilities.maputils import find_index
+from Utilities.loadData import loadTrackFile
+from Utilities.track import loadTracksFromFiles
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
-# Stations - we assume a geographic corrdinate system:
+# Stations - we assume a geographic coordinate system:
 tblLocationsDef = ("CREATE TABLE IF NOT EXISTS tblLocations "
                   "(locId integer PRIMARY KEY, locCode text, "
-                  "locType text, locName text, locLon real, "
+                  "locName text, locType text, locLon real, "
                   "locLat real, locElev real, locCountry text, "
                   "locSource text, Comments text, "
                   "dtCreated timestamp)")
@@ -174,11 +176,11 @@ class HazardDatabase(sqlite3.Connection):
 
         """
         log.info("Building the hazard database...")
-        self.create_table('tblLocations', tblLocationsDef)
-        self.create_table('tblEvents', tblEventsDef)
-        self.create_table('tblWindSpeed', tblWindSpeedDef)
-        self.create_table('tblHazard', tblHazardDef)
-        self.create_table('tblTracks', tblTracksDef)
+        self.createTable('tblLocations', tblLocationsDef)
+        self.createTable('tblEvents', tblEventsDef)
+        self.createTable('tblWindSpeed', tblWindSpeedDef)
+        self.createTable('tblHazard', tblHazardDef)
+        self.createTable('tblTracks', tblTracksDef)
         self.exists = True
         self.commit()
         return
@@ -225,6 +227,8 @@ class HazardDatabase(sqlite3.Connection):
     def getLocations(self):
         """
         Retrieve all locations stored in the hazard database.
+
+        :returns: List of tuples containing location id, longitude and latitude.
         
         """
         
@@ -253,7 +257,7 @@ class HazardDatabase(sqlite3.Connection):
             dtWindfieldFile = datetime.fromtimestamp(int(si.st_mtime))
             trackfile, dtTrackFile, tcrm_version, minslp, maxwind = \
                 windfieldAttributes(f)
-            params.append(("%06d"%n, os.path.basename(f), trackfile,
+            params.append(("%06d"%n, "%06d"%n, os.path.basename(f), trackfile,
                            float(maxwind), float(minslp), dtTrackFile,
                            dtWindfieldFile, tcrm_version, "", datetime.now()))
 
@@ -379,11 +383,29 @@ class HazardDatabase(sqlite3.Connection):
         """
         locations = self.getLocations()
         points = [Point(loc[1], loc[2]) for loc in locations]
-
+        trackPath = pjoin(self.outputPath, 'tracks')
+        files = os.listdir(trackPath)
+        trackfiles = [pjoin(trackPath, f) for f in files if f.startswith('tracks')]
+        tracks = loadTracksFromFiles(sorted(trackfiles))
+        params = []
         for track in tracks:
+            if len(track.data) == 0:
+                continue
             distances = track.minimumDistance(points)
-            
-        pass
+            for (loc, dist) in zip(locations, distances):
+                locParams = (loc[0], "%d-%d"%(track.trackId), dist, None, None, "",
+                             datetime.now())
+
+                params.append(locParams)
+
+        try:
+            self.executemany(insTrack, params)
+        except sqlite3.Error as e:
+            log.exception("Cannot access the track table: %s" % e.args[0])
+            raise
+        else:
+            self.commit()
+    
         
 def buildLocationDatabase(location_db, location_file, location_type='AWS'):
     """
@@ -443,14 +465,13 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
     locdb.commit()
     locdb.close()
 
-
-def locationRecordsExceeding(hazdb, locId, windSpeed):
+def locationRecordsExceeding(hazard_db, locId, windSpeed):
     """
     Select all records where the wind speed at the given location is
     greater than some threshold. 
     
-    :param hazdb: :class:`HazardDatabase` instance.
-    :param str locId: Location identifier.
+    :param hazard_db: :class:`HazardDatabase` instance.
+    :param int locId: Location identifier.
     :param float windSpeed: Select all records where the wind speed
                             at the given location is greater than
                             this value.
@@ -463,31 +484,109 @@ def locationRecordsExceeding(hazdb, locId, windSpeed):
     Example::
     
         >>> db = HazardDatabase(configFile)
-        >>> locId = '00001'
+        >>> locId = 00001
         >>> records = locationRecordsExceeding(db, locId, 47.)
         
     """
 
-    query = ("SELECT l.locName, l.locLon, l.locLat, w.wspd, w.eventId, "
-             "w.eventFile "
+    query = ("SELECT l.locId, l.locName, w.wspd, w.eventNumber, "
+             "e.eventFile "
              "FROM tblLocations l "
              "INNER JOIN tblWindSpeed w ON l.locId = w.locId "
              "JOIN tblEvents e ON e.eventNumber = w.eventNumber "
-             "WHERE w.wspd > ? and l.locId = ?")
+             "WHERE w.wspd > ? and l.locId = ? "
+             "ORDER BY w.wspd ASC" )
 
-    c = hazdb.execute(query, (windSpeed, locId,))
+    c = hazard_db.execute(query, (windSpeed, locId,))
     results = c.fetchall()
     return results
 
 def locationRecords(hazard_db, locId):
+    """
+    Select all wind speed records for a given location.
+
+    :param hazard_db: :class:`HazardDatabase` instance.
+    :param int locId: Location identifier.
+
+    """
     
-    query = ("SELECT l.locId, l.locName, l.locLon, l.locLat, w.wspd, w.eventId "
+    query = ("SELECT l.locId, l.locName, w.wspd, w.eventNumber "
              "FROM tblLocations l "
              "INNER JOIN tblWindSpeed w "
              "ON l.locId = w.locId "
-             "JOIN tblEvents e ON e.eventNumber = w.evenNumber "
+             "JOIN tblEvents e ON e.eventNumber = w.eventNumber "
              "WHERE l.locId = ? ORDER BY w.wspd ASC")
     c = hazard_db.execute(query, (locId,))
     results = c.fetchall()
     return results
     
+def locationPassage(hazard_db, locId, distance=50):
+    """
+    Select all records from tblTracks that pass within a defined
+    distance of the given location
+
+    :param hazard_db: :class:`HazardDatabase` instance.
+    :param int locId: Location identifier.
+    :param distance: Distance threshold (in kilometres).
+
+    Example::
+
+        >>> db = HazardDatabase(configFile)
+        >>> locId = 000001
+        >>> records = locationPassage(db, locId, 50)
+
+    """
+
+    query = ("SELECT l.locId, l.locName, t.eventNumber, t.distClosest, "
+             "w.wspd, e.eventFile FROM tblLocations l "
+             "INNER JOIN tblTracks t "
+             "ON l.locId = t.locId "
+             "JOIN tblWindSpeed w on w.eventNumber = t.eventNumber "
+             "JOIN tblEvents e on e.eventNumber = t.eventNumber "
+             "WHERE t.distClosest < ? and l.locId = ?")
+    c = hazard_db.execute(query, (locId, distance))
+    results = c.fetchall()
+    return results
+
+def locationReturnPeriod(hazard_db, locId, return_period):
+    """
+    Select all records from tblEvents where the wind speed is
+    greater than the return period wind speed for the given return period.
+
+    :param hazard_db: :class:`HazardDatabase` instance.
+    :param int locId: Location identifier.
+    :param int return_period: Nominated return period.
+
+    """
+
+    query = ("SELECT l.locId, h.wspd FROM tblLocations l "
+             "INNER JOIN tblHazard h ON l.locId = h.locId "
+             "WHERE h.returnPeriod = ? and l.locId = ?")
+    c = hazard_db.execute(query, (return_period, locId))
+    r = c.fetchall()
+    return_level = r[0][1]
+    results = locationRecordsExceeding(hazard_db, locId, return_level)
+
+    return results
+
+def locationReturnLevels(hazard_db, locId):
+    """
+    Select all return level wind speeds (including upper and lower
+    confidence intervals) for a selected location.
+
+    :param hazard_db: :class:`HazardDatabase` instance.
+    :param int locId: Location identifier.
+
+    """
+
+    query = ("SELECT l.locId, l.locName, h.returnPeriod, h.wspd, "
+             "h.wspdLower, h.wspdUpper "
+             "FROM tblLocations t INNER JOIN tblHazard h "
+             "ON l.locId = h.locId "
+             "WHERE l.locIf = ? "
+             "ORDER BY h.returnPeriod")
+
+    c = hazard_db.execute(query, (locId,))
+    results = c.fetchall()
+
+    return results

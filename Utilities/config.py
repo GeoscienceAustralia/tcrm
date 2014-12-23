@@ -68,6 +68,7 @@ PARSERS = {
     'Actions_executewindfield': parseBool,
     'Actions_plotdata': parseBool,
     'Actions_plothazard': parseBool,
+    'Actions_createdatabase': parseBool,
     'Actions_downloaddata': parseBool,
     'Actions_executeevaluate': parseBool,
     'DataProcess_inputfile': str,
@@ -139,6 +140,7 @@ ExecuteHazard=True
 ExecuteEvaluate=True
 PlotData=True
 PlotHazard=True
+CreateDatabase=True
 DownloadData=True
 
 [Region]
