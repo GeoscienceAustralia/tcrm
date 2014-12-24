@@ -116,17 +116,19 @@ def windfieldAttributes(ncfile):
     trackfile = getattr(ncobj, 'track_file')
     trackfiledate = getattr(ncobj, 'track_file_date')
     trackfiledate = datetime.strptime(trackfiledate, '%Y-%m-%d %H:%M:%S')
-    tcrm_version = getattr(ncobj, 'tcrm_version')
-    trackfile = unicodedata.normalize("NFKD", trackfile).encode('utf-8', 'ignore')
+    tcrm_vers = getattr(ncobj, 'tcrm_version')
+    trackfile = unicodedata.normalize("NFKD",
+                                      trackfile).encode('utf-8', 'ignore')
     trackfile = os.path.basename(trackfile)
-    tcrm_version = unicodedata.normalize("NFKD", tcrm_version).encode('utf-8', 'ignore')
+    tcrm_vers = unicodedata.normalize("NFKD",
+                                      tcrm_vers).encode('utf-8', 'ignore')
     slpobj = ncobj.variables['slp']
     minslp = getattr(slpobj, 'actual_range')[0]
 
     vmaxobj = ncobj.variables['vmax']
     maxwind = getattr(vmaxobj, 'actual_range')[1]
     ncobj.close()
-    return (trackfile, trackfiledate, tcrm_version, minslp, maxwind)
+    return (trackfile, trackfiledate, tcrm_vers, minslp, maxwind)
 
 def singleton(cls):
     instances = {}
@@ -148,12 +150,10 @@ class HazardDatabase(sqlite3.Connection):
     """
 
     def __init__(self, configFile):
-        self.configFile = configFile
 
         config = ConfigParser()
         config.read(configFile)
 
-        self.inputPath = "./input"
         self.outputPath = config.get('Output', 'Path')
         self.windfieldPath = pjoin(self.outputPath, 'windfield')
         self.trackPath = pjoin(self.outputPath, 'tracks')
@@ -198,8 +198,8 @@ class HazardDatabase(sqlite3.Connection):
         try:
             self.execute(tblDef)
             self.commit()
-        except sqlite3.Error as e:
-            log.exception("Cannot create table %s: %s" % (tblName, e.args[0]))
+        except sqlite3.Error as err:
+            log.exception("Cannot create table %s: %s" % (tblName, err.args[0]))
             raise
         
     def setLocations(self):
@@ -212,12 +212,12 @@ class HazardDatabase(sqlite3.Connection):
         
         conn = sqlite3.connect(self.locationDB,
                                detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
-        c = conn.execute(selectLocations, (self.domain['xMin'],
-                                           self.domain['xMax'],
-                                           self.domain['yMin'],
-                                           self.domain['yMax']) )
+        cur = conn.execute(selectLocations, (self.domain['xMin'],
+                                             self.domain['xMax'],
+                                             self.domain['yMin'],
+                                             self.domain['yMax']) )
 
-        locations = c.fetchall()
+        locations = cur.fetchall()
         conn.close()
         if len(locations) >= 1:
             self.executemany(insLocations, locations)
@@ -233,12 +233,12 @@ class HazardDatabase(sqlite3.Connection):
         
         """
         try:
-            c = self.execute("SELECT locId, locLon, locLat FROM tblLocations")
-        except sqlite.Error as e:
-            log.exception("Cannot retrieve locations from tblLocations: %s" % e)
+            cur = self.execute("SELECT locId, locLon, locLat FROM tblLocations")
+        except sqlite3.Error as err:
+            log.exception("Cannot retrieve locations from tblLocations: %s" % err.args[0])
             raise
         else:
-            locations = c.fetchall()
+            locations = cur.fetchall()
             
         return locations
     
@@ -263,14 +263,15 @@ class HazardDatabase(sqlite3.Connection):
             dtWindfieldFile = datetime.fromtimestamp(int(si.st_mtime))
             trackfile, dtTrackFile, tcrm_version, minslp, maxwind = \
                 windfieldAttributes(f)
-            params.append(("%06d"%n, "%06d"%n, os.path.basename(f), trackfile,
-                           float(maxwind), float(minslp), dtTrackFile,
-                           dtWindfieldFile, tcrm_version, "", datetime.now()))
+            params.append(("%06d"%n, "%06d"%n, os.path.basename(f),
+                           trackfile, float(maxwind), float(minslp),
+                           dtTrackFile, dtWindfieldFile, tcrm_version,
+                           "", datetime.now()))
 
         try:
             self.executemany(insEvents, params)
-        except sqlite3.Error as e:
-            log.exception("Cannot insert records into tblEvents: %s" % e.args[0])
+        except sqlite3.Error as err:
+            log.exception("Cannot insert records into tblEvents: %s" % err.args[0])
             raise
         else:
             self.commit()
@@ -318,8 +319,8 @@ class HazardDatabase(sqlite3.Connection):
 
             try:
                 self.executemany(insWindSpeed, params)
-            except sqlite3.Error as e:
-                log.exception("Cannot insert records into tblWindSpeed: %s" % e.args[0])
+            except sqlite3.Error as err:
+                log.exception("Cannot insert records into tblWindSpeed: %s" % err.args[0])
                 raise
             else:
                 self.commit()
@@ -376,8 +377,8 @@ class HazardDatabase(sqlite3.Connection):
 
         try:
             self.executemany(insHazard, params)
-        except sqlite3.Error as e:
-            log.exception("Cannot insert records into tblHazard: %s" % e.args[0])
+        except sqlite3.Error as err:
+            log.exception("Cannot insert records into tblHazard: %s" % err.args[0])
             raise
         else:
             self.commit()
@@ -390,9 +391,9 @@ class HazardDatabase(sqlite3.Connection):
         """
         locations = self.getLocations()
         points = [Point(loc[1], loc[2]) for loc in locations]
-        trackPath = pjoin(self.outputPath, 'tracks')
-        files = os.listdir(trackPath)
-        trackfiles = [pjoin(trackPath, f) for f in files if f.startswith('tracks')]
+
+        files = os.listdir(self.trackPath)
+        trackfiles = [pjoin(self.trackPath, f) for f in files if f.startswith('tracks')]
         tracks = loadTracksFromFiles(sorted(trackfiles))
         params = []
         for track in tracks:
@@ -407,8 +408,8 @@ class HazardDatabase(sqlite3.Connection):
 
         try:
             self.executemany(insTrack, params)
-        except sqlite3.Error as e:
-            log.exception("Cannot insert records into tblTracks: %s" % e.args[0])
+        except sqlite3.Error as err:
+            log.exception("Cannot insert records into tblTracks: %s" % err.args[0])
             raise
         else:
             self.commit()
@@ -524,8 +525,8 @@ def locationRecordsExceeding(hazard_db, locId, windSpeed):
              "WHERE w.wspd > ? and l.locId = ? "
              "ORDER BY w.wspd ASC" )
 
-    c = hazard_db.execute(query, (windSpeed, locId,))
-    results = c.fetchall()
+    cur = hazard_db.execute(query, (windSpeed, locId,))
+    results = cur.fetchall()
     return results
 
 def locationRecords(hazard_db, locId):
@@ -543,8 +544,8 @@ def locationRecords(hazard_db, locId):
              "ON l.locId = w.locId "
              "JOIN tblEvents e ON e.eventNumber = w.eventNumber "
              "WHERE l.locId = ? ORDER BY w.wspd ASC")
-    c = hazard_db.execute(query, (locId,))
-    results = c.fetchall()
+    cur = hazard_db.execute(query, (locId,))
+    results = cur.fetchall()
     return results
     
 def locationPassage(hazard_db, locId, distance=50):
@@ -571,8 +572,8 @@ def locationPassage(hazard_db, locId, distance=50):
              "JOIN tblWindSpeed w on w.eventNumber = t.eventNumber "
              "JOIN tblEvents e on e.eventNumber = t.eventNumber "
              "WHERE t.distClosest < ? and l.locId = ?")
-    c = hazard_db.execute(query, (locId, distance))
-    results = c.fetchall()
+    cur = hazard_db.execute(query, (locId, distance))
+    results = cur.fetchall()
     return results
 
 def locationReturnPeriodEvents(hazard_db, locId, return_period):
@@ -589,9 +590,9 @@ def locationReturnPeriodEvents(hazard_db, locId, return_period):
     query = ("SELECT l.locId, h.wspd FROM tblLocations l "
              "INNER JOIN tblHazard h ON l.locId = h.locId "
              "WHERE h.returnPeriod = ? and l.locId = ?")
-    c = hazard_db.execute(query, (return_period, locId))
-    r = c.fetchall()
-    return_level = r[0][1]
+    cur = hazard_db.execute(query, (return_period, locId))
+    row = cur.fetchall()
+    return_level = row[0][1]
     results = locationRecordsExceeding(hazard_db, locId, return_level)
 
     return results
@@ -613,7 +614,7 @@ def locationAllReturnLevels(hazard_db, locId):
              "WHERE l.locIf = ? "
              "ORDER BY h.returnPeriod")
 
-    c = hazard_db.execute(query, (locId,))
-    results = c.fetchall()
+    cur = hazard_db.execute(query, (locId,))
+    results = cur.fetchall()
 
     return results
