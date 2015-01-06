@@ -182,7 +182,8 @@ def main(configFile):
     # This will save interpolated track data in TCRM format:
     interpTrack = interpolateTracks.parseTracks(configFile, trackFile,
                                                 source, delta,
-                                                outputTrackFile)
+                                                outputTrackFile,
+                                                interpolation_type='akima')
 
     showProgressBar = config.get('Logging', 'ProgressBar')
 

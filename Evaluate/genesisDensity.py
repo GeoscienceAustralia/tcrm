@@ -164,14 +164,14 @@ class GenesisDensity(object):
         self.configFile = configFile
 
         # Define the grid:
-        gridLimit = config.geteval('Region', 'gridLimit')
-        gridSpace = config.geteval('Region', 'GridSpace')
+        self.gridLimit = config.geteval('Region', 'gridLimit')
+        self.gridSpace = config.geteval('Region', 'GridSpace')
 
-        self.lon_range = np.arange(gridLimit['xMin'],
-                                   gridLimit['xMax'] + 0.1,
+        self.lon_range = np.arange(self.gridLimit['xMin'],
+                                   self.gridLimit['xMax'] + 0.1,
                                    0.1)
-        self.lat_range = np.arange(gridLimit['yMin'],
-                                   gridLimit['yMax'] + 0.1,
+        self.lat_range = np.arange(self.gridLimit['yMin'],
+                                   self.gridLimit['yMax'] + 0.1,
                                    0.1)
 
         self.X, self.Y = np.meshgrid(self.lon_range, self.lat_range)
@@ -193,9 +193,9 @@ class GenesisDensity(object):
         for k in xrange(len(self.lon_range) - 1):
             for l in xrange(len(self.lat_range) - 1):
                 ymin = self.lat_range[l]
-                ymax = self.lat_range[l] + gridSpace['y']
+                ymax = self.lat_range[l] + self.gridSpace['y']
                 xmin = self.lon_range[k]
-                xmax = self.lon_range[k] + gridSpace['x']
+                xmax = self.lon_range[k] + self.gridSpace['x']
                 self.gridCells.append(gridCell(xmin, ymin, xmax, ymax,
                                                cellnumber, (k, l)))
                 cellnumber += 1
@@ -245,9 +245,19 @@ class GenesisDensity(object):
                 x.append(track.Longitude[0])
                 y.append(track.Latitude[0])
 
-        values = np.vstack([np.array(x), np.array(y)])
-        kernel = gaussian_kde(values, bw_method=.01)
-        Z = np.reshape(kernel(positions).T, self.X.shape)
+        xx = np.array(x)
+        yy = np.array(y)
+        ii = np.where((xx >= self.gridLimit['xMin']) &
+                        (xx <= self.gridLimit['xMax']) &
+                      (yy >= self.gridLimit['yMin']) & 
+                        (yy <= self.gridLimit['yMax']))
+
+
+        values = np.vstack([xx[ii], yy[ii]])
+        kernel = gaussian_kde(values, bw_method=.1)
+        import pdb
+        #pdb.set_trace()
+        Z = np.reshape(kernel(positions), self.X.shape)
         return Z.T
                 
 
@@ -452,7 +462,7 @@ class GenesisDensity(object):
                           resolution='i')
         cbarlab = "TCs/yr"
         xgrid, ygrid = np.meshgrid(self.lon_range, self.lat_range)
-        figure.add(self.hist.T, xgrid, ygrid, "Historic", datarange, 
+        figure.add(self.hist.T, self.X, self.Y, "Historic", datarange, 
                    cbarlab, map_kwargs)
         figure.add(self.synHistMean.T, xgrid, ygrid, "Synthetic",
                     datarange, cbarlab, map_kwargs)

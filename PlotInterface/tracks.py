@@ -13,14 +13,58 @@ import logging as log
 
 import numpy as np
 
+from matplotlib.collections import LineCollection
+from matplotlib.colors import Normalize, BoundaryNorm, ListedColormap
+from matplotlib.cm import get_cmap
+
 import Utilities.shptools as shptools
 
 from maps import MapFigure, saveFigure
+
+def make_segments(x, y):
+    """
+    Create a list of line segments from x,y coordinates, in the 
+    correct format for LineCollection.
+
+    :param x: :class:`numpy.ndarray` of x-coordinates.
+    :param y: :class:`numpy.ndarray` of y-coordinates.
+    """
+
+    points = np.array([x, y]).T.reshape(-1, 1, 2)
+    segments = np.concatenate([points[:-1], points[1:]], axis=1)
+
+    return segments
+
+
 
 class TrackMapFigure(MapFigure):
     """
     Base class for plotting track maps
     """
+
+    def colorline(self, x, y, z=None, cmap=get_cmap('CMRmap_r'), 
+                  norm=Normalize(17.0, 55.0, clip=True), linewidth=1.0, 
+                  alpha=1.0):
+
+        if z is None:
+            z = np.linspace(0.0, 1.0, len(x))
+
+        if not hasattr(z, '__iter__'):
+            z = np.array([z])
+
+        z = np.asarray(z)
+
+        segments = make_segments(x, y)
+        cmap = ListedColormap(['0.75', '#0FABF6', '#0000FF',
+                                '#00FF00', '#FF8100', '#ff0000'])
+        norm = BoundaryNorm([0, 17.5, 24.5, 32.5, 44.2, 55.5, 1000], cmap.N)
+        lc = LineCollection(segments, array=z, cmap=cmap, 
+                            norm=norm, linewidth=linewidth, alpha=alpha)
+        
+        ax = self.gca()
+        ax.add_collection(lc)
+
+        
     def add(self, tracks, xgrid, ygrid, title, map_kwargs):
         self.subfigures.append((tracks, xgrid, ygrid, title, map_kwargs))
 
@@ -30,7 +74,8 @@ class TrackMapFigure(MapFigure):
 
         for track in tracks:
             mlon, mlat = mapobj(track.Longitude, track.Latitude)
-            mapobj.plot(mlon, mlat, 'k-', linewidth=1.5)
+            self.colorline(mlon, mlat, track.WindSpeed, 
+                           linewidth=1, alpha=0.75)
         axes.set_title(title)
         self.labelAxes(axes)
         self.addGraticule(axes, mapobj)
