@@ -560,13 +560,8 @@ class TrackGenerator(object):
             log.debug('Removed %i tracks that do not pass inside' +
                       ' domain.', nbefore - len(results))
 
-        # Return the tracks as a stacked array
+        # Return the tracks:
         
-        if len(results) > 1:
-            return np.hstack([np.vstack(r) for r in results]).T
-        else:
-            return np.array(results).T
-            
         return results
         
     def generateTracksToFile(self, outputFile, nTracks, initLon=None,
@@ -1592,8 +1587,7 @@ def run(configFile, callback=None):
     trackSeed = None
     trackPath = pjoin(outputPath, 'tracks')
     processPath = pjoin(outputPath, 'process')
-    #trackFilename = 'tracks.%05i-%%04i.' + fmt
-    trackFilename = 'tracks.%05i.' + fmt
+    trackFilename = 'tracks.%05i-%%04i.' + fmt
 
     if config.has_option('TrackGenerator', 'gridLimit'):
         gridLimit = config.geteval('TrackGenerator', 'gridLimit')
@@ -1708,18 +1702,13 @@ def run(configFile, callback=None):
                  'CentralPressure,EnvPressure,rMax\n'
         fmt = '%i,%s,%7.3f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f'
         
-        """
+        
         for i, track in enumerate(tracks):
             trackFile = pjoin(trackPath, sim.outfile % (i + 1))
             with open (trackFile, 'w') as fp:
                 fp.write('%' + header)
                 if len(track) > 0:
-                    np.savetxt(fp, np.array(track).T, fmt=fmt)
-        """            
-        with open(trackFile, 'w') as fp:
-            fp.write('%' + header)
-            if len(tracks) > 0:
-                np.savetxt(fp, tracks, fmt=fmt)
+                    np.savetxt(fp, np.vstack(track).T, fmt=fmt)
 
     log.info('Simulating tropical cyclone tracks:' +
              ' 100 percent complete')
