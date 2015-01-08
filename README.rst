@@ -38,7 +38,8 @@ Dependencies
   `Matplotlib <http://matplotlib.org/>`_, `Basemap
   <http://matplotlib.org/basemap/index.html>`_, `netcdf4-python
   <https://code.google.com/p/netcdf4-python/>`_, 
-  `Shapely <https://github.com/Toblerity/Shapely>`_ and a C compiler;
+  `Shapely <https://github.com/Toblerity/Shapely>`_, 
+  `Statsmodels <http://statsmodels.sourceforge.net/>`_ and a C compiler;
 * For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
 
 Status
