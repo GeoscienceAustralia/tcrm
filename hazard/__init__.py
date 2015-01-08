@@ -280,8 +280,8 @@ class HazardCalculator(object):
 
         :param tilelimits: `tuple` of tile limits
         """
-        Vr = loadFilesFromPath(self.inputPath, tilelimits)
-
+        #Vr = loadFilesFromPath(self.inputPath, tilelimits)
+        Vr = aggregateWindFields(self.inputPath, self.numSim, tilelimits)
         Rp, loc, scale, shp = calculate(Vr, self.years, self.nodata,
                                         self.minRecords, self.yrsPerSim)
 
@@ -644,7 +644,35 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
 
     return RpUpper, RpLower
 
+def aggregateWindFields(inputPath, numSimulations, tilelimits):
+    """
+    Aggregate wind field data into annual maxima for use in fitting
+    extreme value distributions.
 
+    :param str inputPath: path to individual wind field files.
+    :param int numSimulations: Number of simulated years of activity.
+    
+    """
+    from glob import glob
+    log.info("Aggregating individual events to annual maxima")
+    ysize = tilelimits[3] - tilelimits[2]
+    xsize = tilelimits[1] - tilelimits[0]
+    Vm = np.empty((numSimulations, ysize, xsize), dtype='f')
+    
+    for year in xrange(numSimulations):
+        filespec = pjoin(inputPath, "gust.%05d-*.nc"%year)
+        fileList = glob(filespec)
+        if len(fileList) == 0:
+            Vm[year, :, :] = np.zeros((ysize, xsize), dtype='f')
+            continue
+        
+        Va = np.empty((len(fileList), ysize, xsize), dtype='f')
+        for n, f in enumerate(fileList):
+            Va[n, :, :] = loadFile(f, tilelimits)
+            
+        Vm[year, :, :] = np.max(Va, axis=0)
+
+    return Vm
 
 def loadFilesFromPath(inputPath, tilelimits):
     """
