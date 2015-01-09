@@ -26,6 +26,7 @@ import logging
 import sqlite3
 from datetime import datetime
 import unicodedata
+import re
 
 from os.path import join as pjoin
 
@@ -60,7 +61,7 @@ tblEventsDef = ("CREATE TABLE IF NOT EXISTS tblEvents "
 
 #Station wind speed from events:
 tblWindSpeedDef = ("CREATE TABLE IF NOT EXISTS tblWindSpeed "
-                   "(locId integer, eventNumber integer, wspd real, umax real, "
+                   "(locId integer, eventId text, wspd real, umax real, "
                    "vmax real, pmin real, Comments text, "
                    "dtCreated timestamp)")
 
@@ -74,7 +75,7 @@ tblHazardDef = ("CREATE TABLE IF NOT EXISTS tblHazard "
 
 # Proximity of tracks to stations:
 tblTracksDef = ("CREATE TABLE IF NOT EXISTS tblTracks "
-                "(locId integer, eventNumber integer, distClosest real, "
+                "(locId integer, eventId text, distClosest real, "
                 "prsClosest real, dtClosest timestamp, Comments text, "
                 "dtCreated timestamp)")
 
@@ -253,17 +254,20 @@ class HazardDatabase(sqlite3.Connection):
 
         """
         fileList = os.listdir(self.windfieldPath)
-        files = [pjoin(self.windfieldPath, f) for f in fileList]
-        files = [f for f in files if os.path.isfile(f)]
-        
+        fileList = [f for f in fileList if os.path.isfile(f)]
+
+        pattern = re.compile('\d+')
         params = []
-        for n, f in enumerate(sorted(files)):
+        for n, f in enumerate(sorted(fileList)):
             log.debug("Processing {0}".format(f))
-            si = os.stat(f)
+            sim, num = pattern.findall(f)
+            eventId = "%s-%s" % (sim, num)
+            fname = pjoin(self.windfieldPath, f)
+            si = os.stat(fname)
             dtWindfieldFile = datetime.fromtimestamp(int(si.st_mtime))
             trackfile, dtTrackFile, tcrm_version, minslp, maxwind = \
-                windfieldAttributes(f)
-            params.append(("%06d"%n, "%06d"%n, os.path.basename(f),
+                windfieldAttributes(fname)
+            params.append(("%06d"%n, eventId, os.path.basename(fname),
                            trackfile, float(maxwind), float(minslp),
                            dtTrackFile, dtWindfieldFile, tcrm_version,
                            "", datetime.now()))
@@ -286,15 +290,16 @@ class HazardDatabase(sqlite3.Connection):
         """
 
         fileList = os.listdir(self.windfieldPath)
-        files = [pjoin(self.windfieldPath, f) for f in fileList]
-        files = [f for f in files if os.path.isfile(f)]
+        fileList = [f for f in fileList if os.path.isfile(f)]
 
         locations = self.getLocations()
-
-        for n, f in enumerate(sorted(files)):
+        pattern = re.compile('\d+')
+        for n, f in enumerate(sorted(fileList)):
             log.debug("Processing {0}".format(f))
-            eventId = "%06d" % n
-            ncobj = Dataset(f)
+            sim, num = pattern.findall(f)
+            eventId = "%s-%s" % (sim, num)
+            fname = pjoin(self.windfieldPath, f)
+            ncobj = Dataset(fname)
             lon = ncobj.variables['lon'][:]
             lat = ncobj.variables['lat'][:]
         
@@ -401,7 +406,7 @@ class HazardDatabase(sqlite3.Connection):
                 continue
             distances = track.minimumDistance(points)
             for (loc, dist) in zip(locations, distances):
-                locParams = (loc[0], "%d-%d"%(track.trackId), dist, None, None, "",
+                locParams = (loc[0], "%s-%s"%(track.trackId), dist, None, None, "",
                              datetime.now())
 
                 params.append(locParams)
@@ -517,11 +522,11 @@ def locationRecordsExceeding(hazard_db, locId, windSpeed):
         
     """
 
-    query = ("SELECT l.locId, l.locName, w.wspd, w.eventNumber, "
+    query = ("SELECT l.locId, l.locName, w.wspd, w.eventId, "
              "e.eventFile "
              "FROM tblLocations l "
              "INNER JOIN tblWindSpeed w ON l.locId = w.locId "
-             "JOIN tblEvents e ON e.eventNumber = w.eventNumber "
+             "JOIN tblEvents e ON e.eventId = w.eventId "
              "WHERE w.wspd > ? and l.locId = ? "
              "ORDER BY w.wspd ASC" )
 
@@ -538,11 +543,11 @@ def locationRecords(hazard_db, locId):
 
     """
     
-    query = ("SELECT l.locId, l.locName, w.wspd, w.eventNumber "
+    query = ("SELECT l.locId, l.locName, w.wspd, w.eventId "
              "FROM tblLocations l "
              "INNER JOIN tblWindSpeed w "
              "ON l.locId = w.locId "
-             "JOIN tblEvents e ON e.eventNumber = w.eventNumber "
+             "JOIN tblEvents e ON e.eventId = w.eventId "
              "WHERE l.locId = ? ORDER BY w.wspd ASC")
     cur = hazard_db.execute(query, (locId,))
     results = cur.fetchall()
@@ -565,12 +570,12 @@ def locationPassage(hazard_db, locId, distance=50):
 
     """
 
-    query = ("SELECT l.locId, l.locName, t.eventNumber, t.distClosest, "
+    query = ("SELECT l.locId, l.locName, t.eventId, t.distClosest, "
              "w.wspd, e.eventFile FROM tblLocations l "
              "INNER JOIN tblTracks t "
              "ON l.locId = t.locId "
-             "JOIN tblWindSpeed w on w.eventNumber = t.eventNumber "
-             "JOIN tblEvents e on e.eventNumber = t.eventNumber "
+             "JOIN tblWindSpeed w on w.eventId = t.eventId "
+             "JOIN tblEvents e on e.eventId = t.eventId "
              "WHERE t.distClosest < ? and l.locId = ?")
     cur = hazard_db.execute(query, (locId, distance))
     results = cur.fetchall()
@@ -609,9 +614,9 @@ def locationAllReturnLevels(hazard_db, locId):
 
     query = ("SELECT l.locId, l.locName, h.returnPeriod, h.wspd, "
              "h.wspdLower, h.wspdUpper "
-             "FROM tblLocations t INNER JOIN tblHazard h "
+             "FROM tblLocations l INNER JOIN tblHazard h "
              "ON l.locId = h.locId "
-             "WHERE l.locIf = ? "
+             "WHERE l.locId = ? "
              "ORDER BY h.returnPeriod")
 
     cur = hazard_db.execute(query, (locId,))
