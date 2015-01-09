@@ -2,10 +2,11 @@
 Track-related attributes
 """
 
+import os
 import logging
 import numpy as np
 from datetime import datetime
-
+import re
 from shapely.geometry import Point, LineString
 
 from Utilities.metutils import convert
@@ -29,7 +30,7 @@ trackFormats = ('%i, %i, %i, %i,'
                 '%8.3f, %8.3f, %6.2f, %6.2f, %7.2f,'
                 '%6.2f, %6.2f, %7.2f')
                 
-
+pattern = re.compile('\d+')
 
 class Track(object):
 
@@ -210,12 +211,15 @@ def loadTracks(trackfile):
     tracks = []
     datas = readMultipleTrackData(trackfile)
     n = len(datas)
-    for i, data in enumerate(datas):
-        track = Track(data)
-        track.trackfile = trackfile
-        track.trackId = (i, n)
-        tracks.append(track)
-    return tracks
+
+    sim, num = pattern.findall(os.path.basename(trackfile))
+    
+    data = readTrackData(trackfile)
+    track = Track(data)
+    track.trackfile = trackfile
+    track.trackId = (sim, num)
+    
+    return [track]
 
 def loadTracksFromFiles(trackfiles):
     """
