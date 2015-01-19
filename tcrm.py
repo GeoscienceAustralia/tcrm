@@ -103,6 +103,7 @@ def doDataDownload(configFile):
 
     showProgressBar = config.get('Logging', 'ProgressBar')
 
+    datasets.loadDatasets(configFile)
     for dataset in datasets.DATASETS:
         if not dataset.isDownloaded():
             log.info('Input file %s is not available', dataset.filename)
@@ -611,7 +612,7 @@ def startup():
         try:
             main(configFile)
         except ImportError as e:
-            log.critical("Missing module: {0}".format(e.strerror))
+            log.critical("Missing module: {0}".format(e))
         except Exception:  # pylint: disable=W0703
             # Catch any exceptions that occur and log them (nicely):
             tblines = traceback.format_exc().splitlines()
