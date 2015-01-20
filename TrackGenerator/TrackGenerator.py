@@ -1085,6 +1085,10 @@ class TrackGenerator(object):
             log.debug('Pressure difference < 5.0' +
                       ' (penv: %f pressure: %f)', penv, pressure)
             return True
+        elif age <= 12 and ((penv - pressure) < 1.0):
+            log.debug('Pressure difference < 1.0' +
+                      ' (penv: %f pressure: %f)', penv, pressure)
+            return True
 
         return False
 

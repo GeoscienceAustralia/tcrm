@@ -43,7 +43,7 @@ class TestInterp3d(NumpyTestCase.NumpyTestCase):
 
         # Load data 
         pfile = open(os.path.join(unittest_dir, 'test_data',
-                                  'testinterp3d.pck'), 'rb')
+                                  'testinterp3d.pck'), 'r')
         self.xlon = cPickle.load(pfile)
         self.ylat = cPickle.load(pfile)
         self.ztime = cPickle.load(pfile)

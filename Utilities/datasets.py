@@ -96,7 +96,7 @@ class DataSet(object):
         return isfile(pjoin(self.path, self.filename))
 
 
-def loadDatasets():
+def loadDatasets(configFile):
     """
     Load the details of the datasets to be downloaded from the
     configuration settings. This updates the :data:`DATASETS`
@@ -105,6 +105,7 @@ def loadDatasets():
     """
     
     config = ConfigParser()
+    config.read(configFile)
     datasets = config.get('Input', 'Datasets').split(',')
     
     global DATASETS
@@ -132,9 +133,6 @@ def checkAndDownload(callback=None):
     
     for dataset in DATASETS:
         dataset.download(callback)
-
-
-loadDatasets()
 
 
 if __name__ == '__main__':
