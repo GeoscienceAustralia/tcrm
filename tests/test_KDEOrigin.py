@@ -51,7 +51,7 @@ class TestKDEOrigin(NumpyTestCase.NumpyTestCase):
 
     def test_GenerateKDE(self):
         """Testing GenerateKDE for 2D data"""
-        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kdeOrigin_xyz.pck'), 'rb')
+        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kdeOrigin_xyz.pck'), 'r')
         xp = cPickle.load(pkl_file)
         yp = cPickle.load(pkl_file)
         zp = cPickle.load(pkl_file)

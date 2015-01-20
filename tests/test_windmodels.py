@@ -19,7 +19,7 @@ class TestWindVelocity(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
         pkl_file = open(os.path.join(
-            unittest_dir, 'test_data', 'windProfileTestData.pck'), 'rb')
+            unittest_dir, 'test_data', 'windProfileTestData.pck'), 'r')
         self.R = cPickle.load(pkl_file)
         self.pEnv = cPickle.load(pkl_file)
         self.pCentre = cPickle.load(pkl_file)
@@ -78,7 +78,7 @@ class TestWindVelocity(NumpyTestCase.NumpyTestCase):
 class TestWindVorticity(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
-        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'vorticityTestData.pck'), 'rb')
+        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'vorticityTestData.pck'), 'r')
         self.R = cPickle.load(pkl_file)
         self.pEnv = cPickle.load(pkl_file)
         self.pCentre = cPickle.load(pkl_file)
@@ -147,7 +147,7 @@ class TestWindVorticity(NumpyTestCase.NumpyTestCase):
 class TestWindField(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
-        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'windFieldTestData.pck'), 'rb')
+        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'windFieldTestData.pck'), 'r')
         self.R = cPickle.load(pkl_file)
         self.lam = cPickle.load(pkl_file)
         self.rMax = cPickle.load(pkl_file)
