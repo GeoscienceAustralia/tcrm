@@ -46,7 +46,7 @@ from Utilities.files import flStartLog
 class Testlmoments(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
-        pfile = open(os.path.join(unittest_dir, 'test_data', 'testlmom.pck'),'rb')
+        pfile = open(os.path.join(unittest_dir, 'test_data', 'testlmom.pck'),'r')
         self.values = cPickle.load(pfile)
         self.moments = cPickle.load(pfile)
         self.params = cPickle.load(pfile)

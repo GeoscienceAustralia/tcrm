@@ -39,12 +39,22 @@ def make_segments(x, y):
 
 class TrackMapFigure(MapFigure):
     """
-    Base class for plotting track maps
+    Base class for plotting track maps.
     """
 
-    def colorline(self, x, y, z=None, cmap=get_cmap('CMRmap_r'), 
-                  norm=Normalize(17.0, 55.0, clip=True), linewidth=1.0, 
-                  alpha=1.0):
+    def colorline(self, x, y, z=None, linewidth=1.0, alpha=1.0):
+        """
+        Create and add line collections to an axes instance, using 
+        an optional magnitude value to colourize the line segments.
+
+        :param x: :class:`numpy.ndarray` of x-coordinates for lines.
+        :param y: :class:`numpy.ndarray` of y-coordinates for lines.
+        :param z: (Optional) :class:`numpy.ndarray` of magnitudes to 
+                  colourize the line segments. 
+        :param float linewidth: Line width of the line segments to plot.
+        :param float alpha: Transparency level of the line segments.
+
+        """
 
         if z is None:
             z = np.linspace(0.0, 1.0, len(x))
