@@ -466,8 +466,8 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
     lats = []
     for v in vertices.values():
         lon, lat = v[0]
-        lons.append[lon]
-        lats.append[lat]
+        lons.append(lon)
+        lats.append(lat)
 
     msg=("Location shapefile must be in a geograpic coordinate system "
          "(i.e. it must have lat/lon vertices). It looks like this "
