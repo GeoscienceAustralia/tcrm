@@ -30,7 +30,7 @@ from Utilities import shapefile
 from Utilities import pathLocator
 
 
-OUTPUTFMT = ['%s', '%7.3f', '%7.3f', 
+OUTPUTFMT = ['%s', '%9.5f', '%9.5f', 
               '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
               '%7.2f']
 INPUTFMT = ('|S16', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
@@ -40,7 +40,7 @@ INPUTNAMES = ('Time', 'Longitude', 'Latitude', 'Speed', 'UU', 'VV',
 MINMAX_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
                 'Speed', 'UU', 'VV', 'Bearing', 'Pressure')
 MINMAX_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
-MINMAX_FMT = ['%s', '%s', '%7.3f', '%7.3f', 
+MINMAX_FMT = ['%s', '%s', '%9.5f', '%9.5f', 
               '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
               '%7.2f']
 
@@ -118,7 +118,7 @@ def tsmultiply(inputFile, multipliers, outputFile):
 
     header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
     np.savetxt(outputFile, data, fmt='%s', delimiter=',',
-               header=header)
+               header=header, comments='')
     
     return maxdata, mindata
 
@@ -194,9 +194,9 @@ def process_timeseries(config_file):
     maxheader = ('Station,Time,Longitude,Latitude,Speed,'
                         'UU,VV,Bearing,Pressure')
     np.savetxt(maxfile, max_data.data, fmt=MINMAX_FMT, delimiter=',',
-               header=maxheader)
+               header=maxheader, comments='')
     np.savetxt(minfile, min_data.data, fmt=MINMAX_FMT, delimiter=',',
-               header=maxheader)
+               header=maxheader, comments='')
             
         
 def startup():

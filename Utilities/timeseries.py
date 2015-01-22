@@ -32,14 +32,14 @@ OUTPUT_NAMES = ('Time', 'Longitude', 'Latitude',
                 'Speed', 'UU', 'VV', 'Bearing',
                 'Pressure')
 OUTPUT_TYPES = ['|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
-OUTPUT_FMT = ['%s', '%7.3f', '%7.3f', 
+OUTPUT_FMT = ['%s', '%9.5f', '%9.5f', 
               '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
               '%7.2f']
 
 MINMAX_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
                 'Speed', 'UU', 'VV', 'Bearing', 'Pressure')
 MINMAX_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
-MINMAX_FMT = ['%s', '%s', '%7.3f', '%7.3f', 
+MINMAX_FMT = ['%s', '%s', '%9.5f', '%9.5f', 
               '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
               '%7.2f']
 
@@ -220,7 +220,7 @@ class Timeseries(object):
             if np.any(stn.data.data['Speed'] > 0.0):
                 fname = pjoin(self.outputPath, 'ts.%s.csv' % str(stn.id))
                 np.savetxt(fname, np.array(stn.data.data), fmt=OUTPUT_FMT,
-                           delimiter=',', header=header)
+                           delimiter=',', header=header, comments='')
                 max_step = np.argmax(stn.data.data['Speed'])
                 min_step = np.argmin(stn.data.data['Pressure'])
                 max_data.append((str(stn.id),) + tuple(stn.data.data[max_step]))
@@ -228,9 +228,9 @@ class Timeseries(object):
                 
         
         np.savetxt(self.maxfile, max_data.data, fmt=MINMAX_FMT, delimiter=',',
-                    header=maxheader)
+                    header=maxheader, comments='')
         np.savetxt(self.minfile, min_data.data, fmt=MINMAX_FMT, delimiter=',',
-                    header=maxheader)
+                    header=maxheader, comments='')
         """
         for stn in self.stations:
             if type(self.maxdata[stn.id][3]) == datetime.datetime:

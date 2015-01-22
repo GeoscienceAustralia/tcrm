@@ -45,6 +45,7 @@ def loadTimeseriesData(datafile):
         return np.loadtxt(datafile,
                           comments = "#",
                           delimiter = ',',
+                          skiprows = 1,
                           dtype = {
                             'names': INPUT_COLS,
                             'formats': INPUT_FMTS},
