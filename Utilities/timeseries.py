@@ -28,11 +28,11 @@ log.addHandler(logging.NullHandler())
 
 ISO_FORMAT = "%Y-%m-%d %H:%M"
 
-OUTPUT_NAMES = ('Time', 'Longitude', 'Latitude',
+OUTPUT_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
                 'Speed', 'UU', 'VV', 'Bearing',
                 'Pressure')
-OUTPUT_TYPES = ['|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
-OUTPUT_FMT = ['%s', '%9.5f', '%9.5f', 
+OUTPUT_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
+OUTPUT_FMT = ['%s', '%s', '%9.5f', '%9.5f', 
               '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
               '%7.2f']
 
@@ -193,10 +193,10 @@ class Timeseries(object):
                 result = self.sample(stn.lon, stn.lat, spd, uu, vv, prs,
                                       gridx, gridy)
                 ss, ux, vy, bb, pp = result
-                stn.data.append((dt, stn.lon, stn.lat, ss, ux, vy, bb, pp))
+                stn.data.append((str(stn.id), dt, stn.lon, stn.lat, ss, ux, vy, bb, pp))
 
             else:
-                stn.data.append((dt, stn.lon, stn.lat, 0.0, 0.0,  
+                stn.data.append((str(stn.id), dt, stn.lon, stn.lat, 0.0, 0.0,  
                                           0.0, 0.0, prs[0, 0]))
                     
 
@@ -205,7 +205,7 @@ class Timeseries(object):
         Write the data to file, each station to a separate file.
         """
 
-        header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
+        header = 'Station,Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
         maxheader = ('Station,Time,Longitude,Latitude,Speed,'
                         'UU,VV,Bearing,Pressure')
         
@@ -223,8 +223,8 @@ class Timeseries(object):
                            delimiter=',', header=header, comments='')
                 max_step = np.argmax(stn.data.data['Speed'])
                 min_step = np.argmin(stn.data.data['Pressure'])
-                max_data.append((str(stn.id),) + tuple(stn.data.data[max_step]))
-                min_data.append((str(stn.id),) + tuple(stn.data.data[min_step]))
+                max_data.append(tuple(stn.data.data[max_step]))
+                min_data.append(tuple(stn.data.data[min_step]))
                 
         
         np.savetxt(self.maxfile, max_data.data, fmt=MINMAX_FMT, delimiter=',',
