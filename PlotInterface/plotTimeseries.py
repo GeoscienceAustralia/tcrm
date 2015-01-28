@@ -47,14 +47,6 @@ def loadTimeseriesData(datafile):
         return np.genfromtxt(datafile, dtype=INPUT_FMTS, names=INPUT_COLS, 
                              comments='#', delimiter=',', skiprows=1, 
                              converters=INPUT_CNVT)
-        #return np.loadtxt(datafile,
-        #                  comments = "#",
-        #                  delimiter = ',',
-        #                  skiprows = 1,
-        #                  dtype = {
-        #                    'names': INPUT_COLS,
-        #                    'formats': INPUT_FMTS},
-        #                  converters = INPUT_CNVT)
     except ValueError:
         return np.empty(0, dtype={
                         'names': INPUT_COLS,
