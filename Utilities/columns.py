@@ -35,10 +35,19 @@ def colReadCSV(configFile, dataFile, source):
     cols = config.get(source, 'Columns').split(delimiter)
 
     usecols = [i for i,c in enumerate(cols) if c != 'skip']
-
-    data = np.genfromtxt(dataFile, dtype=None, delimiter=delimiter,
-            usecols=usecols, comments=None, skip_header=numHeadingLines, 
-            autostrip=True)
+    try:
+        data = np.genfromtxt(dataFile, dtype=None, delimiter=delimiter,
+                             usecols=usecols, comments=None,
+                             skip_header=numHeadingLines, 
+                             autostrip=True)
+    except IOError:
+        log.exception("File not found: {0}".format(dataFile))
+        raise IOError("File not found: {0}".format(dataFile))
+    except TypeError:
+        log.exception(("{0} is not a string, filehandle "
+                       "or generator.").format(dataFile))
+        raise TypeError(("{0} is not a string, filehandle "
+                         "or generator.").format(dataFile))
 
     data.dtype.names = [c for c in cols if c != 'skip']
 

@@ -1579,7 +1579,6 @@ def run(configFile, callback=None):
 
     outputPath = config.get('Output', 'Path')
     nSimulations = config.getint('TrackGenerator', 'NumSimulations')
-    yrsPerSim = config.getint('TrackGenerator', 'YearsPerSimulation')
     maxTimeSteps = config.getint('TrackGenerator', 'NumTimeSteps')
     dt = config.getfloat('TrackGenerator', 'TimeStep')
     fmt = config.get('TrackGenerator', 'Format')
@@ -1647,8 +1646,7 @@ def run(configFile, callback=None):
     # they will all get exactly the same simulation outcome. This also
     # behaves correctly when not done in parallel.
 
-    nCyclones = np.random.poisson(
-        np.floor(yrsPerSim) * meanFreq, nSimulations)
+    nCyclones = np.random.poisson(meanFreq, nSimulations)
 
     # Estimate the maximum number of random values to be drawn from the
     # PRNG for each track and calculate how much each track simulation
