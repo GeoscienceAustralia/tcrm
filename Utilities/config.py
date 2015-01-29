@@ -114,7 +114,6 @@ PARSERS = {
     'TrackGenerator_numsimulations': int,
     'TrackGenerator_seasonseed': int,
     'TrackGenerator_trackseed': int,
-    'TrackGenerator_yearspersimulation': int,
     'TrackGenerator_numtimesteps': int,
     'TrackGenerator_timestep': float,
     'WindfieldInterface_beta': float,
@@ -161,7 +160,6 @@ minSamplesCell=100
 
 [TrackGenerator]
 NumSimulations=500
-YearsPerSimulation=1
 NumTimeSteps=360
 TimeStep=1.0
 Format=csv
