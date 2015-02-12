@@ -53,6 +53,7 @@ from DataProcess.CalcTrackDomain import CalcTrackDomain
 from Utilities.config import ConfigParser
 from Utilities.interp3d import interp3d
 from Utilities.parallel import attemptParallel
+from Utilities.track import ncSaveTracks, Track, TCRM_COLS, TCRM_FMTS
 
 class SamplePressure(object):
     """
@@ -495,10 +496,15 @@ class TrackGenerator(object):
             log.debug('** Generating track %i from point (%.2f,%.2f)',
                       j, genesisLon, genesisLat)
 
-            track = self._singleTrack(j, genesisLon, genesisLat,
-                                      genesisSpeed, genesisBearing,
-                                      genesisPressure, initEnvPressure,
-                                      genesisRmax, genesisTime)
+            data = self._singleTrack(j, genesisLon, genesisLat,
+                                     genesisSpeed, genesisBearing,
+                                     genesisPressure, initEnvPressure,
+                                     genesisRmax, genesisTime)
+
+            track_dtype = np.dtype({'names':TCRM_COLS, 'formats':TCRM_FMTS})
+            data = np.array(data)
+            data = np.core.records.fromarrays(data, dtype=track_dtype)
+            track = Track(data)
 
             results.append(track)
 
@@ -508,27 +514,24 @@ class TrackGenerator(object):
             """
             :return: True if the track is empty. False, otherwise.
             """
-            index, dates, age, lon, lat, speed, bearing, P, penv, rmax = track
-            return len(lon) == 0
+            return len(track.Longitude) == 0
 
         def diedEarly(track, minAge=12):
             """
             :return: True if the track dies before `minAge`. False,
             otherwise.
             """
-            index, dates, age, lon, lat, speed, bearing, P, penv, rmax = track
-            return age[-1] < minAge
+            return track.TimeElapsed[-1] < minAge
 
         def insideDomain(track):
             """
             :return: True if the track stays inside the domain. False,
             otherwise.
             """
-            index, dates, age, lon, lat, speed, bearing, P, penv, rmax = track
-            inside = [lon[k] > self.innerGridLimit['xMin'] and
-                      lon[k] < self.innerGridLimit['xMax'] and
-                      lat[k] > self.innerGridLimit['yMin'] and
-                      lat[k] < self.innerGridLimit['yMax']
+            inside = [track.Longitude[k] > self.innerGridLimit['xMin'] and
+                      track.Longitude[k] < self.innerGridLimit['xMax'] and
+                      track.Latitude[k] > self.innerGridLimit['yMin'] and
+                      track.Latitude[k] < self.innerGridLimit['yMax']
                       for k in range(len(lon))]
             return all(inside)
 
@@ -536,8 +539,7 @@ class TrackGenerator(object):
             """
             :return: True if a valid pressure. False, otherwise.
             """
-            index, dates, age, lon, lat, speed, bearing, P, eP, rmax = track
-            return all(np.round(P, 2) < np.round(eP, 2))
+            return all(np.round(track.CentralPressure, 2) < np.round(track.EnvPressure, 2))
 
         # Filter the generated tracks based on certain criteria
         nbefore = len(results)
@@ -899,6 +901,7 @@ class TrackGenerator(object):
                                        lon[0], lat[0], lon[i], lat[i]):
                 log.debug('Track no longer satisfies criteria, ' +
                           'terminating at time %i.', i)
+                
                 return (index[:i], dates[:i], age[:i], lon[:i], lat[:i],
                         speed[:i], bearing[:i], pressure[:i], penv[:i],
                         rmax[:i])
@@ -1698,19 +1701,8 @@ def run(configFile, callback=None):
 
         trackFile = pjoin(trackPath, sim.outfile)
         tracks = tg.generateTracks(sim.ntracks)
-
-        header = 'CycloneNumber,Datetime,TimeElapsed,Longitude,' + \
-                 'Latitude,Speed,Bearing,' + \
-                 'CentralPressure,EnvPressure,rMax\n'
-        fmt = '%i,%s,%7.3f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f'
-        
-        
-        for i, track in enumerate(tracks):
-            trackFile = pjoin(trackPath, sim.outfile % (i + 1))
-            with open (trackFile, 'w') as fp:
-                fp.write('%' + header)
-                if len(track) > 0:
-                    np.savetxt(fp, np.vstack(track).T, fmt=fmt)
+        ncTrackFile = pjoin(trackPath, "tracks.{0:05d}.nc".format(sim.index))
+        ncSaveTracks(ncTrackFile, tracks)
 
     log.info('Simulating tropical cyclone tracks:' +
              ' 100 percent complete')

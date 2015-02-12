@@ -1,9 +1,19 @@
 """
-Track-related attributes
+:mod:`track` - track-related attributes and functions
+=====================================================
+
+.. module:: tracks
+    :synopsis: This module contains funcitons for reading and writing
+               track data from/to a variety of formats.
+
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
+
 """
 
 import os
+import time
 import logging
+import getpass
 import numpy as np
 from datetime import datetime
 import re
@@ -11,6 +21,9 @@ from shapely.geometry import Point, LineString
 
 from Utilities.metutils import convert
 from Utilities.maputils import bearing2theta
+
+from netCDF4 import Dataset, date2num, num2date
+
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -122,10 +135,10 @@ class Track(object):
 
     
 # Define format for TCRM output track files:
-DATEFORMAT = "%Y-%m-%d %H:%M:%S"
+ISO_FORMAT = "%Y-%m-%d %H:%M:%S"
 TCRM_COLS = ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
-                  'Latitude', 'Speed', 'Bearing', 'CentralPressure',
-                  'EnvPressure', 'rMax')
+             'Latitude', 'Speed', 'Bearing', 'CentralPressure',
+             'EnvPressure', 'rMax')
 
 TCRM_UNIT = ('', '', 'hr', 'degree', 'degree', 'kph', 'degrees',
                   'hPa', 'hPa', 'km')
@@ -134,12 +147,143 @@ TCRM_FMTS = ('i', 'object', 'f', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
 
 TCRM_CNVT = {
     0: lambda s: int(float(s.strip() or 0)),
-    1: lambda s: datetime.strptime(s.strip(), DATEFORMAT),
+    1: lambda s: datetime.strptime(s.strip(), ISO_FORMAT),
     5: lambda s: convert(float(s.strip() or 0), TCRM_UNIT[5], 'mps'),
     6: lambda s: bearing2theta(float(s.strip() or 0) * np.pi / 180.),
     7: lambda s: convert(float(s.strip() or 0), TCRM_UNIT[7], 'Pa'),
     8: lambda s: convert(float(s.strip() or 0), TCRM_UNIT[8], 'Pa'),
 }
+
+def ncReadTrackData(trackfile):
+    """
+    Read a netcdf-format track file into a collection of
+    :class:`Track` objects. The returned :class:`Track` objects *must*
+    have all attributes accessed by the `__getattr__` method. 
+
+    :param str trackfile: track data filename (netCDF4 format).
+
+    :return: track data
+    :rtype: list of :class:`Track` objects
+
+    """
+
+    track_dtype = np.dtype({'names':TCRM_COLS,
+                            'formats':TCRM_FMTS})
+    try:
+        ncobj = Dataset(outfile, mode='r')
+    except (IOError, RuntimeError):
+        logger.exception("Cannot open {0}".format(outfile))
+        raise IOError("Cannot open {0}".format(outfile))
+
+    g = ncobj.groups
+    tracks = []
+    if g.has_key('tracks'):
+        tgroup = g['tracks'].groups
+        ntracks = len(tgroup)
+        for i, (t, data) in enumerate(tgroup.items()):
+            logger.debug("Loading data for {0}".format(t))
+            track_data = data.variables['track'][:]
+            track = Track(track_data)
+            
+            try:
+                track.Datetime = num2date(track.Datetime,
+                                          data.variables['time'].units,
+                                          data.variables['time'].calendar)
+            except AttributeError:
+                logger.exception("Track data does not have required attributes")
+                raise AttributeError
+            
+            track.data = track.data.astype(track_dtype)
+            track.trackfile = trackfile
+            if hasattr(t, "trackId"):
+                track.trackId = eval(t.trackId)
+            else:
+                track.trackId = (i+1, ntracks)
+            tracks.append(track)
+
+    else:
+        logger.warn("No track groups in this file: {0}".format(trackfile))
+
+    ncobj.close()
+    return tracks
+
+def ncSaveTracks(trackfile, tracks,
+                 timeunits='hours since 1900-01-01 00:00',
+                 calendar='standard', attributes={}):
+    """
+    Save a collection of :class:`Track` objects to a netCDF file. This
+    makes use of netCDF4 compound data types to store the data as a
+    structure akin to a :class:`numpy.recarray`. Each track in the
+    collection is stored as a separate :class:`netCDF4.Group` instance
+    in the output file.
+
+    The :class:`Track` objects hold datetime information as an array
+    of :class:`datetime.datetime` objects - there is no equivalent
+    data type in netCDF4, so the datetime information is converted to
+    floats using the :class:`netCDF4.date2num` function.
+
+    :param str trackfile: Path to the file to save data to.
+    :param list tracks: Collection of :class:`Track` objects.
+    :param str timeunits: A string of the form '*time units* since
+    *reference time*' describing the time units. Default is 'hours
+    since 1900-01-01 00:00'.
+    :param str calendar: Calendar used for time calculations. Valid
+    calendars are 'standard', 'gregorian', 'proleptic_gregorian'
+    'noleap', '365_day', '360_day', 'julian', 'all_leap',
+    '366_day'. Default is 'standard', which is a mixed
+    Julian/Gregorian calendar.
+    :param dict attributes: Global attributes to add to the file.
+    
+    """
+
+    try:
+        ncobj = Dataset(trackfile, "w", format="NETCDF4", clobber=True)
+    except IOError:
+        logger.exception("Cannot open {0} for writing".format(trackfile))
+        raise IOError("Cannot open {0} for writing".format(trackfile))
+
+    tgroup = ncobj.createGroup('tracks')
+
+    # Fidget with the dtype to convert :class:`datetime` objects to floats:
+    track_dtype = np.dtype(tracks[0].data.dtype)
+    track_dtype = track_dtype.descr
+    track_dtype[1] = ('Datetime', 'f4')
+    track_dtype = np.dtype(track_dtype)
+
+    
+    for n, t in enumerate(tracks):
+        if len(t.data) == 0:
+            continue
+        tname = "tracks-{:04d}".format(n)
+        tdata = tgroup.createGroup(tname)
+        tdtype = tdata.createCompoundType(track_dtype, 'track_dtype')
+
+        dims = tdata.createDimension('time', None)
+        times = tdata.createVariable('time', 'f4', ('time',),
+                                     zlib=True, complevel=8, shuffle=True)
+        tvar = tdata.createVariable('track', tdtype, ('time',),
+                                    zlib=True, complevel=8, shuffle=True)
+        t.data['Datetime'] = date2num(t.data['Datetime'], timeunits, calendar)
+        times[:] = t.data['Datetime']
+        times.units = 'hours since 1900-01-01 00:00'
+        times.calendar = 'standard'
+        tvar[:] = t.data.astype(track_dtype)
+        tvar.long_name = "Tropical cyclone track data" 
+        tvar.time_units = 'hours since 1900-01-01 00:00'
+        tvar.calendar = 'standard'
+        tvar.lon_units = 'degrees east'
+        tvar.lat_units = 'degrees north'
+        tvar.pressure_units = 'Pa'
+        tvar.speed_units = 'm/s'
+        tvar.length_units = 'km'
+        tvar.trackId = repr(t.trackId)
+        
+    attributes['created_on'] = time.strftime(ISO_FORMAT, time.localtime())
+    attributes['created_by'] = getpass.getuser()
+    ncobj.setncatts(attributes)
+    ncobj.close()
+
+    return
 
 def readTrackData(trackfile):
     """
