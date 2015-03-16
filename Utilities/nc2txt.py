@@ -82,7 +82,8 @@ def _process(argv):
     lat = lat - delta/2
     if recdim:
         recval = nctools.ncGetDims(ncobj,recdim)
-    data = nctools.ncGetData(ncobj, variable, missingValue=mv)
+    #data = nctools.ncGetData(ncobj, variable, missingValue=mv)
+    data = nctools.ncGetData(ncobj, variable)
     ncobj.close()
     if recdim:
         for i,v in enumerate(recval):
