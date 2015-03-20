@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -63,8 +65,7 @@ Hedland, Australia (118.6E, 20.3S), which has experienced numerous
 severe tropical cyclones.</p>
 <p>Once the model has been <a class="reference internal" href="install.html#installation"><em>installed</em></a> and tested,
 the example simulation can be run as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ python tcrm.py -c example/port_hedland.ini
-</pre></div>
+<div class="highlight-python"><pre>$ python tcrm.py -c example/port_hedland.ini</pre>
 </div>
 <p>The model will automatically create output folders to store the
 results in, as well as a log file that provides details on the
@@ -75,14 +76,14 @@ those simulated years, calculate the hazard (return period wind
 speeds) for the region and plot the output as maps and a return period
 curve for Port Hedland. The hazard data are also stored in netCDF
 (version 4) files.</p>
-<div class="align-center figure">
-<img alt="100-year return period wind speed near Port Hedland, Australia." src="../_images/hazard_example.png" />
+<div class="align-center figure align-center">
+<img alt="100-year return period wind speed near Port Hedland, Australia." src="docs\hazard_example.png" />
 <p class="caption">100-year return period wind speed near Port Hedland,
 Australia. Wind speeds represent a 3-second gust wind speed, 10
 metres above ground level in open, flat terrain.</p>
 </div>
-<div class="align-center figure">
-<img alt="Example hazard curve for Port Hedland, Australia." src="../_images/hazard_curve.png" />
+<div class="align-center figure align-center">
+<img alt="Example hazard curve for Port Hedland, Australia." src="docs\hazard_curve.png" />
 <p class="caption">Hazard curve for Port Hedland, Australia, based on 1000 years of
 synthetic tropical cyclone events. The grey shading indicates the
 90th percentile range, based on a bootstrap resampling procedure.</p>
@@ -91,8 +92,7 @@ synthetic tropical cyclone events. The grey shading indicates the
 <h3>Running in an MPI environment<a class="headerlink" href="#running-in-an-mpi-environment" title="Permalink to this headline">¶</a></h3>
 <p>For a multiprocessor environment using MPI and Pypar, the example can
 be run with:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ mpirun -np 16 python tcrm.py -c example/port_hedland.ini
-</pre></div>
+<div class="highlight-python"><pre>$ mpirun -np 16 python tcrm.py -c example/port_hedland.ini</pre>
 </div>
 <p>This will execute TCRM across 16 CPUs (if available).</p>
 <p>TCRM has been tested on systems up to 256 CPUs. Testing with moderate
@@ -183,8 +183,8 @@ simulation of TC Tracy using TCRM is given in Schofield <em>et al.</em>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Oct 14, 2014.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Last updated on Mar 20, 2015.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -129,7 +131,7 @@ before adding more tests</p>
 <dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
 <dl class="attribute">
 <dt id="tests.test_GetType.Test_GetType.Types">
-<tt class="descname">Types</tt><em class="property"> = &lt;Utilities.GetType.GetType instance at 0x0C6BCF58&gt;</em><a class="headerlink" href="#tests.test_GetType.Test_GetType.Types" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">Types</tt><em class="property"> = &lt;Utilities.GetType.GetType instance at 0x0C5B7FD0&gt;</em><a class="headerlink" href="#tests.test_GetType.Test_GetType.Types" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -508,7 +510,7 @@ Description: Unit test for the windProfile class</p>
 
 <dl class="attribute">
 <dt id="tests.test_generateStats.TestGenerateStats.pkl_file">
-<tt class="descname">pkl_file</tt><em class="property"> = &lt;closed file u'C:\\WorkSpace\\tcrm\\tests\\test_data\\generateStatsTestData.pck', mode 'rb' at 0x0C8A24F0&gt;</em><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats.pkl_file" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pkl_file</tt><em class="property"> = &lt;closed file u'c:\\WorkSpace\\tcrm\\tests\\test_data\\generateStatsTestData.pck', mode 'r' at 0x0B9C4B78&gt;</em><a class="headerlink" href="#tests.test_generateStats.TestGenerateStats.pkl_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1129,14 +1131,48 @@ Constraints:</p>
 </dd></dl>
 
 </div>
-<div class="section" id="tests-test-nctools-module">
-<h2>tests.test_nctools module<a class="headerlink" href="#tests-test-nctools-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-tests.test_nctools">
+<span id="tests-test-nctools-module"></span><h2>tests.test_nctools module<a class="headerlink" href="#module-tests.test_nctools" title="Permalink to this headline">¶</a></h2>
 <p>Title: testNetCDF.py
 Author: Craig Arthur, <a class="reference external" href="mailto:craig&#46;arthur&#37;&#52;&#48;ga&#46;gov&#46;au">craig<span>&#46;</span>arthur<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a>
 CreationDate: 07/15/08 1:46:PM
 Description: Unit test for nctools.py</p>
 <p>Version :$Rev: 276 $</p>
 <p>$Id: testNetCDF.py 276 2010-04-16 02:24:00Z nsummons $</p>
+<dl class="class">
+<dt id="tests.test_nctools.TestNCReading">
+<em class="property">class </em><tt class="descname">TestNCReading</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNCReading" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tests.NumpyTestCase.NumpyTestCase" title="tests.NumpyTestCase.NumpyTestCase"><tt class="xref py py-class docutils literal"><span class="pre">tests.NumpyTestCase.NumpyTestCase</span></tt></a></p>
+<dl class="method">
+<dt id="tests.test_nctools.TestNCReading.setUp">
+<tt class="descname">setUp</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNCReading.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_nctools.TestNCReading.tearDown">
+<tt class="descname">tearDown</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNCReading.tearDown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tests.test_nctools.TestNCReading.test_ncGetTimeValues">
+<tt class="descname">test_ncGetTimeValues</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNCReading.test_ncGetTimeValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test ncGetTimes returns correct time values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_nctools.TestNCReading.test_ncGetTimes">
+<tt class="descname">test_ncGetTimes</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNCReading.test_ncGetTimes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test ncGetTimes returns datetime objects</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tests.test_nctools.TestNCReading.test_ncReadFile">
+<tt class="descname">test_ncReadFile</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNCReading.test_ncReadFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test nctools functions for reading dimensions and variables</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="tests.test_nctools.TestNetCDF">
 <em class="property">class </em><tt class="descname">TestNetCDF</tt><big>(</big><em>methodName='runTest'</em><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF" title="Permalink to this definition">¶</a></dt>
@@ -1148,27 +1184,14 @@ Description: Unit test for nctools.py</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="tests.test_nctools.TestNetCDF.tearDown">
+<tt class="descname">tearDown</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF.tearDown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="tests.test_nctools.TestNetCDF.test_ncCreateFile">
 <tt class="descname">test_ncCreateFile</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF.test_ncCreateFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test nctools creates a file successfully</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="tests.test_nctools.TestNetCDF.test_ncGetTimeValues">
-<tt class="descname">test_ncGetTimeValues</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF.test_ncGetTimeValues" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test ncGetTimes returns correct time values</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="tests.test_nctools.TestNetCDF.test_ncGetTimes">
-<tt class="descname">test_ncGetTimes</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF.test_ncGetTimes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test ncGetTimes returns datetime objects</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="tests.test_nctools.TestNetCDF.test_ncReadFile">
-<tt class="descname">test_ncReadFile</tt><big>(</big><big>)</big><a class="headerlink" href="#tests.test_nctools.TestNetCDF.test_ncReadFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test nctools functions for reading dimensions and variables</p>
 </dd></dl>
 
 <dl class="method">
@@ -1246,12 +1269,12 @@ Description: Unit testing module for pressureProfile</p>
 
 <dl class="attribute">
 <dt id="tests.test_pressureProfile.TestPressureProfile.pkl_file">
-<tt class="descname">pkl_file</tt><em class="property"> = &lt;closed file u'C:\\WorkSpace\\tcrm\\tests\\test_data\\pressureProfileTestData.pck', mode 'rb' at 0x0C9CB808&gt;</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.pkl_file" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pkl_file</tt><em class="property"> = &lt;closed file u'c:\\WorkSpace\\tcrm\\tests\\test_data\\pressureProfileTestData.pck', mode 'r' at 0x0B84A968&gt;</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.pkl_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="tests.test_pressureProfile.TestPressureProfile.prP">
-<tt class="descname">prP</tt><em class="property"> = &lt;PressureInterface.pressureProfile.PrsProfile instance at 0x0C68E2D8&gt;</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.prP" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">prP</tt><em class="property"> = &lt;PressureInterface.pressureProfile.PrsProfile instance at 0x0B7B9F80&gt;</em><a class="headerlink" href="#tests.test_pressureProfile.TestPressureProfile.prP" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1590,7 +1613,7 @@ Modification: Added tests for exceptions</p>
 <li><a class="reference internal" href="#module-tests.test_loadData">tests.test_loadData module</a></li>
 <li><a class="reference internal" href="#tests-test-maputils-module">tests.test_maputils module</a></li>
 <li><a class="reference internal" href="#tests-test-metutils-module">tests.test_metutils module</a></li>
-<li><a class="reference internal" href="#tests-test-nctools-module">tests.test_nctools module</a></li>
+<li><a class="reference internal" href="#module-tests.test_nctools">tests.test_nctools module</a></li>
 <li><a class="reference internal" href="#tests-test-pressureprofile-module">tests.test_pressureProfile module</a></li>
 <li><a class="reference internal" href="#tests-test-stats-module">tests.test_stats module</a></li>
 <li><a class="reference internal" href="#tests-test-vmax-module">tests.test_vmax module</a></li>
@@ -1636,8 +1659,8 @@ Modification: Added tests for exceptions</p>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Oct 17, 2014.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Last updated on Mar 20, 2015.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

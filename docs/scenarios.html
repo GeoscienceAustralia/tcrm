@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -102,7 +104,7 @@ recommended to create a reduced configuration file that contains only
 the required sections and options.</p>
 <p>A basic configuration file for a scenario simulation would look like
 this:</p>
-<div class="highlight-python"><div class="highlight"><pre>[DataProcess]
+<div class="highlight-python"><pre>[DataProcess]
 InputFile = scenario.csv
 Source = NRL
 FilterSeasons = False
@@ -139,8 +141,7 @@ LogFile = output/scenario/log/scenario.log
 LogLevel = INFO
 Verbose = True
 NewLog = True
-DateStamp = True
-</pre></div>
+DateStamp = True</pre>
 </div>
 </div>
 </div>
@@ -154,8 +155,7 @@ extent of the track.</p>
 <p>Make sure <tt class="docutils literal"><span class="pre">python</span></tt> is in your system path, then from the base
 directory, call the <tt class="docutils literal"><span class="pre">tcevent.py</span></tt> script, with the configuration
 file option included. For example, to run the example scenario:</p>
-<div class="highlight-python"><div class="highlight"><pre>python tcevent.py -c example/scenario.ini
-</pre></div>
+<div class="highlight-python"><pre>python tcevent.py -c example/scenario.ini</pre>
 </div>
 <p>If the <tt class="docutils literal"><span class="pre">-v</span></tt> option is included, then all logging messages will be
 printed to the console. The level of logging detail is set in the
@@ -213,8 +213,8 @@ framework).</li>
 </ul>
 <p>The data is stored in a separate csv file for each location, and data
 is plotted on a simple figure for visual inspection.</p>
-<div class="align-center figure">
-<img alt="Maximum wind speed swath of Typhoon *Haiyan*" src="../_images/maxwind_example.png" />
+<div class="align-center figure align-center">
+<img alt="Maximum wind speed swath of Typhoon *Haiyan*" src="docs\./maxwind_example.png" />
 <p class="caption">Estimated maximum wind speed swath of Super Typhoon
 <em>Haiyan</em> (2013) across the Philippine archipelago. This simulation
 used the best track estimate from the Joint Typhoon Warning Center
@@ -222,8 +222,8 @@ to establish the intensity and radius to maximum winds of the
 typhoon. No attempt is made to fit the radial profile to defined
 wind radii (e.g. radius of 46-, 50- or 34-knots).</p>
 </div>
-<div class="align-center figure">
-<img alt="Time series example from Guiuan, Philippines" src="../_images/timeseries_example.png" />
+<div class="align-center figure align-center">
+<img alt="Time series example from Guiuan, Philippines" src="docs\./timeseries_example.png" />
 <p class="caption">Time series data for Super Typhoon <em>Haiyan</em> at Guiuan, Samar, Philippines.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -334,8 +334,8 @@ domain. The <tt class="docutils literal"><span class="pre">gridLimit</span></tt>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Oct 17, 2014.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Last updated on Mar 20, 2015.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

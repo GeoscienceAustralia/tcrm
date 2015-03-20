@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -56,14 +58,13 @@ Datasets are listed in the <cite>Input</cite> section of the configuration
 file, with the option <cite>Datasets</cite>. There must also be a corresponding
 section in the configuration file that inlcudes the url, path where
 the dataset will be stored and the filename that will be stored, e.g.:</p>
-<div class="highlight-python"><div class="highlight"><pre>[Input]
+<div class="highlight-python"><pre>[Input]
 Datasets=IBTRACS
 
 [IBTRACS]
 URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
 filename=Allstorms.ibtracs_wmo.v03r05.csv
-path=input
-</pre></div>
+path=input</pre>
 </div>
 <p>This will attempt to download the gzipped csv file from the given URL
 and save it to the given filename, in the &#8216;input&#8217; folder under the current
@@ -316,8 +317,8 @@ to execute the main TCRM functions.</p>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Oct 31, 2014.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Last updated on Mar 20, 2015.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

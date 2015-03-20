@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -585,7 +587,7 @@ has not previously been downoladed.</p>
 
 <dl class="function">
 <dt id="Utilities.datasets.loadDatasets">
-<tt class="descname">loadDatasets</tt><big>(</big><big>)</big><a class="headerlink" href="#Utilities.datasets.loadDatasets" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">loadDatasets</tt><big>(</big><em>configFile</em><big>)</big><a class="headerlink" href="#Utilities.datasets.loadDatasets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the details of the datasets to be downloaded from the
 configuration settings. This updates the <tt class="xref py py-data docutils literal"><span class="pre">DATASETS</span></tt>
 list.</p>
@@ -863,7 +865,7 @@ existing file.</li>
 <h3><a class="reference internal" href="#module-grid" title="grid: Read, write and sample ascii grid files."><tt class="xref py py-mod docutils literal"><span class="pre">grid</span></tt></a> &#8211; read, write and sample ascii grid files<a class="headerlink" href="#grid-read-write-and-sample-ascii-grid-files" title="Permalink to this headline">¶</a></h3>
 <p>Provide functions to read, write and sample ascii grid files. The
 ascii files are assumend to have and ArcGIS GIRD format:</p>
-<div class="highlight-python"><div class="highlight"><pre>ncols        nx
+<div class="highlight-python"><pre>ncols        nx
 nrows        ny
 xllcorner    xll
 yllcorner    yll
@@ -871,8 +873,7 @@ cellsize     dx
 NODATA_value -9999
 data data data ...
  :    :    :
- :    :    :
-</pre></div>
+ :    :    :</pre>
 </div>
 <span class="target" id="module-grid"></span><dl class="class">
 <dt id="Utilities.grid.SampleGrid">
@@ -1156,30 +1157,29 @@ Converted to Python by Russ Nelson &lt;<a class="reference external" href="mailt
 <p>FIXME: This is set up to work for the Southern Hemisphere.</p>
 <p>Using
 <a class="reference external" href="http://www.ga.gov.au/geodesy/datums/redfearn_geo_to_grid.jsp">http://www.ga.gov.au/geodesy/datums/redfearn_geo_to_grid.jsp</a></p>
-<div class="highlight-python"><div class="highlight"><pre>Site Name:    GDA-MGA: (UTM with GRS80 ellipsoid)
+<div class="highlight-python"><pre>Site Name:    GDA-MGA: (UTM with GRS80 ellipsoid)
 Zone:   36
 Easting:  511669.521  Northing: 19328195.112
-Latitude:   84  0 &#39; 0.00000 &#39;&#39;  Longitude: 34  0 &#39; 0.00000 &#39;&#39;
-Grid Convergence:  0  -59 &#39; 40.28 &#39;&#39;  Point Scale: 0.99960166
+Latitude:   84  0 ' 0.00000 ''  Longitude: 34  0 ' 0.00000 ''
+Grid Convergence:  0  -59 ' 40.28 ''  Point Scale: 0.99960166
 ____________
 Site Name:    GDA-MGA: (UTM with GRS80 ellipsoid)
 Zone:   36
 Easting:  519384.803  Northing: 1118247.585
-Latitude:   -80  0 &#39; 0.00000 &#39;&#39;  Longitude: 34  0 &#39; 0.00000 &#39;&#39;
-Grid Convergence:  0  59 &#39; 5.32 &#39;&#39;  Point Scale: 0.99960459
+Latitude:   -80  0 ' 0.00000 ''  Longitude: 34  0 ' 0.00000 ''
+Grid Convergence:  0  59 ' 5.32 ''  Point Scale: 0.99960459
 ____________
 Site Name:    GDA-MGA: (UTM with GRS80 ellipsoid)
 Zone:   36
 Easting:  611263.812  Northing: 10110547.106
-Latitude:   1  0 &#39; 0.00000 &#39;&#39;  Longitude: 34  0 &#39; 0.00000 &#39;&#39;
-Grid Convergence:  0  -1 &#39; 2.84 &#39;&#39;  Point Scale: 0.99975325
+Latitude:   1  0 ' 0.00000 ''  Longitude: 34  0 ' 0.00000 ''
+Grid Convergence:  0  -1 ' 2.84 ''  Point Scale: 0.99975325
 ____________
 Site Name:    GDA-MGA: (UTM with GRS80 ellipsoid)
 Zone:   36
 Easting:  611263.812  Northing: 9889452.894
-Latitude:   -1  0 &#39; 0.00000 &#39;&#39;  Longitude: 34  0 &#39; 0.00000 &#39;&#39;
-Grid Convergence:  0  1 &#39; 2.84 &#39;&#39;  Point Scale: 0.99975325
-</pre></div>
+Latitude:   -1  0 ' 0.00000 ''  Longitude: 34  0 ' 0.00000 ''
+Grid Convergence:  0  1 ' 2.84 ''  Point Scale: 0.99975325</pre>
 </div>
 <p>So this uses a false northing of 10000000 in the both hemispheres.
 ArcGIS used a false northing of 0 in the northern hem though.
@@ -1899,7 +1899,7 @@ great circle navigation.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">ValueError if <cite>value</cite> is a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> or
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last">ValueError if <cite>value</cite> is a <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> or
 a list</p>
 </td>
 </tr>
@@ -2644,7 +2644,7 @@ vapour pressure.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returs:</th><td class="field-body"><p class="first">Specific humidity.</p>
+<tr class="field-even field"><th class="field-name">Returs :</th><td class="field-body"><p class="first">Specific humidity.</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
@@ -2995,38 +2995,36 @@ values of the dimension stored in a 1-d variable with the same name.</p>
 The input dict &#8216;dimensions&#8217; has a strict structure, to
 permit insertion of multiple dimensions. The dimensions should be keyed
 with the slowest varying dimension as dimension 0.</p>
-<div class="highlight-python"><div class="highlight"><pre>dimesions = {0:{&#39;name&#39;:
-                &#39;values&#39;:
-                &#39;dtype&#39;:
-                &#39;atts&#39;:{&#39;long_name&#39;:
-                        &#39;units&#39;:  ...} },
-             1:{&#39;name&#39;:
-                &#39;values&#39;:
-                &#39;type&#39;:
-                &#39;atts&#39;:{&#39;long_name&#39;:
-                        &#39;units&#39;:  ...} },
-                      ...}
-</pre></div>
+<div class="highlight-python"><pre>dimesions = {0:{'name':
+                'values':
+                'dtype':
+                'atts':{'long_name':
+                        'units':  ...} },
+             1:{'name':
+                'values':
+                'type':
+                'atts':{'long_name':
+                        'units':  ...} },
+                      ...}</pre>
 </div>
 </li>
 <li><strong>variables</strong> &#8211; <p><tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt>
 The input dict &#8216;variables&#8217; similarly requires a strict structure:</p>
-<div class="highlight-python"><div class="highlight"><pre>variables = {0:{&#39;name&#39;:
-                &#39;dims&#39;:
-                &#39;values&#39;:
-                &#39;dtype&#39;:
-                &#39;atts&#39;:{&#39;long_name&#39;:
-                        &#39;units&#39;:
+<div class="highlight-python"><pre>variables = {0:{'name':
+                'dims':
+                'values':
+                'dtype':
+                'atts':{'long_name':
+                        'units':
                         ...} },
-             1:{&#39;name&#39;:
-                &#39;dims&#39;:
-                &#39;values&#39;:
-                &#39;dtype&#39;:
-                &#39;atts&#39;:{&#39;long_name&#39;:
-                        &#39;units&#39;:
+             1:{'name':
+                'dims':
+                'values':
+                'dtype':
+                'atts':{'long_name':
+                        'units':
                         ...} },
-                 ...}
-</pre></div>
+                 ...}</pre>
 </div>
 <p>The value for the &#8216;dims&#8217; key must be a tuple that is a subset of
 the dimensions specified above.</p>
@@ -3461,7 +3459,7 @@ keys, and each sub-dictionary containing keys of &#8216;Type&#8217;,
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><tt class="xref py py-mod docutils literal"><span class="pre">shapefile.ShapefileException</span></tt> if unable to write the file.</p>
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last"><tt class="xref py py-mod docutils literal"><span class="pre">shapefile.ShapefileException</span></tt> if unable to write the file.</p>
 </td>
 </tr>
 </tbody>
@@ -3604,7 +3602,7 @@ keys, and each sub-dictionary containing keys of &#8216;Type&#8217;,
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><tt class="xref py py-mod docutils literal"><span class="pre">shapefile.ShapefileException</span></tt> if unable to write the file.</p>
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last"><tt class="xref py py-mod docutils literal"><span class="pre">shapefile.ShapefileException</span></tt> if unable to write the file.</p>
 </td>
 </tr>
 </tbody>
@@ -3789,7 +3787,7 @@ in the range [low to high]</p>
 
 <dl class="data">
 <dt id="Utilities.stats.logger">
-<tt class="descname">logger</tt><em class="property"> = &lt;logging.RootLogger object at 0x02F62030&gt;</em><a class="headerlink" href="#Utilities.stats.logger" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">logger</tt><em class="property"> = &lt;logging.RootLogger object at 0x0300A230&gt;</em><a class="headerlink" href="#Utilities.stats.logger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Functions:</p>
 <dl class="docutils">
 <dt>cdf(x,y) <span class="classifier-delimiter">:</span> <span class="classifier">1D array of float</span></dt>
@@ -3950,8 +3948,7 @@ as &#8216;{keyword}&#8217;.</p>
 </div>
 <p>and <tt class="docutils literal"><span class="pre">replacements</span> <span class="pre">=</span> <span class="pre">dict('PATH':</span> <span class="pre">'/foo/baz')</span></tt>, then the
 output file will be written as:</p>
-<div class="highlight-python"><div class="highlight"><pre>Input = /foo/baz
-</pre></div>
+<div class="highlight-python"><pre>Input = /foo/baz</pre>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3977,33 +3974,9 @@ the replacements to occur in the input file.</li>
 <h3><tt class="xref py py-mod docutils literal"><span class="pre">timeseries</span></tt> - Extract timeseries from each timestep of a simulation<a class="headerlink" href="#timeseries-extract-timeseries-from-each-timestep-of-a-simulation" title="Permalink to this headline">¶</a></h3>
 <p>Extract station timeseries from each timestep of a simulation.
 This samples the regional wind speed, not the site-specific wind speed.
-To include site-specific effects, you will first need to include the multiplier
-values for each site in the station file, then run tsmultipliers.py
-to apply said multipliers to the output.</p>
-<dl class="class">
-<dt id="Utilities.timeseries.DynamicRecArray">
-<em class="property">class </em><tt class="descname">DynamicRecArray</tt><big>(</big><em>dtype</em><big>)</big><a class="headerlink" href="#Utilities.timeseries.DynamicRecArray" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>A dynamic record array to enable appending/extending an array</p>
-<dl class="method">
-<dt id="Utilities.timeseries.DynamicRecArray.append">
-<tt class="descname">append</tt><big>(</big><em>rec</em><big>)</big><a class="headerlink" href="#Utilities.timeseries.DynamicRecArray.append" title="Permalink to this definition">¶</a></dt>
-<dd><p>Append a record to the array</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="Utilities.timeseries.DynamicRecArray.data">
-<tt class="descname">data</tt><a class="headerlink" href="#Utilities.timeseries.DynamicRecArray.data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="Utilities.timeseries.DynamicRecArray.extend">
-<tt class="descname">extend</tt><big>(</big><em>recs</em><big>)</big><a class="headerlink" href="#Utilities.timeseries.DynamicRecArray.extend" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extend a record array  with many records</p>
-</dd></dl>
-
-</dd></dl>
-
+To include site-specific effects, you will first need to include the 
+multiplier values for each site in the station file, then run 
+tsmultipliers.py to apply said multipliers to the output.</p>
 <dl class="class">
 <dt id="Utilities.timeseries.Station">
 <em class="property">class </em><tt class="descname">Station</tt><big>(</big><em>stationid</em>, <em>longitude</em>, <em>latitude</em><big>)</big><a class="headerlink" href="#Utilities.timeseries.Station" title="Permalink to this definition">¶</a></dt>
@@ -4144,6 +4117,29 @@ longitude.</td>
 <div class="section" id="module-tracks2shp">
 <span id="tracks2shp-save-a-track-instance-as-a-shape-file"></span><h3><a class="reference internal" href="#module-tracks2shp" title="tracks2shp: Writes track instances to a shape file as a collection of line, ployline or point features."><tt class="xref py py-mod docutils literal"><span class="pre">tracks2shp</span></tt></a> &#8211; save a track instance as a shape file<a class="headerlink" href="#module-tracks2shp" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
+<dt id="Utilities.tracks2shp.recdropfields">
+<tt class="descname">recdropfields</tt><big>(</big><em>rec</em>, <em>names</em><big>)</big><a class="headerlink" href="#Utilities.tracks2shp.recdropfields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new numpy record array with fields in <em>names</em> dropped.
+From <a class="reference external" href="http://matplotlib.org/api/mlab_api.html#matplotlib.mlab.rec_drop_fields">http://matplotlib.org/api/mlab_api.html#matplotlib.mlab.rec_drop_fields</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>rec</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.recarray</span></tt> containing a number of fields.</li>
+<li><strong>names</strong> (<em>list</em>) &#8211; List of names to drop from the record array.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A new <tt class="xref py py-class docutils literal"><span class="pre">numpy.recarray</span></tt> with the fields in <em>names</em>
+dropped.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="Utilities.tracks2shp.tracks2line">
 <tt class="descname">tracks2line</tt><big>(</big><em>tracks</em>, <em>outputFile</em>, <em>dissolve=False</em><big>)</big><a class="headerlink" href="#Utilities.tracks2shp.tracks2line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes tracks to a shapefile as a collection of line features</p>
@@ -4161,7 +4157,7 @@ stored as a separate feature.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><tt class="xref py py-mod docutils literal"><span class="pre">shapefile.ShapefileException</span></tt> if there is an error
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last"><tt class="xref py py-mod docutils literal"><span class="pre">shapefile.ShapefileException</span></tt> if there is an error
 when attempting to save the file.</p>
 </td>
 </tr>
@@ -4172,7 +4168,7 @@ when attempting to save the file.</p>
 <dl class="function">
 <dt id="Utilities.tracks2shp.tracks2point">
 <tt class="descname">tracks2point</tt><big>(</big><em>tracks</em>, <em>outputFile</em><big>)</big><a class="headerlink" href="#Utilities.tracks2shp.tracks2point" title="Permalink to this definition">¶</a></dt>
-<dd><p>Writes tracks to a shapefile as a collection of point features</p>
+<dd><p>Writes tracks to a shapefile as a collection of point features.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -4183,7 +4179,7 @@ when attempting to save the file.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><tt class="xref py py-mod docutils literal"><span class="pre">shapefile.ShapefileException</span></tt> if there is an error
+<tr class="field-even field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last"><tt class="xref py py-mod docutils literal"><span class="pre">shapefile.ShapefileException</span></tt> if there is an error
 when attempting to save the file.</p>
 </td>
 </tr>
@@ -4229,7 +4225,7 @@ back to the source file.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>inputFile</strong> (<em>str</em>) &#8211; Path to the input timeseries file. This will need
 to contain the values of the three multipliers
 (topography, terrain and shielding) for each of
@@ -4238,6 +4234,10 @@ eight directions.</li>
 location.</li>
 <li><strong>outputFile</strong> (<em>str</em>) &#8211; Destination for the processed file.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The records corresponding to the maximum (localised) wind speed
+and minimum pressure.</p>
 </td>
 </tr>
 </tbody>
@@ -4298,7 +4298,7 @@ of the commit.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><tt class="xref py py-mod docutils literal"><span class="pre">subprocess.CalledProcessError</span></tt> if the git
+<tr class="field-odd field"><th class="field-name">Raises :</th><td class="field-body"><tt class="xref py py-mod docutils literal"><span class="pre">subprocess.CalledProcessError</span></tt> if the git
 command fails.</td>
 </tr>
 </tbody>
@@ -4556,8 +4556,8 @@ dimension.</p>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Oct 31, 2014.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Last updated on Mar 20, 2015.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

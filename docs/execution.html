@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -86,8 +88,7 @@ implementation of a custom hook script).</td></tr>
 <p>Make sure <tt class="docutils literal"><span class="pre">python</span></tt> is in your system path, then from the base
 directory, call the <tt class="docutils literal"><span class="pre">tcrm.py</span></tt> script, with the configuration file
 option included. For example, to run the example simulation:</p>
-<div class="highlight-python"><div class="highlight"><pre>python tcrm.py -c example/port_hedland.ini
-</pre></div>
+<div class="highlight-python"><pre>python tcrm.py -c example/port_hedland.ini</pre>
 </div>
 <p>The model will print a simple progress indicator to the console to
 show that the model is working.</p>
@@ -107,8 +108,7 @@ processing. Instructions for installing <tt class="xref py py-mod docutils liter
 <p>Pypar is built around the MPI library, and so uses the <tt class="docutils literal"><span class="pre">mpirun</span></tt>
 command to execute the model across multiple processors. As an example
 the following command will execute across 16 processors:</p>
-<div class="highlight-python"><div class="highlight"><pre>mpirun -np 16 python tcrm.py -c example/port_hedland.ini
-</pre></div>
+<div class="highlight-python"><pre>mpirun -np 16 python tcrm.py -c example/port_hedland.ini</pre>
 </div>
 <p>Running across multiple processors means that logging messages from
 each individual processor can get mixed up with others. To avoid this,
@@ -185,8 +185,8 @@ given at the command line).</p>
     </div>
     <div class="footer">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Oct 14, 2014.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Last updated on Mar 20, 2015.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>
