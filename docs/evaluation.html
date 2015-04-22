@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,7 +8,7 @@
     
     <title>Evaluation &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -29,8 +27,8 @@
     <link rel="next" title="Using different TC databases - source formats" href="sources.html" />
     <link rel="prev" title="Examples" href="examples.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,19 +43,19 @@
         <li class="right" >
           <a href="examples.html" title="Examples"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="evaluation">
 <h1>Evaluation<a class="headerlink" href="#evaluation" title="Permalink to this headline">¶</a></h1>
 <p>TCRM provides functionality to evaluate the performance of the track
-model over the model domain through the <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><tt class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></tt></a> module. By
+model over the model domain through the <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><code class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></code></a> module. By
 running a number of simulations, each generating a similar number of
 years of events to the input track database, we can compare the
 synthetic events with the observations. Metrics include track density,
@@ -92,13 +90,13 @@ of the configuration file should remain unchanged.</p>
 <span class="n">TrackSeed</span><span class="o">=</span><span class="mi">1</span>
 </pre></div>
 </div>
-<p>Note that the <tt class="docutils literal"><span class="pre">YearsPerSimulation</span></tt> option is now set to 30, so TCRM
+<p>Note that the <code class="docutils literal"><span class="pre">YearsPerSimulation</span></code> option is now set to 30, so TCRM
 will generate 500 event sets, each with the equivalent of 30 years of
 TCs. The annual frequency of events is based on a Poisson distribution
 around the mean annual frequency, which is determined from the input
 track database.</p>
 <p>A csv-format file containing a set of gates around the coastline is
-required for <a class="reference internal" href="Evaluate.html#module-Evaluate.landfallRates" title="Evaluate.landfallRates"><tt class="xref py py-mod docutils literal"><span class="pre">Evaluate.landfallRates</span></tt></a>. Gates are defined as a
+required for <a class="reference internal" href="Evaluate.html#module-Evaluate.landfallRates" title="Evaluate.landfallRates"><code class="xref py py-mod docutils literal"><span class="pre">Evaluate.landfallRates</span></code></a>. Gates are defined as a
 series of points around the coastline in number, longitude, latitude
 format. Below are the first 15 points in the sample gates provided in
 the code base.</p>
@@ -123,7 +121,7 @@ the code base.</p>
 </div>
 <div class="section" id="output">
 <h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><tt class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></tt></a> module generates a set of figures that compare the
+<p>The <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><code class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></code></a> module generates a set of figures that compare the
 synthetic event set to the input track database. For the synthetic
 events, the module calculates a mean value and upper and lower
 percentiles of the distribution (commonly the 5th and 95th percentile
@@ -138,7 +136,7 @@ import into other graphics packages.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
@@ -158,12 +156,14 @@ import into other graphics packages.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="sources.html"
                         title="next chapter">Using different TC databases - source formats</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/docs/evaluation.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/evaluation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -180,7 +180,7 @@ import into other graphics packages.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -195,13 +195,13 @@ import into other graphics packages.</p>
         <li class="right" >
           <a href="examples.html" title="Examples"
              >previous</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Mar 20, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Last updated on Apr 22, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,7 +8,7 @@
     
     <title>wind package &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -27,8 +25,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -37,14 +35,14 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="wind-package">
 <h1>wind package<a class="headerlink" href="#wind-package" title="Permalink to this headline">¶</a></h1>
@@ -54,7 +52,7 @@
 <div class="section" id="module-wind.vmax">
 <span id="wind-vmax-module"></span><h2>wind.vmax module<a class="headerlink" href="#module-wind.vmax" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-vmax">
-<span id="vmax-calculate-maximum-wind-speed-from-pressure-deficit"></span><h3><a class="reference internal" href="#module-vmax" title="vmax: Calculate maximum wind speed in a cyclone from the pressure deficit."><tt class="xref py py-mod docutils literal"><span class="pre">vmax</span></tt></a> &#8211; calculate maximum wind speed from pressure deficit<a class="headerlink" href="#module-vmax" title="Permalink to this headline">¶</a></h3>
+<span id="vmax-calculate-maximum-wind-speed-from-pressure-deficit"></span><h3><a class="reference internal" href="#module-vmax" title="vmax: Calculate maximum wind speed in a cyclone from the pressure deficit."><code class="xref py py-mod docutils literal"><span class="pre">vmax</span></code></a> &#8211; calculate maximum wind speed from pressure deficit<a class="headerlink" href="#module-vmax" title="Permalink to this headline">¶</a></h3>
 <p>CreationDate: 2006-10-30
 Description: Calculate Vmax from pressure difference and vice versa.
 Offers three relations for calculating Vmax based on the pressure
@@ -95,7 +93,7 @@ Planning and Design.</li>
 <p>$Id: vmax.py 810 2012-02-21 07:52:50Z nsummons $</p>
 <dl class="function">
 <dt id="wind.vmax.pDiff">
-<tt class="descname">pDiff</tt><big>(</big><em>vMax</em>, <em>pEnv</em>, <em>vMaxType='holland'</em>, <em>beta=1.3</em>, <em>rho=1.15</em><big>)</big><a class="headerlink" href="#wind.vmax.pDiff" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pDiff</code><span class="sig-paren">(</span><em>vMax</em>, <em>pEnv</em>, <em>vMaxType='holland'</em>, <em>beta=1.3</em>, <em>rho=1.15</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.vmax.pDiff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inverse functions to calculate central pressure from vMax
 Assumes vMax is given in metres/second.
 Returns pCentre in Pa.</p>
@@ -103,7 +101,7 @@ Returns pCentre in Pa.</p>
 
 <dl class="function">
 <dt id="wind.vmax.vmax">
-<tt class="descname">vmax</tt><big>(</big><em>pCentre</em>, <em>pEnv</em>, <em>type='holland'</em>, <em>beta=1.3</em>, <em>rho=1.15</em><big>)</big><a class="headerlink" href="#wind.vmax.vmax" title="Permalink to this definition">¶</a></dt>
+<code class="descname">vmax</code><span class="sig-paren">(</span><em>pCentre</em>, <em>pEnv</em>, <em>type='holland'</em>, <em>beta=1.3</em>, <em>rho=1.15</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.vmax.vmax" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the maximum wind speed from the pressure difference.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -146,14 +144,14 @@ and surface (10-m above ground) wind speed, based on a number of
 parametric profiles and boundary layer models. These classes and
 methods provide the wind field at a single point in time. The complete
 wind swath is evaluated in the calling classes.</p>
-<p>The <tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> classes define the
+<p>The <code class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></code> classes define the
 wind-pressure relations that define the maximum wind speed for a given
 central pressure deficit.</p>
-<p>The <tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindProfileModel</span></tt> classes define parametric
+<p>The <code class="xref py py-class docutils literal"><span class="pre">windmodels.WindProfileModel</span></code> classes define parametric
 radial profiles of gradient level wind speed around the primary TC
 vortex. These do not account for TC motion or interaction with the
 surface.</p>
-<p>The <tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindFieldModel</span></tt> classes define the boundary
+<p>The <code class="xref py py-class docutils literal"><span class="pre">windmodels.WindFieldModel</span></code> classes define the boundary
 layer models implemented, which relate the gradient level vortex to
 the surface wind speed, incorporating the wavenumber-1 assymetry due
 to storm forward motion, and the effects of (uniform) surface
@@ -167,7 +165,7 @@ implemented, as the mathematical formulation results in
 discontinuous profiles (e.g. Rankine vortex), for which a
 mathematical representation of the vorticity cannot be
 defined. The vorticity is required for the
-<tt class="xref py py-class docutils literal"><span class="pre">windmodels.KepertWindFieldModel</span></tt>. Users should
+<code class="xref py py-class docutils literal"><span class="pre">windmodels.KepertWindFieldModel</span></code>. Users should
 carefully select the combinations of wind profiles and wind
 fields to ensure sensible results.</td>
 </tr>
@@ -175,23 +173,23 @@ fields to ensure sensible results.</td>
 </table>
 <dl class="class">
 <dt id="wind.windmodels.AtkinsonWindSpeed">
-<em class="property">class </em><tt class="descname">AtkinsonWindSpeed</tt><big>(</big><em>windProfileModel</em><big>)</big><a class="headerlink" href="#wind.windmodels.AtkinsonWindSpeed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindSpeedModel" title="wind.windmodels.WindSpeedModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindSpeedModel</span></tt></a></p>
+<em class="property">class </em><code class="descname">AtkinsonWindSpeed</code><span class="sig-paren">(</span><em>windProfileModel</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.AtkinsonWindSpeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindSpeedModel" title="wind.windmodels.WindSpeedModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindSpeedModel</span></code></a></p>
 <p>Atkinson and Holliday (1977), <em>Tropical Cyclone Minimum Sea
 Level Pressure / Maximum Sustained Wind Relationship for
 the Western North Pacific</em> . Mon. Wea. Rev., <strong>105</strong>, 421-427
-Maximum 10m, 1-minute wind speed. Uses <tt class="docutils literal"><span class="pre">pEnv</span></tt> as 1010 hPa.</p>
+Maximum 10m, 1-minute wind speed. Uses <code class="docutils literal"><span class="pre">pEnv</span></code> as 1010 hPa.</p>
 <dl class="method">
 <dt id="wind.windmodels.AtkinsonWindSpeed.maximum">
-<tt class="descname">maximum</tt><big>(</big><big>)</big><a class="headerlink" href="#wind.windmodels.AtkinsonWindSpeed.maximum" title="Permalink to this definition">¶</a></dt>
+<code class="descname">maximum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.AtkinsonWindSpeed.maximum" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="wind.windmodels.DoubleHollandWindProfile">
-<em class="property">class </em><tt class="descname">DoubleHollandWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta1</em>, <em>beta2</em>, <em>rMax2=150.0</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.HollandWindSpeed'&gt;</em><big>)</big><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></tt></a></p>
+<em class="property">class </em><code class="descname">DoubleHollandWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta1</em>, <em>beta2</em>, <em>rMax2=150.0</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.HollandWindSpeed'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></code></a></p>
 <p>McConochie <em>et al</em>&#8216;s double Holland vortex model (based on Cardone <em>et
 al</em>, 1994).  This application is the Coral Sea adaptation of the
 double vortex model (it can also be used for concentric eye-wall
@@ -210,7 +208,7 @@ configurations).</p>
 <li><strong>beta2</strong> (<em>float</em>) &#8211; β parameter for the secondary vortex.</li>
 <li><strong>rmax2</strong> (<em>float</em>) &#8211; Optional. Radius to the secondary wind
 maximum (default=250 km).</li>
-<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+<li><strong>windSpeedModel</strong> (<code class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></code> instance.) &#8211; A maximum wind speed model to apply.</li>
 </ul>
 </td>
 </tr>
@@ -218,25 +216,25 @@ maximum (default=250 km).</li>
 </table>
 <dl class="method">
 <dt id="wind.windmodels.DoubleHollandWindProfile.secondDerivative">
-<tt class="descname">secondDerivative</tt><big>(</big><big>)</big><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile.secondDerivative" title="Permalink to this definition">¶</a></dt>
+<code class="descname">secondDerivative</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile.secondDerivative" title="Permalink to this definition">¶</a></dt>
 <dd><p>Second derivative of the profile.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.DoubleHollandWindProfile.velocity">
-<tt class="descname">velocity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">velocity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate velocity as a function of radial distance.
 Represents the velocity of teh gradient level vortex.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of distance of grid from
 the TC centre.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level wind speed.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -244,19 +242,19 @@ the TC centre.</td>
 
 <dl class="method">
 <dt id="wind.windmodels.DoubleHollandWindProfile.vorticity">
-<tt class="descname">vorticity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">vorticity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the vorticity associated with the (gradient level)
 vortex.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of distance of grid from
 the TC centre.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level (relative) vorticity.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -266,8 +264,8 @@ the TC centre.</td>
 
 <dl class="class">
 <dt id="wind.windmodels.HollandWindProfile">
-<em class="property">class </em><tt class="descname">HollandWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.HollandWindSpeed'&gt;</em><big>)</big><a class="headerlink" href="#wind.windmodels.HollandWindProfile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></tt></a></p>
+<em class="property">class </em><code class="descname">HollandWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.HollandWindSpeed'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.HollandWindProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></code></a></p>
 <p>Holland profile. For <cite>r &lt; rMax</cite>, we reset the wind field to a
 cubic profile to avoid the barotropic instability mentioned in
 Kepert &amp; Wang (2001).</p>
@@ -282,7 +280,7 @@ Kepert &amp; Wang (2001).</p>
 <li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
 <li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
 <li><strong>beta</strong> (<em>float</em>) &#8211; β parameter.</li>
-<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+<li><strong>windSpeedModel</strong> (<code class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></code> instance.) &#8211; A maximum wind speed model to apply.</li>
 </ul>
 </td>
 </tr>
@@ -290,25 +288,25 @@ Kepert &amp; Wang (2001).</p>
 </table>
 <dl class="method">
 <dt id="wind.windmodels.HollandWindProfile.secondDerivative">
-<tt class="descname">secondDerivative</tt><big>(</big><big>)</big><a class="headerlink" href="#wind.windmodels.HollandWindProfile.secondDerivative" title="Permalink to this definition">¶</a></dt>
+<code class="descname">secondDerivative</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.HollandWindProfile.secondDerivative" title="Permalink to this definition">¶</a></dt>
 <dd><p>Second derivative of profile at rMax.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.HollandWindProfile.velocity">
-<tt class="descname">velocity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.HollandWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">velocity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.HollandWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate velocity as a function of radial distance.
 Represents the velocity of teh gradient level vortex.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of distance of grid from
 the TC centre.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level wind speed.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -316,19 +314,19 @@ the TC centre.</td>
 
 <dl class="method">
 <dt id="wind.windmodels.HollandWindProfile.vorticity">
-<tt class="descname">vorticity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.HollandWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">vorticity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.HollandWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the vorticity associated with the (gradient level)
 vortex.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of distance of grid from
 the TC centre.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level (relative) vorticity.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -338,23 +336,23 @@ the TC centre.</td>
 
 <dl class="class">
 <dt id="wind.windmodels.HollandWindSpeed">
-<em class="property">class </em><tt class="descname">HollandWindSpeed</tt><big>(</big><em>windProfileModel</em><big>)</big><a class="headerlink" href="#wind.windmodels.HollandWindSpeed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindSpeedModel" title="wind.windmodels.WindSpeedModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindSpeedModel</span></tt></a></p>
+<em class="property">class </em><code class="descname">HollandWindSpeed</code><span class="sig-paren">(</span><em>windProfileModel</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.HollandWindSpeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindSpeedModel" title="wind.windmodels.WindSpeedModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindSpeedModel</span></code></a></p>
 <p>Holland (1980), An Analytic Model of the Wind and Pressure Profiles
 in Hurricanes. Mon. Wea. Rev, 108, 1212-1218 Density of air is
 assumed to be 1.15 kg/m^3.  β is assumed to be 1.3. Other values
 can be specified.  Gradient level wind (assumed maximum).</p>
 <dl class="method">
 <dt id="wind.windmodels.HollandWindSpeed.maximum">
-<tt class="descname">maximum</tt><big>(</big><big>)</big><a class="headerlink" href="#wind.windmodels.HollandWindSpeed.maximum" title="Permalink to this definition">¶</a></dt>
+<code class="descname">maximum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.HollandWindSpeed.maximum" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="wind.windmodels.HubbertWindField">
-<em class="property">class </em><tt class="descname">HubbertWindField</tt><big>(</big><em>windProfileModel</em><big>)</big><a class="headerlink" href="#wind.windmodels.HubbertWindField" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindFieldModel" title="wind.windmodels.WindFieldModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindFieldModel</span></tt></a></p>
+<em class="property">class </em><code class="descname">HubbertWindField</code><span class="sig-paren">(</span><em>windProfileModel</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.HubbertWindField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindFieldModel" title="wind.windmodels.WindFieldModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindFieldModel</span></code></a></p>
 <p>Hubbert, G.D., G.J. Holland, L.M. Leslie and M.J. Manton, 1991:
 A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
 <em>Weather and Forecasting</em>, <strong>6</strong>, 86-97</p>
@@ -363,8 +361,8 @@ A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>R</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; Distance from the storm centre to the grid (km).</li>
-<li><strong>lam</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; Direction (geographic bearing, positive clockwise)
+<li><strong>R</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; Distance from the storm centre to the grid (km).</li>
+<li><strong>lam</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; Direction (geographic bearing, positive clockwise)
 from storm centre to the grid.</li>
 <li><strong>vFm</strong> (<em>float</em>) &#8211; Foward speed of the storm (m/s).</li>
 <li><strong>thetaFm</strong> (<em>float</em>) &#8211; Forward direction of the storm (geographic
@@ -379,15 +377,15 @@ motion.</li>
 </table>
 <dl class="method">
 <dt id="wind.windmodels.HubbertWindField.field">
-<tt class="descname">field</tt><big>(</big><em>R</em>, <em>lam</em>, <em>vFm</em>, <em>thetaFm</em>, <em>thetaMax=0.0</em><big>)</big><a class="headerlink" href="#wind.windmodels.HubbertWindField.field" title="Permalink to this definition">¶</a></dt>
+<code class="descname">field</code><span class="sig-paren">(</span><em>R</em>, <em>lam</em>, <em>vFm</em>, <em>thetaFm</em>, <em>thetaMax=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.HubbertWindField.field" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="wind.windmodels.JelesnianskiWindProfile">
-<em class="property">class </em><tt class="descname">JelesnianskiWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.WilloughbyWindSpeed'&gt;</em><big>)</big><a class="headerlink" href="#wind.windmodels.JelesnianskiWindProfile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></tt></a></p>
+<em class="property">class </em><code class="descname">JelesnianskiWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.WilloughbyWindSpeed'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.JelesnianskiWindProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></code></a></p>
 <p>Jelesnianski model of the wind profile.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -399,7 +397,7 @@ motion.</li>
 <li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
 <li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
 <li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
-<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+<li><strong>windSpeedModel</strong> (<code class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></code> instance.) &#8211; A maximum wind speed model to apply.</li>
 </ul>
 </td>
 </tr>
@@ -407,19 +405,19 @@ motion.</li>
 </table>
 <dl class="method">
 <dt id="wind.windmodels.JelesnianskiWindProfile.velocity">
-<tt class="descname">velocity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.JelesnianskiWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">velocity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.JelesnianskiWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate velocity as a function of radial distance.
 Represents the velocity of teh gradient level vortex.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of distance of grid from
 the TC centre.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level wind speed.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -427,19 +425,19 @@ the TC centre.</td>
 
 <dl class="method">
 <dt id="wind.windmodels.JelesnianskiWindProfile.vorticity">
-<tt class="descname">vorticity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.JelesnianskiWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">vorticity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.JelesnianskiWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the vorticity associated with the (gradient level)
 vortex.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of distance of grid from
 the TC centre.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level (relative) vorticity.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -449,21 +447,21 @@ the TC centre.</td>
 
 <dl class="class">
 <dt id="wind.windmodels.KepertWindField">
-<em class="property">class </em><tt class="descname">KepertWindField</tt><big>(</big><em>windProfileModel</em><big>)</big><a class="headerlink" href="#wind.windmodels.KepertWindField" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindFieldModel" title="wind.windmodels.WindFieldModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindFieldModel</span></tt></a></p>
+<em class="property">class </em><code class="descname">KepertWindField</code><span class="sig-paren">(</span><em>windProfileModel</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.KepertWindField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindFieldModel" title="wind.windmodels.WindFieldModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindFieldModel</span></code></a></p>
 <p>Kepert, J., 2001: The Dynamics of Boundary Layer Jets within the
 Tropical Cyclone Core. Part I: Linear Theory.  J. Atmos. Sci., 58,
 2469-2484</p>
 <dl class="method">
 <dt id="wind.windmodels.KepertWindField.field">
-<tt class="descname">field</tt><big>(</big><em>R</em>, <em>lam</em>, <em>vFm</em>, <em>thetaFm</em>, <em>thetaMax=0.0</em><big>)</big><a class="headerlink" href="#wind.windmodels.KepertWindField.field" title="Permalink to this definition">¶</a></dt>
+<code class="descname">field</code><span class="sig-paren">(</span><em>R</em>, <em>lam</em>, <em>vFm</em>, <em>thetaFm</em>, <em>thetaMax=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.KepertWindField.field" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>R</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; Distance from the storm centre to the grid (km).</li>
-<li><strong>lam</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; Direction (geographic bearing, positive clockwise)
+<li><strong>R</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; Distance from the storm centre to the grid (km).</li>
+<li><strong>lam</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; Direction (geographic bearing, positive clockwise)
 from storm centre to the grid.</li>
 <li><strong>vFm</strong> (<em>float</em>) &#8211; Foward speed of the storm (m/s).</li>
 <li><strong>thetaFm</strong> (<em>float</em>) &#8211; Forward direction of the storm (geographic
@@ -482,21 +480,21 @@ motion.</li>
 
 <dl class="class">
 <dt id="wind.windmodels.McConochieWindField">
-<em class="property">class </em><tt class="descname">McConochieWindField</tt><big>(</big><em>windProfileModel</em><big>)</big><a class="headerlink" href="#wind.windmodels.McConochieWindField" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindFieldModel" title="wind.windmodels.WindFieldModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindFieldModel</span></tt></a></p>
+<em class="property">class </em><code class="descname">McConochieWindField</code><span class="sig-paren">(</span><em>windProfileModel</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.McConochieWindField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindFieldModel" title="wind.windmodels.WindFieldModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindFieldModel</span></code></a></p>
 <p>McConochie, J.D., T.A. Hardy and L.B. Mason, 2004:
 Modelling tropical cyclone over-water wind and pressure fields.
 Ocean Engineering, 31, 1757-1782.</p>
 <dl class="method">
 <dt id="wind.windmodels.McConochieWindField.field">
-<tt class="descname">field</tt><big>(</big><em>R</em>, <em>lam</em>, <em>vFm</em>, <em>thetaFm</em>, <em>thetaMax=0.0</em><big>)</big><a class="headerlink" href="#wind.windmodels.McConochieWindField.field" title="Permalink to this definition">¶</a></dt>
+<code class="descname">field</code><span class="sig-paren">(</span><em>R</em>, <em>lam</em>, <em>vFm</em>, <em>thetaFm</em>, <em>thetaMax=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.McConochieWindField.field" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>R</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; Distance from the storm centre to the grid (km).</li>
-<li><strong>lam</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; Direction (geographic bearing, positive clockwise)
+<li><strong>R</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; Distance from the storm centre to the grid (km).</li>
+<li><strong>lam</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; Direction (geographic bearing, positive clockwise)
 from storm centre to the grid.</li>
 <li><strong>vFm</strong> (<em>float</em>) &#8211; Foward speed of the storm (m/s).</li>
 <li><strong>thetaFm</strong> (<em>float</em>) &#8211; Forward direction of the storm (geographic
@@ -515,8 +513,8 @@ motion.</li>
 
 <dl class="class">
 <dt id="wind.windmodels.NewHollandWindProfile">
-<em class="property">class </em><tt class="descname">NewHollandWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>rGale=150.0</em><big>)</big><a class="headerlink" href="#wind.windmodels.NewHollandWindProfile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></tt></a></p>
+<em class="property">class </em><code class="descname">NewHollandWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>rGale=150.0</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.NewHollandWindProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></code></a></p>
 <p>Holland et al. 2010.  In this version, the exponent is allowed to
 vary linearly outside the radius of maximum wind. i.e. rather than
 take the sqare root, the exponent varies around 0.5.  Currently
@@ -540,7 +538,7 @@ in windVorticity, so it cannot be applied in wind field modelling.</p>
 </table>
 <dl class="method">
 <dt id="wind.windmodels.NewHollandWindProfile.velocity">
-<tt class="descname">velocity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.NewHollandWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">velocity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.NewHollandWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
 <dd><p>In this incarnation, we are assuming the pressure rate of
 change and forward velocity is zero, so there is no
 requirement for a first-pass guess at <cite>x</cite>.</p>
@@ -550,12 +548,12 @@ Represents the velocity of teh gradient level vortex.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of distance of grid from
 the TC centre.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level wind speed.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -563,19 +561,19 @@ the TC centre.</td>
 
 <dl class="method">
 <dt id="wind.windmodels.NewHollandWindProfile.vorticity">
-<tt class="descname">vorticity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.NewHollandWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">vorticity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.NewHollandWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the vorticity associated with the (gradient level)
 vortex.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of distance of grid from
 the TC centre.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level (relative) vorticity.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -585,8 +583,8 @@ the TC centre.</td>
 
 <dl class="class">
 <dt id="wind.windmodels.PowellWindProfile">
-<em class="property">class </em><tt class="descname">PowellWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em><big>)</big><a class="headerlink" href="#wind.windmodels.PowellWindProfile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.HollandWindProfile" title="wind.windmodels.HollandWindProfile"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.HollandWindProfile</span></tt></a></p>
+<em class="property">class </em><code class="descname">PowellWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.PowellWindProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.HollandWindProfile" title="wind.windmodels.HollandWindProfile"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.HollandWindProfile</span></code></a></p>
 <p>Powell <em>et al</em>, 2005. Another definition of the beta parameter
 inserted into the Holland model.  Unlike Willoughby and Rahn&#8217;s
 model, there is no reliance on vMax.  Powell <em>et al</em>. also included a
@@ -603,7 +601,7 @@ function and the corresponding vorticity function match.</p>
 <li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
 <li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
 <li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
-<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+<li><strong>windSpeedModel</strong> (<code class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></code> instance.) &#8211; A maximum wind speed model to apply.</li>
 </ul>
 </td>
 </tr>
@@ -613,8 +611,8 @@ function and the corresponding vorticity function match.</p>
 
 <dl class="class">
 <dt id="wind.windmodels.RankineWindProfile">
-<em class="property">class </em><tt class="descname">RankineWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.WilloughbyWindSpeed'&gt;</em><big>)</big><a class="headerlink" href="#wind.windmodels.RankineWindProfile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></tt></a></p>
+<em class="property">class </em><code class="descname">RankineWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.WilloughbyWindSpeed'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.RankineWindProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></code></a></p>
 <p>Rankine vortex profile. Vmax determined by dp using, by default,
 the Willoughby &amp; Rahn method.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -627,7 +625,7 @@ the Willoughby &amp; Rahn method.</p>
 <li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
 <li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
 <li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
-<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+<li><strong>windSpeedModel</strong> (<code class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></code> instance.) &#8211; A maximum wind speed model to apply.</li>
 </ul>
 </td>
 </tr>
@@ -635,7 +633,7 @@ the Willoughby &amp; Rahn method.</p>
 </table>
 <dl class="method">
 <dt id="wind.windmodels.RankineWindProfile.velocity">
-<tt class="descname">velocity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.RankineWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">velocity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.RankineWindProfile.velocity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate velocity as a function of radial distance.
 Represents the velocity of teh gradient level vortex.</p>
 <p>This includes an assumption about the shape of the profile
@@ -645,12 +643,12 @@ outside Rmax. The literature indicates 0.4 &lt; alpha &lt; 0.6
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of distance of grid from
 the TC centre.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level wind speed.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -658,19 +656,19 @@ the TC centre.</td>
 
 <dl class="method">
 <dt id="wind.windmodels.RankineWindProfile.vorticity">
-<tt class="descname">vorticity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.RankineWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">vorticity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.RankineWindProfile.vorticity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the vorticity associated with the (gradient level)
 vortex.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of distance of grid from
 the TC centre.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level (relative) vorticity.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -680,8 +678,8 @@ the TC centre.</td>
 
 <dl class="class">
 <dt id="wind.windmodels.SchloemerWindProfile">
-<em class="property">class </em><tt class="descname">SchloemerWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em><big>)</big><a class="headerlink" href="#wind.windmodels.SchloemerWindProfile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.HollandWindProfile" title="wind.windmodels.HollandWindProfile"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.HollandWindProfile</span></tt></a></p>
+<em class="property">class </em><code class="descname">SchloemerWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.SchloemerWindProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.HollandWindProfile" title="wind.windmodels.HollandWindProfile"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.HollandWindProfile</span></code></a></p>
 <p>Schloemer&#8217;s (1954) is the same as the Holland relation with
 β = 1</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -694,7 +692,7 @@ the TC centre.</td>
 <li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
 <li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
 <li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
-<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+<li><strong>windSpeedModel</strong> (<code class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></code> instance.) &#8211; A maximum wind speed model to apply.</li>
 </ul>
 </td>
 </tr>
@@ -704,8 +702,8 @@ the TC centre.</td>
 
 <dl class="class">
 <dt id="wind.windmodels.WilloughbyWindProfile">
-<em class="property">class </em><tt class="descname">WilloughbyWindProfile</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.WilloughbyWindSpeed'&gt;</em><big>)</big><a class="headerlink" href="#wind.windmodels.WilloughbyWindProfile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.HollandWindProfile" title="wind.windmodels.HollandWindProfile"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.HollandWindProfile</span></tt></a></p>
+<em class="property">class </em><code class="descname">WilloughbyWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.WilloughbyWindSpeed'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WilloughbyWindProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.HollandWindProfile" title="wind.windmodels.HollandWindProfile"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.HollandWindProfile</span></code></a></p>
 <p>The Willoughby &amp; Rahn (2004) relation, which makes β a function
 of Vmax, rMax and latitude. We use Willoughby &amp; Rahn&#8217;s (2004)
 relation for Vmax <em>only</em>.  This determines the β parameter then
@@ -722,7 +720,7 @@ Atlantic and Eastern Pacific cyclone data, not Australian data.</p>
 <li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
 <li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
 <li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
-<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+<li><strong>windSpeedModel</strong> (<code class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></code> instance.) &#8211; A maximum wind speed model to apply.</li>
 </ul>
 </td>
 </tr>
@@ -732,22 +730,22 @@ Atlantic and Eastern Pacific cyclone data, not Australian data.</p>
 
 <dl class="class">
 <dt id="wind.windmodels.WilloughbyWindSpeed">
-<em class="property">class </em><tt class="descname">WilloughbyWindSpeed</tt><big>(</big><em>windProfileModel</em><big>)</big><a class="headerlink" href="#wind.windmodels.WilloughbyWindSpeed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindSpeedModel" title="wind.windmodels.WindSpeedModel"><tt class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindSpeedModel</span></tt></a></p>
+<em class="property">class </em><code class="descname">WilloughbyWindSpeed</code><span class="sig-paren">(</span><em>windProfileModel</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WilloughbyWindSpeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindSpeedModel" title="wind.windmodels.WindSpeedModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindSpeedModel</span></code></a></p>
 <p>Willoughby &amp; Rahn (2004), Parametric Representation of the Primary
 Hurricane Vortex. Part I: Observations and Evaluation of the
 Holland (1980) Model.  Mon. Wea. Rev., 132, 3033-3048</p>
 <dl class="method">
 <dt id="wind.windmodels.WilloughbyWindSpeed.maximum">
-<tt class="descname">maximum</tt><big>(</big><big>)</big><a class="headerlink" href="#wind.windmodels.WilloughbyWindSpeed.maximum" title="Permalink to this definition">¶</a></dt>
+<code class="descname">maximum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WilloughbyWindSpeed.maximum" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="wind.windmodels.WindFieldModel">
-<em class="property">class </em><tt class="descname">WindFieldModel</tt><big>(</big><em>windProfileModel</em><big>)</big><a class="headerlink" href="#wind.windmodels.WindFieldModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">WindFieldModel</code><span class="sig-paren">(</span><em>windProfileModel</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WindFieldModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Wind field (boundary layer) models. These define the boundary
 layer models implemented, which relate the gradient level vortex
 to the surface wind speed, incorporating the wavenumber-1
@@ -763,34 +761,34 @@ assymetry due to storm forward motion, and the effects of
 </table>
 <dl class="attribute">
 <dt id="wind.windmodels.WindFieldModel.f">
-<tt class="descname">f</tt><a class="headerlink" href="#wind.windmodels.WindFieldModel.f" title="Permalink to this definition">¶</a></dt>
+<code class="descname">f</code><a class="headerlink" href="#wind.windmodels.WindFieldModel.f" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper property to return the coriolis force from the
 wind profile.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.WindFieldModel.field">
-<tt class="descname">field</tt><big>(</big><em>R</em>, <em>lam</em>, <em>vFm</em>, <em>thetaFm</em>, <em>thetaMax=0.0</em><big>)</big><a class="headerlink" href="#wind.windmodels.WindFieldModel.field" title="Permalink to this definition">¶</a></dt>
+<code class="descname">field</code><span class="sig-paren">(</span><em>R</em>, <em>lam</em>, <em>vFm</em>, <em>thetaFm</em>, <em>thetaMax=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WindFieldModel.field" title="Permalink to this definition">¶</a></dt>
 <dd><p>The wind field.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="wind.windmodels.WindFieldModel.rMax">
-<tt class="descname">rMax</tt><a class="headerlink" href="#wind.windmodels.WindFieldModel.rMax" title="Permalink to this definition">¶</a></dt>
+<code class="descname">rMax</code><a class="headerlink" href="#wind.windmodels.WindFieldModel.rMax" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper property to return the maximum radius from the
 wind profile.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.WindFieldModel.velocity">
-<tt class="descname">velocity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.WindFieldModel.velocity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">velocity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WindFieldModel.velocity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper property to return the wind velocity at radiuses <cite>R</cite>
 from the wind profile or the precalculated attribute.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.WindFieldModel.vorticity">
-<tt class="descname">vorticity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.WindFieldModel.vorticity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">vorticity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WindFieldModel.vorticity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper property to return the wind vorticity at radiuses <cite>R</cite>
 from the wind profile or the precalculated attribute.</p>
 </dd></dl>
@@ -799,8 +797,8 @@ from the wind profile or the precalculated attribute.</p>
 
 <dl class="class">
 <dt id="wind.windmodels.WindProfileModel">
-<em class="property">class </em><tt class="descname">WindProfileModel</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel</em><big>)</big><a class="headerlink" href="#wind.windmodels.WindProfileModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">WindProfileModel</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WindProfileModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>The base wind profile model.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -812,7 +810,7 @@ from the wind profile or the precalculated attribute.</p>
 <li><strong>eP</strong> (<em>float</em>) &#8211; environmental pressure (hPa).</li>
 <li><strong>cP</strong> (<em>float</em>) &#8211; centrral pressure of the TC (hPa).</li>
 <li><strong>rMax</strong> (<em>float</em>) &#8211; Radius to maximum wind (km).</li>
-<li><strong>windSpeedModel</strong> (<tt class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></tt> instance.) &#8211; A maximum wind speed model to apply.</li>
+<li><strong>windSpeedModel</strong> (<code class="xref py py-class docutils literal"><span class="pre">windmodels.WindSpeedModel</span></code> instance.) &#8211; A maximum wind speed model to apply.</li>
 </ul>
 </td>
 </tr>
@@ -820,31 +818,31 @@ from the wind profile or the precalculated attribute.</p>
 </table>
 <dl class="attribute">
 <dt id="wind.windmodels.WindProfileModel.dP">
-<tt class="descname">dP</tt><a class="headerlink" href="#wind.windmodels.WindProfileModel.dP" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dP</code><a class="headerlink" href="#wind.windmodels.WindProfileModel.dP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pressure difference.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="wind.windmodels.WindProfileModel.vMax">
-<tt class="descname">vMax</tt><a class="headerlink" href="#wind.windmodels.WindProfileModel.vMax" title="Permalink to this definition">¶</a></dt>
+<code class="descname">vMax</code><a class="headerlink" href="#wind.windmodels.WindProfileModel.vMax" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum wind speed.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.WindProfileModel.velocity">
-<tt class="descname">velocity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.WindProfileModel.velocity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">velocity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WindProfileModel.velocity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate velocity as a function of radial distance <cite>R</cite>.
 Represents the velocity of teh gradient level vortex.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of distance of grid from
 the TC centre.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level wind speed.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -852,19 +850,19 @@ the TC centre.</td>
 
 <dl class="method">
 <dt id="wind.windmodels.WindProfileModel.vorticity">
-<tt class="descname">vorticity</tt><big>(</big><em>R</em><big>)</big><a class="headerlink" href="#wind.windmodels.WindProfileModel.vorticity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">vorticity</code><span class="sig-paren">(</span><em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WindProfileModel.vorticity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the vorticity associated with the (gradient level)
 vortex at radius <cite>R</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> of distance of grid from
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>R</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of distance of grid from
 the TC centre.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array of gradient level (relative) vorticity.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -874,30 +872,30 @@ the TC centre.</td>
 
 <dl class="class">
 <dt id="wind.windmodels.WindSpeedModel">
-<em class="property">class </em><tt class="descname">WindSpeedModel</tt><big>(</big><em>windProfileModel</em><big>)</big><a class="headerlink" href="#wind.windmodels.WindSpeedModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">WindSpeedModel</code><span class="sig-paren">(</span><em>windProfileModel</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WindSpeedModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Abstract wind speed model.</p>
 <dl class="attribute">
 <dt id="wind.windmodels.WindSpeedModel.cP">
-<tt class="descname">cP</tt><a class="headerlink" href="#wind.windmodels.WindSpeedModel.cP" title="Permalink to this definition">¶</a></dt>
+<code class="descname">cP</code><a class="headerlink" href="#wind.windmodels.WindSpeedModel.cP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Current pressure.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="wind.windmodels.WindSpeedModel.dP">
-<tt class="descname">dP</tt><a class="headerlink" href="#wind.windmodels.WindSpeedModel.dP" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dP</code><a class="headerlink" href="#wind.windmodels.WindSpeedModel.dP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pressure difference.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="wind.windmodels.WindSpeedModel.eP">
-<tt class="descname">eP</tt><a class="headerlink" href="#wind.windmodels.WindSpeedModel.eP" title="Permalink to this definition">¶</a></dt>
+<code class="descname">eP</code><a class="headerlink" href="#wind.windmodels.WindSpeedModel.eP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Environment pressure.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="wind.windmodels.WindSpeedModel.maximum">
-<tt class="descname">maximum</tt><big>(</big><big>)</big><a class="headerlink" href="#wind.windmodels.WindSpeedModel.maximum" title="Permalink to this definition">¶</a></dt>
+<code class="descname">maximum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WindSpeedModel.maximum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maximum wind speed.</p>
 </dd></dl>
 
@@ -905,39 +903,39 @@ the TC centre.</td>
 
 <dl class="function">
 <dt id="wind.windmodels.allSubclasses">
-<tt class="descname">allSubclasses</tt><big>(</big><em>cls</em><big>)</big><a class="headerlink" href="#wind.windmodels.allSubclasses" title="Permalink to this definition">¶</a></dt>
+<code class="descname">allSubclasses</code><span class="sig-paren">(</span><em>cls</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.allSubclasses" title="Permalink to this definition">¶</a></dt>
 <dd><p>Recursively find all subclasses of a given class.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="wind.windmodels.field">
-<tt class="descname">field</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#wind.windmodels.field" title="Permalink to this definition">¶</a></dt>
+<code class="descname">field</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.field" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to return the appropriate wind field
 model given a <cite>name</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="wind.windmodels.fieldParams">
-<tt class="descname">fieldParams</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#wind.windmodels.fieldParams" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fieldParams</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.fieldParams" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of additional parameters required for a wind field model.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="wind.windmodels.k">
-<tt class="descname">k</tt><a class="headerlink" href="#wind.windmodels.k" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="#wind.windmodels.KepertWindField" title="wind.windmodels.KepertWindField"><tt class="xref py py-class docutils literal"><span class="pre">KepertWindField</span></tt></a></p>
+<code class="descname">k</code><a class="headerlink" href="#wind.windmodels.k" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#wind.windmodels.KepertWindField" title="wind.windmodels.KepertWindField"><code class="xref py py-class docutils literal"><span class="pre">KepertWindField</span></code></a></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="wind.windmodels.profile">
-<tt class="descname">profile</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#wind.windmodels.profile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">profile</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to return the appropriate wind profile
 model given a <cite>name</cite>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="wind.windmodels.profileParams">
-<tt class="descname">profileParams</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#wind.windmodels.profileParams" title="Permalink to this definition">¶</a></dt>
+<code class="descname">profileParams</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.profileParams" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of additional parameters required for a wind profile model.</p>
 </dd></dl>
 
@@ -945,7 +943,7 @@ model given a <cite>name</cite>.</p>
 <div class="section" id="module-wind">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-wind" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="wind-wind-field-calculation">
-<h3><a class="reference internal" href="#module-wind" title="wind"><tt class="xref py py-mod docutils literal"><span class="pre">wind</span></tt></a> &#8211; Wind field calculation<a class="headerlink" href="#wind-wind-field-calculation" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#module-wind" title="wind"><code class="xref py py-mod docutils literal"><span class="pre">wind</span></code></a> &#8211; Wind field calculation<a class="headerlink" href="#wind-wind-field-calculation" title="Permalink to this headline">¶</a></h3>
 <p>This module contains the core object for the wind field
 calculations. It provides the radial profile models to define the
 primary vortex of the simulated TC, and bounday layer models that
@@ -958,24 +956,25 @@ mean sea level pressure over the lifetime of the event. If multiple
 TCs are contained in a track file, then the output file contains the
 values from all events (for example, an annual maximum wind speed).</p>
 <p>Wind field calculations can be run in parallel using MPI if the
-<a class="reference internal" href="glossary.html#term-pypar"><em class="xref std std-term">pypar</em></a> library is found and TCRM is run using the
-<a class="reference internal" href="glossary.html#term-mpirun"><em class="xref std std-term">mpirun</em></a> command. For example, to run with 10 processors:</p>
-<div class="highlight-python"><pre>$ mpirun -n 10 python tcrm.py cairns.ini</pre>
+<a class="reference internal" href="glossary.html#term-pypar"><span class="xref std std-term">pypar</span></a> library is found and TCRM is run using the
+<a class="reference internal" href="glossary.html#term-mpirun"><span class="xref std std-term">mpirun</span></a> command. For example, to run with 10 processors:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ mpirun -n 10 python tcrm.py cairns.ini
+</pre></div>
 </div>
-<p><a class="reference internal" href="#module-wind" title="wind"><tt class="xref py py-class docutils literal"><span class="pre">wind</span></tt></a> can be correctly initialised and started by
-calling the <a class="reference internal" href="#wind.run" title="wind.run"><tt class="xref py py-meth docutils literal"><span class="pre">run()</span></tt></a> with the location of a <em>configFile</em>:</p>
+<p><a class="reference internal" href="#module-wind" title="wind"><code class="xref py py-class docutils literal"><span class="pre">wind</span></code></a> can be correctly initialised and started by
+calling the <a class="reference internal" href="#wind.run" title="wind.run"><code class="xref py py-meth docutils literal"><span class="pre">run()</span></code></a> with the location of a <em>configFile</em>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">wind</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">wind</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s">&#39;cairns.ini&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="class">
 <dt id="wind.Track">
-<em class="property">class </em><tt class="descname">Track</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#wind.Track" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">Track</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.Track" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>A single tropical cyclone track.</p>
 <p>The object exposes the track data through the object attributes.
 For example, If <cite>data</cite> contains the tropical cyclone track data
-(<cite>numpy.array</cite>) loaded with the <a class="reference internal" href="#wind.readTrackData" title="wind.readTrackData"><tt class="xref py py-meth docutils literal"><span class="pre">readTrackData()</span></tt></a> function,
+(<cite>numpy.array</cite>) loaded with the <a class="reference internal" href="#wind.readTrackData" title="wind.readTrackData"><code class="xref py py-meth docutils literal"><span class="pre">readTrackData()</span></code></a> function,
 then the central pressure column can be printed out with the
 code:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">Track</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -992,16 +991,16 @@ code:</p>
 </table>
 <dl class="method">
 <dt id="wind.Track.inRegion">
-<tt class="descname">inRegion</tt><big>(</big><em>gridLimit</em><big>)</big><a class="headerlink" href="#wind.Track.inRegion" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inRegion</code><span class="sig-paren">(</span><em>gridLimit</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.Track.inRegion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the tropical cyclone track falls within a region.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gridLimit</strong> (<tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt>) &#8211; the region to check.
-The <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt> should contain the keys
-<tt class="xref py py-attr docutils literal"><span class="pre">xMin</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">xMax</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">yMin</span></tt> and
-<tt class="xref py py-attr docutils literal"><span class="pre">yMax</span></tt>. The <em>y</em> variable bounds the
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gridLimit</strong> (<code class="xref py py-class docutils literal"><span class="pre">dict</span></code>) &#8211; the region to check.
+The <code class="xref py py-class docutils literal"><span class="pre">dict</span></code> should contain the keys
+<code class="xref py py-attr docutils literal"><span class="pre">xMin</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">yMin</span></code> and
+<code class="xref py py-attr docutils literal"><span class="pre">yMax</span></code>. The <em>y</em> variable bounds the
 latitude and the <em>x</em> variable bounds the
 longitude.</td>
 </tr>
@@ -1013,15 +1012,15 @@ longitude.</td>
 
 <dl class="class">
 <dt id="wind.WindfieldAroundTrack">
-<em class="property">class </em><tt class="descname">WindfieldAroundTrack</tt><big>(</big><em>track</em>, <em>profileType='powell'</em>, <em>windFieldType='kepert'</em>, <em>beta=1.5</em>, <em>beta1=1.5</em>, <em>beta2=1.4</em>, <em>thetaMax=70.0</em>, <em>margin=2.0</em>, <em>resolution=0.05</em>, <em>gustFactor=1.23</em>, <em>gridLimit=None</em>, <em>domain='bounded'</em><big>)</big><a class="headerlink" href="#wind.WindfieldAroundTrack" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">WindfieldAroundTrack</code><span class="sig-paren">(</span><em>track</em>, <em>profileType='powell'</em>, <em>windFieldType='kepert'</em>, <em>beta=1.5</em>, <em>beta1=1.5</em>, <em>beta2=1.4</em>, <em>thetaMax=70.0</em>, <em>margin=2.0</em>, <em>resolution=0.05</em>, <em>gustFactor=1.23</em>, <em>gridLimit=None</em>, <em>domain='bounded'</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldAroundTrack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>The windfield around the tropical cyclone track.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>track</strong> (<a class="reference internal" href="#wind.Track" title="wind.Track"><tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt></a>) &#8211; the tropical cyclone track.</li>
+<li><strong>track</strong> (<a class="reference internal" href="#wind.Track" title="wind.Track"><code class="xref py py-class docutils literal"><span class="pre">Track</span></code></a>) &#8211; the tropical cyclone track.</li>
 <li><strong>profileType</strong> (<em>str</em>) &#8211; the wind profile type.</li>
 <li><strong>windFieldType</strong> (<em>str</em>) &#8211; the wind field type.</li>
 <li><strong>beta</strong> (<em>float</em>) &#8211; wind field parameter.</li>
@@ -1031,10 +1030,10 @@ longitude.</td>
 <li><strong>margin</strong> (<em>float</em>) &#8211; </li>
 <li><strong>resolution</strong> (<em>float</em>) &#8211; </li>
 <li><strong>gustFactor</strong> (<em>float</em>) &#8211; </li>
-<li><strong>gridLimit</strong> (<tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt>) &#8211; the domain where the tracks will be generated.
-The <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt> should contain the keys
-<tt class="xref py py-attr docutils literal"><span class="pre">xMin</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">xMax</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">yMin</span></tt> and
-<tt class="xref py py-attr docutils literal"><span class="pre">yMax</span></tt>. The <em>y</em> variable bounds the
+<li><strong>gridLimit</strong> (<code class="xref py py-class docutils literal"><span class="pre">dict</span></code>) &#8211; the domain where the tracks will be generated.
+The <code class="xref py py-class docutils literal"><span class="pre">dict</span></code> should contain the keys
+<code class="xref py py-attr docutils literal"><span class="pre">xMin</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">yMin</span></code> and
+<code class="xref py py-attr docutils literal"><span class="pre">yMax</span></code>. The <em>y</em> variable bounds the
 latitude and the <em>x</em> variable bounds the
 longitude.</li>
 </ul>
@@ -1044,7 +1043,7 @@ longitude.</li>
 </table>
 <dl class="method">
 <dt id="wind.WindfieldAroundTrack.localWindField">
-<tt class="descname">localWindField</tt><big>(</big><em>i</em><big>)</big><a class="headerlink" href="#wind.WindfieldAroundTrack.localWindField" title="Permalink to this definition">¶</a></dt>
+<code class="descname">localWindField</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldAroundTrack.localWindField" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the local wind field at time <cite>i</cite> around the
 tropical cyclone.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1059,7 +1058,7 @@ tropical cyclone.</p>
 
 <dl class="method">
 <dt id="wind.WindfieldAroundTrack.polarGridAroundEye">
-<tt class="descname">polarGridAroundEye</tt><big>(</big><em>i</em><big>)</big><a class="headerlink" href="#wind.WindfieldAroundTrack.polarGridAroundEye" title="Permalink to this definition">¶</a></dt>
+<code class="descname">polarGridAroundEye</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldAroundTrack.polarGridAroundEye" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a polar coordinate grid around the eye of the
 tropical cyclone at time i.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1074,7 +1073,7 @@ tropical cyclone at time i.</p>
 
 <dl class="method">
 <dt id="wind.WindfieldAroundTrack.pressureProfile">
-<tt class="descname">pressureProfile</tt><big>(</big><em>i</em>, <em>R</em><big>)</big><a class="headerlink" href="#wind.WindfieldAroundTrack.pressureProfile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pressureProfile</code><span class="sig-paren">(</span><em>i</em>, <em>R</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldAroundTrack.pressureProfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the pressure profile at time <cite>i</cite> at the radiuses <cite>R</cite>
 around the tropical cyclone.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1083,7 +1082,7 @@ around the tropical cyclone.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>i</strong> (<em>int</em>) &#8211; the time.</li>
-<li><strong>R</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; the radiuses around the tropical cyclone.</li>
+<li><strong>R</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; the radiuses around the tropical cyclone.</li>
 </ul>
 </td>
 </tr>
@@ -1093,7 +1092,7 @@ around the tropical cyclone.</p>
 
 <dl class="method">
 <dt id="wind.WindfieldAroundTrack.regionalExtremes">
-<tt class="descname">regionalExtremes</tt><big>(</big><em>gridLimit</em>, <em>timeStepCallback=None</em><big>)</big><a class="headerlink" href="#wind.WindfieldAroundTrack.regionalExtremes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">regionalExtremes</code><span class="sig-paren">(</span><em>gridLimit</em>, <em>timeStepCallback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldAroundTrack.regionalExtremes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the maximum potential wind gust and minimum
 pressure over the region throughout the life of the
 tropical cyclone.</p>
@@ -1102,10 +1101,10 @@ tropical cyclone.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>gridLimit</strong> (<tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt>) &#8211; the domain where the tracks will be considered.
-The <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt> should contain the keys
-<tt class="xref py py-attr docutils literal"><span class="pre">xMin</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">xMax</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">yMin</span></tt> and
-<tt class="xref py py-attr docutils literal"><span class="pre">yMax</span></tt>. The <em>y</em> variable bounds the
+<li><strong>gridLimit</strong> (<code class="xref py py-class docutils literal"><span class="pre">dict</span></code>) &#8211; the domain where the tracks will be considered.
+The <code class="xref py py-class docutils literal"><span class="pre">dict</span></code> should contain the keys
+<code class="xref py py-attr docutils literal"><span class="pre">xMin</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">yMin</span></code> and
+<code class="xref py py-attr docutils literal"><span class="pre">yMax</span></code>. The <em>y</em> variable bounds the
 latitude and the <em>x</em> variable bounds the longitude.</li>
 <li><strong>timeStepCallback</strong> (<em>function</em>) &#8211; the function to be called on each time step.</li>
 </ul>
@@ -1119,8 +1118,8 @@ latitude and the <em>x</em> variable bounds the longitude.</li>
 
 <dl class="class">
 <dt id="wind.WindfieldGenerator">
-<em class="property">class </em><tt class="descname">WindfieldGenerator</tt><big>(</big><em>config</em>, <em>margin=2.0</em>, <em>resolution=0.05</em>, <em>profileType='powell'</em>, <em>windFieldType='kepert'</em>, <em>beta1=1.5</em>, <em>beta2=1.4</em>, <em>thetaMax=70.0</em>, <em>gridLimit=None</em>, <em>domain='bounded'</em><big>)</big><a class="headerlink" href="#wind.WindfieldGenerator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">WindfieldGenerator</code><span class="sig-paren">(</span><em>config</em>, <em>margin=2.0</em>, <em>resolution=0.05</em>, <em>profileType='powell'</em>, <em>windFieldType='kepert'</em>, <em>beta=1.5</em>, <em>beta1=1.5</em>, <em>beta2=1.4</em>, <em>thetaMax=70.0</em>, <em>gridLimit=None</em>, <em>domain='bounded'</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>The wind field generator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1135,9 +1134,9 @@ latitude and the <em>x</em> variable bounds the longitude.</li>
 <li><strong>beta1</strong> (<em>float</em>) &#8211; wind field parameter.</li>
 <li><strong>beta2</strong> (<em>float</em>) &#8211; wind field parameter.</li>
 <li><strong>thetaMax</strong> (<em>float</em>) &#8211; </li>
-<li><strong>gridLimit</strong> (<tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt>) &#8211; the domain where the tracks will be generated.
-The <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt> should contain the keys <tt class="xref py py-attr docutils literal"><span class="pre">xMin</span></tt>,
-<tt class="xref py py-attr docutils literal"><span class="pre">xMax</span></tt>, <tt class="xref py py-attr docutils literal"><span class="pre">yMin</span></tt> and <tt class="xref py py-attr docutils literal"><span class="pre">yMax</span></tt>. The <em>y</em>
+<li><strong>gridLimit</strong> (<code class="xref py py-class docutils literal"><span class="pre">dict</span></code>) &#8211; the domain where the tracks will be generated.
+The <code class="xref py py-class docutils literal"><span class="pre">dict</span></code> should contain the keys <code class="xref py py-attr docutils literal"><span class="pre">xMin</span></code>,
+<code class="xref py py-attr docutils literal"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">yMin</span></code> and <code class="xref py py-attr docutils literal"><span class="pre">yMax</span></code>. The <em>y</em>
 variable bounds the latitude and the <em>x</em> variable bounds
 the longitude.</li>
 </ul>
@@ -1147,14 +1146,14 @@ the longitude.</li>
 </table>
 <dl class="method">
 <dt id="wind.WindfieldGenerator.calculateExtremesFromTrack">
-<tt class="descname">calculateExtremesFromTrack</tt><big>(</big><em>track</em>, <em>callback=None</em><big>)</big><a class="headerlink" href="#wind.WindfieldGenerator.calculateExtremesFromTrack" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calculateExtremesFromTrack</code><span class="sig-paren">(</span><em>track</em>, <em>callback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldGenerator.calculateExtremesFromTrack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the wind extremes given a single tropical cyclone track.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>track</strong> (<a class="reference internal" href="#wind.Track" title="wind.Track"><tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt></a>) &#8211; the tropical cyclone track.</li>
+<li><strong>track</strong> (<a class="reference internal" href="#wind.Track" title="wind.Track"><code class="xref py py-class docutils literal"><span class="pre">Track</span></code></a>) &#8211; the tropical cyclone track.</li>
 <li><strong>callback</strong> (<em>function</em>) &#8211; optional function to be called at each timestep to
 extract point values for specified locations.</li>
 </ul>
@@ -1166,7 +1165,7 @@ extract point values for specified locations.</li>
 
 <dl class="method">
 <dt id="wind.WindfieldGenerator.calculateExtremesFromTrackfile">
-<tt class="descname">calculateExtremesFromTrackfile</tt><big>(</big><em>trackfile</em>, <em>callback=None</em><big>)</big><a class="headerlink" href="#wind.WindfieldGenerator.calculateExtremesFromTrackfile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calculateExtremesFromTrackfile</code><span class="sig-paren">(</span><em>trackfile</em>, <em>callback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldGenerator.calculateExtremesFromTrackfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the wind extremes from a <cite>trackfile</cite> that might contain a
 number of tropical cyclone tracks. The wind extremes are calculated
 over the tracks, i.e., the maximum gusts and minimum pressures over all
@@ -1188,7 +1187,7 @@ extract point values for specified locations.</li>
 
 <dl class="method">
 <dt id="wind.WindfieldGenerator.dumpExtremesFromTrackfile">
-<tt class="descname">dumpExtremesFromTrackfile</tt><big>(</big><em>trackfile</em>, <em>dumpfile</em>, <em>callback=None</em><big>)</big><a class="headerlink" href="#wind.WindfieldGenerator.dumpExtremesFromTrackfile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dumpExtremesFromTrackfile</code><span class="sig-paren">(</span><em>trackfile</em>, <em>dumpfile</em>, <em>callback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldGenerator.dumpExtremesFromTrackfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method to calculate the wind extremes from a <cite>trackfile</cite> and
 save them to a file called <cite>dumpfile</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1209,7 +1208,7 @@ extract point values for specified locations.</li>
 
 <dl class="method">
 <dt id="wind.WindfieldGenerator.dumpGustsFromTrackfiles">
-<tt class="descname">dumpGustsFromTrackfiles</tt><big>(</big><em>trackfiles</em>, <em>windfieldPath</em>, <em>filenameFormat='gust-%02i-%04i.nc'</em>, <em>progressCallback=None</em>, <em>timeStepCallback=None</em><big>)</big><a class="headerlink" href="#wind.WindfieldGenerator.dumpGustsFromTrackfiles" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dumpGustsFromTrackfiles</code><span class="sig-paren">(</span><em>trackfiles</em>, <em>windfieldPath</em>, <em>filenameFormat='gust-%02i-%04i.nc'</em>, <em>progressCallback=None</em>, <em>timeStepCallback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldGenerator.dumpGustsFromTrackfiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method to dump the maximum wind speeds (gusts) observed over a
 region to netcdf files. One file is created for every track file.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1235,7 +1234,7 @@ specified locations.</li>
 
 <dl class="method">
 <dt id="wind.WindfieldGenerator.dumpGustsFromTracks">
-<tt class="descname">dumpGustsFromTracks</tt><big>(</big><em>trackiter</em>, <em>windfieldPath</em>, <em>fnFormat</em>, <em>progressCallback=None</em>, <em>timeStepCallback=None</em><big>)</big><a class="headerlink" href="#wind.WindfieldGenerator.dumpGustsFromTracks" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dumpGustsFromTracks</code><span class="sig-paren">(</span><em>trackiter</em>, <em>windfieldPath</em>, <em>fnFormat</em>, <em>progressCallback=None</em>, <em>timeStepCallback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldGenerator.dumpGustsFromTracks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dump the maximum wind speeds (gusts) observed over a region to
 netcdf files. One file is created for every track file.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1243,7 +1242,7 @@ netcdf files. One file is created for every track file.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>trackiter</strong> (list of <a class="reference internal" href="#wind.Track" title="wind.Track"><tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt></a> objects) &#8211; a list of <a class="reference internal" href="#wind.Track" title="wind.Track"><tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt></a> objects.</li>
+<li><strong>trackiter</strong> (list of <a class="reference internal" href="#wind.Track" title="wind.Track"><code class="xref py py-class docutils literal"><span class="pre">Track</span></code></a> objects) &#8211; a list of <a class="reference internal" href="#wind.Track" title="wind.Track"><code class="xref py py-class docutils literal"><span class="pre">Track</span></code></a> objects.</li>
 <li><strong>windfieldPath</strong> (<em>str</em>) &#8211; the path where to store the gust output files.</li>
 <li><strong>filenameFormat</strong> (<em>str</em>) &#8211; the format string for the output file names. The
 default is set to &#8216;gust-%02i-%04i.nc&#8217;.</li>
@@ -1261,7 +1260,7 @@ specified locations.</li>
 
 <dl class="method">
 <dt id="wind.WindfieldGenerator.plotExtremesFromTrackfile">
-<tt class="descname">plotExtremesFromTrackfile</tt><big>(</big><em>trackfile</em>, <em>windfieldfile</em>, <em>pressurefile</em>, <em>callback=None</em><big>)</big><a class="headerlink" href="#wind.WindfieldGenerator.plotExtremesFromTrackfile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotExtremesFromTrackfile</code><span class="sig-paren">(</span><em>trackfile</em>, <em>windfieldfile</em>, <em>pressurefile</em>, <em>callback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldGenerator.plotExtremesFromTrackfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method to calculate the wind extremes from a <cite>trackfile</cite>
 and generate image files for the wind field and the pressure.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1284,14 +1283,14 @@ extract point values for specified locations.</li>
 
 <dl class="method">
 <dt id="wind.WindfieldGenerator.setGridLimit">
-<tt class="descname">setGridLimit</tt><big>(</big><em>track</em><big>)</big><a class="headerlink" href="#wind.WindfieldGenerator.setGridLimit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">setGridLimit</code><span class="sig-paren">(</span><em>track</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldGenerator.setGridLimit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the outer bounds of the grid to encapsulate
 the extent of a single TC track.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>track</strong> &#8211; <a class="reference internal" href="#wind.Track" title="wind.Track"><tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt></a> object.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>track</strong> &#8211; <a class="reference internal" href="#wind.Track" title="wind.Track"><code class="xref py py-class docutils literal"><span class="pre">Track</span></code></a> object.</td>
 </tr>
 </tbody>
 </table>
@@ -1301,7 +1300,7 @@ the extent of a single TC track.</p>
 
 <dl class="function">
 <dt id="wind.balanced">
-<tt class="descname">balanced</tt><big>(</big><em>iterable</em><big>)</big><a class="headerlink" href="#wind.balanced" title="Permalink to this definition">¶</a></dt>
+<code class="descname">balanced</code><span class="sig-paren">(</span><em>iterable</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.balanced" title="Permalink to this definition">¶</a></dt>
 <dd><p>Balance an iterator across processors.</p>
 <p>This partitions the work evenly across processors. However, it requires
 the iterator to have been generated on all processors before hand. This is
@@ -1311,8 +1310,8 @@ scattering.</p>
 
 <dl class="function">
 <dt id="wind.loadTracks">
-<tt class="descname">loadTracks</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#wind.loadTracks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read tracks from a track .csv file and return a list of <a class="reference internal" href="#wind.Track" title="wind.Track"><tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt></a>
+<code class="descname">loadTracks</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.loadTracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read tracks from a track .csv file and return a list of <a class="reference internal" href="#wind.Track" title="wind.Track"><code class="xref py py-class docutils literal"><span class="pre">Track</span></code></a>
 objects.</p>
 <p>This calls the function <cite>readMultipleTrackData</cite> to parse the track .csv
 file.</p>
@@ -1322,7 +1321,7 @@ file.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>trackfile</strong> (<em>str</em>) &#8211; the track data filename.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of <a class="reference internal" href="#wind.Track" title="wind.Track"><tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt></a> objects.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of <a class="reference internal" href="#wind.Track" title="wind.Track"><code class="xref py py-class docutils literal"><span class="pre">Track</span></code></a> objects.</td>
 </tr>
 </tbody>
 </table>
@@ -1330,8 +1329,8 @@ file.</p>
 
 <dl class="function">
 <dt id="wind.loadTracksFromFiles">
-<tt class="descname">loadTracksFromFiles</tt><big>(</big><em>trackfiles</em><big>)</big><a class="headerlink" href="#wind.loadTracksFromFiles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generator that yields <a class="reference internal" href="#wind.Track" title="wind.Track"><tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt></a> objects from a list of track
+<code class="descname">loadTracksFromFiles</code><span class="sig-paren">(</span><em>trackfiles</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.loadTracksFromFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator that yields <a class="reference internal" href="#wind.Track" title="wind.Track"><code class="xref py py-class docutils literal"><span class="pre">Track</span></code></a> objects from a list of track
 filenames.</p>
 <p>When run in parallel, the list <cite>trackfiles</cite> is distributed across the MPI
 processors using the <cite>balanced</cite> function. Track files are loaded in a lazy
@@ -1352,8 +1351,8 @@ path to the file.</td>
 
 <dl class="function">
 <dt id="wind.loadTracksFromPath">
-<tt class="descname">loadTracksFromPath</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#wind.loadTracksFromPath" title="Permalink to this definition">¶</a></dt>
-<dd><p>Helper function to obtain a generator that yields <a class="reference internal" href="#wind.Track" title="wind.Track"><tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt></a> objects
+<code class="descname">loadTracksFromPath</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.loadTracksFromPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to obtain a generator that yields <a class="reference internal" href="#wind.Track" title="wind.Track"><code class="xref py py-class docutils literal"><span class="pre">Track</span></code></a> objects
 from a directory containing track .csv files.</p>
 <p>This function calls <cite>loadTracksFromFiles</cite> to obtain the generator and track
 filenames are processed in alphabetical order.</p>
@@ -1369,7 +1368,7 @@ filenames are processed in alphabetical order.</p>
 
 <dl class="function">
 <dt id="wind.readMultipleTrackData">
-<tt class="descname">readMultipleTrackData</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#wind.readMultipleTrackData" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readMultipleTrackData</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.readMultipleTrackData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads all the track datas from a .csv file into a list of numpy.ndarrays.
 The tracks are seperated based in their cyclone id. This function calls
 <cite>readTrackData</cite> to read the data from the file.</p>
@@ -1379,7 +1378,7 @@ The tracks are seperated based in their cyclone id. This function calls
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>trackfile</strong> (<em>str</em>) &#8211; the track data filename.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a collection of <a class="reference internal" href="#wind.Track" title="wind.Track"><tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt></a> objects</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a collection of <a class="reference internal" href="#wind.Track" title="wind.Track"><code class="xref py py-class docutils literal"><span class="pre">Track</span></code></a> objects</td>
 </tr>
 </tbody>
 </table>
@@ -1387,7 +1386,7 @@ The tracks are seperated based in their cyclone id. This function calls
 
 <dl class="function">
 <dt id="wind.readTrackData">
-<tt class="descname">readTrackData</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#wind.readTrackData" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readTrackData</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.readTrackData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read a track .csv file into a numpy.ndarray.</p>
 <p>The track format and converters are specified with the global variables</p>
 <blockquote>
@@ -1402,7 +1401,7 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">track data</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -1410,7 +1409,7 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
 
 <dl class="function">
 <dt id="wind.run">
-<tt class="descname">run</tt><big>(</big><em>configFile</em>, <em>callback=None</em><big>)</big><a class="headerlink" href="#wind.run" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run</code><span class="sig-paren">(</span><em>configFile</em>, <em>callback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the wind field calculations.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1434,7 +1433,7 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
@@ -1444,24 +1443,26 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
 <li><a class="reference internal" href="#">wind package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-wind.vmax">wind.vmax module</a><ul>
-<li><a class="reference internal" href="#module-vmax"><tt class="docutils literal"><span class="pre">vmax</span></tt> &#8211; calculate maximum wind speed from pressure deficit</a></li>
+<li><a class="reference internal" href="#module-vmax"><code class="docutils literal"><span class="pre">vmax</span></code> &#8211; calculate maximum wind speed from pressure deficit</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-wind.windmodels">wind.windmodels module</a></li>
 <li><a class="reference internal" href="#module-wind">Module contents</a><ul>
-<li><a class="reference internal" href="#wind-wind-field-calculation"><tt class="docutils literal"><span class="pre">wind</span></tt> &#8211; Wind field calculation</a></li>
+<li><a class="reference internal" href="#wind-wind-field-calculation"><code class="docutils literal"><span class="pre">wind</span></code> &#8211; Wind field calculation</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/docs/wind.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/wind.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -1478,7 +1479,7 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -1487,13 +1488,13 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Mar 20, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Last updated on Apr 22, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

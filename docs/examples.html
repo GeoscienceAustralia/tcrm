@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,7 +8,7 @@
     
     <title>Examples &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -29,8 +27,8 @@
     <link rel="next" title="Evaluation" href="evaluation.html" />
     <link rel="prev" title="Running the model" href="execution.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +43,14 @@
         <li class="right" >
           <a href="execution.html" title="Running the model"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
@@ -63,9 +61,10 @@ users a starting point for testing the installation, and for setting
 up their own simulation. The example simulation is centred on Port
 Hedland, Australia (118.6E, 20.3S), which has experienced numerous
 severe tropical cyclones.</p>
-<p>Once the model has been <a class="reference internal" href="install.html#installation"><em>installed</em></a> and tested,
+<p>Once the model has been <a class="reference internal" href="install.html#installation"><span>installed</span></a> and tested,
 the example simulation can be run as follows:</p>
-<div class="highlight-python"><pre>$ python tcrm.py -c example/port_hedland.ini</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ python tcrm.py -c example/port_hedland.ini
+</pre></div>
 </div>
 <p>The model will automatically create output folders to store the
 results in, as well as a log file that provides details on the
@@ -76,23 +75,24 @@ those simulated years, calculate the hazard (return period wind
 speeds) for the region and plot the output as maps and a return period
 curve for Port Hedland. The hazard data are also stored in netCDF
 (version 4) files.</p>
-<div class="align-center figure align-center">
+<div class="align-center figure" id="id1">
 <img alt="100-year return period wind speed near Port Hedland, Australia." src="docs\hazard_example.png" />
-<p class="caption">100-year return period wind speed near Port Hedland,
+<p class="caption"><span class="caption-text">100-year return period wind speed near Port Hedland,
 Australia. Wind speeds represent a 3-second gust wind speed, 10
-metres above ground level in open, flat terrain.</p>
+metres above ground level in open, flat terrain.</span></p>
 </div>
-<div class="align-center figure align-center">
+<div class="align-center figure" id="id2">
 <img alt="Example hazard curve for Port Hedland, Australia." src="docs\hazard_curve.png" />
-<p class="caption">Hazard curve for Port Hedland, Australia, based on 1000 years of
+<p class="caption"><span class="caption-text">Hazard curve for Port Hedland, Australia, based on 1000 years of
 synthetic tropical cyclone events. The grey shading indicates the
-90th percentile range, based on a bootstrap resampling procedure.</p>
+90th percentile range, based on a bootstrap resampling procedure.</span></p>
 </div>
 <div class="section" id="running-in-an-mpi-environment">
 <h3>Running in an MPI environment<a class="headerlink" href="#running-in-an-mpi-environment" title="Permalink to this headline">¶</a></h3>
 <p>For a multiprocessor environment using MPI and Pypar, the example can
 be run with:</p>
-<div class="highlight-python"><pre>$ mpirun -np 16 python tcrm.py -c example/port_hedland.ini</pre>
+<div class="highlight-python"><div class="highlight"><pre>$ mpirun -np 16 python tcrm.py -c example/port_hedland.ini
+</pre></div>
 </div>
 <p>This will execute TCRM across 16 CPUs (if available).</p>
 <p>TCRM has been tested on systems up to 256 CPUs. Testing with moderate
@@ -118,7 +118,7 @@ simulation of TC Tracy using TCRM is given in Schofield <em>et al.</em>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
@@ -141,12 +141,14 @@ simulation of TC Tracy using TCRM is given in Schofield <em>et al.</em>
   <h4>Next topic</h4>
   <p class="topless"><a href="evaluation.html"
                         title="next chapter">Evaluation</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/docs/examples.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/examples.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -163,7 +165,7 @@ simulation of TC Tracy using TCRM is given in Schofield <em>et al.</em>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -178,13 +180,13 @@ simulation of TC Tracy using TCRM is given in Schofield <em>et al.</em>
         <li class="right" >
           <a href="execution.html" title="Running the model"
              >previous</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Mar 20, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Last updated on Apr 22, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

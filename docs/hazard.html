@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,7 +8,7 @@
     
     <title>hazard package &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -27,8 +25,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -37,14 +35,14 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="hazard-package">
 <h1>hazard package<a class="headerlink" href="#hazard-package" title="Permalink to this headline">¶</a></h1>
@@ -54,7 +52,7 @@
 <div class="section" id="module-hazard.evd">
 <span id="hazard-evd-module"></span><h2>hazard.evd module<a class="headerlink" href="#module-hazard.evd" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="evd-calculate-extreme-value-distributions">
-<h3><tt class="xref py py-mod docutils literal"><span class="pre">evd</span></tt> &#8211; Calculate extreme value distributions<a class="headerlink" href="#evd-calculate-extreme-value-distributions" title="Permalink to this headline">¶</a></h3>
+<h3><code class="xref py py-mod docutils literal"><span class="pre">evd</span></code> &#8211; Calculate extreme value distributions<a class="headerlink" href="#evd-calculate-extreme-value-distributions" title="Permalink to this headline">¶</a></h3>
 <p>Calculate the parameters for the GEV distribution, using the method of
 L-moments to estimate the parameters. The function will not only fit
 the distribution parameters, but also calculate the return period
@@ -65,15 +63,15 @@ Distributions using Linear Combinations of Order Statistics. Journal
 of the Royal Statistical Society, 52, 1, 105-124.</p>
 <dl class="function">
 <dt id="hazard.evd.estimateEVD">
-<tt class="descname">estimateEVD</tt><big>(</big><em>v</em>, <em>years</em>, <em>missingValue=-9999.0</em>, <em>minRecords=50</em>, <em>yrspersim=1</em><big>)</big><a class="headerlink" href="#hazard.evd.estimateEVD" title="Permalink to this definition">¶</a></dt>
+<code class="descname">estimateEVD</code><span class="sig-paren">(</span><em>v</em>, <em>years</em>, <em>missingValue=-9999.0</em>, <em>minRecords=50</em>, <em>yrspersim=1</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.evd.estimateEVD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate extreme value distribution parameters using the Lmoments module</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>v</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; array of data values.</li>
-<li><strong>years</strong> (<tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt>) &#8211; array of years for which to calculate return period values.</li>
+<li><strong>v</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; array of data values.</li>
+<li><strong>years</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) &#8211; array of years for which to calculate return period values.</li>
 <li><strong>missingValue</strong> (<em>float</em>) &#8211; value to insert if fit does not converge.</li>
 <li><strong>minRecords</strong> (<em>int</em>) &#8211; minimum number of valid observations required to
 perform fitting.</li>
@@ -85,7 +83,7 @@ of each block in years.</li>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">return period values</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">location, shape and scale parameters of the distribution</p>
@@ -103,15 +101,16 @@ of each block in years.</li>
 <div class="section" id="module-hazard">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-hazard" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-hazard">
-<span id="hazard-hazard-calculation"></span><h3><a class="reference internal" href="#module-hazard" title="hazard"><tt class="xref py py-mod docutils literal"><span class="pre">hazard</span></tt></a> &#8211; Hazard calculation<a class="headerlink" href="#module-hazard" title="Permalink to this headline">¶</a></h3>
+<span id="hazard-hazard-calculation"></span><h3><a class="reference internal" href="#module-hazard" title="hazard"><code class="xref py py-mod docutils literal"><span class="pre">hazard</span></code></a> &#8211; Hazard calculation<a class="headerlink" href="#module-hazard" title="Permalink to this headline">¶</a></h3>
 <p>This module contains the core objects for the return period hazard
 calculation.</p>
 <p>Hazard calculations can be run in parallel using MPI if the
-<a class="reference internal" href="glossary.html#term-pypar"><em class="xref std std-term">pypar</em></a> library is found and TCRM is run using the
-<a class="reference internal" href="glossary.html#term-mpirun"><em class="xref std std-term">mpirun</em></a> command. For example, to run with 10 processors:</p>
-<div class="highlight-python"><pre>mpirun -n 10 python tcrm.py cairns.ini</pre>
+<a class="reference internal" href="glossary.html#term-pypar"><span class="xref std std-term">pypar</span></a> library is found and TCRM is run using the
+<a class="reference internal" href="glossary.html#term-mpirun"><span class="xref std std-term">mpirun</span></a> command. For example, to run with 10 processors:</p>
+<div class="highlight-python"><div class="highlight"><pre>mpirun -n 10 python tcrm.py cairns.ini
+</pre></div>
 </div>
-<p><a class="reference internal" href="#module-hazard" title="hazard"><tt class="xref py py-class docutils literal"><span class="pre">hazard</span></tt></a> can be correctly initialised and started by
+<p><a class="reference internal" href="#module-hazard" title="hazard"><code class="xref py py-class docutils literal"><span class="pre">hazard</span></code></a> can be correctly initialised and started by
 calling the :meth: <cite>run</cite> with the location of a <em>configFile</em>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">hazard</span>
 <span class="n">hazard</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s">&#39;cairns.ini&#39;</span><span class="p">)</span>
@@ -119,12 +118,12 @@ calling the :meth: <cite>run</cite> with the location of a <em>configFile</em>:<
 </div>
 <dl class="class">
 <dt id="hazard.HazardCalculator">
-<em class="property">class </em><tt class="descname">HazardCalculator</tt><big>(</big><em>configFile</em>, <em>tilegrid</em>, <em>numSim</em>, <em>minRecords</em>, <em>yrsPerSim</em>, <em>calcCI=False</em><big>)</big><a class="headerlink" href="#hazard.HazardCalculator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">HazardCalculator</code><span class="sig-paren">(</span><em>configFile</em>, <em>tilegrid</em>, <em>numSim</em>, <em>minRecords</em>, <em>yrsPerSim</em>, <em>calcCI=False</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.HazardCalculator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Calculate return period wind speeds using GEV fitting</p>
 <dl class="method">
 <dt id="hazard.HazardCalculator.calculateHazard">
-<tt class="descname">calculateHazard</tt><big>(</big><em>tilelimits</em><big>)</big><a class="headerlink" href="#hazard.HazardCalculator.calculateHazard" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calculateHazard</code><span class="sig-paren">(</span><em>tilelimits</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.HazardCalculator.calculateHazard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load input hazard data and then calculate the return period and
 distribution parameters for a given tile.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -139,7 +138,7 @@ distribution parameters for a given tile.</p>
 
 <dl class="method">
 <dt id="hazard.HazardCalculator.dumpHazardFromTiles">
-<tt class="descname">dumpHazardFromTiles</tt><big>(</big><em>tiles</em>, <em>progressCallback=None</em><big>)</big><a class="headerlink" href="#hazard.HazardCalculator.dumpHazardFromTiles" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dumpHazardFromTiles</code><span class="sig-paren">(</span><em>tiles</em>, <em>progressCallback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.HazardCalculator.dumpHazardFromTiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Iterate over tiles to calculate return period hazard levels</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -153,7 +152,7 @@ distribution parameters for a given tile.</p>
 
 <dl class="method">
 <dt id="hazard.HazardCalculator.saveHazard">
-<tt class="descname">saveHazard</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#hazard.HazardCalculator.saveHazard" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveHazard</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.HazardCalculator.saveHazard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save hazard data to a netCDF file.</p>
 </dd></dl>
 
@@ -161,11 +160,11 @@ distribution parameters for a given tile.</p>
 
 <dl class="class">
 <dt id="hazard.Tile">
-<em class="property">class </em><tt class="descname">Tile</tt><big>(</big><em>number</em>, <em>input_limits</em>, <em>output_limits</em><big>)</big><a class="headerlink" href="#hazard.Tile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">Tile</code><span class="sig-paren">(</span><em>number</em>, <em>input_limits</em>, <em>output_limits</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.Tile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Tile object.</p>
 <p>Because there is a buffer region around the outer edge of
-the <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt> gridLimit, the indices where data is pulled from
+the <code class="xref py py-class docutils literal"><span class="pre">dict</span></code> gridLimit, the indices where data is pulled from
 (the wind field files) are different from those where the data is
 stored (the output hazard array).</p>
 <p>This object holds the index ranges for the input array and output array,
@@ -174,21 +173,21 @@ to indicate this relationship.</p>
 
 <dl class="class">
 <dt id="hazard.TileGrid">
-<em class="property">class </em><tt class="descname">TileGrid</tt><big>(</big><em>gridLimit</em>, <em>wf_lon</em>, <em>wf_lat</em>, <em>xstep=100</em>, <em>ystep=100</em><big>)</big><a class="headerlink" href="#hazard.TileGrid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">TileGrid</code><span class="sig-paren">(</span><em>gridLimit</em>, <em>wf_lon</em>, <em>wf_lat</em>, <em>xstep=100</em>, <em>ystep=100</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.TileGrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Tiling to minimise MemoryErrors and enable parallelisation.</p>
 <dl class="method">
 <dt id="hazard.TileGrid.getDomainExtent">
-<tt class="descname">getDomainExtent</tt><big>(</big><big>)</big><a class="headerlink" href="#hazard.TileGrid.getDomainExtent" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getDomainExtent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hazard.TileGrid.getDomainExtent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the longitude and latitude values that lie within
 the modelled domain</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return lon:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> containing longitude values</td>
+<tr class="field-odd field"><th class="field-name">Return lon:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> containing longitude values</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return lat:</th><td class="field-body"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt> containing latitude values</td>
+<tr class="field-even field"><th class="field-name">Return lat:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> containing latitude values</td>
 </tr>
 </tbody>
 </table>
@@ -196,7 +195,7 @@ the modelled domain</p>
 
 <dl class="method">
 <dt id="hazard.TileGrid.getGridLimit">
-<tt class="descname">getGridLimit</tt><big>(</big><em>k</em><big>)</big><a class="headerlink" href="#hazard.TileGrid.getGridLimit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getGridLimit</code><span class="sig-paren">(</span><em>k</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.TileGrid.getGridLimit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the limits for tile <cite>k</cite>. x-indices correspond to the
 east-west coordinate, y-indices correspond to the north-south
 coordinate.</p>
@@ -220,7 +219,7 @@ coordinate.</p>
 
 <dl class="method">
 <dt id="hazard.TileGrid.tileGrid">
-<tt class="descname">tileGrid</tt><big>(</big><big>)</big><a class="headerlink" href="#hazard.TileGrid.tileGrid" title="Permalink to this definition">¶</a></dt>
+<code class="descname">tileGrid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hazard.TileGrid.tileGrid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines the indices required to subset a 2D array into smaller
 rectangular 2D arrays (of dimension x_step * y_step).</p>
 </dd></dl>
@@ -229,7 +228,7 @@ rectangular 2D arrays (of dimension x_step * y_step).</p>
 
 <dl class="function">
 <dt id="hazard.calculate">
-<tt class="descname">calculate</tt><big>(</big><em>Vr</em>, <em>years</em>, <em>nodata</em>, <em>minRecords</em>, <em>yrsPerSim</em><big>)</big><a class="headerlink" href="#hazard.calculate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calculate</code><span class="sig-paren">(</span><em>Vr</em>, <em>years</em>, <em>nodata</em>, <em>minRecords</em>, <em>yrsPerSim</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.calculate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit a GEV to the wind speed records for a 2-D extent of
 wind speed values</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -263,7 +262,7 @@ return period values</li>
 
 <dl class="function">
 <dt id="hazard.calculateCI">
-<tt class="descname">calculateCI</tt><big>(</big><em>Vr</em>, <em>years</em>, <em>nodata</em>, <em>minRecords</em>, <em>yrsPerSim=1</em>, <em>sample_size=50</em>, <em>prange=90</em><big>)</big><a class="headerlink" href="#hazard.calculateCI" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calculateCI</code><span class="sig-paren">(</span><em>Vr</em>, <em>years</em>, <em>nodata</em>, <em>minRecords</em>, <em>yrsPerSim=1</em>, <em>sample_size=50</em>, <em>prange=90</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.calculateCI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit a GEV to the wind speed records for a 2-D extent of
 wind speed values, providing a confidence range by resampling at
 random from the input values.</p>
@@ -295,21 +294,21 @@ confidence interval of the fit.</li>
 
 <dl class="function">
 <dt id="hazard.disableOnWorkers">
-<tt class="descname">disableOnWorkers</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#hazard.disableOnWorkers" title="Permalink to this definition">¶</a></dt>
+<code class="descname">disableOnWorkers</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.disableOnWorkers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Disable function calculation on workers. Function will
 only be evaluated on the master.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="hazard.getTileLimits">
-<tt class="descname">getTileLimits</tt><big>(</big><em>tilegrid</em>, <em>tilenums</em><big>)</big><a class="headerlink" href="#hazard.getTileLimits" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getTileLimits</code><span class="sig-paren">(</span><em>tilegrid</em>, <em>tilenums</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.getTileLimits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a list of tuples of the x- and y- limits of a tile</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tilegrid</strong> &#8211; <a class="reference internal" href="#hazard.TileGrid" title="hazard.TileGrid"><tt class="xref py py-class docutils literal"><span class="pre">TileGrid</span></tt></a> instance</li>
+<li><strong>tilegrid</strong> &#8211; <a class="reference internal" href="#hazard.TileGrid" title="hazard.TileGrid"><code class="xref py py-class docutils literal"><span class="pre">TileGrid</span></code></a> instance</li>
 <li><strong>tilenums</strong> &#8211; list of tile numbers (must be sequential)</li>
 </ul>
 </td>
@@ -323,13 +322,13 @@ only be evaluated on the master.</p>
 
 <dl class="function">
 <dt id="hazard.getTiles">
-<tt class="descname">getTiles</tt><big>(</big><em>tilegrid</em><big>)</big><a class="headerlink" href="#hazard.getTiles" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getTiles</code><span class="sig-paren">(</span><em>tilegrid</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.getTiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper to obtain a generator that yields tile numbers</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tilegrid</strong> &#8211; <a class="reference internal" href="#hazard.TileGrid" title="hazard.TileGrid"><tt class="xref py py-class docutils literal"><span class="pre">TileGrid</span></tt></a> instance</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tilegrid</strong> &#8211; <a class="reference internal" href="#hazard.TileGrid" title="hazard.TileGrid"><code class="xref py py-class docutils literal"><span class="pre">TileGrid</span></code></a> instance</td>
 </tr>
 </tbody>
 </table>
@@ -337,7 +336,7 @@ only be evaluated on the master.</p>
 
 <dl class="function">
 <dt id="hazard.loadFile">
-<tt class="descname">loadFile</tt><big>(</big><em>filename</em>, <em>limits</em><big>)</big><a class="headerlink" href="#hazard.loadFile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">loadFile</code><span class="sig-paren">(</span><em>filename</em>, <em>limits</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.loadFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a subset of the data from the given file, with the extent
 of the subset specified in the <cite>limits</cite> tuple</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -359,7 +358,7 @@ of the subset specified in the <cite>limits</cite> tuple</p>
 
 <dl class="function">
 <dt id="hazard.loadFilesFromPath">
-<tt class="descname">loadFilesFromPath</tt><big>(</big><em>inputPath</em>, <em>tilelimits</em><big>)</big><a class="headerlink" href="#hazard.loadFilesFromPath" title="Permalink to this definition">¶</a></dt>
+<code class="descname">loadFilesFromPath</code><span class="sig-paren">(</span><em>inputPath</em>, <em>tilelimits</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.loadFilesFromPath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load wind field data for each subset into a 3-D array.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -380,7 +379,7 @@ of the subset specified in the <cite>limits</cite> tuple</p>
 
 <dl class="function">
 <dt id="hazard.run">
-<tt class="descname">run</tt><big>(</big><em>configFile</em>, <em>callback=None</em><big>)</big><a class="headerlink" href="#hazard.run" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run</code><span class="sig-paren">(</span><em>configFile</em>, <em>callback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the hazard calculations.</p>
 <p>This will attempt to run the calculation in parallel by tiling the
 domain, but also provides a sane fallback mechanism to execute
@@ -397,7 +396,7 @@ in serial.</p>
 
 <dl class="function">
 <dt id="hazard.setDomain">
-<tt class="descname">setDomain</tt><big>(</big><em>inputPath</em><big>)</big><a class="headerlink" href="#hazard.setDomain" title="Permalink to this definition">¶</a></dt>
+<code class="descname">setDomain</code><span class="sig-paren">(</span><em>inputPath</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.setDomain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Establish the full extent of input wind field files</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -421,7 +420,7 @@ in serial.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
@@ -431,23 +430,25 @@ in serial.</p>
 <li><a class="reference internal" href="#">hazard package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-hazard.evd">hazard.evd module</a><ul>
-<li><a class="reference internal" href="#evd-calculate-extreme-value-distributions"><tt class="docutils literal"><span class="pre">evd</span></tt> &#8211; Calculate extreme value distributions</a></li>
+<li><a class="reference internal" href="#evd-calculate-extreme-value-distributions"><code class="docutils literal"><span class="pre">evd</span></code> &#8211; Calculate extreme value distributions</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-hazard">Module contents</a><ul>
-<li><a class="reference internal" href="#module-hazard"><tt class="docutils literal"><span class="pre">hazard</span></tt> &#8211; Hazard calculation</a></li>
+<li><a class="reference internal" href="#module-hazard"><code class="docutils literal"><span class="pre">hazard</span></code> &#8211; Hazard calculation</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/docs/hazard.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/hazard.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -464,7 +465,7 @@ in serial.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -473,13 +474,13 @@ in serial.</p>
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Mar 20, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Last updated on Apr 22, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

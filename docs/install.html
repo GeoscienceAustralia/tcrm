@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,7 +8,7 @@
     
     <title>Installation &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -29,8 +27,8 @@
     <link rel="next" title="Setting up the model" href="setup.html" />
     <link rel="prev" title="Introduction" href="intro.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +43,14 @@
         <li class="right" >
           <a href="intro.html" title="Introduction"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="installation">
 <span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
@@ -72,7 +70,7 @@ TCRM.</p>
 </div>
 <div class="section" id="setting-the-environment">
 <span id="environment"></span><h2>Setting the environment<a class="headerlink" href="#setting-the-environment" title="Permalink to this headline">¶</a></h2>
-<p>To enable TCRM to run flawlessly, you may need to change some environment settings. The important variable to set is the <tt class="docutils literal"><span class="pre">PYTHONPATH</span></tt> variable. This should be set to the path where you have extracted the contents of the zip file. In the examples below, change <tt class="docutils literal"><span class="pre">/path/to/tcrm</span></tt> to the location where you extracted the TCRM files.</p>
+<p>To enable TCRM to run flawlessly, you may need to change some environment settings. The important variable to set is the <code class="docutils literal"><span class="pre">PYTHONPATH</span></code> variable. This should be set to the path where you have extracted the contents of the zip file. In the examples below, change <code class="docutils literal"><span class="pre">/path/to/tcrm</span></code> to the location where you extracted the TCRM files.</p>
 <p>A complete discussion on environment variables in Python is given in the <a class="reference external" href="https://docs.python.org/2/using/cmdline.html#environment-variables">Python documentation</a>.</p>
 <div class="section" id="windows">
 <h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h3>
@@ -80,12 +78,14 @@ TCRM.</p>
 </div>
 <div class="section" id="bash-shell">
 <h3>BASH shell<a class="headerlink" href="#bash-shell" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-python"><pre>export PYTHONPATH=$PYTHONPATH:/path/to/tcrm:/path/to/tcrm/Utilities</pre>
+<div class="highlight-python"><div class="highlight"><pre>export PYTHONPATH=$PYTHONPATH:/path/to/tcrm:/path/to/tcrm/Utilities
+</pre></div>
 </div>
 </div>
 <div class="section" id="csh-tcsh-shell">
 <h3>CSH/TCSH shell<a class="headerlink" href="#csh-tcsh-shell" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-python"><pre>setenv PYTHONPATH $PYTHONPATH:/path/to/tcrm:/path/to/tcrm/Utilities</pre>
+<div class="highlight-python"><div class="highlight"><pre>setenv PYTHONPATH $PYTHONPATH:/path/to/tcrm:/path/to/tcrm/Utilities
+</pre></div>
 </div>
 </div>
 </div>
@@ -118,11 +118,12 @@ installed) requires <a class="reference external" href="http://github.com/dalero
 <p>If you have <a class="reference external" href="https://pip.readthedocs.org/en/latest/">pip</a> installed,
 the required modules can be installed using the following command,
 executed in the main TCRM directory:</p>
-<div class="highlight-python"><pre>pip -v install -r requirements.txt</pre>
+<div class="highlight-python"><div class="highlight"><pre>pip -v install -r requirements.txt
+</pre></div>
 </div>
 <p>This will automatically build the required libraries (listed in the
-<tt class="docutils literal"><span class="pre">requirements.txt</span></tt> file) and any dependencies. <tt class="docutils literal"><span class="pre">pip</span></tt> must be on
-the <tt class="docutils literal"><span class="pre">$PATH</span></tt> for this to work.</p>
+<code class="docutils literal"><span class="pre">requirements.txt</span></code> file) and any dependencies. <code class="docutils literal"><span class="pre">pip</span></code> must be on
+the <code class="docutils literal"><span class="pre">$PATH</span></code> for this to work.</p>
 </div>
 </div>
 <div class="section" id="compiling-the-extensions">
@@ -130,15 +131,16 @@ the <tt class="docutils literal"><span class="pre">$PATH</span></tt> for this to
 <div class="section" id="unix">
 <h3>Unix<a class="headerlink" href="#unix" title="Permalink to this headline">¶</a></h3>
 <p>The model requires a number of C extensions to be compiled before
-execution. These can be built using Python&#8217;s inbuilt <tt class="xref py py-mod docutils literal"><span class="pre">distutils</span></tt>
+execution. These can be built using Python&#8217;s inbuilt <code class="xref py py-mod docutils literal"><span class="pre">distutils</span></code>
 module. Copy the required files from the <cite>installer</cite> directory to the
 base directory and then execute the build process:</p>
-<div class="highlight-python"><pre>python intaller/setup.py build_ext -i</pre>
+<div class="highlight-python"><div class="highlight"><pre>python intaller/setup.py build_ext -i
+</pre></div>
 </div>
 </div>
 <div class="section" id="id6">
 <h3>Windows<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
-<p>For Windows users, the code includes the <tt class="docutils literal"><span class="pre">compile.cmd</span></tt> script in the
+<p>For Windows users, the code includes the <code class="docutils literal"><span class="pre">compile.cmd</span></code> script in the
 main TCRM diretory that will build these extensions in place.</p>
 </div>
 </div>
@@ -148,29 +150,31 @@ main TCRM diretory that will build these extensions in place.</p>
 the code base will work as expected, even if a user makes
 modificaitons to the code.</p>
 <p>The test suite can be run from the main directory. On Windows, run the
-<tt class="docutils literal"><span class="pre">run_test_all.cmd</span></tt> script from the main TCRM directory. On Unix, use
+<code class="docutils literal"><span class="pre">run_test_all.cmd</span></code> script from the main TCRM directory. On Unix, use
 the command:</p>
-<div class="highlight-python"><pre>python ./tests/run.py</pre>
+<div class="highlight-python"><div class="highlight"><pre>python ./tests/run.py
+</pre></div>
 </div>
 <p>This should report no errors or failures.</p>
 <div class="section" id="special-note-for-windows-systems">
 <h3>Special note for Windows systems<a class="headerlink" href="#special-note-for-windows-systems" title="Permalink to this headline">¶</a></h3>
-<p>On a Windows system, <tt class="xref py py-func docutils literal"><span class="pre">tests.test_files.testModulePath()</span></tt> may fail
-due to the different path separators (<tt class="docutils literal"><span class="pre">/</span></tt> versus <tt class="docutils literal"><span class="pre">\\</span></tt>) used by the
+<p>On a Windows system, <code class="xref py py-func docutils literal"><span class="pre">tests.test_files.testModulePath()</span></code> may fail
+due to the different path separators (<code class="docutils literal"><span class="pre">/</span></code> versus <code class="docutils literal"><span class="pre">\\</span></code>) used by the
 Windows system. This test failure will appear as:</p>
-<div class="highlight-python"><pre>======================================================================
+<div class="highlight-python"><div class="highlight"><pre>======================================================================
 FAIL: testModulePath (tests.test_files.TestModuleUtilities)
 Test flModulePath returns correct path, base &amp; extension
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "tcrm\tests\test_files.py", line 22, in testModulePath
+  File &quot;tcrm\tests\test_files.py&quot;, line 22, in testModulePath
     self.assertEqual(self.path, p)
-AssertionError: 'tcrm/tests' != 'tcrm\\tests'
+AssertionError: &#39;tcrm/tests&#39; != &#39;tcrm\\tests&#39;
 
 ----------------------------------------------------------------------
 Ran 111 tests in 92.513s
 
-FAILED (failures=1)</pre>
+FAILED (failures=1)
+</pre></div>
 </div>
 <p>Such an error will not affect model execution.</p>
 </div>
@@ -181,7 +185,7 @@ FAILED (failures=1)</pre>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
@@ -219,12 +223,14 @@ FAILED (failures=1)</pre>
   <h4>Next topic</h4>
   <p class="topless"><a href="setup.html"
                         title="next chapter">Setting up the model</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/docs/install.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/install.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -241,7 +247,7 @@ FAILED (failures=1)</pre>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -256,13 +262,13 @@ FAILED (failures=1)</pre>
         <li class="right" >
           <a href="intro.html" title="Introduction"
              >previous</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Mar 20, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Last updated on Apr 22, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

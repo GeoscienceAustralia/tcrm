@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,7 +8,7 @@
     
     <title>Setting up the model &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -29,8 +27,8 @@
     <link rel="next" title="Running the model" href="execution.html" />
     <link rel="prev" title="Installation" href="install.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +43,14 @@
         <li class="right" >
           <a href="install.html" title="Installation"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="setting-up-the-model">
 <span id="modelsetup"></span><h1>Setting up the model<a class="headerlink" href="#setting-up-the-model" title="Permalink to this headline">¶</a></h1>
@@ -88,7 +86,7 @@ track database</li>
 <li><cite>ExecuteEvaluate</cite> - Evaluate a set of stochastic TC tracks, comparing
 to the input TC track database.</li>
 </ul>
-<p>All options are boolean (i.e. <tt class="docutils literal"><span class="pre">True</span></tt> or <tt class="docutils literal"><span class="pre">False</span></tt>).</p>
+<p>All options are boolean (i.e. <code class="docutils literal"><span class="pre">True</span></code> or <code class="docutils literal"><span class="pre">False</span></code>).</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Actions</span><span class="p">]</span>
 <span class="n">DataProcess</span> <span class="o">=</span> <span class="bp">True</span>
 <span class="n">ExecuteStat</span> <span class="o">=</span> <span class="bp">True</span>
@@ -105,16 +103,16 @@ to the input TC track database.</li>
 <div class="section" id="region">
 <span id="configureregion"></span><h3>Region<a class="headerlink" href="#region" title="Permalink to this headline">¶</a></h3>
 <p>This section defines the model domain and the size of the grid over
-which statistics are calculated. The model domain (<tt class="docutils literal"><span class="pre">gridLimit</span></tt>) is
-specified as a Python dict with keys of <tt class="docutils literal"><span class="pre">xMin</span></tt>, <tt class="docutils literal"><span class="pre">xMax</span></tt>, <tt class="docutils literal"><span class="pre">yMin</span></tt>
-and <tt class="docutils literal"><span class="pre">yMax</span></tt>. This sets the domain over which the wind fields and
+which statistics are calculated. The model domain (<code class="docutils literal"><span class="pre">gridLimit</span></code>) is
+specified as a Python dict with keys of <code class="docutils literal"><span class="pre">xMin</span></code>, <code class="docutils literal"><span class="pre">xMax</span></code>, <code class="docutils literal"><span class="pre">yMin</span></code>
+and <code class="docutils literal"><span class="pre">yMax</span></code>. This sets the domain over which the wind fields and
 hazard will be calculated. Stochastic tracks are generated over a
-broader domain. The <tt class="docutils literal"><span class="pre">gridSpace</span></tt> option controls the size of the grid
+broader domain. The <code class="docutils literal"><span class="pre">gridSpace</span></code> option controls the size of the grid
 cells, which are used for calculating statistics. At this time, the
-values here must be integer values, but can be different in the <tt class="docutils literal"><span class="pre">x</span></tt>
-(east-west) and <tt class="docutils literal"><span class="pre">y</span></tt> (north-south) directions. The <tt class="docutils literal"><span class="pre">gridInc</span></tt> option
+values here must be integer values, but can be different in the <code class="docutils literal"><span class="pre">x</span></code>
+(east-west) and <code class="docutils literal"><span class="pre">y</span></code> (north-south) directions. The <code class="docutils literal"><span class="pre">gridInc</span></code> option
 control the incremental increase in grid cell size when insufficient
-observations are located within a grid cell (see the <a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><tt class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></tt></a>
+observations are located within a grid cell (see the <a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><code class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></code></a>
 description):</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Region</span><span class="p">]</span>
 <span class="n">gridLimit</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;xMin&#39;</span><span class="p">:</span> <span class="mf">113.0</span><span class="p">,</span> <span class="s">&#39;xMax&#39;</span><span class="p">:</span> <span class="mf">124.0</span><span class="p">,</span> <span class="s">&#39;yMin&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">24.0</span><span class="p">,</span> <span class="s">&#39;yMax&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">13.0</span><span class="p">}</span>
@@ -126,21 +124,21 @@ description):</p>
 <div class="section" id="dataprocess">
 <span id="configuredataprocess"></span><h3>DataProcess<a class="headerlink" href="#dataprocess" title="Permalink to this headline">¶</a></h3>
 <p>This section controls aspects of the processing of the input track
-database. Firstly, the <tt class="docutils literal"><span class="pre">InputFile</span></tt> option specifies the file to be
+database. Firstly, the <code class="docutils literal"><span class="pre">InputFile</span></code> option specifies the file to be
 processed. A relative or absolute path can be used. If no path name is
 included (as in the example below), then TCRM assumes the file is
-stored in the <tt class="docutils literal"><span class="pre">input</span></tt> path. If using an automatically
+stored in the <code class="docutils literal"><span class="pre">input</span></code> path. If using an automatically
 downloaded dataset, then this file name must match the name
 specified in the appropriate dataset section (which is named by the
-<tt class="docutils literal"><span class="pre">Source</span></tt> option in this section) of the configuration file (further
+<code class="docutils literal"><span class="pre">Source</span></code> option in this section) of the configuration file (further
 details below).</p>
-<p>The <tt class="docutils literal"><span class="pre">Source</span></tt> option is a string value that acts as a pointer to a
+<p>The <code class="docutils literal"><span class="pre">Source</span></code> option is a string value that acts as a pointer to a
 subsequent section in the configuration file, that holds details of
 the input track file structure.</p>
-<p>The <tt class="docutils literal"><span class="pre">StartSeason</span></tt> and <tt class="docutils literal"><span class="pre">FilterSeason</span></tt> options control what years of
+<p>The <code class="docutils literal"><span class="pre">StartSeason</span></code> and <code class="docutils literal"><span class="pre">FilterSeason</span></code> options control what years of
 the input track database are used in calibrating the model. In the
 default case, only data from 1981 onwards is used for model
-calibration. If <tt class="docutils literal"><span class="pre">FilterSeasons</span> <span class="pre">=</span> <span class="pre">False</span></tt>, no season filtering is
+calibration. If <code class="docutils literal"><span class="pre">FilterSeasons</span> <span class="pre">=</span> <span class="pre">False</span></code>, no season filtering is
 performed and the full input track database is used.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">DataProcess</span><span class="p">]</span>
 <span class="n">InputFile</span> <span class="o">=</span> <span class="n">Allstorms</span><span class="o">.</span><span class="n">ibtracs_wmo</span><span class="o">.</span><span class="n">v03r05</span><span class="o">.</span><span class="n">csv</span>
@@ -152,20 +150,20 @@ performed and the full input track database is used.</p>
 </div>
 <div class="section" id="statinterface">
 <span id="configurestatinterface"></span><h3>StatInterface<a class="headerlink" href="#statinterface" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">StatInterface</span></tt> section controls the methods used to calculate
+<p>The <code class="docutils literal"><span class="pre">StatInterface</span></code> section controls the methods used to calculate
 distributions of TC parameters from the input track database.</p>
-<p><tt class="docutils literal"><span class="pre">kdeType</span></tt> and <tt class="docutils literal"><span class="pre">kde2DType</span></tt> specify the kernel used in the kernel
+<p><code class="docutils literal"><span class="pre">kdeType</span></code> and <code class="docutils literal"><span class="pre">kde2DType</span></code> specify the kernel used in the kernel
 density estimation method for creating probability density functions
 that are used in selecting initial values for the stochastic TC events
 (e.g. longitude, latitude, initial pressure, speed and
-bearing). <tt class="docutils literal"><span class="pre">kdeStep</span></tt> defines the increment in the generated
+bearing). <code class="docutils literal"><span class="pre">kdeStep</span></code> defines the increment in the generated
 probability density functions and cumulative distribution functions.</p>
-<p><tt class="docutils literal"><span class="pre">minSamplesCell</span></tt> sets the minimum number of valid observations in
+<p><code class="docutils literal"><span class="pre">minSamplesCell</span></code> sets the minimum number of valid observations in
 each grid cell that are required for calculating the distributions,
-variances and autocorrelations used in the <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><tt class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></tt></a>
+variances and autocorrelations used in the <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></code></a>
 module. If there are insufficient valid observations, then the bounds
 of the grid cell are incrementally increased (in steps as specified by
-the <tt class="docutils literal"><span class="pre">gridInc</span></tt> values) until sufficient observations are found.</p>
+the <code class="docutils literal"><span class="pre">gridInc</span></code> values) until sufficient observations are found.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">StatInterface</span><span class="p">]</span>
 <span class="n">kdeType</span> <span class="o">=</span> <span class="n">Gaussian</span>
 <span class="n">kde2DType</span> <span class="o">=</span> <span class="n">Gaussian</span>
@@ -176,24 +174,24 @@ the <tt class="docutils literal"><span class="pre">gridInc</span></tt> values) u
 </div>
 <div class="section" id="trackgenerator">
 <span id="configuretrackgenerator"></span><h3>TrackGenerator<a class="headerlink" href="#trackgenerator" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">TrackGenerator</span></tt> section controls the stochastic track
+<p>The <code class="docutils literal"><span class="pre">TrackGenerator</span></code> section controls the stochastic track
 generation module. It is here that users can control the number of
 events and the number of years generated.</p>
-<p>The <tt class="docutils literal"><span class="pre">NumSimulations</span></tt> option sets the number of TC event sets that
+<p>The <code class="docutils literal"><span class="pre">NumSimulations</span></code> option sets the number of TC event sets that
 will be generated. Any integer number of events (up to 1,000,000) is
-possible. <tt class="docutils literal"><span class="pre">YearsPerSimulation</span></tt> sets the number of simulated years
+possible. <code class="docutils literal"><span class="pre">YearsPerSimulation</span></code> sets the number of simulated years
 that will be generated for each event set. For evaluating hazard, the
 value should be set to 1, as the extreme value distribution fitting
 process assumes annual maxima. The annual frequency of events is based
 on a Poisson distribution around the mean annual frequency, which is
 determined from the input track database.</p>
 <p>For track model evaluations, it is recommended to set
-<tt class="docutils literal"><span class="pre">YearsPerSimulation</span></tt> to a similar number to the number of years in
+<code class="docutils literal"><span class="pre">YearsPerSimulation</span></code> to a similar number to the number of years in
 the input track database. For example, in our testing that used data
 from 1981&#8211;2013, we set the value to 30.</p>
-<p><tt class="docutils literal"><span class="pre">NumTimeSteps</span></tt> controls the maximum lifetime an event can exist
-for. <tt class="docutils literal"><span class="pre">TimeStep</span></tt> sets the time interval (in hours) for the track
-generator. <tt class="docutils literal"><span class="pre">SeasonSeed</span></tt> and <tt class="docutils literal"><span class="pre">TrackSeed</span></tt> are used to fix the random
+<p><code class="docutils literal"><span class="pre">NumTimeSteps</span></code> controls the maximum lifetime an event can exist
+for. <code class="docutils literal"><span class="pre">TimeStep</span></code> sets the time interval (in hours) for the track
+generator. <code class="docutils literal"><span class="pre">SeasonSeed</span></code> and <code class="docutils literal"><span class="pre">TrackSeed</span></code> are used to fix the random
 number generator on parallel systems to ensure truly random numbers on
 each individual processor.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">TrackGenerator</span><span class="p">]</span>
@@ -208,46 +206,46 @@ each individual processor.</p>
 </div>
 <div class="section" id="windfieldinterface">
 <span id="configurewindfield"></span><h3>WindfieldInterface<a class="headerlink" href="#windfieldinterface" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">WindfieldInterface</span></tt> section controls how the wind fields from
+<p>The <code class="docutils literal"><span class="pre">WindfieldInterface</span></code> section controls how the wind fields from
 each track in the simulated tracks are calculated. There are two main
 components to the wind field &#8211; the radial profile and the boundary
 layer model.</p>
-<p>The <tt class="docutils literal"><span class="pre">profileType</span></tt> option sets the radial profile used. Valid values are:</p>
+<p>The <code class="docutils literal"><span class="pre">profileType</span></code> option sets the radial profile used. Valid values are:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">holland</span></tt> &#8211; the radial profile of Holland (1980) <a class="footnote-reference" href="#id11" id="id1">[1]</a></li>
-<li><tt class="docutils literal"><span class="pre">powell</span></tt> &#8211; Similar to the Holland profile, but uses a variable
+<li><code class="docutils literal"><span class="pre">holland</span></code> &#8211; the radial profile of Holland (1980) <a class="footnote-reference" href="#id11" id="id1">[1]</a></li>
+<li><code class="docutils literal"><span class="pre">powell</span></code> &#8211; Similar to the Holland profile, but uses a variable
 beta parameter that is a function of latitude and size. <a class="footnote-reference" href="#id12" id="id2">[2]</a></li>
-<li><tt class="docutils literal"><span class="pre">schloemer</span></tt> &#8211; From Schloemer (1954) &#8211; essentially the Holland
+<li><code class="docutils literal"><span class="pre">schloemer</span></code> &#8211; From Schloemer (1954) &#8211; essentially the Holland
 profile with a beta value of 1 <a class="footnote-reference" href="#id13" id="id3">[3]</a></li>
-<li><tt class="docutils literal"><span class="pre">willoughby</span></tt> &#8211; From Willoughby and Rahn (2004). Again, the
+<li><code class="docutils literal"><span class="pre">willoughby</span></code> &#8211; From Willoughby and Rahn (2004). Again, the
 Holland profile, with beta a function of the maximum wind speed,
 radius to maximum wind and latitude <a class="footnote-reference" href="#id14" id="id4">[4]</a></li>
-<li><tt class="docutils literal"><span class="pre">jelesnianski</span></tt> &#8211; From Jelesnianski (1966). <a class="footnote-reference" href="#id15" id="id5">[5]</a></li>
-<li><tt class="docutils literal"><span class="pre">doubleHolland</span></tt> &#8211; A double exponential profile from McConochie
+<li><code class="docutils literal"><span class="pre">jelesnianski</span></code> &#8211; From Jelesnianski (1966). <a class="footnote-reference" href="#id15" id="id5">[5]</a></li>
+<li><code class="docutils literal"><span class="pre">doubleHolland</span></code> &#8211; A double exponential profile from McConochie
 <em>et al.</em> (2004) <a class="footnote-reference" href="#id16" id="id6">[6]</a></li>
 </ul>
-<p>The <tt class="docutils literal"><span class="pre">windFieldType</span></tt> value selects the boundary layer model
+<p>The <code class="docutils literal"><span class="pre">windFieldType</span></code> value selects the boundary layer model
 used. Three boundary layer models have been implemented:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">kepert</span></tt> &#8211; the linearised boundary layer model of Kepert (2001)
+<li><code class="docutils literal"><span class="pre">kepert</span></code> &#8211; the linearised boundary layer model of Kepert (2001)
 <a class="footnote-reference" href="#id17" id="id7">[7]</a></li>
-<li><tt class="docutils literal"><span class="pre">hubbert</span></tt> &#8211; a vector addition of forward speed and tangential
+<li><code class="docutils literal"><span class="pre">hubbert</span></code> &#8211; a vector addition of forward speed and tangential
 wind speed from Hubbert <em>et al.</em> (1994) <a class="footnote-reference" href="#id18" id="id8">[8]</a></li>
-<li><tt class="docutils literal"><span class="pre">mcconochie</span></tt> &#8211; a second vector addition model, from McConochie
+<li><code class="docutils literal"><span class="pre">mcconochie</span></code> &#8211; a second vector addition model, from McConochie
 <em>et al.</em> (2004) <a class="footnote-reference" href="#id16" id="id9">[6]</a></li>
 </ul>
-<p>The <tt class="docutils literal"><span class="pre">beta</span></tt> option specifies the β parameter used in the Holland
-wind profile. The additional β options (<tt class="docutils literal"><span class="pre">beta1</span></tt> and <tt class="docutils literal"><span class="pre">beta2</span></tt>)
-are used in the <tt class="docutils literal"><span class="pre">doubleHolland</span></tt> wind profile, which is a double
+<p>The <code class="docutils literal"><span class="pre">beta</span></code> option specifies the β parameter used in the Holland
+wind profile. The additional β options (<code class="docutils literal"><span class="pre">beta1</span></code> and <code class="docutils literal"><span class="pre">beta2</span></code>)
+are used in the <code class="docutils literal"><span class="pre">doubleHolland</span></code> wind profile, which is a double
 exponential profile, therefore requiring two β parameters.</p>
-<p><tt class="docutils literal"><span class="pre">thetaMax</span></tt> is used in the McConochie and Hubbert boundary layer
+<p><code class="docutils literal"><span class="pre">thetaMax</span></code> is used in the McConochie and Hubbert boundary layer
 models to specify the azimuthal location of the maximum wind speed
 under the translating storm.</p>
-<p><tt class="docutils literal"><span class="pre">Margin</span></tt> defines the spatial extent over which the wind field is
+<p><code class="docutils literal"><span class="pre">Margin</span></code> defines the spatial extent over which the wind field is
 calculated and is in units of degrees. A margin of 5 is recommended
 for hazard models, to ensure low wind speeds from distant TCs are
 incorporated into the fitting procedure.</p>
-<p><tt class="docutils literal"><span class="pre">Resolution</span></tt> is the horizontal resolution (in degrees) of the wind
+<p><code class="docutils literal"><span class="pre">Resolution</span></code> is the horizontal resolution (in degrees) of the wind
 fields. Values should be no larger than 0.05 degrees, as the absolute
 peak of the radial profile may not be adequately resolved, leading to
 an underestimation of the maximum wind speeds.</p>
@@ -265,19 +263,19 @@ an underestimation of the maximum wind speeds.</p>
 </div>
 <div class="section" id="hazard">
 <span id="configurehazard"></span><h3>Hazard<a class="headerlink" href="#hazard" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">Hazard</span></tt> section controls how the model calculates the return
+<p>The <code class="docutils literal"><span class="pre">Hazard</span></code> section controls how the model calculates the return
 period wind speeds, and whether to calculate confidence ranges.</p>
-<p>The <tt class="docutils literal"><span class="pre">Years</span></tt> option is a comma separated list of integer values that
+<p>The <code class="docutils literal"><span class="pre">Years</span></code> option is a comma separated list of integer values that
 specifies the return periods for which wind speeds will be
-calculated. <tt class="docutils literal"><span class="pre">MinimumRecords</span></tt> sets the minimum number of values
+calculated. <code class="docutils literal"><span class="pre">MinimumRecords</span></code> sets the minimum number of values
 required for performing the fitting procedure at a given grid point.</p>
-<p><tt class="docutils literal"><span class="pre">CalculateCI</span></tt> sets whether the <a class="reference internal" href="hazard.html#module-hazard" title="hazard"><tt class="xref py py-mod docutils literal"><span class="pre">hazard</span></tt></a> module will calculate
-confidence ranges using a bootstrap resampling method. If <tt class="docutils literal"><span class="pre">True</span></tt>,
+<p><code class="docutils literal"><span class="pre">CalculateCI</span></code> sets whether the <a class="reference internal" href="hazard.html#module-hazard" title="hazard"><code class="xref py py-mod docutils literal"><span class="pre">hazard</span></code></a> module will calculate
+confidence ranges using a bootstrap resampling method. If <code class="docutils literal"><span class="pre">True</span></code>,
 the module will run the fitting process multiple times and calculate
 upper and lower percentile values of the resulting return period wind
-speeds. The <tt class="docutils literal"><span class="pre">PercentileRange</span></tt> option sets the range &#8211; for a value
+speeds. The <code class="docutils literal"><span class="pre">PercentileRange</span></code> option sets the range &#8211; for a value
 of 90, the module will calculatae the 5th and 95th percentile
-values. <tt class="docutils literal"><span class="pre">SampleSize</span></tt> sets the number of randomly selected values
+values. <code class="docutils literal"><span class="pre">SampleSize</span></code> sets the number of randomly selected values
 that will be used in each realisation of the extreme value fitting
 procedure for calculating the confidence range.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Hazard</span><span class="p">]</span>
@@ -292,8 +290,8 @@ procedure for calculating the confidence range.</p>
 </div>
 <div class="section" id="rmw">
 <span id="configurermw"></span><h3>RMW<a class="headerlink" href="#rmw" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">RMW</span></tt> section contains a single option: <tt class="docutils literal"><span class="pre">GetRMWDistFromInputData</span></tt>.
-Set this value to <tt class="docutils literal"><span class="pre">True</span></tt> if the input track database has reliable data
+<p>The <code class="docutils literal"><span class="pre">RMW</span></code> section contains a single option: <code class="docutils literal"><span class="pre">GetRMWDistFromInputData</span></code>.
+Set this value to <code class="docutils literal"><span class="pre">True</span></code> if the input track database has reliable data
 on the radius to maximum winds.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">RMW</span><span class="p">]</span>
 <span class="n">GetRMWDistFromInputData</span> <span class="o">=</span> <span class="bp">False</span>
@@ -302,31 +300,31 @@ on the radius to maximum winds.</p>
 </div>
 <div class="section" id="input">
 <span id="configureinput"></span><h3>Input<a class="headerlink" href="#input" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">Input</span></tt> section sets the source of some supplementary data, as
-well as the datasets to be automatically downloaded. The <tt class="docutils literal"><span class="pre">LandMask</span></tt>
+<p>The <code class="docutils literal"><span class="pre">Input</span></code> section sets the source of some supplementary data, as
+well as the datasets to be automatically downloaded. The <code class="docutils literal"><span class="pre">LandMask</span></code>
 option specifies the path to a netcdf file (supplied) that contains a
-land/sea mask. The <tt class="docutils literal"><span class="pre">MSLPFile</span></tt> option specifies the path to a netcdf
+land/sea mask. The <code class="docutils literal"><span class="pre">MSLPFile</span></code> option specifies the path to a netcdf
 file (downloaded) that contains daily long-term mean sea level
 pressure data (e.g. from a NCEP/NCAR reanalysis products).</p>
-<p>The <tt class="docutils literal"><span class="pre">Datasest</span></tt> option is a comma separated list of values indicating
+<p>The <code class="docutils literal"><span class="pre">Datasest</span></code> option is a comma separated list of values indicating
 the data that should be downloaded on first execution. For each value
 in the list, there must be a corresponding section in the
-configuration file, that has options of <tt class="docutils literal"><span class="pre">URL</span></tt> (the URL of the data
-to be downloaded), <tt class="docutils literal"><span class="pre">path</span></tt> (where to store the data once it has been
-downloaded) and <tt class="docutils literal"><span class="pre">filename</span></tt> (the filename to give to the data once
+configuration file, that has options of <code class="docutils literal"><span class="pre">URL</span></code> (the URL of the data
+to be downloaded), <code class="docutils literal"><span class="pre">path</span></code> (where to store the data once it has been
+downloaded) and <code class="docutils literal"><span class="pre">filename</span></code> (the filename to give to the data once
 downloaded).</p>
-<p>In the example below, for the <tt class="docutils literal"><span class="pre">IBTRACS</span></tt> dataset, there are
+<p>In the example below, for the <code class="docutils literal"><span class="pre">IBTRACS</span></code> dataset, there are
 additional options that describe the format of the track database with
 the same name.  This is a legitimate approach, so long as there are no
 duplicate options.</p>
-<p>Note that the <tt class="docutils literal"><span class="pre">filename</span></tt> option in the <tt class="docutils literal"><span class="pre">IBTRACS</span></tt> section matches
-the <tt class="docutils literal"><span class="pre">InputFile</span></tt> option in the <tt class="docutils literal"><span class="pre">DataProcess</span></tt> section, and the
-<tt class="docutils literal"><span class="pre">filename</span></tt> in the <tt class="docutils literal"><span class="pre">LTMSLP</span></tt> section matches the <tt class="docutils literal"><span class="pre">MSLPFile</span></tt> in the
-<tt class="docutils literal"><span class="pre">Input</span></tt> section.</p>
-<p>The <tt class="docutils literal"><span class="pre">CoastlineGates</span></tt> option specifies the path to a comma-delimited
+<p>Note that the <code class="docutils literal"><span class="pre">filename</span></code> option in the <code class="docutils literal"><span class="pre">IBTRACS</span></code> section matches
+the <code class="docutils literal"><span class="pre">InputFile</span></code> option in the <code class="docutils literal"><span class="pre">DataProcess</span></code> section, and the
+<code class="docutils literal"><span class="pre">filename</span></code> in the <code class="docutils literal"><span class="pre">LTMSLP</span></code> section matches the <code class="docutils literal"><span class="pre">MSLPFile</span></code> in the
+<code class="docutils literal"><span class="pre">Input</span></code> section.</p>
+<p>The <code class="docutils literal"><span class="pre">CoastlineGates</span></code> option specifies the path to a comma-delimited
 text file that holds the points of a series of coastline gates that
-are used in the <a class="reference internal" href="Evaluate.html#module-Evaluate.landfallRates" title="Evaluate.landfallRates"><tt class="xref py py-mod docutils literal"><span class="pre">Evaluate.landfallRates</span></tt></a> module.</p>
-<div class="highlight-python"><pre>[Input]
+are used in the <a class="reference internal" href="Evaluate.html#module-Evaluate.landfallRates" title="Evaluate.landfallRates"><code class="xref py py-mod docutils literal"><span class="pre">Evaluate.landfallRates</span></code></a> module.</p>
+<div class="highlight-python"><div class="highlight"><pre>[Input]
 LandMask = input/landmask.nc
 MSLPFile = MSLP/slp.day.ltm.nc
 Datasets = IBTRACS,LTMSLP
@@ -347,15 +345,16 @@ SpeedUnits = kph
 [LTMSLP]
 URL = ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.derived/surface/slp.day.1981-2010.ltm.nc
 path = MSLP
-filename = slp.day.ltm.nc</pre>
+filename = slp.day.ltm.nc
+</pre></div>
 </div>
 </div>
 <div class="section" id="output">
 <span id="configureoutput"></span><h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">Output</span></tt> section defines the destination of the model output. Set the
-<tt class="docutils literal"><span class="pre">Path</span></tt> option to the directory where you wish to store the data. Paths can
+<p>The <code class="docutils literal"><span class="pre">Output</span></code> section defines the destination of the model output. Set the
+<code class="docutils literal"><span class="pre">Path</span></code> option to the directory where you wish to store the data. Paths can
 be relative or absolute. By default, output is stored in a subdirectory of
-the working directory named <tt class="docutils literal"><span class="pre">output</span></tt>.</p>
+the working directory named <code class="docutils literal"><span class="pre">output</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Output</span><span class="p">]</span>
 <span class="n">Path</span> <span class="o">=</span> <span class="n">output</span>
 </pre></div>
@@ -363,18 +362,18 @@ the working directory named <tt class="docutils literal"><span class="pre">outpu
 </div>
 <div class="section" id="logging">
 <span id="configurelogging"></span><h3>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h3>
-<p>The <tt class="docutils literal"><span class="pre">Logging</span></tt> section controls how the model records progress to
-file (and optionally STDOUT). <tt class="docutils literal"><span class="pre">LogFile</span></tt> option specifies the name of
+<p>The <code class="docutils literal"><span class="pre">Logging</span></code> section controls how the model records progress to
+file (and optionally STDOUT). <code class="docutils literal"><span class="pre">LogFile</span></code> option specifies the name of
 the log file. If no path is given, then the log file will be stored in
 the current working directory. For parallel execution, a separate log
 file is created for each thread, with the rank of the process appended
 to the name of the file.</p>
-<p>The <tt class="docutils literal"><span class="pre">LogLevel</span></tt> is one of the <tt class="xref py py-mod docutils literal"><span class="pre">Logging</span></tt> <a class="reference external" href="https://docs.python.org/2/library/logging.html#logging-levels">levels</a>. Default
-is <tt class="docutils literal"><span class="pre">INFO</span></tt>. The <tt class="docutils literal"><span class="pre">Verbose</span></tt> option allows users to print all logging
+<p>The <code class="docutils literal"><span class="pre">LogLevel</span></code> is one of the <code class="xref py py-mod docutils literal"><span class="pre">Logging</span></code> <a class="reference external" href="https://docs.python.org/2/library/logging.html#logging-levels">levels</a>. Default
+is <code class="docutils literal"><span class="pre">INFO</span></code>. The <code class="docutils literal"><span class="pre">Verbose</span></code> option allows users to print all logging
 messages to the standard output. This can be useful when attempting to
 identify problems with execution. For parallel execution, this is set
-to <tt class="docutils literal"><span class="pre">False</span></tt> (to prevent repeated messages being printed to the
-screen). Setting the <tt class="docutils literal"><span class="pre">ProgressBar</span></tt> option to <tt class="docutils literal"><span class="pre">True</span></tt> will display a
+to <code class="docutils literal"><span class="pre">False</span></code> (to prevent repeated messages being printed to the
+screen). Setting the <code class="docutils literal"><span class="pre">ProgressBar</span></code> option to <code class="docutils literal"><span class="pre">True</span></code> will display a
 simple progress bar on the screen to indicate the status of the model
 execution. This will be turned off if TCRM is executed on a parallel
 system, or if it is run in batch mode.</p>
@@ -388,34 +387,34 @@ system, or if it is run in batch mode.</p>
 </div>
 <div class="section" id="source-format-options">
 <span id="configuresource"></span><h3>Source format options<a class="headerlink" href="#source-format-options" title="Permalink to this headline">¶</a></h3>
-<p>For the input data source specified in the <em class="menuselection">DataProcess ‣ Source</em>
+<p>For the input data source specified in the <span class="menuselection">DataProcess ‣ Source</span>
 option, there must be a corresponding section of the given name. In
-this example case, the source is specified as <tt class="docutils literal"><span class="pre">IBTRACS</span></tt> (the same as
-one of the <tt class="docutils literal"><span class="pre">Dataset</span></tt> options). The <tt class="docutils literal"><span class="pre">IBTRACS</span></tt> section therefore
+this example case, the source is specified as <code class="docutils literal"><span class="pre">IBTRACS</span></code> (the same as
+one of the <code class="docutils literal"><span class="pre">Dataset</span></code> options). The <code class="docutils literal"><span class="pre">IBTRACS</span></code> section therefore
 controls both the download dataset options, and specifies the textural
 format of the input track database.</p>
-<p>The options that relate to the dataset download are <tt class="docutils literal"><span class="pre">URL</span></tt>, <tt class="docutils literal"><span class="pre">path</span></tt>
-and <tt class="docutils literal"><span class="pre">filename</span></tt>. <tt class="docutils literal"><span class="pre">URL</span></tt> specifies the location of the data to be
-downloaded. The <tt class="docutils literal"><span class="pre">path</span></tt> option specifies the path name for the
-storage location of the dataset. The <tt class="docutils literal"><span class="pre">filename</span></tt> option gives the
+<p>The options that relate to the dataset download are <code class="docutils literal"><span class="pre">URL</span></code>, <code class="docutils literal"><span class="pre">path</span></code>
+and <code class="docutils literal"><span class="pre">filename</span></code>. <code class="docutils literal"><span class="pre">URL</span></code> specifies the location of the data to be
+downloaded. The <code class="docutils literal"><span class="pre">path</span></code> option specifies the path name for the
+storage location of the dataset. The <code class="docutils literal"><span class="pre">filename</span></code> option gives the
 name of the file to be saved (this can be different from the name of
 the dataset).</p>
 <p>The remaining options relate to the format of the track
-database. <tt class="docutils literal"><span class="pre">Columns</span></tt> is a comma-separated list of the column names in
+database. <code class="docutils literal"><span class="pre">Columns</span></code> is a comma-separated list of the column names in
 the input database. If a column is to be ignored, it should be named
-<tt class="docutils literal"><span class="pre">skip</span></tt>. The <tt class="docutils literal"><span class="pre">FieldDelimiter</span></tt> is the delimiter used in the input
+<code class="docutils literal"><span class="pre">skip</span></code>. The <code class="docutils literal"><span class="pre">FieldDelimiter</span></code> is the delimiter used in the input
 track database (it&#8217;s assumed that the input file is a text format
-file!). The <tt class="docutils literal"><span class="pre">NumberOfHeadingLines</span></tt> indicates the number of text
+file!). The <code class="docutils literal"><span class="pre">NumberOfHeadingLines</span></code> indicates the number of text
 lines at the top of the file that should be ignored (usually this is
 column headers &#8211; due to the multiple lines used in some track
 databases, TCRM does not attempt to decipher the column names from the
-header. <tt class="docutils literal"><span class="pre">PressureUnits</span></tt>, <tt class="docutils literal"><span class="pre">LengthUnits</span></tt> and <tt class="docutils literal"><span class="pre">SpeedUnits</span></tt> specify
+header. <code class="docutils literal"><span class="pre">PressureUnits</span></code>, <code class="docutils literal"><span class="pre">LengthUnits</span></code> and <code class="docutils literal"><span class="pre">SpeedUnits</span></code> specify
 the units the numerical values of pressure, distance and speed
-(respectively) used in the input track database. The <tt class="docutils literal"><span class="pre">DateFormat</span></tt>
+(respectively) used in the input track database. The <code class="docutils literal"><span class="pre">DateFormat</span></code>
 option is a string represenation of the date format used in the track
 database. The format should use Python&#8217;s <a class="reference external" href="https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior">datetime</a>
 formats.</p>
-<div class="highlight-python"><pre>[IBTRACS]
+<div class="highlight-python"><div class="highlight"><pre>[IBTRACS]
 URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
 path=input
 filename=Allstorms.ibtracs_wmo.v03r05.csv
@@ -425,7 +424,8 @@ NumberOfHeadingLines=3
 PressureUnits=hPa
 LengthUnits=km
 DateFormat=%Y-%m-%d %H:%M:%S
-SpeedUnits=kph</pre>
+SpeedUnits=kph
+</pre></div>
 </div>
 </div>
 <div class="section" id="references">
@@ -502,7 +502,7 @@ A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
@@ -536,12 +536,14 @@ A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
   <h4>Next topic</h4>
   <p class="topless"><a href="execution.html"
                         title="next chapter">Running the model</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/docs/setup.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/setup.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -558,7 +560,7 @@ A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -573,13 +575,13 @@ A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
         <li class="right" >
           <a href="install.html" title="Installation"
              >previous</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Mar 20, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Last updated on Apr 22, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

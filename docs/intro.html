@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,7 +8,7 @@
     
     <title>Introduction &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -29,8 +27,8 @@
     <link rel="next" title="Installation" href="install.html" />
     <link rel="prev" title="The Tropical Cyclone Risk Model" href="../index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,14 +43,14 @@
         <li class="right" >
           <a href="../index.html" title="The Tropical Cyclone Risk Model"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
@@ -74,37 +72,37 @@ community).</p>
 <div class="section" id="model-outline">
 <h2>Model outline<a class="headerlink" href="#model-outline" title="Permalink to this headline">¶</a></h2>
 <p>TCRM has 5 main modules to generate hazard information:
-<a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><tt class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></tt></a>, <a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><tt class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></tt></a>, <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><tt class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></tt></a>,
-<a class="reference internal" href="wind.html#module-wind" title="wind"><tt class="xref py py-mod docutils literal"><span class="pre">wind</span></tt></a> and <a class="reference internal" href="hazard.html#module-hazard" title="hazard"><tt class="xref py py-mod docutils literal"><span class="pre">hazard</span></tt></a>. Supporting <a class="reference internal" href="Utilities.html#module-Utilities" title="Utilities"><tt class="xref py py-mod docutils literal"><span class="pre">Utilities</span></tt></a> and
-plotting routines (<a class="reference internal" href="PlotInterface.html#module-PlotInterface" title="PlotInterface"><tt class="xref py py-mod docutils literal"><span class="pre">PlotInterface</span></tt></a>) are included.</p>
-<p>The <a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><tt class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></tt></a> module reads the input track database and
+<a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></code></a>, <a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><code class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></code></a>, <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></code></a>,
+<a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal"><span class="pre">wind</span></code></a> and <a class="reference internal" href="hazard.html#module-hazard" title="hazard"><code class="xref py py-mod docutils literal"><span class="pre">hazard</span></code></a>. Supporting <a class="reference internal" href="Utilities.html#module-Utilities" title="Utilities"><code class="xref py py-mod docutils literal"><span class="pre">Utilities</span></code></a> and
+plotting routines (<a class="reference internal" href="PlotInterface.html#module-PlotInterface" title="PlotInterface"><code class="xref py py-mod docutils literal"><span class="pre">PlotInterface</span></code></a>) are included.</p>
+<p>The <a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></code></a> module reads the input track database and
 extracts parameters from the data, namely intensity and location
 information, speed, bearings and genesis locations. The data are
 stored in text files to allow users to examine the data in another
 analysis tool. There are also a number of plotting routines to display
 some of the basic relationships in the data.</p>
-<p><a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><tt class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></tt></a> uses the processed files generated by
-<a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><tt class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></tt></a> to evaluate the statistical relations between
+<p><a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><code class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></code></a> uses the processed files generated by
+<a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></code></a> to evaluate the statistical relations between
 the parameters, including the means, variance and
 autocorrelations on a coarse grid across the model domain. PDFs
 of the initial values of parameters (initial speed, bearing and
 intensity) and genesis probability are also calculated.</p>
-<p><a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><tt class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></tt></a> is the stochastic engine of the model. This
+<p><a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></code></a> is the stochastic engine of the model. This
 module samples from the distributions of genesis location and
 initial parameter values to start a new TC event, then steps
 forward in time using the autoregressive nature of TC
 behaviour. This allows users to generate thousands of random
 events that share the same statistical properties as the input
 track dataset.</p>
-<p>The <a class="reference internal" href="wind.html#module-wind" title="wind"><tt class="xref py py-mod docutils literal"><span class="pre">wind</span></tt></a> module calculates the maximum wind speed around each
-of the synthetic TC events generated by the <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><tt class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></tt></a>. A
+<p>The <a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal"><span class="pre">wind</span></code></a> module calculates the maximum wind speed around each
+of the synthetic TC events generated by the <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></code></a>. A
 2-dimensional parametric profile is used to calculate the wind
 field to enable large numbers of events to be processed efficiently,
 but at high spatial resolution (e.g. a grid spacing of around 2
 km). Users can select from a number of radial profiles and combine
 with one of three boundary layer models to incorporate asymmetries
 associated with forward motion of the TC vortex.</p>
-<p><a class="reference internal" href="hazard.html#module-hazard" title="hazard"><tt class="xref py py-mod docutils literal"><span class="pre">hazard</span></tt></a> uses the wind fields calculated in the <a class="reference internal" href="wind.html#module-wind" title="wind"><tt class="xref py py-mod docutils literal"><span class="pre">wind</span></tt></a>
+<p><a class="reference internal" href="hazard.html#module-hazard" title="hazard"><code class="xref py py-mod docutils literal"><span class="pre">hazard</span></code></a> uses the wind fields calculated in the <a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal"><span class="pre">wind</span></code></a>
 module to fit a generalised extreme value (GEV) distribution at
 each grid point across the model domain to determine return
 period wind speeds. The fitting routine uses the method of
@@ -137,7 +135,7 @@ Statistics. <em>Journal of the Royal Statistical Society</em>, <strong>52</stron
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
@@ -158,12 +156,14 @@ Statistics. <em>Journal of the Royal Statistical Society</em>, <strong>52</stron
   <h4>Next topic</h4>
   <p class="topless"><a href="install.html"
                         title="next chapter">Installation</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/docs/intro.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/intro.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -180,7 +180,7 @@ Statistics. <em>Journal of the Royal Statistical Society</em>, <strong>52</stron
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -195,13 +195,13 @@ Statistics. <em>Journal of the Royal Statistical Society</em>, <strong>52</stron
         <li class="right" >
           <a href="../index.html" title="The Tropical Cyclone Risk Model"
              >previous</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Mar 20, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Last updated on Apr 22, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

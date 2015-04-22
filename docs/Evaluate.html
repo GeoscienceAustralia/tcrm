@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,7 +8,7 @@
     
     <title>Evaluate package &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -27,8 +25,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -37,24 +35,24 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="evaluate-package">
 <h1>Evaluate package<a class="headerlink" href="#evaluate-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-Evaluate">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-Evaluate" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-Evaluate">
-<span id="evaluate-run-evaluation-of-track-model"></span><h3><a class="reference internal" href="#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><tt class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></tt></a> &#8211; run evaluation of track model<a class="headerlink" href="#module-Evaluate" title="Permalink to this headline">¶</a></h3>
+<span id="evaluate-run-evaluation-of-track-model"></span><h3><a class="reference internal" href="#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><code class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></code></a> &#8211; run evaluation of track model<a class="headerlink" href="#module-Evaluate" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="Evaluate.run">
-<tt class="descname">run</tt><big>(</big><em>configFile</em><big>)</big><a class="headerlink" href="#Evaluate.run" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the evaluation methods for the pressure distributions, track
 density, landfall rates and longitude crossing rates.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -76,13 +74,13 @@ density, landfall rates and longitude crossing rates.</p>
 <span id="evaluate-interpolatetracks-module"></span><h2>Evaluate.interpolateTracks module<a class="headerlink" href="#module-Evaluate.interpolateTracks" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="Evaluate.interpolateTracks.Track">
-<em class="property">class </em><tt class="descname">Track</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#Evaluate.interpolateTracks.Track" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">Track</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.interpolateTracks.Track" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Evaluate.interpolateTracks.interpolate">
-<tt class="descname">interpolate</tt><big>(</big><em>track</em>, <em>delta</em>, <em>interpolation_type=None</em><big>)</big><a class="headerlink" href="#Evaluate.interpolateTracks.interpolate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">interpolate</code><span class="sig-paren">(</span><em>track</em>, <em>delta</em>, <em>interpolation_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.interpolateTracks.interpolate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interpolate the records in time to have a uniform time difference between
 records. Each of the input arrays represent the values for a single TC
 event.</p>
@@ -91,7 +89,7 @@ event.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>track</strong> &#8211; <a class="reference internal" href="#Evaluate.interpolateTracks.Track" title="Evaluate.interpolateTracks.Track"><tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt></a> object containing all data for the track.</li>
+<li><strong>track</strong> &#8211; <a class="reference internal" href="#Evaluate.interpolateTracks.Track" title="Evaluate.interpolateTracks.Track"><code class="xref py py-class docutils literal"><span class="pre">Track</span></code></a> object containing all data for the track.</li>
 <li><strong>delta</strong> &#8211; <cite>float</cite> time difference to interpolate the dataset to. Must be
 positive.</li>
 <li><strong>interpolation_type</strong> &#8211; Optional [&#8216;linear&#8217;, &#8216;akima&#8217;], specify the type
@@ -108,7 +106,7 @@ handles numpy.ma masked arrays.</p>
 
 <dl class="function">
 <dt id="Evaluate.interpolateTracks.parseTracks">
-<tt class="descname">parseTracks</tt><big>(</big><em>configFile</em>, <em>trackFile</em>, <em>source</em>, <em>delta</em>, <em>outputFile=None</em>, <em>interpolation_type=None</em><big>)</big><a class="headerlink" href="#Evaluate.interpolateTracks.parseTracks" title="Permalink to this definition">¶</a></dt>
+<code class="descname">parseTracks</code><span class="sig-paren">(</span><em>configFile</em>, <em>trackFile</em>, <em>source</em>, <em>delta</em>, <em>outputFile=None</em>, <em>interpolation_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.interpolateTracks.parseTracks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a track dataset, then interpolate to some time delta (given in
 hours). Events with only a single record are not altered.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -135,7 +133,7 @@ be saved.</li>
 
 <dl class="function">
 <dt id="Evaluate.interpolateTracks.saveTracks">
-<tt class="descname">saveTracks</tt><big>(</big><em>tracks</em>, <em>outputFile</em><big>)</big><a class="headerlink" href="#Evaluate.interpolateTracks.saveTracks" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveTracks</code><span class="sig-paren">(</span><em>tracks</em>, <em>outputFile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.interpolateTracks.saveTracks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the data to a TCRM-format track file</p>
 </dd></dl>
 
@@ -143,36 +141,36 @@ be saved.</li>
 <div class="section" id="module-Evaluate.landfallRates">
 <span id="evaluate-landfallrates-module"></span><h2>Evaluate.landfallRates module<a class="headerlink" href="#module-Evaluate.landfallRates" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-LandfallRates">
-<span id="landfallrates-calculate-landfall-rates"></span><h3><a class="reference internal" href="#module-LandfallRates" title="LandfallRates: Given a set of cyclone tracks and gates around the coastline,  bin each coastal crossing into the gate corresponding to it's landfall location - then repeat for a set of synthetic events."><tt class="xref py py-mod docutils literal"><span class="pre">LandfallRates</span></tt></a> &#8211; calculate landfall rates<a class="headerlink" href="#module-LandfallRates" title="Permalink to this headline">¶</a></h3>
+<span id="landfallrates-calculate-landfall-rates"></span><h3><a class="reference internal" href="#module-LandfallRates" title="LandfallRates: Given a set of cyclone tracks and gates around the coastline,  bin each coastal crossing into the gate corresponding to it's landfall location - then repeat for a set of synthetic events."><code class="xref py py-mod docutils literal"><span class="pre">LandfallRates</span></code></a> &#8211; calculate landfall rates<a class="headerlink" href="#module-LandfallRates" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="Evaluate.landfallRates.LandfallRates">
-<em class="property">class </em><tt class="descname">LandfallRates</tt><big>(</big><em>configFile</em><big>)</big><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">LandfallRates</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="Evaluate.landfallRates.LandfallRates.calculateStats">
-<tt class="descname">calculateStats</tt><big>(</big><big>)</big><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.calculateStats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calculateStats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.calculateStats" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.landfallRates.LandfallRates.historic">
-<tt class="descname">historic</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.historic" title="Permalink to this definition">¶</a></dt>
+<code class="descname">historic</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.historic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate historical rates of landfall</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.landfallRates.LandfallRates.plot">
-<tt class="descname">plot</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.landfallRates.LandfallRates.processResults">
-<tt class="descname">processResults</tt><big>(</big><em>results</em>, <em>index</em><big>)</big><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.processResults" title="Permalink to this definition">¶</a></dt>
+<code class="descname">processResults</code><span class="sig-paren">(</span><em>results</em>, <em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.processResults" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.landfallRates.LandfallRates.processTracks">
-<tt class="descname">processTracks</tt><big>(</big><em>tracks</em><big>)</big><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.processTracks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a collection of <tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt> objects and set of gate vertices, 
+<code class="descname">processTracks</code><span class="sig-paren">(</span><em>tracks</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.processTracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a collection of <code class="xref py py-class docutils literal"><span class="pre">Track</span></code> objects and set of gate vertices, 
 calculate if the tracks cross the gates in either an onshore or
 offshore direction.</p>
 <p>Returns the histograms for the gate counts.</p>
@@ -180,18 +178,18 @@ offshore direction.</p>
 
 <dl class="method">
 <dt id="Evaluate.landfallRates.LandfallRates.run">
-<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.run" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute the analysis</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.landfallRates.LandfallRates.setOutput">
-<tt class="descname">setOutput</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.setOutput" title="Permalink to this definition">¶</a></dt>
+<code class="descname">setOutput</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.setOutput" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.landfallRates.LandfallRates.synthetic">
-<tt class="descname">synthetic</tt><big>(</big><big>)</big><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.synthetic" title="Permalink to this definition">¶</a></dt>
+<code class="descname">synthetic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.landfallRates.LandfallRates.synthetic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load synthetic data and calculate histogram</p>
 </dd></dl>
 
@@ -199,8 +197,8 @@ offshore direction.</p>
 
 <dl class="function">
 <dt id="Evaluate.landfallRates.loadTracks">
-<tt class="descname">loadTracks</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#Evaluate.landfallRates.loadTracks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read tracks from a track .csv file and return a list of <tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt>
+<code class="descname">loadTracks</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.landfallRates.loadTracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read tracks from a track .csv file and return a list of <code class="xref py py-class docutils literal"><span class="pre">Track</span></code>
 objects.</p>
 <p>This calls the function <cite>readMultipleTrackData</cite> to parse the track .csv
 file.</p>
@@ -216,7 +214,7 @@ file.</p>
 
 <dl class="function">
 <dt id="Evaluate.landfallRates.readMultipleTrackData">
-<tt class="descname">readMultipleTrackData</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#Evaluate.landfallRates.readMultipleTrackData" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readMultipleTrackData</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.landfallRates.readMultipleTrackData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads all the track datas from a .csv file into a list of numpy.ndarrays.
 The tracks are seperated based in their cyclone id. This function calls
 <cite>readTrackData</cite> to read the data from the file.</p>
@@ -232,7 +230,7 @@ The tracks are seperated based in their cyclone id. This function calls
 
 <dl class="function">
 <dt id="Evaluate.landfallRates.readTrackData">
-<tt class="descname">readTrackData</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#Evaluate.landfallRates.readTrackData" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readTrackData</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.landfallRates.readTrackData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read a track .csv file into a numpy.ndarray.</p>
 <p>The track format and converters are specified with the global variables</p>
 <blockquote>
@@ -254,27 +252,27 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
 <div class="section" id="module-Evaluate.longitudeCrossing">
 <span id="evaluate-longitudecrossing-module"></span><h2>Evaluate.longitudeCrossing module<a class="headerlink" href="#module-Evaluate.longitudeCrossing" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-LongitudeCrossing">
-<span id="longitudecrossing-calculate-crossing-rate-of-lons-lats"></span><h3><a class="reference internal" href="#module-LongitudeCrossing" title="LongitudeCrossing: Calculate the rate of TCs crossing lines of longitude and latitude, comparing historical and synthetic  events."><tt class="xref py py-mod docutils literal"><span class="pre">LongitudeCrossing</span></tt></a> &#8211; calculate crossing rate of lons/lats<a class="headerlink" href="#module-LongitudeCrossing" title="Permalink to this headline">¶</a></h3>
+<span id="longitudecrossing-calculate-crossing-rate-of-lons-lats"></span><h3><a class="reference internal" href="#module-LongitudeCrossing" title="LongitudeCrossing: Calculate the rate of TCs crossing lines of longitude and latitude, comparing historical and synthetic  events."><code class="xref py py-mod docutils literal"><span class="pre">LongitudeCrossing</span></code></a> &#8211; calculate crossing rate of lons/lats<a class="headerlink" href="#module-LongitudeCrossing" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="Evaluate.longitudeCrossing.LongitudeCrossing">
-<em class="property">class </em><tt class="descname">LongitudeCrossing</tt><big>(</big><em>configFile</em><big>)</big><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">LongitudeCrossing</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="Evaluate.longitudeCrossing.LongitudeCrossing.calcStats">
-<tt class="descname">calcStats</tt><big>(</big><em>lonCrossHist</em>, <em>lonCrossEW</em>, <em>lonCrossWE</em><big>)</big><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.calcStats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calcStats</code><span class="sig-paren">(</span><em>lonCrossHist</em>, <em>lonCrossEW</em>, <em>lonCrossWE</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.calcStats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate means and percentiles of synthetic event sets</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.longitudeCrossing.LongitudeCrossing.findCrossings">
-<tt class="descname">findCrossings</tt><big>(</big><em>tracks</em><big>)</big><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.findCrossings" title="Permalink to this definition">¶</a></dt>
+<code class="descname">findCrossings</code><span class="sig-paren">(</span><em>tracks</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.findCrossings" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a series of track points and a longitude, calculate
 if the tracks intersect that line of longitude.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tracks</strong> &#8211; collection of <tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt> objects</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tracks</strong> &#8211; collection of <code class="xref py py-class docutils literal"><span class="pre">Track</span></code> objects</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">h, ewh, weh, histograms for each line of longitude, 
 recording the rate of crossings</td>
@@ -285,31 +283,31 @@ recording the rate of crossings</td>
 
 <dl class="method">
 <dt id="Evaluate.longitudeCrossing.LongitudeCrossing.historic">
-<tt class="descname">historic</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.historic" title="Permalink to this definition">¶</a></dt>
+<code class="descname">historic</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.historic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate historical rates of longitude crossing</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.longitudeCrossing.LongitudeCrossing.plotCrossingRates">
-<tt class="descname">plotCrossingRates</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.plotCrossingRates" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotCrossingRates</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.plotCrossingRates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot longitude crossing rates</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.longitudeCrossing.LongitudeCrossing.run">
-<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.run" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the longitude crossing evaluation</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.longitudeCrossing.LongitudeCrossing.save">
-<tt class="descname">save</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.save" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save data to file for archival and/or further processing</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.longitudeCrossing.LongitudeCrossing.synthetic">
-<tt class="descname">synthetic</tt><big>(</big><big>)</big><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.synthetic" title="Permalink to this definition">¶</a></dt>
+<code class="descname">synthetic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.longitudeCrossing.LongitudeCrossing.synthetic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate synthetic rates of longitude crossing</p>
 </dd></dl>
 
@@ -317,8 +315,8 @@ recording the rate of crossings</td>
 
 <dl class="function">
 <dt id="Evaluate.longitudeCrossing.loadTracks">
-<tt class="descname">loadTracks</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#Evaluate.longitudeCrossing.loadTracks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read tracks from a track .csv file and return a list of <tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt>
+<code class="descname">loadTracks</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.longitudeCrossing.loadTracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read tracks from a track .csv file and return a list of <code class="xref py py-class docutils literal"><span class="pre">Track</span></code>
 objects.</p>
 <p>This calls the function <cite>readMultipleTrackData</cite> to parse the track .csv
 file.</p>
@@ -334,7 +332,7 @@ file.</p>
 
 <dl class="function">
 <dt id="Evaluate.longitudeCrossing.readMultipleTrackData">
-<tt class="descname">readMultipleTrackData</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#Evaluate.longitudeCrossing.readMultipleTrackData" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readMultipleTrackData</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.longitudeCrossing.readMultipleTrackData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads all the track datas from a .csv file into a list of numpy.ndarrays.
 The tracks are seperated based in their cyclone id. This function calls
 <cite>readTrackData</cite> to read the data from the file.</p>
@@ -350,7 +348,7 @@ The tracks are seperated based in their cyclone id. This function calls
 
 <dl class="function">
 <dt id="Evaluate.longitudeCrossing.readTrackData">
-<tt class="descname">readTrackData</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#Evaluate.longitudeCrossing.readTrackData" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readTrackData</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.longitudeCrossing.readTrackData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read a track .csv file into a numpy.ndarray.</p>
 <p>The track format and converters are specified with the global variables</p>
 <blockquote>
@@ -372,84 +370,84 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
 <div class="section" id="module-Evaluate.pressureDistribution">
 <span id="evaluate-pressuredistribution-module"></span><h2>Evaluate.pressureDistribution module<a class="headerlink" href="#module-Evaluate.pressureDistribution" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-PressureDistribution">
-<span id="pressuredistributions-calculate-central-pressure-distributions"></span><h3><tt class="xref py py-mod docutils literal"><span class="pre">PressureDistributions</span></tt> &#8211; calculate central pressure distributions<a class="headerlink" href="#module-PressureDistribution" title="Permalink to this headline">¶</a></h3>
+<span id="pressuredistributions-calculate-central-pressure-distributions"></span><h3><code class="xref py py-mod docutils literal"><span class="pre">PressureDistributions</span></code> &#8211; calculate central pressure distributions<a class="headerlink" href="#module-PressureDistribution" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="Evaluate.pressureDistribution.PressureDistribution">
-<em class="property">class </em><tt class="descname">PressureDistribution</tt><big>(</big><em>configFile</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">PressureDistribution</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="Evaluate.pressureDistribution.PressureDistribution.calcMinPressure">
-<tt class="descname">calcMinPressure</tt><big>(</big><em>tracks</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.calcMinPressure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calcMinPressure</code><span class="sig-paren">(</span><em>tracks</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.calcMinPressure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.pressureDistribution.PressureDistribution.calculate">
-<tt class="descname">calculate</tt><big>(</big><em>tracks</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.calculate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calculate</code><span class="sig-paren">(</span><em>tracks</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.calculate" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.pressureDistribution.PressureDistribution.calculateMeans">
-<tt class="descname">calculateMeans</tt><big>(</big><em>synMean</em>, <em>synMin</em>, <em>synMed</em>, <em>synMax</em>, <em>synMinCP</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.calculateMeans" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calculateMeans</code><span class="sig-paren">(</span><em>synMean</em>, <em>synMin</em>, <em>synMed</em>, <em>synMax</em>, <em>synMinCP</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.calculateMeans" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.pressureDistribution.PressureDistribution.historic">
-<tt class="descname">historic</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.historic" title="Permalink to this definition">¶</a></dt>
+<code class="descname">historic</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.historic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load historic data and calculate histogram</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.pressureDistribution.PressureDistribution.plotMinPressureDistribution">
-<tt class="descname">plotMinPressureDistribution</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.plotMinPressureDistribution" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotMinPressureDistribution</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.plotMinPressureDistribution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a pdf of observed minimum central pressure values, and the mean
 of the synthetic event sets (plus 90th percentile values).</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.pressureDistribution.PressureDistribution.plotMinPressureQuantiles">
-<tt class="descname">plotMinPressureQuantiles</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.plotMinPressureQuantiles" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotMinPressureQuantiles</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.plotMinPressureQuantiles" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.pressureDistribution.PressureDistribution.plotPressureMean">
-<tt class="descname">plotPressureMean</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.plotPressureMean" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotPressureMean</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.plotPressureMean" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a map of observed and synthetic mean pressure values</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.pressureDistribution.PressureDistribution.plotPressureMeanDiff">
-<tt class="descname">plotPressureMeanDiff</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.plotPressureMeanDiff" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotPressureMeanDiff</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.plotPressureMeanDiff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a map of the difference between observed and synthetic mean
 pressure values.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.pressureDistribution.PressureDistribution.plotPressureMin">
-<tt class="descname">plotPressureMin</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.plotPressureMin" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotPressureMin</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.plotPressureMin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a map of observed and synthetic minimum central pressure values.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.pressureDistribution.PressureDistribution.plotPressureMinDiff">
-<tt class="descname">plotPressureMinDiff</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.plotPressureMinDiff" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotPressureMinDiff</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.plotPressureMinDiff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a map of the difference between observed and synthetic minimum
 pressure values.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.pressureDistribution.PressureDistribution.run">
-<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.run" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the pressure distribution evaluation</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.pressureDistribution.PressureDistribution.save">
-<tt class="descname">save</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.save" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.save" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.pressureDistribution.PressureDistribution.synthetic">
-<tt class="descname">synthetic</tt><big>(</big><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.synthetic" title="Permalink to this definition">¶</a></dt>
+<code class="descname">synthetic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.PressureDistribution.synthetic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load synthetic data and calculate histogram</p>
 </dd></dl>
 
@@ -457,14 +455,14 @@ pressure values.</p>
 
 <dl class="class">
 <dt id="Evaluate.pressureDistribution.gridCell">
-<em class="property">class </em><tt class="descname">gridCell</tt><big>(</big><em>xmin</em>, <em>ymin</em>, <em>xmax</em>, <em>ymax</em>, <em>number</em>, <em>index</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.gridCell" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">gridCell</code><span class="sig-paren">(</span><em>xmin</em>, <em>ymin</em>, <em>xmax</em>, <em>ymax</em>, <em>number</em>, <em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.gridCell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Evaluate.pressureDistribution.loadTracks">
-<tt class="descname">loadTracks</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.loadTracks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read tracks from a track .csv file and return a list of <tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt>
+<code class="descname">loadTracks</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.loadTracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read tracks from a track .csv file and return a list of <code class="xref py py-class docutils literal"><span class="pre">Track</span></code>
 objects.</p>
 <p>This calls the function <cite>readMultipleTrackData</cite> to parse the track .csv
 file.</p>
@@ -480,7 +478,7 @@ file.</p>
 
 <dl class="function">
 <dt id="Evaluate.pressureDistribution.readMultipleTrackData">
-<tt class="descname">readMultipleTrackData</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.readMultipleTrackData" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readMultipleTrackData</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.readMultipleTrackData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads all the track datas from a .csv file into a list of numpy.ndarrays.
 The tracks are seperated based in their cyclone id. This function calls
 <cite>readTrackData</cite> to read the data from the file.</p>
@@ -496,7 +494,7 @@ The tracks are seperated based in their cyclone id. This function calls
 
 <dl class="function">
 <dt id="Evaluate.pressureDistribution.readTrackData">
-<tt class="descname">readTrackData</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#Evaluate.pressureDistribution.readTrackData" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readTrackData</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.pressureDistribution.readTrackData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read a track .csv file into a numpy.ndarray.</p>
 <p>The track format and converters are specified with the global variables</p>
 <blockquote>
@@ -518,21 +516,21 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
 <div class="section" id="module-Evaluate.trackDensity">
 <span id="evaluate-trackdensity-module"></span><h2>Evaluate.trackDensity module<a class="headerlink" href="#module-Evaluate.trackDensity" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-TrackDensity">
-<span id="trackdensity-calculate-track-density"></span><h3><a class="reference internal" href="#module-TrackDensity" title="TrackDensity: Calculate density of TC tracks over a grid (TCs/degree/year)"><tt class="xref py py-mod docutils literal"><span class="pre">TrackDensity</span></tt></a> &#8211; calculate track density<a class="headerlink" href="#module-TrackDensity" title="Permalink to this headline">¶</a></h3>
+<span id="trackdensity-calculate-track-density"></span><h3><a class="reference internal" href="#module-TrackDensity" title="TrackDensity: Calculate density of TC tracks over a grid (TCs/degree/year)"><code class="xref py py-mod docutils literal"><span class="pre">TrackDensity</span></code></a> &#8211; calculate track density<a class="headerlink" href="#module-TrackDensity" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="Evaluate.trackDensity.TrackDensity">
-<em class="property">class </em><tt class="descname">TrackDensity</tt><big>(</big><em>configFile</em><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">TrackDensity</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="Evaluate.trackDensity.TrackDensity.calculate">
-<tt class="descname">calculate</tt><big>(</big><em>tracks</em><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.calculate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calculate</code><span class="sig-paren">(</span><em>tracks</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.calculate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate a histogram of TC occurrences given a set
 of tracks</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tracks</strong> &#8211; Collection of <tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt> objects.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tracks</strong> &#8211; Collection of <code class="xref py py-class docutils literal"><span class="pre">Track</span></code> objects.</td>
 </tr>
 </tbody>
 </table>
@@ -540,42 +538,42 @@ of tracks</p>
 
 <dl class="method">
 <dt id="Evaluate.trackDensity.TrackDensity.calculateMeans">
-<tt class="descname">calculateMeans</tt><big>(</big><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.calculateMeans" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calculateMeans</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.calculateMeans" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.trackDensity.TrackDensity.historic">
-<tt class="descname">historic</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.historic" title="Permalink to this definition">¶</a></dt>
+<code class="descname">historic</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.historic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load historic data and calculate histogram</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.trackDensity.TrackDensity.plotTrackDensity">
-<tt class="descname">plotTrackDensity</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.plotTrackDensity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotTrackDensity</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.plotTrackDensity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot track density information</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.trackDensity.TrackDensity.plotTrackDensityPercentiles">
-<tt class="descname">plotTrackDensityPercentiles</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.plotTrackDensityPercentiles" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotTrackDensityPercentiles</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.plotTrackDensityPercentiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot upper and lower percentiles of track density derived from
 synthetic event sets</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.trackDensity.TrackDensity.run">
-<tt class="descname">run</tt><big>(</big><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.run" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the track density evaluation</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.trackDensity.TrackDensity.save">
-<tt class="descname">save</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.save" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.save" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="Evaluate.trackDensity.TrackDensity.synthetic">
-<tt class="descname">synthetic</tt><big>(</big><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.synthetic" title="Permalink to this definition">¶</a></dt>
+<code class="descname">synthetic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.TrackDensity.synthetic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load synthetic data and calculate histogram</p>
 </dd></dl>
 
@@ -583,8 +581,8 @@ synthetic event sets</p>
 
 <dl class="function">
 <dt id="Evaluate.trackDensity.loadTracks">
-<tt class="descname">loadTracks</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.loadTracks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read tracks from a track .csv file and return a list of <tt class="xref py py-class docutils literal"><span class="pre">Track</span></tt>
+<code class="descname">loadTracks</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.loadTracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read tracks from a track .csv file and return a list of <code class="xref py py-class docutils literal"><span class="pre">Track</span></code>
 objects.</p>
 <p>This calls the function <cite>readMultipleTrackData</cite> to parse the track .csv
 file.</p>
@@ -600,17 +598,17 @@ file.</p>
 
 <dl class="function">
 <dt id="Evaluate.trackDensity.loadTracksFromFiles">
-<tt class="descname">loadTracksFromFiles</tt><big>(</big><em>trackfiles</em><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.loadTracksFromFiles" title="Permalink to this definition">¶</a></dt>
+<code class="descname">loadTracksFromFiles</code><span class="sig-paren">(</span><em>trackfiles</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.loadTracksFromFiles" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="Evaluate.trackDensity.loadTracksFromPath">
-<tt class="descname">loadTracksFromPath</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.loadTracksFromPath" title="Permalink to this definition">¶</a></dt>
+<code class="descname">loadTracksFromPath</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.loadTracksFromPath" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="Evaluate.trackDensity.readMultipleTrackData">
-<tt class="descname">readMultipleTrackData</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.readMultipleTrackData" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readMultipleTrackData</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.readMultipleTrackData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads all the track datas from a .csv file into a list of numpy.ndarrays.
 The tracks are seperated based in their cyclone id. This function calls
 <cite>readTrackData</cite> to read the data from the file.</p>
@@ -626,7 +624,7 @@ The tracks are seperated based in their cyclone id. This function calls
 
 <dl class="function">
 <dt id="Evaluate.trackDensity.readTrackData">
-<tt class="descname">readTrackData</tt><big>(</big><em>trackfile</em><big>)</big><a class="headerlink" href="#Evaluate.trackDensity.readTrackData" title="Permalink to this definition">¶</a></dt>
+<code class="descname">readTrackData</code><span class="sig-paren">(</span><em>trackfile</em><span class="sig-paren">)</span><a class="headerlink" href="#Evaluate.trackDensity.readTrackData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read a track .csv file into a numpy.ndarray.</p>
 <p>The track format and converters are specified with the global variables</p>
 <blockquote>
@@ -651,7 +649,7 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
@@ -660,37 +658,39 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
   <ul>
 <li><a class="reference internal" href="#">Evaluate package</a><ul>
 <li><a class="reference internal" href="#module-Evaluate">Module contents</a><ul>
-<li><a class="reference internal" href="#module-Evaluate"><tt class="docutils literal"><span class="pre">Evaluate</span></tt> &#8211; run evaluation of track model</a></li>
+<li><a class="reference internal" href="#module-Evaluate"><code class="docutils literal"><span class="pre">Evaluate</span></code> &#8211; run evaluation of track model</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-Evaluate.interpolateTracks">Evaluate.interpolateTracks module</a></li>
 <li><a class="reference internal" href="#module-Evaluate.landfallRates">Evaluate.landfallRates module</a><ul>
-<li><a class="reference internal" href="#module-LandfallRates"><tt class="docutils literal"><span class="pre">LandfallRates</span></tt> &#8211; calculate landfall rates</a></li>
+<li><a class="reference internal" href="#module-LandfallRates"><code class="docutils literal"><span class="pre">LandfallRates</span></code> &#8211; calculate landfall rates</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-Evaluate.longitudeCrossing">Evaluate.longitudeCrossing module</a><ul>
-<li><a class="reference internal" href="#module-LongitudeCrossing"><tt class="docutils literal"><span class="pre">LongitudeCrossing</span></tt> &#8211; calculate crossing rate of lons/lats</a></li>
+<li><a class="reference internal" href="#module-LongitudeCrossing"><code class="docutils literal"><span class="pre">LongitudeCrossing</span></code> &#8211; calculate crossing rate of lons/lats</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-Evaluate.pressureDistribution">Evaluate.pressureDistribution module</a><ul>
-<li><a class="reference internal" href="#module-PressureDistribution"><tt class="docutils literal"><span class="pre">PressureDistributions</span></tt> &#8211; calculate central pressure distributions</a></li>
+<li><a class="reference internal" href="#module-PressureDistribution"><code class="docutils literal"><span class="pre">PressureDistributions</span></code> &#8211; calculate central pressure distributions</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-Evaluate.trackDensity">Evaluate.trackDensity module</a><ul>
-<li><a class="reference internal" href="#module-TrackDensity"><tt class="docutils literal"><span class="pre">TrackDensity</span></tt> &#8211; calculate track density</a></li>
+<li><a class="reference internal" href="#module-TrackDensity"><code class="docutils literal"><span class="pre">TrackDensity</span></code> &#8211; calculate track density</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/docs/Evaluate.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/Evaluate.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -707,7 +707,7 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -716,13 +716,13 @@ TRACKFILE_CNVT &#8211; The column converters</div></blockquote>
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Mar 20, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Last updated on Apr 22, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

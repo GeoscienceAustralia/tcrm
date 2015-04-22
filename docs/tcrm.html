@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,7 +8,7 @@
     
     <title>tcrm module &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -27,8 +25,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -37,34 +35,35 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="module-tcrm">
 <span id="tcrm-module"></span><h1>tcrm module<a class="headerlink" href="#module-tcrm" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-tcrm">
-<span id="tcrm-the-main-tcrm-interface"></span><h2><a class="reference internal" href="#module-tcrm" title="tcrm: The main interface to TCRM. Determines which components of the model system to execute, based on the configuration settings specified."><tt class="xref py py-mod docutils literal"><span class="pre">tcrm</span></tt></a> &#8211; the main TCRM interface<a class="headerlink" href="#module-tcrm" title="Permalink to this headline">¶</a></h2>
+<span id="tcrm-the-main-tcrm-interface"></span><h2><a class="reference internal" href="#module-tcrm" title="tcrm: The main interface to TCRM. Determines which components of the model system to execute, based on the configuration settings specified."><code class="xref py py-mod docutils literal"><span class="pre">tcrm</span></code></a> &#8211; the main TCRM interface<a class="headerlink" href="#module-tcrm" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="tcrm.doDataDownload">
-<tt class="descname">doDataDownload</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tcrm.doDataDownload" title="Permalink to this definition">¶</a></dt>
+<code class="descname">doDataDownload</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDataDownload" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check and download the data files listed in the configuration file.
 Datasets are listed in the <cite>Input</cite> section of the configuration
 file, with the option <cite>Datasets</cite>. There must also be a corresponding
 section in the configuration file that inlcudes the url, path where
 the dataset will be stored and the filename that will be stored, e.g.:</p>
-<div class="highlight-python"><pre>[Input]
+<div class="highlight-python"><div class="highlight"><pre>[Input]
 Datasets=IBTRACS
 
 [IBTRACS]
 URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
 filename=Allstorms.ibtracs_wmo.v03r05.csv
-path=input</pre>
+path=input
+</pre></div>
 </div>
 <p>This will attempt to download the gzipped csv file from the given URL
 and save it to the given filename, in the &#8216;input&#8217; folder under the current
@@ -83,7 +82,7 @@ directory. Gzipped files are automatically unzipped.</p>
 
 <dl class="function">
 <dt id="tcrm.doDataPlotting">
-<tt class="descname">doDataPlotting</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tcrm.doDataPlotting" title="Permalink to this definition">¶</a></dt>
+<code class="descname">doDataPlotting</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDataPlotting" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the pre-processed input data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -97,9 +96,9 @@ directory. Gzipped files are automatically unzipped.</p>
 
 <dl class="function">
 <dt id="tcrm.doDataProcessing">
-<tt class="descname">doDataProcessing</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tcrm.doDataProcessing" title="Permalink to this definition">¶</a></dt>
+<code class="descname">doDataProcessing</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDataProcessing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse the input data and turn it into the necessary format
-for the model calibration step, using the <a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><tt class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></tt></a> module.</p>
+for the model calibration step, using the <a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></code></a> module.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -112,8 +111,8 @@ for the model calibration step, using the <a class="reference internal" href="Da
 
 <dl class="function">
 <dt id="tcrm.doEvaluation">
-<tt class="descname">doEvaluation</tt><big>(</big><em>configFile</em><big>)</big><a class="headerlink" href="#tcrm.doEvaluation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do the track model evaluation processing, using <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><tt class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></tt></a>.</p>
+<code class="descname">doEvaluation</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doEvaluation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do the track model evaluation processing, using <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><code class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></code></a>.</p>
 <p>To perform this stage, it is recommended to generate an event set
 with several simulated years (e.g. 10, 20, 30 years) in each
 simulation.</p>
@@ -128,7 +127,7 @@ simulation.</p>
 </pre></div>
 </div>
 <p>This will generate 1000 simulations each with 50 years of simulated
-TC activity. <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><tt class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></tt></a> will then compare pressure distributions,
+TC activity. <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><code class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></code></a> will then compare pressure distributions,
 track density, landfall rates and longitude crossing rates for the
 input dataset and the full 1000 simulations.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -143,9 +142,9 @@ input dataset and the full 1000 simulations.</p>
 
 <dl class="function">
 <dt id="tcrm.doHazard">
-<tt class="descname">doHazard</tt><big>(</big><em>configFile</em><big>)</big><a class="headerlink" href="#tcrm.doHazard" title="Permalink to this definition">¶</a></dt>
+<code class="descname">doHazard</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doHazard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do the hazard calculations (extreme value distribution fitting)
-using the <a class="reference internal" href="hazard.html#module-hazard" title="hazard"><tt class="xref py py-mod docutils literal"><span class="pre">hazard</span></tt></a> module.</p>
+using the <a class="reference internal" href="hazard.html#module-hazard" title="hazard"><code class="xref py py-mod docutils literal"><span class="pre">hazard</span></code></a> module.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -158,10 +157,10 @@ using the <a class="reference internal" href="hazard.html#module-hazard" title="
 
 <dl class="function">
 <dt id="tcrm.doHazardPlotting">
-<tt class="descname">doHazardPlotting</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tcrm.doHazardPlotting" title="Permalink to this definition">¶</a></dt>
+<code class="descname">doHazardPlotting</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doHazardPlotting" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do the hazard plots (hazard maps and curves for all locations within
 the model domain). Plotting is performed by the
-<a class="reference internal" href="PlotInterface.html#module-PlotInterface.AutoPlotHazard" title="PlotInterface.AutoPlotHazard"><tt class="xref py py-mod docutils literal"><span class="pre">PlotInterface.AutoPlotHazard</span></tt></a> module.</p>
+<a class="reference internal" href="PlotInterface.html#module-PlotInterface.AutoPlotHazard" title="PlotInterface.AutoPlotHazard"><code class="xref py py-mod docutils literal"><span class="pre">PlotInterface.AutoPlotHazard</span></code></a> module.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -174,7 +173,7 @@ the model domain). Plotting is performed by the
 
 <dl class="function">
 <dt id="tcrm.doOutputDirectoryCreation">
-<tt class="descname">doOutputDirectoryCreation</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tcrm.doOutputDirectoryCreation" title="Permalink to this definition">¶</a></dt>
+<code class="descname">doOutputDirectoryCreation</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doOutputDirectoryCreation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create all the necessary output folders.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -190,8 +189,8 @@ the model domain). Plotting is performed by the
 
 <dl class="function">
 <dt id="tcrm.doStatistics">
-<tt class="descname">doStatistics</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tcrm.doStatistics" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calibrate the model with the <a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><tt class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></tt></a> module.</p>
+<code class="descname">doStatistics</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doStatistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calibrate the model with the <a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><code class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></code></a> module.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -204,8 +203,8 @@ the model domain). Plotting is performed by the
 
 <dl class="function">
 <dt id="tcrm.doTrackGeneration">
-<tt class="descname">doTrackGeneration</tt><big>(</big><em>configFile</em><big>)</big><a class="headerlink" href="#tcrm.doTrackGeneration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do the tropical cyclone track generation in <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><tt class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></tt></a>.</p>
+<code class="descname">doTrackGeneration</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doTrackGeneration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do the tropical cyclone track generation in <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></code></a>.</p>
 <p>The track generation settings are read from <em>configFile</em>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -219,8 +218,8 @@ the model domain). Plotting is performed by the
 
 <dl class="function">
 <dt id="tcrm.doWindfieldCalculations">
-<tt class="descname">doWindfieldCalculations</tt><big>(</big><em>configFile</em><big>)</big><a class="headerlink" href="#tcrm.doWindfieldCalculations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do the wind field calculations, using <a class="reference internal" href="wind.html#module-wind" title="wind"><tt class="xref py py-mod docutils literal"><span class="pre">wind</span></tt></a>. The wind
+<code class="descname">doWindfieldCalculations</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doWindfieldCalculations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do the wind field calculations, using <a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal"><span class="pre">wind</span></code></a>. The wind
 field settings are read from <em>configFile</em>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -234,7 +233,7 @@ field settings are read from <em>configFile</em>.</p>
 
 <dl class="function">
 <dt id="tcrm.main">
-<tt class="descname">main</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#tcrm.main" title="Permalink to this definition">¶</a></dt>
+<code class="descname">main</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.main" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main interface of TCRM that allows control and interaction with the
 5 interfaces: DataProcess, StatInterface, TrackGenerator,
 WindfieldInterface and HazardInterface</p>
@@ -250,14 +249,14 @@ WindfieldInterface and HazardInterface</p>
 
 <dl class="function">
 <dt id="tcrm.startup">
-<tt class="descname">startup</tt><big>(</big><big>)</big><a class="headerlink" href="#tcrm.startup" title="Permalink to this definition">¶</a></dt>
+<code class="descname">startup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.startup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse command line arguments, set up logging and attempt
 to execute the main TCRM functions.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="tcrm.timer">
-<tt class="descname">timer</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#tcrm.timer" title="Permalink to this definition">¶</a></dt>
+<code class="descname">timer</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.timer" title="Permalink to this definition">¶</a></dt>
 <dd><p>A simple timing decorator for the entire process.</p>
 </dd></dl>
 
@@ -268,7 +267,7 @@ to execute the main TCRM functions.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
@@ -276,17 +275,19 @@ to execute the main TCRM functions.</p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">tcrm module</a><ul>
-<li><a class="reference internal" href="#module-tcrm"><tt class="docutils literal"><span class="pre">tcrm</span></tt> &#8211; the main TCRM interface</a></li>
+<li><a class="reference internal" href="#module-tcrm"><code class="docutils literal"><span class="pre">tcrm</span></code> &#8211; the main TCRM interface</a></li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/docs/tcrm.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/tcrm.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -303,7 +304,7 @@ to execute the main TCRM functions.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -312,13 +313,13 @@ to execute the main TCRM functions.</p>
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Mar 20, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Last updated on Apr 22, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

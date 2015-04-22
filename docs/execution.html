@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,7 +8,7 @@
     
     <title>Running the model &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -29,8 +27,8 @@
     <link rel="next" title="Examples" href="examples.html" />
     <link rel="prev" title="Setting up the model" href="setup.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,20 +43,20 @@
         <li class="right" >
           <a href="setup.html" title="Setting up the model"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="running-the-model">
 <h1>Running the model<a class="headerlink" href="#running-the-model" title="Permalink to this headline">¶</a></h1>
 <p>The primary way to run TCRM is at the command line (A graphical
 interface is under development). Command line arguments are passed to
-the main <tt class="docutils literal"><span class="pre">tcrm.py</span></tt> script for defining the path to the configuration
+the main <code class="docutils literal"><span class="pre">tcrm.py</span></code> script for defining the path to the configuration
 file, as well as enabling verbose output and/or debugging.</p>
 <div class="section" id="command-line-arguments">
 <h2>Command line arguments<a class="headerlink" href="#command-line-arguments" title="Permalink to this headline">¶</a></h2>
@@ -85,14 +83,15 @@ implementation of a custom hook script).</td></tr>
 </div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<p>Make sure <tt class="docutils literal"><span class="pre">python</span></tt> is in your system path, then from the base
-directory, call the <tt class="docutils literal"><span class="pre">tcrm.py</span></tt> script, with the configuration file
+<p>Make sure <code class="docutils literal"><span class="pre">python</span></code> is in your system path, then from the base
+directory, call the <code class="docutils literal"><span class="pre">tcrm.py</span></code> script, with the configuration file
 option included. For example, to run the example simulation:</p>
-<div class="highlight-python"><pre>python tcrm.py -c example/port_hedland.ini</pre>
+<div class="highlight-python"><div class="highlight"><pre>python tcrm.py -c example/port_hedland.ini
+</pre></div>
 </div>
 <p>The model will print a simple progress indicator to the console to
 show that the model is working.</p>
-<p>If the <tt class="docutils literal"><span class="pre">-v</span></tt> option is included, then all logging messages will be
+<p>If the <code class="docutils literal"><span class="pre">-v</span></code> option is included, then all logging messages will be
 printed to the console. The level of logging detail is set in the
 configuration file.</p>
 </div>
@@ -102,18 +101,19 @@ configuration file.</p>
 events, which implies run times can become very long. If TCRM is
 installed on a multiprocessor system (either a shared memory or
 distributed memory system), then the workload can be shared across the
-workload. TCRM uses the <tt class="xref py py-mod docutils literal"><span class="pre">pypar</span></tt> module to enable multi-threaded
-processing. Instructions for installing <tt class="xref py py-mod docutils literal"><span class="pre">pypar</span></tt> are given on the
+workload. TCRM uses the <code class="xref py py-mod docutils literal"><span class="pre">pypar</span></code> module to enable multi-threaded
+processing. Instructions for installing <code class="xref py py-mod docutils literal"><span class="pre">pypar</span></code> are given on the
 <a class="reference external" href="http://github.com/daleroberts/pypar">Pypar website</a>.</p>
-<p>Pypar is built around the MPI library, and so uses the <tt class="docutils literal"><span class="pre">mpirun</span></tt>
+<p>Pypar is built around the MPI library, and so uses the <code class="docutils literal"><span class="pre">mpirun</span></code>
 command to execute the model across multiple processors. As an example
 the following command will execute across 16 processors:</p>
-<div class="highlight-python"><pre>mpirun -np 16 python tcrm.py -c example/port_hedland.ini</pre>
+<div class="highlight-python"><div class="highlight"><pre>mpirun -np 16 python tcrm.py -c example/port_hedland.ini
+</pre></div>
 </div>
 <p>Running across multiple processors means that logging messages from
 each individual processor can get mixed up with others. To avoid this,
 a separate log file is created for each thread, and output to the
-console is suppressed (even if the <tt class="docutils literal"><span class="pre">-v</span></tt> or <tt class="docutils literal"><span class="pre">--verbose</span></tt> option is
+console is suppressed (even if the <code class="docutils literal"><span class="pre">-v</span></code> or <code class="docutils literal"><span class="pre">--verbose</span></code> option is
 given at the command line).</p>
 </div>
 </div>
@@ -122,7 +122,7 @@ given at the command line).</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
@@ -143,12 +143,14 @@ given at the command line).</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="examples.html"
                         title="next chapter">Examples</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/docs/execution.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/execution.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -165,7 +167,7 @@ given at the command line).</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -180,13 +182,13 @@ given at the command line).</p>
         <li class="right" >
           <a href="setup.html" title="Setting up the model"
              >previous</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Mar 20, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Last updated on Apr 22, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -10,7 +8,7 @@
     
     <title>PlotInterface package &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -27,8 +25,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -37,14 +35,14 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="plotinterface-package">
 <h1>PlotInterface package<a class="headerlink" href="#plotinterface-package" title="Permalink to this headline">¶</a></h1>
@@ -54,18 +52,18 @@
 <div class="section" id="module-PlotInterface.AutoPlotHazard">
 <span id="plotinterface-autoplothazard-module"></span><h2>PlotInterface.AutoPlotHazard module<a class="headerlink" href="#module-PlotInterface.AutoPlotHazard" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-AutoPlotHazard">
-<span id="autoplothazard-plot-hazard-maps-and-curves"></span><h3><a class="reference internal" href="#module-AutoPlotHazard" title="AutoPlotHazard: Plot hazard maps and curves for locations within the simulation domain."><tt class="xref py py-mod docutils literal"><span class="pre">AutoPlotHazard</span></tt></a> &#8211; Plot hazard maps and curves<a class="headerlink" href="#module-AutoPlotHazard" title="Permalink to this headline">¶</a></h3>
+<span id="autoplothazard-plot-hazard-maps-and-curves"></span><h3><a class="reference internal" href="#module-AutoPlotHazard" title="AutoPlotHazard: Plot hazard maps and curves for locations within the simulation domain."><code class="xref py py-mod docutils literal"><span class="pre">AutoPlotHazard</span></code></a> &#8211; Plot hazard maps and curves<a class="headerlink" href="#module-AutoPlotHazard" title="Permalink to this headline">¶</a></h3>
 <p>Automatically plots hazard maps for each return period and hazard
 return curves for each locality within the domain. Adapted from
 compareGrids.py code and plotHazardCurves.py developed by Craig
 Arthur.</p>
 <dl class="class">
 <dt id="PlotInterface.AutoPlotHazard.AutoPlotHazard">
-<em class="property">class </em><tt class="descname">AutoPlotHazard</tt><big>(</big><em>configFile</em>, <em>progressbar=None</em><big>)</big><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">AutoPlotHazard</code><span class="sig-paren">(</span><em>configFile</em>, <em>progressbar=None</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="PlotInterface.AutoPlotHazard.AutoPlotHazard.getLocations">
-<tt class="descname">getLocations</tt><big>(</big><em>minLon</em>, <em>maxLon</em>, <em>minLat</em>, <em>maxLat</em><big>)</big><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard.getLocations" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getLocations</code><span class="sig-paren">(</span><em>minLon</em>, <em>maxLon</em>, <em>minLat</em>, <em>maxLat</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard.getLocations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract locations from the localities database</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -89,7 +87,7 @@ within the model domain.</p>
 
 <dl class="method">
 <dt id="PlotInterface.AutoPlotHazard.AutoPlotHazard.loadFile">
-<tt class="descname">loadFile</tt><big>(</big><em>inputFile</em>, <em>varname</em><big>)</big><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard.loadFile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">loadFile</code><span class="sig-paren">(</span><em>inputFile</em>, <em>varname</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard.loadFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a variable from a netcdf file and return data as a masked array</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -110,20 +108,20 @@ within the model domain.</p>
 
 <dl class="method">
 <dt id="PlotInterface.AutoPlotHazard.AutoPlotHazard.plotCurves">
-<tt class="descname">plotCurves</tt><big>(</big><big>)</big><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard.plotCurves" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotCurves</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard.plotCurves" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot hazard curves for speified locations</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.AutoPlotHazard.AutoPlotHazard.plotHazardCurves">
-<tt class="descname">plotHazardCurves</tt><big>(</big><em>inputFile</em>, <em>plotPath</em><big>)</big><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard.plotHazardCurves" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotHazardCurves</code><span class="sig-paren">(</span><em>inputFile</em>, <em>plotPath</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard.plotHazardCurves" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the hazard values stored in hazardFile, at the stns
 stored in stnFile.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.AutoPlotHazard.AutoPlotHazard.plotMap">
-<tt class="descname">plotMap</tt><big>(</big><big>)</big><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard.plotMap" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotMap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard.plotMap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot return period wind speed maps</p>
 </dd></dl>
 
@@ -131,8 +129,8 @@ stored in stnFile.</p>
 
 <dl class="class">
 <dt id="PlotInterface.AutoPlotHazard.PlotUnits">
-<em class="property">class </em><tt class="descname">PlotUnits</tt><big>(</big><em>units</em><big>)</big><a class="headerlink" href="#PlotInterface.AutoPlotHazard.PlotUnits" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">PlotUnits</code><span class="sig-paren">(</span><em>units</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.AutoPlotHazard.PlotUnits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 </dd></dl>
 
 </div>
@@ -140,15 +138,15 @@ stored in stnFile.</p>
 <div class="section" id="module-PlotInterface.curves">
 <span id="plotinterface-curves-module"></span><h2>PlotInterface.curves module<a class="headerlink" href="#module-PlotInterface.curves" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-curves">
-<span id="curves-plot-curve-figures"></span><h3><a class="reference internal" href="#module-curves" title="curves: provide methods to plot curves (hazard curves, distributions, logarithmic axes, etc)."><tt class="xref py py-mod docutils literal"><span class="pre">curves</span></tt></a> &#8211; plot curve figures<a class="headerlink" href="#module-curves" title="Permalink to this headline">¶</a></h3>
+<span id="curves-plot-curve-figures"></span><h3><a class="reference internal" href="#module-curves" title="curves: provide methods to plot curves (hazard curves, distributions, logarithmic axes, etc)."><code class="xref py py-mod docutils literal"><span class="pre">curves</span></code></a> &#8211; plot curve figures<a class="headerlink" href="#module-curves" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="PlotInterface.curves.CurveFigure">
-<em class="property">class </em><tt class="descname">CurveFigure</tt><a class="headerlink" href="#PlotInterface.curves.CurveFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></tt></p>
+<em class="property">class </em><code class="descname">CurveFigure</code><a class="headerlink" href="#PlotInterface.curves.CurveFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></code></p>
 <p>Base class for plotting line figures.</p>
 <dl class="method">
 <dt id="PlotInterface.curves.CurveFigure.add">
-<tt class="descname">add</tt><big>(</big><em>xdata</em>, <em>ydata</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='x'</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.CurveFigure.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>xdata</em>, <em>ydata</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='x'</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.CurveFigure.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new subplot to the list of subplots to be created.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -169,14 +167,14 @@ stored in stnFile.</p>
 
 <dl class="method">
 <dt id="PlotInterface.curves.CurveFigure.addGrid">
-<tt class="descname">addGrid</tt><big>(</big><em>axes</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.CurveFigure.addGrid" title="Permalink to this definition">¶</a></dt>
+<code class="descname">addGrid</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.CurveFigure.addGrid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a graticule to the subplot axes. The x-axis is autoscaled,
 the grid is a dotted black line, linewidth 0.2.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axes</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">axes</span></tt> instance.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axes</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">axes</span></code> instance.</td>
 </tr>
 </tbody>
 </table>
@@ -184,14 +182,14 @@ the grid is a dotted black line, linewidth 0.2.</p>
 
 <dl class="method">
 <dt id="PlotInterface.curves.CurveFigure.addRange">
-<tt class="descname">addRange</tt><big>(</big><em>axes</em>, <em>xdata</em>, <em>ymin</em>, <em>ymax</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.CurveFigure.addRange" title="Permalink to this definition">¶</a></dt>
+<code class="descname">addRange</code><span class="sig-paren">(</span><em>axes</em>, <em>xdata</em>, <em>ymin</em>, <em>ymax</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.CurveFigure.addRange" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a shaded range of values to the plot.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>axes</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></tt> instance.</li>
+<li><strong>axes</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code> instance.</li>
 <li><strong>xdata</strong> (<cite>numpy.ndarray</cite>) &#8211; x-data values.</li>
 <li><strong>ymin</strong> (<cite>numpy.ndarray</cite>) &#8211; Lower range of y values.</li>
 <li><strong>ymax</strong> (<cite>numpy.ndarray</cite>) &#8211; Upper range of y values.</li>
@@ -204,7 +202,7 @@ the grid is a dotted black line, linewidth 0.2.</p>
 
 <dl class="method">
 <dt id="PlotInterface.curves.CurveFigure.plot">
-<tt class="descname">plot</tt><big>(</big><big>)</big><a class="headerlink" href="#PlotInterface.curves.CurveFigure.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.CurveFigure.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the subfigures.</p>
 <p>For a number of subplots, they are organised into an approximately
 square arrangement.</p>
@@ -212,17 +210,17 @@ square arrangement.</p>
 
 <dl class="method">
 <dt id="PlotInterface.curves.CurveFigure.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.CurveFigure.subplot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draw a line plot on an <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></tt> instance. The
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.CurveFigure.subplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a line plot on an <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code> instance. The
 data and labels are contained in a tuple. The basic plot is a
 black line plot, with the x-ticks presented as integer values.
-A grid is added with a call to <tt class="xref py py-meth docutils literal"><span class="pre">RangeFigure.addGrid()</span></tt>.</p>
+A grid is added with a call to <code class="xref py py-meth docutils literal"><span class="pre">RangeFigure.addGrid()</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>axes</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></tt> instance.</li>
+<li><strong>axes</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code> instance.</li>
 <li><strong>subfigure</strong> (<em>tuple</em>) &#8211; Holds the data and labels to be added
 to the subplot.</li>
 </ul>
@@ -236,11 +234,11 @@ to the subplot.</li>
 
 <dl class="class">
 <dt id="PlotInterface.curves.DistributionCurve">
-<em class="property">class </em><tt class="descname">DistributionCurve</tt><a class="headerlink" href="#PlotInterface.curves.DistributionCurve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.RangeCompareCurve" title="PlotInterface.curves.RangeCompareCurve"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.RangeCompareCurve</span></tt></a></p>
+<em class="property">class </em><code class="descname">DistributionCurve</code><a class="headerlink" href="#PlotInterface.curves.DistributionCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.RangeCompareCurve" title="PlotInterface.curves.RangeCompareCurve"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.RangeCompareCurve</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.curves.DistributionCurve.plot">
-<tt class="descname">plot</tt><big>(</big><em>x</em>, <em>y1</em>, <em>y2</em>, <em>y2max</em>, <em>y2min</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.DistributionCurve.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>x</em>, <em>y1</em>, <em>y2</em>, <em>y2max</em>, <em>y2min</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.DistributionCurve.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a distribution curve, which compares two curves, plus an
 upper/lower confidence range.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -267,13 +265,13 @@ upper/lower confidence range.</p>
 
 <dl class="class">
 <dt id="PlotInterface.curves.HazardCurve">
-<em class="property">class </em><tt class="descname">HazardCurve</tt><a class="headerlink" href="#PlotInterface.curves.HazardCurve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.SemilogRangeCurve" title="PlotInterface.curves.SemilogRangeCurve"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.SemilogRangeCurve</span></tt></a></p>
+<em class="property">class </em><code class="descname">HazardCurve</code><a class="headerlink" href="#PlotInterface.curves.HazardCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.SemilogRangeCurve" title="PlotInterface.curves.SemilogRangeCurve"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.SemilogRangeCurve</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.curves.HazardCurve.plot">
-<tt class="descname">plot</tt><big>(</big><em>years</em>, <em>wspd</em>, <em>wspdupper</em>, <em>wspdlower</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.HazardCurve.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>years</em>, <em>wspd</em>, <em>wspdupper</em>, <em>wspdlower</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.HazardCurve.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a hazard curve, including upper and lower conffidence
-range estimates. This uses the <tt class="xref py py-meth docutils literal"><span class="pre">SemilogRangeCurve()</span></tt>
+range estimates. This uses the <code class="xref py py-meth docutils literal"><span class="pre">SemilogRangeCurve()</span></code>
 method for plotting the curve on a semilog x-axis.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -298,11 +296,11 @@ method for plotting the curve on a semilog x-axis.</p>
 
 <dl class="class">
 <dt id="PlotInterface.curves.RangeCompareCurve">
-<em class="property">class </em><tt class="descname">RangeCompareCurve</tt><a class="headerlink" href="#PlotInterface.curves.RangeCompareCurve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.CurveFigure" title="PlotInterface.curves.CurveFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.CurveFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">RangeCompareCurve</code><a class="headerlink" href="#PlotInterface.curves.RangeCompareCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.CurveFigure" title="PlotInterface.curves.CurveFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.CurveFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.curves.RangeCompareCurve.add">
-<tt class="descname">add</tt><big>(</big><em>xdata</em>, <em>y1</em>, <em>y2</em>, <em>y2max</em>, <em>y2min</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='x'</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.RangeCompareCurve.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>xdata</em>, <em>y1</em>, <em>y2</em>, <em>y2max</em>, <em>y2min</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='x'</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.RangeCompareCurve.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new subplot to the list of subplots to be created.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -326,17 +324,17 @@ method for plotting the curve on a semilog x-axis.</p>
 
 <dl class="method">
 <dt id="PlotInterface.curves.RangeCompareCurve.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.RangeCompareCurve.subplot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draw a line plot on an <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></tt> instance. The
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.RangeCompareCurve.subplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a line plot on an <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code> instance. The
 data and labels are contained in a tuple. This will plot two
 lines and a grey range (for displaying uncertainty). A grid is
-added with a call to <tt class="xref py py-meth docutils literal"><span class="pre">RangeFigure.addGrid()</span></tt>.</p>
+added with a call to <code class="xref py py-meth docutils literal"><span class="pre">RangeFigure.addGrid()</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>axes</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></tt> instance.</li>
+<li><strong>axes</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code> instance.</li>
 <li><strong>subfigure</strong> (<em>tuple</em>) &#8211; Holds the data and labels to be added
 to the subplot.</li>
 </ul>
@@ -350,11 +348,11 @@ to the subplot.</li>
 
 <dl class="class">
 <dt id="PlotInterface.curves.RangeCurve">
-<em class="property">class </em><tt class="descname">RangeCurve</tt><a class="headerlink" href="#PlotInterface.curves.RangeCurve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.CurveFigure" title="PlotInterface.curves.CurveFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.CurveFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">RangeCurve</code><a class="headerlink" href="#PlotInterface.curves.RangeCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.CurveFigure" title="PlotInterface.curves.CurveFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.CurveFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.curves.RangeCurve.add">
-<tt class="descname">add</tt><big>(</big><em>xdata</em>, <em>ymean</em>, <em>ymax</em>, <em>ymin</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='x'</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.RangeCurve.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>xdata</em>, <em>ymean</em>, <em>ymax</em>, <em>ymin</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='x'</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.RangeCurve.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new subplot to the list of subplots to be created.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -377,17 +375,17 @@ to the subplot.</li>
 
 <dl class="method">
 <dt id="PlotInterface.curves.RangeCurve.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.RangeCurve.subplot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draw a line plot on an <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></tt> instance. The
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.RangeCurve.subplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a line plot on an <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code> instance. The
 data and labels are contained in a tuple. This will plot a
 line plot and a grey range (for displaying uncertainty). A
-grid is added with a call to <tt class="xref py py-meth docutils literal"><span class="pre">RangeFigure.addGrid()</span></tt>.</p>
+grid is added with a call to <code class="xref py py-meth docutils literal"><span class="pre">RangeFigure.addGrid()</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>axes</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></tt> instance.</li>
+<li><strong>axes</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code> instance.</li>
 <li><strong>subfigure</strong> (<em>tuple</em>) &#8211; Holds the data and labels to be added
 to the subplot.</li>
 </ul>
@@ -401,11 +399,11 @@ to the subplot.</li>
 
 <dl class="class">
 <dt id="PlotInterface.curves.SemilogRangeCompareCurve">
-<em class="property">class </em><tt class="descname">SemilogRangeCompareCurve</tt><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCompareCurve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.CurveFigure" title="PlotInterface.curves.CurveFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.CurveFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">SemilogRangeCompareCurve</code><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCompareCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.CurveFigure" title="PlotInterface.curves.CurveFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.CurveFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.curves.SemilogRangeCompareCurve.add">
-<tt class="descname">add</tt><big>(</big><em>xdata</em>, <em>y1</em>, <em>y2</em>, <em>y2max</em>, <em>y2min</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='x'</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCompareCurve.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>xdata</em>, <em>y1</em>, <em>y2</em>, <em>y2max</em>, <em>y2min</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='x'</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCompareCurve.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new subplot to the list of subplots to be created.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -429,7 +427,7 @@ to the subplot.</li>
 
 <dl class="method">
 <dt id="PlotInterface.curves.SemilogRangeCompareCurve.addGrid">
-<tt class="descname">addGrid</tt><big>(</big><em>axes</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCompareCurve.addGrid" title="Permalink to this definition">¶</a></dt>
+<code class="descname">addGrid</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCompareCurve.addGrid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a graticule to the subplot axes. The x-axis is autoscaled,
 the grid is a dotted black line, linewidth 0.2. Minor
 tickmarks are included.</p>
@@ -437,7 +435,7 @@ tickmarks are included.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axes</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">axes</span></tt> instance.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axes</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">axes</span></code> instance.</td>
 </tr>
 </tbody>
 </table>
@@ -445,18 +443,18 @@ tickmarks are included.</p>
 
 <dl class="method">
 <dt id="PlotInterface.curves.SemilogRangeCompareCurve.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCompareCurve.subplot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draw a range-compare plot on an <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></tt>
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCompareCurve.subplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a range-compare plot on an <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code>
 instance, with a logarithmic scale on the x-axis. Data and
 labels are contained in a tuple. x-ticks presented as integer
 values. A grid is added with a call to
-<tt class="xref py py-meth docutils literal"><span class="pre">RangeFigure.addGrid()</span></tt>.</p>
+<code class="xref py py-meth docutils literal"><span class="pre">RangeFigure.addGrid()</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>axes</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></tt> instance.</li>
+<li><strong>axes</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code> instance.</li>
 <li><strong>subfigure</strong> (<em>tuple</em>) &#8211; Holds the data and labels to be added
 to the subplot.</li>
 </ul>
@@ -470,11 +468,11 @@ to the subplot.</li>
 
 <dl class="class">
 <dt id="PlotInterface.curves.SemilogRangeCurve">
-<em class="property">class </em><tt class="descname">SemilogRangeCurve</tt><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCurve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.CurveFigure" title="PlotInterface.curves.CurveFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.CurveFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">SemilogRangeCurve</code><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.CurveFigure" title="PlotInterface.curves.CurveFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.CurveFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.curves.SemilogRangeCurve.add">
-<tt class="descname">add</tt><big>(</big><em>xdata</em>, <em>ymean</em>, <em>ymax</em>, <em>ymin</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCurve.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>xdata</em>, <em>ymean</em>, <em>ymax</em>, <em>ymin</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCurve.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new subplot to the list of subplots to be created.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -497,7 +495,7 @@ to the subplot.</li>
 
 <dl class="method">
 <dt id="PlotInterface.curves.SemilogRangeCurve.addGrid">
-<tt class="descname">addGrid</tt><big>(</big><em>axes</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCurve.addGrid" title="Permalink to this definition">¶</a></dt>
+<code class="descname">addGrid</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCurve.addGrid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a graticule to the subplot axes. The x-axis is autoscaled,
 the grid is a dotted black line, linewidth 0.2. Minor
 tickmarks are included.</p>
@@ -505,7 +503,7 @@ tickmarks are included.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axes</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">axes</span></tt> instance.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axes</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">axes</span></code> instance.</td>
 </tr>
 </tbody>
 </table>
@@ -513,18 +511,18 @@ tickmarks are included.</p>
 
 <dl class="method">
 <dt id="PlotInterface.curves.SemilogRangeCurve.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCurve.subplot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draw a line and range plot on an <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></tt>
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.SemilogRangeCurve.subplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a line and range plot on an <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code>
 instance, with a logarithmic scale on the x-axis. Data and
 labels are contained in a tuple. x-ticks presented as integer
 values. A grid is added with a call to
-<tt class="xref py py-meth docutils literal"><span class="pre">RangeFigure.addGrid()</span></tt>.</p>
+<code class="xref py py-meth docutils literal"><span class="pre">RangeFigure.addGrid()</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>axes</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></tt> instance.</li>
+<li><strong>axes</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code> instance.</li>
 <li><strong>subfigure</strong> (<em>tuple</em>) &#8211; Holds the data and labels to be added
 to the subplot.</li>
 </ul>
@@ -538,13 +536,13 @@ to the subplot.</li>
 
 <dl class="class">
 <dt id="PlotInterface.curves.SemilogxCurve">
-<em class="property">class </em><tt class="descname">SemilogxCurve</tt><a class="headerlink" href="#PlotInterface.curves.SemilogxCurve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.CurveFigure" title="PlotInterface.curves.CurveFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.CurveFigure</span></tt></a></p>
-<p>Extend the basic <tt class="xref py py-class docutils literal"><span class="pre">CurveFigure</span></tt> to use a logarithmic scale
+<em class="property">class </em><code class="descname">SemilogxCurve</code><a class="headerlink" href="#PlotInterface.curves.SemilogxCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.CurveFigure" title="PlotInterface.curves.CurveFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.CurveFigure</span></code></a></p>
+<p>Extend the basic <code class="xref py py-class docutils literal"><span class="pre">CurveFigure</span></code> to use a logarithmic scale
 on the x-axis.</p>
 <dl class="method">
 <dt id="PlotInterface.curves.SemilogxCurve.addGrid">
-<tt class="descname">addGrid</tt><big>(</big><em>axes</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.SemilogxCurve.addGrid" title="Permalink to this definition">¶</a></dt>
+<code class="descname">addGrid</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.SemilogxCurve.addGrid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a graticule to the subplot axes. The x-axis is autoscaled,
 the grid is a dotted black line, linewidth 0.2. Minor
 tickmarks are included.</p>
@@ -552,7 +550,7 @@ tickmarks are included.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axes</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">axes</span></tt> instance.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axes</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">axes</span></code> instance.</td>
 </tr>
 </tbody>
 </table>
@@ -560,17 +558,17 @@ tickmarks are included.</p>
 
 <dl class="method">
 <dt id="PlotInterface.curves.SemilogxCurve.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.SemilogxCurve.subplot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Draw a line plot on an <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></tt> instance, with a
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.SemilogxCurve.subplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a line plot on an <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code> instance, with a
 logarithmic scale on the x-axis. Data and labels are
 contained in a tuple. x-ticks presented as integer values.
-A grid is added with a call to <tt class="xref py py-meth docutils literal"><span class="pre">RangeFigure.addGrid()</span></tt>.</p>
+A grid is added with a call to <code class="xref py py-meth docutils literal"><span class="pre">RangeFigure.addGrid()</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>axes</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></tt> instance.</li>
+<li><strong>axes</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code> instance.</li>
 <li><strong>subfigure</strong> (<em>tuple</em>) &#8211; Holds the data and labels to be added
 to the subplot.</li>
 </ul>
@@ -584,7 +582,7 @@ to the subplot.</li>
 
 <dl class="function">
 <dt id="PlotInterface.curves.saveDistributionCurve">
-<tt class="descname">saveDistributionCurve</tt><big>(</big><em>x</em>, <em>y1</em>, <em>y2</em>, <em>y2max</em>, <em>y2min</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em>, <em>filename</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.saveDistributionCurve" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveDistributionCurve</code><span class="sig-paren">(</span><em>x</em>, <em>y1</em>, <em>y2</em>, <em>y2max</em>, <em>y2min</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.saveDistributionCurve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot and save a distribution curve, which compares two curves,
 plus an upper/lower confidence range.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -610,14 +608,14 @@ plus an upper/lower confidence range.</p>
 
 <dl class="function">
 <dt id="PlotInterface.curves.saveFigure">
-<tt class="descname">saveFigure</tt><big>(</big><em>figure</em>, <em>filename</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.saveFigure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveFigure</code><span class="sig-paren">(</span><em>figure</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.saveFigure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a figure canvas to file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>figure</strong> &#8211; <tt class="xref py py-class docutils literal"><span class="pre">Figure</span></tt> instance.</li>
+<li><strong>figure</strong> &#8211; <code class="xref py py-class docutils literal"><span class="pre">Figure</span></code> instance.</li>
 <li><strong>filename</strong> (<em>str</em>) &#8211; Path to the location to store the image.</li>
 </ul>
 </td>
@@ -628,9 +626,9 @@ plus an upper/lower confidence range.</p>
 
 <dl class="function">
 <dt id="PlotInterface.curves.saveHazardCurve">
-<tt class="descname">saveHazardCurve</tt><big>(</big><em>years</em>, <em>wspd</em>, <em>wspdupper</em>, <em>wspdlower</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em>, <em>filename</em><big>)</big><a class="headerlink" href="#PlotInterface.curves.saveHazardCurve" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveHazardCurve</code><span class="sig-paren">(</span><em>years</em>, <em>wspd</em>, <em>wspdupper</em>, <em>wspdlower</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.saveHazardCurve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a hazard curve, including upper and lower conffidence
-range estimates. This uses the <tt class="xref py py-meth docutils literal"><span class="pre">SemilogRangeCurve()</span></tt>
+range estimates. This uses the <code class="xref py py-meth docutils literal"><span class="pre">SemilogRangeCurve()</span></code>
 method for plotting the curve on a semilog x-axis.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -658,214 +656,214 @@ method for plotting the curve on a semilog x-axis.</p>
 <span id="plotinterface-figures-module"></span><h2>PlotInterface.figures module<a class="headerlink" href="#module-PlotInterface.figures" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="PlotInterface.figures.BearingFigure">
-<em class="property">class </em><tt class="descname">BearingFigure</tt><a class="headerlink" href="#PlotInterface.figures.BearingFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.figures.LaggedRegressionFigure" title="PlotInterface.figures.LaggedRegressionFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.figures.LaggedRegressionFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">BearingFigure</code><a class="headerlink" href="#PlotInterface.figures.BearingFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.figures.LaggedRegressionFigure" title="PlotInterface.figures.LaggedRegressionFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.figures.LaggedRegressionFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.figures.BearingFigure.plot">
-<tt class="descname">plot</tt><big>(</big><em>bearings</em>, <em>bearingRates</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.BearingFigure.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>bearings</em>, <em>bearingRates</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.BearingFigure.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.figures.FrequencyFigure">
-<em class="property">class </em><tt class="descname">FrequencyFigure</tt><a class="headerlink" href="#PlotInterface.figures.FrequencyFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.figures.LineRegressionFigure" title="PlotInterface.figures.LineRegressionFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.figures.LineRegressionFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">FrequencyFigure</code><a class="headerlink" href="#PlotInterface.figures.FrequencyFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.figures.LineRegressionFigure" title="PlotInterface.figures.LineRegressionFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.figures.LineRegressionFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.figures.FrequencyFigure.plot">
-<tt class="descname">plot</tt><big>(</big><em>years</em>, <em>frequency</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.FrequencyFigure.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>years</em>, <em>frequency</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.FrequencyFigure.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.figures.LaggedRegressionFigure">
-<em class="property">class </em><tt class="descname">LaggedRegressionFigure</tt><a class="headerlink" href="#PlotInterface.figures.LaggedRegressionFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.figures.RegressionFigure" title="PlotInterface.figures.RegressionFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.figures.RegressionFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">LaggedRegressionFigure</code><a class="headerlink" href="#PlotInterface.figures.LaggedRegressionFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.figures.RegressionFigure" title="PlotInterface.figures.RegressionFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.figures.RegressionFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.figures.LaggedRegressionFigure.add">
-<tt class="descname">add</tt><big>(</big><em>data</em>, <em>label='x'</em>, <em>title='x'</em>, <em>transform=&lt;function &lt;lambda&gt; at 0x03D6C2B0&gt;</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.LaggedRegressionFigure.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>data</em>, <em>label='x'</em>, <em>title='x'</em>, <em>transform=&lt;function &lt;lambda&gt; at 0x0BB660F0&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.LaggedRegressionFigure.add" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.figures.LaggedRegressionFigure.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.LaggedRegressionFigure.subplot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.LaggedRegressionFigure.subplot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.figures.LineRegressionFigure">
-<em class="property">class </em><tt class="descname">LineRegressionFigure</tt><a class="headerlink" href="#PlotInterface.figures.LineRegressionFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.figures.RegressionFigure" title="PlotInterface.figures.RegressionFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.figures.RegressionFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">LineRegressionFigure</code><a class="headerlink" href="#PlotInterface.figures.LineRegressionFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.figures.RegressionFigure" title="PlotInterface.figures.RegressionFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.figures.RegressionFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.figures.LineRegressionFigure.add">
-<tt class="descname">add</tt><big>(</big><em>x</em>, <em>y</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='x'</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.LineRegressionFigure.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='x'</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.LineRegressionFigure.add" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.figures.LineRegressionFigure.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.LineRegressionFigure.subplot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.LineRegressionFigure.subplot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.figures.PressureFigure">
-<em class="property">class </em><tt class="descname">PressureFigure</tt><a class="headerlink" href="#PlotInterface.figures.PressureFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.figures.LaggedRegressionFigure" title="PlotInterface.figures.LaggedRegressionFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.figures.LaggedRegressionFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">PressureFigure</code><a class="headerlink" href="#PlotInterface.figures.PressureFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.figures.LaggedRegressionFigure" title="PlotInterface.figures.LaggedRegressionFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.figures.LaggedRegressionFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.figures.PressureFigure.plot">
-<tt class="descname">plot</tt><big>(</big><em>pressures</em>, <em>pressureRates</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.PressureFigure.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>pressures</em>, <em>pressureRates</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.PressureFigure.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.figures.QuantileFigure">
-<em class="property">class </em><tt class="descname">QuantileFigure</tt><a class="headerlink" href="#PlotInterface.figures.QuantileFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></tt></p>
+<em class="property">class </em><code class="descname">QuantileFigure</code><a class="headerlink" href="#PlotInterface.figures.QuantileFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></code></p>
 <dl class="method">
 <dt id="PlotInterface.figures.QuantileFigure.add">
-<tt class="descname">add</tt><big>(</big><em>xdata</em>, <em>ydata</em>, <em>axisrange</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='Q-Q plot'</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>xdata</em>, <em>ydata</em>, <em>axisrange</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='Q-Q plot'</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.add" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.figures.QuantileFigure.addGrid">
-<tt class="descname">addGrid</tt><big>(</big><em>axes</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.addGrid" title="Permalink to this definition">¶</a></dt>
+<code class="descname">addGrid</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.addGrid" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.figures.QuantileFigure.formatAxes">
-<tt class="descname">formatAxes</tt><big>(</big><em>axes</em>, <em>limits</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.formatAxes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">formatAxes</code><span class="sig-paren">(</span><em>axes</em>, <em>limits</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.formatAxes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.figures.QuantileFigure.percentilerange">
-<tt class="descname">percentilerange</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.percentilerange" title="Permalink to this definition">¶</a></dt>
+<code class="descname">percentilerange</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.percentilerange" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate a range of percentile values</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.figures.QuantileFigure.percentiles">
-<tt class="descname">percentiles</tt><big>(</big><em>data</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.percentiles" title="Permalink to this definition">¶</a></dt>
+<code class="descname">percentiles</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.percentiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate percentile values from 1 to 100</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.figures.QuantileFigure.plot">
-<tt class="descname">plot</tt><big>(</big><big>)</big><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.figures.QuantileFigure.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.subplot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.QuantileFigure.subplot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.figures.RegressionFigure">
-<em class="property">class </em><tt class="descname">RegressionFigure</tt><a class="headerlink" href="#PlotInterface.figures.RegressionFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></tt></p>
+<em class="property">class </em><code class="descname">RegressionFigure</code><a class="headerlink" href="#PlotInterface.figures.RegressionFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></code></p>
 <dl class="method">
 <dt id="PlotInterface.figures.RegressionFigure.add">
-<tt class="descname">add</tt><big>(</big><em>xdata</em>, <em>ydata</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='x'</em>, <em>transform=&lt;function &lt;lambda&gt; at 0x03D6C130&gt;</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.RegressionFigure.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>xdata</em>, <em>ydata</em>, <em>xlabel='x'</em>, <em>ylabel='y'</em>, <em>title='x'</em>, <em>transform=&lt;function &lt;lambda&gt; at 0x0BB62F30&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.RegressionFigure.add" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.figures.RegressionFigure.formatAxes">
-<tt class="descname">formatAxes</tt><big>(</big><em>axes</em>, <em>xdata</em>, <em>ydata</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.RegressionFigure.formatAxes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">formatAxes</code><span class="sig-paren">(</span><em>axes</em>, <em>xdata</em>, <em>ydata</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.RegressionFigure.formatAxes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.figures.RegressionFigure.plot">
-<tt class="descname">plot</tt><big>(</big><big>)</big><a class="headerlink" href="#PlotInterface.figures.RegressionFigure.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.RegressionFigure.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.figures.RegressionFigure.prepareData">
-<tt class="descname">prepareData</tt><big>(</big><em>xdata</em>, <em>ydata</em>, <em>transform</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.RegressionFigure.prepareData" title="Permalink to this definition">¶</a></dt>
+<code class="descname">prepareData</code><span class="sig-paren">(</span><em>xdata</em>, <em>ydata</em>, <em>transform</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.RegressionFigure.prepareData" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.figures.RegressionFigure.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.RegressionFigure.subplot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.RegressionFigure.subplot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.figures.ScatterHistogramFigure">
-<em class="property">class </em><tt class="descname">ScatterHistogramFigure</tt><a class="headerlink" href="#PlotInterface.figures.ScatterHistogramFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></tt></p>
+<em class="property">class </em><code class="descname">ScatterHistogramFigure</code><a class="headerlink" href="#PlotInterface.figures.ScatterHistogramFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></code></p>
 <dl class="method">
 <dt id="PlotInterface.figures.ScatterHistogramFigure.plot">
-<tt class="descname">plot</tt><big>(</big><em>xdata</em>, <em>ydata</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.ScatterHistogramFigure.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>xdata</em>, <em>ydata</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.ScatterHistogramFigure.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.figures.ScatterHistogramFigure.render">
-<tt class="descname">render</tt><big>(</big><em>axes</em>, <em>x</em>, <em>y</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.ScatterHistogramFigure.render" title="Permalink to this definition">¶</a></dt>
+<code class="descname">render</code><span class="sig-paren">(</span><em>axes</em>, <em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.ScatterHistogramFigure.render" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.figures.SpeedFigure">
-<em class="property">class </em><tt class="descname">SpeedFigure</tt><a class="headerlink" href="#PlotInterface.figures.SpeedFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.figures.LaggedRegressionFigure" title="PlotInterface.figures.LaggedRegressionFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.figures.LaggedRegressionFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">SpeedFigure</code><a class="headerlink" href="#PlotInterface.figures.SpeedFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.figures.LaggedRegressionFigure" title="PlotInterface.figures.LaggedRegressionFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.figures.LaggedRegressionFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.figures.SpeedFigure.plot">
-<tt class="descname">plot</tt><big>(</big><em>speeds</em>, <em>speedRates</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.SpeedFigure.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>speeds</em>, <em>speedRates</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.SpeedFigure.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.figures.WindProfileFigure">
-<em class="property">class </em><tt class="descname">WindProfileFigure</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta</em>, <em>beta1=1.5</em>, <em>beta2=1.4</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.WindProfileFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></tt></p>
+<em class="property">class </em><code class="descname">WindProfileFigure</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta</em>, <em>beta1=1.5</em>, <em>beta2=1.4</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.WindProfileFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></code></p>
 <dl class="method">
 <dt id="PlotInterface.figures.WindProfileFigure.plot">
-<tt class="descname">plot</tt><big>(</big><em>profileType=None</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.WindProfileFigure.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>profileType=None</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.WindProfileFigure.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.figures.main">
-<tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#PlotInterface.figures.main" title="Permalink to this definition">¶</a></dt>
+<code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.figures.saveBearingFigure">
-<tt class="descname">saveBearingFigure</tt><big>(</big><em>bearings</em>, <em>bearingRates</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.saveBearingFigure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveBearingFigure</code><span class="sig-paren">(</span><em>bearings</em>, <em>bearingRates</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.saveBearingFigure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.figures.saveFigure">
-<tt class="descname">saveFigure</tt><big>(</big><em>figure</em>, <em>filename</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.saveFigure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveFigure</code><span class="sig-paren">(</span><em>figure</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.saveFigure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.figures.saveFrequencyFigure">
-<tt class="descname">saveFrequencyFigure</tt><big>(</big><em>years</em>, <em>frequency</em>, <em>filename='docs/freq_corr.png'</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.saveFrequencyFigure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveFrequencyFigure</code><span class="sig-paren">(</span><em>years</em>, <em>frequency</em>, <em>filename='docs/freq_corr.png'</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.saveFrequencyFigure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.figures.savePressureFigure">
-<tt class="descname">savePressureFigure</tt><big>(</big><em>pressures</em>, <em>pressureRates</em>, <em>filename='docs/prs_corr.png'</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.savePressureFigure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">savePressureFigure</code><span class="sig-paren">(</span><em>pressures</em>, <em>pressureRates</em>, <em>filename='docs/prs_corr.png'</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.savePressureFigure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.figures.saveSpeedFigures">
-<tt class="descname">saveSpeedFigures</tt><big>(</big><em>speeds</em>, <em>speedRates</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.saveSpeedFigures" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveSpeedFigures</code><span class="sig-paren">(</span><em>speeds</em>, <em>speedRates</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.saveSpeedFigures" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.figures.saveWindProfilesFigure">
-<tt class="descname">saveWindProfilesFigure</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta</em>, <em>filename='docs/windprofiles.png'</em><big>)</big><a class="headerlink" href="#PlotInterface.figures.saveWindProfilesFigure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveWindProfilesFigure</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta</em>, <em>filename='docs/windprofiles.png'</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.figures.saveWindProfilesFigure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -873,186 +871,186 @@ method for plotting the curve on a semilog x-axis.</p>
 <span id="plotinterface-maps-module"></span><h2>PlotInterface.maps module<a class="headerlink" href="#module-PlotInterface.maps" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="PlotInterface.maps.ArrayMap">
-<em class="property">class </em><tt class="descname">ArrayMap</tt><a class="headerlink" href="#PlotInterface.maps.ArrayMap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.ArrayMapFigure" title="PlotInterface.maps.ArrayMapFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.ArrayMapFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">ArrayMap</code><a class="headerlink" href="#PlotInterface.maps.ArrayMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.ArrayMapFigure" title="PlotInterface.maps.ArrayMapFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.ArrayMapFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.maps.ArrayMap.plot">
-<tt class="descname">plot</tt><big>(</big><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>datarange</em>, <em>cbarlab</em>, <em>map_kwargs</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.ArrayMap.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>datarange</em>, <em>cbarlab</em>, <em>map_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.ArrayMap.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.maps.ArrayMapFigure">
-<em class="property">class </em><tt class="descname">ArrayMapFigure</tt><a class="headerlink" href="#PlotInterface.maps.ArrayMapFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.MapFigure" title="PlotInterface.maps.MapFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.MapFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">ArrayMapFigure</code><a class="headerlink" href="#PlotInterface.maps.ArrayMapFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.MapFigure" title="PlotInterface.maps.MapFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.MapFigure</span></code></a></p>
 <p>Array plot</p>
 <dl class="method">
 <dt id="PlotInterface.maps.ArrayMapFigure.add">
-<tt class="descname">add</tt><big>(</big><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>datarange</em>, <em>cbarlab</em>, <em>map_kwargs</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.ArrayMapFigure.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>datarange</em>, <em>cbarlab</em>, <em>map_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.ArrayMapFigure.add" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.maps.ArrayMapFigure.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.ArrayMapFigure.subplot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.ArrayMapFigure.subplot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.maps.BarbMapFigure">
-<em class="property">class </em><tt class="descname">BarbMapFigure</tt><a class="headerlink" href="#PlotInterface.maps.BarbMapFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.MapFigure" title="PlotInterface.maps.MapFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.MapFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">BarbMapFigure</code><a class="headerlink" href="#PlotInterface.maps.BarbMapFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.MapFigure" title="PlotInterface.maps.MapFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.MapFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.maps.BarbMapFigure.add">
-<tt class="descname">add</tt><big>(</big><em>xdata</em>, <em>ydata</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.BarbMapFigure.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>xdata</em>, <em>ydata</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.BarbMapFigure.add" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.maps.BarbMapFigure.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.BarbMapFigure.subplot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.BarbMapFigure.subplot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.maps.FilledContourMapFigure">
-<em class="property">class </em><tt class="descname">FilledContourMapFigure</tt><a class="headerlink" href="#PlotInterface.maps.FilledContourMapFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.MapFigure" title="PlotInterface.maps.MapFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.MapFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">FilledContourMapFigure</code><a class="headerlink" href="#PlotInterface.maps.FilledContourMapFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.MapFigure" title="PlotInterface.maps.MapFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.MapFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.maps.FilledContourMapFigure.add">
-<tt class="descname">add</tt><big>(</big><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.FilledContourMapFigure.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.FilledContourMapFigure.add" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.maps.FilledContourMapFigure.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.FilledContourMapFigure.subplot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.FilledContourMapFigure.subplot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.maps.HazardMap">
-<em class="property">class </em><tt class="descname">HazardMap</tt><a class="headerlink" href="#PlotInterface.maps.HazardMap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.MaskedContourMapFigure" title="PlotInterface.maps.MaskedContourMapFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.MaskedContourMapFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">HazardMap</code><a class="headerlink" href="#PlotInterface.maps.HazardMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.MaskedContourMapFigure" title="PlotInterface.maps.MaskedContourMapFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.MaskedContourMapFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.maps.HazardMap.plot">
-<tt class="descname">plot</tt><big>(</big><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.HazardMap.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.HazardMap.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.maps.MapFigure">
-<em class="property">class </em><tt class="descname">MapFigure</tt><a class="headerlink" href="#PlotInterface.maps.MapFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">mpl_toolkits.basemap.Basemap</span></tt></p>
+<em class="property">class </em><code class="descname">MapFigure</code><a class="headerlink" href="#PlotInterface.maps.MapFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></code>, <code class="xref py py-class docutils literal"><span class="pre">mpl_toolkits.basemap.Basemap</span></code></p>
 <dl class="method">
 <dt id="PlotInterface.maps.MapFigure.add">
-<tt class="descname">add</tt><big>(</big><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.MapFigure.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.MapFigure.add" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.maps.MapFigure.addCoastline">
-<tt class="descname">addCoastline</tt><big>(</big><em>mapobj</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.MapFigure.addCoastline" title="Permalink to this definition">¶</a></dt>
+<code class="descname">addCoastline</code><span class="sig-paren">(</span><em>mapobj</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.MapFigure.addCoastline" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.maps.MapFigure.addGraticule">
-<tt class="descname">addGraticule</tt><big>(</big><em>axes</em>, <em>mapobj</em>, <em>dl=10.0</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.MapFigure.addGraticule" title="Permalink to this definition">¶</a></dt>
+<code class="descname">addGraticule</code><span class="sig-paren">(</span><em>axes</em>, <em>mapobj</em>, <em>dl=10.0</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.MapFigure.addGraticule" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.maps.MapFigure.addMapScale">
-<tt class="descname">addMapScale</tt><big>(</big><em>mapobj</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.MapFigure.addMapScale" title="Permalink to this definition">¶</a></dt>
+<code class="descname">addMapScale</code><span class="sig-paren">(</span><em>mapobj</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.MapFigure.addMapScale" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.maps.MapFigure.createMap">
-<tt class="descname">createMap</tt><big>(</big><em>axes</em>, <em>xgrid</em>, <em>ygrid</em>, <em>map_kwargs</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.MapFigure.createMap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a <tt class="xref py py-class docutils literal"><span class="pre">basemap</span></tt> object, and convert the x/y grid
+<code class="descname">createMap</code><span class="sig-paren">(</span><em>axes</em>, <em>xgrid</em>, <em>ygrid</em>, <em>map_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.MapFigure.createMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <code class="xref py py-class docutils literal"><span class="pre">basemap</span></code> object, and convert the x/y grid
 to map coordinates</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.maps.MapFigure.fillContinents">
-<tt class="descname">fillContinents</tt><big>(</big><em>mapobj</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.MapFigure.fillContinents" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fillContinents</code><span class="sig-paren">(</span><em>mapobj</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.MapFigure.fillContinents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.maps.MapFigure.labelAxes">
-<tt class="descname">labelAxes</tt><big>(</big><em>axes</em>, <em>xlabel='Longitude'</em>, <em>ylabel='Latitude'</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.MapFigure.labelAxes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">labelAxes</code><span class="sig-paren">(</span><em>axes</em>, <em>xlabel='Longitude'</em>, <em>ylabel='Latitude'</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.MapFigure.labelAxes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.maps.MapFigure.plot">
-<tt class="descname">plot</tt><big>(</big><big>)</big><a class="headerlink" href="#PlotInterface.maps.MapFigure.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.MapFigure.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.maps.MapFigure.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.MapFigure.subplot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.MapFigure.subplot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.maps.MaskedArrayMapFigure">
-<em class="property">class </em><tt class="descname">MaskedArrayMapFigure</tt><a class="headerlink" href="#PlotInterface.maps.MaskedArrayMapFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.ArrayMapFigure" title="PlotInterface.maps.ArrayMapFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.ArrayMapFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">MaskedArrayMapFigure</code><a class="headerlink" href="#PlotInterface.maps.MaskedArrayMapFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.ArrayMapFigure" title="PlotInterface.maps.ArrayMapFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.ArrayMapFigure</span></code></a></p>
 <p>Array plot with ocean areas masked</p>
 <dl class="method">
 <dt id="PlotInterface.maps.MaskedArrayMapFigure.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.MaskedArrayMapFigure.subplot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.MaskedArrayMapFigure.subplot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.maps.MaskedContourMapFigure">
-<em class="property">class </em><tt class="descname">MaskedContourMapFigure</tt><a class="headerlink" href="#PlotInterface.maps.MaskedContourMapFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.FilledContourMapFigure" title="PlotInterface.maps.FilledContourMapFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.FilledContourMapFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">MaskedContourMapFigure</code><a class="headerlink" href="#PlotInterface.maps.MaskedContourMapFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.FilledContourMapFigure" title="PlotInterface.maps.FilledContourMapFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.FilledContourMapFigure</span></code></a></p>
 <p>Filled contour plot with ocean areas masked</p>
 <dl class="method">
 <dt id="PlotInterface.maps.MaskedContourMapFigure.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.MaskedContourMapFigure.subplot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.MaskedContourMapFigure.subplot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="PlotInterface.maps.WindfieldMap">
-<em class="property">class </em><tt class="descname">WindfieldMap</tt><a class="headerlink" href="#PlotInterface.maps.WindfieldMap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.FilledContourMapFigure" title="PlotInterface.maps.FilledContourMapFigure"><tt class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.FilledContourMapFigure</span></tt></a></p>
+<em class="property">class </em><code class="descname">WindfieldMap</code><a class="headerlink" href="#PlotInterface.maps.WindfieldMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.FilledContourMapFigure" title="PlotInterface.maps.FilledContourMapFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.FilledContourMapFigure</span></code></a></p>
 <dl class="method">
 <dt id="PlotInterface.maps.WindfieldMap.plot">
-<tt class="descname">plot</tt><big>(</big><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.WindfieldMap.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.WindfieldMap.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.maps.main">
-<tt class="descname">main</tt><big>(</big><big>)</big><a class="headerlink" href="#PlotInterface.maps.main" title="Permalink to this definition">¶</a></dt>
+<code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.main" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.maps.saveArrayMap">
-<tt class="descname">saveArrayMap</tt><big>(</big><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>datarange</em>, <em>cbarlab</em>, <em>map_kwargs</em>, <em>filename</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.saveArrayMap" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveArrayMap</code><span class="sig-paren">(</span><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>datarange</em>, <em>cbarlab</em>, <em>map_kwargs</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.saveArrayMap" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.maps.saveFigure">
-<tt class="descname">saveFigure</tt><big>(</big><em>figure</em>, <em>filename</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.saveFigure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveFigure</code><span class="sig-paren">(</span><em>figure</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.saveFigure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.maps.saveHazardMap">
-<tt class="descname">saveHazardMap</tt><big>(</big><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em>, <em>filename</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.saveHazardMap" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveHazardMap</code><span class="sig-paren">(</span><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.saveHazardMap" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.maps.saveWindfieldMap">
-<tt class="descname">saveWindfieldMap</tt><big>(</big><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em>, <em>filename</em><big>)</big><a class="headerlink" href="#PlotInterface.maps.saveWindfieldMap" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveWindfieldMap</code><span class="sig-paren">(</span><em>data</em>, <em>xgrid</em>, <em>ygrid</em>, <em>title</em>, <em>levels</em>, <em>cbarlab</em>, <em>map_kwargs</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.maps.saveWindfieldMap" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -1060,84 +1058,84 @@ to map coordinates</p>
 <span id="plotinterface-plotstats-module"></span><h2>PlotInterface.plotStats module<a class="headerlink" href="#module-PlotInterface.plotStats" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="PlotInterface.plotStats.PlotData">
-<em class="property">class </em><tt class="descname">PlotData</tt><big>(</big><em>output_path</em>, <em>output_format</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<em class="property">class </em><code class="descname">PlotData</code><span class="sig-paren">(</span><em>output_path</em>, <em>output_format</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Base class for plotting summaries of input data.</p>
 <dl class="method">
 <dt id="PlotInterface.plotStats.PlotData.figurenum">
-<tt class="descname">figurenum</tt><big>(</big><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData.figurenum" title="Permalink to this definition">¶</a></dt>
+<code class="descname">figurenum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData.figurenum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Increment the figure number and return the new value</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.plotStats.PlotData.julianDay">
-<tt class="descname">julianDay</tt><big>(</big><em>julianDayObs</em>, <em>julianDayGenesis</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData.julianDay" title="Permalink to this definition">¶</a></dt>
+<code class="descname">julianDay</code><span class="sig-paren">(</span><em>julianDayObs</em>, <em>julianDayGenesis</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData.julianDay" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot bar graphs of the number of TC observations and genesis events</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.plotStats.PlotData.minPressureHist">
-<tt class="descname">minPressureHist</tt><big>(</big><em>index</em>, <em>pAllData</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData.minPressureHist" title="Permalink to this definition">¶</a></dt>
+<code class="descname">minPressureHist</code><span class="sig-paren">(</span><em>index</em>, <em>pAllData</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData.minPressureHist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a histogram of the minimum central pressures from the input
 dataset.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.plotStats.PlotData.minPressureLat">
-<tt class="descname">minPressureLat</tt><big>(</big><em>pAllData</em>, <em>latData</em>, <em>latMin=-40.0</em>, <em>latMax=0.0</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData.minPressureLat" title="Permalink to this definition">¶</a></dt>
+<code class="descname">minPressureLat</code><span class="sig-paren">(</span><em>pAllData</em>, <em>latData</em>, <em>latMin=-40.0</em>, <em>latMax=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData.minPressureLat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the minimum central pressures as a function of latitude</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.plotStats.PlotData.plotBearing">
-<tt class="descname">plotBearing</tt><big>(</big><em>bAllData</em>, <em>bRateData</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData.plotBearing" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotBearing</code><span class="sig-paren">(</span><em>bAllData</em>, <em>bRateData</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData.plotBearing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the (cosine of) input bearing values lagged against themselves,
 and the same for the changes in bearing.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.plotStats.PlotData.plotFrequency">
-<tt class="descname">plotFrequency</tt><big>(</big><em>years</em>, <em>frequency</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData.plotFrequency" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotFrequency</code><span class="sig-paren">(</span><em>years</em>, <em>frequency</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData.plotFrequency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot annual frequency of TCs, plus linear trend line</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.plotStats.PlotData.plotLonLat">
-<tt class="descname">plotLonLat</tt><big>(</big><em>lonData</em>, <em>latData</em>, <em>indicator</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData.plotLonLat" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotLonLat</code><span class="sig-paren">(</span><em>lonData</em>, <em>latData</em>, <em>indicator</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData.plotLonLat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the input lat/lon values lagged against themselves,
 and the same for the changes in lat/lon.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.plotStats.PlotData.plotPressure">
-<tt class="descname">plotPressure</tt><big>(</big><em>pAllData</em>, <em>pRateData</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData.plotPressure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotPressure</code><span class="sig-paren">(</span><em>pAllData</em>, <em>pRateData</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData.plotPressure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the input pressure values lagged against themselves,
 and the same for the changes in pressure.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.plotStats.PlotData.plotSpeed">
-<tt class="descname">plotSpeed</tt><big>(</big><em>speedData</em>, <em>speedRate</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData.plotSpeed" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotSpeed</code><span class="sig-paren">(</span><em>speedData</em>, <em>speedRate</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData.plotSpeed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the input speed values lagged against themselves,
 and the same for the changes in speed.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.plotStats.PlotData.plotSpeedBear">
-<tt class="descname">plotSpeedBear</tt><big>(</big><em>sAllData</em>, <em>bAllData</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData.plotSpeedBear" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotSpeedBear</code><span class="sig-paren">(</span><em>sAllData</em>, <em>bAllData</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData.plotSpeedBear" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot speed and bearing against each other</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.plotStats.PlotData.quantile">
-<tt class="descname">quantile</tt><big>(</big><em>data</em>, <em>parameterName</em>, <em>dist='normal'</em>, <em>mean=0.0</em>, <em>sigma=1.0</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData.quantile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">quantile</code><span class="sig-paren">(</span><em>data</em>, <em>parameterName</em>, <em>dist='normal'</em>, <em>mean=0.0</em>, <em>sigma=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData.quantile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a probability plot of the given data; data should be an
 array of anomalies</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.plotStats.PlotData.savefig">
-<tt class="descname">savefig</tt><big>(</big><em>filename</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData.savefig" title="Permalink to this definition">¶</a></dt>
+<code class="descname">savefig</code><span class="sig-paren">(</span><em>filename</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData.savefig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provide a shortcut to pyplot.savefig() that adds the output path to the
 filename.
 All keyword args are passed without alteration</p>
@@ -1145,7 +1143,7 @@ All keyword args are passed without alteration</p>
 
 <dl class="method">
 <dt id="PlotInterface.plotStats.PlotData.scatterHistogram">
-<tt class="descname">scatterHistogram</tt><big>(</big><em>x</em>, <em>y</em>, <em>img_name</em>, <em>allpos=False</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.PlotData.scatterHistogram" title="Permalink to this definition">¶</a></dt>
+<code class="descname">scatterHistogram</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>img_name</em>, <em>allpos=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.PlotData.scatterHistogram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a combined scatter/histogram plot of data</p>
 </dd></dl>
 
@@ -1153,7 +1151,7 @@ All keyword args are passed without alteration</p>
 
 <dl class="function">
 <dt id="PlotInterface.plotStats.get_bins">
-<tt class="descname">get_bins</tt><big>(</big><em>data</em>, <em>allpos=False</em><big>)</big><a class="headerlink" href="#PlotInterface.plotStats.get_bins" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_bins</code><span class="sig-paren">(</span><em>data</em>, <em>allpos=False</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotStats.get_bins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Establish nice bin widths for plotting histograms - as a default it sets
 the width to 0.25 times the standard deviation of the data</p>
 </dd></dl>
@@ -1162,18 +1160,18 @@ the width to 0.25 times the standard deviation of the data</p>
 <div class="section" id="module-PlotInterface.plotTimeseries">
 <span id="plotinterface-plottimeseries-module"></span><h2>PlotInterface.plotTimeseries module<a class="headerlink" href="#module-PlotInterface.plotTimeseries" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-plotTimeseries">
-<span id="plottimeseries-plot-timeseries-data-generated-by-tcrm"></span><h3><a class="reference internal" href="#module-plotTimeseries" title="plotTimeseries: Load timeseries data generated by TCRM and plot the wind speed, component wind speeds and bearing."><tt class="xref py py-mod docutils literal"><span class="pre">plotTimeseries</span></tt></a> &#8211; plot timeseries data generated by TCRM<a class="headerlink" href="#module-plotTimeseries" title="Permalink to this headline">¶</a></h3>
+<span id="plottimeseries-plot-timeseries-data-generated-by-tcrm"></span><h3><a class="reference internal" href="#module-plotTimeseries" title="plotTimeseries: Load timeseries data generated by TCRM and plot the wind speed, component wind speeds and bearing."><code class="xref py py-mod docutils literal"><span class="pre">plotTimeseries</span></code></a> &#8211; plot timeseries data generated by TCRM<a class="headerlink" href="#module-plotTimeseries" title="Permalink to this headline">¶</a></h3>
 <p>Load timeseries data generated by TCRM and plot the wind
 speed, component wind speeds and bearing.</p>
 <dl class="function">
 <dt id="PlotInterface.plotTimeseries.loadTimeseriesData">
-<tt class="descname">loadTimeseriesData</tt><big>(</big><em>datafile</em><big>)</big><a class="headerlink" href="#PlotInterface.plotTimeseries.loadTimeseriesData" title="Permalink to this definition">¶</a></dt>
+<code class="descname">loadTimeseriesData</code><span class="sig-paren">(</span><em>datafile</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotTimeseries.loadTimeseriesData" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.plotTimeseries.plotTimeseries">
-<tt class="descname">plotTimeseries</tt><big>(</big><em>inputPath</em>, <em>outputPath</em>, <em>locID=None</em><big>)</big><a class="headerlink" href="#PlotInterface.plotTimeseries.plotTimeseries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load the data and pass it to the <tt class="xref py py-meth docutils literal"><span class="pre">TimeSeriesFigure.plot()</span></tt> method.</p>
+<code class="descname">plotTimeseries</code><span class="sig-paren">(</span><em>inputPath</em>, <em>outputPath</em>, <em>locID=None</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotTimeseries.plotTimeseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the data and pass it to the <code class="xref py py-meth docutils literal"><span class="pre">TimeSeriesFigure.plot()</span></code> method.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1200,7 +1198,7 @@ given, all files in the input path will be processed.</li>
 <div class="section" id="module-PlotInterface.plotWindfield">
 <span id="plotinterface-plotwindfield-module"></span><h2>PlotInterface.plotWindfield module<a class="headerlink" href="#module-PlotInterface.plotWindfield" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="plotwindfield-plot-a-wind-field-map">
-<h3><tt class="xref py py-mod docutils literal"><span class="pre">plotWindfield</span></tt> &#8211; plot a wind field map<a class="headerlink" href="#plotwindfield-plot-a-wind-field-map" title="Permalink to this headline">¶</a></h3>
+<h3><code class="xref py py-mod docutils literal"><span class="pre">plotWindfield</span></code> &#8211; plot a wind field map<a class="headerlink" href="#plotwindfield-plot-a-wind-field-map" title="Permalink to this headline">¶</a></h3>
 <p>CreationDate: 2006-112-01
 Description: Plot a given wind field (in fact any array) over a map,
 given the longitude and latitide grids.</p>
@@ -1212,7 +1210,7 @@ Constraints:</p>
 <p>$Id: plotWindfield.py 549 2007-10-22 01:34:48Z carthur $</p>
 <dl class="function">
 <dt id="PlotInterface.plotWindfield.plotPressurefield">
-<tt class="descname">plotPressurefield</tt><big>(</big><em>xGrid</em>, <em>yGrid</em>, <em>pressure</em>, <em>title='Cyclone pressure field'</em>, <em>xlabel='Longitude'</em>, <em>ylabel='Latitude'</em>, <em>infostring=''</em>, <em>fileName=None</em><big>)</big><a class="headerlink" href="#PlotInterface.plotWindfield.plotPressurefield" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotPressurefield</code><span class="sig-paren">(</span><em>xGrid</em>, <em>yGrid</em>, <em>pressure</em>, <em>title='Cyclone pressure field'</em>, <em>xlabel='Longitude'</em>, <em>ylabel='Latitude'</em>, <em>infostring=''</em>, <em>fileName=None</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotWindfield.plotPressurefield" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the wind field for a given grid.
 xGrid, yGrid and speed are arrays of the same size. (xGrid and yGrid
 are typically generated by [xGrid,yGrid] = meshgrid(lon,lat))</p>
@@ -1220,7 +1218,7 @@ are typically generated by [xGrid,yGrid] = meshgrid(lon,lat))</p>
 
 <dl class="function">
 <dt id="PlotInterface.plotWindfield.plotWindfield">
-<tt class="descname">plotWindfield</tt><big>(</big><em>xGrid</em>, <em>yGrid</em>, <em>speed</em>, <em>title='Cyclone wind field'</em>, <em>xlabel='Longitude'</em>, <em>ylabel='Latitude'</em>, <em>infostring=''</em>, <em>fileName=None</em>, <em>i=0</em><big>)</big><a class="headerlink" href="#PlotInterface.plotWindfield.plotWindfield" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plotWindfield</code><span class="sig-paren">(</span><em>xGrid</em>, <em>yGrid</em>, <em>speed</em>, <em>title='Cyclone wind field'</em>, <em>xlabel='Longitude'</em>, <em>ylabel='Latitude'</em>, <em>infostring=''</em>, <em>fileName=None</em>, <em>i=0</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.plotWindfield.plotWindfield" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the wind field for a given grid.
 xGrid, yGrid and speed are arrays of the same size. (xGrid and yGrid
 are typically generated by [xGrid,yGrid] = meshgrid(lon,lat))</p>
@@ -1232,64 +1230,64 @@ are typically generated by [xGrid,yGrid] = meshgrid(lon,lat))</p>
 <span id="plotinterface-timeseries-module"></span><h2>PlotInterface.timeseries module<a class="headerlink" href="#module-PlotInterface.timeseries" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="PlotInterface.timeseries.TimeSeriesFigure">
-<em class="property">class </em><tt class="descname">TimeSeriesFigure</tt><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></tt></p>
+<em class="property">class </em><code class="descname">TimeSeriesFigure</code><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></code></p>
 <p>Base class for plotting time series data</p>
 <dl class="method">
 <dt id="PlotInterface.timeseries.TimeSeriesFigure.add">
-<tt class="descname">add</tt><big>(</big><em>dt</em>, <em>ydata</em>, <em>yrange</em>, <em>ylabel</em>, <em>title</em><big>)</big><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.add" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add</code><span class="sig-paren">(</span><em>dt</em>, <em>ydata</em>, <em>yrange</em>, <em>ylabel</em>, <em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.add" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.timeseries.TimeSeriesFigure.addGrid">
-<tt class="descname">addGrid</tt><big>(</big><em>axes</em><big>)</big><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.addGrid" title="Permalink to this definition">¶</a></dt>
+<code class="descname">addGrid</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.addGrid" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.timeseries.TimeSeriesFigure.addLegend">
-<tt class="descname">addLegend</tt><big>(</big><em>axes</em><big>)</big><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.addLegend" title="Permalink to this definition">¶</a></dt>
+<code class="descname">addLegend</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.addLegend" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.timeseries.TimeSeriesFigure.addTitle">
-<tt class="descname">addTitle</tt><big>(</big><em>title</em><big>)</big><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.addTitle" title="Permalink to this definition">¶</a></dt>
+<code class="descname">addTitle</code><span class="sig-paren">(</span><em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.addTitle" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.timeseries.TimeSeriesFigure.formatXticks">
-<tt class="descname">formatXticks</tt><big>(</big><em>axes</em><big>)</big><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.formatXticks" title="Permalink to this definition">¶</a></dt>
+<code class="descname">formatXticks</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.formatXticks" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.timeseries.TimeSeriesFigure.make_patch_spines_invisible">
-<tt class="descname">make_patch_spines_invisible</tt><big>(</big><em>axes</em><big>)</big><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.make_patch_spines_invisible" title="Permalink to this definition">¶</a></dt>
+<code class="descname">make_patch_spines_invisible</code><span class="sig-paren">(</span><em>axes</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.make_patch_spines_invisible" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.timeseries.TimeSeriesFigure.ooplot">
-<tt class="descname">ooplot</tt><big>(</big><big>)</big><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.ooplot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ooplot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.ooplot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.timeseries.TimeSeriesFigure.plot">
-<tt class="descname">plot</tt><big>(</big><big>)</big><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.plot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.timeseries.TimeSeriesFigure.subplot">
-<tt class="descname">subplot</tt><big>(</big><em>axes</em>, <em>subfigure</em>, <em>color</em><big>)</big><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.subplot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em>, <em>color</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.subplot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="PlotInterface.timeseries.TimeSeriesFigure.subplot_twinx">
-<tt class="descname">subplot_twinx</tt><big>(</big><em>axes</em>, <em>subfigure</em>, <em>color</em>, <em>position</em><big>)</big><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.subplot_twinx" title="Permalink to this definition">¶</a></dt>
+<code class="descname">subplot_twinx</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em>, <em>color</em>, <em>position</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.timeseries.TimeSeriesFigure.subplot_twinx" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="function">
 <dt id="PlotInterface.timeseries.saveFigure">
-<tt class="descname">saveFigure</tt><big>(</big><em>figure</em>, <em>filename</em><big>)</big><a class="headerlink" href="#PlotInterface.timeseries.saveFigure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveFigure</code><span class="sig-paren">(</span><em>figure</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.timeseries.saveFigure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -1302,7 +1300,7 @@ are typically generated by [xGrid,yGrid] = meshgrid(lon,lat))</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
@@ -1312,23 +1310,23 @@ are typically generated by [xGrid,yGrid] = meshgrid(lon,lat))</p>
 <li><a class="reference internal" href="#">PlotInterface package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-PlotInterface.AutoPlotHazard">PlotInterface.AutoPlotHazard module</a><ul>
-<li><a class="reference internal" href="#module-AutoPlotHazard"><tt class="docutils literal"><span class="pre">AutoPlotHazard</span></tt> &#8211; Plot hazard maps and curves</a></li>
+<li><a class="reference internal" href="#module-AutoPlotHazard"><code class="docutils literal"><span class="pre">AutoPlotHazard</span></code> &#8211; Plot hazard maps and curves</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-PlotInterface.curves">PlotInterface.curves module</a><ul>
-<li><a class="reference internal" href="#module-curves"><tt class="docutils literal"><span class="pre">curves</span></tt> &#8211; plot curve figures</a></li>
+<li><a class="reference internal" href="#module-curves"><code class="docutils literal"><span class="pre">curves</span></code> &#8211; plot curve figures</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-PlotInterface.figures">PlotInterface.figures module</a></li>
 <li><a class="reference internal" href="#module-PlotInterface.maps">PlotInterface.maps module</a></li>
 <li><a class="reference internal" href="#module-PlotInterface.plotStats">PlotInterface.plotStats module</a></li>
 <li><a class="reference internal" href="#module-PlotInterface.plotTimeseries">PlotInterface.plotTimeseries module</a><ul>
-<li><a class="reference internal" href="#module-plotTimeseries"><tt class="docutils literal"><span class="pre">plotTimeseries</span></tt> &#8211; plot timeseries data generated by TCRM</a></li>
+<li><a class="reference internal" href="#module-plotTimeseries"><code class="docutils literal"><span class="pre">plotTimeseries</span></code> &#8211; plot timeseries data generated by TCRM</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#plotinterface-plottracks-module">PlotInterface.plotTracks module</a></li>
 <li><a class="reference internal" href="#module-PlotInterface.plotWindfield">PlotInterface.plotWindfield module</a><ul>
-<li><a class="reference internal" href="#plotwindfield-plot-a-wind-field-map"><tt class="docutils literal"><span class="pre">plotWindfield</span></tt> &#8211; plot a wind field map</a></li>
+<li><a class="reference internal" href="#plotwindfield-plot-a-wind-field-map"><code class="docutils literal"><span class="pre">plotWindfield</span></code> &#8211; plot a wind field map</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-PlotInterface.timeseries">PlotInterface.timeseries module</a></li>
@@ -1337,12 +1335,14 @@ are typically generated by [xGrid,yGrid] = meshgrid(lon,lat))</p>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/docs/PlotInterface.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/PlotInterface.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -1359,7 +1359,7 @@ are typically generated by [xGrid,yGrid] = meshgrid(lon,lat))</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -1368,13 +1368,13 @@ are typically generated by [xGrid,yGrid] = meshgrid(lon,lat))</p>
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
-      Last updated on Mar 20, 2015.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Last updated on Apr 22, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>
