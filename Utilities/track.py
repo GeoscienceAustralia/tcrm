@@ -4,7 +4,7 @@
 
 .. module:: tracks
     :synopsis: This module contains funcitons for reading and writing
-               track data from/to a variety of formats.
+               track data from/to csv and netCDF formats.
 
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
@@ -16,6 +16,8 @@ import logging
 import getpass
 import numpy as np
 from datetime import datetime
+
+from os.path import join as pjoin
 import re
 from shapely.geometry import Point, LineString
 
@@ -43,7 +45,7 @@ trackFormats = ('%i, %i, %i, %i,'
                 '%8.3f, %8.3f, %6.2f, %6.2f, %7.2f,'
                 '%6.2f, %6.2f, %7.2f')
                 
-pattern = re.compile('\d+')
+PATTERN = re.compile(r'\d+')
 
 class Track(object):
 
@@ -122,7 +124,7 @@ class Track(object):
         :returns: :class:`numpy.ndarray` of minimum distances between
                   the set of points and the line features (in km).
         """
-        coords = [(x,y) for x, y in zip(self.Longitude, self.Latitude)]
+        coords = [(x, y) for x, y in zip(self.Longitude, self.Latitude)]
         
         if len(coords) == 1:
             point_feature = Point(self.Longitude, self.Latitude)
@@ -154,6 +156,11 @@ TCRM_CNVT = {
     8: lambda s: convert(float(s.strip() or 0), TCRM_UNIT[8], 'Pa'),
 }
 
+TRACK_DT_ERR = "Track data does not have required \
+attributes to convert to datetime object"
+
+TRACK_EMPTY_GROUP = """No track groups in this netcdf file: {0}"""
+
 def ncReadTrackData(trackfile):
     """
     Read a netcdf-format track file into a collection of
@@ -170,10 +177,10 @@ def ncReadTrackData(trackfile):
     track_dtype = np.dtype({'names':TCRM_COLS,
                             'formats':TCRM_FMTS})
     try:
-        ncobj = Dataset(outfile, mode='r')
+        ncobj = Dataset(trackfile, mode='r')
     except (IOError, RuntimeError):
-        logger.exception("Cannot open {0}".format(outfile))
-        raise IOError("Cannot open {0}".format(outfile))
+        log.exception("Cannot open {0}".format(trackfile))
+        raise IOError("Cannot open {0}".format(trackfile))
 
     g = ncobj.groups
     tracks = []
@@ -181,7 +188,7 @@ def ncReadTrackData(trackfile):
         tgroup = g['tracks'].groups
         ntracks = len(tgroup)
         for i, (t, data) in enumerate(tgroup.items()):
-            logger.debug("Loading data for {0}".format(t))
+            log.debug("Loading data for {0}".format(t))
             track_data = data.variables['track'][:]
             track = Track(track_data)
             
@@ -190,7 +197,7 @@ def ncReadTrackData(trackfile):
                                           data.variables['time'].units,
                                           data.variables['time'].calendar)
             except AttributeError:
-                logger.exception("Track data does not have required attributes")
+                log.exception(TRACK_DT_ERR)
                 raise AttributeError
             
             track.data = track.data.astype(track_dtype)
@@ -202,7 +209,7 @@ def ncReadTrackData(trackfile):
             tracks.append(track)
 
     else:
-        logger.warn("No track groups in this file: {0}".format(trackfile))
+        log.warn(TRACK_EMPTY_GROUP.format(trackfile))
 
     ncobj.close()
     return tracks
@@ -236,10 +243,14 @@ def ncSaveTracks(trackfile, tracks,
     
     """
 
+    if len(tracks) == 0:
+        log.info("No tracks to be stored in track file: {0}".format(trackfile))
+        return 
+
     try:
         ncobj = Dataset(trackfile, "w", format="NETCDF4", clobber=True)
     except IOError:
-        logger.exception("Cannot open {0} for writing".format(trackfile))
+        log.exception("Cannot open {0} for writing".format(trackfile))
         raise IOError("Cannot open {0} for writing".format(trackfile))
 
     tgroup = ncobj.createGroup('tracks')
@@ -249,10 +260,9 @@ def ncSaveTracks(trackfile, tracks,
     track_dtype = track_dtype.descr
     track_dtype[1] = ('Datetime', 'f4')
     track_dtype = np.dtype(track_dtype)
-
     
     for n, t in enumerate(tracks):
-        if len(t.data) == 0:
+        if len(t.data) == 0: # Empty track
             continue
         tname = "tracks-{:04d}".format(n)
         tdata = tgroup.createGroup(tname)
@@ -352,11 +362,7 @@ def loadTracks(trackfile):
 
     """
 
-    tracks = []
-    datas = readMultipleTrackData(trackfile)
-    n = len(datas)
-
-    sim, num = pattern.findall(os.path.basename(trackfile))
+    sim, num = PATTERN.findall(os.path.basename(trackfile))
     
     data = readTrackData(trackfile)
     track = Track(data)
