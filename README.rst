@@ -31,12 +31,12 @@ Features
 Branch
 ======
 
-This development branch (`visuals`) is focused on improving visualisations of output. 
+This development branch (`visuals`) is focused on improving visualisations of output. Because some dependencies are built only for Python 2.7, this branch is not backward compatible with Python 2.6.
 
 Dependencies
 ============
 
-* TCRM requires `Python (2.7 preferred) <https://www.python.org/>`_,
+* TCRM requires `Python 2.7 <https://www.python.org/>`_,
   `Numpy <http://www.numpy.org/>`_, `Scipy <http://www.scipy.org/>`_,
   `Matplotlib <http://matplotlib.org/>`_, `Basemap
   <http://matplotlib.org/basemap/index.html>`_, `netcdf4-python
