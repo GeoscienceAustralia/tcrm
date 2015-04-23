@@ -7,6 +7,10 @@
 
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
+Note: This uses the Australian Tropical Cyclone Intensity Scale
+      for colourizing the track segments, based on maximum 
+      10-minute wind speeds.
+
 """
 import sys
 import logging as log
@@ -16,6 +20,7 @@ import numpy as np
 from matplotlib.collections import LineCollection
 from matplotlib.colors import Normalize, BoundaryNorm, ListedColormap
 from matplotlib.cm import get_cmap
+from matplotlib.lines import Line2D
 
 import Utilities.shptools as shptools
 
@@ -41,7 +46,7 @@ class TrackMapFigure(MapFigure):
     """
     Base class for plotting track maps.
     """
-
+        
     def colorline(self, x, y, z=None, linewidth=1.0, alpha=1.0):
         """
         Create and add line collections to an axes instance, using 
@@ -70,10 +75,16 @@ class TrackMapFigure(MapFigure):
         norm = BoundaryNorm([0, 17.5, 24.5, 32.5, 44.2, 55.5, 1000], cmap.N)
         lc = LineCollection(segments, array=z, cmap=cmap, 
                             norm=norm, linewidth=linewidth, alpha=alpha)
-        
+
+        labels = ['No data', 'Category 1', 'Category 2',
+                  'Category 3', 'Category 4', 'Category 5']
+        handles = []
+        for c, l in zip(cmap.colors, labels):
+            handles.append(Line2D([0], [0], color=c, label=l))
+
         ax = self.gca()
         ax.add_collection(lc)
-
+        ax.legend(handles, labels, loc=2, frameon=True )
         
     def add(self, tracks, xgrid, ygrid, title, map_kwargs):
         self.subfigures.append((tracks, xgrid, ygrid, title, map_kwargs))
@@ -84,11 +95,10 @@ class TrackMapFigure(MapFigure):
 
         for track in tracks:
             mlon, mlat = mapobj(track.Longitude, track.Latitude)
-            self.colorline(mlon, mlat, track.WindSpeed, 
-                           linewidth=1, alpha=0.75)
+            self.colorline(mlon, mlat, track.WindSpeed, alpha=0.75)
         axes.set_title(title)
-        self.labelAxes(axes)
-        self.addGraticule(axes, mapobj)
+        #self.labelAxes(axes)
+        self.addGraticule(axes, mapobj, dl=5.)
         self.addCoastline(mapobj)
         self.fillContinents(mapobj)
         self.addMapScale(mapobj)

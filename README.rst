@@ -28,7 +28,10 @@ Features
 * **Evaluation metrics**: Offers capability to run objective evaluation of track model metrics (e.g. landfall rates);
 * **Single scenarios**: Users can run a single TC event (e.g. using a b-deck format track file) at high temporal resolution and extract time series data at chosen locations;
 
+Branch
+======
 
+This development branch (`visuals`) is focused on improving visualisations of output. 
 
 Dependencies
 ============
@@ -38,13 +41,15 @@ Dependencies
   `Matplotlib <http://matplotlib.org/>`_, `Basemap
   <http://matplotlib.org/basemap/index.html>`_, `netcdf4-python
   <https://code.google.com/p/netcdf4-python/>`_, 
-  `Shapely <https://github.com/Toblerity/Shapely>`_ and a C compiler;
+  `Shapely <https://github.com/Toblerity/Shapely>`_,
+  `Seaborn <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_ data visualisation
+  `gcc` C compiler;
 * For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
 
 Status
 ======
 
-.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=master
+.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=visuals
     :target: https://travis-ci.org/GeoscienceAustralia/tcrm
 
 Screenshot

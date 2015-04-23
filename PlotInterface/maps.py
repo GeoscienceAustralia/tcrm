@@ -1,10 +1,25 @@
+"""
+:mod:`maps` -- base class for generating maps
+=============================================
+
+.. module:: maps
+    :synopsis: Generate map images using `mpl_toolkits.basemap`
+
+.. moduleauthor: Craig Arthur <craig.arthur@ga.gov.au>
+
+Note: Many of the defaults (e.g. coastline colours, font sizes for 
+      the graticule) are set up for GA's style. These can be overridden
+      in this base class if users want a different style for their output.
+
+"""
+
 from __future__ import division
 
 import numpy as np
 
-import matplotlib
-matplotlib.use("Agg", warn=False)
-matplotlib.rc_file_defaults()
+#import matplotlib
+#matplotlib.use("Agg", warn=False)
+#matplotlib.rc_file_defaults()
 
 from matplotlib.figure import Figure
 from mpl_toolkits.basemap import Basemap
@@ -13,7 +28,7 @@ import Utilities.colours
 from Utilities.smooth import smooth
 
 
-class MapFigure(Figure, Basemap):
+class MapFigure(Figure):
 
     def __init__(self):
         Figure.__init__(self)
@@ -23,8 +38,8 @@ class MapFigure(Figure, Basemap):
         self.subfigures.append((data, xgrid, ygrid, title, levels, cbarlab, map_kwargs))
 
     def labelAxes(self, axes, xlabel='Longitude', ylabel='Latitude'):
-        axes.set_xlabel(xlabel, labelpad=20, fontsize='x-small')
-        axes.set_ylabel(ylabel, labelpad=25, fontsize='x-small')
+        axes.set_xlabel(xlabel, labelpad=20,) # fontsize='x-small')
+        axes.set_ylabel(ylabel, labelpad=35,) # fontsize='x-small')
 
 
     def addGraticule(self, axes, mapobj, dl=10.):
@@ -39,11 +54,9 @@ class MapFigure(Figure, Basemap):
                                 dl*np.ceil(ymax / dl) + dl, dl)
 
         mapobj.drawparallels(parallels, linewidth=0.25,
-                             labels=[1, 0, 0, 1], fontsize='xx-small',
-                             style='italic')
+                             labels=[1, 0, 0, 1], style="italic") #fontsize='xx-small',
         mapobj.drawmeridians(meridians, linewidth=0.25,
-                             labels=[1, 0, 0, 1], fontsize='xx-small', 
-                             style='italic')
+                             labels=[1, 0, 0, 1], style='italic') #fontsize='xx-small', 
 
         axes.tick_params(direction='in', length=4)
 
@@ -77,7 +90,7 @@ class MapFigure(Figure, Basemap):
         # Set scale length to nearest 100-km for 20% of map width
         scale_length = 100*int((0.2 * (xmax - xmin) / 1000.)/100)
         mapobj.drawmapscale(lonloc, latloc, midlon, midlat, scale_length,
-                            barstyle='fancy', fontsize='xx-small', zorder=10)
+                            barstyle='fancy', zorder=10)
 
     def createMap(self, axes, xgrid, ygrid, map_kwargs):
         """
