@@ -282,10 +282,15 @@ def doDataPlotting(configFile):
     pbar.update(0.05)
 
     plotting.plotPressure(pAllData, pRateData)
-    plotting.scatterHistogram(
-        pAllData[1:], pAllData[:-1], 'prs_scatterHist', allpos=True)
-    plotting.scatterHistogram(
-        pRateData[1:], pRateData[:-1], 'prsRate_scatterHist')
+    labels = [r'$p_c(t)$', r'$p_c(t-1)$']
+    plotting.scatterHistogram(pAllData[1:], pAllData[:-1], 
+                              labels, 'prs_scatterHist', 
+                              allpos=True)
+
+    labels = [r'$\frac{\delta p_c}{\delta t}(t)$', 
+              r'$\frac{\delta p_c}{\delta t}(t-1)$']
+    plotting.scatterHistogram(pRateData[1:], pRateData[:-1], 
+                              labels, 'prsRate_scatterHist')
     plotting.minPressureHist(indicator, pAllData)
     plotting.minPressureLat(pAllData, latData)
 

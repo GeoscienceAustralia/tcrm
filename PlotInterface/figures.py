@@ -11,6 +11,8 @@ from matplotlib.artist import setp
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.basemap import Basemap
 
+import seaborn
+seaborn.set(style="ticks")
 
 class WindProfileFigure(Figure):
 

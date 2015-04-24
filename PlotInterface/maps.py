@@ -27,6 +27,8 @@ from mpl_toolkits.basemap import Basemap
 import Utilities.colours 
 from Utilities.smooth import smooth
 
+import seaborn
+seaborn.set_style("ticks")
 
 class MapFigure(Figure):
 
@@ -54,20 +56,21 @@ class MapFigure(Figure):
                                 dl*np.ceil(ymax / dl) + dl, dl)
 
         mapobj.drawparallels(parallels, linewidth=0.25,
-                             labels=[1, 0, 0, 1], style="italic") #fontsize='xx-small',
+                             labels=[1, 0, 0, 1], style="italic") 
         mapobj.drawmeridians(meridians, linewidth=0.25,
-                             labels=[1, 0, 0, 1], style='italic') #fontsize='xx-small', 
+                             labels=[1, 0, 0, 1], style='italic') 
 
-        axes.tick_params(direction='in', length=4)
+        axes.tick_params(direction='in', length=4, width=1)
 
     def addCoastline(self, mapobj):
 
-        mapobj.drawcoastlines(linewidth=.5, color="#0036FF")
+        mapobj.drawcoastlines(linewidth=.5, color="k")
         mapobj.drawmapboundary(fill_color="#BEE8FF")
 
     def fillContinents(self, mapobj):
         mapobj.fillcontinents(color="#FFDAB5",
-                              lake_color="#BEE8FF")
+                              lake_color="#BEE8FF",
+                              zorder=0)
 
     def addMapScale(self, mapobj):
         lonmin = mapobj.lonmin
@@ -123,7 +126,7 @@ class MapFigure(Figure):
         w, h = self.get_size_inches()
         self.set_size_inches(w * c , r * h)
         for i, subfigure in enumerate(self.subfigures):
-            axes = self.add_subplot(r, c, i)
+            axes = self.add_subplot(r, c, i+1)
             self.subplot(axes, subfigure)
         
 class FilledContourMapFigure(MapFigure):
@@ -170,7 +173,8 @@ class ArrayMapFigure(MapFigure):
                                         cbarlab, map_kwargs)
 
     def subplot(self, axes, subfigure):
-        data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs = subfigure
+        data, xgrid, ygrid, title, \
+            datarange, cbarlab, map_kwargs = subfigure
         mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
 
         vmin = datarange[0]
@@ -189,20 +193,24 @@ class MaskedArrayMapFigure(ArrayMapFigure):
     """Array plot with ocean areas masked"""
     def subplot(self, axes, subfigure):
         from mpl_toolkits.basemap import maskoceans
-        data, xgrid, ygrid, title, datarange, cbarlabel, map_kwargs = subfigure
+        data, xgrid, ygrid, title, \
+            datarange, cbarlabel, map_kwargs = subfigure
 
         masked_data = maskoceans(xgrid, ygrid, data, inlands=False)
-        subfigure = (masked_data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs)
+        subfigure = (masked_data, xgrid, ygrid, title, 
+                     datarange, cbarlab, map_kwargs)
         super(MaskedArrayMapFigure, self).subplot(axes, subfigure)
 
 class BarbMapFigure(MapFigure):
 
-    def add(self, xdata, ydata, xgrid, ygrid, title, levels, cbarlab, map_kwargs):
+    def add(self, xdata, ydata, xgrid, ygrid, title, 
+            levels, cbarlab, map_kwargs):
         self.subfigures.append((mapobj, xdata, ydata, xgrid, ygrid,
                                 title, levels, cbarlab, map_kwargs))
 
     def subplot(self, axes, subfigure):
-        xdata, ydata, xgrid, ygrid, title, levels, cbarlab, map_kwargs = subfigure
+        xdata, ydata, xgrid, ygrid, title, \
+            levels, cbarlab, map_kwargs = subfigure
         mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
 
         mag = np.sqrt(xdata*xdata + ydata*ydata)
@@ -214,6 +222,28 @@ class BarbMapFigure(MapFigure):
         self.addGraticule(axes, mapobj)
         self.addCoastline(mapobj)
 
+class ScatterMapFigure(MapFigure):
+
+    def add(self, data, xgrid, ygrid, title, levels, cbarlab, map_kwargs):
+        self.subfigures.append((data, xgrid, ygrid, title, levels, 
+                                cbarlab, map_kwargs))
+
+    def subplot(self, axes, subfigure):
+        data, xgrid, ygrid, title, levels, cbarlab, map_kwargs = subfigure
+        xp, yp = data
+        mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
+
+        self.addCoastline(mapobj)
+        self.fillContinents(mapobj)
+        
+        mxp, myp = mapobj(xp, yp)
+        mapobj.scatter(mxp, myp)
+        axes.set_title(title)
+        self.addGraticule(axes, mapobj,dl=5.)
+        self.addMapScale(mapobj)
+        
+        
+
 class HazardMap(MaskedContourMapFigure):
 
     def plot(self, data, xgrid, ygrid, title, levels, cbarlab, map_kwargs):
@@ -222,6 +252,8 @@ class HazardMap(MaskedContourMapFigure):
         data = smooth(data, int(1/dx))
         self.add(data, xgrid, ygrid, title, levels, cbarlab, map_kwargs)
         super(HazardMap, self).plot()
+
+
 
 class WindfieldMap(FilledContourMapFigure):
 
@@ -238,20 +270,23 @@ class ArrayMap(ArrayMapFigure):
 def saveFigure(figure, filename):
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     canvas = FigureCanvas(figure)
-    canvas.print_figure(filename)
+    canvas.print_figure(filename,dpi=300)
 
-def saveHazardMap(data, xgrid, ygrid, title, levels, cbarlab, map_kwargs, filename):
+def saveHazardMap(data, xgrid, ygrid, title, levels, cbarlab, 
+                  map_kwargs, filename):
     fig = HazardMap()
 
     fig.plot(data, xgrid, ygrid, title, levels, cbarlab, map_kwargs)
     saveFigure(fig, filename)
 
-def saveWindfieldMap(data, xgrid, ygrid, title, levels, cbarlab, map_kwargs, filename):
+def saveWindfieldMap(data, xgrid, ygrid, title, levels, 
+                     cbarlab, map_kwargs, filename):
     fig = WindfieldMap()
     fig.plot(data, xgrid, ygrid, title, levels, cbarlab, map_kwargs)
     saveFigure(fig, filename)
 
-def saveArrayMap(data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs, filename):
+def saveArrayMap(data, xgrid, ygrid, title, datarange, cbarlab, 
+                 map_kwargs, filename):
     fig = ArrayMap()
     fig.plot(data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs)
     saveFigure(fig, filename)

@@ -47,7 +47,7 @@ class TrackMapFigure(MapFigure):
     Base class for plotting track maps.
     """
         
-    def colorline(self, x, y, z=None, linewidth=1.0, alpha=1.0):
+    def colorline(self, x, y, z=None, alpha=0.9):
         """
         Create and add line collections to an axes instance, using 
         an optional magnitude value to colourize the line segments.
@@ -74,7 +74,7 @@ class TrackMapFigure(MapFigure):
                                 '#00FF00', '#FF8100', '#ff0000'])
         norm = BoundaryNorm([0, 17.5, 24.5, 32.5, 44.2, 55.5, 1000], cmap.N)
         lc = LineCollection(segments, array=z, cmap=cmap, 
-                            norm=norm, linewidth=linewidth, alpha=alpha)
+                            norm=norm, alpha=alpha)
 
         labels = ['No data', 'Category 1', 'Category 2',
                   'Category 3', 'Category 4', 'Category 5']
