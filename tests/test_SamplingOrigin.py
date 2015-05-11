@@ -46,7 +46,7 @@ class TestSamplingOrigin(NumpyTestCase.NumpyTestCase):
     
     def setUp(self):
         self.numberOfSamples = 1000
-        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kdeOrigin_xyz.pck'), 'rb')
+        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kdeOrigin_xyz.pck'), 'r')
         xp = cPickle.load(pkl_file)
         yp = cPickle.load(pkl_file)
         zp = cPickle.load(pkl_file)

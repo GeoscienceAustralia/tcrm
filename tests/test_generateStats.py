@@ -42,7 +42,7 @@ from Utilities.files import flStartLog
 class TestGenerateStats(NumpyTestCase.NumpyTestCase):
 
     pkl_file = open(os.path.join(unittest_dir, 'test_data', 
-                                 'generateStatsTestData.pck'), 'rb')
+                                 'generateStatsTestData.pck'), 'r')
     lonLat = cPickle.load(pkl_file)
     parameter = cPickle.load(pkl_file)  # all_speed
     pkl_file.close()

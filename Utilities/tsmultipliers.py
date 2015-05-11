@@ -30,17 +30,17 @@ from Utilities import shapefile
 from Utilities import pathLocator
 
 
-OUTPUTFMT = ['%s', '%7.3f', '%7.3f', 
+OUTPUTFMT = ['%s', '%s', '%9.5f', '%9.5f', 
               '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
               '%7.2f']
-INPUTFMT = ('|S16', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
-INPUTNAMES = ('Time', 'Longitude', 'Latitude', 'Speed', 'UU', 'VV',
+INPUTFMT = ('|S16', '|S16', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
+INPUTNAMES = ('Station', 'Time', 'Longitude', 'Latitude', 'Speed', 'UU', 'VV',
               'Bearing', 'Pressure')
 
 MINMAX_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
                 'Speed', 'UU', 'VV', 'Bearing', 'Pressure')
 MINMAX_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
-MINMAX_FMT = ['%s', '%s', '%7.3f', '%7.3f', 
+MINMAX_FMT = ['%s', '%s', '%9.5f', '%9.5f', 
               '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
               '%7.2f']
 
@@ -109,16 +109,16 @@ def tsmultiply(inputFile, multipliers, outputFile):
     ii = np.where(gust==0)
     bear[ii] = 0
     
-    data = np.array([tstep, lon, lat, gust, uu, vv, bear, pressure]).T
+    data = np.array([tsdata['Station'], tstep, lon, lat, gust, uu, vv, bear, pressure]).T
 
     maxidx = np.argmax(gust)
     minidx = np.argmin(pressure)
     maxdata = data[maxidx, :]
     mindata = data[minidx, :]
 
-    header = 'Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
+    header = 'Station,Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
     np.savetxt(outputFile, data, fmt='%s', delimiter=',',
-               header=header)
+               header=header, comments='')
     
     return maxdata, mindata
 
@@ -182,8 +182,8 @@ def process_timeseries(config_file):
             # Load multipliers for this location:
             mvals = [float(record[i]) for i in indexes]
             maxdata, mindata = tsmultiply(inputFile, tuple(mvals), outputFile)
-            min_data.append((str(stnId),) + tuple(mindata))
-            max_data.append((str(stnId),) + tuple(maxdata))
+            min_data.append(tuple(mindata))
+            max_data.append(tuple(maxdata))
 
         else:
             log.debug("No timeseries file for {0}".format(stnId))
@@ -194,9 +194,9 @@ def process_timeseries(config_file):
     maxheader = ('Station,Time,Longitude,Latitude,Speed,'
                         'UU,VV,Bearing,Pressure')
     np.savetxt(maxfile, max_data.data, fmt=MINMAX_FMT, delimiter=',',
-               header=maxheader)
+               header=maxheader, comments='')
     np.savetxt(minfile, min_data.data, fmt=MINMAX_FMT, delimiter=',',
-               header=maxheader)
+               header=maxheader, comments='')
             
         
 def startup():
