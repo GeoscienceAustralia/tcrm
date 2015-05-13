@@ -12,14 +12,12 @@ genesis locations and applying a 2-d kernel density estimation method.
 
 """
 
-import os
+from os.path import join as pjoin
 import logging
 import numpy as np
 
 import Utilities.stats as stats
-import Utilities.KPDF as KPDF
-
-from Utilities.files import flLoadFile, flStartLog
+from Utilities.files import flLoadFile
 from Utilities.grid import grdSave
 from Utilities.nctools import ncSaveGrid
 from Utilities.config import ConfigParser
@@ -38,7 +36,7 @@ def getOriginBandwidth(data):
     dens = KDEMultivariate(data=data, var_type='cc', bw='cv_ml')
     return dens.bw
 
-class KDEOrigin:
+class KDEOrigin(object):
     """
     Initialise the class for generating the genesis probability distribution.
     Initialisation will load the required data (genesis locations) and
@@ -65,39 +63,41 @@ class KDEOrigin:
     
     """
 
-    def __init__(self, configFile, gridLimit, kdeStep, lonLat=None, progressbar=None):
+    def __init__(self, configFile, gridLimit, kdeStep, lonLat=None, 
+                 progressbar=None):
         """
         
         """
         self.logger = logging.getLogger()
         self.progressbar = progressbar
-        if self.progressbar:
-            KPDF.set_callback(self.updateProgressBar)
         self.logger.info("Initialising KDEOrigins")
-        self.configFile = configFile
         self.x = np.arange(gridLimit['xMin'], gridLimit['xMax'], kdeStep)
         self.y = np.arange(gridLimit['yMax'], gridLimit['yMin'], -kdeStep)
 
         self.kdeStep = kdeStep
+        self.pdf = None
+        self.cz = None
 
+        self.configFile = configFile
         config = ConfigParser()
         config.read(configFile)
 
         if lonLat is None:
+            # Load the data from file:
             self.outputPath = config.get('Output', 'Path')
-            self.processPath = os.path.join(self.outputPath, 'process')
-            self.logger.debug("Loading "+os.path.join(self.processPath,
+            self.processPath = pjoin(self.outputPath, 'process')
+            self.logger.debug("Loading " + pjoin(self.processPath,
                                                   'init_lon_lat'))
-            ll = flLoadFile(os.path.join(self.processPath, 'init_lon_lat'),
+            ll = flLoadFile(pjoin(self.processPath, 'init_lon_lat'),
                             '%', ',')
-            self.lonLat = ll[:,0:2]
+            self.lonLat = ll[:, 0:2]
         else:
-            self.lonLat = lonLat[:,0:2]
+            self.lonLat = lonLat[:, 0:2]
 
-        ii = np.where((self.lonLat[:,0] >= gridLimit['xMin']) &
-                      (self.lonLat[:,0] <= gridLimit['xMax']) &
-                      (self.lonLat[:,1] >= gridLimit['yMin']) &
-                      (self.lonLat[:,1] <= gridLimit['yMax']))
+        ii = np.where((self.lonLat[:, 0] >= gridLimit['xMin']) &
+                      (self.lonLat[:, 0] <= gridLimit['xMax']) &
+                      (self.lonLat[:, 1] >= gridLimit['yMin']) &
+                      (self.lonLat[:, 1] <= gridLimit['yMax']))
         
         self.lonLat = self.lonLat[ii]
         
@@ -105,7 +105,7 @@ class KDEOrigin:
         self.logger.debug("Bandwidth: {0}".format(self.bw))
 
 
-    def generateKDE(self, bw=None, save=False, plot=False):
+    def generateKDE(self, save=False, plot=False):
         """
         Generate the PDF for cyclone origins using kernel density
         estimation technique then save it to a file path provided by
@@ -130,7 +130,6 @@ class KDEOrigin:
         self.pdf = pdf.transpose()
 
         if save:
-            outputFile = os.path.join(self.processPath, 'originPDF.nc')
             dimensions = {
                 0: {
                     'name': 'lat',
@@ -165,7 +164,8 @@ class KDEOrigin:
                     }
                 }
 
-            ncSaveGrid(outputFile, dimensions, variables)
+            ncSaveGrid(pjoin(self.processPath, 'originPDF.nc'), 
+                       dimensions, variables)
 
         if plot:
 
@@ -176,9 +176,10 @@ class KDEOrigin:
             pdfMax = pdf.max()
             exponent = int(np.floor(np.log10(pdfMax)))
             significand = pdfMax * 10**-exponent
-            lvl_step = lvls_options[np.where((significand/lvls_options) > min_lvls)[0][0]]
+            lvl_step = lvls_options[np.where((significand/lvls_options) > \
+                                             min_lvls)[0][0]]
             lvls = np.arange(0, pdf.max(), lvl_step*(10.0**exponent))
-            [gx,gy] = np.meshgrid(self.x,self.y)
+            [gx, gy] = np.meshgrid(self.x, self.y)
             map_kwargs = dict(llcrnrlon=self.x.min(),
                               llcrnrlat=self.y.min(),
                               urcrnrlon=self.x.max(),
@@ -186,13 +187,15 @@ class KDEOrigin:
                               projection='merc',
                               resolution='i')
             
-            cbarlabel = r'Genesis probability ($\times 10^{' + str(exponent) + '}$)'
+            cbarlabel = r'Genesis probability ($\times 10^{' + \
+                        str(exponent) + '}$)'
             title = 'TC Genesis probability'
             figure = FilledContourMapFigure()
             figure.add(pdf, gx, gy, title, lvls, cbarlabel, map_kwargs)
             figure.plot()
 
-            outputFile = os.path.join(self.outputPath, 'plots', 'stats', 'originPDF_fill.png')
+            outputFile = pjoin(self.outputPath, 'plots', 
+                               'stats', 'originPDF.png')
             saveFigure(figure, outputFile)
 
         return self.x, self.y, self.pdf
@@ -210,11 +213,11 @@ class KDEOrigin:
         self.cz = stats.cdf2d(self.x, self.y, self.pdf)
         if save:
             self.logger.debug("Saving origin CDF to file")
-            grdSave(self.processPath+'originCDF.txt', self.cz, self.x,
+            grdSave(self.processPath + 'originCDF.txt', self.cz, self.x,
                     self.y, self.kdeStep)
 
         if save:
-            outputFile = os.path.join(self.processPath, 'originCDF.nc')
+            outputFile = pjoin(self.processPath, 'originCDF.nc')
             dimensions = {
             0: {
                 'name': 'lat',
@@ -254,7 +257,7 @@ class KDEOrigin:
         else:
             return self.cz
 
-    def updateProgressBar(self, n, nMax):
+    def updateProgressBar(self, step, stepMax):
         """
         Callback function to update progress bar from C code
 
@@ -263,5 +266,5 @@ class KDEOrigin:
         
         """
         if self.progressbar:
-            self.progressbar.update(n/float(nMax), 0.0, 0.7)
+            self.progressbar.update(step/float(stepMax), 0.0, 0.7)
 
