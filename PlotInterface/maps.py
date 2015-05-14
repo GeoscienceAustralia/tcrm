@@ -30,21 +30,86 @@ from Utilities.smooth import smooth
 import seaborn
 seaborn.set_style("ticks")
 
+def levels(maxval, minval=0):
+    """
+    Calculate a nice number of levels between `minval` and `maxval`
+    for plotting contour intervals.
+
+    :param float maxval: Maximum value in the field to be plotted.
+    :param float minval: Minimum value in the field to be plotted.
+    
+    :returns: Array of levels and the exponential by which the 
+              values are scaled
+    :rtype: `tuple`
+
+    """
+
+    min_levels = 6.0
+    level_opts = np.array([5.0, 1.0, 0.5, 0.25, 0.2, 0.1])
+    exponent = int(np.floor(np.log10(maxval)))
+    significand = (maxval - minval) * 10**-exponent
+    level_step = level_opts[np.where((significand/level_opts) > \
+                                     min_levels)[0][0]]
+    levels = np.arange(minval, maxval, level_step*(10.0**exponent))
+
+    return levels, exponent
+
 class MapFigure(Figure):
 
     def __init__(self):
         Figure.__init__(self)
         self.subfigures = []
 
-    def add(self, data, xgrid, ygrid, title, levels, cbarlab, map_kwargs):
-        self.subfigures.append((data, xgrid, ygrid, title, levels, cbarlab, map_kwargs))
+    def add(self, data, xgrid, ygrid, title, levels, 
+            cbarlab, map_kwargs):
+        """
+        Add a new subfigure to the collection of subfigures to be 
+        plotted.
+        
+        :param data: `numpy.ndarray` of the data to be plotted.
+        :param xgrid: `numpy.ndarray` representing the points on the 
+                      x-axis. For gridded arrays of data, `xgrid` must
+                      have the same shape as `data`.
+        :param ygrid: `numpy.ndarray` representing the points on the 
+                      y-axis. For gridded arrays of data, `ygrid` must
+                      have the same shape as `data`.
+        :param str title: Subfigure title
+        :param levels: `numpy.ndarray` of levels used for plotting contours.
+        :param str cbarlabel: Label for the colorbar (if one is to be added).
+        :param dict map_kwargs: `dict` of keyword arguments used for setting
+                                up the `Basemap` instance.
+
+        """
+        
+        self.subfigures.append((data, xgrid, ygrid, title, 
+                                levels, cbarlab, map_kwargs))
 
     def labelAxes(self, axes, xlabel='Longitude', ylabel='Latitude'):
-        axes.set_xlabel(xlabel, labelpad=20,) # fontsize='x-small')
-        axes.set_ylabel(ylabel, labelpad=35,) # fontsize='x-small')
+        """
+        Add labels to the x- and y-axis on the current `matplotlib.Axes`
+        instance.
+        
+        :param axes: Current `matplotlib.Axes` instance to annotate.
+        :param str xlabel: Label for the x-axis. Defaults to 'Longitude'.
+        :param str ylabel: Label for the y-axis. Defaults to 'Latitude'.
+        
+        """
 
+        axes.set_xlabel(xlabel, labelpad=20,) 
+        axes.set_ylabel(ylabel, labelpad=35,) 
 
     def addGraticule(self, axes, mapobj, dl=10.):
+        """
+        Add a graticule to the map instance (tick marks and 
+        lines for parallels and meridians).
+
+        :param axes: Current `matplotlib.Axes` instance being worked on.
+        :param mapobj: Current `Basemap` instance to annotate.
+        :param float dl: Optional increment between parallels/meridians. 
+                         Default value is 10 degrees.
+
+        """
+
         xmin = mapobj.llcrnrlon
         xmax = mapobj.urcrnrlon
         ymin = mapobj.llcrnrlat
@@ -63,16 +128,41 @@ class MapFigure(Figure):
         axes.tick_params(direction='in', length=4, width=1)
 
     def addCoastline(self, mapobj):
+        """
+        Draw coastlines and a map background to the current
+        `Basemap` instance.
+
+        :param mapobj: Current `Basemap` instance to add coastlines to.
+
+        """
 
         mapobj.drawcoastlines(linewidth=.5, color="k")
         mapobj.drawmapboundary(fill_color="#BEE8FF")
 
     def fillContinents(self, mapobj):
+        """
+        Fill continents with a base color in the current
+        `Basemap` instance.
+
+        :param mapobj: Current `Basemap` instance to color fill the 
+        continents on.
+
+        """
         mapobj.fillcontinents(color="#FFDAB5",
                               lake_color="#BEE8FF",
                               zorder=0)
 
     def addMapScale(self, mapobj):
+        """
+        Add a map scale to the curent `Basemap` instance. This
+        automatically determines a 'nice' length forthe scale bar - 
+        chosen to be approximately 20% of the map width at the centre
+        of the map.
+
+        :param mapobj: Current `Basemap` instance to add the scale bar to.
+
+        
+        """
         lonmin = mapobj.lonmin
         lonmax = mapobj.lonmax
         latmin = mapobj.latmin
@@ -106,10 +196,22 @@ class MapFigure(Figure):
         return mapobj, mx, my
 
     def subplot(self, axes, subfigure):
+        """
+        Add a new subplot to the current figure.
+
+        :param axes: `matplotlib.Axes` instance that will be used for the
+                     subplot. Usually created by a call to `self.add_subplot()`
+        :param tuple subfigure: A tuple containing the data, x- and y-grid,
+                                title, levels, colorbar label and 
+                                a map_kwargs `dict`.
+
+        """
+
         data, xgrid, ygrid, title, levels, cbarlab, map_kwargs = subfigure
         mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
 
-        CS = mapobj.contour(mx, my, data, levels=levels, colors='k', linewidth=1.5)
+        CS = mapobj.contour(mx, my, data, levels=levels, 
+                            colors='k', linewidth=1.5)
         axes.clabel(CS, inline=1)
         axes.set_title(title)
         self.labelAxes(axes)
@@ -118,6 +220,11 @@ class MapFigure(Figure):
         self.addMapScale(mapobj)
 
     def plot(self):
+        """
+        Plot all subfigures onto a figure in a (roughly) square
+        arrangement. 
+        
+        """
 
         n = len(self.subfigures)
         r = int(np.ceil(np.sqrt(n)))
@@ -323,7 +430,6 @@ def main():
     figure.add(vdata[4,:,:], xgrid, ygrid, title, datarange, cbarlab, map_kwargs)
     figure.plot()
     saveFigure(figure, 'docs/hazard_map.png')
-    #saveArrayMap(vdata[4,:,:], xgrid, ygrid, title, datarange, cbarlab, map_kwargs, 'docs/hazard_map.png')
 
 if __name__ == "__main__":
     main()

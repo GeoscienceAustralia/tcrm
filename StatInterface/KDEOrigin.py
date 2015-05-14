@@ -178,16 +178,11 @@ class KDEOrigin:
 
         if plot:
             from Utilities.plotField import plotField
-            from PlotInterface.maps import FilledContourMapFigure, saveFigure
-            # Automatically determine appropriate contour levels
-            min_lvls = 6.0
-            lvls_options = numpy.array([1.0, 0.5, 0.25, 0.2, 0.1])
-            pdfMax = pdf.max()
-            exponent = int(numpy.floor(numpy.log10(pdfMax)))
-            significand = pdfMax * 10**-exponent
-            lvl_step = lvls_options[numpy.where((significand/lvls_options) > min_lvls)[0][0]]
-            lvls = numpy.arange(0, pdf.max(), lvl_step*(10.0**exponent))
-            [gx,gy] = numpy.meshgrid(self.x,self.y)
+            from PlotInterface.maps import FilledContourMapFigure, saveFigure, levels
+
+            lvls, exponent = levels(pdf.max())
+ 
+           [gx,gy] = numpy.meshgrid(self.x,self.y)
             map_kwargs = dict(llcrnrlon=self.x.min(),
                               llcrnrlat=self.y.min(),
                               urcrnrlon=self.x.max(),
@@ -196,9 +191,10 @@ class KDEOrigin:
                               resolution='i')
             
             cbarlabel = r'Genesis probability ($\times 10^{' + str(exponent) + '}$)'
-            title = 'TC Genesis probability'
+
             figure = FilledContourMapFigure()
-            figure.add(pdf, gx, gy, title, lvls, cbarlabel, map_kwargs)
+            figure.add(pdf, gx, gy, 'TC Genesis probability', 
+                       lvls, cbarlabel, map_kwargs)
             figure.plot()
 
             outputFile = os.path.join(self.outputPath, 'plots', 'stats', 'originPDF_fill.png')

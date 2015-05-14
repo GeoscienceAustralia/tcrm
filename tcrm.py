@@ -250,7 +250,7 @@ def doDataPlotting(configFile):
     :param str configFile: Name of configuration file.
 
     """
-
+    import numpy as np
     config = ConfigParser()
     config.read(configFile)
 
@@ -281,6 +281,8 @@ def doDataPlotting(configFile):
     log.info('Plotting pressure data')
     pbar.update(0.05)
 
+    plotting.plotRegression(pAllData, 'pressure')
+    
     plotting.plotPressure(pAllData, pRateData)
     labels = [r'$p_c(t)$', r'$p_c(t-1)$']
     plotting.scatterHistogram(pAllData[1:], pAllData[:-1], 
@@ -297,8 +299,9 @@ def doDataPlotting(configFile):
 
     log.info('Plotting bearing data')
     pbar.update(0.15)
+    plotting.plotData(bAllData, 'bearing', transform=np.cos)
 
-    plotting.plotBearing(bAllData, bRateData)
+    plotting.plotRegression(bAllData, bRateData)
 
     log.info('Plotting speed data')
     pbar.update(0.25)
