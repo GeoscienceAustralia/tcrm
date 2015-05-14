@@ -46,6 +46,7 @@ Dependencies
   `Shapely <https://github.com/Toblerity/Shapely>`_,
   `seaborn 0.5.1 <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_ data visualisation
   `gcc` C compiler;
+
 * For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
 
 Status

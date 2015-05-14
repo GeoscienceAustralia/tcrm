@@ -210,12 +210,12 @@ class SamplingOrigin:
         """
         # sum along the column of z to get sum(z(i,:))
         # (check 'help sum' if need)
-        px =  self.z.sum(axis=0)
+        px = self.z.sum(axis=0)
         # calculate CDF of (x,Px)
         cdfX = stats.cdf(self.x, px)
         # define Py & CDFy with nx by ny
-        py = np.zeros([self.x.size, self.y.size], 'd')
-        cdfY = np.zeros([self.x.size, self.y.size], 'd')
+        py = np.zeros(self.z.shape, 'd').T
+        cdfY = np.zeros(self.z.shape, 'd').T
         # Py=conditional distribution,  CDFy = CDF of Y
         try:
             for i in xrange(len(self.x)):
