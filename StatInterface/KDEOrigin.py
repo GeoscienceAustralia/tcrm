@@ -182,7 +182,7 @@ class KDEOrigin:
 
             lvls, exponent = levels(pdf.max())
  
-           [gx,gy] = numpy.meshgrid(self.x,self.y)
+            [gx,gy] = numpy.meshgrid(self.x,self.y)
             map_kwargs = dict(llcrnrlon=self.x.min(),
                               llcrnrlat=self.y.min(),
                               urcrnrlon=self.x.max(),
