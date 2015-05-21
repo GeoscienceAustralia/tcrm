@@ -100,7 +100,7 @@ class StatInterface(object):
         kde = KDEOrigin.KDEOrigin(self.configFile, 
                                   self.gridLimit, 0.1,
                                   progressbar=self.progressbar)
-        kde.generateKDE(None, save=True, plot=True)
+        kde.generateKDE(save=True, plot=True)
         kde.generateCdf()
 
     def kdeGenesisDate(self):

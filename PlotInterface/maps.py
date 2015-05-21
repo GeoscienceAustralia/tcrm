@@ -17,10 +17,6 @@ from __future__ import division
 
 import numpy as np
 
-#import matplotlib
-#matplotlib.use("Agg", warn=False)
-#matplotlib.rc_file_defaults()
-
 from matplotlib.figure import Figure
 from mpl_toolkits.basemap import Basemap
 
@@ -29,6 +25,7 @@ from Utilities.smooth import smooth
 
 import seaborn
 seaborn.set_style("ticks")
+seaborn.set(rc={'image.cmap':'Blues'})
 
 def levels(maxval, minval=0):
     """
@@ -44,7 +41,7 @@ def levels(maxval, minval=0):
 
     """
 
-    min_levels = 6.0
+    min_levels = 7.0
     level_opts = np.array([5.0, 1.0, 0.5, 0.25, 0.2, 0.1])
     exponent = int(np.floor(np.log10(maxval)))
     significand = (maxval - minval) * 10**-exponent
@@ -236,6 +233,7 @@ class MapFigure(Figure):
             axes = self.add_subplot(r, c, i+1)
             self.subplot(axes, subfigure)
         
+        
 class FilledContourMapFigure(MapFigure):
 
     def add(self, data, xgrid, ygrid, title, levels, cbarlab, map_kwargs):
@@ -250,7 +248,7 @@ class FilledContourMapFigure(MapFigure):
                              fig=self, ax=axes, extend='both')
         CB.set_label(cbarlab)
         axes.set_title(title)
-        self.labelAxes(axes)
+        #self.labelAxes(axes)
         self.addGraticule(axes, mapobj)
         self.addCoastline(mapobj)
         self.addMapScale(mapobj)
@@ -346,7 +344,7 @@ class ScatterMapFigure(MapFigure):
         mxp, myp = mapobj(xp, yp)
         mapobj.scatter(mxp, myp)
         axes.set_title(title)
-        self.addGraticule(axes, mapobj,dl=5.)
+        self.addGraticule(axes, mapobj)
         self.addMapScale(mapobj)
         
         

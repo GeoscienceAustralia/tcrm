@@ -268,6 +268,8 @@ def doDataPlotting(configFile):
     bAllData = flLoadFile(pjoin(processPath, 'all_bearing'))
     sRateData = flLoadFile(pjoin(processPath, 'speed_rate'))
     sAllData = flLoadFile(pjoin(processPath, 'all_speed'))
+    freq = flLoadFile(pjoin(processPath, 'frequency'))
+
 
     indLonLat = flLoadFile(pjoin(processPath, 'cyclone_tracks'),
                            delimiter=',')
@@ -275,61 +277,51 @@ def doDataPlotting(configFile):
     lonData = indLonLat[:, 1]
     latData = indLonLat[:, 2]
 
-    from PlotInterface.plotStats import PlotData
+    jdayobs = flLoadFile(pjoin(processPath, 'jday_obs'), delimiter=',')
+    jdaygenesis = flLoadFile(pjoin(processPath, 'jday_genesis'), delimiter=',')
+    
+
+    from PlotInterface.plotStats import PlotPressure, PlotBearing, \
+        PlotSpeed, PlotFrequency, PlotDays, PlotData
     plotting = PlotData(statsPlotPath, "png")
 
     log.info('Plotting pressure data')
     pbar.update(0.05)
-
-    plotting.plotRegression(pAllData, 'pressure')
+    PrsPlot = PlotPressure(statsPlotPath, "png")
+    PrsPlot.plotPressure(pAllData)
+    PrsPlot.plotPressureRate(pRateData)
+    PrsPlot.plotMinPressure(indicator, pAllData)
     
-    plotting.plotPressure(pAllData, pRateData)
-    labels = [r'$p_c(t)$', r'$p_c(t-1)$']
-    plotting.scatterHistogram(pAllData[1:], pAllData[:-1], 
-                              labels, 'prs_scatterHist', 
-                              allpos=True)
-
-    labels = [r'$\frac{\delta p_c}{\delta t}(t)$', 
-              r'$\frac{\delta p_c}{\delta t}(t-1)$']
-    plotting.scatterHistogram(pRateData[1:], pRateData[:-1], 
-                              labels, 'prsRate_scatterHist')
-    plotting.minPressureHist(indicator, pAllData)
-    plotting.minPressureLat(pAllData, latData)
-
+    #FIXME: To be moved into `PlotPressure` class.
+    #plotting.minPressureLat(pAllData, latData)
 
     log.info('Plotting bearing data')
     pbar.update(0.15)
-    plotting.plotData(bAllData, 'bearing', transform=np.cos)
-
-    plotting.plotRegression(bAllData, bRateData)
+    BearPlot = PlotBearing(statsPlotPath, "png")
+    BearPlot.plotBearing(bAllData)
+    BearPlot.plotBearingRate(bRateData)
 
     log.info('Plotting speed data')
     pbar.update(0.25)
-
-    plotting.plotSpeed(sAllData, sRateData)
+    SpeedPlot = PlotSpeed(statsPlotPath, "png")
+    SpeedPlot.plotSpeed(sAllData)
+    SpeedPlot.plotSpeedRate(sRateData)
 
     log.info('Plotting longitude and lattitude data')
     pbar.update(0.45)
-
+    
+    # FIXME: To be moved to it's own class in PlotStats
     plotting.plotLonLat(lonData, latData, indicator)
 
-    log.info('Plotting quantiles for pressure, bearing, and speed')
     pbar.update(0.65)
-
-    plotting.quantile(pRateData, "Pressure", "logistic")
-    plotting.quantile(bRateData, "Bearing", "logistic")
-    plotting.quantile(sRateData, "Speed", "logistic")
 
     log.info('Plotting frequency data')
     pbar.update(0.85)
-
-    try:
-        freq = flLoadFile(pjoin(processPath, 'frequency'))
-        years = freq[:, 0]
-        frequency = freq[:, 1]
-        plotting.plotFrequency(years, frequency)
-    except IOError:
-        log.warning("No frequency file available - skipping this stage")
+    FreqPlot = PlotFrequency(statsPlotPath, "png")
+    FreqPlot.plotFrequency(freq[:, 0], freq[:, 1])
+    
+    DayPlot = PlotDays(statsPlotPath, "png")
+    DayPlot.plotJulianDays(jdayobs, jdaygenesis)
 
     pbar.update(1.0)
 
@@ -480,7 +472,8 @@ def main(configFile='main.ini'):
     5 interfaces: DataProcess, StatInterface, TrackGenerator,
     WindfieldInterface and HazardInterface
 
-    :param str configFile: Name of file containing configuration settings for running TCRM
+    :param str configFile: Name of file containing configuration settings 
+                           for running TCRM
 
     """
 

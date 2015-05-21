@@ -16,13 +16,13 @@ from os.path import join as pjoin
 import logging
 import numpy as np
 
-import Utilities.stats as stats
 from Utilities.files import flLoadFile
-from Utilities.grid import grdSave
 from Utilities.nctools import ncSaveGrid
 from Utilities.config import ConfigParser
 
 from statsmodels.nonparametric.kernel_density import KDEMultivariate
+
+LOGGER = logging.getLogger(__name__)
 
 def getOriginBandwidth(data):
     """
@@ -68,13 +68,13 @@ class KDEOrigin(object):
         """
         
         """
-        self.logger = logging.getLogger()
         self.progressbar = progressbar
-        self.logger.info("Initialising KDEOrigins")
+        LOGGER.info("Initialising KDEOrigin")
         self.x = np.arange(gridLimit['xMin'], gridLimit['xMax'], kdeStep)
         self.y = np.arange(gridLimit['yMax'], gridLimit['yMin'], -kdeStep)
 
         self.kdeStep = kdeStep
+        self.kde = None
         self.pdf = None
         self.cz = None
 
@@ -86,10 +86,8 @@ class KDEOrigin(object):
             # Load the data from file:
             self.outputPath = config.get('Output', 'Path')
             self.processPath = pjoin(self.outputPath, 'process')
-            self.logger.debug("Loading " + pjoin(self.processPath,
-                                                  'init_lon_lat'))
-            ll = flLoadFile(pjoin(self.processPath, 'init_lon_lat'),
-                            '%', ',')
+            LOGGER.debug("Loading " + pjoin(self.processPath, 'init_lon_lat'))
+            ll = flLoadFile(pjoin(self.processPath, 'init_lon_lat'), '%', ',')
             self.lonLat = ll[:, 0:2]
         else:
             self.lonLat = lonLat[:, 0:2]
@@ -102,7 +100,7 @@ class KDEOrigin(object):
         self.lonLat = self.lonLat[ii]
         
         self.bw = getOriginBandwidth(self.lonLat)
-        self.logger.debug("Bandwidth: {0}".format(self.bw))
+        LOGGER.debug("Bandwidth: {0}".format(self.bw))
 
 
     def generateKDE(self, save=False, plot=False):
@@ -121,10 +119,10 @@ class KDEOrigin(object):
         
         """
 
-        kde = KDEMultivariate(self.lonLat, bw=self.bw, var_type='cc')
+        self.kde = KDEMultivariate(self.lonLat, bw=self.bw, var_type='cc')
         xx, yy = np.meshgrid(self.x, self.y)
         xy = np.vstack([xx.ravel(), yy.ravel()])
-        pdf = kde.pdf(data_predict=xy)
+        pdf = self.kde.pdf(data_predict=xy)
         pdf = pdf.reshape(xx.shape)
 
         self.pdf = pdf.transpose()
@@ -168,13 +166,12 @@ class KDEOrigin(object):
                        dimensions, variables)
 
         if plot:
-            from Utilities.plotField import plotField
             from PlotInterface.maps import FilledContourMapFigure, \
                 saveFigure, levels
 
             lvls, exponent = levels(pdf.max())
  
-            [gx,gy] = numpy.meshgrid(self.x,self.y)
+            [gx, gy] = np.meshgrid(self.x, self.y)
 
             map_kwargs = dict(llcrnrlon=self.x.min(),
                               llcrnrlat=self.y.min(),
@@ -186,8 +183,8 @@ class KDEOrigin(object):
             cbarlabel = r'Genesis probability ($\times 10^{' + \
                         str(exponent) + '}$)'
             figure = FilledContourMapFigure()
-            figure.add(pdf, gx, gy, 'TC Genesis probability', 
-                       lvls, cbarlabel, map_kwargs)
+            figure.add(pdf*(10**-exponent), gx, gy, 'TC Genesis probability', 
+                       lvls*(10**-exponent), cbarlabel, map_kwargs)
             figure.plot()
 
             outputFile = pjoin(self.outputPath, 'plots', 
@@ -206,11 +203,9 @@ class KDEOrigin(object):
                              the CDF. 
     
         """
-        self.cz = stats.cdf2d(self.x, self.y, self.pdf)
-        if save:
-            self.logger.debug("Saving origin CDF to file")
-            grdSave(self.processPath + 'originCDF.txt', self.cz, self.x,
-                    self.y, self.kdeStep)
+        xx, yy = np.meshgrid(self.x, self.y)
+        xy = np.vstack([xx.ravel(), yy.ravel()])
+        self.cz = self.kde.cdf(data_predict=xy)
 
         if save:
             outputFile = pjoin(self.processPath, 'originCDF.nc')
