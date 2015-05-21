@@ -23,14 +23,8 @@ Email: craig.arthur@ga.gov.au
 CreationDate: 2006-11-14
 Description: Unit test for utils/met.py
 
+TODO: Update to test all functions in :mod:`metutils`
 
-Version: $Rev: 202 $
-ModifiedBy: 
-ModifiedDate: yyyy-mm-dd
-SeeAlso: (related programs)
-Constraints:
-
-$Id: test_metutils.py 202 2006-11-28 02:41:31Z carthur $
 """
 import os, sys
 import unittest
@@ -128,11 +122,30 @@ class TestCoriolis(NumpyTestCase.NumpyTestCase):
     def test_coriolisScalar(self):
         """Test Coriolis with a scalar value for latitude"""
         self.assertAlmostEqual(metutils.coriolis(self.lat[-1]), self.f[-1], 3) 
-    
+
+class TestWetBulb(NumpyTestCase.NumpyTestCase):
+    """
+    TODO:
+    Test other wet bulb calculations
+
+    """
+
+    def setUp(self):
+        self.T = [-5, 0, 5, 10, 15, 20, 25, 30, 35, 40] 
+        self.Td =  [-10., -5, 0, 5, 10, 15, 20, 20, 20, 20]
+        self.prs = [1023.5,]*10 
+        self.Tw = [-6.4, -1.7, 2.9, 7.57, 12.2, 16.89, 21.59, 23.07, 24.48, 25.8]
+
+    def test_dp2wb_input_error(self):
+        """Test ValueError is raised when inputs are non-sensical"""
+        self.assertRaises(ValueError, metutils.dewPointToWetBulb, 20, 25, 1010)
+
+    def test_dp2wb(self):
+        """Test dewPointToWetBulb conversion"""
+        for T, Td, prs, Tw in zip(self.T, self.Td, self.prs, self.Tw):
+            self.assertAlmostEqual(metutils.dewPointToWetBulb(T, Td, prs), Tw)
+
+        
 if __name__ == "__main__":
-    flStartLog('', 'CRITICAL', False)
-    testSuite = unittest.makeSuite(TestConvert,'test')
-    testSuite = unittest.TestLoader().loadTestsFromTestCase(TestConvert)
-    testSuite.addTest(TestCoriolis('test_coriolisArray'))
-    testSuite.addTest(TestCoriolis('test_coriolisScalar'))
-    unittest.TextTestRunner(verbosity=2).run(testSuite)
+    unittest.main()
+
