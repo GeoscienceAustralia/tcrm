@@ -3,7 +3,7 @@
 =====================================================
 
 .. module:: tracks
-    :synopsis: This module contains funcitons for reading and writing
+    :synopsis: This module contains funcitons for reading/writing
                track data from/to csv and netCDF formats.
 
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
@@ -117,7 +117,8 @@ class Track(object):
         Calculate the minimum distance between a track and a
         collection of :class:`shapely.geometry.Point` points. Assumes
         the points and the :attr:`Longitude` and :attr:`Latitude`
-        attributes share the same coordinate system.
+        attributes share the same coordinate system (presumed to be
+        geographic coordinates).
 
         :param points: sequence of :class:`shapely.geometry.Point` objects.
 
@@ -202,8 +203,8 @@ def ncReadTrackData(trackfile):
             
             track.data = track.data.astype(track_dtype)
             track.trackfile = trackfile
-            if hasattr(t, "trackId"):
-                track.trackId = eval(t.trackId)
+            if hasattr(data.variables['track'], "trackId"):
+                track.trackId = eval(data.variables['track'].trackId)
             else:
                 track.trackId = (i+1, ntracks)
             tracks.append(track)
@@ -232,13 +233,13 @@ def ncSaveTracks(trackfile, tracks,
     :param str trackfile: Path to the file to save data to.
     :param list tracks: Collection of :class:`Track` objects.
     :param str timeunits: A string of the form '*time units* since
-    *reference time*' describing the time units. Default is 'hours
-    since 1900-01-01 00:00'.
-    :param str calendar: Calendar used for time calculations. Valid
-    calendars are 'standard', 'gregorian', 'proleptic_gregorian'
-    'noleap', '365_day', '360_day', 'julian', 'all_leap',
-    '366_day'. Default is 'standard', which is a mixed
-    Julian/Gregorian calendar.
+                          *reference time*' describing the time units. 
+                          Default is 'hours since 1900-01-01 00:00'.
+    :param str calendar: Calendar used for time calculations. Valid calendars 
+                         are 'standard', 'gregorian', 'proleptic_gregorian',
+                         'noleap', '365_day', '360_day', 'julian', 'all_leap',
+                         '366_day'. Default is 'standard', which is a mixed
+                         Julian/Gregorian calendar.
     :param dict attributes: Global attributes to add to the file.
     
     """
@@ -283,7 +284,7 @@ def ncSaveTracks(trackfile, tracks,
         tvar.calendar = 'standard'
         tvar.lon_units = 'degrees east'
         tvar.lat_units = 'degrees north'
-        tvar.pressure_units = 'Pa'
+        tvar.pressure_units = 'hPa'
         tvar.speed_units = 'm/s'
         tvar.length_units = 'km'
         tvar.trackId = repr(t.trackId)
