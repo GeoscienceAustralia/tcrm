@@ -326,7 +326,7 @@ class TrackGenerator(object):
         self.dpStats = init('pressure_rate')
         self.dpStats.load(pjoin(self.processPath, 'pressure_rate_stats.nc'))
 
-    def generateTracks(self, nTracks, initLon=None, initLat=None,
+    def generateTracks(self, nTracks, simId, initLon=None, initLat=None,
                        initSpeed=None, initBearing=None,
                        initPressure=None, initEnvPressure=None,
                        initRmax=None, initDay=None):
@@ -378,7 +378,7 @@ class TrackGenerator(object):
         """
 
         log.debug('Generating %d tropical cyclone tracks', nTracks)
-        genesisYear = int(uniform(1900,9998))
+        genesisYear = int(uniform(1900, 9998))
         results = []
         for j in range(1, nTracks + 1):
 
@@ -436,13 +436,13 @@ class TrackGenerator(object):
             # Sample an initial day if none is provided
 
             if not initDay:
-                ind = self.allCDFInitDay[:,0] == initCellNum
+                ind = self.allCDFInitDay[:, 0] == initCellNum
                 cdfInitDay = self.allCDFInitDay[ind, 1:3]
                 genesisDay = ppf(uniform(), cdfInitDay)
             else:
                 genesisDay = initDay
             
-            genesisHour = int(uniform(0,24))
+            genesisHour = int(uniform(0, 24))
             
             initTimeStr = "%04d-%03d %d:00" % (genesisYear, genesisDay, genesisHour)
             genesisTime = datetime.strptime(initTimeStr, "%Y-%j %H:%M")
@@ -505,6 +505,8 @@ class TrackGenerator(object):
             data = np.array(data)
             data = np.core.records.fromarrays(data, dtype=track_dtype)
             track = Track(data)
+            track.trackId = (j, simId)
+            log.debug("Completed track {0:03d}-{1:04d}".format(*track.trackId))
 
             results.append(track)
 
@@ -532,7 +534,7 @@ class TrackGenerator(object):
                       track.Longitude[k] < self.innerGridLimit['xMax'] and
                       track.Latitude[k] > self.innerGridLimit['yMin'] and
                       track.Latitude[k] < self.innerGridLimit['yMax']
-                      for k in range(len(lon))]
+                      for k in range(len(track.Longitude))]
             return all(inside)
 
         def validPressures(track):
@@ -1472,8 +1474,7 @@ class TrackGenerator(object):
         outputFile = pjoin(self.processPath, 'coefficients.nc')
         nctools.ncSaveGrid(outputFile, dimensions, variables,
                            nodata=self.missingValue, datatitle=None,
-                           dtype='f', writedata=True,
-                           keepfileopen=False)
+                           writedata=True, keepfileopen=False)
 
 # Define a global pseudo-random number generator. This is done to
 # ensure we are sampling correctly across processors when performing
@@ -1700,7 +1701,7 @@ def run(configFile, callback=None):
             log.debug('seed %i jumpahead %i', sim.seed, sim.jumpahead)
 
         trackFile = pjoin(trackPath, sim.outfile)
-        tracks = tg.generateTracks(sim.ntracks)
+        tracks = tg.generateTracks(sim.ntracks, sim.index)
         ncTrackFile = pjoin(trackPath, "tracks.{0:05d}.nc".format(sim.index))
         ncSaveTracks(ncTrackFile, tracks)
 
