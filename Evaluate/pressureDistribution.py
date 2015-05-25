@@ -14,32 +14,21 @@ import os
 import sys
 import logging
 
-import pdb
-
 import numpy as np
 import numpy.ma as ma
 
 from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
-from datetime import datetime
 
 import matplotlib
 matplotlib.use('Agg', warn=False)
 
-from matplotlib import cm
-from mpl_toolkits.basemap import Basemap
-
 from Utilities.config import ConfigParser
-from Utilities.metutils import convert
-from Utilities.maputils import bearing2theta
 from Utilities.loadData import loadTrackFile
-from Utilities.track import Track
+from Utilities.track import ncReadTrackData
 from Utilities import pathLocator
 from Utilities.nctools import ncSaveGrid
 from Utilities.parallel import attemptParallel, disableOnWorkers
-
-# Importing :mod:`colours` makes a number of additional colour maps available:
-from Utilities import colours
 
 from PlotInterface.maps import ArrayMapFigure, saveFigure
 from PlotInterface.curves import saveDistributionCurve
@@ -49,94 +38,17 @@ from PlotInterface.figures import QuantileFigure
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
-TRACKFILE_COLS = ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
-                  'Latitude', 'Speed', 'Bearing', 'CentralPressure',
-                  'EnvPressure', 'rMax')
-
-TRACKFILE_UNIT = ('', '%Y-%m-%d %H:%M:%S', 'hr', 'degree', 'degree', 'kph', 'degrees',
-                  'hPa', 'hPa', 'km')
-
-TRACKFILE_FMTS = ('i', datetime, 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f')
-
-TRACKFILE_CNVT = {
-    0: lambda s: int(float(s.strip() or 0)),
-    1: lambda s: datetime.strptime(s.strip(), TRACKFILE_UNIT[1]),
-    5: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[5], 'mps'),
-    6: lambda s: bearing2theta(float(s.strip() or 0) * np.pi / 180.),
-    7: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[7], 'hPa'),
-    8: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[8], 'hPa'),
-}
-
-def readTrackData(trackfile):
-    """
-    Read a track .csv file into a numpy.ndarray.
-
-    The track format and converters are specified with the global variables
-
-        TRACKFILE_COLS -- The column names
-        TRACKFILE_FMTS -- The entry formats
-        TRACKFILE_CNVT -- The column converters
-
-    :param str trackfile: the track data filename.
-    """
-    try:
-        return np.loadtxt(trackfile,
-                          comments='%',
-                          delimiter=',',
-                          dtype={
-                          'names': TRACKFILE_COLS,
-                          'formats': TRACKFILE_FMTS},
-                          converters=TRACKFILE_CNVT)
-    except ValueError:
-        # return an empty array with the appropriate `dtype` field names
-        return np.empty(0, dtype={
-                        'names': TRACKFILE_COLS,
-                        'formats': TRACKFILE_FMTS})
-
-def readMultipleTrackData(trackfile):
-    """
-    Reads all the track datas from a .csv file into a list of numpy.ndarrays.
-    The tracks are seperated based in their cyclone id. This function calls
-    `readTrackData` to read the data from the file.
-
-    :type  trackfile: str
-    :param trackfile: the track data filename.
-    """
-
-    log.debug("Reading multiple track data from {0}".format(trackfile))
-
-    datas = []
-    data = readTrackData(trackfile)
-    if len(data) > 0:
-        cycloneId = data['CycloneNumber']
-        for i in range(1, np.max(cycloneId) + 1):
-            if len(data[cycloneId == i]) > 0:
-                datas.append(data[cycloneId == i])
-            else:
-                pass
-    else:
-        datas.append(data)
-    return datas
-
 def loadTracks(trackfile):
     """
-    Read tracks from a track .csv file and return a list of :class:`Track`
+    Read tracks from a track .nc file and return a list of :class:`Track`
     objects.
 
-    This calls the function `readMultipleTrackData` to parse the track .csv
-    file.
+    This calls the function `ncReadTrackData` to parse the track .nc file.
 
     :type  trackfile: str
     :param trackfile: the track data filename.
     """
-    tracks = []
-    datas = readMultipleTrackData(trackfile)
-    n = len(datas)
-    for i, data in enumerate(datas):
-        track = Track(data)
-        track.trackfile = trackfile
-        track.trackId = (i, n)
-        tracks.append(track)
+    tracks = ncReadTrackData(trackfile)
     return tracks
 
 class gridCell(object):
@@ -196,7 +108,13 @@ class PressureDistribution(object):
                 cellnumber += 1
 
     def calculate(self, tracks):
+        """
+        Calculate the ddistributions of central pressure across the
+        simulation domain.
+        
+        :param tracks: a collection of :class:`Track` objects
 
+        """
         dataMean = ma.zeros((len(self.lon_range) - 1,
                              len(self.lat_range) - 1))
         dataMin = ma.zeros((len(self.lon_range) - 1,
@@ -214,7 +132,8 @@ class PressureDistribution(object):
                               ((t.Longitude >= cell.xmin) &
                                (t.Longitude < cell.xmax)))[0]
                 if len(ii) > 0:
-                    vv = t.CentralPressure[ii].compress(t.CentralPressure[ii] < sys.maxint)
+                    vv = t.CentralPressure[ii].\
+                         compress(t.CentralPressure[ii] < sys.maxint)
                     vcell = np.append(vcell, vv.compress(vv > 0.0))
 
             if len(vcell > 0):
@@ -230,6 +149,14 @@ class PressureDistribution(object):
         return dataMean, dataMin, dataMax, dataMed
 
     def calcMinPressure(self, tracks):
+        """
+        Calculate minimum central pressure for a collection of :class:`Track`
+        objects. 
+
+        :param tracks: A collection of :class:`Track` objects.
+        
+        :returns: Histogram of values and the array of actual values
+        """
         minCP = np.zeros(len(tracks))
 
         for i, t in enumerate(tracks):
@@ -279,7 +206,8 @@ class PressureDistribution(object):
         try:
             tracks = loadTrackFile(self.configFile, inputFile, source)
         except (TypeError, IOError, ValueError):
-            log.critical("Cannot load historical track file: {0}".format(inputFile))
+            log.critical("Cannot load historical track file: {0}".\
+                         format(inputFile))
             raise
         else:
             self.histMean, self.histMin, \
@@ -318,7 +246,8 @@ class PressureDistribution(object):
             n = 0
             for d in range(1, pp.size()):
                 pp.send(trackfiles[w], destination=d, tag=work_tag)
-                log.debug("Processing track file %d of %d" % (w + 1, len(trackfiles)))
+                log.debug("Processing track file {0:d} of {1:d}".\
+                          format(w + 1, len(trackfiles)))
                 w += 1
 
             terminated = 0
@@ -340,7 +269,8 @@ class PressureDistribution(object):
 
                 if w < len(trackfiles):
                     pp.send(trackfiles[w], destination=d, tag=work_tag)
-                    log.debug("Processing track file %d of %d" % (w + 1, len(trackfiles)))
+                    log.debug("Processing track file {0:d} of {1:d}".\
+                              format(w + 1, len(trackfiles)))
                     w += 1
                 else:
                     pp.send(None, destination=d, tag=work_tag)
@@ -391,10 +321,10 @@ class PressureDistribution(object):
 
         cbarlab = "Mean central pressure (hPa)"
         xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
-        figure.add(np.transpose(self.histMean), xgrid, ygrid, "Historic", datarange, 
-                   cbarlab, map_kwargs)
-        figure.add(np.transpose(self.synMean), xgrid, ygrid, "Synthetic", datarange, 
-                   cbarlab, map_kwargs)
+        figure.add(np.transpose(self.histMean), xgrid, ygrid, "Historic", 
+                   datarange, cbarlab, map_kwargs)
+        figure.add(np.transpose(self.synMean), xgrid, ygrid, "Synthetic", 
+                   datarange, cbarlab, map_kwargs)
 
         figure.plot()
         outputFile = pjoin(self.plotPath, 'meanPressure.png')
@@ -419,10 +349,10 @@ class PressureDistribution(object):
 
         cbarlab = "Minimum central pressure (hPa)"
         xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
-        figure.add(np.transpose(self.histMin), xgrid, ygrid, "Historic", datarange, 
-                   cbarlab, map_kwargs)
-        figure.add(np.transpose(self.synMin), xgrid, ygrid, "Synthetic", datarange, 
-                   cbarlab, map_kwargs)
+        figure.add(np.transpose(self.histMin), xgrid, ygrid, "Historic", 
+                   datarange, cbarlab, map_kwargs)
+        figure.add(np.transpose(self.synMin), xgrid, ygrid, "Synthetic", 
+                   datarange, cbarlab, map_kwargs)
 
         figure.plot()
         outputFile = pjoin(self.plotPath, 'minPressure.png')
@@ -494,10 +424,10 @@ class PressureDistribution(object):
         x = np.arange(850., 1020., 5.)[:-1]
         y1 = self.histMinCPDist
         y2 = self.synMinCPDist
-        y2min= self.synMinCPLower
+        y2min = self.synMinCPLower
         y2max = self.synMinCPUpper
         outputFile = pjoin(self.plotPath, 'minPressureDist.png')
-        saveDistributionCurve(x, y1, y2, y2max, y2min, "Minimum pressure (hPa)", 
+        saveDistributionCurve(x, y1, y2, y2max, y2min, "Minimum pressure (hPa)",
                               "Probability", "Minimum pressure distribution", 
                               outputFile)
 
@@ -507,7 +437,9 @@ class PressureDistribution(object):
         y = self.synMinCP
         lims = (850, 1000)
         fig = QuantileFigure()
-        fig.add(x.compress(x>0), y.compress(y>0), lims, "Observed pressure (hPa)", "Simulated pressure (hPa)",
+        fig.add(x.compress(x>0), y.compress(y>0), lims, 
+                "Observed pressure (hPa)", 
+                "Simulated pressure (hPa)",
                 "Q-Q plot of minimum central pressure")
         fig.plot()
         outputFile = pjoin(self.plotPath, 'minPressureQuantiles.png')
@@ -520,7 +452,8 @@ class PressureDistribution(object):
         # Simple sanity check (should also include the synthetic data):
         if not hasattr(self, 'histMin'):
             log.critical("No historical data available!")
-            log.critical("Check that data has been processed before trying to save data")
+            log.critical(("Check that data has been processed "
+                          "before trying to save data"))
             return
 
         log.info('Saving pressure distribution data to {0}'.format(dataFile))

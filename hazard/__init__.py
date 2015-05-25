@@ -660,7 +660,7 @@ def aggregateWindFields(inputPath, numSimulations, tilelimits):
     Vm = np.empty((numSimulations, ysize, xsize), dtype='f')
     
     for year in xrange(numSimulations):
-        filespec = pjoin(inputPath, "gust.%05d-*.nc"%year)
+        filespec = pjoin(inputPath, "gust.*-%05d.nc"%year)
         fileList = glob(filespec)
         if len(fileList) == 0:
             Vm[year, :, :] = np.zeros((ysize, xsize), dtype='f')

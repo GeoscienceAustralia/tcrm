@@ -18,19 +18,13 @@ import numpy as np
 
 from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
-from datetime import datetime
 from ConfigParser import NoOptionError
 
-import interpolateTracks
-
 from Utilities.config import ConfigParser
-from Utilities.metutils import convert
-from Utilities.maputils import bearing2theta
-from Utilities.track import Track
+from Utilities.track import ncReadTrackData
 from Utilities.loadData import loadTrackFile
 from Utilities.parallel import attemptParallel, disableOnWorkers
 
-from Utilities.files import flProgramVersion
 from Utilities import pathLocator
 import Utilities.Intersections as Int
 
@@ -39,89 +33,19 @@ from PlotInterface.curves import RangeCompareCurve, saveFigure
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
-TRACKFILE_COLS = ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
-                  'Latitude', 'Speed', 'Bearing', 'CentralPressure',
-                  'EnvPressure', 'rMax')
-
-TRACKFILE_UNIT = ('', '%Y-%m-%d %H:%M:%S', 'hr', 'degree', 'degree', 'kph', 'degrees',
-                  'hPa', 'hPa', 'km')
-
-TRACKFILE_FMTS = ('i', datetime, 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f')
-
-TRACKFILE_CNVT = {
-    0: lambda s: int(float(s.strip() or 0)),
-    1: lambda s: datetime.strptime(s.strip(), TRACKFILE_UNIT[1]),
-    5: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[5], 'mps'),
-    6: lambda s: bearing2theta(float(s.strip() or 0) * np.pi / 180.),
-    7: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[7], 'Pa'),
-    8: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[8], 'Pa'),
-}
-
-def readTrackData(trackfile):
-    """
-    Read a track .csv file into a numpy.ndarray.
-
-    The track format and converters are specified with the global variables
-
-        TRACKFILE_COLS -- The column names
-        TRACKFILE_FMTS -- The entry formats
-        TRACKFILE_CNVT -- The column converters
-
-    :param str trackfile: the track data filename.
-    """
-    try:
-        return np.loadtxt(trackfile,
-                          comments='%',
-                          delimiter=',',
-                          dtype={
-                          'names': TRACKFILE_COLS,
-                          'formats': TRACKFILE_FMTS},
-                          converters=TRACKFILE_CNVT)
-    except ValueError:
-        # return an empty array with the appropriate `dtype` field names
-        return np.empty(0, dtype={
-                        'names': TRACKFILE_COLS,
-                        'formats': TRACKFILE_FMTS})
-
-def readMultipleTrackData(trackfile):
-    """
-    Reads all the track datas from a .csv file into a list of numpy.ndarrays.
-    The tracks are seperated based in their cyclone id. This function calls
-    `readTrackData` to read the data from the file.
-
-    :type  trackfile: str
-    :param trackfile: the track data filename.
-    """
-    datas = []
-    data = readTrackData(trackfile)
-    if len(data) > 0:
-        cycloneId = data['CycloneNumber']
-        for i in range(1, np.max(cycloneId) + 1):
-            datas.append(data[cycloneId == i])
-    else:
-        datas.append(data)
-    return datas
-
 def loadTracks(trackfile):
     """
-    Read tracks from a track .csv file and return a list of :class:`Track`
+    Read tracks from a track .nc file and return a list of :class:`Track`
     objects.
 
-    This calls the function `readMultipleTrackData` to parse the track .csv
-    file.
+    This calls the function `ncReadTrackData` to parse the track .nc file.
 
     :type  trackfile: str
     :param trackfile: the track data filename.
     """
-    tracks = []
-    datas = readMultipleTrackData(trackfile)
-    n = len(datas)
-    for i, data in enumerate(datas):
-        track = Track(data)
-        track.trackfile = trackfile
-        track.trackId = (i, n)
-        tracks.append(track)
+    tracks = ncReadTrackData(trackfile)
     return tracks
+
 
 class LandfallRates(object):
 
@@ -151,7 +75,7 @@ class LandfallRates(object):
             raise
         
         gateData = np.genfromtxt(gateFile, delimiter=',')
-        nGates = len(gateData)
+
         self.gates = Int.convert2vertex(gateData[:, 1], gateData[:, 2])
         self.coast = list(self.gates)
         self.coast.append(self.gates[0])
@@ -206,12 +130,27 @@ class LandfallRates(object):
         return lh, oh
 
     def processResults(self, results, index):
+        """
+        Populate the :attr:`self.synLandfall` and :attr:`self.synOffshore`
+        attributes.
+        
+        :param tuple results: tuple of arrays containing landfall and offshore
+                              transition counts for gates. 
+        :param int index: synthetic event counter.
+
+        """
         sLF, sOF = results
         self.synLandfall[index, :] = sLF
         self.synOffshore[index, :] = sOF
         
     def calculateStats(self):
-
+        """
+        Calculate mean and percentiels of landfall/offshore transition
+        rates. Operates on the :attr:`self.synLandfall` and 
+        :attr:`self.synOffshore` attributes. 
+        
+        """
+        
         self.synMeanLandfall = np.mean(self.synLandfall, axis=0)
         self.synMeanOffshore = np.mean(self.synOffshore, axis=0)
 
@@ -222,6 +161,12 @@ class LandfallRates(object):
 
     @disableOnWorkers
     def setOutput(self, ntracks):
+        """
+        Set the size of the output arrays.
+
+        :param int ntracks: Number of track events.
+
+        """
         self.synLandfall = np.zeros((ntracks, len(self.gates) - 1))
         self.synOffshore = np.zeros((ntracks, len(self.gates) - 1))
 
@@ -235,7 +180,6 @@ class LandfallRates(object):
         inputFile = config.get('DataProcess', 'InputFile')
         source = config.get('DataProcess', 'Source')
         
-        timestep = config.getfloat('TrackGenerator', 'Timestep')
 
         if len(os.path.dirname(inputFile)) == 0:
             inputFile = pjoin(self.inputPath, inputFile)
@@ -243,10 +187,12 @@ class LandfallRates(object):
         try:
             tracks = loadTrackFile(self.configFile, inputFile, source)
         except (TypeError, IOError, ValueError):
-            log.critical("Cannot load historical track file: {0}".format(inputFile))
+            log.critical("Cannot load historical track file: {0}".\
+                         format(inputFile))
             raise
         else:
-            self.historicLandfall, self.historicOffshore = self.processTracks(tracks)
+            self.historicLandfall, self.historicOffshore = \
+                                        self.processTracks(tracks)
 
         return
 
@@ -268,7 +214,8 @@ class LandfallRates(object):
             n = 0
             for d in range(1, pp.size()):
                 pp.send(trackfiles[w], destination=d, tag=work_tag)
-                log.debug("Processing track file %d of %d" % (w + 1, len(trackfiles)))
+                log.debug("Processing track file {0:d} of {1:d}".\
+                          format(w + 1, len(trackfiles)))
                 w += 1
 
             terminated = 0
@@ -283,7 +230,8 @@ class LandfallRates(object):
 
                 if w < len(trackfiles):
                     pp.send(trackfiles[w], destination=d, tag=work_tag)
-                    log.debug("Processing track file %d of %d" % (w + 1, len(trackfiles)))
+                    log.debug("Processing track file {0:d} of {1:d}".\
+                              format(w + 1, len(trackfiles)))
                     w += 1
                 else:
                     pp.send(None, destination=d, tag=work_tag)
@@ -305,7 +253,8 @@ class LandfallRates(object):
         elif pp.size() == 1 and pp.rank() == 0:
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
             for n, trackfile in enumerate(sorted(trackfiles)):
-                log.debug("Processing track file %d of %d" % (n + 1, len(trackfiles)))
+                log.debug("Processing track file {0:d} of {1:d}".\
+                          format(n + 1, len(trackfiles)))
                 tracks = loadTracks(trackfile)
                 results = self.processTracks(tracks)
                 self.processResults(results, n)
@@ -314,9 +263,13 @@ class LandfallRates(object):
 
     @disableOnWorkers
     def plot(self):
+        """
+        Plot the results and save to file.
+        
+        """
 
         figure = RangeCompareCurve()
-        figure.set_size_inches(8,3)
+        figure.set_size_inches(8, 3)
         xlab = "Gate number"
         ylab = "Landfall probability"
         

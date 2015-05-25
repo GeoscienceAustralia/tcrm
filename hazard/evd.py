@@ -91,8 +91,7 @@ def estimateEVD(v, years, missingValue=-9999., minRecords=50, yrspersim=1):
             w[i] = missingValue
         else:
             w[i] = (np.transpose(loc + (scale / shp) *
-                    (1. - np.power(-1. * np.log(1. - (yrspersim / t)),
-                                   shp))))
+                    (1. - np.power(-1. * np.log(1. - (yrspersim / t)), shp))))
 
             # Replace any non-finite numbers with the missing value:
             if not np.isfinite(w[i]):
