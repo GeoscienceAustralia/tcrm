@@ -1,13 +1,16 @@
 import sys
+import logging 
 import numpy as np
 
 from datetime import datetime, timedelta
-from matplotlib.dates import date2num, num2date
+from matplotlib.dates import num2date
 from scipy.interpolate import interp1d, splev, splrep
 
 from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile
 
+LOG = logging.getLogger()
+LOG.addHandler(logging.NullHandler())
 
 TRACKFILE_COLS = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
                   'Day', 'Hour', 'Minute', 'TimeElapsed', 'Datetime',
@@ -65,7 +68,8 @@ def interpolate(track, delta, interpolation_type=None):
                                       track.Minute)]
     timestep = timedelta(delta/24.)
     
-    time_ = np.array([d.toordinal() + d.hour/24.0 for d in day_], dtype=float) 
+    time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.0 
+                      for d in day_], dtype=float) 
 
     dt_ = 24.0 * np.diff(time_)
     dt = np.empty(track.Hour.size, dtype=float)
@@ -88,7 +92,7 @@ def interpolate(track, delta, interpolation_type=None):
     # FIXME: Need to address the issue when the time between obs is less 
     # than delta (e.g. only two obs 5 hrs apart, but delta = 6 hrs). 
 
-    if len(track.data) <= 2:
+    if len(track.data) <= 3:
         # Use linear interpolation only (only a start and end point given):
         nLon = interp1d(timestep, track.Longitude, kind='linear')(newtime)
         nLat = interp1d(timestep, track.Latitude, kind='linear')(newtime)
@@ -115,21 +119,23 @@ def interpolate(track, delta, interpolation_type=None):
         nrMax = interp1d(timestep, track.rMax, kind='linear')(newtime)
         
     else:
-        if interpolation_type=='akima':
+        if interpolation_type == 'akima':
             # Use the Akima interpolation method:
             try:
                 import akima
             except ImportError:
-                logger.exception( ("Akima interpolation module unavailable "
-                                    " - default to scipy.interpolate") )
-                nLon = splev(newtime, splrep(timestep, track.Longitude, s=0), der=0)
-                nLat = splev(newtime, splrep(timestep, track.Latitude, s=0), der=0)
+                LOG.exception(("Akima interpolation module unavailable "
+                               " - default to scipy.interpolate"))
+                nLon = splev(newtime, splrep(timestep, track.Longitude, s=0), 
+                             der=0)
+                nLat = splev(newtime, splrep(timestep, track.Latitude, s=0), 
+                             der=0)
 
             else:
                 nLon = akima.interpolate(timestep, track.Longitude, newtime)
                 nLat = akima.interpolate(timestep, track.Latitude, newtime)
                 
-        elif interpolation_type=='linear':
+        elif interpolation_type == 'linear':
             nLon = interp1d(timestep, track.Longitude, kind='linear')(newtime)
             nLat = interp1d(timestep, track.Latitude, kind='linear')(newtime)
 
