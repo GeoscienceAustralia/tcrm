@@ -31,23 +31,23 @@ Features
 Branch
 ======
 
-This development branch (`visuals`) is focused on improving visualisations of output. 
+This development branch (`visuals`) is focused on improving visualisations of output. We use the `seaborn <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_ package to handle much of the plotting and provide a consistent look and feel to the graphics. 
 
 **NOTE**: Because some dependencies are built only for Python 2.7, this branch is not backward compatible with Python 2.6.
 
 Dependencies
 ============
 
-* TCRM requires `Python 2.7 <https://www.python.org/>`_,
-  `numpy <http://www.numpy.org/>`_, `scipy <http://www.scipy.org/>`_,
-  `matplotlib 1.4.3 <http://matplotlib.org/>`_, `Basemap 1.0.8
-  <http://matplotlib.org/basemap/index.html>`_, `netcdf4-python
-  <https://code.google.com/p/netcdf4-python/>`_, `pandas <http://pandas.pydata.org/>`_, 
-  `Shapely <https://github.com/Toblerity/Shapely>`_,
-  `seaborn 0.5.1 <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_ data visualisation
-  `gcc` C compiler;
-
-* For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
+* TCRM requires `Python 2.7 <https://www.python.org/>`_, `numpy
+ <http://www.numpy.org/>`_, `scipy <http://www.scipy.org/>`_,
+ `matplotlib 1.4.3 <http://matplotlib.org/>`_, `Basemap 1.0.8
+ <http://matplotlib.org/basemap/index.html>`_, `netcdf4-python
+ <https://code.google.com/p/netcdf4-python/>`_, `pandas
+ <http://pandas.pydata.org/>`_, `Shapely
+ <https://github.com/Toblerity/Shapely>`_, `seaborn 0.5.1
+ <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_ and
+ `gcc`.  For parallel execution, `Pypar
+ <http://github.com/daleroberts/pypar>`_ is required;
 
 Status
 ======
