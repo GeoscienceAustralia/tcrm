@@ -5,25 +5,22 @@ Track-related attributes
 import numpy as np
 from datetime import datetime
 
-trackFields = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
-               'Day', 'Hour', 'Minute', 'TimeElapsed', 'Datetime', 'Longitude',
-               'Latitude', 'Speed', 'Bearing', 'CentralPressure',
-               'WindSpeed', 'rMax', 'EnvPressure')
+trackFields = ('Indicator', 'CycloneNumber', 'Year', 'Month',
+               'Day', 'Hour', 'Minute', 'TimeElapsed', 'Datetime',
+               'Longitude', 'Latitude', 'Speed', 'Bearing',
+               'CentralPressure', 'WindSpeed', 'rMax', 'EnvPressure')
 
-trackTypes = ('i', 'i', 'i', 'i', 
+trackTypes = ('i', 'i', 'i', 'i',
               'i', 'i', 'i', 'f', datetime,
-              'f', 'f', 'f', 'f', 'f', 
+              'f', 'f', 'f', 'f', 'f',
               'f', 'f', 'f')
 
-trackFormats = ('%i, %i, %i, %i,' 
+trackFormats = ('%i, %i, %i, %i,'
                 '%i, %i, %i, %5.1f,' '%s',
                 '%8.3f, %8.3f, %6.2f, %6.2f, %7.2f,'
                 '%6.2f, %6.2f, %7.2f')
-                
-
 
 class Track(object):
-
     """
     A single tropical cyclone track.
 
@@ -48,9 +45,14 @@ class Track(object):
         self.data = data
         self.trackId = None
         self.trackfile = None
-        self.trackMinPressure = None
-        self.trackMaxWind = None
-
+        if (len(data) > 0) and ('CentralPressure' in data.dtype.names):
+            self.trackMinPressure = np.min(data['CentralPressure'])
+        else:
+            self.trackMinPressure = None
+        if (len(data) > 0) and ('WindSpeed' in data.dtype.names):
+            self.trackMaxWind = np.max(data['WindSpeed'])
+        else:
+            self.trackMaxWind = None
 
     def __getattr__(self, key):
         """
@@ -66,7 +68,7 @@ class Track(object):
 
     def inRegion(self, gridLimit):
         """
-        Check if the tropical cyclone track falls within a region.
+        Check if the tropical cyclone track falls entirely within a region.
 
         :type  gridLimit: :class:`dict`
         :param gridLimit: the region to check.
@@ -81,10 +83,10 @@ class Track(object):
         xMax = gridLimit['xMax']
         yMin = gridLimit['yMin']
         yMax = gridLimit['yMax']
-
-        return ((xMin <= np.min(self.Longitude)) and
-                (np.max(self.Latitude) <= xMax) and
-                (yMin <= np.min(self.Latitude)) and
-                (np.max(self.Latitude) <= yMax))
-                
-
+        if len(self.data) == 0:
+            return False
+        else:
+            return ((xMin <= np.min(self.Longitude)) and
+                    (np.max(self.Latitude) <= xMax) and
+                    (yMin <= np.min(self.Latitude)) and
+                    (np.max(self.Latitude) <= yMax))
