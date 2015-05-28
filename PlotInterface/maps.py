@@ -20,7 +20,6 @@ import numpy as np
 from matplotlib.figure import Figure
 from mpl_toolkits.basemap import Basemap
 
-import Utilities.colours 
 from Utilities.smooth import smooth
 
 import seaborn
@@ -248,7 +247,6 @@ class FilledContourMapFigure(MapFigure):
                              fig=self, ax=axes, extend='both')
         CB.set_label(cbarlab)
         axes.set_title(title)
-        #self.labelAxes(axes)
         self.addGraticule(axes, mapobj)
         self.addCoastline(mapobj)
         self.addMapScale(mapobj)
