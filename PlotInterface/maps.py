@@ -23,8 +23,6 @@ from mpl_toolkits.basemap import Basemap
 from Utilities.smooth import smooth
 
 import seaborn
-seaborn.set_style("ticks")
-seaborn.set(rc={'image.cmap':'Blues'})
 
 def levels(maxval, minval=0):
     """
@@ -55,9 +53,9 @@ class MapFigure(Figure):
     def __init__(self):
         Figure.__init__(self)
         self.subfigures = []
-
-    def add(self, data, xgrid, ygrid, title, levels, 
-            cbarlab, map_kwargs):
+        self.cmap = seaborn.light_palette('#0A437A', as_cmap=True)
+        
+    def add(self, data, xgrid, ygrid, title, levels, cbarlab, map_kwargs):
         """
         Add a new subfigure to the collection of subfigures to be 
         plotted.
@@ -242,7 +240,7 @@ class FilledContourMapFigure(MapFigure):
     def subplot(self, axes, subfigure):
         data, xgrid, ygrid, title, levels, cbarlab, map_kwargs = subfigure
         mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
-        CS = mapobj.contourf(mx, my, data, levels=levels, extend='both')
+        CS = mapobj.contourf(mx, my, data, levels=levels, extend='both', cmap=self.cmap)
         CB = mapobj.colorbar(CS, location='right', pad='5%', ticks=levels[::2],
                              fig=self, ax=axes, extend='both')
         CB.set_label(cbarlab)
@@ -259,7 +257,7 @@ class MaskedContourMapFigure(FilledContourMapFigure):
         mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
 
         masked_data = maskoceans(xgrid, ygrid, data, inlands=False)
-        CS = mapobj.contourf(mx, my, masked_data, levels=levels, extend='both')
+        CS = mapobj.contourf(mx, my, masked_data, levels=levels, extend='both', cmap=self.cmap)
         CB = mapobj.colorbar(CS, location='right', pad='5%', ticks=levels[::2],
                              fig=self, ax=axes, extend='both')
         CB.set_label(cbarlab)
@@ -282,7 +280,7 @@ class ArrayMapFigure(MapFigure):
 
         vmin = datarange[0]
         vmax = datarange[1]
-        CS = mapobj.pcolormesh(mx, my, data, vmin=vmin, vmax=vmax)
+        CS = mapobj.pcolormesh(mx, my, data, vmin=vmin, vmax=vmax, cmap=self.cmap)
         CB = mapobj.colorbar(CS, location='right', pad='5%',
                              fig=self, ax=axes)
         CB.set_label(cbarlab)
@@ -317,7 +315,7 @@ class BarbMapFigure(MapFigure):
         mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
 
         mag = np.sqrt(xdata*xdata + ydata*ydata)
-        CS = mapobj.contourf(mx, my, mag, levels)
+        CS = mapobj.contourf(mx, my, mag, levels, cmap=self.cmap)
         CB = mapobj.colorbar(CS, location='right', pad='5%',
                              fig=self, ax=axes, ticks=levels[::2])
         CB.set_label(cbarlab)
