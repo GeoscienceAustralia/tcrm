@@ -13,6 +13,9 @@ import sys
 
 from os.path import join as pjoin
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import matplotlib.ticker as ticker
+
 
 from scipy.stats import linregress, probplot, frechet_l
 import numpy as np
@@ -21,6 +24,13 @@ import seaborn as sns
 sns.set_style("ticks")
 
 plt.ioff()
+
+
+MONTH_LOCATOR = mdates.MonthLocator(bymonthday=15, interval=1)
+YEAR_LOCATOR = mdates.YearLocator()
+TICK_LOCATOR = ticker.MultipleLocator(base=5)
+MONTH_FORMATTER = mdates.DateFormatter("%b")
+YEAR_FORMATTER = mdates.DateFormatter("%Y")
 
 def linreg(data):
     """
@@ -150,87 +160,6 @@ class PlotData(object):
         self.scatterHistogram(x_t, x_tm, labels, name+'_scatter')
 
     
-    def plotLonLat(self, lonData, latData, indicator):
-        """
-        Plot the input lat/lon values lagged against themselves,
-        and the same for the changes in lat/lon.
-
-        TODO: 
-        """
-
-        plt.figure(self.figurenum(), figsize=(7, 12))
-
-        dlon = lonData[1:] - lonData[:-1]
-        dlat = latData[1:] - latData[:-1]
-        j = np.where(indicator[1:] == 0)
-        dlon = dlon[j]
-        dlat = dlat[j]
-
-        # Correct change in longitude where the value jumps across the 180E
-        # meridian
-        k = np.where(dlon < -180.)
-        dlon[k] += 360.
-
-        plt.subplot(211)
-        plt.plot(dlon[1:], dlon[:-1], 'k.', markersize=1)
-        params = linreg(dlon)
-        plt.text(-3, 3, "r = %5.3f"%params[2], ha='center',
-                    va='center', color='r', size=14)
-        plt.xlim(-4., 4.)
-        plt.ylim(-4., 4.)
-        plt.xticks(np.arange(-4., 4.1, 1.))
-        plt.yticks(np.arange(-4., 4.1, 1.))
-        plt.ylabel(r"$\Delta lon (t)$", fontsize=16)
-        plt.xlabel(r"$\Delta lon (t-1)$", fontsize=16)
-        #plt.grid(True)
-        plt.title("Longitude rate of change")
-
-        plt.subplot(212)
-        plt.plot(dlat[1:], dlat[:-1], 'k.', markersize=1)
-        params = linreg(dlat)
-        plt.text(-3, 3, "r = %5.3f"%params[2], ha='center',
-                    va='center', color='r', size=14)
-        plt.xlim(-4., 4.)
-        plt.ylim(-4., 4.)
-        plt.xticks(np.arange(-4., 4.1, 1.))
-        plt.yticks(np.arange(-4., 4.1, 1.))
-        plt.ylabel(r"$\Delta lat (t)$", fontsize=16)
-        plt.xlabel(r"$\Delta lat (t-1)$", fontsize=16)
-        plt.title("Latitude rate of change")
-        plt.tight_layout()
-        self.savefig('lonlat_corr')
-
-        labels = [r'$\Delta \phi(t)$', r'$\Delta \phi(t-1)$']
-        self.scatterHistogram(dlon[1:], dlon[:-1], labels, 'dlon_scatterHist')
-        labels = [r'$\Delta \lambda(t)$', r'$\Delta \lambda(t-1)$']
-        self.scatterHistogram(dlat[1:], dlat[:-1], labels, 'dlat_scatterHist')
-
-    def _plotFrequency(self, years, frequency):
-        """Plot annual frequency of TCs, plus linear trend line"""
-
-        plt.figure(self.figurenum())
-        plt.plot(years[1:-1], frequency[1:-1]) 
-        xmax = 5*int((1 + years.max()/5))
-        xmin = 5*int((years.min()/5))
-        ymax = 5*int(1 + frequency.max()/5)
-        plt.xlim(xmin, xmax)
-        plt.ylim(0.0, ymax)
-        
-        plt.xlabel("Year")
-        plt.ylabel("Frequency")
-
-        params = linregress(np.array([years, frequency]))
-        x = np.arange(xmin, xmax)
-        y = params[0]*x + params[1]
-
-        plt.plot(x, y, 'r--')
-        plt.title("Annual frequency (%d - %d)"%(years.min(), years.max()))
-        self.savefig('frequency')
-
-        return
-
-
-
     def minPressureHist(self, index, pAllData):
         """
         Plot a histogram of the minimum central pressures from the input
@@ -289,14 +218,14 @@ class PlotData(object):
         plt.title("Speed vs bearing")
         self.savefig('spd_bear_corr')
 
-    def quantile(self, data, parameterName, dist='normal'):
+    def quantile(self, data, parameterName, dist='norm'):
         """
         Generate a probability plot of the given data; data should be an
         array of anomalies
 
         """
-        plt.figure(self.figurenum(), figsize=(8, 7))
-        plt.clf()
+        #plt.figure(self.figurenum(), figsize=(8, 7))
+        #plt.clf()
         d = data.compress(data < sys.maxint)
         m = np.average(d)
         sd = np.std(d)
@@ -411,7 +340,7 @@ class PlotFrequency(PlotData):
         """
         labels = ["Year", "Number"]
         self.barPlot(years.astype(int), frequency, "frequency", labels)
-
+        
 class PlotDays(PlotData):
     
     def plotJulianDays(self, julianDayObs, julianDayGenesis):
@@ -420,48 +349,49 @@ class PlotDays(PlotData):
         and genesis events per day of year.
         
         TODO: Format the tick marks to represent monthly intervals.
-              Add a KDE over both bar plots.
+              Add a KDE over both bar plots, remembering this is cyclic
+              data (so KDE[-1] ~ KDE[0]). 
         """
+
         f, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
-        
+        dateLocator = mdates.MonthLocator(bymonthday=15, interval=1)
+        dateFormat = mdates.DateFormatter("%b")
+        dates = mdates.num2date(julianDayObs[:, 0])
+
         sns.barplot(julianDayObs[:, 0], julianDayObs[:, 1], ax=ax1)
         ax1.set_xlim((1, 365))
         ax1.set_ylabel('Observations')
-        ax1.set_xticks(np.arange(1, 365, 30))
 
         sns.barplot(julianDayGenesis[:, 0], julianDayGenesis[:, 1], ax=ax2)
         ax2.set_xlim((1, 365))
-        ax2.set_xlabel('Day of year')
+        ax2.set_xlabel('Month')
         ax2.set_ylabel('Genesis events')
 
-        ax2.set_xticks(np.arange(1, 365, 30))
-        ax2.set_xticklabels(np.arange(1, 365, 30,dtype=int))
+        ax2.xaxis.set_major_locator(MONTH_LOCATOR)
+        ax2.xaxis.set_major_formatter(MONTH_FORMATTER)
+
+        sns.despine()
         self.savefig("julian_day")
 
+class PlotLonLat(PlotData):
+    
+    def plotLonLat(self, lonData, latData, indicator):
+        dlon = lonData[1:] - lonData[:-1]
+        dlat = latData[1:] - latData[:-1]
+        j = np.where(indicator[1:] == 0)
+        dlon = dlon[j]
+        dlat = dlat[j]
+        k = np.where(dlon < -180.)
+        dlon[k] += 360.
+        labels = [r"$\Delta \phi (t-1)$", r"$\Delta \phi (t)$"]
+        self.scatterHistogram(dlon[1:], dlon[:-1], labels, 'delta_lon')
 
-if __name__ == "__main__":
-    """
-    import Utilities.config as config
-    configFile = sys.argv[1]
-    dataPath = config.cnfGetIniValue(configFile, 'Output', 'Path', os.getcwd())
-    inputPath = pjoin(dataPath, 'process')
-    outputPath = pjoin(dataPath, 'plots')
-    plt.rcParams['figure.figsize'] = (7, 12)
+        labels = [r"$\Delta \lambda (t-1)$", r"$\Delta \lambda (t)$"]
+        self.scatterHistogram(dlat[1:], dlat[:-1], labels, 'delta_lat')
 
-    pRateData = files.flLoadFile(pjoin(inputPath, 'pressure_rate'))
-    pAllData = files.flLoadFile(pjoin(inputPath, 'all_pressure'))
-    bRateData = files.flLoadFile(pjoin(inputPath, 'bearing_rate'))
-    bAllData = files.flLoadFile(pjoin(inputPath, 'all_bearing'))
-    sRateData = files.flLoadFile(pjoin(inputPath, 'speed_rate'))
-    sAllData = files.flLoadFile(pjoin(inputPath, 'all_speed'))
-    freq = files.flLoadFile(pjoin(inputPath, 'frequency'))
-    years = freq[:, 0]
-    frequency = freq[:, 1]
+        labels = [r"$\Delta \phi (t)$", r"$\Delta \lambda (t)$"]
+        self.scatterHistogram(dlon, dlat, labels, 'lonlat_corr')
 
-    plotting = PlotData(outputPath, "png")
-    plotting.plotPressure(pAllData, pRateData)
-    plotting.plotBearing(bAllData, bRateData)
-    plotting.plotSpeed(sAllData, sRateData)
-    plotting.plotFrequency(years, frequency)
-    plotting.plotSpeedBear(sAllData, bAllData)
-    """
+        self.quantile(dlon, 'delta_lon', 'logistic')
+        self.quantile(dlat, 'delta_lat', 'logistic')
+

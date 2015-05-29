@@ -282,8 +282,7 @@ def doDataPlotting(configFile):
     
 
     from PlotInterface.plotStats import PlotPressure, PlotBearing, \
-        PlotSpeed, PlotFrequency, PlotDays, PlotData
-    plotting = PlotData(statsPlotPath, "png")
+        PlotSpeed, PlotFrequency, PlotDays, PlotLonLat
 
     log.info('Plotting pressure data')
     pbar.update(0.05)
@@ -307,11 +306,12 @@ def doDataPlotting(configFile):
     SpeedPlot.plotSpeed(sAllData)
     SpeedPlot.plotSpeedRate(sRateData)
 
-    log.info('Plotting longitude and lattitude data')
+    log.info('Plotting longitude and latitude data')
     pbar.update(0.45)
     
     # FIXME: To be moved to it's own class in PlotStats
-    plotting.plotLonLat(lonData, latData, indicator)
+    LLPlot = PlotLonLat(statsPlotPath, "png")
+    LLPlot.plotLonLat(lonData, latData, indicator)
 
     pbar.update(0.65)
 
