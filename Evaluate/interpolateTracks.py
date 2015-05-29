@@ -8,6 +8,7 @@ from scipy.interpolate import interp1d, splev, splrep
 
 from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile
+from Utilities.track import Track
 
 LOG = logging.getLogger()
 LOG.addHandler(logging.NullHandler())
@@ -34,7 +35,7 @@ OUTPUT_COLS = ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
 
 OUTPUT_FMTS = '%i,%s,%7.3f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f'
 
-class Track(object):
+class Track2(object):
     def __init__(self, data):
         self.data = data
         self.trackId = None
