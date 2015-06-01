@@ -14,8 +14,6 @@ import os
 import sys
 import logging
 
-import pdb
-
 import numpy as np
 import numpy.ma as ma
 
@@ -26,9 +24,6 @@ from datetime import datetime
 import matplotlib
 matplotlib.use('Agg', warn=False)
 
-from matplotlib import cm
-from mpl_toolkits.basemap import Basemap
-
 from Utilities.config import ConfigParser
 from Utilities.metutils import convert
 from Utilities.maputils import bearing2theta
@@ -38,13 +33,9 @@ from Utilities import pathLocator
 from Utilities.nctools import ncSaveGrid
 from Utilities.parallel import attemptParallel, disableOnWorkers
 
-# Importing :mod:`colours` makes a number of additional colour maps available:
-from Utilities import colours
-
 from PlotInterface.maps import ArrayMapFigure, saveFigure
 from PlotInterface.curves import saveDistributionCurve
 from PlotInterface.figures import QuantileFigure
-
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -391,10 +382,10 @@ class PressureDistribution(object):
 
         cbarlab = "Mean central pressure (hPa)"
         xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
-        figure.add(np.transpose(self.histMean), xgrid, ygrid, "Historic", datarange, 
-                   cbarlab, map_kwargs)
-        figure.add(np.transpose(self.synMean), xgrid, ygrid, "Synthetic", datarange, 
-                   cbarlab, map_kwargs)
+        figure.add(np.transpose(self.histMean), xgrid, ygrid, "Historic", 
+                   datarange, cbarlab, map_kwargs)
+        figure.add(np.transpose(self.synMean), xgrid, ygrid, "Synthetic", 
+                   datarange, cbarlab, map_kwargs)
 
         figure.plot()
         outputFile = pjoin(self.plotPath, 'meanPressure.png')

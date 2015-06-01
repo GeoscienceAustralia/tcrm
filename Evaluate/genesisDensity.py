@@ -33,17 +33,13 @@ from Utilities import pathLocator
 import Utilities.Intersections as Int
 
 from shapely.geometry import Point, LineString, Polygon
+from statsmodels.nonparametric.kernel_density import KDEMultivariate
 
-from PlotInterface.maps import ArrayMapFigure, saveFigure
+from PlotInterface.maps import FilledContourMapFigure, saveFigure, levels
 from PlotInterface.tracks import TrackMapFigure
-
-# Importing :mod:`colours` makes a number of additional colour maps available:
-from Utilities import colours
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
-
-
 
 TRACKFILE_COLS = ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
                   'Latitude', 'Speed', 'Bearing', 'CentralPressure',
@@ -208,8 +204,8 @@ class GenesisDensity(object):
         :param tracks: Collection of :class:`Track` objects.
         """
 
-        lon = []
-        lat = []
+        lon = np.array([])
+        lat = np.array([])
 
         for t in tracks:
             lon = np.append(lon, t.Longitude[0])
@@ -219,6 +215,32 @@ class GenesisDensity(object):
                                           self.lat_range],
                                           normed=False)
         return histogram
+
+    def calculatePDF(self, tracks):
+        """
+        Calculate a 2-d probability density surface using kernel density
+        estimation.
+
+        :param tracks: Collection of :class:`Track` objects.
+        """
+
+        if len(tracks) == 0:
+            # No tracks:
+            return np.zeros(self.X.shape)
+
+        lon = np.array([])
+        lat = np.array([])
+        for t in tracks:
+            lon = np.append(lon, t.Longitude)
+            lat = np.append(lat, t.Latitude)
+
+        xy = np.vstack([self.X.ravel(), self.Y.ravel()])
+        data = np.array([[lon],[lat]])
+
+        kde = KDEMultivariate(data, bw='cv_ml', var_type='cc')
+        pdf = kde.pdf(data_predict=xy)
+
+        return pdf.reshape(self.X.shape)
 
     def _calculate(self, tracks):
         """
@@ -230,7 +252,7 @@ class GenesisDensity(object):
         hist = ma.zeros((len(self.lon_range) - 1,
                          len(self.lat_range) - 1))
 
-        positions = np.vstack([self.X.ravel(), self.Y.ravel()])
+        xy= np.vstack([self.X.ravel(), self.Y.ravel()])
         
         x = []
         y = []
@@ -254,10 +276,9 @@ class GenesisDensity(object):
 
 
         values = np.vstack([xx[ii], yy[ii]])
-        kernel = gaussian_kde(values, bw_method=.1)
-        import pdb
-        #pdb.set_trace()
-        Z = np.reshape(kernel(positions), self.X.shape)
+        kernel = KDEMultivariate(values, bw='cv_ml', var_type='cc')
+        pdf = kernel.pdf(data_predict=xy)
+        Z = np.reshape(pdf, self.X.shape)
         return Z.T
                 
 
@@ -266,10 +287,8 @@ class GenesisDensity(object):
         self.synHistMean = ma.mean(self.synHist, axis=0)
         self.medSynHist = ma.median(self.synHist, axis=0)
 
-        self.synHistUpper = percentile(ma.compressed(self.synHist),
-                                       per=95, axis=0)
-        self.synHistLower = percentile(ma.compressed(self.synHist),
-                                       per=5, axis=0)
+        self.synHistUpper = percentile(self.synHist, per=95, axis=0)
+        self.synHistLower = percentile(self.synHist, per=5, axis=0)
 
     @disableOnWorkers
     def historic(self):
@@ -296,7 +315,8 @@ class GenesisDensity(object):
                 endYr = max(endYr, max(t.Year))
             numYears = endYr - startYr
             log.info("Range of years: %d - %d" % (startYr, endYr))
-            self.hist = self._calculate(tracks) / numYears
+            self.hist = self._calculate(tracks)
+            #self.hist = self._calculate(tracks) / numYears
 
 
 
@@ -351,14 +371,14 @@ class GenesisDensity(object):
 
                 log.debug("Processing %s" % (trackfile))
                 tracks = loadTracks(trackfile)
-                results = self._calculate(tracks) / self.synNumYears
+                results = self._calculate(tracks) #/ self.synNumYears
                 pp.send(results, destination=0, tag=result_tag)
 
         elif (pp.size() == 1) and (pp.rank() == 0):
             for n, trackfile in enumerate(trackfiles):
                 log.debug("Processing track file %d of %d" % (n + 1, len(trackfiles)))
                 tracks = loadTracks(trackfile)
-                self.synHist[n, :, :] = self._calculate(tracks) / self.synNumYears
+                self.synHist[n, :, :] = self._calculate(tracks) #/ self.synNumYears
 
             self.calculateMeans()
 
@@ -452,8 +472,8 @@ class GenesisDensity(object):
         """Plot genesis density information"""
 
         datarange = (0, self.hist.max())
-        figure = ArrayMapFigure()
-
+        figure = FilledContourMapFigure()
+        lvls, exponent = levels(self.hist.max())
         map_kwargs = dict(llcrnrlon=self.lon_range.min(),
                           llcrnrlat=self.lat_range.min(),
                           urcrnrlon=self.lon_range.max(),
@@ -462,23 +482,23 @@ class GenesisDensity(object):
                           resolution='i')
         cbarlab = "TCs/yr"
         xgrid, ygrid = np.meshgrid(self.lon_range, self.lat_range)
-        figure.add(self.hist.T, self.X, self.Y, "Historic", datarange, 
-                   cbarlab, map_kwargs)
-        figure.add(self.synHistMean.T, xgrid, ygrid, "Synthetic",
-                    datarange, cbarlab, map_kwargs)
+        figure.add(self.hist.T*(10.**-exponent), self.X, self.Y, 
+                   "Historic", lvls*(10.**-exponent), cbarlab, map_kwargs)
+        figure.add(self.synHistMean.T*(10.**-exponent), xgrid, ygrid, 
+                   "Synthetic", lvls*(10.**-exponent), cbarlab, map_kwargs)
         figure.plot()
         outputFile = pjoin(self.plotPath, 'genesis_density.png')
         saveFigure(figure, outputFile)
 
-        figure2 = ArrayMapFigure()
-        figure2.add(self.hist.T, xgrid, ygrid, "Historic", datarange, 
-                    cbarlab, map_kwargs)
-        figure2.add(self.synHist[0, :, :].T, xgrid, ygrid, "Synthetic",
-                    datarange, cbarlab, map_kwargs)
-        figure2.add(self.synHist[1, :, :].T, xgrid, ygrid, "Synthetic",
-                    datarange, cbarlab, map_kwargs)
-        figure2.add(self.synHist[2, :, :].T, xgrid, ygrid, "Synthetic",
-                    datarange, cbarlab, map_kwargs)
+        figure2 = FilledContourMapFigure()
+        figure2.add(self.hist.T*(10.**-exponent), xgrid, ygrid, 
+                    "Historic", lvls*(10.**-exponent), cbarlab, map_kwargs)
+        figure2.add(self.synHist[0, :, :].T*(10.**-exponent), xgrid, ygrid, 
+                    "Synthetic", lvls*(10.**-exponent), cbarlab, map_kwargs)
+        figure2.add(self.synHist[1, :, :].T*(10.**-exponent), xgrid, ygrid, 
+                    "Synthetic", lvls*(10.**-exponent), cbarlab, map_kwargs)
+        figure2.add(self.synHist[2, :, :].T*(10.**-exponent), xgrid, ygrid, 
+                    "Synthetic", lvls*(10.**-exponent), cbarlab, map_kwargs)
 
         figure2.plot()
         outputFile = pjoin(self.plotPath, 'genesis_density_samples.png')
@@ -493,7 +513,8 @@ class GenesisDensity(object):
         """
 
         datarange = (0, self.hist.max())
-        figure = ArrayMapFigure()
+        figure = FilledContourMapFigure()
+        lvls, exponent = levels(self.hist.max())
 
         map_kwargs = dict(llcrnrlon=self.lon_range.min(),
                           llcrnrlat=self.lat_range.min(),
@@ -503,10 +524,10 @@ class GenesisDensity(object):
                           resolution='i')
         cbarlab = "TCs/yr"
         xgrid, ygrid = np.meshgrid(self.lon_range, self.lat_range)
-        figure.add(self.synHistUpper.T, xgrid, ygrid, "Upper percentile", datarange, 
-                   cbarlab, map_kwargs)
-        figure.add(self.synHistLower.T, xgrid, ygrid, "Lower percentile",
-                    datarange, cbarlab, map_kwargs)
+        figure.add(self.synHistUpper.T*(10.**-exponent), xgrid, ygrid, 
+                   "Upper percentile", lvls*(10.**-exponent), cbarlab, map_kwargs)
+        figure.add(self.synHistLower.T*(10.**-exponent), xgrid, ygrid, 
+                   "Lower percentile", lvls*(10.**-exponent), cbarlab, map_kwargs)
         figure.plot()
         outputFile = pjoin(self.plotPath, 'genesis_density_percentiles.png')
         saveFigure(figure, outputFile)

@@ -28,12 +28,13 @@ from Utilities.track import Track
 from Utilities.nctools import ncSaveGrid
 from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities import pathLocator
+from Utilities.loadData import loadTrackFile
 
 
 from PlotInterface.maps import ArrayMapFigure, saveFigure
 
 # Importing :mod:`colours` makes a number of additional colour maps available:
-from Utilities import colours
+#from Utilities import colours
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -150,14 +151,14 @@ class TrackDensity(object):
         self.configFile = configFile
 
         # Define the grid:
-        gridLimit = config.geteval('Region', 'gridLimit')
+        self.gridLimit = config.geteval('Region', 'gridLimit')
         gridSpace = config.geteval('Region', 'GridSpace')
 
-        self.lon_range = np.arange(gridLimit['xMin'],
-                                   gridLimit['xMax'] + 0.1,
+        self.lon_range = np.arange(self.gridLimit['xMin'],
+                                   self.gridLimit['xMax'] + 0.1,
                                    gridSpace['x'])
-        self.lat_range = np.arange(gridLimit['yMin'],
-                                   gridLimit['yMax'] + 0.1,
+        self.lat_range = np.arange(self.gridLimit['yMin'],
+                                   self.gridLimit['yMax'] + 0.1,
                                    gridSpace['y'])
 
         outputPath = config.get('Output', 'Path')
@@ -186,8 +187,10 @@ class TrackDensity(object):
         lat = []
 
         for t in tracks:
+            #if t.inRegion(self.gridLimit):
             lon = np.append(lon, t.Longitude)
             lat = np.append(lat, t.Latitude)
+
         histogram, x, y = np.histogram2d(lon, lat,
                                          [self.lon_range,
                                           self.lat_range],
@@ -199,14 +202,19 @@ class TrackDensity(object):
         self.synHistMean = ma.mean(self.synHist, axis=0)
         self.medSynHist = ma.median(self.synHist, axis=0)
 
-        self.synHistUpper = percentile(ma.compressed(self.synHist),
-                                       per=95, axis=0)
-        self.synHistLower = percentile(ma.compressed(self.synHist),
-                                       per=5, axis=0)
+        self.synHistUpper = percentile(self.synHist, per=95, axis=0)
+        self.synHistLower = percentile(self.synHist, per=5, axis=0)
 
     @disableOnWorkers
     def historic(self):
-        """Load historic data and calculate histogram"""
+        """
+        Load historic data and calculate histogram.
+        Note that the input historical data is filtered by year 
+        when it's loaded in `interpolateTracks.parseTracks()`. 
+
+        The timestep to interpolate to is set to match that of the 
+        synthetic event set (normally set to 1 hour). 
+        """
         config = ConfigParser()
         config.read(self.configFile)
         inputFile = config.get('DataProcess', 'InputFile')
@@ -219,11 +227,12 @@ class TrackDensity(object):
 
         interpHistFile = pjoin(self.inputPath, "interp_tracks.csv")
         try:
-            tracks = interpolateTracks.parseTracks(self.configFile,
-                                                   inputFile,
-                                                   source,
-                                                   timestep,
-                                                   interpHistFile, 'linear')
+            #tracks = interpolateTracks.parseTracks(self.configFile,
+            #                                       inputFile,
+            #                                       source,
+            #                                       timestep,
+            #                                       interpHistFile, 'linear')
+            tracks = loadTrackFile(self.configFile, inputFile, source)
         except (TypeError, IOError, ValueError):
             log.critical("Cannot load historical track file: {0}".format(inputFile))
             raise
@@ -234,16 +243,11 @@ class TrackDensity(object):
                 startYr = min(startYr, min(t.Year))
                 endYr = max(endYr, max(t.Year))
             numYears = endYr - startYr
+
             self.hist = self.calculate(tracks) / numYears
-
-
 
     def synthetic(self):
         """Load synthetic data and calculate histogram"""
-
-        #config = ConfigParser()
-        #config.read(self.configFile)
-        #timestep = config.getfloat('TrackGenerator', 'Timestep')
 
         filelist = os.listdir(self.trackPath)
         trackfiles = [pjoin(self.trackPath, f) for f in filelist
@@ -295,6 +299,7 @@ class TrackDensity(object):
         elif (pp.size() == 1) and (pp.rank() == 0):
             for n, trackfile in enumerate(trackfiles):
                 tracks = loadTracks(trackfile)
+
                 self.synHist[n, :, :] = self.calculate(tracks) / self.synNumYears
 
             self.calculateMeans()
