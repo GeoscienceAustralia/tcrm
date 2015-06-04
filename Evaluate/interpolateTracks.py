@@ -1,13 +1,16 @@
 import sys
+import logging
 import numpy as np
 
 from datetime import datetime, timedelta
-from matplotlib.dates import date2num, num2date
+from matplotlib.dates import num2date
 from scipy.interpolate import interp1d, splev, splrep
 
 from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile
 
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 TRACKFILE_COLS = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
                   'Day', 'Hour', 'Minute', 'TimeElapsed', 'Datetime',
@@ -59,7 +62,7 @@ def interpolate(track, delta, interpolation_type=None):
     # FIXME: Need to address masking values - scipy.interpolate.interp1d
     handles numpy.ma masked arrays. 
     """
-    
+    log.debug("Performing interpolation of TC track")
     day_ = [datetime(*x) for x in zip(track.Year, track.Month, 
                                       track.Day, track.Hour, 
                                       track.Minute)]
@@ -80,7 +83,6 @@ def interpolate(track, delta, interpolation_type=None):
 
     newdates = num2date(_newtime)
     newdates = np.array([n.replace(tzinfo=None) for n in newdates])
-    nid = track.trackId[0] * np.ones(newtime.size)
 
     # Find the indices of valid pressure observations:
     validIdx = np.where(track.CentralPressure < sys.maxint)[0]
@@ -115,7 +117,7 @@ def interpolate(track, delta, interpolation_type=None):
         nrMax = interp1d(timestep, track.rMax, kind='linear')(newtime)
         
     else:
-        if interpolation_type=='akima':
+        if interpolation_type == 'akima':
             # Use the Akima interpolation method:
             try:
                 import akima
@@ -129,7 +131,7 @@ def interpolate(track, delta, interpolation_type=None):
                 nLon = akima.interpolate(timestep, track.Longitude, newtime)
                 nLat = akima.interpolate(timestep, track.Latitude, newtime)
                 
-        elif interpolation_type=='linear':
+        elif interpolation_type == 'linear':
             nLon = interp1d(timestep, track.Longitude, kind='linear')(newtime)
             nLat = interp1d(timestep, track.Latitude, kind='linear')(newtime)
 
@@ -221,9 +223,13 @@ def interpolate(track, delta, interpolation_type=None):
 
 def saveTracks(tracks, outputFile):
     """
-    Save the data to a TCRM-format track file
+    Save the data to a TCRM-format track file (.csv format).
+
+    :param tracks: A collection of `Track` objects to save to file.
+    :param str outputFile: Path to destination file.
+
     """
-    
+    log.debug("Saving interpolated tracks to {0}".format(outputFile))
     output = []
     for track in tracks:
         r = [getattr(track, col).T for col in OUTPUT_COLS]
@@ -265,7 +271,7 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
                     interpolated track data
                        
     """
-
+    log.info("Interpolating tracks from {0}".format(trackFile))
     if delta < 0.0:
         raise ValueError("Time step for interpolation must be positive")
 

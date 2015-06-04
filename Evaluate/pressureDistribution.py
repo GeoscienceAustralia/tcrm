@@ -52,6 +52,10 @@ def loadTracks(trackfile):
     return tracks
 
 class gridCell(object):
+    """ 
+    A simple class for determining data values over a grid.
+    
+    """
     def __init__(self, xmin, ymin, xmax, ymax, number, index):
         self.xmin = xmin
         self.ymin = ymin
@@ -169,6 +173,17 @@ class PressureDistribution(object):
 
 
     def calculateMeans(self, synMean, synMin, synMed, synMax, synMinCP):
+        """
+        Calculate mean, median, minimum, maximum and percentiles of pressure
+        values from synthetic events.
+
+        :param synMean: `numpy.ndarray` 
+        :param synMin: `numpy.ndarray`
+        :param synMed: `numpy.ndarray`
+        :param synMax: `numpy.ndarray`
+        :param synMinCP: `numpy.ndarray`
+
+        """
         synMean = ma.masked_values(synMean, -9999.)
         synMin = ma.masked_values(synMin, -9999.)
         synMed = ma.masked_values(synMed, -9999.)
@@ -306,9 +321,7 @@ class PressureDistribution(object):
         """
         Plot a map of observed and synthetic mean pressure values
 
-        """
-        
-        
+        """        
         datarange = (950, 1000)
         figure = ArrayMapFigure() 
 
@@ -433,6 +446,10 @@ class PressureDistribution(object):
 
     @disableOnWorkers
     def plotMinPressureQuantiles(self):
+        """
+        Plot a quantile-quantile plot of observed vs synthetic (mean)
+        minimum central pressure values
+        """
         x = self.histMinCP
         y = self.synMinCP
         lims = (850, 1000)
@@ -447,6 +464,11 @@ class PressureDistribution(object):
 
     @disableOnWorkers
     def save(self):
+        """
+        Save gridded pressure distributions to file. Data are saved 
+        to a netCDF file named ``pressureDistribution.nc`` for later analysis.
+        
+        """
         dataFile = pjoin(self.dataPath, 'pressureDistribution.nc')
 
         # Simple sanity check (should also include the synthetic data):

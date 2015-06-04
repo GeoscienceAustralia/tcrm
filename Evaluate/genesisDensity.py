@@ -19,7 +19,8 @@ import numpy as np
 import numpy.ma as ma
 
 from os.path import join as pjoin
-from scipy.stats import scoreatpercentile as percentile, gaussian_kde
+from scipy.stats import scoreatpercentile as percentile
+from statsmodels.nonparametric.kernel_density import KDEMultivariate
 
 from Utilities.config import ConfigParser
 from Utilities.track import ncReadTrackData
@@ -68,15 +69,6 @@ def loadTracksFromPath(path):
     log.info(msg)
     return loadTracksFromFiles(sorted(trackfiles))
 
-class gridCell(object):
-    def __init__(self, xmin, ymin, xmax, ymax, number, index):
-        self.xmin = xmin
-        self.ymin = ymin
-        self.xmax = xmax
-        self.ymax = ymax
-        self.cell_number = number
-        self.index = index
-
 class GenesisDensity(object):
     def __init__(self, configFile):
         """
@@ -95,10 +87,10 @@ class GenesisDensity(object):
 
         self.lon_range = np.arange(self.gridLimit['xMin'],
                                    self.gridLimit['xMax'] + 0.1,
-                                   0.1)
+                                   1.)
         self.lat_range = np.arange(self.gridLimit['yMin'],
                                    self.gridLimit['yMax'] + 0.1,
-                                   0.1)
+                                   1.)
 
         self.X, self.Y = np.meshgrid(self.lon_range, self.lat_range)
 
@@ -114,45 +106,15 @@ class GenesisDensity(object):
         self.synNumYears = config.getint('TrackGenerator',
                                          'yearspersimulation')
 
-        cellnumber = 0
-        self.gridCells = []
-        for k in xrange(len(self.lon_range) - 1):
-            for l in xrange(len(self.lat_range) - 1):
-                ymin = self.lat_range[l]
-                ymax = self.lat_range[l] + self.gridSpace['y']
-                xmin = self.lon_range[k]
-                xmax = self.lon_range[k] + self.gridSpace['x']
-                self.gridCells.append(gridCell(xmin, ymin, xmax, ymax,
-                                               cellnumber, (k, l)))
-                cellnumber += 1
 
     def calculate(self, tracks):
-        """
-        Calculate a histogram of TC genesis occurrences given a set
-        of tracks
-
-        :param tracks: Collection of :class:`Track` objects.
-        """
-
-        lon = []
-        lat = []
-
-        for t in tracks:
-            lon = np.append(lon, t.Longitude[0])
-            lat = np.append(lat, t.Latitude[0])
-        histogram, x, y = np.histogram2d(lon, lat,
-                                         [self.lon_range,
-                                          self.lat_range],
-                                          normed=False)
-        return histogram
-
-    def _calculate(self, tracks):
         """
         Calculate a histogram of TC genesis counts given a set of tracks.
 
         :param tracks: Collection of :class:`Track` objects.
         """
-        
+        log.debug("Calculating PDF for set of {0:d} tracks".format(len(tracks)))
+
         hist = ma.zeros((len(self.lon_range) - 1,
                          len(self.lat_range) - 1))
 
@@ -178,14 +140,16 @@ class GenesisDensity(object):
                       (yy >= self.gridLimit['yMin']) & 
                         (yy <= self.gridLimit['yMax']))
 
-
         values = np.vstack([xx[ii], yy[ii]])
-        if values.shape[1] <= 1:
+
+        try:
+            kernel = KDEMultivariate(values, bw='cv_ml', var_type='cc')
+        except ValueError:
             zz = np.zeros(self.X.shape)
             return zz.T
         else:
-            kernel = gaussian_kde(values, bw_method=.1)
-            zz = np.reshape(kernel(positions), self.X.shape)
+            pdf = kernel.pdf(data_predict=positions)
+            zz = np.reshape(pdf, self.X.shape)
             return zz.T
                 
 
@@ -200,14 +164,13 @@ class GenesisDensity(object):
         self.synHistMean = ma.mean(self.synHist, axis=0)
         self.medSynHist = ma.median(self.synHist, axis=0)
 
-        self.synHistUpper = percentile(ma.compressed(self.synHist),
-                                       per=95, axis=0)
-        self.synHistLower = percentile(ma.compressed(self.synHist),
-                                       per=5, axis=0)
+        self.synHistUpper = percentile(self.synHist, per=95, axis=0)
+        self.synHistLower = percentile(self.synHist, per=5, axis=0)
 
     @disableOnWorkers
     def historic(self):
         """Load historic data and calculate histogram"""
+        log.info("Processing historic track records")
         config = ConfigParser()
         config.read(self.configFile)
         inputFile = config.get('DataProcess', 'InputFile')
@@ -224,23 +187,12 @@ class GenesisDensity(object):
                          format(inputFile))
             raise
         else:
-            startYr = 9999
-            endYr = 0
-            for t in tracks:
-                startYr = min(startYr, min(t.Year))
-                endYr = max(endYr, max(t.Year))
-            numYears = endYr - startYr
-            log.info("Range of years: %d - %d" % (startYr, endYr))
-            self.hist = self._calculate(tracks) / numYears
+            self.hist = self.calculate(tracks)
 
 
 
     def synthetic(self):
         """Load synthetic data and calculate histogram"""
-
-        #config = ConfigParser()
-        #config.read(self.configFile)
-        #timestep = config.getfloat('TrackGenerator', 'Timestep')
 
         filelist = os.listdir(self.trackPath)
         trackfiles = [pjoin(self.trackPath, f) for f in filelist
@@ -288,7 +240,7 @@ class GenesisDensity(object):
 
                 log.debug("Processing %s" % (trackfile))
                 tracks = loadTracks(trackfile)
-                results = self._calculate(tracks) / self.synNumYears
+                results = self.calculate(tracks) 
                 pp.send(results, destination=0, tag=result_tag)
 
         elif (pp.size() == 1) and (pp.rank() == 0):
@@ -296,8 +248,7 @@ class GenesisDensity(object):
                 log.debug("Processing track file {0:d} of {1:d}".\
                           format(n + 1, len(trackfiles)))
                 tracks = loadTracks(trackfile)
-                self.synHist[n, :, :] = self._calculate(tracks) /\
-                                        self.synNumYears
+                self.synHist[n, :, :] = self.calculate(tracks) 
 
             self.calculateMeans()
 
@@ -419,7 +370,10 @@ class GenesisDensity(object):
                     datarange, cbarlab, map_kwargs)
         figure2.add(self.synHist[2, :, :].T, xgrid, ygrid, "Synthetic",
                     datarange, cbarlab, map_kwargs)
-
+        figure2.add(self.synHist[3, :, :].T, xgrid, ygrid, "Synthetic",
+                    datarange, cbarlab, map_kwargs)
+        figure2.add(self.synHist[4, :, :].T, xgrid, ygrid, "Synthetic",
+                    datarange, cbarlab, map_kwargs)
         figure2.plot()
         outputFile = pjoin(self.plotPath, 'genesis_density_samples.png')
         saveFigure(figure2, outputFile)

@@ -18,8 +18,7 @@ import numpy.ma as ma
 from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
 
-import interpolateTracks
-
+from Utilities.loadData import loadTrackFile
 from Utilities.config import ConfigParser
 from Utilities.track import ncReadTrackData
 from Utilities.nctools import ncSaveGrid
@@ -45,19 +44,6 @@ def loadTracks(trackfile):
     tracks = ncReadTrackData(trackfile)
     return tracks
 
-def loadTracksFromFiles(trackfiles):
-    for f in trackfiles:
-        tracks = loadTracks(f)
-        for track in tracks:
-            yield track
-
-def loadTracksFromPath(path):
-    files = os.listdir(path)
-    trackfiles = [pjoin(path, f) for f in files if f.startswith('tracks')]
-    msg = 'Processing %d track files in %s' % (len(trackfiles), path)
-    log.info(msg)
-    return loadTracksFromFiles(sorted(trackfiles))
-
 class TrackDensity(object):
     def __init__(self, configFile):
         """
@@ -71,16 +57,16 @@ class TrackDensity(object):
         self.configFile = configFile
 
         # Define the grid:
-        gridLimit = config.geteval('Region', 'gridLimit')
+        self.gridLimit = config.geteval('Region', 'gridLimit')
         gridSpace = config.geteval('Region', 'GridSpace')
 
-        self.lon_range = np.arange(gridLimit['xMin'],
-                                   gridLimit['xMax'] + 0.1,
+        self.lon_range = np.arange(self.gridLimit['xMin'],
+                                   self.gridLimit['xMax'] + 0.1,
                                    gridSpace['x'])
-        self.lat_range = np.arange(gridLimit['yMin'],
-                                   gridLimit['yMax'] + 0.1,
+        self.lat_range = np.arange(self.gridLimit['yMin'],
+                                   self.gridLimit['yMax'] + 0.1,
                                    gridSpace['y'])
-
+        self.X, self.Y = np.meshgrid(self.lon_range, self.lat_range)
         outputPath = config.get('Output', 'Path')
         self.trackPath = pjoin(outputPath, 'tracks')
         self.plotPath = pjoin(outputPath, 'plots', 'stats')
@@ -92,8 +78,6 @@ class TrackDensity(object):
 
         self.synNumYears = config.getint('TrackGenerator',
                                          'yearspersimulation')
-
-
 
     def calculate(self, tracks):
         """
@@ -116,6 +100,9 @@ class TrackDensity(object):
         return histogram
 
     def calculateMeans(self):
+        """
+        Calculate the mean, median and percentiles of the synthetic values
+        """
         self.synHist = ma.masked_values(self.synHist, -9999.)
         self.synHistMean = ma.mean(self.synHist, axis=0)
         self.medSynHist = ma.median(self.synHist, axis=0)
@@ -134,17 +121,11 @@ class TrackDensity(object):
 
         source = config.get('DataProcess', 'Source')
 
-        timestep = config.getfloat('TrackGenerator', 'Timestep')
-
-        interpHistFile = pjoin(self.inputPath, "interp_tracks.csv")
         try:
-            tracks = interpolateTracks.parseTracks(self.configFile,
-                                                   inputFile,
-                                                   source,
-                                                   timestep,
-                                                   interpHistFile, 'linear')
+            tracks = loadTrackFile(self.configFile, inputFile, source)
         except (TypeError, IOError, ValueError):
-            log.critical("Cannot load historical track file: {0}".format(inputFile))
+            log.critical("Cannot load historical track file: {0}".\
+                         format(inputFile))
             raise
         else:
             startYr = 9999
@@ -164,8 +145,8 @@ class TrackDensity(object):
         trackfiles = [pjoin(self.trackPath, f) for f in filelist
                       if f.startswith('tracks')]
         self.synHist = -9999. * np.ones((len(trackfiles),
-                                         len(self.lon_range) - 1,
-                                     len(self.lat_range) - 1))
+                                         len(self.lon_range)-1,
+                                         len(self.lat_range)-1))
 
         work_tag = 0
         result_tag = 1
@@ -175,7 +156,8 @@ class TrackDensity(object):
             n = 0
             for d in range(1, pp.size()):
                 pp.send(trackfiles[w], destination=d, tag=work_tag)
-                log.debug("Processing track file %d of %d" % (w, len(trackfiles)))
+                log.debug("Processing track file {0:d} of {1:d}".\
+                              format(w, len(trackfiles)))
                 w += 1
 
             terminated = 0
@@ -188,7 +170,8 @@ class TrackDensity(object):
                 d = status.source
                 if w < len(trackfiles):
                     pp.send(trackfiles[w], destination=d, tag=work_tag)
-                    log.debug("Processing track file %d of %d" % (w, len(trackfiles)))
+                    log.debug("Processing track file {0:d} of {1:d}".\
+                              format(w, len(trackfiles)))
                     w += 1
                 else:
                     pp.send(None, destination=d, tag=work_tag)
@@ -210,7 +193,8 @@ class TrackDensity(object):
         elif (pp.size() == 1) and (pp.rank() == 0):
             for n, trackfile in enumerate(trackfiles):
                 tracks = loadTracks(trackfile)
-                self.synHist[n, :, :] = self.calculate(tracks) / self.synNumYears
+                self.synHist[n, :, :] = self.calculate(tracks) / \
+                                        self.synNumYears
 
             self.calculateMeans()
 
@@ -222,7 +206,8 @@ class TrackDensity(object):
         # Simple sanity check (should also include the synthetic data):
         if not hasattr(self, 'hist'):
             log.critical("No historical data available!")
-            log.critical("Check that data has been processed before trying to save data")
+            log.critical(("Check that data has been processed before "
+                          "trying to save data"))
             return
 
         log.info('Saving track density data to {0}'.format(dataFile))
@@ -307,21 +292,37 @@ class TrackDensity(object):
         datarange = (0, self.hist.max())
         figure = ArrayMapFigure()
 
-        map_kwargs = dict(llcrnrlon=self.lon_range[:-1].min(),
-                          llcrnrlat=self.lat_range[:-1].min(),
-                          urcrnrlon=self.lon_range[:-1].max(),
-                          urcrnrlat=self.lat_range[:-1].max(),
+        map_kwargs = dict(llcrnrlon=self.lon_range.min(),
+                          llcrnrlat=self.lat_range.min(),
+                          urcrnrlon=self.lon_range.max(),
+                          urcrnrlat=self.lat_range.max(),
                           projection='merc',
                           resolution='i')
         cbarlab = "TC observations/yr"
-        xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
-        figure.add(self.hist.T, xgrid, ygrid, "Historic", datarange, 
+        figure.add(self.hist.T, self.X, self.Y, "Historic", datarange, 
                    cbarlab, map_kwargs)
-        figure.add(self.synHistMean.T, xgrid, ygrid, "Synthetic",
+        figure.add(self.synHistMean.T, self.X, self.Y, "Synthetic",
                     datarange, cbarlab, map_kwargs)
         figure.plot()
         outputFile = pjoin(self.plotPath, 'track_density.png')
         saveFigure(figure, outputFile)
+
+        figure2 = ArrayMapFigure()
+        figure2.add(self.hist.T, self.X, self.Y, "Historic", datarange, 
+                    cbarlab, map_kwargs)
+        figure2.add(self.synHist[0, :, :].T, self.X, self.Y, "Synthetic",
+                    datarange, cbarlab, map_kwargs)
+        figure2.add(self.synHist[10, :, :].T, self.X, self.Y, "Synthetic",
+                    datarange, cbarlab, map_kwargs)
+        figure2.add(self.synHist[20, :, :].T, self.X, self.Y, "Synthetic",
+                    datarange, cbarlab, map_kwargs)
+        figure2.add(self.synHist[30, :, :].T, self.X, self.Y, "Synthetic",
+                    datarange, cbarlab, map_kwargs)
+        figure2.add(self.synHist[40, :, :].T, self.X, self.Y, "Synthetic",
+                    datarange, cbarlab, map_kwargs)        
+        figure2.plot()
+        outputFile = pjoin(self.plotPath, 'track_density_samples.png')
+        saveFigure(figure2, outputFile)
 
 
     @disableOnWorkers
@@ -342,10 +343,10 @@ class TrackDensity(object):
                           projection='merc',
                           resolution='i')
         cbarlab = "TC observations/yr"
-        xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
-        figure.add(self.synHistUpper.T, xgrid, ygrid, "Upper percentile", datarange, 
-                   cbarlab, map_kwargs)
-        figure.add(self.synHistLower.T, xgrid, ygrid, "Lower percentile",
+
+        figure.add(self.synHistUpper.T, self.X, self.Y, "Upper percentile", 
+                   datarange, cbarlab, map_kwargs)
+        figure.add(self.synHistLower.T, self.X, self.Y, "Lower percentile",
                     datarange, cbarlab, map_kwargs)
         figure.plot()
         outputFile = pjoin(self.plotPath, 'track_density_percentiles.png')
