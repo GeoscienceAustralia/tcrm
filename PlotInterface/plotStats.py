@@ -77,7 +77,7 @@ class PlotData(object):
                        format=self.fmt, **kwargs)
         plt.close()
 
-    def scatterHistogram(self, x, y, labels, name, 
+    def scatterHistogram(self, xdata, ydata, labels, name, 
                          transform=lambda x: x, **kwargs):
         """
         Create a scatter plot with marginal distributions
@@ -90,9 +90,9 @@ class PlotData(object):
         
         """
 
-        i = np.where((x < sys.maxint) & (y < sys.maxint))[0]
-        xx = transform(x[i])
-        yy = transform(y[i])
+        i = np.where((xdata < sys.maxint) & (ydata < sys.maxint))[0]
+        xx = transform(xdata[i])
+        yy = transform(ydata[i])
         jp = sns.jointplot(xx, yy, kind='reg',
                            joint_kws={'scatter_kws':
                                       {'color':'slategray', 
@@ -104,7 +104,7 @@ class PlotData(object):
 
         self.savefig(name)
 
-    def barPlot(self, x, y, name, labels):
+    def barPlot(self, xdata, ydata, name, labels):
         """
         Bar plot, with added trend line or mean line
         
@@ -115,16 +115,16 @@ class PlotData(object):
         :param list labels: A list of the x- and y-axis labels to apply.
         """
 
-        f, ax = plt.subplots(1, 1)
-        sns.barplot(x, y, ax=ax)
+        fig, ax = plt.subplots(1, 1)
+        sns.barplot(xdata, ydata, ax=ax)
         ax.set_xlabel(labels[0])
         ax.set_ylabel(labels[1])
-        ax.axhline(np.mean(y))
+        ax.axhline(np.mean(ydata))
         sns.despine()
-        f.tight_layout()
+        fig.tight_layout()
         self.savefig(name)
 
-    def plotRegression(self, x, name, labels, transform=lambda x: x):
+    def plotRegression(self, xdata, name, labels, transform=lambda x: x):
         """
         A generic function to plot a lag-1 autoregression of the 
         variable, with a joint probability plot including 
@@ -140,9 +140,9 @@ class PlotData(object):
         
         """
         
-        f, ax = plt.subplots(1, 1)
-        x_t = x[1:]
-        x_tm = x[:-1]
+        fig, ax = plt.subplots(1, 1)
+        x_t = xdata[1:]
+        x_tm = xdata[:-1]
         skip = (x_t >= sys.maxint) | (x_tm >= sys.maxint)
         x_t = x_t.compress(skip==False)
         x_tm = x_tm.compress(skip==False)
@@ -153,7 +153,7 @@ class PlotData(object):
         sns.regplot(x_t, x_tm, fit_reg=True, ax=ax, dropna=True)
         ax.set_xlabel(labels[0])
         ax.set_ylabel(labels[1])
-        f.tight_layout()
+        fig.tight_layout()
 
         self.savefig(name)
 
