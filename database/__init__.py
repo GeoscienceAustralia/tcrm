@@ -16,14 +16,28 @@ wind speeds corresponding to some threshold, such as a return period
 wind speed, at each location in the domain, which could then be
 selected for more detailed modelling. 
 
-TODO: Upgrade to spatial database (e.g. SpatiaLite) to better handle
-geometries & projected location data.
+:class:`HazardDatabase` is initially intended to be created once, then 
+queried from subsequent scripts or interactive sessions. 
+
+
+TODO::
+
+- Upgrade to spatial database to better handle geometries & projected 
+  location data.
+- Check for existing database and create new/replace existing db if 
+  configuration settings have changed. Requires config settings to 
+  be stored in the db (?).
+
+
 
 """
 
 import os
 import logging
 import sqlite3
+
+from sqlite3 import PARSE_DECLTYPES, PARSE_COLNAMES
+
 from datetime import datetime
 import unicodedata
 import re
@@ -43,8 +57,9 @@ from Utilities.track import loadTracksFromFiles
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
+# Table definition statements
 # Stations - we assume a geographic coordinate system:
-tblLocationsDef = ("CREATE TABLE IF NOT EXISTS tblLocations "
+TBLLOCATIONDEF = ("CREATE TABLE IF NOT EXISTS tblLocations "
                   "(locId integer PRIMARY KEY, locCode text, "
                   "locName text, locType text, locLon real, "
                   "locLat real, locElev real, locCountry text, "
@@ -52,7 +67,7 @@ tblLocationsDef = ("CREATE TABLE IF NOT EXISTS tblLocations "
                   "dtCreated timestamp)")
 
 # Events:
-tblEventsDef = ("CREATE TABLE IF NOT EXISTS tblEvents "
+TBLEVENTSDEF = ("CREATE TABLE IF NOT EXISTS tblEvents "
                 "(eventNumber integer PRIMARY KEY, eventId text, "
                 "eventFile text, eventTrackFile text, "
                 "eventMaxWind real, eventMinPressure real, "
@@ -60,13 +75,13 @@ tblEventsDef = ("CREATE TABLE IF NOT EXISTS tblEvents "
                 "tcrmVersion text, Comments text, dtCreated timestamp)")
 
 #Station wind speed from events:
-tblWindSpeedDef = ("CREATE TABLE IF NOT EXISTS tblWindSpeed "
+TBLWINDSPEEDDEF = ("CREATE TABLE IF NOT EXISTS tblWindSpeed "
                    "(locId integer, eventId text, wspd real, umax real, "
                    "vmax real, pmin real, Comments text, "
                    "dtCreated timestamp)")
 
 # Station hazard levels:
-tblHazardDef = ("CREATE TABLE IF NOT EXISTS tblHazard "
+TBLHAZARDDEF = ("CREATE TABLE IF NOT EXISTS tblHazard "
                 "(locId integer, returnPeriod real, wspd real, "
                 " wspdUpper real, wspdLower real, loc real, "
                 "scale real, shape real, tcrmVersion text, "
@@ -74,33 +89,35 @@ tblHazardDef = ("CREATE TABLE IF NOT EXISTS tblHazard "
                 "dtCreated timestamp)")
 
 # Proximity of tracks to stations:
-tblTracksDef = ("CREATE TABLE IF NOT EXISTS tblTracks "
+TBLTRACKSDEF = ("CREATE TABLE IF NOT EXISTS tblTracks "
                 "(locId integer, eventId text, distClosest real, "
                 "prsClosest real, dtClosest timestamp, Comments text, "
                 "dtCreated timestamp)")
 
+# Insert statements:
 # Insert locations:
-insLocations = "INSERT INTO tblLocations VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+INSLOCATIONS = "INSERT INTO tblLocations VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 
 # Insert event record:
-insEvents = "INSERT INTO tblEvents VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+INSEVENTS = "INSERT INTO tblEvents VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 
 # Insert wind speed record:
-insWindSpeed = "INSERT INTO tblWindSpeed VALUES (?,?,?,?,?,?,?,?)"
+INSWINDSPEED = "INSERT INTO tblWindSpeed VALUES (?,?,?,?,?,?,?,?)"
 
 # Insert hazard record:
-insHazard = "INSERT INTO tblHazard VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
+INSHAZARD = "INSERT INTO tblHazard VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
 
 # Insert track record:
-insTrack = "INSERT INTO tblTracks VALUES (?,?,?,?,?,?,?)"
+INSTRACK = "INSERT INTO tblTracks VALUES (?,?,?,?,?,?,?)"
 
+# Select statements;
 # Select locations within domain:
-selectLocations = ("SELECT * FROM tblLocations WHERE "
+SELECTLOCATIONS = ("SELECT * FROM tblLocations WHERE "
                    "locLon >= ? and locLon <= ? and "
                    "locLat >= ? and locLat <= ?")
 
 # Select locId, locLon & locLat from the subset of locations:
-selectLocLonLat = "SELECT locId, locLon, locLat FROM tblLocations "
+SELECTLOCLONLAT = "SELECT locId, locLon, locLat FROM tblLocations "
 
 def windfieldAttributes(ncfile):
     """
@@ -135,6 +152,7 @@ def singleton(cls):
     instances = {}
 
     def getinstance(*args, **kwargs):
+        """Retrieve existing instance"""
         if cls not in instances:
             instances[cls] = cls(*args, **kwargs)
         return instances[cls]
@@ -144,7 +162,8 @@ def singleton(cls):
 @singleton
 class HazardDatabase(sqlite3.Connection):
     """
-    Create and update a database of locations, events, hazard, wind speed and tracks.
+    Create and update a database of locations, events, hazard, wind 
+    speed and tracks.
 
     :param str configFile: Path to the simulation configuration file.
 
@@ -164,7 +183,7 @@ class HazardDatabase(sqlite3.Connection):
         self.locationDB = pjoin(self.outputPath, 'locations.db')
         
         sqlite3.Connection.__init__(self, self.hazardDB,
-                                    detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+                                    detect_types=PARSE_DECLTYPES|PARSE_COLNAMES)
 
         self.exists = True
         
@@ -177,11 +196,11 @@ class HazardDatabase(sqlite3.Connection):
 
         """
         log.info("Building the hazard database...")
-        self.createTable('tblLocations', tblLocationsDef)
-        self.createTable('tblEvents', tblEventsDef)
-        self.createTable('tblWindSpeed', tblWindSpeedDef)
-        self.createTable('tblHazard', tblHazardDef)
-        self.createTable('tblTracks', tblTracksDef)
+        self.createTable('tblLocations', TBLLOCATIONDEF)
+        self.createTable('tblEvents', TBLEVENTSDEF)
+        self.createTable('tblWindSpeed', TBLWINDSPEEDDEF)
+        self.createTable('tblHazard', TBLHAZARDDEF)
+        self.createTable('tblTracks', TBLTRACKSDEF)
         self.exists = True
         self.commit()
         return
@@ -193,14 +212,16 @@ class HazardDatabase(sqlite3.Connection):
         :param tblName: Table name.
         :param tblDef: Table definition.
 
+        :raises: `sqlite3.Error` if unable to create the database.
         """
-        log.info("Creating table %s" % tblName)
-        log.debug("Executing statement: %s" % tblDef)
+        log.info("Creating table {0}".format(tblName))
+        log.debug("Executing statement: {0}".format(tblDef))
         try:
             self.execute(tblDef)
             self.commit()
         except sqlite3.Error as err:
-            log.exception("Cannot create table %s: %s" % (tblName, err.args[0]))
+            log.exception("Cannot create table {0}: {1}".\
+                          format(tblName, err.args[0]))
             raise
         
     def setLocations(self):
@@ -212,8 +233,8 @@ class HazardDatabase(sqlite3.Connection):
         """
         
         conn = sqlite3.connect(self.locationDB,
-                               detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
-        cur = conn.execute(selectLocations, (self.domain['xMin'],
+                               detect_types=PARSE_DECLTYPES|PARSE_COLNAMES)
+        cur = conn.execute(SELECTLOCATIONS, (self.domain['xMin'],
                                              self.domain['xMax'],
                                              self.domain['yMin'],
                                              self.domain['yMax']) )
@@ -221,7 +242,7 @@ class HazardDatabase(sqlite3.Connection):
         locations = cur.fetchall()
         conn.close()
         if len(locations) >= 1:
-            self.executemany(insLocations, locations)
+            self.executemany(INSLOCATIONS, locations)
             self.commit()
         else:
             log.info("No locations returned")
@@ -232,11 +253,13 @@ class HazardDatabase(sqlite3.Connection):
 
         :returns: List of tuples containing location id, longitude and latitude.
         
+        :raises: `sqlite3.Error` if unable to retrieve the locations.
         """
         try:
             cur = self.execute("SELECT locId, locLon, locLat FROM tblLocations")
         except sqlite3.Error as err:
-            log.exception("Cannot retrieve locations from tblLocations: %s" % err.args[0])
+            log.exception("Cannot retrieve locations from tblLocations: {0}".\
+                          format(err.args[0]))
             raise
         else:
             locations = cur.fetchall()
@@ -252,11 +275,14 @@ class HazardDatabase(sqlite3.Connection):
         annual event set. Future versions can hold additional metadata
         about each individual synthetic TC event.
 
+        :raises: `sqlite3.Error` if unable to insert events into 
+                 _tblEvents_.
+
         """
         fileList = os.listdir(self.windfieldPath)
         fileList = [f for f in fileList if os.path.isfile(f)]
 
-        pattern = re.compile('\d+')
+        pattern = re.compile(r'\d+')
         params = []
         for n, f in enumerate(sorted(fileList)):
             log.debug("Processing {0}".format(f))
@@ -273,9 +299,10 @@ class HazardDatabase(sqlite3.Connection):
                            "", datetime.now()))
 
         try:
-            self.executemany(insEvents, params)
+            self.executemany(INSEVENTS, params)
         except sqlite3.Error as err:
-            log.exception("Cannot insert records into tblEvents: %s" % err.args[0])
+            log.exception("Cannot insert records into tblEvents: {0}".\
+                          format(err.args[0]))
             raise
         else:
             self.commit()
@@ -287,13 +314,16 @@ class HazardDatabase(sqlite3.Connection):
         modelled wind speed (or the missing value) at each grid point,
         from each synthetic event.
 
+        :raises: `sqlite3.Error` if unable to insert records into 
+                 _tblWindSpeed_.
+
         """
 
         fileList = os.listdir(self.windfieldPath)
         fileList = [f for f in fileList if os.path.isfile(f)]
 
         locations = self.getLocations()
-        pattern = re.compile('\d+')
+        pattern = re.compile(r'\d+')
         for n, f in enumerate(sorted(fileList)):
             log.debug("Processing {0}".format(f))
             sim, num = pattern.findall(f)
@@ -323,9 +353,10 @@ class HazardDatabase(sqlite3.Connection):
                 params.append(locParams)
 
             try:
-                self.executemany(insWindSpeed, params)
+                self.executemany(INSWINDSPEED, params)
             except sqlite3.Error as err:
-                log.exception("Cannot insert records into tblWindSpeed: %s" % err.args[0])
+                log.exception("Cannot insert records into tblWindSpeed: {0}".\
+                              format(err.args[0]))
                 raise
             else:
                 self.commit()
@@ -337,16 +368,17 @@ class HazardDatabase(sqlite3.Connection):
         """
 
         locations = self.getLocations()
-
-        ncobj = Dataset(pjoin(self.hazardPath, 'hazard.nc'))
+        hazardFile = pjoin(self.hazardPath, 'hazard.nc')
+        ncobj = Dataset(hazardFile)
     
         try:
             tcrm_version = getattr(ncobj, 'tcrm_version')
         except AttributeError:
-            log.info("Missing tcrm_version attribute from {0}".format(hazardFile))
+            log.info("Missing tcrm_version attribute from {0}".\
+                     format(hazardFile))
             tcrm_version = ''
 
-        si = os.stat(pjoin(self.hazardPath, 'hazard.nc'))
+        si = os.stat(hazardFile)
         dtHazardFile = datetime.fromtimestamp(int(si.st_mtime))
         lon = ncobj.variables['lon'][:]
         lat = ncobj.variables['lat'][:]
@@ -363,6 +395,7 @@ class HazardDatabase(sqlite3.Connection):
         for k, year in enumerate(years):
             for loc in locations:
                 locId, locLon, locLat = loc
+                log.debug("Extracting data for location: {0}".format(locId))
                 i = find_index(lon, locLon)
                 j = find_index(lat, locLat)
                 locWspd = wspd[k, j, i]
@@ -381,9 +414,10 @@ class HazardDatabase(sqlite3.Connection):
                 params.append(locParams)
 
         try:
-            self.executemany(insHazard, params)
+            self.executemany(INSHAZARD, params)
         except sqlite3.Error as err:
-            log.exception("Cannot insert records into tblHazard: %s" % err.args[0])
+            log.exception("Cannot insert records into tblHazard: {0}".\
+                          format(err.args[0]))
             raise
         else:
             self.commit()
@@ -398,7 +432,8 @@ class HazardDatabase(sqlite3.Connection):
         points = [Point(loc[1], loc[2]) for loc in locations]
 
         files = os.listdir(self.trackPath)
-        trackfiles = [pjoin(self.trackPath, f) for f in files if f.startswith('tracks')]
+        trackfiles = [pjoin(self.trackPath, f) for f in files \
+                      if f.startswith('tracks')]
         tracks = loadTracksFromFiles(sorted(trackfiles))
         params = []
         for track in tracks:
@@ -406,15 +441,16 @@ class HazardDatabase(sqlite3.Connection):
                 continue
             distances = track.minimumDistance(points)
             for (loc, dist) in zip(locations, distances):
-                locParams = (loc[0], "%s-%s"%(track.trackId), dist, None, None, "",
-                             datetime.now())
+                locParams = (loc[0], "%s-%s"%(track.trackId), 
+                             dist, None, None, "", datetime.now())
 
                 params.append(locParams)
 
         try:
-            self.executemany(insTrack, params)
+            self.executemany(INSTRACK, params)
         except sqlite3.Error as err:
-            log.exception("Cannot insert records into tblTracks: %s" % err.args[0])
+            log.exception(("Cannot insert records into tblTracks: "
+                           "{0}").format(err.args[0]))
             raise
         else:
             self.commit()
@@ -449,7 +485,8 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
                   'Comments' : 'ICAO'
                   }
 
-              columns = ('locCode', 'locName', 'locCountry', 'locElev', 'Comments')
+              columns = ('locCode', 'locName', 'locCountry', 
+                         'locElev', 'Comments')
 
               for col in columns:
                   if mappings.has_key(col):
@@ -469,13 +506,15 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
         lons.append(lon)
         lats.append(lat)
 
-    msg=("Location shapefile must be in a geograpic coordinate system "
-         "(i.e. it must have lat/lon vertices). It looks like this "
-         "one has vertices in map projection coordinates. You can convert the "
-         "shapefile to geographic coordinates using the shpproj utility from "
-         "the shapelib tools (http://shapelib.maptools.org/shapelib-tools.html)")
+    msg = ("Location shapefile must be in a geograpic coordinate system "
+           "(i.e. it must have lat/lon vertices). It looks like this "
+           "one has vertices in map projection coordinates. You can convert "
+           "the shapefile to geographic coordinates using the shpproj utility "
+           "from the shapelib tools "
+           "(http://shapelib.maptools.org/shapelib-tools.html)")
 
-    if max(lons) > 721. or min(lons) < -721. or max(lats) > 91. or min(lats) < -91:
+    if (max(lons) > 721.) or (min(lons) < -721.) or \
+         (max(lats) > 91.) or (min(lats) < -91):
         raise ValueError(msg)
 
     # Prepare entries:
@@ -492,9 +531,10 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
                           os.path.basename(location_file),
                           locComment, datetime.now()))
 
-    locdb = sqlite3.connect(location_db, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
-    locdb.execute(tblLocationsDef)
-    locdb.executemany(insLocations, locations)
+    locdb = sqlite3.connect(location_db, 
+                            detect_types=PARSE_DECLTYPES|PARSE_COLNAMES)
+    locdb.execute(TBLLOCATIONDEF)
+    locdb.executemany(INSLOCATIONS, locations)
     locdb.commit()
     locdb.close()
 

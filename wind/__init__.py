@@ -223,14 +223,12 @@ class WindfieldAroundTrack(object):
             envPressure = np.NaN
 
         # Get the limits of the region
-
         xMin = gridLimit['xMin']
         xMax = gridLimit['xMax']
         yMin = gridLimit['yMin']
         yMax = gridLimit['yMax']
 
         # Setup a 'millidegree' integer grid for the region
-
         gridMargin = int(100. * self.margin)
         gridStep = int(100. * self.resolution)
 
@@ -245,7 +243,6 @@ class WindfieldAroundTrack(object):
         [cGridX, cGridY] = np.meshgrid(lonGrid, latGrid)
 
         # Initialise the region
-
         UU = np.zeros_like(cGridX, dtype='f')
         VV = np.zeros_like(cGridY, dtype='f')
         bearing = np.zeros_like(cGridX, dtype='f')
@@ -256,7 +253,6 @@ class WindfieldAroundTrack(object):
         latCDegree = np.array(100. * self.track.Latitude, dtype=int)
 
         # We only consider the times when the TC track falls in the region
-
         timesInRegion = np.where((xMin <= self.track.Longitude) &
                                 (self.track.Longitude <= xMax) &
                                 (yMin <= self.track.Latitude) &
@@ -282,7 +278,6 @@ class WindfieldAroundTrack(object):
             Ux, Vy, P = self.localWindField(i)
 
             # Calculate the local wind gust and bearing
-
             Ux *= self.gustFactor
             Vy *= self.gustFactor
 
@@ -290,7 +285,6 @@ class WindfieldAroundTrack(object):
             localBearing = ((np.arctan2(-Ux, -Vy)) * 180. / np.pi)
 
             # Handover this time step to a callback if required
-
             if timeStepCallback is not None:
                 timeStepCallback(self.track.Datetime[i],
                                  localGust, Ux, Vy, P,
@@ -310,7 +304,6 @@ class WindfieldAroundTrack(object):
                 mask, Vy, VV[jmin:jmax, imin:imax])
 
             # Retain the lowest pressure
-
             pressure[jmin:jmax, imin:imax] = np.where(
                 P < pressure[jmin:jmax, imin:imax],
                 P, pressure[jmin:jmax, imin:imax])
@@ -500,7 +493,7 @@ class WindfieldGenerator(object):
             self.saveGustToFile(track.trackfile, 
                                 (lat, lon, gust, Vx, Vy, P),
                                 dumpfile)
-            self.plotGustToFile((lat, lon, gust, Vx, Vy, P), plotfile)
+            #self.plotGustToFile((lat, lon, gust, Vx, Vy, P), plotfile)
 
     def plotGustToFile(self, result, filename):
         """
