@@ -351,11 +351,10 @@ def readMultipleTrackData(trackfile):
 
 def loadTracks(trackfile):
     """
-    Read tracks from a track .csv file and return a list of :class:`Track`
+    Read tracks from a track .nc file and return a list of :class:`Track`
     objects.
 
-    This calls the function `readMultipleTrackData` to parse the track .csv
-    file.
+    This calls the function `ncReadTrackData` to parse the track .nc file.
 
     :param str trackfile: the track data filename.
 
@@ -363,14 +362,8 @@ def loadTracks(trackfile):
 
     """
 
-    sim, num = PATTERN.findall(os.path.basename(trackfile))
-    
-    data = readTrackData(trackfile)
-    track = Track(data)
-    track.trackfile = trackfile
-    track.trackId = (sim, num)
-    
-    return [track]
+    tracks = ncReadTrackData(trackfile)
+    return tracks
 
 def loadTracksFromFiles(trackfiles):
     """
