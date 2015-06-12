@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
 
-
+from PlotInterface.figures import LaggedRegressionFigure
 from scipy.stats import linregress, probplot, frechet_l
 import numpy as np
 
@@ -85,8 +85,12 @@ class PlotData(object):
         :param x: `numpy.ndarray` of x values.
         :param y: `numpy.ndarray` of y values.
         :param list labels: A length-2 list with the x and y labels as strings.
-        :param str img_name: Name to use in the file name for saving the 
-                             figure.
+        :param str name: Name to use in the file name for saving the 
+                         figure.
+        :param func transform: A function to transform the data.
+        :param kwargs: Additional keyword arguments passed to 
+                       `seaborn.jointplot`.
+
         
         """
 
@@ -139,8 +143,10 @@ class PlotData(object):
                                data unchanged.
         
         """
+        figure = LaggedRegressionFigure()
+        figure.add(xdata, labels[0], name, transform)
+        self.savefigure(figure, name)
         
-        fig, ax = plt.subplots(1, 1)
         x_t = xdata[1:]
         x_tm = xdata[:-1]
         skip = (x_t >= sys.maxint) | (x_tm >= sys.maxint)
@@ -150,13 +156,6 @@ class PlotData(object):
         x_t = transform(x_t)
         x_tm = transform(x_tm)
         
-        sns.regplot(x_t, x_tm, fit_reg=True, ax=ax, dropna=True)
-        ax.set_xlabel(labels[0])
-        ax.set_ylabel(labels[1])
-        fig.tight_layout()
-
-        self.savefig(name)
-
         self.scatterHistogram(x_t, x_tm, labels, name+'_scatter')
 
     
