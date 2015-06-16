@@ -1,4 +1,3 @@
-argparse==1.2.1
 six>=1.7.3
 --allow-external python-dateutil
 --allow-unverified python-dateutil
