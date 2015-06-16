@@ -24,6 +24,7 @@ from Utilities.track import ncReadTrackData
 from Utilities.nctools import ncSaveGrid
 from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities import pathLocator
+from Utilities.loadData import loadTrackFile
 
 from PlotInterface.maps import ArrayMapFigure, saveFigure
 
@@ -67,6 +68,13 @@ class TrackDensity(object):
                                    self.gridLimit['yMax'] + 0.1,
                                    gridSpace['y'])
         self.X, self.Y = np.meshgrid(self.lon_range, self.lat_range)
+
+        self.map_kwargs = dict(llcrnrlon=self.lon_range.min(),
+                               llcrnrlat=self.lat_range.min(),
+                               urcrnrlon=self.lon_range.max(),
+                               urcrnrlat=self.lat_range.max(),
+                               projection='merc',
+                               resolution='i')
         outputPath = config.get('Output', 'Path')
         self.trackPath = pjoin(outputPath, 'tracks')
         self.plotPath = pjoin(outputPath, 'plots', 'stats')
@@ -91,8 +99,10 @@ class TrackDensity(object):
         lat = []
 
         for t in tracks:
+            #if t.inRegion(self.gridLimit):
             lon = np.append(lon, t.Longitude)
             lat = np.append(lat, t.Latitude)
+
         histogram, x, y = np.histogram2d(lon, lat,
                                          [self.lon_range,
                                           self.lat_range],
@@ -112,7 +122,14 @@ class TrackDensity(object):
 
     @disableOnWorkers
     def historic(self):
-        """Load historic data and calculate histogram"""
+        """
+        Load historic data and calculate histogram.
+        Note that the input historical data is filtered by year 
+        when it's loaded in `interpolateTracks.parseTracks()`. 
+
+        The timestep to interpolate to is set to match that of the 
+        synthetic event set (normally set to 1 hour). 
+        """
         config = ConfigParser()
         config.read(self.configFile)
         inputFile = config.get('DataProcess', 'InputFile')
@@ -134,9 +151,8 @@ class TrackDensity(object):
                 startYr = min(startYr, min(t.Year))
                 endYr = max(endYr, max(t.Year))
             numYears = endYr - startYr
+
             self.hist = self.calculate(tracks) / numYears
-
-
 
     def synthetic(self):
         """Load synthetic data and calculate histogram"""
@@ -292,17 +308,11 @@ class TrackDensity(object):
         datarange = (0, self.hist.max())
         figure = ArrayMapFigure()
 
-        map_kwargs = dict(llcrnrlon=self.lon_range.min(),
-                          llcrnrlat=self.lat_range.min(),
-                          urcrnrlon=self.lon_range.max(),
-                          urcrnrlat=self.lat_range.max(),
-                          projection='merc',
-                          resolution='i')
         cbarlab = "TC observations/yr"
         figure.add(self.hist.T, self.X, self.Y, "Historic", datarange, 
-                   cbarlab, map_kwargs)
+                   cbarlab, self.map_kwargs)
         figure.add(self.synHistMean.T, self.X, self.Y, "Synthetic",
-                    datarange, cbarlab, map_kwargs)
+                    datarange, cbarlab, self.map_kwargs)
         figure.plot()
         outputFile = pjoin(self.plotPath, 'track_density.png')
         saveFigure(figure, outputFile)
@@ -311,15 +321,15 @@ class TrackDensity(object):
         figure2.add(self.hist.T, self.X, self.Y, "Historic", datarange, 
                     cbarlab, map_kwargs)
         figure2.add(self.synHist[0, :, :].T, self.X, self.Y, "Synthetic",
-                    datarange, cbarlab, map_kwargs)
+                    datarange, cbarlab, self.map_kwargs)
         figure2.add(self.synHist[10, :, :].T, self.X, self.Y, "Synthetic",
-                    datarange, cbarlab, map_kwargs)
+                    datarange, cbarlab, self.map_kwargs)
         figure2.add(self.synHist[20, :, :].T, self.X, self.Y, "Synthetic",
-                    datarange, cbarlab, map_kwargs)
+                    datarange, cbarlab, self.map_kwargs)
         figure2.add(self.synHist[30, :, :].T, self.X, self.Y, "Synthetic",
-                    datarange, cbarlab, map_kwargs)
+                    datarange, cbarlab, self.map_kwargs)
         figure2.add(self.synHist[40, :, :].T, self.X, self.Y, "Synthetic",
-                    datarange, cbarlab, map_kwargs)        
+                    datarange, cbarlab, self.map_kwargs)        
         figure2.plot()
         outputFile = pjoin(self.plotPath, 'track_density_samples.png')
         saveFigure(figure2, outputFile)
@@ -336,18 +346,12 @@ class TrackDensity(object):
         datarange = (0, self.hist.max())
         figure = ArrayMapFigure()
 
-        map_kwargs = dict(llcrnrlon=self.lon_range[:-1].min(),
-                          llcrnrlat=self.lat_range[:-1].min(),
-                          urcrnrlon=self.lon_range[:-1].max(),
-                          urcrnrlat=self.lat_range[:-1].max(),
-                          projection='merc',
-                          resolution='i')
         cbarlab = "TC observations/yr"
 
         figure.add(self.synHistUpper.T, self.X, self.Y, "Upper percentile", 
-                   datarange, cbarlab, map_kwargs)
+                   datarange, cbarlab, self.map_kwargs)
         figure.add(self.synHistLower.T, self.X, self.Y, "Lower percentile",
-                    datarange, cbarlab, map_kwargs)
+                    datarange, cbarlab, self.map_kwargs)
         figure.plot()
         outputFile = pjoin(self.plotPath, 'track_density_percentiles.png')
         saveFigure(figure, outputFile)

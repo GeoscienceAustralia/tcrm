@@ -1,6 +1,7 @@
 import numpy as np
 import wind.windmodels as windmodels
 from matplotlib.figure import Figure
+import seaborn as sns
 
 class WindProfileFigure(Figure):
 
@@ -43,7 +44,6 @@ class WindProfileFigure(Figure):
                 pass
 
         ax.legend(legend)
-        ax.grid()
         ax.set_xlabel('Radius (km)', fontsize=14)
         ax.set_ylabel('Wind speed (m/s)', fontsize=14)
         ax.set_title((r'$P_c = %d\hspace{0.5}hPa,\hspace{1} P_e' +
@@ -60,7 +60,7 @@ def main():
     rMax = 30.
     eP = 100700.
     cP = 95000.
-    beta = 1.6
+    beta = 1.9
 
     filename = 'windprofiles.png'
     path = pjoin(normpath(pjoin(dirname(__file__), '..', 'docs')), filename)

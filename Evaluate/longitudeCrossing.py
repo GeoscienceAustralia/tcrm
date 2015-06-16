@@ -501,6 +501,7 @@ class LongitudeCrossing(object):
         ax2.set_ylabel('Latitude')
         ax2.grid(True)
         
+        fig.tight_layout()
         canvas = FigureCanvas(fig)
         canvas.print_figure(pjoin(self.plotPath,'lon_crossing_syn.png'))
 

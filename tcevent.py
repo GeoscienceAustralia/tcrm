@@ -195,7 +195,6 @@ def main(configFile):
     import wind
     wind.run(configFile, status)
 
-    # FIXME: Add wind field and timeseries plotting
     doWindfieldPlotting(configFile)
     doTimeseriesPlotting(configFile)
 

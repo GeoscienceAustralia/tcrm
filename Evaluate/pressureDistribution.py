@@ -32,8 +32,7 @@ from Utilities.parallel import attemptParallel, disableOnWorkers
 
 from PlotInterface.maps import ArrayMapFigure, saveFigure
 from PlotInterface.curves import saveDistributionCurve
-from PlotInterface.figures import QuantileFigure
-
+from PlotInterface.figures import QuantileFigure, saveFigure
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -51,11 +50,12 @@ def loadTracks(trackfile):
     tracks = ncReadTrackData(trackfile)
     return tracks
 
-class gridCell(object):
-    """ 
-    A simple class for determining data values over a grid.
-    
+class GridCell(object):
     """
+    A simple class for determining data values over a grid.
+
+    """
+
     def __init__(self, xmin, ymin, xmax, ymax, number, index):
         self.xmin = xmin
         self.ymin = ymin
@@ -107,7 +107,7 @@ class PressureDistribution(object):
                 ymax = self.lat_range[l] + gridSpace['y']
                 xmin = self.lon_range[k]
                 xmax = self.lon_range[k] + gridSpace['x']
-                self.gridCells.append(gridCell(xmin, ymin, xmax, ymax,
+                self.gridCells.append(GridCell(xmin, ymin, xmax, ymax,
                                                cellnumber, (k, l)))
                 cellnumber += 1
 
@@ -171,7 +171,6 @@ class PressureDistribution(object):
         h, n = np.histogram(minCP, bins, normed=True)
         return h, minCP
 
-
     def calculateMeans(self, synMean, synMin, synMed, synMax, synMinCP):
         """
         Calculate mean, median, minimum, maximum and percentiles of pressure
@@ -202,7 +201,6 @@ class PressureDistribution(object):
         self.synMinCPDist = np.mean(synMinCP, axis=0)
         self.synMinCPLower = percentile(synMinCP, per=5, axis=0)
         self.synMinCPUpper = percentile(synMinCP, per=95, axis=0)
-        
         r = list(np.random.uniform(high=synMean.shape[0], size=3).astype(int))
         self.synRandomMinima = synMean[r, :, :]
 
@@ -214,14 +212,14 @@ class PressureDistribution(object):
         config.read(self.configFile)
         inputFile = config.get('DataProcess', 'InputFile')
         source = config.get('DataProcess', 'Source')
-        
+
         if len(os.path.dirname(inputFile)) == 0:
             inputFile = pjoin(self.inputPath, inputFile)
-        
+
         try:
             tracks = loadTrackFile(self.configFile, inputFile, source)
         except (TypeError, IOError, ValueError):
-            log.critical("Cannot load historical track file: {0}".\
+            log.critical("Cannot load historical track file: {0}".
                          format(inputFile))
             raise
         else:
@@ -243,14 +241,14 @@ class PressureDistribution(object):
                                     len(self.lon_range) - 1,
                                     len(self.lat_range) - 1))
         synMin = -9999. * ma.ones((len(trackfiles),
-                                    len(self.lon_range) - 1,
-                                    len(self.lat_range) - 1))
+                                   len(self.lon_range) - 1,
+                                   len(self.lat_range) - 1))
         synMax = -9999. * ma.ones((len(trackfiles),
-                                    len(self.lon_range) - 1,
-                                    len(self.lat_range) - 1))
+                                   len(self.lon_range) - 1,
+                                   len(self.lat_range) - 1))
         synMed = -9999. * ma.ones((len(trackfiles),
-                                    len(self.lon_range) - 1,
-                                    len(self.lat_range) - 1))
+                                   len(self.lon_range) - 1,
+                                   len(self.lat_range) - 1))
 
         bins = np.arange(850., 1020., 5.)
         synMinCPDist = np.empty((len(trackfiles), len(bins) - 1))
@@ -261,7 +259,7 @@ class PressureDistribution(object):
             n = 0
             for d in range(1, pp.size()):
                 pp.send(trackfiles[w], destination=d, tag=work_tag)
-                log.debug("Processing track file {0:d} of {1:d}".\
+                log.debug("Processing track file {0:d} of {1:d}".
                           format(w + 1, len(trackfiles)))
                 w += 1
 
@@ -269,7 +267,6 @@ class PressureDistribution(object):
             while (terminated < pp.size() - 1):
                 results, status = pp.receive(pp.any_source, tag=result_tag,
                                              return_status=True)
-                
 
                 sMean, sMin, sMax, sMed, sMinCPDist, sMinCP = results
                 synMean[n, :, :] = sMean
@@ -284,7 +281,7 @@ class PressureDistribution(object):
 
                 if w < len(trackfiles):
                     pp.send(trackfiles[w], destination=d, tag=work_tag)
-                    log.debug("Processing track file {0:d} of {1:d}".\
+                    log.debug("Processing track file {0:d} of {1:d}".
                               format(w + 1, len(trackfiles)))
                     w += 1
                 else:
@@ -298,14 +295,14 @@ class PressureDistribution(object):
                 trackfile = pp.receive(source=0, tag=work_tag)
                 if trackfile is None:
                     break
-                
+
                 log.debug("Processing %s" % (trackfile))
                 tracks = loadTracks(trackfile)
                 sMean, sMin, sMax, sMed = self.calculate(tracks)
                 sMinCPDist, sMinCP = self.calcMinPressure(tracks)
                 results = (sMean, sMin, sMax, sMed, sMinCPDist, sMinCP)
                 pp.send(results, destination=0, tag=result_tag)
-                
+
         elif pp.size() == 1 and pp.rank() == 0:
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
             for n, trackfile in enumerate(sorted(trackfiles)):
@@ -321,7 +318,8 @@ class PressureDistribution(object):
         """
         Plot a map of observed and synthetic mean pressure values
 
-        """        
+        """
+
         datarange = (950, 1000)
         figure = ArrayMapFigure() 
 
@@ -362,10 +360,10 @@ class PressureDistribution(object):
 
         cbarlab = "Minimum central pressure (hPa)"
         xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
-        figure.add(np.transpose(self.histMin), xgrid, ygrid, "Historic", 
-                   datarange, cbarlab, map_kwargs)
-        figure.add(np.transpose(self.synMin), xgrid, ygrid, "Synthetic", 
-                   datarange, cbarlab, map_kwargs)
+        figure.add(np.transpose(self.histMin), xgrid, ygrid, 
+                   "Historic", datarange, cbarlab, map_kwargs)
+        figure.add(np.transpose(self.synMin), xgrid, ygrid, 
+                   "Synthetic", datarange, cbarlab, map_kwargs)
 
         figure.plot()
         outputFile = pjoin(self.plotPath, 'minPressure.png')
@@ -397,7 +395,6 @@ class PressureDistribution(object):
         figure.plot()
         outputFile = pjoin(self.plotPath, 'minPressureDiff.png')
         saveFigure(figure, outputFile)
-
 
     @disableOnWorkers
     def plotPressureMeanDiff(self):
@@ -440,8 +437,10 @@ class PressureDistribution(object):
         y2min = self.synMinCPLower
         y2max = self.synMinCPUpper
         outputFile = pjoin(self.plotPath, 'minPressureDist.png')
-        saveDistributionCurve(x, y1, y2, y2max, y2min, "Minimum pressure (hPa)",
-                              "Probability", "Minimum pressure distribution", 
+        saveDistributionCurve(x, y1, y2, y2max, y2min, 
+                              "Minimum pressure (hPa)", 
+                              "Probability", 
+                              "Minimum pressure distribution", 
                               outputFile)
 
     @disableOnWorkers
@@ -454,9 +453,9 @@ class PressureDistribution(object):
         y = self.synMinCP
         lims = (850, 1000)
         fig = QuantileFigure()
-        fig.add(x.compress(x>0), y.compress(y>0), lims, 
+        fig.add(x.compress(x > 0), y.compress(y > 0), lims, 
                 "Observed pressure (hPa)", 
-                "Simulated pressure (hPa)",
+                "Simulated pressure (hPa)", 
                 "Q-Q plot of minimum central pressure")
         fig.plot()
         outputFile = pjoin(self.plotPath, 'minPressureQuantiles.png')
@@ -496,7 +495,7 @@ class PressureDistribution(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Longitude',
-                    'units':'degrees_east',
+                    'units': 'degrees_east',
                     'axis': 'X'
                 }
             }
@@ -511,7 +510,7 @@ class PressureDistribution(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Historical mean central pressure',
-                    'units':'hPa'
+                    'units': 'hPa'
                 }
             },
             1: {
@@ -521,7 +520,7 @@ class PressureDistribution(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Mean synthetic mean central pressure',
-                    'units':'hPa'
+                    'units': 'hPa'
                 }
             },
             2: {
@@ -531,7 +530,7 @@ class PressureDistribution(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Historical minimum central pressure',
-                    'units':'hPa'
+                    'units': 'hPa'
                 }
             },
             3: {

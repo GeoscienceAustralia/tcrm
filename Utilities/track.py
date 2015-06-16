@@ -26,7 +26,6 @@ from Utilities.maputils import bearing2theta
 
 from netCDF4 import Dataset, date2num, num2date
 
-
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
@@ -35,12 +34,12 @@ trackFields = ('Indicator', 'CycloneNumber', 'Year', 'Month',
                'Latitude', 'Speed', 'Bearing', 'CentralPressure',
                'WindSpeed', 'rMax', 'EnvPressure')
 
-trackTypes = ('i', 'i', 'i', 'i', 
+trackTypes = ('i', 'i', 'i', 'i',
               'i', 'i', 'i', 'f', datetime,
-              'f', 'f', 'f', 'f', 'f', 
+              'f', 'f', 'f', 'f', 'f',
               'f', 'f', 'f')
 
-trackFormats = ('%i, %i, %i, %i,' 
+trackFormats = ('%i, %i, %i, %i,'
                 '%i, %i, %i, %5.1f,' '%s',
                 '%8.3f, %8.3f, %6.2f, %6.2f, %7.2f,'
                 '%6.2f, %6.2f, %7.2f')
@@ -48,7 +47,6 @@ trackFormats = ('%i, %i, %i, %i,'
 PATTERN = re.compile(r'\d+')
 
 class Track(object):
-
     """
     A single tropical cyclone track.
 
@@ -73,9 +71,14 @@ class Track(object):
         self.data = data
         self.trackId = None
         self.trackfile = None
-        self.trackMinPressure = None
-        self.trackMaxWind = None
-
+        if (len(data) > 0) and ('CentralPressure' in data.dtype.names):
+            self.trackMinPressure = np.min(data['CentralPressure'])
+        else:
+            self.trackMinPressure = None
+        if (len(data) > 0) and ('WindSpeed' in data.dtype.names):
+            self.trackMaxWind = np.max(data['WindSpeed'])
+        else:
+            self.trackMaxWind = None
 
     def __getattr__(self, key):
         """
@@ -91,7 +94,7 @@ class Track(object):
 
     def inRegion(self, gridLimit):
         """
-        Check if the tropical cyclone track falls within a region.
+        Check if the tropical cyclone track falls entirely within a region.
 
         :type  gridLimit: :class:`dict`
         :param gridLimit: the region to check.

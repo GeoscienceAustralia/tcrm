@@ -20,3 +20,4 @@ figure.dpi: 300
 figure.figsize: 16, 12
 figure.subplot.left: 0.0675
 figure.subplot.right: 0.9125
+image.cmap: Blues

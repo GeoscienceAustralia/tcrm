@@ -27,28 +27,26 @@ from Utilities.metutils import convert
 from timeseries import TimeSeriesFigure, saveFigure
 
 DATEFORMAT = "%Y-%m-%d %H:%M"
-INPUT_COLS = ('Time', 'Longitude', 'Latitude',
+INPUT_COLS = ('Station', 'Time', 'Longitude', 'Latitude',
               'Speed', 'UU', 'VV', 'Bearing',
               'Pressure')
 
-INPUT_FMTS = ('object', 'f', 'f', 'f', 'f', 'f', 'f', 'f')
-INPUT_TITLES = ("Time", "Longitude", "Latitude", "Wind speed", "Eastward wind", 
-                "Northward wind", "Wind direction", "Sea level pressure")
-INPUT_UNIT = ('%Y-%m-%d %H:%M', 'degrees', 'degrees', 'm/s', 'm/s', 'm/s','degrees', 'Pa')
+INPUT_FMTS = ('|S16', 'object', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
+INPUT_TITLES = ("Station", "Time", "Longitude", "Latitude", "Wind speed", 
+                "Eastward wind", "Northward wind", "Wind direction", 
+                "Sea level pressure")
+INPUT_UNIT = ('', '%Y-%m-%d %H:%M', 'degrees', 'degrees', 'm/s', 
+                'm/s', 'm/s','degrees', 'Pa')
 INPUT_CNVT = {
-    0: lambda s: datetime.strptime(s.strip(), INPUT_UNIT[0]),
-    7: lambda s: convert(float(s.strip() or 0), INPUT_UNIT[7], 'hPa')
+    1: lambda s: datetime.strptime(s.strip(), INPUT_UNIT[1]),
+    8: lambda s: convert(float(s.strip() or 0), INPUT_UNIT[8], 'hPa')
     }
 
 def loadTimeseriesData(datafile):
     try:
-        return np.loadtxt(datafile,
-                          comments = "#",
-                          delimiter = ',',
-                          dtype = {
-                            'names': INPUT_COLS,
-                            'formats': INPUT_FMTS},
-                          converters = INPUT_CNVT)
+        return np.genfromtxt(datafile, dtype=INPUT_FMTS, names=INPUT_COLS, 
+                             comments='#', delimiter=',', skiprows=1, 
+                             converters=INPUT_CNVT)
     except ValueError:
         return np.empty(0, dtype={
                         'names': INPUT_COLS,

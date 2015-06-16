@@ -7,5 +7,7 @@ tornado
 pyparsing
 netCDF4>=1.0.8
 pytz==2014.4
+seaborn==0.5.1
 simplejson==3.6.0
 Shapely>=1.2.15
+statsmodels>=0.5.0

@@ -8,9 +8,10 @@ from scipy.interpolate import interp1d, splev, splrep
 
 from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile
+from Utilities.track import Track
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
 
 TRACKFILE_COLS = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
                   'Day', 'Hour', 'Minute', 'TimeElapsed', 'Datetime',
@@ -34,7 +35,7 @@ OUTPUT_COLS = ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
 
 OUTPUT_FMTS = '%i,%s,%7.3f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f'
 
-class Track(object):
+class Track2(object):
     def __init__(self, data):
         self.data = data
         self.trackId = None
@@ -62,13 +63,14 @@ def interpolate(track, delta, interpolation_type=None):
     # FIXME: Need to address masking values - scipy.interpolate.interp1d
     handles numpy.ma masked arrays. 
     """
-    log.debug("Performing interpolation of TC track")
+    LOG.debug("Performing interpolation of TC track")
     day_ = [datetime(*x) for x in zip(track.Year, track.Month, 
                                       track.Day, track.Hour, 
                                       track.Minute)]
     timestep = timedelta(delta/24.)
     
-    time_ = np.array([d.toordinal() + d.hour/24.0 for d in day_], dtype=float) 
+    time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.0 
+                      for d in day_], dtype=float) 
 
     dt_ = 24.0 * np.diff(time_)
     dt = np.empty(track.Hour.size, dtype=float)
@@ -90,7 +92,7 @@ def interpolate(track, delta, interpolation_type=None):
     # FIXME: Need to address the issue when the time between obs is less 
     # than delta (e.g. only two obs 5 hrs apart, but delta = 6 hrs). 
 
-    if len(track.data) <= 2:
+    if len(track.data) <= 3:
         # Use linear interpolation only (only a start and end point given):
         nLon = interp1d(timestep, track.Longitude, kind='linear')(newtime)
         nLat = interp1d(timestep, track.Latitude, kind='linear')(newtime)
@@ -122,10 +124,12 @@ def interpolate(track, delta, interpolation_type=None):
             try:
                 import akima
             except ImportError:
-                logger.exception( ("Akima interpolation module unavailable "
-                                    " - default to scipy.interpolate") )
-                nLon = splev(newtime, splrep(timestep, track.Longitude, s=0), der=0)
-                nLat = splev(newtime, splrep(timestep, track.Latitude, s=0), der=0)
+                LOG.exception(("Akima interpolation module unavailable "
+                               " - default to scipy.interpolate"))
+                nLon = splev(newtime, splrep(timestep, track.Longitude, s=0), 
+                             der=0)
+                nLat = splev(newtime, splrep(timestep, track.Latitude, s=0), 
+                             der=0)
 
             else:
                 nLon = akima.interpolate(timestep, track.Longitude, newtime)
@@ -229,7 +233,7 @@ def saveTracks(tracks, outputFile):
     :param str outputFile: Path to destination file.
 
     """
-    log.debug("Saving interpolated tracks to {0}".format(outputFile))
+    LOG.debug("Saving interpolated tracks to {0}".format(outputFile))
     output = []
     for track in tracks:
         r = [getattr(track, col).T for col in OUTPUT_COLS]
@@ -271,7 +275,7 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
                     interpolated track data
                        
     """
-    log.info("Interpolating tracks from {0}".format(trackFile))
+    LOG.info("Interpolating tracks from {0}".format(trackFile))
     if delta < 0.0:
         raise ValueError("Time step for interpolation must be positive")
 
