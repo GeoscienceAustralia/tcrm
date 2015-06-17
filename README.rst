@@ -51,15 +51,17 @@ file management for large simulations.
 Dependencies
 ============
 
-* TCRM requires `Python 2.7 <https://www.python.org/>`_, `numpy
- <http://www.numpy.org/>`_, `scipy <http://www.scipy.org/>`_,
- `matplotlib 1.4.3 <http://matplotlib.org/>`_, `Basemap 1.0.8
- <http://matplotlib.org/basemap/index.html>`_, `netcdf4-python
- <https://code.google.com/p/netcdf4-python/>`_, `pandas
- <http://pandas.pydata.org/>`_, `Shapely
- <https://github.com/Toblerity/Shapely>`_, `seaborn 0.5.1
- <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_ and
- `gcc`.  
+TCRM requires::
+* `Python 2.7 <https://www.python.org/>`_;
+* `numpy <http://www.numpy.org/>`_; 
+* `scipy <http://www.scipy.org/>`_;
+* `matplotlib 1.4.3 <http://matplotlib.org/>`_; 
+* `Basemap 1.0.8 <http://matplotlib.org/basemap/index.html>`_; 
+* `netcdf4-python <https://code.google.com/p/netcdf4-python/>`_; 
+* `pandas <http://pandas.pydata.org/>`_; 
+* `Shapely <https://github.com/Toblerity/Shapely>`_; 
+* `seaborn 0.5.1 <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_;
+* and `gcc`.  
 
 For parallel execution, `Pypar
  <http://github.com/daleroberts/pypar>`_ is required;
