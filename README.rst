@@ -2,9 +2,7 @@ The Tropical Cyclone Risk Model
 ===============================
 
 The **Tropical Cyclone Risk Model** is a stochastic tropical cyclone
-model developed by
- `Geoscience Australia <http://www.ga.gov.au>`_
-for estimating the wind hazard from tropical cyclones.
+model developed by `Geoscience Australia <http://www.ga.gov.au>`_ for estimating the wind hazard from tropical cyclones.
 
 Due to the relatively short record of quality-controlled, consistent
 tropical cyclone observations, it is difficult to estimate average
