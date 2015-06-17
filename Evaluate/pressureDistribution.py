@@ -22,6 +22,7 @@ from scipy.stats import scoreatpercentile as percentile
 
 import matplotlib
 matplotlib.use('Agg', warn=False)
+import seaborn as sns
 
 from Utilities.config import ConfigParser
 from Utilities.loadData import loadTrackFile
@@ -351,15 +352,15 @@ class PressureDistribution(object):
         datarange = (900, 1000)
         figure = ArrayMapFigure()
 
-        map_kwargs = dict(llcrnrlon=self.lon_range[:-1].min(),
-                          llcrnrlat=self.lat_range[:-1].min(),
-                          urcrnrlon=self.lon_range[:-1].max(),
-                          urcrnrlat=self.lat_range[:-1].max(),
+        map_kwargs = dict(llcrnrlon=self.lon_range.min(),
+                          llcrnrlat=self.lat_range.min(),
+                          urcrnrlon=self.lon_range.max(),
+                          urcrnrlat=self.lat_range.max(),
                           projection='merc',
                           resolution='i')
 
         cbarlab = "Minimum central pressure (hPa)"
-        xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
+        xgrid, ygrid = np.meshgrid(self.lon_range, self.lat_range)
         figure.add(np.transpose(self.histMin), xgrid, ygrid, 
                    "Historic", datarange, cbarlab, map_kwargs)
         figure.add(np.transpose(self.synMin), xgrid, ygrid, 
@@ -380,18 +381,20 @@ class PressureDistribution(object):
         datarange = (-50, 50)
         figure = ArrayMapFigure()
 
-        map_kwargs = dict(llcrnrlon=self.lon_range[:-1].min(),
-                          llcrnrlat=self.lat_range[:-1].min(),
-                          urcrnrlon=self.lon_range[:-1].max(),
-                          urcrnrlat=self.lat_range[:-1].max(),
+        map_kwargs = dict(llcrnrlon=self.lon_range.min(),
+                          llcrnrlat=self.lat_range.min(),
+                          urcrnrlon=self.lon_range.max(),
+                          urcrnrlat=self.lat_range.max(),
                           projection='merc',
                           resolution='i')
 
         cbarlab = "Minimum central pressure difference (hPa)"
-        xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
+        xgrid, ygrid = np.meshgrid(self.lon_range, self.lat_range)
         data = self.histMin - self.synMin
-        figure.add(np.transpose(data), xgrid, ygrid, "", datarange, 
-                   cbarlab, map_kwargs)
+        figure.add(np.transpose(data), xgrid, ygrid, "Historical - Synthetic",
+                   datarange, cbarlab, map_kwargs)
+        figure.cmap = sns.blend_palette(sns.color_palette("coolwarm", 9), 
+                                        as_cmap=True)
         figure.plot()
         outputFile = pjoin(self.plotPath, 'minPressureDiff.png')
         saveFigure(figure, outputFile)
@@ -407,19 +410,20 @@ class PressureDistribution(object):
         datarange = (-25, 25)
         figure = ArrayMapFigure()
 
-        map_kwargs = dict(llcrnrlon=self.lon_range[:-1].min(),
-                          llcrnrlat=self.lat_range[:-1].min(),
-                          urcrnrlon=self.lon_range[:-1].max(),
-                          urcrnrlat=self.lat_range[:-1].max(),
+        map_kwargs = dict(llcrnrlon=self.lon_range.min(),
+                          llcrnrlat=self.lat_range.min(),
+                          urcrnrlon=self.lon_range.max(),
+                          urcrnrlat=self.lat_range.max(),
                           projection='merc',
                           resolution='i')
 
         cbarlab = "Mean central pressure difference (hPa)"
         data = self.histMean - self.synMean
-        xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
-        data = self.histMin - self.synMin
-        figure.add(np.transpose(data), xgrid, ygrid, "", datarange, 
-                   cbarlab, map_kwargs)
+        xgrid, ygrid = np.meshgrid(self.lon_range, self.lat_range)
+        figure.add(np.transpose(data), xgrid, ygrid, "Historical - Synthetic", 
+                   datarange, cbarlab, map_kwargs)
+        figure.cmap = sns.blend_palette(sns.color_palette("coolwarm", 9), 
+                                        as_cmap=True)
         figure.plot()
         outputFile = pjoin(self.plotPath, 'meanPressureDiff.png')
         saveFigure(figure, outputFile)
