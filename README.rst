@@ -2,7 +2,8 @@ The Tropical Cyclone Risk Model
 ===============================
 
 The **Tropical Cyclone Risk Model** is a stochastic tropical cyclone
-model developed by `Geoscience Australia <http://www.ga.gov.au>`_
+model developed by
+ `Geoscience Australia <http://www.ga.gov.au>`_
 for estimating the wind hazard from tropical cyclones.
 
 Due to the relatively short record of quality-controlled, consistent
@@ -51,7 +52,7 @@ file management for large simulations.
 Dependencies
 ============
 
-TCRM requires::
+TCRM requires:
 
  * `Python 2.7 <https://www.python.org/>`_;
  * `numpy <http://www.numpy.org/>`_; 
