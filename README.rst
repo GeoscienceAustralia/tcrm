@@ -46,8 +46,7 @@ provide a collection of simple queries as part of the standard set-up.
 We are also transitioning track files to netcdf4 format to improve
 file management for large simulations.
 
-**NOTE**: Because some dependencies are built only for Python 2.7,
- this branch is not backward compatible with Python 2.6.
+**NOTE**: Because some dependencies are built only for Python 2.7, this branch is not backward compatible with Python 2.6.
 
 Dependencies
 ============
