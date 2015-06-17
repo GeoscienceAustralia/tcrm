@@ -22,7 +22,7 @@ from mpl_toolkits.basemap import Basemap
 
 from Utilities.smooth import smooth
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-import seaborn
+import seaborn as sns
 
 def levels(maxval, minval=0):
     """
@@ -36,7 +36,16 @@ def levels(maxval, minval=0):
               values are scaled
     :rtype: `tuple`
 
+    :raises: ValueError if the minimum and maximum values are equal.
+
     """
+    if maxval == minval:
+        raise ValueError("Minimum and maximum value are equal")
+        
+    if maxval < minval:
+        mm = maxval
+        maxval = minval
+        minval = mm
 
     min_levels = 7.0
     level_opts = np.array([5.0, 1.0, 0.5, 0.25, 0.2, 0.1])
@@ -48,6 +57,34 @@ def levels(maxval, minval=0):
 
     return lvls, exponent
 
+def select_colormap(data_range, percent=0.1):
+    """
+    Determine whether to use a sequential or diverging color map, based on the 
+    defined data range to be used for the plot. Note the diverging color map 
+    only works when the data range spans zero (and it won't automatically put 
+    the neutral colour at zero).
+
+    :param data_range: array-like containing either the minimum and maximum 
+                       levels of the data range, or the array of levels (e.g. 
+                       for contour maps).
+    :param float percent: Threshold for switching from diverging to sequential
+                          colormap
+
+    :returns: A `matplotlib.colors.LinearSegmentedColormap` instance used for 
+              setting the `Figure.cmap` attribute.
+    """
+    if not (type(data_range) == (list or np.ndarray or tuple)):
+        raise TypeError("Data range must be a list or array")
+    x = (abs(max(data_range)) - abs(min(data_range)))/ \
+        (max(data_range) - min(data_range))
+    if abs(x) < percent:
+        cmap = sns.diverging_palette(250, 10, as_cmap=True)
+    else:
+        cmap = sns.light_palette("#003366", as_cmap=True)
+
+    return cmap
+    
+
 class MapFigure(Figure):
     """
     A base class for all map figures. Implements methods to annotate 
@@ -58,7 +95,7 @@ class MapFigure(Figure):
     def __init__(self):
         Figure.__init__(self)
         self.subfigures = []
-        self.cmap = seaborn.light_palette('#0A437A', as_cmap=True)
+        self.cmap = sns.light_palette('#003366', as_cmap=True)
         
         self.canvas = FigureCanvas
         
@@ -299,8 +336,9 @@ class FilledContourMapFigure(MapFigure):
         """
         data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs = subfigure
         mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
+        cmap = select_colormap(lvls)
         CS = mapobj.contourf(mx, my, data, levels=lvls, 
-                             extend='both', cmap=self.cmap)
+                             extend='both', cmap=cmap)
         CB = mapobj.colorbar(CS, location='right', pad='5%', ticks=lvls[::2],
                              fig=self, ax=axes, extend='both')
         CB.set_label(cbarlab)
@@ -331,8 +369,9 @@ class MaskedContourMapFigure(FilledContourMapFigure):
         mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
 
         masked_data = maskoceans(xgrid, ygrid, data, inlands=False)
+        cmap = select_colormap(lvls)
         CS = mapobj.contourf(mx, my, masked_data, levels=lvls, 
-                             extend='both', cmap=self.cmap)
+                             extend='both', cmap=cmap)
         CB = mapobj.colorbar(CS, location='right', pad='5%', ticks=lvls[::2],
                              fig=self, ax=axes, extend='both')
         CB.set_label(cbarlab)
@@ -364,11 +403,11 @@ class ArrayMapFigure(MapFigure):
         data, xgrid, ygrid, title, \
             datarange, cbarlab, map_kwargs = subfigure
         mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
-
+        cmap = select_colormap(datarange)
         vmin = datarange[0]
         vmax = datarange[1]
         CS = mapobj.pcolormesh(mx, my, data, vmin=vmin, 
-                               vmax=vmax, cmap=self.cmap)
+                               vmax=vmax, cmap=cmap)
         CB = mapobj.colorbar(CS, location='right', pad='5%',
                              fig=self, ax=axes)
         CB.set_label(cbarlab)
@@ -484,6 +523,7 @@ class HazardMap(MaskedContourMapFigure):
         dx = np.mean(np.diff(xgrid))
         data = smooth(data, int(1/dx))
         self.add(data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs)
+        self.cmap = sns.light_palette("orange", as_cmap=True)
         super(HazardMap, self).plot()
 
 class WindfieldMap(FilledContourMapFigure):
@@ -494,6 +534,7 @@ class WindfieldMap(FilledContourMapFigure):
     """
     def plot(self, data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs):
         self.add(data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs)
+        self.cmap = sns.light_palette("orange", as_cmap=True)
         super(WindfieldMap, self).plot()
 
 class ArrayMap(ArrayMapFigure):
