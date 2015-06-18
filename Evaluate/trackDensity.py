@@ -319,7 +319,7 @@ class TrackDensity(object):
 
         figure2 = ArrayMapFigure()
         figure2.add(self.hist.T, self.X, self.Y, "Historic", datarange, 
-                    cbarlab, map_kwargs)
+                    cbarlab, self.map_kwargs)
         figure2.add(self.synHist[0, :, :].T, self.X, self.Y, "Synthetic",
                     datarange, cbarlab, self.map_kwargs)
         figure2.add(self.synHist[10, :, :].T, self.X, self.Y, "Synthetic",
