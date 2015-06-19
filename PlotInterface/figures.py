@@ -3,7 +3,7 @@
 =======================================
 
 .. module:: figures
-    :synopsis: Basic figure elements for statistical and other plotting 
+    :synopsis: Basic figure elements for statistical and other plotting
                actions.
 
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
@@ -98,7 +98,7 @@ class ScatterHistogramFigure(Figure):
 class QuantileFigure(Figure):
     """
     Create a quantile-quantile plot that includes estimated confidence
-    intervals for the simulated (or second) dataset. 
+    intervals for the simulated (or second) dataset.
 
     """
 
@@ -108,7 +108,7 @@ class QuantileFigure(Figure):
 
     def percentiles(self, data):
         """Calculate percentile values from 1 to 100"""
-        per = np.array([stats.scoreatpercentile(data, q) 
+        per = np.array([stats.scoreatpercentile(data, q)
                         for q in range(1, 101)])
         return per
 
@@ -116,9 +116,9 @@ class QuantileFigure(Figure):
         """Calculate a range of percentile values"""
         samples = np.zeros((1000, 100))
         for n in xrange(1000):
-            samples[n, :] = np.array([np.random.choice(data) 
+            samples[n, :] = np.array([np.random.choice(data)
                                       for _ in xrange(100)])
-        
+
         dummy = stats.scoreatpercentile(samples, range(1, 101), axis=1)
         upper = stats.scoreatpercentile(dummy, 95, axis=1)
         lower = stats.scoreatpercentile(dummy, 5, axis=1)
@@ -127,7 +127,7 @@ class QuantileFigure(Figure):
     def add(self, xdata, ydata, axisrange, xlabel='x', ylabel='y',
             title='Q-Q plot'):
         """Add a subplot to the collection"""
-        self.subfigures.append((xdata, ydata, axisrange, 
+        self.subfigures.append((xdata, ydata, axisrange,
                                 xlabel, ylabel, title))
 
     def formatAxes(self, axes, limits):
@@ -138,7 +138,7 @@ class QuantileFigure(Figure):
     def addGrid(self, axes):
         """
         Add a grid to the subplot axes.
-        
+
         :param axes: `matplotlib.axes` instance
 
         """
@@ -153,8 +153,8 @@ class QuantileFigure(Figure):
 
         xupper, xlower = self.percentilerange(xdata)
         yupper, ylower = self.percentilerange(ydata)
-        
-        axes.scatter(xper, yper, c='r', marker='o', 
+
+        axes.scatter(xper, yper, c='r', marker='o',
                      edgecolor='none', alpha=0.5)
 
         axes.plot(xupper, ylower, color='0.5', linewidth=1)
@@ -163,7 +163,7 @@ class QuantileFigure(Figure):
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
         axes.set_title(title)
-        
+
         xx = np.arange(*axisrange)
         axes.plot(xx, xx, 'b--', linewidth=0.5)
 
@@ -242,7 +242,7 @@ class RegressionFigure(Figure):
         for i, subfigure in enumerate(self.subfigures):
             axes = self.add_subplot(rows, cols, i + 1)
             self.subplot(axes, subfigure)
-        
+
 
 
 class LaggedRegressionFigure(RegressionFigure):
@@ -316,7 +316,7 @@ class BearingFigure(LaggedRegressionFigure):
 class FrequencyFigure(LineRegressionFigure):
 
     def plot(self, years, frequency):
-        self.add(np.array(years[1:-1], int), frequency[1:-1], 'Year', 
+        self.add(np.array(years[1:-1], int), frequency[1:-1], 'Year',
                  'Frequency', 'Annual Frequency')
         super(FrequencyFigure, self).plot()
 
@@ -334,7 +334,7 @@ def saveWindProfilesFigure(lat, lon, eP, cP, rMax, beta,
     saveFigure(fig, filename)
 
 
-def savePressureFigure(pressures, pressureRates, 
+def savePressureFigure(pressures, pressureRates,
                        filename='docs/prs_corr.png'):
     fig = PressureFigure()
     fig.plot(pressures, pressureRates)
@@ -368,7 +368,7 @@ def saveBearingFigure(bearings, bearingRates):
     fig = ScatterHistogramFigure()
     fig.plot(bearingRates[1:], bearingRates[:-1])
     saveFigure(fig, 'docs/bearingratesh.png')
-    
+
 
 
 def saveFrequencyFigure(years, frequency, filename='docs/freq_corr.png'):

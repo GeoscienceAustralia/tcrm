@@ -7,6 +7,12 @@ from PlotInterface import maps
 
 class TestLevels(NumpyTestCase.NumpyTestCase):
 
+    def test_badInput(self):
+        """Non-numeric input raises TypeError"""
+        self.assertRaises(TypeError, maps.levels, "str")
+        self.assertRaises(TypeError, maps.levels, 10, "str")
+        self.assertRaises(TypeError, maps.levels, np.max)
+
     def test_EmptyRange(self):
         """Minimum & maximum value equal raises ValueError"""
         self.assertRaises(ValueError, maps.levels, 0, 0)
@@ -61,27 +67,28 @@ class TestSelectColorMap(unittest.TestCase):
 
     def test_returnsCmap(self):
         """Test select_colormap returns a cmap object"""
-        cmap = maps.select_colormap([-1, 1])
+        cmap = maps.selectColormap([-1, 1])
         self.assertIsInstance(cmap, LinearSegmentedColormap)
 
     def test_badInputType(self):
         """Test select_colormap raises TypeError for wrong input type"""
-        self.assertRaises(TypeError, maps.select_colormap, 10)
-        self.assertRaises(TypeError, maps.select_colormap, "string")
+        self.assertRaises(TypeError, maps.selectColormap, 10)
+        self.assertRaises(TypeError, maps.selectColormap, "string")
+        self.assertRaises(TypeError, maps.selectColormap, ["str", "str"])
 
     def test_symmetricDataDiverges(self):
         """Test symmetric data range (around 0) returns divergent color map"""
-        cmap = maps.select_colormap([-1, 1])
+        cmap = maps.selectColormap([-1, 1])
         self.assertColorMapEqual(cmap, self.diverging_cmap)
 
     def test_sequentialData(self):
         """Test asymmetric data range returns sequential color map"""
-        cmap = maps.select_colormap([0, 1])
+        cmap = maps.selectColormap([0, 1])
         self.assertColorMapEqual(cmap, self.sequential_cmap)
 
     def test_largePercentThreshold(self):
         """Test select_colormap returns diverging color map for larger threshold"""
-        cmap = maps.select_colormap([-7, 10], percent=0.2)
+        cmap = maps.selectColormap([-7, 10], percent=0.2)
         self.assertColorMapEqual(cmap, self.diverging_cmap)
 
 if __name__ == '__main__':
