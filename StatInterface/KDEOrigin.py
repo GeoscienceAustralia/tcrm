@@ -41,32 +41,32 @@ class KDEOrigin(object):
     Initialise the class for generating the genesis probability distribution.
     Initialisation will load the required data (genesis locations) and
     calculate the optimum bandwidth for the kernel density method.
-    
+
     :param str configFile: Path to the configuration file.
      :param dict gridLimit: The bounds of the model domain. The
                            :class:`dict` should contain the keys
                            :attr:`xMin`, :attr:`xMax`, :attr:`yMin`
                            and :attr:`yMax`. The *x* variable bounds
-                           the longitude and the *y* variable 
+                           the longitude and the *y* variable
                            bounds the latitude.
     :param float kdeStep: Increment of the ordinate values at which
                           the distributions will be calculated.
                           Default=`0.1`
     :param lonLat: If given, a 2-d array of the longitude and latitude
                    of genesis locations. If not given, attempt to load
-                   an ``init_lon_lat`` file from the processed files. 
+                   an ``init_lon_lat`` file from the processed files.
     :param progressbar: A :meth:`SimpleProgressBar` object to print
                         progress to STDOUT.
     :type  lonLat: :class:`numpy.ndarray`
     :type  progressbar: :class:`Utilities.progressbar` object.
 
-    
+
     """
 
-    def __init__(self, configFile, gridLimit, kdeStep, lonLat=None, 
+    def __init__(self, configFile, gridLimit, kdeStep, lonLat=None,
                  progressbar=None):
         """
-        
+
         """
         self.progressbar = progressbar
         LOGGER.info("Initialising KDEOrigin")
@@ -96,11 +96,11 @@ class KDEOrigin(object):
                       (self.lonLat[:, 0] <= gridLimit['xMax']) &
                       (self.lonLat[:, 1] >= gridLimit['yMin']) &
                       (self.lonLat[:, 1] <= gridLimit['yMax']))
-        
+
         self.lonLat = self.lonLat[ii]
-        
+
         self.bw = getOriginBandwidth(self.lonLat)
-        LOGGER.debug("Bandwidth: {0}".format(self.bw))
+        LOGGER.info("Bandwidth: %s", repr(self.bw))
 
 
     def generateKDE(self, save=False, plot=False):
@@ -116,7 +116,7 @@ class KDEOrigin(object):
         :param boolean plot: If ``True``, plot the resulting PDF.
 
         :returns: ``x`` and ``y`` grid and the PDF values.
-        
+
         """
 
         self.kde = KDEMultivariate(self.lonLat, bw=self.bw, var_type='cc')
@@ -136,8 +136,8 @@ class KDEOrigin(object):
                     'atts': {
                         'long_name':' Latitude',
                         'units': 'degrees_north'
-                        }
-                    },
+                    }
+                },
                 1: {
                     'name': 'lon',
                     'values': self.x,
@@ -145,9 +145,9 @@ class KDEOrigin(object):
                     'atts': {
                         'long_name': 'Longitude',
                         'units': 'degrees_east'
-                        }
                     }
                 }
+            }
 
             variables = {
                 0: {
@@ -162,7 +162,7 @@ class KDEOrigin(object):
                     }
                 }
 
-            ncSaveGrid(pjoin(self.processPath, 'originPDF.nc'), 
+            ncSaveGrid(pjoin(self.processPath, 'originPDF.nc'),
                        dimensions, variables)
 
         if plot:
@@ -170,7 +170,7 @@ class KDEOrigin(object):
                 saveFigure, levels
 
             lvls, exponent = levels(pdf.max())
- 
+
             [gx, gy] = np.meshgrid(self.x, self.y)
 
             map_kwargs = dict(llcrnrlon=self.x.min(),
@@ -179,15 +179,15 @@ class KDEOrigin(object):
                               urcrnrlat=self.y.max(),
                               projection='merc',
                               resolution='i')
-            
+
             cbarlabel = r'Genesis probability ($\times 10^{' + \
                         str(exponent) + '}$)'
             figure = FilledContourMapFigure()
-            figure.add(pdf*(10**-exponent), gx, gy, 'TC Genesis probability', 
+            figure.add(pdf*(10**-exponent), gx, gy, 'TC Genesis probability',
                        lvls*(10**-exponent), cbarlabel, map_kwargs)
             figure.plot()
 
-            outputFile = pjoin(self.outputPath, 'plots', 
+            outputFile = pjoin(self.outputPath, 'plots',
                                'stats', 'originPDF.png')
             saveFigure(figure, outputFile)
 
@@ -200,8 +200,8 @@ class KDEOrigin(object):
 
         :param boolean save: If ``True``, save the CDF to a netcdf file
                              called 'originCDF.nc'. If ``False``, return
-                             the CDF. 
-    
+                             the CDF.
+
         """
         xx, yy = np.meshgrid(self.x, self.y)
         xy = np.vstack([xx.ravel(), yy.ravel()])
@@ -210,35 +210,35 @@ class KDEOrigin(object):
         if save:
             outputFile = pjoin(self.processPath, 'originCDF.nc')
             dimensions = {
-            0: {
-                'name': 'lat',
-                'values': self.y,
-                'dtype': 'f',
-                'atts': {
-                    'long_name': 'Latitude',
-                    'units': 'degrees_north'
+                0: {
+                    'name': 'lat',
+                    'values': self.y,
+                    'dtype': 'f',
+                    'atts': {
+                        'long_name': 'Latitude',
+                        'units': 'degrees_north'
                     }
                 },
-            1: {
-                'name': 'lon',
-                'values': self.x,
-                'dtype': 'f',
-                'atts': {
-                    'long_name': 'Longitude',
-                    'units':'degrees_east'
+                1: {
+                    'name': 'lon',
+                    'values': self.x,
+                    'dtype': 'f',
+                    'atts': {
+                        'long_name': 'Longitude',
+                        'units':'degrees_east'
                     }
                 }
             }
 
-            variables =  {
+            variables = {
                 0: {
                     'name': 'gcdf',
-                    'dims': ('lat','lon'),
+                    'dims': ('lat', 'lon'),
                     'values': np.array(self.cz),
                     'dtype': 'f',
                     'atts': {
                         'long_name': ('TC Genesis cumulative '
-                                        'distribution'),
+                                      'distribution'),
                         'units': ''
                         }
                     }
@@ -253,8 +253,8 @@ class KDEOrigin(object):
         Callback function to update progress bar from C code
 
         :param int n: Current step.
-        :param int nMax: Maximum step. 
-        
+        :param int nMax: Maximum step.
+
         """
         if self.progressbar:
             self.progressbar.update(step/float(stepMax), 0.0, 0.7)
