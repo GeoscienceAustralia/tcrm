@@ -69,6 +69,11 @@ Status
 
 .. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=tc-dat
     :target: https://travis-ci.org/GeoscienceAustralia/tcrm
+    :alt: Build status
+    
+.. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/tc-dat/landscape.svg?style=flat
+    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/tc-dat
+    :alt: Code Health
 
 Screenshot
 ==========
