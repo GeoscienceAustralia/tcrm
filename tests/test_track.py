@@ -31,21 +31,21 @@ class TestTrack(NumpyTestCase.NumpyTestCase):
     def setUp(self):
         self.test_track_file = pjoin(unittest_dir, 'test_data', 'tracks.01.csv')
         self.nc_track_file = pjoin(unittest_dir, 'test_data', 'tracks.01.nc')
-        
+
         data = np.loadtxt(self.test_track_file, comments='%', delimiter=',',
                           skiprows=1, dtype={'names':track.TCRM_COLS,
                                              'formats':track.TCRM_FMTS},
-                          converters=TCRM_CNVT)
+                          converters=track.TCRM_CNVT)
         datas = []
         self.tracks = []
         cycId = data['CycloneNumber']
         for i in range(1, np.max(cycId) + 1):
             datas.append(data[cycId] == i)
-            
+
         n = len(datas)
         for i, data in enumerate(datas):
-            track = Track(data)
-            track.trackfile = self.test_track_file
-            track.trackId = (i, n)
-            self.tracks.append(track)
-        
+            mytrack = track.Track(data)
+            mytrack.trackfile = self.test_track_file
+            mytrack.trackId = (i, n)
+            self.tracks.append(mytrack)
+

@@ -3,9 +3,9 @@
 =========================================
 
 .. module:: colours
-    :synopsis: Create customised colour maps that are more palatable and/or 
-                suitable for plotting data. To access the additional colour 
-                maps, simply import this module, then call 
+    :synopsis: Create customised colour maps that are more palatable and/or
+                suitable for plotting data. To access the additional colour
+                maps, simply import this module, then call
                 pyplot.get_cmap(<new_cmap_name>) to get the new colour map.
                 See the matplotlib examples pages for more details:
                 http://matplotlib.org/examples/pylab_examples/custom_cmap.html
@@ -682,7 +682,7 @@ cdict13 = {'red':   ((0., 1, 1), (0.125, 0, 0), (0.35, 0, 0), (0.66, 1, 1), (0.8
                      (0.91,0,0), (1, 0, 0)),
            'blue':  ((0., 1, 1), (0.125, 1, 1), (0.34, 1, 1), (0.65,0, 0),
                      (1, 0, 0))}
-            
+
 # If you create an additional colourmap, give it a name and add it to
 # this dictionary:
 cmapdict = {'rwbcmap':cdict0,
@@ -699,7 +699,7 @@ cmapdict = {'rwbcmap':cdict0,
             'pccspwind':cdict11,
             'pccspvar':cdict12,
             'jet':cdict13}
-            
+
 for k, v in cmapdict.iteritems():
     cmap = LinearSegmentedColormap(k,v)
     pyplot.register_cmap(cmap=cmap)

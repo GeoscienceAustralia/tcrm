@@ -64,7 +64,7 @@ class TestPressureProfile(NumpyTestCase.NumpyTestCase):
     def test_Holland(self):
         """Testing Holland profile """
         pHolland = self.prP.holland()
-        self.numpyAssertAlmostEqual(pHolland, self.test_pHolland)        
+        self.numpyAssertAlmostEqual(pHolland, self.test_pHolland)
 
     def test_Willoughby(self):
         """Testing Willoughby profile """

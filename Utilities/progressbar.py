@@ -27,15 +27,15 @@ class ProgressBar(object):
         self.start_time = time.time()
         self.secondsElapsed = 0
         self.update(0.0)
-        if (sys.stderr.isatty() and sys.stdin.isatty()): 
+        if (sys.stderr.isatty() and sys.stdin.isatty()):
             self.showbar = showbar
- 
+
     def update(self, progress, startPos=0, endPos=1):
         if self.showbar:
             prg = progress * (endPos - startPos) + startPos
             if self._percentage(prg) != self.lastPercentage:
                 barfill = int(round(self.barWidth * prg))
-                barString = (''.join(['#' for i in range(barfill)] 
+                barString = (''.join(['#' for i in range(barfill)]
                              + [' ' for i in range(self.barWidth - barfill)]))
                 self.secondsElapsed = time.time() - self.start_time
                 message = "\r{0} {1} [{2}] {3}".\
@@ -54,7 +54,7 @@ class ProgressBar(object):
         return '%3d%%' % (pbar * 100)
 
     def _formatTime(self, seconds):
-        return (str(int(seconds/3600)).zfill(2) 
+        return (str(int(seconds/3600)).zfill(2)
                 + time.strftime(':%M:%S', time.gmtime(seconds)))
 
     def _getTimeStr(self, prg=0, secondsElapsed=0):

@@ -3,7 +3,7 @@
  Author: Craig Arthur, craig.arthur@ga.gov.au
  CreationDate: 2013-01-17
  Description: Unit test suite for interp3d.py
- 
+
  Version: $Rev$
 
  Id: $Id$
@@ -41,7 +41,7 @@ class TestInterp3d(NumpyTestCase.NumpyTestCase):
         self.scale = [365.,-180.,360.]
         self.offset = [0., 90., 0.]
 
-        # Load data 
+        # Load data
         pfile = open(os.path.join(unittest_dir, 'test_data',
                                   'testinterp3d.pck'), 'r')
         self.xlon = cPickle.load(pfile)
@@ -50,11 +50,11 @@ class TestInterp3d(NumpyTestCase.NumpyTestCase):
         self.values = cPickle.load(pfile)
         pfile.close()
         self.coords = numpy.array([self.ztime, self.ylat, self.xlon])
-        
-        
+
+
     def test_interp3d(self):
         """Test interp3d returns expected values"""
-        output = interp3d.interp3d(self.data, self.coords, 
+        output = interp3d.interp3d(self.data, self.coords,
                                    self.scale, self.offset)
         self.numpyAssertAlmostEqual(output, self.values)
 
@@ -66,7 +66,7 @@ class TestInterp3d(NumpyTestCase.NumpyTestCase):
                           self.coords,
                           self.scale,
                           self.offset)
-       
+
 
 
 if __name__ == "__main__":

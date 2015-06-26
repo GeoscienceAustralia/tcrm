@@ -60,7 +60,7 @@ def _process(argv):
         sys.exit(2)
     for opt,arg in opts:
         if opt in ("-h","--help"):
-            usage()
+            _usage()
             sys.exit(2)
         elif opt in ("-f","--filename"):
             filename = arg

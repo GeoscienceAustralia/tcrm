@@ -4,7 +4,7 @@
 
 .. module:: LongitudeCrossing
     :synopsis: Calculate the rate of TCs crossing lines of longitude
-               and latitude, comparing historical and synthetic 
+               and latitude, comparing historical and synthetic
                events.
 
 .. moduleauthor: Craig Arthur <craig.arthur@ga.gov.au>
@@ -51,7 +51,7 @@ def loadTracks(trackfile):
     return tracks
 
 class LongitudeCrossing(object):
-    
+
     def __init__(self, configFile):
 
         config = ConfigParser()
@@ -82,10 +82,10 @@ class LongitudeCrossing(object):
                                          'yearspersimulation')
 
         # Longitude crossing gates:
-        self.gateLons = np.arange(self.lon_range.min(), 
+        self.gateLons = np.arange(self.lon_range.min(),
                                   self.lon_range.max() + 0.5, 10.)
 
-        self.gateLats = np.arange(self.lat_range.min(), 
+        self.gateLats = np.arange(self.lat_range.min(),
                                   self.lat_range.max() + 0.5, 2.)
 
         # Add configuration settings to global attributes:
@@ -97,7 +97,7 @@ class LongitudeCrossing(object):
                 key = "{0}_{1}".format(section, option)
                 value = config.get(section, option)
                 self.gatts[key] = value
-        
+
 
     def findCrossings(self, tracks):
         """
@@ -105,7 +105,7 @@ class LongitudeCrossing(object):
         if the tracks intersect that line of longitude.
 
         :param tracks: collection of :class:`Track` objects
-        :return: h, ewh, weh, histograms for each line of longitude, 
+        :return: h, ewh, weh, histograms for each line of longitude,
                  recording the rate of crossings
         """
         log.debug("Processing %d tracks" % (len(tracks)))
@@ -155,10 +155,10 @@ class LongitudeCrossing(object):
 
 
         return h, ewh, weh
-    
+
     def calcStats(self, lonCrossHist, lonCrossEW, lonCrossWE):
         """Calculate means and percentiles of synthetic event sets"""
-        
+
         self.synCrossMean = np.mean(lonCrossHist, axis=0)
         self.synCrossEW = np.mean(lonCrossEW, axis=0)
         self.synCrossWE = np.mean(lonCrossWE, axis=0)
@@ -172,7 +172,7 @@ class LongitudeCrossing(object):
         self.synCrossWELower = percentile(lonCrossWE, per=5, axis=0)
 
 
-        
+
     @disableOnWorkers
     def historic(self):
         """Calculate historical rates of longitude crossing"""
@@ -182,12 +182,12 @@ class LongitudeCrossing(object):
         config.read(self.configFile)
         inputFile = config.get('DataProcess', 'InputFile')
         source = config.get('DataProcess', 'Source')
-        
+
         timestep = config.getfloat('TrackGenerator', 'Timestep')
 
         if len(os.path.dirname(inputFile)) == 0:
             inputFile = pjoin(self.inputPath, inputFile)
-        
+
         try:
             tracks = interpolateTracks.parseTracks(self.configFile,
                                                    inputFile,
@@ -215,14 +215,14 @@ class LongitudeCrossing(object):
         trackfiles = sorted([pjoin(self.trackPath, f) for f in filelist
                              if f.startswith('tracks')])
 
-        lonCrossHist = np.zeros((len(trackfiles), 
-                                 len(self.gateLats) - 1, 
+        lonCrossHist = np.zeros((len(trackfiles),
+                                 len(self.gateLats) - 1,
                                  len(self.gateLons)))
-        lonCrossEW = np.zeros((len(trackfiles), 
-                               len(self.gateLats) - 1, 
+        lonCrossEW = np.zeros((len(trackfiles),
+                               len(self.gateLats) - 1,
                                len(self.gateLons)))
-        lonCrossWE = np.zeros((len(trackfiles), 
-                               len(self.gateLats) - 1, 
+        lonCrossWE = np.zeros((len(trackfiles),
+                               len(self.gateLats) - 1,
                                len(self.gateLons)))
 
         if (pp.rank() == 0) and (pp.size() > 1):
@@ -243,7 +243,7 @@ class LongitudeCrossing(object):
                 lonCrossHist[n, :, :], lonCrossEW[n, :, :], \
                     lonCrossWE[n, :, :] = results
                 n += 1
-    
+
                 d = status.source
 
                 if w < len(trackfiles):
@@ -256,13 +256,13 @@ class LongitudeCrossing(object):
                     terminated += 1
 
             self.calcStats(lonCrossHist, lonCrossEW, lonCrossWE)
-            
+
         elif (pp.size() > 1) and (pp.rank() != 0):
             while(True):
                 trackfile = pp.receive(source=0, tag=work_tag)
                 if trackfile is None:
                     break
-                
+
                 log.debug("Processing %s" % (trackfile))
                 tracks = loadTracks(trackfile)
                 lonCross, lonCrossEW, lonCrossWE = self.findCrossings(tracks)
@@ -466,7 +466,7 @@ class LongitudeCrossing(object):
 
             x1 = 2.* self.gateLons[i] - 100. * self.synCrossEWUpper[:, i]
             x2 = 2.* self.gateLons[i] - 100. * self.synCrossEWLower[:, i]
-            ax1.fill_betweenx(self.gateLats[:-1], x1, x2, 
+            ax1.fill_betweenx(self.gateLats[:-1], x1, x2,
                               color='0.75', alpha=0.7)
 
         minLonLim = 2. * (self.lon_range.min() - 10.)
@@ -500,7 +500,7 @@ class LongitudeCrossing(object):
         ax2.set_ylim(self.gateLats.min(), self.gateLats[-2])
         ax2.set_ylabel('Latitude')
         ax2.grid(True)
-        
+
         fig.tight_layout()
         canvas = FigureCanvas(fig)
         canvas.print_figure(pjoin(self.plotPath,'lon_crossing_syn.png'))
@@ -520,6 +520,6 @@ class LongitudeCrossing(object):
         self.synthetic()
 
         pp.barrier()
-        
+
         self.plotCrossingRates()
         self.save()

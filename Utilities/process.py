@@ -42,7 +42,7 @@ def pSetProcessedEntry(directory, filename, attribute, value):
     :param str value: Attribute value.
 
     """
-    
+
     global gDatFile
     global gProcessedFiles
     if directory in gProcessedFiles:
@@ -66,9 +66,9 @@ def pGetProcessedEntry( directory, filename, attribute ):
     :param str attribute: Attribute to retrieve.
 
     :returns: Attribute value
-    
+
     """
-    
+
     global gDatFile
     global gProcessedFiles
     try:
@@ -83,15 +83,15 @@ def pGetProcessedFiles( datFileName=None ):
     """
     Retrieve a list of processed files from a dat file. This will also
     set the global gDatFile.
-    
+
     :param str datFileName: Name of a data file to read from.
 
     :returns: True if successfully read the data file, False
               otherwise.
     :rtype: bool
-    
+
     """
-    
+
     global gDatFile
     global gProcessedFiles
     rc = 0
@@ -131,7 +131,7 @@ def pWriteProcessedFile( filename ):
               stored in gProcessedFiles and written to gDatFile, False
               otherwise.
     :rtype: bool
-    
+
     """
     global gDatFile
     global gProcessedFiles
@@ -158,7 +158,7 @@ def pDeleteDatFile( ):
     """
     Delete the existing data file - defined in the `gDatFile` variable
     (list of previously-processed files).
-    
+
     :return: True if existing dat file successfully deleted,
              False otherwise
     :rtype: bool
@@ -183,7 +183,7 @@ def pAlreadyProcessed( directory, filename, attribute, value ):
     :param str filename: Name of the file.
     :param str attribute: Attribute name to be checked.
     :param str value: Value of the attribute to be tested.
-    
+
     :return: True if the value matches that stored in gProcessedFiles,
              False otherwise.
     :rtype: boolean
@@ -202,7 +202,7 @@ def pArchiveDir( archive_dir=None ):
     """
     Set or get the archive directory. If setting the directory, its
     existence is checked and the directory is created.
-    
+
     :param str archive_dir: Archive directory (if setting it).
 
     :return: The archive directory.
@@ -212,7 +212,7 @@ def pArchiveDir( archive_dir=None ):
 
     """
     global g_archive_dir
-    
+
     if archive_dir:
         g_archive_dir = archive_dir
         g_archive_dir.rstrip("/\\")
@@ -222,9 +222,9 @@ def pArchiveDir( archive_dir=None ):
             except:
                 logger.exception( "Cannot create %s"%( g_archive_dir ) )
                 raise OSError
-            
+
     rc = g_archive_dir
-    
+
     return rc
 
 
@@ -233,12 +233,12 @@ def pArchiveDateFormat( date_format=None ):
     Set or get archive date format. Archived files can optionally have
     a date string inserted into the filename to retain all files with
     the same name, but different timestamps.
-    
+
     :param str date_format: archive date format (if setting it)
 
     :return: archive date format
     :rtype: str
-    
+
     """
     global g_archive_date_format
     if ( date_format ):
@@ -252,12 +252,12 @@ def pArchiveTimestamp( timestamp=False ):
     Set or get archive timstamp flag. If the flag is `True`, then
     files that are to be archived will have a timestamp inserted into
     the file name.
-    
+
     :param bool timestamp: `True` or `False` (if setting it)
 
     :return: The value of `g_archive_timestamp`
     :rtype: bool
-    
+
     """
     global g_archive_timestamp
     if ( timestamp ):
@@ -274,7 +274,7 @@ def pMoveFile( origin, destination ):
 
     :return: `True` if the file is successfully moved, `False` otherwise.
     :rtype: bool
-        
+
     """
     try:
         os.rename( origin, destination )
@@ -297,7 +297,7 @@ def pArchiveFile( filename ):
 
     :return: `True` if the file is successfully moved, `False` otherwise.
     :rtype: bool
-    
+
     """
     path, ext = os.path.splitext( filename )
     path, base = os.path.split( path )

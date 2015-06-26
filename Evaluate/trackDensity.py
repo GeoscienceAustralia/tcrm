@@ -124,11 +124,11 @@ class TrackDensity(object):
     def historic(self):
         """
         Load historic data and calculate histogram.
-        Note that the input historical data is filtered by year 
-        when it's loaded in `interpolateTracks.parseTracks()`. 
+        Note that the input historical data is filtered by year
+        when it's loaded in `interpolateTracks.parseTracks()`.
 
-        The timestep to interpolate to is set to match that of the 
-        synthetic event set (normally set to 1 hour). 
+        The timestep to interpolate to is set to match that of the
+        synthetic event set (normally set to 1 hour).
         """
         config = ConfigParser()
         config.read(self.configFile)
@@ -166,7 +166,7 @@ class TrackDensity(object):
 
         work_tag = 0
         result_tag = 1
-        
+
         if (pp.rank() == 0) and (pp.size() > 1):
             w = 0
             n = 0
@@ -178,11 +178,11 @@ class TrackDensity(object):
 
             terminated = 0
             while (terminated < pp.size() - 1):
-                results, status = pp.receive(pp.any_source, tag=result_tag, 
+                results, status = pp.receive(pp.any_source, tag=result_tag,
                                              return_status=True)
                 self.synHist[n, :, :] = results
                 n += 1
-                
+
                 d = status.source
                 if w < len(trackfiles):
                     pp.send(trackfiles[w], destination=d, tag=work_tag)
@@ -309,7 +309,7 @@ class TrackDensity(object):
         figure = ArrayMapFigure()
 
         cbarlab = "TC observations/yr"
-        figure.add(self.hist.T, self.X, self.Y, "Historic", datarange, 
+        figure.add(self.hist.T, self.X, self.Y, "Historic", datarange,
                    cbarlab, self.map_kwargs)
         figure.add(self.synHistMean.T, self.X, self.Y, "Synthetic",
                     datarange, cbarlab, self.map_kwargs)
@@ -318,7 +318,7 @@ class TrackDensity(object):
         saveFigure(figure, outputFile)
 
         figure2 = ArrayMapFigure()
-        figure2.add(self.hist.T, self.X, self.Y, "Historic", datarange, 
+        figure2.add(self.hist.T, self.X, self.Y, "Historic", datarange,
                     cbarlab, self.map_kwargs)
         figure2.add(self.synHist[0, :, :].T, self.X, self.Y, "Synthetic",
                     datarange, cbarlab, self.map_kwargs)
@@ -329,7 +329,7 @@ class TrackDensity(object):
         figure2.add(self.synHist[30, :, :].T, self.X, self.Y, "Synthetic",
                     datarange, cbarlab, self.map_kwargs)
         figure2.add(self.synHist[40, :, :].T, self.X, self.Y, "Synthetic",
-                    datarange, cbarlab, self.map_kwargs)        
+                    datarange, cbarlab, self.map_kwargs)
         figure2.plot()
         outputFile = pjoin(self.plotPath, 'track_density_samples.png')
         saveFigure(figure2, outputFile)
@@ -348,14 +348,14 @@ class TrackDensity(object):
 
         cbarlab = "TC observations/yr"
 
-        figure.add(self.synHistUpper.T, self.X, self.Y, "Upper percentile", 
+        figure.add(self.synHistUpper.T, self.X, self.Y, "Upper percentile",
                    datarange, cbarlab, self.map_kwargs)
         figure.add(self.synHistLower.T, self.X, self.Y, "Lower percentile",
                     datarange, cbarlab, self.map_kwargs)
         figure.plot()
         outputFile = pjoin(self.plotPath, 'track_density_percentiles.png')
         saveFigure(figure, outputFile)
-        
+
 
     def run(self):
         """Run the track density evaluation"""
@@ -367,7 +367,7 @@ class TrackDensity(object):
         pp.barrier()
 
         self.synthetic()
-        
+
         pp.barrier()
 
         self.plotTrackDensity()

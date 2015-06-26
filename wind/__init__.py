@@ -13,7 +13,7 @@ gust, at 10 metres above ground level), along with the components
 mean sea level pressure over the lifetime of the event. If multiple
 TCs are contained in a track file, then the output file contains the
 values from all events (for example, an annual maximum wind speed).
- 
+
 Wind field calculations can be run in parallel using MPI if the
 :term:`pypar` library is found and TCRM is run using the
 :term:`mpirun` command. For example, to run with 10 processors::
@@ -265,7 +265,7 @@ class WindfieldAroundTrack(object):
                                 / gridStep) + 1
             imin, imax = 0, int((maxLon - minLon + 2. * gridMargin) \
                                 / gridStep) + 1
-            
+
             if self.domain == 'bounded':
 
                 jmin = int((latCDegree[i] - minLat - gridMargin) / gridStep)
@@ -374,7 +374,7 @@ class WindfieldGenerator(object):
         :param track: :class:`Track` object.
 
         """
-        
+
         track_limits = {'xMin':9999, 'xMax':-9999, 'yMin':9999, 'yMax':-9999}
         track_limits['xMin'] = min(track_limits['xMin'], track.Longitude.min())
         track_limits['xMax'] = max(track_limits['xMax'], track.Longitude.max())
@@ -450,7 +450,7 @@ class WindfieldGenerator(object):
 
         return (gust, bearing, Vx, Vy, P, lon, lat)
 
-    def dumpGustsFromTracks(self, trackiter, windfieldPath, 
+    def dumpGustsFromTracks(self, trackiter, windfieldPath,
                             timeStepCallback=None):
         """
         Dump the maximum wind speeds (gusts) observed over a region to
@@ -472,11 +472,11 @@ class WindfieldGenerator(object):
                                  specified locations.
         """
         if timeStepCallback:
-            results = itertools.imap(self.calculateExtremesFromTrack, 
+            results = itertools.imap(self.calculateExtremesFromTrack,
                                      trackiter,
                                      itertools.repeat(timeStepCallback))
         else:
-            results = itertools.imap(self.calculateExtremesFromTrack, 
+            results = itertools.imap(self.calculateExtremesFromTrack,
                                      trackiter)
 
         for track, result in results:
@@ -484,13 +484,13 @@ class WindfieldGenerator(object):
                       .format(*track.trackId))
             gust, bearing, Vx, Vy, P, lon, lat = result
 
-            dumpfile = pjoin(windfieldPath, 
+            dumpfile = pjoin(windfieldPath,
                              'gust.{0:03d}-{1:05d}.nc'.\
                              format(*track.trackId))
-            plotfile = pjoin(windfieldPath, 
+            plotfile = pjoin(windfieldPath,
                              'gust.{0:03d}-{1:05d}.png'.\
                              format(*track.trackId))
-            self.saveGustToFile(track.trackfile, 
+            self.saveGustToFile(track.trackfile,
                                 (lat, lon, gust, Vx, Vy, P),
                                 dumpfile)
             #self.plotGustToFile((lat, lon, gust, Vx, Vy, P), plotfile)
@@ -510,9 +510,9 @@ class WindfieldGenerator(object):
         cbarlabel = 'Wind speed (m/s)'
         [gx, gy] = np.meshgrid(lon, lat)
         title = 'TC wind field'
-        saveWindfieldMap(speed, gx, gy, title, levels, 
+        saveWindfieldMap(speed, gx, gy, title, levels,
                          cbarlabel, mapkwargs, filename)
-        
+
     def saveGustToFile(self, trackfile, result, filename):
         """
         Save gusts to a file.
@@ -667,8 +667,8 @@ class WindfieldGenerator(object):
         """
 
         tracks = loadTracksFromFiles(sorted(trackfiles))
-        
-        self.dumpGustsFromTracks(tracks, windfieldPath, 
+
+        self.dumpGustsFromTracks(tracks, windfieldPath,
                                  timeStepCallback=timeStepCallback)
 
 

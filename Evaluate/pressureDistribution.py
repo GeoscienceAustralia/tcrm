@@ -116,7 +116,7 @@ class PressureDistribution(object):
         """
         Calculate the ddistributions of central pressure across the
         simulation domain.
-        
+
         :param tracks: a collection of :class:`Track` objects
 
         """
@@ -156,10 +156,10 @@ class PressureDistribution(object):
     def calcMinPressure(self, tracks):
         """
         Calculate minimum central pressure for a collection of :class:`Track`
-        objects. 
+        objects.
 
         :param tracks: A collection of :class:`Track` objects.
-        
+
         :returns: Histogram of values and the array of actual values
         """
         minCP = np.zeros(len(tracks))
@@ -177,7 +177,7 @@ class PressureDistribution(object):
         Calculate mean, median, minimum, maximum and percentiles of pressure
         values from synthetic events.
 
-        :param synMean: `numpy.ndarray` 
+        :param synMean: `numpy.ndarray`
         :param synMin: `numpy.ndarray`
         :param synMed: `numpy.ndarray`
         :param synMax: `numpy.ndarray`
@@ -322,7 +322,7 @@ class PressureDistribution(object):
         """
 
         datarange = (950, 1000)
-        figure = ArrayMapFigure() 
+        figure = ArrayMapFigure()
 
         map_kwargs = dict(llcrnrlon=self.lon_range[:-1].min(),
                           llcrnrlat=self.lat_range[:-1].min(),
@@ -333,9 +333,9 @@ class PressureDistribution(object):
 
         cbarlab = "Mean central pressure (hPa)"
         xgrid, ygrid = np.meshgrid(self.lon_range[:-1], self.lat_range[:-1])
-        figure.add(np.transpose(self.histMean), xgrid, ygrid, "Historic", 
+        figure.add(np.transpose(self.histMean), xgrid, ygrid, "Historic",
                    datarange, cbarlab, map_kwargs)
-        figure.add(np.transpose(self.synMean), xgrid, ygrid, "Synthetic", 
+        figure.add(np.transpose(self.synMean), xgrid, ygrid, "Synthetic",
                    datarange, cbarlab, map_kwargs)
 
         figure.plot()
@@ -361,9 +361,9 @@ class PressureDistribution(object):
 
         cbarlab = "Minimum central pressure (hPa)"
         xgrid, ygrid = np.meshgrid(self.lon_range, self.lat_range)
-        figure.add(np.transpose(self.histMin), xgrid, ygrid, 
+        figure.add(np.transpose(self.histMin), xgrid, ygrid,
                    "Historic", datarange, cbarlab, map_kwargs)
-        figure.add(np.transpose(self.synMin), xgrid, ygrid, 
+        figure.add(np.transpose(self.synMin), xgrid, ygrid,
                    "Synthetic", datarange, cbarlab, map_kwargs)
 
         figure.plot()
@@ -393,7 +393,7 @@ class PressureDistribution(object):
         data = self.histMin - self.synMin
         figure.add(np.transpose(data), xgrid, ygrid, "Historical - Synthetic",
                    datarange, cbarlab, map_kwargs)
-        figure.cmap = sns.blend_palette(sns.color_palette("coolwarm", 9), 
+        figure.cmap = sns.blend_palette(sns.color_palette("coolwarm", 9),
                                         as_cmap=True)
         figure.plot()
         outputFile = pjoin(self.plotPath, 'minPressureDiff.png')
@@ -420,9 +420,9 @@ class PressureDistribution(object):
         cbarlab = "Mean central pressure difference (hPa)"
         data = self.histMean - self.synMean
         xgrid, ygrid = np.meshgrid(self.lon_range, self.lat_range)
-        figure.add(np.transpose(data), xgrid, ygrid, "Historical - Synthetic", 
+        figure.add(np.transpose(data), xgrid, ygrid, "Historical - Synthetic",
                    datarange, cbarlab, map_kwargs)
-        figure.cmap = sns.blend_palette(sns.color_palette("coolwarm", 9), 
+        figure.cmap = sns.blend_palette(sns.color_palette("coolwarm", 9),
                                         as_cmap=True)
         figure.plot()
         outputFile = pjoin(self.plotPath, 'meanPressureDiff.png')
@@ -441,10 +441,10 @@ class PressureDistribution(object):
         y2min = self.synMinCPLower
         y2max = self.synMinCPUpper
         outputFile = pjoin(self.plotPath, 'minPressureDist.png')
-        saveDistributionCurve(x, y1, y2, y2max, y2min, 
-                              "Minimum pressure (hPa)", 
-                              "Probability", 
-                              "Minimum pressure distribution", 
+        saveDistributionCurve(x, y1, y2, y2max, y2min,
+                              "Minimum pressure (hPa)",
+                              "Probability",
+                              "Minimum pressure distribution",
                               outputFile)
 
     @disableOnWorkers
@@ -457,9 +457,9 @@ class PressureDistribution(object):
         y = self.synMinCP
         lims = (850, 1000)
         fig = QuantileFigure()
-        fig.add(x.compress(x > 0), y.compress(y > 0), lims, 
-                "Observed pressure (hPa)", 
-                "Simulated pressure (hPa)", 
+        fig.add(x.compress(x > 0), y.compress(y > 0), lims,
+                "Observed pressure (hPa)",
+                "Simulated pressure (hPa)",
                 "Q-Q plot of minimum central pressure")
         fig.plot()
         outputFile = pjoin(self.plotPath, 'minPressureQuantiles.png')
@@ -468,9 +468,9 @@ class PressureDistribution(object):
     @disableOnWorkers
     def save(self):
         """
-        Save gridded pressure distributions to file. Data are saved 
+        Save gridded pressure distributions to file. Data are saved
         to a netCDF file named ``pressureDistribution.nc`` for later analysis.
-        
+
         """
         dataFile = pjoin(self.dataPath, 'pressureDistribution.nc')
 

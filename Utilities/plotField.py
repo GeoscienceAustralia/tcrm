@@ -53,7 +53,8 @@ logger = logging.getLogger()
 
 import getopt, traceback
 
-from numpy import *
+import numpy as np
+import numpy.ma as ma
 from matplotlib import pyplot, cm, rcParams
 
 try:
@@ -66,6 +67,7 @@ except ImportError:
 # GA modules:
 from files import flStartLog, flConfigFile, flLogFatalError
 from config import cnfGetIniValue
+import metutils
 import nctools
 import grid
 import colours
@@ -196,9 +198,9 @@ def _process(argv):
         except:
             logger.critical("Cannot load input file: %s"%inputFile)
             raise
-        if len(shape(data))==3:
+        if len(data.shape)==3:
             data = data[record,:,:]
-        elif len(shape(data))==4:
+        elif len(data.shape)==4:
             data = data[record,lvl,:,:]
 
         # Create a masked array:
@@ -228,13 +230,13 @@ def _process(argv):
         res = cnfGetIniValue(configFile, domain, 'Resolution', res)
         dl = cnfGetIniValue(configFile, domain, 'GridInterval', dl)
 
-    [x,y] = meshgrid(lon, lat)
+    [x,y] = np.meshgrid(lon, lat)
 
     # Set the scale:
     scaleMin = cnfGetIniValue(configFile, 'Output', 'ScaleMin', 0)
     scaleMax = cnfGetIniValue(configFile, 'Output', 'ScaleMax', 101)
     scaleInt = cnfGetIniValue(configFile, 'Output', 'ScaleInt', 10)
-    levels = arange(scaleMin, scaleMax, scaleInt)
+    levels = np.arange(scaleMin, scaleMax, scaleInt)
     plotField(x,y,data, llLon, llLat, urLon, urLat, res, dl, levels,
               cmapName, smoothing, title=title, xlab='Longitude',
               ylab='Latitude', clab=label, maskland=mask,
@@ -258,7 +260,7 @@ def plotField(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
     pyplot.rcdefaults()
     pyplot.figure()
     if (len(x.shape)<2)and(len(y.shape)<2):
-        [xx,yy] = meshgrid(x,y)
+        [xx,yy] = np.meshgrid(x,y)
     else:
         xx = x
         yy = y
@@ -297,17 +299,19 @@ def plotField(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
     else:
         cmap = colours.colourMap(cmap, 'stretched')
 
-    meridians = arange(dl*floor(llcrnrlon/dl), dl*ceil(urcrnrlon/dl), dl)
-    parallels = arange(dl*floor(llcrnrlat/dl), dl*ceil(urcrnrlat/dl), dl)
+    meridians = np.arange(dl*np.floor(llcrnrlon/dl), 
+                          dl*np.ceil(urcrnrlon/dl), dl)
+    parallels = np.arange(dl*np.floor(llcrnrlat/dl), 
+                          dl*np.ceil(urcrnrlat/dl), dl)
     logger.debug("Generating map object")
     # Create the map object:
     try:
         m = Basemap(projection='cyl',
-                resolution=res,
-                llcrnrlon=llcrnrlon,
-                urcrnrlon=urcrnrlon,
-                llcrnrlat=llcrnrlat,
-                urcrnrlat=urcrnrlat)
+                    resolution=res,
+                    llcrnrlon=llcrnrlon,
+                    urcrnrlon=urcrnrlon,
+                    llcrnrlat=llcrnrlat,
+                    urcrnrlat=urcrnrlat)
     except IOError:
         flLogFatalError(traceback.format_exc().splitlines())
 
@@ -325,8 +329,8 @@ def plotField(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
                 m.contourf(x, y, datam, levels, extend='both', cmap=cmap)
         else:
             m.contourf(xx, yy, data, levels, extend='both', cmap=cmap)
-        cb = pyplot.colorbar(shrink=0.5, orientation='horizontal', extend='both',
-                             ticks=levels[::2], pad=0.05)
+        cb = pyplot.colorbar(shrink=0.5, orientation='horizontal', 
+                             extend='both', ticks=levels[::2], pad=0.05)
         cb.set_label(clab, fontsize=10)
         if cb.orientation=='horizontal':
             for t in cb.ax.get_xticklabels():
@@ -372,7 +376,7 @@ def plotWindfield(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
         llLat = min(y[:,0])
         urLat = max(y[:,0])
 
-    levels = arange(30, 101, 5)
+    levels = np.arange(30, 101, 5)
 
     plotField(x, y, data, llLon, llLat, urLon, urLat, res, dl, levels,
               cmapName, smoothing, title=title, xlab='Longitude',
@@ -391,17 +395,17 @@ def plotPressurefield(x, y, data, llLon=None, llLat=None, urLon=None,
 
     # Convert to hectopascals if necessary (crudely, we check the minimum
     # pressure value to determine whether the data is in hPa or Pa):
-    pMin = pressure.min()
+    pMin = data.min()
     if pMin > 5000.:
-        pressure = metutils.convert(pressure, 'Pa', 'hPa')
+        pressure = metutils.convert(data, 'Pa', 'hPa')
 
     if llLon is None:
-        llLon = min(xGrid[0,:])
-        urLon = max(xGrid[0,:])
-        llLat = min(yGrid[:,0])
-        urLat = max(yGrid[:,0])
+        llLon = min(x[0,:])
+        urLon = max(x[0,:])
+        llLat = min(y[:,0])
+        urLat = max(y[:,0])
 
-    levels = arange(900, 1020, 5)
+    levels = np.arange(900, 1020, 5)
 
     plotField(x, y, data, llLon, llLat, urLon, urLat, res, dl, levels,
               cmapName, smoothing, title=title, xlab='Lonigtude',
@@ -424,7 +428,7 @@ def plotArray(x,y,data,llLon=None, llLat=None, urLon=None,
 
     pyplot.figure()
     if (len(x.shape)<2)and(len(y.shape)<2):
-        [xx,yy] = meshgrid(x,y)
+        [xx,yy] = np.meshgrid(x,y)
     else:
         xx = x
         yy = y
@@ -447,8 +451,10 @@ def plotArray(x,y,data,llLon=None, llLat=None, urLon=None,
         urcrnrlat = urLat
     else:
         urcrnrlat = y.max()
-    meridians = arange(dl*floor(llcrnrlon/dl), dl*ceil(urcrnrlon/dl), dl)
-    parallels = arange(dl*floor(llcrnrlat/dl), dl*ceil(urcrnrlat/dl), dl)
+    meridians = np.arange(dl*np.floor(llcrnrlon/dl), 
+                          dl*np.ceil(urcrnrlon/dl), dl)
+    parallels = np.arange(dl*np.floor(llcrnrlat/dl), 
+                          dl*np.ceil(urcrnrlat/dl), dl)
     m = Basemap(projection='cyl',
                 resolution=res,
                 llcrnrlon=llcrnrlon,
@@ -470,10 +476,15 @@ def plotArray(x,y,data,llLon=None, llLat=None, urLon=None,
             pass
         else:
             datam = maskoceans(xx,yy,data,inlands=False)
-            m.pcolormesh(xx,yy,datam,edgecolors='None',vmin=datarange[0],vmax=datarange[1],cmap=cmap)
+            m.pcolormesh(xx,yy,datam,edgecolors='None',
+                         vmin=datarange[0],vmax=datarange[1],
+                         cmap=cmap)
     else:
-        m.pcolormesh(xx,yy,data,edgecolors='None',vmin=datarange[0],vmax=datarange[1],cmap=cmap)
-    cb = pyplot.colorbar(shrink=0.5, orientation='horizontal', extend='both',pad=0.05)
+        m.pcolormesh(xx,yy,data,edgecolors='None',
+                     vmin=datarange[0],vmax=datarange[1],
+                     cmap=cmap)
+    cb = pyplot.colorbar(shrink=0.5, orientation='horizontal', 
+                         extend='both',pad=0.05)
     if cb.orientation=='horizontal':
         for t in cb.ax.get_xticklabels():
             t.set_fontsize(10)
@@ -507,7 +518,7 @@ def plotBarb(x,y,u,v,llLon=None,llLat=None,urLon=None,
     pyplot.rcdefaults()
     pyplot.figure()
     if (len(x.shape)<2)and(len(y.shape)<2):
-        [xx,yy] = meshgrid(x,y)
+        [xx,yy] = np.meshgrid(x,y)
     else:
         xx = x
         yy = y
@@ -532,8 +543,10 @@ def plotBarb(x,y,u,v,llLon=None,llLat=None,urLon=None,
     else:
         urcrnrlat = y.max()
 
-    meridians = arange(dl*floor(llcrnrlon/dl), dl*ceil(urcrnrlon/dl), dl)
-    parallels = arange(dl*floor(llcrnrlat/dl), dl*ceil(urcrnrlat/dl), dl)
+    meridians = np.arange(dl*np.floor(llcrnrlon/dl), 
+                          dl*np.ceil(urcrnrlon/dl), dl)
+    parallels = np.arange(dl*np.floor(llcrnrlat/dl), 
+                          dl*np.ceil(urcrnrlat/dl), dl)
     m = Basemap(projection='cyl',
                 resolution=res,
                 llcrnrlon=llcrnrlon,
@@ -542,20 +555,21 @@ def plotBarb(x,y,u,v,llLon=None,llLat=None,urLon=None,
                 urcrnrlat=urcrnrlat)
 
     if plotMagnitude:
-        mag = sqrt(u*u+v*v)
-        m.contourf(xx, yy, ws, levels, extend='both', cmap=cmap)
-        cb = pyplot.colorbar(shrink=0.5, orientation='horizontal', extend='both',
-                     ticks=levels[::2], pad=0.05)
+        mag = np.sqrt(u*u+v*v)
+        levels = np.arange(30, 101, 5)
+        m.contourf(xx, yy, mag, levels, extend='both', cmap=cmapName)
+        cb = pyplot.colorbar(shrink=0.5, orientation='horizontal', 
+                             extend='both', ticks=levels[::2], pad=0.05)
 
         cb.set_label(clab, fontsize=10)
         if cb.orientation=='horizontal':
             for t in cb.ax.get_xticklabels():
                 t.set_fontsize(8)
 
-    dx = numpy.mean(numpy.diff(lon))
+    dx = np.mean(np.diff(x))
     xdim = urcrnrlon - llcrnrlon
     nx = xdim/dx
-    skip = int(numpy.round(nx/25))
+    skip = int(np.round(nx/25))
     m.barbs(xx[0::skip,0::skip],yy[0::skip,0::skip],
             u[0::skip,0::skip],v[0::skip,0::skip],
             length=5,linewidth=0.5)

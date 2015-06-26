@@ -7,8 +7,8 @@
 
 .. moduleauthor: Craig Arthur <craig.arthur@ga.gov.au>
 
-TODO: Use `statsmodels.nonparametric.kde.KDEMultivariate` for calculating 
-      genesis density for synthetic event sets. 
+TODO: Use `statsmodels.nonparametric.kde.KDEMultivariate` for calculating
+      genesis density for synthetic event sets.
 
 """
 
@@ -56,11 +56,11 @@ def loadTracks(trackfile):
 
 def loadTracksFromFiles(trackfiles):
     """
-    Provides an iterator over all tracks, which have been loaded from 
+    Provides an iterator over all tracks, which have been loaded from
     a list of track files.
-    
-    :param list trackfiles: A list of track files to load. 
-    
+
+    :param list trackfiles: A list of track files to load.
+
     :returns: an iterator that yields :class:`Track` objects.
     """
     for f in trackfiles:
@@ -171,11 +171,11 @@ class GenesisDensity(object):
                          len(self.lat_range) - 1))
 
         xy= np.vstack([self.X.ravel(), self.Y.ravel()])
-        
+
         x = []
         y = []
 
-        for track in tracks: 
+        for track in tracks:
             if len(track.Longitude) == 0:
                 pass
             elif len(track.Longitude) == 1:
@@ -189,7 +189,7 @@ class GenesisDensity(object):
         yy = np.array(y)
         ii = np.where((xx >= self.gridLimit['xMin']) &
                         (xx <= self.gridLimit['xMax']) &
-                      (yy >= self.gridLimit['yMin']) & 
+                      (yy >= self.gridLimit['yMin']) &
                         (yy <= self.gridLimit['yMax']))
 
         values = np.vstack([xx[ii], yy[ii]])
@@ -202,7 +202,7 @@ class GenesisDensity(object):
         """
         Calculate mean, median and percentiles of the :attr:`self.synHist`
         attribute.
-        
+
         """
 
         self.synHist = ma.masked_values(self.synHist, -9999.)
@@ -254,23 +254,23 @@ class GenesisDensity(object):
 
         work_tag = 0
         result_tag = 1
-        
+
         if (pp.rank() == 0) and (pp.size() > 1):
             w = 0
             n = 0
             for d in range(1, pp.size()):
                 pp.send(trackfiles[w], destination=d, tag=work_tag)
-                log.debug("Processing track file {0:d} of {0:d}".\
+                log.debug("Processing track file {0:d} of {1:d}".\
                           format(w, len(trackfiles)))
                 w += 1
 
             terminated = 0
             while (terminated < pp.size() - 1):
-                results, status = pp.receive(pp.any_source, tag=result_tag, 
+                results, status = pp.receive(pp.any_source, tag=result_tag,
                                              return_status=True)
                 self.synHist[n, :, :] = results
                 n += 1
-                
+
                 d = status.source
                 if w < len(trackfiles):
                     pp.send(trackfiles[w], destination=d, tag=work_tag)
@@ -404,22 +404,22 @@ class GenesisDensity(object):
                           resolution='i')
         cbarlab = "TCs/yr"
         xgrid, ygrid = np.meshgrid(self.lon_range, self.lat_range)
-        figure.add(self.hist.T*(10.**-exponent), self.X, self.Y, 
+        figure.add(self.hist.T*(10.**-exponent), self.X, self.Y,
                    "Historic", lvls*(10.**-exponent), cbarlab, map_kwargs)
-        figure.add(self.synHistMean.T*(10.**-exponent), xgrid, ygrid, 
+        figure.add(self.synHistMean.T*(10.**-exponent), xgrid, ygrid,
                    "Synthetic", lvls*(10.**-exponent), cbarlab, map_kwargs)
         figure.plot()
         outputFile = pjoin(self.plotPath, 'genesis_density.png')
         saveFigure(figure, outputFile)
 
         figure2 = FilledContourMapFigure()
-        figure2.add(self.hist.T*(10.**-exponent), xgrid, ygrid, 
+        figure2.add(self.hist.T*(10.**-exponent), xgrid, ygrid,
                     "Historic", lvls*(10.**-exponent), cbarlab, map_kwargs)
-        figure2.add(self.synHist[0, :, :].T*(10.**-exponent), xgrid, ygrid, 
+        figure2.add(self.synHist[0, :, :].T*(10.**-exponent), xgrid, ygrid,
                     "Synthetic", lvls*(10.**-exponent), cbarlab, map_kwargs)
-        figure2.add(self.synHist[1, :, :].T*(10.**-exponent), xgrid, ygrid, 
+        figure2.add(self.synHist[1, :, :].T*(10.**-exponent), xgrid, ygrid,
                     "Synthetic", lvls*(10.**-exponent), cbarlab, map_kwargs)
-        figure2.add(self.synHist[2, :, :].T*(10.**-exponent), xgrid, ygrid, 
+        figure2.add(self.synHist[2, :, :].T*(10.**-exponent), xgrid, ygrid,
                     "Synthetic", lvls*(10.**-exponent), cbarlab, map_kwargs)
 
         figure2.plot()
@@ -447,15 +447,15 @@ class GenesisDensity(object):
         cbarlab = "TCs/yr"
         xgrid, ygrid = np.meshgrid(self.lon_range, self.lat_range)
 
-        figure.add(self.synHistUpper.T*(10.**-exponent), xgrid, ygrid, 
+        figure.add(self.synHistUpper.T*(10.**-exponent), xgrid, ygrid,
                    "Upper percentile", lvls*(10.**-exponent), cbarlab, map_kwargs)
-        figure.add(self.synHistLower.T*(10.**-exponent), xgrid, ygrid, 
+        figure.add(self.synHistLower.T*(10.**-exponent), xgrid, ygrid,
                    "Lower percentile", lvls*(10.**-exponent), cbarlab, map_kwargs)
         figure.plot()
         outputFile = pjoin(self.plotPath, 'genesis_density_percentiles.png')
         saveFigure(figure, outputFile)
 
-    
+
 
     def run(self):
         """Run the track density evaluation"""
@@ -467,7 +467,7 @@ class GenesisDensity(object):
         pp.barrier()
 
         self.synthetic()
-        
+
         pp.barrier()
 
         self.plotGenesisDensity()

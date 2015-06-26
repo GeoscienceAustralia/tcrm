@@ -11,6 +11,7 @@
 
 import numpy as np
 from Utilities.config import ConfigParser
+import logging as log
 
 def colReadCSV(configFile, dataFile, source):
     """
@@ -26,7 +27,7 @@ def colReadCSV(configFile, dataFile, source):
                        corresponding section in the ``configFile``.
 
     :returns: A :class:`numpy.ndarray` that contains the input data.
-    
+
     """
     config = ConfigParser()
     config.read(configFile)
@@ -38,7 +39,7 @@ def colReadCSV(configFile, dataFile, source):
     try:
         data = np.genfromtxt(dataFile, dtype=None, delimiter=delimiter,
                              usecols=usecols, comments=None,
-                             skip_header=numHeadingLines, 
+                             skip_header=numHeadingLines,
                              autostrip=True)
     except IOError:
         log.exception("File not found: {0}".format(dataFile))

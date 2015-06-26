@@ -357,7 +357,7 @@ def _cnfCacheIniFile(filename):
     """
 
     section = None
-
+    cfgDict = {}
     try:
         FH = open( filename )
     except IOError:
@@ -374,10 +374,10 @@ def _cnfCacheIniFile(filename):
             am = re.match('^([^=]+)=(.+)', line )
             if sm:
                 new_sect = sm.group( 1 )
-                if sect:
+                if sect: # pylint: disable=E0601
                     key = sect
                     subkey = key
-                    cfgDict[ key ][ subkey ] = sect_list
+                    cfgDict[key][subkey] = sect_list # pylint: disable=E0601
                 sect = new_sect
                 sect_list = []
 

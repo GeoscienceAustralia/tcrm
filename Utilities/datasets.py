@@ -23,7 +23,7 @@ class DataSet(object):
     :param filename: name of the file to be saved (can be different from
                      the name of the dataset).
     :type filename: str or None
-    
+
     """
     def __init__(self, name, url, path, filename=None):
         self.name = name
@@ -48,9 +48,9 @@ class DataSet(object):
         :type callback: function
 
         :raises IOError: Unable to download the dataset.
-        
+
         """
-        
+
         if self.isDownloaded():
             return
 
@@ -91,7 +91,7 @@ class DataSet(object):
         Determine if a file has already been downloaded
 
         :returns: `True` if the file exists, `False` otherwise.
-        
+
         """
         return isfile(pjoin(self.path, self.filename))
 
@@ -103,11 +103,11 @@ def loadDatasets(configFile):
     list.
 
     """
-    
+
     config = ConfigParser()
     config.read(configFile)
     datasets = config.get('Input', 'Datasets').split(',')
-    
+
     global DATASETS
     for dataset in datasets:
         url = config.get(dataset, 'URL')
@@ -127,10 +127,10 @@ def checkAndDownload(callback=None):
 
     :param callback: Callback function (for reporting status to STDOUT).
     :type callback: function
-    
+
 
     """
-    
+
     for dataset in DATASETS:
         dataset.download(callback)
 

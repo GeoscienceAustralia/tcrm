@@ -19,18 +19,18 @@ from genesisDensity import GenesisDensity
 def run(configFile):
     """
     Run the evaluation methods for the pressure distributions, track
-    density, landfall rates and longitude crossing rates. 
+    density, landfall rates and longitude crossing rates.
 
     :param str configFile: path to the configuration file.
 
     """
-    
+
     PD = PressureDistribution(configFile)
     TD = TrackDensity(configFile)
     LC = LongitudeCrossing(configFile)
     LF = LandfallRates(configFile)
     GD = GenesisDensity(configFile)
-    
+
     PD.run()
     TD.run()
     LC.run()

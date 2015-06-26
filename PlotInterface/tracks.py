@@ -8,7 +8,7 @@
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
 Note: This uses the Australian Tropical Cyclone Intensity Scale
-      for colourizing the track segments, based on maximum 
+      for colourizing the track segments, based on maximum
       10-minute wind speeds.
 
 """
@@ -28,7 +28,7 @@ from maps import MapFigure, saveFigure
 
 def make_segments(x, y):
     """
-    Create a list of line segments from x,y coordinates, in the 
+    Create a list of line segments from x,y coordinates, in the
     correct format for LineCollection.
 
     :param x: :class:`numpy.ndarray` of x-coordinates.
@@ -46,16 +46,16 @@ class TrackMapFigure(MapFigure):
     """
     Base class for plotting track maps.
     """
-        
+
     def colorline(self, x, y, z=None, alpha=0.9):
         """
-        Create and add line collections to an axes instance, using 
+        Create and add line collections to an axes instance, using
         an optional magnitude value to colourize the line segments.
 
         :param x: :class:`numpy.ndarray` of x-coordinates for lines.
         :param y: :class:`numpy.ndarray` of y-coordinates for lines.
-        :param z: (Optional) :class:`numpy.ndarray` of magnitudes to 
-                  colourize the line segments. 
+        :param z: (Optional) :class:`numpy.ndarray` of magnitudes to
+                  colourize the line segments.
         :param float linewidth: Line width of the line segments to plot.
         :param float alpha: Transparency level of the line segments.
 
@@ -73,7 +73,7 @@ class TrackMapFigure(MapFigure):
         cmap = ListedColormap(['0.75', '#0FABF6', '#0000FF',
                                 '#00FF00', '#FF8100', '#ff0000'])
         norm = BoundaryNorm([0, 17.5, 24.5, 32.5, 44.2, 55.5, 1000], cmap.N)
-        lc = LineCollection(segments, array=z, cmap=cmap, 
+        lc = LineCollection(segments, array=z, cmap=cmap,
                             norm=norm, alpha=alpha)
 
         labels = ['No data', 'Category 1', 'Category 2',
@@ -85,7 +85,7 @@ class TrackMapFigure(MapFigure):
         ax = self.gca()
         ax.add_collection(lc)
         ax.legend(handles, labels, loc=2, frameon=True )
-        
+
     def add(self, tracks, xgrid, ygrid, title, map_kwargs):
         self.subfigures.append((tracks, xgrid, ygrid, title, map_kwargs))
 
@@ -98,7 +98,7 @@ class TrackMapFigure(MapFigure):
             self.colorline(mlon, mlat, track.WindSpeed, alpha=0.75)
         axes.set_title(title)
         #self.labelAxes(axes)
-        self.addGraticule(axes, mapobj, dl=5.)
+        self.addGraticule(axes, mapobj)
         self.addCoastline(mapobj)
         self.fillContinents(mapobj)
         self.addMapScale(mapobj)

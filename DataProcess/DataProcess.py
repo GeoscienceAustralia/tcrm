@@ -49,7 +49,7 @@ class DataProcess(object):
     :param configFile: Configuration file containing simulation settings
 
     :type  progressbar: :class:`progressbar`
-    :param progressbar: :attr:`progressbar` object to print progress to 
+    :param progressbar: :attr:`progressbar` object to print progress to
                         STDOUT
 
     Internal Methods:
@@ -61,7 +61,7 @@ class DataProcess(object):
     _speedRate(dist, dt, indicator) Extract the acceleration (rate of change of speed)
     _bearingChange(bear, dt, indicator) Extract the rate of change of bearing
     _windSpeed(vmax, indicator) Extract the maximum sustained wind speed
-    
+
     """
 
     def __init__(self, configFile, progressbar=None):
@@ -131,7 +131,7 @@ class DataProcess(object):
         :returns: indices corresponding to all points of all tracks that
                   form within the model domain
         :rtype: `numpy.ndarray`
-        
+
         """
         outIndex = []
         flag = 0
@@ -161,7 +161,7 @@ class DataProcess(object):
         :param bool restrictToWindfieldDomain: if True, only process data
             within the wind field domain, otherwise, process data from
             across the track generation domain.
-            
+
         """
         config = ConfigParser()
         config.read(self.configFile)
@@ -744,7 +744,7 @@ class DataProcess(object):
                            observations (including TCs with a single
                            observation)
         Output: None - data is written to file
-        
+
         """
         self.logger.info('Extracting the rate of size change')
 

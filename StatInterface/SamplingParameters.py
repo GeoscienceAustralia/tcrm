@@ -12,9 +12,11 @@ a single sample, or an array of samples (for multiple cyclones).
 
 """
 
-import os, sys, pdb, logging
+import os
+import sys
+import logging
 
-import scipy 
+import scipy
 import numpy as np
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile, flSaveFile
@@ -24,12 +26,12 @@ class SamplingParameters:
     """
     Provides methods to sample one or many values from a CDF of
     parameter values.
-    
+
     :param cdfParameters: Name of a file containing the CDF of
                           a parameter, or the actual CDF values.
     :type  cdfParamters: str, :class:`numpy.ndarray` or None
 
-    
+
     """
     def __init__(self, cdfParameters=None):
         """Initialize the data needed for the plots including CDF of
@@ -57,7 +59,7 @@ class SamplingParameters:
                               a parameter, or the actual CDF values.
         :type  cdfParamters: str or :class:`numpy.ndarray`
 
-        :raises IOError: If the CDF files do not exist. 
+        :raises IOError: If the CDF files do not exist.
         """
 
         if type(cdfParameters) == str:
@@ -88,7 +90,7 @@ class SamplingParameters:
 
         :returns: The sample values.
         :raises ValueError: If ns <= 0.
-        
+
         """
 
         if ns <= 0:
@@ -131,7 +133,6 @@ if __name__ == "__main__":
 
     sp = SamplingParameters(cdfParameters)
 
-    #pdb.set_trace()
     os = sp.generateOneSample()
     s = sp.generateSamples(cnfGetIniValue(configFile, 'Parameters',
                                           'Samples'))

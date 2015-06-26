@@ -58,7 +58,7 @@ def recdropfields(rec, names):
 
     :returns: A new :class:`numpy.recarray` with the fields in *names*
               dropped.
-              
+
     """
 
     names = set(names)
@@ -75,7 +75,7 @@ def recdropfields(rec, names):
 
 def tracks2point(tracks, outputFile):
     """
-    Writes tracks to a shapefile as a collection of point features. 
+    Writes tracks to a shapefile as a collection of point features.
 
     :type  tracks: list of :class:`Track` objects
     :param tracks: :class:`Track` features to store in a shape file
@@ -91,7 +91,7 @@ def tracks2point(tracks, outputFile):
     sf.fields = OBSFIELDS
 
     LOG.debug("Processing {0} tracks".format(len(tracks)))
-    
+
     for track in tracks:
         track.data = recdropfields(track.data, ['Datetime'])
         for lon, lat, rec in zip(track.Longitude, track.Latitude, track.data):

@@ -27,10 +27,10 @@ def elevToAirPr(elev, units_ap=gPressureUnits):
 
     :returns: Approximate air pressure at the given elevation
               in the specified or default units.
-    :rtype: float              
+    :rtype: float
 
     """
-    
+
     ap = gApproxPressure
     if elev > 0:
         ap = gApproxPressure * np.exp(-0.0001184 * elev)
@@ -47,7 +47,7 @@ def vapPrToDewPoint(vp, units_vp=gPressureUnits):
 
     :returns: dew point temperature (in degrees Kelvin)
     :rtype: float
-    
+
     """
     vp = convert(vp, units_vp, "kPa")
     t_dp = (116.9 + (237.3 * np.log(vp))) / (16.78 - np.log(vp))
@@ -62,7 +62,7 @@ def dewPointToVapPr(t_dp, units_vp=gPressureUnits):
 
     :returns: Vapour pressure of water content.
     :rtype: float
-    
+
     """
     vp = np.exp((16.78 * t_dp - 116.9)/(t_dp + 237.3))
     vp = convert(vp, 'kPa', units_vp)
@@ -78,7 +78,7 @@ def wetBulbGlobeTemp(t_dp, temp):
 
     :returns: Wet bulb globe temperature (degrees Celsius).
     :rtype: float
-    
+
     """
     vp = dewPointToVapPr(t_dp, 'kPa')
     wbgt = 0.567 * temp + 0.393 * vp + 3.94
@@ -94,7 +94,7 @@ def wetBulbToDewPoint(db, wb, elev=0):
 
     :returns: Dew point temperature (degrees Kelvin).
     :rtype: float
-    
+
     """
     # Calculate vapour pressure
     vp = wetBulbToVapPr(db, wb, elev, 'kPa')
@@ -111,10 +111,10 @@ def wetBulbToVapPr(db, wb, elev, units_vp=gPressureUnits):
     :param float wb: Wet bulb temperature (degrees Celsius).
     :param float elev: Elevation (metres).
     :param str units_vp: Output units (default ``gPressureUnits``)
-    
+
     :returns: Vapour pressure.
     :rtype: float
-    
+
     """
     if (wb > db):
         # Reality check. Wet bulb can't be greater than dry bulb
@@ -143,7 +143,7 @@ def satVapPr(temp, units_vp=gPressureUnits):
                          Default is ``gPressureUnits``.
 
     :returns: saturation vapour pressure in the specified or default units.
-    
+
     .. note::
        Calculation is in kPa with a conversion at the end to the
        required units.
@@ -154,7 +154,7 @@ def satVapPr(temp, units_vp=gPressureUnits):
         >>> from metutils import satVapPr
         >>> satVapPr(25.)
         31.697124349060619
-        
+
     """
     vp = np.exp(((16.78 * temp) - 116.9) / (temp + 237.3))
     vp = convert(vp, 'kPa', units_vp)
@@ -176,7 +176,7 @@ def vapPrToRH(vp, sat_vp):
         >>> from metutils import vapPrToRH
         >>> vapPrToRH(10., 30.)
         33.33333333333
-    
+
     """
     if (sat_vp == 0):
         rh = 100
@@ -210,7 +210,7 @@ def wetBulbToRH(t_db, t_wb, elev):
         63.01954
 
     """
-    
+
     # Calculate vapour pressure
     vp = wetBulbToVapPr(t_db, t_wb, elev)
     # Calculate the saturated vapour pressure at the dry bulb temperature
@@ -230,7 +230,7 @@ def dewPointToRH(t_dry, t_dew):
 
     :returns: Relative humidity (%)
     :rtype: float
-    
+
     """
     vap_t_dry = 6.11 * (10 ** ((7.5 * t_dry) / (237.3 + t_dry)))
     vap_t_dew = 6.11 * (10 ** ((7.5 * t_dew) / (237.3 + t_dew)))
@@ -251,7 +251,7 @@ def rHToDewPoint(rh, t_dry):
     :returns: Dew point temperture (degrees Celsius).
     :rtype: float
     """
-    vap_t_dry = satVapPr(t_dry, 'kPa')  
+    vap_t_dry = satVapPr(t_dry, 'kPa')
     vap_t_dew = (rh/100.0) * vap_t_dry
     if (vap_t_dew > 0):
         t_dew = vapPrToDewPoint(vap_t_dew, "kPa")
@@ -273,7 +273,7 @@ def vapPrToMixRat(es, prs):
 
     :returns: Mixing ratio.
     :rtype: float
-    
+
     """
     rat = gEps * es / (prs - es)
     return rat
@@ -315,7 +315,7 @@ def spHumToMixRat(q, units="gkg"):
 
     :returns: Mixing ratio (kg/kg).
     :rtype: float
-    
+
     """
     q = convert(q, units, "kgkg")
 
@@ -333,7 +333,7 @@ def rHToMixRat(rh, tmp, prs, tmp_units="C"):
 
     :returns: Mixing ratio (g/kg).
     :rtype: float
-    
+
     """
     es = satVapPr(convert(tmp, tmp_units, "C"))
     e = (rh / 100.) * es
@@ -351,7 +351,7 @@ def spHumToRH(q, tmp, prs):
 
     :returns: Relative humidity (%)
     :rtype: float
-    
+
     """
     es = satVapPr(tmp)
     qs = gEps * es / prs
@@ -364,10 +364,10 @@ def coriolis(lat):
 
     :param lat: Latitude (degrees).
     :type  lat: :class:`numpy.ndarray` or scalar float
-    
+
     :returns: Coriolis factor
     :rtype: :class:`numpy.ndarray` or scalar float
-    
+
     """
     omega = 2 * math.pi / 86400.
     f = 2 * omega * np.sin(np.radians(lat))
@@ -382,7 +382,7 @@ def convert(value, inunits, outunits):
     :param str outunits: Output units.
 
     :returns: Value converted to ``outunits`` units.
-    
+
     """
     startValue = value
     value = np.array(value)
@@ -406,16 +406,16 @@ def convert(value, inunits, outunits):
     K = {"C":1.}
 
     # Pressures:
-    kPa = {"hPa":10., "Pa":1000., "inHg":0.295299831, "mmHg":7.500615613, 
+    kPa = {"hPa":10., "Pa":1000., "inHg":0.295299831, "mmHg":7.500615613,
            "Pascals":1000.}
     hPa = {"kPa":0.1, "Pa":100., "inHg":0.02953, "mmHg":0.750061561,
            "Pascals":100.}
-    Pa = {"kPa":0.001, "hPa":0.01, "inHg":0.0002953, "mmHg":0.007500616, 
+    Pa = {"kPa":0.001, "hPa":0.01, "inHg":0.0002953, "mmHg":0.007500616,
           "Pascals":1.0}
     inHg = {"kPa":3.386388667, "hPa":33.863886667, "Pa":3386.388666667,
             "mmHg":25.4}
     mmHg = {"kPa":0.13332239, "hPa":1.3332239, "Pa":133.32239, "inHg":0.0394}
-    pascals = {"kPa":0.001, "hPa":0.01, "inHg":0.0002953, "mmHg":0.007500616, 
+    pascals = {"kPa":0.001, "hPa":0.01, "inHg":0.0002953, "mmHg":0.007500616,
           "Pa":1.0}
 
     # Lengths:
@@ -474,13 +474,13 @@ def convert(value, inunits, outunits):
 
 def vapour(temp):
     """
-    Determine saturation vapour pressure, given temperature). 
+    Determine saturation vapour pressure, given temperature).
 
     :param float temp: Air temperature (degrees Celsius)
 
     :returns: Saturation vapour pressure (kPa).
     :rtype: float
-    
+
     """
     vp = 6.112 * np.exp(17.67 * temp/(243.5 + temp))
     return vp
@@ -499,10 +499,10 @@ def dewPointToWetBulb(T, Td, pressure):
     """
     Calculate wet bulb temperature from dry bulb temperature,
     dew point temperature and air pressure.
-    
+
     Based on the code underpinning the form at:
     http://www.srh.noaa.gov/epz/?n=wxcalc_dewpoint
-    
+
     :param float T: Dry bulb temperature (degrees Celcius).
     :param float Td: Dew point temperature (degrees Celcius).
     :param float pressure: Air pressure (hPa).
@@ -510,7 +510,7 @@ def dewPointToWetBulb(T, Td, pressure):
     :returns: Wet bulb temperature (degrees Celcius).
     :rtype: float
 
-    TODO: Add unit tests. 
+    TODO: Add unit tests.
     """
 
     if Td > T:
@@ -544,7 +544,7 @@ def dewPointToWetBulb(T, Td, pressure):
         if (abs(Edifference) <= 0.05):
             break
         else:
-            Tw = Tw + incr * prevsign 
+            Tw = Tw + incr * prevsign
 
     return np.round(Tw, decimals=3)
 

@@ -171,7 +171,7 @@ def pelgev(XMOM):
     return PARA
 
 def pelgpa(XMOM):
-    
+
     PARA = numpy.zeros(3)
     T3 = XMOM[2]
     if XMOM[1] <= 0.0:
@@ -318,7 +318,7 @@ def samlmu3(X):
     :param X: Array of length N, containing the data in ascending order.
     :returns: First 3 L-moments.
     :rtype: :class:`numpy.ndarray`
-    
+
     """
     X = numpy.array(X)
     N = numpy.size(X)

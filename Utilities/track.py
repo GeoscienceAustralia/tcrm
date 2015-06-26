@@ -29,7 +29,7 @@ from netCDF4 import Dataset, date2num, num2date
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
-trackFields = ('Indicator', 'CycloneNumber', 'Year', 'Month', 
+trackFields = ('Indicator', 'CycloneNumber', 'Year', 'Month',
                'Day', 'Hour', 'Minute', 'TimeElapsed', 'Datetime', 'Longitude',
                'Latitude', 'Speed', 'Bearing', 'CentralPressure',
                'WindSpeed', 'rMax', 'EnvPressure')
@@ -43,7 +43,7 @@ trackFormats = ('%i, %i, %i, %i,'
                 '%i, %i, %i, %5.1f,' '%s',
                 '%8.3f, %8.3f, %6.2f, %6.2f, %7.2f,'
                 '%6.2f, %6.2f, %7.2f')
-                
+
 PATTERN = re.compile(r'\d+')
 
 class Track(object):
@@ -114,7 +114,7 @@ class Track(object):
                 (np.max(self.Latitude) <= xMax) and
                 (yMin <= np.min(self.Latitude)) and
                 (np.max(self.Latitude) <= yMax))
-                
+
     def minimumDistance(self, points):
         """
         Calculate the minimum distance between a track and a
@@ -129,7 +129,7 @@ class Track(object):
                   the set of points and the line features (in km).
         """
         coords = [(x, y) for x, y in zip(self.Longitude, self.Latitude)]
-        
+
         if len(coords) == 1:
             point_feature = Point(self.Longitude, self.Latitude)
             distances = [point_feature.distance(point) for point in points]
@@ -139,7 +139,7 @@ class Track(object):
 
         return convert(distances, 'deg', 'km')
 
-    
+
 # Define format for TCRM output track files:
 ISO_FORMAT = "%Y-%m-%d %H:%M:%S"
 TCRM_COLS = ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
@@ -169,7 +169,7 @@ def ncReadTrackData(trackfile):
     """
     Read a netcdf-format track file into a collection of
     :class:`Track` objects. The returned :class:`Track` objects *must*
-    have all attributes accessed by the `__getattr__` method. 
+    have all attributes accessed by the `__getattr__` method.
 
     :param str trackfile: track data filename (netCDF4 format).
 
@@ -195,7 +195,7 @@ def ncReadTrackData(trackfile):
             log.debug("Loading data for {0}".format(t))
             track_data = data.variables['track'][:]
             track = Track(track_data)
-            
+
             try:
                 track.Datetime = num2date(track.Datetime,
                                           data.variables['time'].units,
@@ -203,7 +203,7 @@ def ncReadTrackData(trackfile):
             except AttributeError:
                 log.exception(TRACK_DT_ERR)
                 raise AttributeError
-            
+
             track.data = track.data.astype(track_dtype)
             track.trackfile = trackfile
             if hasattr(data.variables['track'], "trackId"):
@@ -236,20 +236,20 @@ def ncSaveTracks(trackfile, tracks,
     :param str trackfile: Path to the file to save data to.
     :param list tracks: Collection of :class:`Track` objects.
     :param str timeunits: A string of the form '*time units* since
-                          *reference time*' describing the time units. 
+                          *reference time*' describing the time units.
                           Default is 'hours since 1900-01-01 00:00'.
-    :param str calendar: Calendar used for time calculations. Valid calendars 
+    :param str calendar: Calendar used for time calculations. Valid calendars
                          are 'standard', 'gregorian', 'proleptic_gregorian',
                          'noleap', '365_day', '360_day', 'julian', 'all_leap',
                          '366_day'. Default is 'standard', which is a mixed
                          Julian/Gregorian calendar.
     :param dict attributes: Global attributes to add to the file.
-    
+
     """
 
     if len(tracks) == 0:
         log.info("No tracks to be stored in track file: {0}".format(trackfile))
-        return 
+        return
 
     try:
         ncobj = Dataset(trackfile, "w", format="NETCDF4", clobber=True)
@@ -264,7 +264,7 @@ def ncSaveTracks(trackfile, tracks,
     track_dtype = track_dtype.descr
     track_dtype[1] = ('Datetime', 'f4')
     track_dtype = np.dtype(track_dtype)
-    
+
     for n, t in enumerate(tracks):
         if len(t.data) == 0: # Empty track
             continue
@@ -282,7 +282,7 @@ def ncSaveTracks(trackfile, tracks,
         times.units = 'hours since 1900-01-01 00:00'
         times.calendar = 'standard'
         tvar[:] = t.data.astype(track_dtype)
-        tvar.long_name = "Tropical cyclone track data" 
+        tvar.long_name = "Tropical cyclone track data"
         tvar.time_units = 'hours since 1900-01-01 00:00'
         tvar.calendar = 'standard'
         tvar.lon_units = 'degrees east'
@@ -291,7 +291,7 @@ def ncSaveTracks(trackfile, tracks,
         tvar.speed_units = 'm/s'
         tvar.length_units = 'km'
         tvar.trackId = repr(t.trackId)
-        
+
     attributes['created_on'] = time.strftime(ISO_FORMAT, time.localtime())
     attributes['created_by'] = getpass.getuser()
     ncobj.setncatts(attributes)
@@ -390,7 +390,7 @@ def loadTracksFromFiles(trackfiles):
         tracks = loadTracks(f)
         for track in tracks:
             yield track
-            
+
 def loadTracksFromPath(path):
     """
     Helper function to obtain a generator that yields :class:`Track` objects

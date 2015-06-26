@@ -33,7 +33,7 @@ def circularKDE(parameters, kdeStep=np.pi/16.):
                           distribution will be estimated.
 
     :returns: :class:`numpy.ndarray` of the grid, the PDF and the CDF.
-    
+
     """
     bw = KPDF.UPDFOptimumBandwidth(parameters)
     grid = np.arange(0, 2 * np.pi +kdeStep, kdeStep)

@@ -22,10 +22,10 @@
  Description: Unit testing module for statutils.py
 
  Version: $Rev: 563 $
- 
- ModifiedBy: 
- ModifiedDate: 
- Modification: 
+
+ ModifiedBy:
+ ModifiedDate:
+ Modification:
 
  $Id: TestStat.py 563 2007-10-24 02:52:40Z carthur $
 """
@@ -69,7 +69,7 @@ class Teststatutils(NumpyTestCase.NumpyTestCase):
                     [0.10186128, 0.25910395, 0.30762902, 0.44421163],
                     [0.19578378, 0.39088508, 0.5602783 , 0.75825101],
                     [0.27055752, 0.49773705, 0.71886075, 1.0]])
-        
+
         x = array([0, 1, 2, 3])
         y = array([0, 1, 2, 3])
 
@@ -95,7 +95,7 @@ class Teststatutils(NumpyTestCase.NumpyTestCase):
         for cell, lon, lat in knownValues:
             (lon_, lat_) = statutils.getCellLonLat(cell, self.gridLimit, self.gridSpace)
             self.assertEqual((lon_,lat_), (lon,lat))
-            
+
         invalidCells = (-10, 176, 2000)
         for cell in invalidCells:
             self.assertRaises(IndexError, statutils.getCellLonLat, cell, self.gridLimit, self.gridSpace)
@@ -111,17 +111,17 @@ class Teststatutils(NumpyTestCase.NumpyTestCase):
         """Testing maxCellNum"""
         maxCellNum = 175
         self.assertEqual(maxCellNum, statutils.maxCellNum(self.gridLimit, self.gridSpace))
-        
+
     def test_GetOccurence(self):
         """Testing getOccurance"""
         occurList = [-10, 20, 30, 40]
-        
+
         indList = [0, 2]
         self.numpyAssertEqual(array([-10, 30]), statutils.getOccurence(occurList, indList))
 
         indList = []
         self.numpyAssertEqual(array([]), statutils.getOccurence(occurList, indList))
-    
+
         indList = [-10, 2]
         self.assertRaises(IndexError, statutils.getOccurence, occurList, indList)
 
@@ -137,7 +137,7 @@ class Teststatutils(NumpyTestCase.NumpyTestCase):
         for minVal, maxVal, step, maxRange in knownValues:
             result = statutils.statMaxRange(minVal, maxVal, step)
             self.assertEqual(maxRange, result)
-        
+
     def test_GetMinRange(self):
         """Testing getMinRange"""
         knownValues = ((10, 20, 9, 2), (-123, 2002, 3, -125))

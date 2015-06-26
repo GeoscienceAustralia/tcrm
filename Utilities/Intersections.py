@@ -18,7 +18,7 @@ def convert2vertex(a1, a2):
     :param a1: ordinate
     :param a2: abscissa
 
-    :returns: List of :class:`Point` objects. 
+    :returns: List of :class:`Point` objects.
 
     """
 
@@ -37,7 +37,7 @@ def inLand(P, V):
     :returns: ``True`` if the point lies inside the vertices, ``False``
               otherwise.
     :rtype: boolean
-    
+
     """
     return _cnPnPoly(P, V) and _wnPnPoly(P, V)
 
@@ -80,7 +80,7 @@ def _wnPnPoly(P, V):
               the shape to be tested. Must be a closed set.
 
     :returns: 0 if outside, 1 if inside the polygon.
-    
+
     Copyright 2001, softSurfer (www.softsurfer.com)
     This code may be freely used and modified for any purpose
     providing that this copyright notice is included with it.
@@ -112,7 +112,7 @@ def _isLeft(P0, P1, P2):
     :returns: >0 for ``P2`` left of the line through ``P0`` and ``P1``
               =0 for ``P2`` on the line
               <0 for ``P2`` right of the line
-              
+
     Copyright 2001, softSurfer (www.softsurfer.com)
     This code may be freely used and modified for any purpose
     providing that this copyright notice is included with it.
@@ -128,7 +128,7 @@ class Intersection:
     An Intersection object.
 
     :param str state: Initial state of the :class:`Intersection` (default ``None``).
-    
+
     Parameters: None
     Members: status (string) and points (list)
     Methods: None
@@ -147,7 +147,7 @@ class Intersection:
 class Crossings:
     """
     Determine if a a line intersects some other geometric feature
-    (another line, a circle, a polygon). 
+    (another line, a circle, a polygon).
 
     """
 
@@ -272,7 +272,7 @@ class Crossings:
                   intersect. If the lines intersect, then the
                   :attr:`points` attribute is set to the location of the
                   intersection.
-        
+
         """
 
         ua_t = (b2.x - b1.x) * (a1.y - b1.y) - (b2.y - b1.y) * (a1.x - b1.x)
@@ -306,7 +306,7 @@ class Crossings:
         :param points: Collection of :class:`Point` objects that
                        represent the vertices of a polygon.
 
-        
+
         """
         result = Intersection("No Intersection")
         if type(points) == list:
@@ -339,9 +339,9 @@ class Point:
         self.x = float(x)
         self.y = float(y)
 
-    def getX():
+    def getX(self):
         return self.x
 
-    def getY():
+    def getY(self):
         return self.y
 

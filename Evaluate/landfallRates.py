@@ -3,7 +3,7 @@
 ================================================
 
 .. module:: LandfallRates
-    :synopsis: Given a set of cyclone tracks and gates around the coastline, 
+    :synopsis: Given a set of cyclone tracks and gates around the coastline,
                bin each coastal crossing into the gate corresponding to it's
                landfall location - then repeat for a set of synthetic events.
 
@@ -54,7 +54,7 @@ class LandfallRates(object):
         config = ConfigParser()
         config.read(configFile)
         self.configFile = configFile
-        
+
         outputPath = config.get('Output', 'Path')
         self.trackPath = pjoin(outputPath, 'tracks')
         self.plotPath = pjoin(outputPath, 'plots', 'stats')
@@ -73,28 +73,28 @@ class LandfallRates(object):
             log.exception(("No coastline gate file specified "
                           "in configuration file"))
             raise
-        
+
         gateData = np.genfromtxt(gateFile, delimiter=',')
 
         self.gates = Int.convert2vertex(gateData[:, 1], gateData[:, 2])
         self.coast = list(self.gates)
         self.coast.append(self.gates[0])
 
-        
+
 
     def processTracks(self, tracks):
         """
-        Given a collection of :class:`Track` objects and set of gate vertices, 
+        Given a collection of :class:`Track` objects and set of gate vertices,
         calculate if the tracks cross the gates in either an onshore or
         offshore direction.
-    
+
         Returns the histograms for the gate counts.
-    
+
         """
 
         landfall = []
         offshore = []
-    
+
         for t in tracks:
             for i in range(1, len(t.Longitude)):
                 cross = Int.Crossings()
@@ -133,24 +133,24 @@ class LandfallRates(object):
         """
         Populate the :attr:`self.synLandfall` and :attr:`self.synOffshore`
         attributes.
-        
+
         :param tuple results: tuple of arrays containing landfall and offshore
-                              transition counts for gates. 
+                              transition counts for gates.
         :param int index: synthetic event counter.
 
         """
         sLF, sOF = results
         self.synLandfall[index, :] = sLF
         self.synOffshore[index, :] = sOF
-        
+
     def calculateStats(self):
         """
         Calculate mean and percentiels of landfall/offshore transition
-        rates. Operates on the :attr:`self.synLandfall` and 
-        :attr:`self.synOffshore` attributes. 
-        
+        rates. Operates on the :attr:`self.synLandfall` and
+        :attr:`self.synOffshore` attributes.
+
         """
-        
+
         self.synMeanLandfall = np.mean(self.synLandfall, axis=0)
         self.synMeanOffshore = np.mean(self.synOffshore, axis=0)
 
@@ -179,11 +179,11 @@ class LandfallRates(object):
         config.read(self.configFile)
         inputFile = config.get('DataProcess', 'InputFile')
         source = config.get('DataProcess', 'Source')
-        
+
 
         if len(os.path.dirname(inputFile)) == 0:
             inputFile = pjoin(self.inputPath, inputFile)
-        
+
         try:
             tracks = loadTrackFile(self.configFile, inputFile, source)
         except (TypeError, IOError, ValueError):
@@ -205,9 +205,9 @@ class LandfallRates(object):
         filelist = os.listdir(self.trackPath)
         trackfiles = sorted([pjoin(self.trackPath, f) for f in filelist
                              if f.startswith('tracks')])
-        
+
         self.setOutput(len(trackfiles))
-                       
+
         if (pp.rank() == 0) and (pp.size() > 1):
 
             w = 0
@@ -238,18 +238,18 @@ class LandfallRates(object):
                     terminated += 1
 
             self.calculateStats()
-                        
+
         elif (pp.size() > 1) and (pp.rank() != 0):
             while(True):
                 trackfile = pp.receive(source=0, tag=work_tag)
                 if trackfile is None:
                     break
-                
+
                 log.debug("Processing %s" % (trackfile))
                 tracks = loadTracks(trackfile)
                 results = self.processTracks(tracks)
                 pp.send(results, destination=0, tag=result_tag)
-                
+
         elif pp.size() == 1 and pp.rank() == 0:
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
             for n, trackfile in enumerate(sorted(trackfiles)):
@@ -258,21 +258,21 @@ class LandfallRates(object):
                 tracks = loadTracks(trackfile)
                 results = self.processTracks(tracks)
                 self.processResults(results, n)
-                
+
             self.calculateStats()
 
     @disableOnWorkers
     def plot(self):
         """
         Plot the results and save to file.
-        
+
         """
 
         figure = RangeCompareCurve()
         figure.set_size_inches(8, 3)
         xlab = "Gate number"
         ylab = "Landfall probability"
-        
+
         x = np.arange(len(self.gates) - 1)
 
         figure.add(x, self.historicLandfall, self.synMeanLandfall,
@@ -287,7 +287,7 @@ class LandfallRates(object):
         figure.plot()
         outputFile = pjoin(self.plotPath, 'landfall_rates.png')
         saveFigure(figure, outputFile)
-        
+
     def run(self):
         """Execute the analysis"""
         global pp

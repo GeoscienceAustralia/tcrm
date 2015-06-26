@@ -54,7 +54,7 @@ def grdSave(filename, data, lon, lat, delta, delimiter=' ', nodata=-9999,
                        If ``coords='UTM'``, then the latitude &
                        longitudes are converted to the local UTM
                        coordinate system.
-                       
+
     :raises ValueError: If the ``filename`` is not a string of file handle.
 
     Usage::
@@ -107,12 +107,12 @@ def grdReadFromNetcdf(filename):
     Read formatted data from a netcdf file.
     Returns the longitude and latitude of the grid and the data
     values. Assumes that there is only one (non-coordinate) variable
-    in the file, which is only 2 dimensional. 
+    in the file, which is only 2 dimensional.
 
     :param str filename: Path to a netcdf file to read.
 
     :returns: longitude, latitude and grid data.
-    
+
     Usage:
     longitude, latitude, data = grdReadFromNetcdf(filename)
     """
@@ -204,7 +204,7 @@ def grdRead(filename, delimiter=None):
             for j, val in enumerate(line.split(delimiter)):
                 value = float(val)
                 if value == metadata["NODATA_value"]:
-                    value = Nan
+                    value = numpy.nan
                 row[j] = value
             data[i,:] = row
         fh.close()
@@ -224,7 +224,7 @@ class SampleGrid:
     :param str filename: Path to a file containing gridded data.
 
     Example::
-        
+
           >>> grid = SampleGrid( '/foo/bar/grid.nc' )
           >>> value = grid.sampleGrid( 100., -25. )
 

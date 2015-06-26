@@ -33,7 +33,7 @@ def relative(u, v, lon, lat):
     :type lat: :class:`numpy.ndarray`
 
     :return: 2-d :class:`numpy.ndarray` of relative vorticity values.
-    
+
     """
     dx = np.zeros((len(lat), len(lon)-2))
     dy = np.zeros((len(lat)-2, len(lon)))

@@ -82,8 +82,8 @@ class StrictConfigParser(ConfigParser):
                             e = ParsingError(fpname)
                         e.append(lineno, repr(line))
         # if any parsing errors occurred, raise an exception
-        if e:
-            raise e
+        if e: 
+            raise e # pylint: disable=E0702 
 
         # join the multi-line values collected while reading
         all_sections = [self._defaults]
@@ -107,7 +107,7 @@ class StrictConfigParser(ConfigParser):
 
 def flatten(config):
     pass
-    
+
 
 if __name__ == "__main__":
     #cfg = StrictConfigParser()

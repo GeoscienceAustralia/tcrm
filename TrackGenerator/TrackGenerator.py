@@ -63,7 +63,7 @@ class SamplePressure(object):
     :param str mslp_file: path to a 3-d (time, lat, lon) MSLP
                           netcdf file.
     :param str var: Variable name (assumed 'slp')
-    
+
     """
     def __init__(self, mslp_file, var='slp'):
         ncobj = nctools.ncLoadFile(mslp_file)
@@ -72,7 +72,7 @@ class SamplePressure(object):
 
         data = metutils.convert(data, slpunits, 'hPa')
         self.data = spline_filter(data)
-        
+
     def get_pressure(self, coords):
         """
         Interpolate daily long term mean sea level pressure at
@@ -83,7 +83,7 @@ class SamplePressure(object):
         :return: long term MSLP
 
         """
-        
+
         scale = [365., 180., 360.]
         offset = [0., -90., 0.]
         mslp = interp3d(self.data, coords, scale, offset, prefilter=False)
@@ -266,7 +266,7 @@ class TrackGenerator(object):
 
         self.allCDFInitPressure = \
             load(pjoin(path, 'all_cell_cdf_init_pressure'))
-            
+
         self.allCDFInitDay = \
             load(pjoin(path, 'all_cell_cdf_init_day'))
 
@@ -389,7 +389,7 @@ class TrackGenerator(object):
                     self.originSampler.ppf(uniform(), uniform())
             else:
                 log.debug('Using prescribed initial position' +
-                          ' (%6.2f, %6.2f)'.format(initLon, initLat))
+                          ' ({0:.2f}, {1:.2f})'.format(initLon, initLat))
                 genesisLon = initLon
                 genesisLat = initLat
 
@@ -432,7 +432,7 @@ class TrackGenerator(object):
                 genesisRmax = ppf(uniform(), cdfSize)
             else:
                 genesisRmax = initRmax
-                
+
             # Sample an initial day if none is provided
 
             if not initDay:
@@ -441,9 +441,9 @@ class TrackGenerator(object):
                 genesisDay = ppf(uniform(), cdfInitDay)
             else:
                 genesisDay = initDay
-            
+
             genesisHour = int(uniform(0, 24))
-            
+
             initTimeStr = "%04d-%03d %d:00" % (genesisYear, genesisDay, genesisHour)
             genesisTime = datetime.strptime(initTimeStr, "%Y-%j %H:%M")
 
@@ -454,7 +454,7 @@ class TrackGenerator(object):
                 initEnvPressure = self.mslp.get_pressure(np.array([[genesisDay],
                                                           [genesisLat],
                                                           [genesisLon]]))
-                                                       
+
             # Sample an initial pressure if none is provided
 
             if not initPressure:
@@ -468,7 +468,7 @@ class TrackGenerator(object):
                                       cdfInitPressure)
             else:
                 genesisPressure = initPressure
-                                                       
+
             # Do not generate tracks from this genesis point if we are
             # going to exit the domain on the first step
 
@@ -565,10 +565,10 @@ class TrackGenerator(object):
                       ' domain.', nbefore - len(results))
 
         # Return the tracks:
-        
+
         return results
-        
-    def generateTracksToFile(self, outputFile, nTracks, initLon=None,
+
+    def generateTracksToFile(self, outputFile, nTracks, simId, initLon=None,
                              initLat=None, initSpeed=None,
                              initBearing=None, initPressure=None,
                              initEnvPressure=None, initRmax=None,
@@ -588,7 +588,7 @@ class TrackGenerator(object):
         """
 
         results = self.generateTracks(
-            nTracks, initLon=initLon, initLat=initLat,
+            nTracks, simId, initLon=initLon, initLat=initLat,
             initSpeed=initSpeed, initBearing=initBearing,
             initPressure=initPressure,
             initEnvPressure=initEnvPressure,
@@ -728,7 +728,7 @@ class TrackGenerator(object):
         :type  initRmax: float
         :param initRmax: the initial maximum radius of the tropical
                          cyclone.
-                         
+
         :type  initDay: float
         :param initDay: the initial day of year of the tropical cyclone.
 
@@ -817,7 +817,7 @@ class TrackGenerator(object):
             #penv[i] = self.mslp.sampleGrid(lon[i], lat[i])
             penv[i] = self.mslp.get_pressure(np.array([[jday[i]],
                                                       [lat[i]],
-                                                      [lon[i]]]))            
+                                                      [lon[i]]]))
 
             # Terminate and return the track if it steps out of the
             # domain
@@ -829,7 +829,7 @@ class TrackGenerator(object):
 
                 log.debug('TC exited domain at point ' +
                           '(%.2f %.2f) and time %i', lon[i], lat[i], i)
-                
+
                 return (index[:i], dates[:i], age[:i], lon[:i], lat[:i],
                         speed[:i], bearing[:i], pressure[:i],
                         penv[:i], rmax[:i])
@@ -903,12 +903,12 @@ class TrackGenerator(object):
                                        lon[0], lat[0], lon[i], lat[i]):
                 log.debug('Track no longer satisfies criteria, ' +
                           'terminating at time %i.', i)
-                
+
                 return (index[:i], dates[:i], age[:i], lon[:i], lat[:i],
                         speed[:i], bearing[:i], pressure[:i], penv[:i],
                         rmax[:i])
 
-        return (index, dates, age, lon, lat, speed, bearing, pressure, 
+        return (index, dates, age, lon, lat, speed, bearing, pressure,
                 penv, rmax)
 
     def _stepPressureChange(self, c, i, onLand):
@@ -950,7 +950,7 @@ class TrackGenerator(object):
             self.dp += sigma[c] * self.dpChi
         else:
             self.dp = mu[c] + sigma[c] * self.dpChi
-            
+
     def _stepBearing(self, c, i, onLand):
         """
         Take one step of the bearing model.
@@ -1497,7 +1497,7 @@ def uniform(a=0.0, b=1.0):
     Sample from a uniform distribution.
     """
     return PRNG.uniform(a, b)
-    
+
 def logistic(loc=0., scale=1.0):
     """
     Sample from a logistic distribution.
@@ -1620,14 +1620,14 @@ def run(configFile, callback=None):
     # Attempt to start the track generator in parallel
     global pp
     pp = attemptParallel()
-    
+
     if pp.size() > 1 and (not seasonSeed or not trackSeed):
         log.critical('TrackSeed and GenesisSeed are needed' +
                      ' for parallel runs!')
         sys.exit(1)
 
     mslp = SamplePressure(mslpFile)
-    
+
     # Initialise the landfall tracking
 
     landfall = trackLandfall.LandfallDecay(configFile, dt)

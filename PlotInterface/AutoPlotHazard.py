@@ -180,7 +180,7 @@ class AutoPlotHazard(object):
                   within the model domain.
 
         """
-        
+
         # If locality is not found in domain, revert to plotting return
         # curves for all localities in domain:
         self.sqlcur.execute(('select placename from localities where lon > ? '
@@ -211,7 +211,7 @@ class AutoPlotHazard(object):
         placeLons = list(placeLons)
 
         return placeNames, parentCountries, placeLats, placeLons
-    
+
     def plotHazardCurves(self, inputFile, plotPath):
         """
         Plot the hazard values stored in hazardFile, at the stns
@@ -249,10 +249,10 @@ class AutoPlotHazard(object):
         # intercomparisons:
         defaultMax = np.ceil(metutils.convert(100.0, 'mps',
                                               self.plotUnits.units)/10.0)*10.0
-        
+
         placeNames, parentCountries, placeLats, placeLons = \
             self.getLocations(minLon, maxLon, minLat, maxLat)
-        
+
         for name, plat, plon, country in zip(placeNames, placeLats,
                                              placeLons, parentCountries):
 
@@ -277,7 +277,7 @@ class AutoPlotHazard(object):
                                                   self.plotUnits.units)
                 placeWspdUpper  = metutils.convert(wUpper[:,j,i], 'mps',
                                                    self.plotUnits.units)
-                
+
             saveHazardCurve(years, placeWspd, placeWspdUpper, placeWspdLower,
                             xlabel, ylabel, title, filename)
 

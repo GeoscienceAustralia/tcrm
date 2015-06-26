@@ -22,7 +22,7 @@ class TestLevels(NumpyTestCase.NumpyTestCase):
         """Minimum greater than maximum automatically swaps values"""
         lvls = np.array([0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
         expo = 0
-        
+
         rlevs, rexpo = maps.levels(0, minval=1)
         self.numpyAssertAlmostEqual(lvls, rlevs)
         self.assertEqual(expo, rexpo)
@@ -40,8 +40,8 @@ class TestLevels(NumpyTestCase.NumpyTestCase):
 
     def test_bigLevelValues(self):
         """Test level determination for big input values"""
-        lvs = np.array([ 1000000.,  2000000.,  3000000.,  4000000.,  
-                         5000000.,  6000000.,  7000000.,  8000000.,  
+        lvs = np.array([ 1000000.,  2000000.,  3000000.,  4000000.,
+                         5000000.,  6000000.,  7000000.,  8000000.,
                          9000000.])
         expo = 7
         rlevs, rexpo = maps.levels(10**7, 10**6)
@@ -53,15 +53,15 @@ class TestSelectColorMap(unittest.TestCase):
     def assertColorMapEqual(self, actual, expected):
         """Test method for equality of LinearSegmentedColormaps"""
         self.assertEqual(actual.N, expected.N)
-        self.assertDictEqual(actual._segmentdata, 
+        self.assertDictEqual(actual._segmentdata,
                              expected._segmentdata)
         for k in actual._segmentdata.keys():
             self.assertListEqual(actual._segmentdata[k],
                                  expected._segmentdata[k])
-        
+
     def setUp(self):
         import seaborn as sns
-        
+
         self.diverging_cmap = sns.diverging_palette(250, 10, as_cmap=True)
         self.sequential_cmap = sns.light_palette("#003366", as_cmap=True)
 

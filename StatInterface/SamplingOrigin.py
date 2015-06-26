@@ -8,7 +8,7 @@
 
 .. moduleauthor:: Geoff Xu <geoff.xu@ga.gov.au>
 
-Define the class for sampling tropical cyclone origins. 
+Define the class for sampling tropical cyclone origins.
 
 """
 
@@ -27,7 +27,7 @@ class SamplingOrigin:
     Class for generating samples of TC origins.
 
     :param kdeOrigin: Name of a file containing TC genesis PDF
-                      data, or a 2-d array containing the PDF. 
+                      data, or a 2-d array containing the PDF.
     :type  kdeOrigin: str or :class:`numpy.ndarray`
     :param x: Longitude coordinates of the grid on which the PDF
               is defined.
@@ -35,7 +35,7 @@ class SamplingOrigin:
               is defined.
     :type  x: :class:`numpy.ndarray`
     :type  y: :class:`numpy.ndarray`
-    
+
 
     """
 
@@ -84,7 +84,7 @@ class SamplingOrigin:
         :type  kdeOriginY: str or :class:`numpy.ndarray`
         :type  kdeOriginZ: str or :class:`numpy.ndarray`
         :type  outputPath: str
-        
+
         """
         if outputPath:
             try:
@@ -143,9 +143,9 @@ class SamplingOrigin:
         :param float y: y-coordinate.
 
         :returns: CDF values for x & y at the given location.
-        
+
         """
-        
+
         # crude, this should be an interpolation
         xi = self.x.searchsorted(x) - 1
         yi = self.y.searchsorted(y) - 1
@@ -163,8 +163,8 @@ class SamplingOrigin:
 
         :raises ValueError: If :attr:`ns` <= 0.
         :raises IndexError: If an invalid index is returned when generating
-                            uniform random values. 
-                            
+                            uniform random values.
+
         """
         if ns <= 0:
             self.logger.error('Invalid input on ns: number of sample cannot be zero or negative')

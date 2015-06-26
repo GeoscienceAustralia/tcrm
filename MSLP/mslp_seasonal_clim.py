@@ -28,9 +28,9 @@ Description: Utility for creating Mean Sea Level Pressure (MSLP) seasonal climat
              This script can either be run stand alone to create a NetCDF output file or
              the class MSLPGrid can be invoked to return the MSLP seasonal average grid.
 
-Acknowledgements:             
-             NCEP-DOE Reanalysis 2 data provided by the NOAA/OAR/ESRL PSD, Boulder, Colorado, USA, 
-             from their Web site at http://www.esrl.noaa.gov/psd/ 
+Acknowledgements:
+             NCEP-DOE Reanalysis 2 data provided by the NOAA/OAR/ESRL PSD, Boulder, Colorado, USA,
+             from their Web site at http://www.esrl.noaa.gov/psd/
 
 Input data: mslp_seasonal_clim.nc (contains monthly means averaged over 28 year period)
 """
@@ -73,7 +73,7 @@ class MSLPGrid:
         indj = self.lat.searchsorted(lat)-1
 
         return self.mslp_av[indj, indi]
-        
+
     def returnGrid(self):
         return self.lon, self.lat, self.mslp_av
 
@@ -91,7 +91,7 @@ class MSLPGrid:
 #
 #        msp = MSLPGrid(selected_months)
 #        lon, lat, mslp_av = msp.returnGrid()
-#    
+#
 #        #Create output file
 #        output_filename = "mslp_clim_" + ''.join([calendar.month_abbr[i][0] for i in sort(list(selected_months))]) + '.nc'
 #        data_title = 'MSLP (NCEP Reanalysis-2) seasonal climatology.  Averaging period: ' \
@@ -105,12 +105,12 @@ class MSLPGrid:
 #                        'values':array(mslp_av),'dtype':'f',
 #                        'atts':{'long_name':'Mean sea level pressure',
 #                                'units':'hPa'} } }
-#        nctools.ncSaveGrid( output_filename, dimensions, variables, 
+#        nctools.ncSaveGrid( output_filename, dimensions, variables,
 #                            nodata=-9999,datatitle=data_title )
-#        
+#
 #        print "Created output file: " + output_filename
-#        
-#        
+#
+#
 #if __name__ == "__main__":
 #    try:
 #        configFile = sys.argv[1]

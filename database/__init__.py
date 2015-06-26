@@ -14,18 +14,18 @@ information on the synthetic events and the hazard (return period wind
 speeds). This database allows users to identify events that generate
 wind speeds corresponding to some threshold, such as a return period
 wind speed, at each location in the domain, which could then be
-selected for more detailed modelling. 
+selected for more detailed modelling.
 
-:class:`HazardDatabase` is initially intended to be created once, then 
-queried from subsequent scripts or interactive sessions. 
+:class:`HazardDatabase` is initially intended to be created once, then
+queried from subsequent scripts or interactive sessions.
 
 
 TODO::
 
-- Upgrade to spatial database to better handle geometries & projected 
+- Upgrade to spatial database to better handle geometries & projected
   location data.
-- Check for existing database and create new/replace existing db if 
-  configuration settings have changed. Requires config settings to 
+- Check for existing database and create new/replace existing db if
+  configuration settings have changed. Requires config settings to
   be stored in the db (?).
 
 
@@ -128,7 +128,7 @@ def windfieldAttributes(ncfile):
     :returns: A tuple containing the track filename, file modification date,
               TCRM version, minimum pressure and maximum wind, stored as
               global attributes in the netCDF file.
-        
+
     """
     ncobj = Dataset(ncfile, 'r')
     trackfile = getattr(ncobj, 'track_file')
@@ -162,7 +162,7 @@ def singleton(cls):
 @singleton
 class HazardDatabase(sqlite3.Connection):
     """
-    Create and update a database of locations, events, hazard, wind 
+    Create and update a database of locations, events, hazard, wind
     speed and tracks.
 
     :param str configFile: Path to the simulation configuration file.
@@ -181,12 +181,12 @@ class HazardDatabase(sqlite3.Connection):
         self.domain = config.geteval('Region', 'gridLimit')
         self.hazardDB = pjoin(self.outputPath, 'hazard.db')
         self.locationDB = pjoin(self.outputPath, 'locations.db')
-        
+
         sqlite3.Connection.__init__(self, self.hazardDB,
                                     detect_types=PARSE_DECLTYPES|PARSE_COLNAMES)
 
         self.exists = True
-        
+
         import atexit
         atexit.register(self.close)
 
@@ -223,7 +223,7 @@ class HazardDatabase(sqlite3.Connection):
             log.exception("Cannot create table {0}: {1}".\
                           format(tblName, err.args[0]))
             raise
-        
+
     def setLocations(self):
         """
         Populate _tblLocations_ in the hazard database with all
@@ -231,7 +231,7 @@ class HazardDatabase(sqlite3.Connection):
         within the simulation domain.
 
         """
-        
+
         conn = sqlite3.connect(self.locationDB,
                                detect_types=PARSE_DECLTYPES|PARSE_COLNAMES)
         cur = conn.execute(SELECTLOCATIONS, (self.domain['xMin'],
@@ -252,7 +252,7 @@ class HazardDatabase(sqlite3.Connection):
         Retrieve all locations stored in the hazard database.
 
         :returns: List of tuples containing location id, longitude and latitude.
-        
+
         :raises: `sqlite3.Error` if unable to retrieve the locations.
         """
         try:
@@ -263,9 +263,9 @@ class HazardDatabase(sqlite3.Connection):
             raise
         else:
             locations = cur.fetchall()
-            
+
         return locations
-    
+
     def generateEventTable(self):
         """
         Populate _tblEvents_ with the details of the synthetic events
@@ -275,7 +275,7 @@ class HazardDatabase(sqlite3.Connection):
         annual event set. Future versions can hold additional metadata
         about each individual synthetic TC event.
 
-        :raises: `sqlite3.Error` if unable to insert events into 
+        :raises: `sqlite3.Error` if unable to insert events into
                  _tblEvents_.
 
         """
@@ -314,7 +314,7 @@ class HazardDatabase(sqlite3.Connection):
         modelled wind speed (or the missing value) at each grid point,
         from each synthetic event.
 
-        :raises: `sqlite3.Error` if unable to insert records into 
+        :raises: `sqlite3.Error` if unable to insert records into
                  _tblWindSpeed_.
 
         """
@@ -332,13 +332,13 @@ class HazardDatabase(sqlite3.Connection):
             ncobj = Dataset(fname)
             lon = ncobj.variables['lon'][:]
             lat = ncobj.variables['lat'][:]
-        
+
             vmax = ncobj.variables['vmax'][:]
             ua = ncobj.variables['ua'][:]
             va = ncobj.variables['va'][:]
             pmin = ncobj.variables['slp'][:]
             params = []
-        
+
             for loc in locations:
                 locId, locLon, locLat = loc
                 i = find_index(lon, locLon)
@@ -370,7 +370,7 @@ class HazardDatabase(sqlite3.Connection):
         locations = self.getLocations()
         hazardFile = pjoin(self.hazardPath, 'hazard.nc')
         ncobj = Dataset(hazardFile)
-    
+
         try:
             tcrm_version = getattr(ncobj, 'tcrm_version')
         except AttributeError:
@@ -441,7 +441,7 @@ class HazardDatabase(sqlite3.Connection):
                 continue
             distances = track.minimumDistance(points)
             for (loc, dist) in zip(locations, distances):
-                locParams = (loc[0], "%s-%s"%(track.trackId), 
+                locParams = (loc[0], "%s-%s"%(track.trackId),
                              dist, None, None, "", datetime.now())
 
                 params.append(locParams)
@@ -454,8 +454,8 @@ class HazardDatabase(sqlite3.Connection):
             raise
         else:
             self.commit()
-    
-        
+
+
 def buildLocationDatabase(location_db, location_file, location_type='AWS'):
     """
     Build a database of locations, using a point shape file of the locations.
@@ -467,7 +467,7 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
 
     Users can augment the basic location database with their own data, noting
     the schema for ``tblLocations``.
-    
+
     :param str location_db: Path to the location database.
     :param str location_file: Path to a shape file containing location data.
 
@@ -476,7 +476,7 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
 
     TODO: Build a way to ingest user-defined list of fields that correspond
           to the required fields in tblLocations. e.g. using a mappings dict::
-    
+
               mappings = {
                   'locCode' : 'WMO',
                   'locName' : 'Place'
@@ -485,15 +485,15 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
                   'Comments' : 'ICAO'
                   }
 
-              columns = ('locCode', 'locName', 'locCountry', 
+              columns = ('locCode', 'locName', 'locCountry',
                          'locElev', 'Comments')
 
               for col in columns:
                   if mappings.has_key(col):
                       field = shpGetField(location_file, mappings[col])
-                      
+
     """
-    
+
     from Utilities.shptools import shpReadShapeFile
     locations = []
     vertices, records = shpReadShapeFile(location_file)
@@ -531,7 +531,7 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
                           os.path.basename(location_file),
                           locComment, datetime.now()))
 
-    locdb = sqlite3.connect(location_db, 
+    locdb = sqlite3.connect(location_db,
                             detect_types=PARSE_DECLTYPES|PARSE_COLNAMES)
     locdb.execute(TBLLOCATIONDEF)
     locdb.executemany(INSLOCATIONS, locations)
@@ -541,8 +541,8 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
 def locationRecordsExceeding(hazard_db, locId, windSpeed):
     """
     Select all records where the wind speed at the given location is
-    greater than some threshold. 
-    
+    greater than some threshold.
+
     :param hazard_db: :class:`HazardDatabase` instance.
     :param int locId: Location identifier.
     :param float windSpeed: Select all records where the wind speed
@@ -553,13 +553,13 @@ def locationRecordsExceeding(hazard_db, locId, windSpeed):
               & latitude of the location, the wind speed of the
               record, the event Id and the event file that holds the
               event that generated the wind speed.
-    
+
     Example::
-    
+
         >>> db = HazardDatabase(configFile)
         >>> locId = 00001
         >>> records = locationRecordsExceeding(db, locId, 47.)
-        
+
     """
 
     query = ("SELECT l.locId, l.locName, w.wspd, w.eventId, "
@@ -582,7 +582,7 @@ def locationRecords(hazard_db, locId):
     :param int locId: Location identifier.
 
     """
-    
+
     query = ("SELECT l.locId, l.locName, w.wspd, w.eventId "
              "FROM tblLocations l "
              "INNER JOIN tblWindSpeed w "
@@ -592,7 +592,7 @@ def locationRecords(hazard_db, locId):
     cur = hazard_db.execute(query, (locId,))
     results = cur.fetchall()
     return results
-    
+
 def locationPassage(hazard_db, locId, distance=50):
     """
     Select all records from tblTracks that pass within a defined
