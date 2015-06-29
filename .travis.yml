@@ -25,3 +25,4 @@ install:
 script: 
   - python installer/setup.py build_ext -i
   - nosetests -w tests/ -v --with-coverage
+after_success: coveralls
