@@ -47,9 +47,11 @@ Status
 .. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=master
     :target: https://travis-ci.org/GeoscienceAustralia/tcrm
     :alt: Build status
-.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg
-    :target: https://coveralls.io/r/GeoscienceAustralia/tcrm
-    :alt: Test coverage
+    
+.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=master
+  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=master
+  :alt: Test coverage
+
 .. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/master/landscape.svg?style=flat
    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/master
    :alt: Code Health
