@@ -21,6 +21,9 @@ install:
   - if [[ $TRAVIS_PYTHON_VERSION == 2.6 ]]; then pip install ordereddict; fi
   - pip install pycurl
   - pip -v install -r requirements.txt
+  - pip install coveralls
 script: 
   - python installer/setup.py build_ext -i
   - nosetests -w tests/ -v --with-coverage
+after_success:
+  coveralls
