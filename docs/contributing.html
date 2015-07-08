@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Contributing code &mdash; Tropical Cyclone Risk Model 1.0rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Tropical Cyclone Risk Model 1.0rc1 documentation" href="../index.html" />
+    <link rel="next" title="Utilities package" href="Utilities.html" />
+    <link rel="prev" title="Scenario modelling" href="scenarios.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Utilities.html" title="Utilities package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="scenarios.html" title="Scenario modelling"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="contributing-code">
+<h1>Contributing code<a class="headerlink" href="#contributing-code" title="Permalink to this headline">¶</a></h1>
+<p>The preferred way to contribute to TCRM is to fork the
+<a class="reference external" href="http://github.com/GeoscienceAustralia/tcrm">main repository</a> on GitHub:</p>
+<ol class="arabic">
+<li><p class="first">Fork the <a class="reference external" href="http://github.com/GeoscienceAustralia/tcrm">project repository</a>:
+click on the &#8216;Fork&#8217; button near the top of the page. This creates
+a copy of the code under your account on the GitHub server.</p>
+</li>
+<li><p class="first">Clone this copy to your local disk:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git clone git@github.com:YourLogin/tcrm.git
+$ cd tcrm
+</pre></div>
+</div>
+</li>
+<li><p class="first">Create a branch to hold your changes:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git checkout -b my-feature
+</pre></div>
+</div>
+<p>and start making changes. Never work in the <code class="docutils literal"><span class="pre">master</span></code> branch!</p>
+</li>
+<li><p class="first">Work on this copy on your computer using Git to do the version
+control. When you&#8217;re done editing, do:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git add modified_files
+$ git commit
+</pre></div>
+</div>
+<p>to record your changes in Git, then push them to GitHub with:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git push -u origin my-feature
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Finally, go to the web page of the your fork of the tcrm repo,
+and click &#8216;Pull request&#8217; to send your changes to the maintainers for
+review. request. This will send an email to the committers.</p>
+<p>(If any of the above seems like magic to you, then look up the
+<a class="reference external" href="http://git-scm.com/documentation">Git documentation</a> on the web.)</p>
+<p>It is recommended to check that your contribution complies with the
+following rules before submitting a pull request:</p>
+<ul class="simple">
+<li>All public methods should have informative docstrings with sample
+usage presented as doctests when appropriate.</li>
+<li>When adding additional functionality, provide at least one
+example script in the <code class="docutils literal"><span class="pre">examples/</span></code> folder. Have a look at other
+examples for reference. Examples should demonstrate why the new
+functionality is useful in practice.</li>
+<li>At least one paragraph of narrative documentation with links to
+references in the literature (with PDF links when possible) and
+an example.</li>
+</ul>
+<p>You can also check for common programming errors with the following
+tools:</p>
+<ul>
+<li><p class="first">Code with good unittest coverage, check with:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ pip install nose coverage
+$ nosetests --with-coverage path/to/tests_for_package
+</pre></div>
+</div>
+</li>
+<li><p class="first">No pyflakes warnings, check with:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ pip install pyflakes
+$ pyflakes path/to/module.py
+</pre></div>
+</div>
+</li>
+<li><p class="first">No PEP8 warnings, check with:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ pip install pep8
+$ pep8 path/to/module.py
+</pre></div>
+</div>
+</li>
+<li><p class="first">AutoPEP8 can help you fix some of the easy redundant errors:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ pip install autopep8
+$ autopep8 path/to/pep8.py
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="section" id="issues">
+<h2>Issues<a class="headerlink" href="#issues" title="Permalink to this headline">¶</a></h2>
+<p>A great way to start contributing to TCRM is to pick an item
+from the list of <a class="reference external" href="https://github.com/GeoscienceAustralia/tcrm/issues">Issues</a>
+in the issue tracker. (Well there are none there yet, but we will be
+putting some up soon!) Resolving these issues allow you to start
+contributing to the project without much prior knowledge. Your
+assistance in this area will be greatly appreciated by the more
+experienced developers as it helps free up their time to concentrate on
+other issues.</p>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>We are in the process of creating sphinx based documentation for TCRM.
+Any help in setting this up will be gratefully accepted!</p>
+<p>At present you will find the user_manual in the doc folder.</p>
+<p>We are glad to accept any sort of documentation: function docstrings,
+reStructuredText documents (like this one), tutorials, etc.
+reStructuredText documents live in the source code repository under the
+docs/ directory.</p>
+<p>When you are writing documentation, it is important to keep a good
+compromise between mathematical and algorithmic details, and give
+intuition to the reader on what the algorithm does. It is best to always
+start with a small paragraph with a hand-waving explanation of what the
+method does to the data and a figure (coming from an example)
+illustrating it.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Contributing code</a><ul>
+<li><a class="reference internal" href="#issues">Issues</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="scenarios.html"
+                        title="previous chapter">Scenario modelling</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Utilities.html"
+                        title="next chapter">Utilities package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/docs/contributing.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Utilities.html" title="Utilities package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="scenarios.html" title="Scenario modelling"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2014.
+      Last updated on Jul 09, 2015.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
