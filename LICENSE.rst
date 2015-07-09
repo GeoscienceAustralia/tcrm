@@ -1,3 +1,5 @@
+.. |copy|    unicode:: 0xA9 .. COPYRIGHT SIGN
+
 License information
 ===================
 
@@ -28,10 +30,10 @@ merchantability or fitness for a particular purpose.
 
 
 GNU General Public License
-==========================
+++++++++++++++++++++++++++
 
 *Version 3, 29 June 2007*
-*Copyright © 2007 Free Software Foundation, Inc* <http://fsf.org>
+*Copyright* |copy| *2007 Free Software Foundation, Inc* <http://fsf.org>
 
 Everyone is permitted to copy and distribute verbatim copies of this license
 document, but changing it is not allowed.
