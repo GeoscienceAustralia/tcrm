@@ -170,7 +170,7 @@ class MapFigure(Figure):
         dy = abs(ymin - ymax)
         dd = max(dx, dy)
         gr_opts = np.array([30., 15., 10., 5., 4., 2.])
-        min_gr = 4
+        min_gr = 5
         dl = gr_opts[np.where((dd/gr_opts) >= min_gr)[0][0]]
 
         meridians = np.arange(dl*np.floor(xmin / dl),
@@ -424,7 +424,6 @@ class ArrayMapFigure(MapFigure):
                              fig=self, ax=axes)
         CB.set_label(cbarlab)
         axes.set_title(title)
-        self.labelAxes(axes)
         self.addGraticule(axes, mapobj)
         self.addCoastline(mapobj)
         self.addMapScale(mapobj)
