@@ -45,7 +45,7 @@ if pathLocator.is_frozen():
 def timer(f):
     """
     A simple timing decorator for the entire process.
-    
+
     """
     @wraps(f)
     def wrap(*args, **kwargs):
@@ -87,12 +87,12 @@ def doDataDownload(configFile):
 
     This will attempt to download the gzipped csv file from the given URL
     and save it to the given filename, in the 'input' folder under the current
-    directory. Gzipped files are automatically unzipped. 
+    directory. Gzipped files are automatically unzipped.
 
-    
+
     :param str configFile: Name of configuration file.
     :raises IOError: If the data cannot be downloaded.
-    
+
 
     """
 
@@ -279,7 +279,7 @@ def doDataPlotting(configFile):
 
     jdayobs = flLoadFile(pjoin(processPath, 'jday_obs'), delimiter=',')
     jdaygenesis = flLoadFile(pjoin(processPath, 'jday_genesis'), delimiter=',')
-    
+
 
     from PlotInterface.plotStats import PlotPressure, PlotBearing, \
         PlotSpeed, PlotFrequency, PlotDays, PlotLonLat
@@ -290,7 +290,7 @@ def doDataPlotting(configFile):
     PrsPlot.plotPressure(pAllData)
     PrsPlot.plotPressureRate(pRateData)
     PrsPlot.plotMinPressure(indicator, pAllData)
-    
+
     #FIXME: To be moved into `PlotPressure` class.
     #plotting.minPressureLat(pAllData, latData)
 
@@ -308,7 +308,7 @@ def doDataPlotting(configFile):
 
     log.info('Plotting longitude and latitude data')
     pbar.update(0.45)
-    
+
     # FIXME: To be moved to it's own class in PlotStats
     LLPlot = PlotLonLat(statsPlotPath, "png")
     LLPlot.plotLonLat(lonData, latData, indicator)
@@ -319,7 +319,7 @@ def doDataPlotting(configFile):
     pbar.update(0.85)
     FreqPlot = PlotFrequency(statsPlotPath, "png")
     FreqPlot.plotFrequency(freq[:, 0], freq[:, 1])
-    
+
     DayPlot = PlotDays(statsPlotPath, "png")
     DayPlot.plotJulianDays(jdayobs, jdaygenesis)
 
@@ -431,6 +431,39 @@ def doHazardPlotting(configFile):
 
     pbar.update(1.0)
 
+@disableOnWorkers
+def doDatabaseUpdate(configFile):
+    """
+    Build a database containing info on the events, locations, return
+    period wind speeds and tracks.
+
+    :param str configFile: Name of the configuration file.
+
+    """
+
+    log.info("Creating hazard database")
+    import database
+
+    config = ConfigParser()
+    config.read(configFile)
+
+
+    outputPath = config.get('Output', 'Path')
+    location_db = pjoin(outputPath, 'locations.db')
+    if not os.path.exists(location_db):
+        location_file = config.get('Input', 'LocationFile')
+        database.buildLocationDatabase(location_db, location_file)
+
+    db = database.HazardDatabase(configFile)
+    db.createDatabase()
+    db.generateEventTable()
+    db.setLocations()
+    db.processEvents()
+    db.processHazard()
+    db.processTracks()
+    db.close()
+    log.info("Created and populated database")
+
 
 def doEvaluation(configFile):
     """
@@ -445,7 +478,7 @@ def doEvaluation(configFile):
         [Actions]
         ExecuteTrackGenerator=True
         ExecuteEvaluate=True
-        
+
         [TrackGenerator]
         NumSimulations=1000
         YearsPerSimulation=50
@@ -454,7 +487,7 @@ def doEvaluation(configFile):
     TC activity. :mod:`Evaluate` will then compare pressure distributions,
     track density, landfall rates and longitude crossing rates for the
     input dataset and the full 1000 simulations.
-    
+
     :param str configFile: Name of the configuration file.
 
     """
@@ -472,7 +505,7 @@ def main(configFile='main.ini'):
     5 interfaces: DataProcess, StatInterface, TrackGenerator,
     WindfieldInterface and HazardInterface
 
-    :param str configFile: Name of file containing configuration settings 
+    :param str configFile: Name of file containing configuration settings
                            for running TCRM
 
     """
@@ -526,6 +559,11 @@ def main(configFile='main.ini'):
         doHazardPlotting(configFile)
 
     pp.barrier()
+
+    if config.getboolean('Actions', 'CreateDatabase'):
+        doDatabaseUpdate(configFile)
+
+    pp.barrier()
     if config.getboolean('Actions', 'ExecuteEvaluate'):
         doEvaluation(config)
 
@@ -540,7 +578,7 @@ def startup():
     to execute the main TCRM functions.
 
     """
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config_file', help='The configuration file')
     parser.add_argument('-v', '--verbose', help='Verbose output',

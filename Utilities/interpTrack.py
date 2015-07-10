@@ -9,67 +9,75 @@
 
 """
 
-import os
 import sys
 import logging
 import getopt
 
-import scipy.interpolate
+import scipy.interpolate as scint
 import numpy
 import datetime
 from matplotlib.dates import date2num, num2date
 
-from files import flConfigFile, flModuleName, flSaveFile, flStartLog
-from config import cnfGetIniValue
-from columns import colReadCSV
-from loadData import loadTrackFile
+from Utilities.files import flConfigFile, flStartLog
+from Utilities.config import cnfGetIniValue
+from Utilities.loadData import loadTrackFile
 
-
-import maputils
-import metutils
+import Utilities.maputils as maputils
 
 __version__ = '$Id: interpTrack.py 685 2012-03-29 04:22:32Z carthur $'
 
 
-def _ShowSyntax( exit_code=0 ):
+def ShowSyntax(exit_code=0):
+    """
+    Print basic help information on using this module as a script
+
+    :param int exit_code: Exit code.
+
+    """
     print sys.argv[0]
     print "Interpolate the observed points of a tropical cyclone temporally"
     print "for use in modelling a scenario event in TCRM"
     print "Example usage:"
-    print "{0} -c <config file> -l <log file> -v".format( sys.argv[0] )
+    print "{0} -c <config file> -l <log file> -v".format(sys.argv[0])
     print ""
     print "Options:"
     print "-h, --help:   prints this help message"
-    print "-c, --config: configuration path (default value is {0})".format( flConfigFile( ) )
-    print "-l --logfile: path to log file to record actions (default value is {0})".format( flConfigFile( ".log" ) )
+    print "-c, --config: configuration path (default value is {0})".format(flConfigFile())
+    print "-l --logfile: path to log file to record actions (default value is {0})".format(flConfigFile(".log"))
     print "-v --verbose: True|False - print all logging messages to the screen"
     print ""
     print "Created by Craig Arthur, 2007-10-25 9:51:AM"
     print __version__
-    sys.exit( exit_code )
+    sys.exit(exit_code)
 
-def _main(argv):
-    "Main part of the program"
+def main(argv):
+    """
+    Main part of the program
+
+    :param list argv: List of command line arguments.
+
+    """
     gConfigFile = flConfigFile()
     logFile = flConfigFile(".log")
     verbose = False
     logger = logging.getLogger()
 
     try:
-        opts, args = getopt.getopt(argv,"hc:l:v",["help","config=","logfile=","verbose",])
+        opts, args = getopt.getopt(argv, "hc:l:v",
+                                   ["help", "config=",
+                                    "logfile=", "verbose"])
     except getopt.GetoptError:
-        _ShowSyntax()
-        sys.exit(2)
+        ShowSyntax(2)
 
     for opt,arg in opts:
-        if opt in ("-h","--help"):
-            _ShowSyntax()
+        if opt in ("-h", "--help"):
+            ShowSyntax()
             sys.exit(2)
         elif opt in ("-c", "--config"):
             gConfigFile = arg
-        elif opt in ("-l","--logfile"):
+        elif opt in ("-l", "--logfile"):
             logFile = arg
-        elif opt in ("-v","--verbose"):
+        elif opt in ("-v", "--verbose"):
             verbose = True
 
     flStartLog(cnfGetIniValue(gConfigFile, 'Logging', 'LogFile', flConfigFile('.log')),
@@ -82,16 +90,19 @@ def _main(argv):
     source = cnfGetIniValue(gConfigFile, 'Input', 'Source')
     delta = cnfGetIniValue(gConfigFile, 'Output', 'Delta', 0.1)
 
-    nid, newtime, newdates, nLon, nLat, nthetaFm, nvFm, npCentre, npEnv, nrMax = interpolateTrack(gConfigFile,inputFile,source,delta)
+    nid, newtime, newdates, nLon, nLat, nthetaFm, \
+        nvFm, npCentre, npEnv, nrMax = \
+                    interpolateTrack(gConfigFile, inputFile, source, delta)
     header=''
-    outputFile = cnfGetIniValue(gConfigFile,'Output','File')
+    outputFile = cnfGetIniValue(gConfigFile, 'Output', 'File')
     logger.info("Saving interpolated data to %s"%(outputFile))
-    fh = open(outputFile,'w')
+    fh = open(outputFile, 'w')
     for i in xrange(len(newtime)):
         fh.write("%d,%5.1f,%s,%6.2f,%6.2f,%6.2f,%6.2f,%7.2f,%7.2f,%5.1f\n"
-                    % (nid[i], newtime[i], newdates[i].strftime("%Y-%m-%d %H:%M"),
-                        nLon[i], nLat[i], nthetaFm[i], nvFm[i], npCentre[i],
-                        npEnv[i], nrMax[i]) )
+                 % (nid[i], newtime[i], 
+                    newdates[i].strftime("%Y-%m-%d %H:%M"),
+                    nLon[i], nLat[i], nthetaFm[i], nvFm[i], npCentre[i],
+                    npEnv[i], nrMax[i]))
     fh.close()
     logger.info("Completed %s"%(sys.argv[0]))
 
@@ -120,10 +131,13 @@ def interpolateTrack(configFile, trackFile, source, delta=0.1,
 
     """
     logger = logging.getLogger()
-    indicator,year,month,day,hour,minute,lon,lat,pressure,speed,bearing,windspeed,rmax,penv = loadTrackFile(configFile,trackFile,source)
+    indicator, year, month, day, hour, minute, lon, lat, \
+        pressure, speed, bearing, windspeed, rmax, penv = \
+                    loadTrackFile(configFile, trackFile, source)
 
     # Time between observations:
-    day_ = [datetime.datetime(year[i], month[i], day[i], hour[i],minute[i]) for i in xrange(year.size)]
+    day_ = [datetime.datetime(year[i], month[i], day[i], hour[i], minute[i])
+            for i in xrange(year.size)]
     time_ = date2num(day_)
     dt_ = 24.0*numpy.diff(time_)
     dt = numpy.empty(hour.size, 'f')
@@ -140,36 +154,37 @@ def interpolateTrack(configFile, trackFile, source, delta=0.1,
     nid = numpy.ones(newtime.size)
 
     logger.info("Interpolating data...")
-    if len( indicator ) <= 2:
+    if len(indicator) <= 2:
         # Use linear interpolation only (only a start and end point given):
-        nLon = scipy.interpolate.interp1d(timestep, lon, kind='linear')(newtime)
-        nLat = scipy.interpolate.interp1d(timestep, lat, kind='linear')(newtime)
-        npCentre = scipy.interpolate.interp1d(timestep, pressure, kind='linear')(newtime)
-        npEnv = scipy.interpolate.interp1d(timestep, penv, kind='linear')(newtime)
-        nrMax = scipy.interpolate.interp1d(timestep, rmax, kind='linear')(newtime)
+        nLon = scint.interp1d(timestep, lon, kind='linear')(newtime)
+        nLat = scint.interp1d(timestep, lat, kind='linear')(newtime)
+        npCentre = scint.interp1d(timestep, pressure, kind='linear')(newtime)
+        npEnv = scint.interp1d(timestep, penv, kind='linear')(newtime)
+        nrMax = scint.interp1d(timestep, rmax, kind='linear')(newtime)
 
     else:
-        if interpolation_type=='akima':
+        if interpolation_type == 'akima':
             # Use the Akima interpolation method:
             try:
                 import _akima
             except ImportError:
-                logger.exception("Akima interpolation module unavailable - default to scipy.interpolate")
-                nLon = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lon, s=0), der=0)
-                nLat = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lat, s=0), der=0)
+                logger.exception(("Akima interpolation module unavailable - "
+                                  "default to scipy.interpolate"))
+                nLon = scint.splev(newtime, scint.splrep(timestep, lon, s=0), der=0)
+                nLat = scint.splev(newtime, scint.splrep(timestep, lat, s=0), der=0)
             else:
-                nLon = _akima.interpolate(timestep,lon,newtime)
-                nLat = _akima.interpolate(timestep,lat,newtime)
-        elif interpolation_type=='linear':
-            nLon = scipy.interpolate.interp1d(timestep, lon, kind='linear')(newtime)
-            nLat = scipy.interpolate.interp1d(timestep, lat, kind='linear')(newtime)
+                nLon = _akima.interpolate(timestep, lon, newtime)
+                nLat = _akima.interpolate(timestep, lat, newtime)
+        elif interpolation_type == 'linear':
+            nLon = scint.interp1d(timestep, lon, kind='linear')(newtime)
+            nLat = scint.interp1d(timestep, lat, kind='linear')(newtime)
         else:
-            nLon = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lon, s=0), der=0)
-            nLat = scipy.interpolate.splev(newtime, scipy.interpolate.splrep(timestep, lat, s=0), der=0)
+            nLon = scint.splev(newtime, scint.splrep(timestep, lon, s=0), der=0)
+            nLat = scint.splev(newtime, scint.splrep(timestep, lat, s=0), der=0)
 
-        npCentre = scipy.interpolate.interp1d(timestep, pressure, kind='linear')(newtime)
-        npEnv = scipy.interpolate.interp1d(timestep, penv, kind='linear')(newtime)
-        nrMax = scipy.interpolate.interp1d(timestep, rmax, kind='linear')(newtime)
+        npCentre = scint.interp1d(timestep, pressure, kind='linear')(newtime)
+        npEnv = scint.interp1d(timestep, penv, kind='linear')(newtime)
+        nrMax = scint.interp1d(timestep, rmax, kind='linear')(newtime)
 
     bear_, dist_ = maputils.latLon2Azi(nLat, nLon, 1, azimuth=0)
     nthetaFm = numpy.zeros(newtime.size, 'f')
@@ -185,7 +200,7 @@ def interpolateTrack(configFile, trackFile, source, delta=0.1,
 
 # Call the main program:
 if __name__ == "__main__":
-    _main(sys.argv[1:])
+    main(sys.argv[1:])
 
 """
 Test data for interpTrack:

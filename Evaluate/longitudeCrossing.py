@@ -4,7 +4,7 @@
 
 .. module:: LongitudeCrossing
     :synopsis: Calculate the rate of TCs crossing lines of longitude
-               and latitude, comparing historical and synthetic 
+               and latitude, comparing historical and synthetic
                events.
 
 .. moduleauthor: Craig Arthur <craig.arthur@ga.gov.au>
@@ -15,11 +15,9 @@ import os
 import logging
 
 import numpy as np
-import numpy.ma as ma
 
 from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
-from datetime import datetime
 
 import matplotlib
 matplotlib.use('Agg', warn=False)
@@ -29,107 +27,31 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import interpolateTracks
 
 from Utilities.config import ConfigParser
-from Utilities.metutils import convert
-from Utilities.maputils import bearing2theta
-from Utilities.track import Track
+from Utilities.track import ncReadTrackData
 from Utilities.nctools import ncSaveGrid
 from Utilities.files import flProgramVersion
 from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities import pathLocator
 import Utilities.Intersections as Int
 
-# Importing :mod:`colours` makes a number of additional colour maps available:
-from Utilities import colours
-
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
-TRACKFILE_COLS = ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
-                  'Latitude', 'Speed', 'Bearing', 'CentralPressure',
-                  'EnvPressure', 'rMax')
-
-TRACKFILE_UNIT = ('', '%Y-%m-%d %H:%M:%S', 'hr', 'degree', 'degree', 'kph', 'degrees',
-                  'hPa', 'hPa', 'km')
-
-TRACKFILE_FMTS = ('i', datetime, 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f')
-
-TRACKFILE_CNVT = {
-    0: lambda s: int(float(s.strip() or 0)),
-    1: lambda s: datetime.strptime(s.strip(), TRACKFILE_UNIT[1]),
-    5: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[5], 'mps'),
-    6: lambda s: bearing2theta(float(s.strip() or 0) * np.pi / 180.),
-    7: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[7], 'Pa'),
-    8: lambda s: convert(float(s.strip() or 0), TRACKFILE_UNIT[8], 'Pa'),
-}
-
-def readTrackData(trackfile):
-    """
-    Read a track .csv file into a numpy.ndarray.
-
-    The track format and converters are specified with the global variables
-
-        TRACKFILE_COLS -- The column names
-        TRACKFILE_FMTS -- The entry formats
-        TRACKFILE_CNVT -- The column converters
-
-    :param str trackfile: the track data filename.
-    """
-    try:
-        return np.loadtxt(trackfile,
-                          comments='%',
-                          delimiter=',',
-                          dtype={
-                          'names': TRACKFILE_COLS,
-                          'formats': TRACKFILE_FMTS},
-                          converters=TRACKFILE_CNVT)
-    except ValueError:
-        # return an empty array with the appropriate `dtype` field names
-        return np.empty(0, dtype={
-                        'names': TRACKFILE_COLS,
-                        'formats': TRACKFILE_FMTS})
-
-def readMultipleTrackData(trackfile):
-    """
-    Reads all the track datas from a .csv file into a list of numpy.ndarrays.
-    The tracks are seperated based in their cyclone id. This function calls
-    `readTrackData` to read the data from the file.
-
-    :type  trackfile: str
-    :param trackfile: the track data filename.
-    """
-    datas = []
-    data = readTrackData(trackfile)
-    if len(data) > 0:
-        cycloneId = data['CycloneNumber']
-        for i in range(1, np.max(cycloneId) + 1):
-            datas.append(data[cycloneId == i])
-    else:
-        datas.append(data)
-    return datas
-
 def loadTracks(trackfile):
     """
-    Read tracks from a track .csv file and return a list of :class:`Track`
+    Read tracks from a track .nc file and return a list of :class:`Track`
     objects.
 
-    This calls the function `readMultipleTrackData` to parse the track .csv
-    file.
+    This calls the function `ncReadTrackData` to parse the track .nc file.
 
     :type  trackfile: str
     :param trackfile: the track data filename.
     """
-    tracks = []
-    datas = readMultipleTrackData(trackfile)
-    n = len(datas)
-    for i, data in enumerate(datas):
-        track = Track(data)
-        track.trackfile = trackfile
-        track.trackId = (i, n)
-        tracks.append(track)
+    tracks = ncReadTrackData(trackfile)
     return tracks
 
 class LongitudeCrossing(object):
-    
+
     def __init__(self, configFile):
 
         config = ConfigParser()
@@ -160,10 +82,10 @@ class LongitudeCrossing(object):
                                          'yearspersimulation')
 
         # Longitude crossing gates:
-        self.gateLons = np.arange(self.lon_range.min(), 
+        self.gateLons = np.arange(self.lon_range.min(),
                                   self.lon_range.max() + 0.5, 10.)
 
-        self.gateLats = np.arange(self.lat_range.min(), 
+        self.gateLats = np.arange(self.lat_range.min(),
                                   self.lat_range.max() + 0.5, 2.)
 
         # Add configuration settings to global attributes:
@@ -175,7 +97,7 @@ class LongitudeCrossing(object):
                 key = "{0}_{1}".format(section, option)
                 value = config.get(section, option)
                 self.gatts[key] = value
-        
+
 
     def findCrossings(self, tracks):
         """
@@ -183,7 +105,7 @@ class LongitudeCrossing(object):
         if the tracks intersect that line of longitude.
 
         :param tracks: collection of :class:`Track` objects
-        :return: h, ewh, weh, histograms for each line of longitude, 
+        :return: h, ewh, weh, histograms for each line of longitude,
                  recording the rate of crossings
         """
         log.debug("Processing %d tracks" % (len(tracks)))
@@ -233,10 +155,10 @@ class LongitudeCrossing(object):
 
 
         return h, ewh, weh
-    
+
     def calcStats(self, lonCrossHist, lonCrossEW, lonCrossWE):
         """Calculate means and percentiles of synthetic event sets"""
-        
+
         self.synCrossMean = np.mean(lonCrossHist, axis=0)
         self.synCrossEW = np.mean(lonCrossEW, axis=0)
         self.synCrossWE = np.mean(lonCrossWE, axis=0)
@@ -250,7 +172,7 @@ class LongitudeCrossing(object):
         self.synCrossWELower = percentile(lonCrossWE, per=5, axis=0)
 
 
-        
+
     @disableOnWorkers
     def historic(self):
         """Calculate historical rates of longitude crossing"""
@@ -260,12 +182,12 @@ class LongitudeCrossing(object):
         config.read(self.configFile)
         inputFile = config.get('DataProcess', 'InputFile')
         source = config.get('DataProcess', 'Source')
-        
+
         timestep = config.getfloat('TrackGenerator', 'Timestep')
 
         if len(os.path.dirname(inputFile)) == 0:
             inputFile = pjoin(self.inputPath, inputFile)
-        
+
         try:
             tracks = interpolateTracks.parseTracks(self.configFile,
                                                    inputFile,
@@ -273,7 +195,8 @@ class LongitudeCrossing(object):
                                                    timestep,
                                                    interpolation_type='linear')
         except (TypeError, IOError, ValueError):
-            log.critical("Cannot load historical track file: {0}".format(inputFile))
+            log.critical("Cannot load historical track file: {0}".\
+                         format(inputFile))
             raise
         else:
             self.lonCrossingHist, self.lonCrossingEWHist, \
@@ -292,14 +215,14 @@ class LongitudeCrossing(object):
         trackfiles = sorted([pjoin(self.trackPath, f) for f in filelist
                              if f.startswith('tracks')])
 
-        lonCrossHist = np.zeros((len(trackfiles), 
-                                 len(self.gateLats) - 1, 
+        lonCrossHist = np.zeros((len(trackfiles),
+                                 len(self.gateLats) - 1,
                                  len(self.gateLons)))
-        lonCrossEW = np.zeros((len(trackfiles), 
-                               len(self.gateLats) - 1, 
+        lonCrossEW = np.zeros((len(trackfiles),
+                               len(self.gateLats) - 1,
                                len(self.gateLons)))
-        lonCrossWE = np.zeros((len(trackfiles), 
-                               len(self.gateLats) - 1, 
+        lonCrossWE = np.zeros((len(trackfiles),
+                               len(self.gateLats) - 1,
                                len(self.gateLons)))
 
         if (pp.rank() == 0) and (pp.size() > 1):
@@ -308,7 +231,8 @@ class LongitudeCrossing(object):
             n = 0
             for d in range(1, pp.size()):
                 pp.send(trackfiles[w], destination=d, tag=work_tag)
-                log.debug("Processing track file %d of %d" % (w + 1, len(trackfiles)))
+                log.debug("Processing track file {0:d} of {1:d}".\
+                          format(w + 1, len(trackfiles)))
                 w += 1
 
             terminated = 0
@@ -319,30 +243,31 @@ class LongitudeCrossing(object):
                 lonCrossHist[n, :, :], lonCrossEW[n, :, :], \
                     lonCrossWE[n, :, :] = results
                 n += 1
-    
+
                 d = status.source
 
                 if w < len(trackfiles):
                     pp.send(trackfiles[w], destination=d, tag=work_tag)
-                    log.debug("Processing track file %d of %d" % (w + 1, len(trackfiles)))
+                    log.debug("Processing track file {0:d} of {1:d}".\
+                              format(w + 1, len(trackfiles)))
                     w += 1
                 else:
                     pp.send(None, destination=d, tag=work_tag)
                     terminated += 1
 
             self.calcStats(lonCrossHist, lonCrossEW, lonCrossWE)
-            
+
         elif (pp.size() > 1) and (pp.rank() != 0):
             while(True):
                 trackfile = pp.receive(source=0, tag=work_tag)
                 if trackfile is None:
                     break
-                
+
                 log.debug("Processing %s" % (trackfile))
                 tracks = loadTracks(trackfile)
                 lonCross, lonCrossEW, lonCrossWE = self.findCrossings(tracks)
                 results = (lonCross, lonCrossEW, lonCrossWE)
-                pp.send(results, destination=0,tag=result_tag)
+                pp.send(results, destination=0, tag=result_tag)
 
         elif (pp.size() == 1) and (pp.rank() == 0):
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
@@ -541,7 +466,7 @@ class LongitudeCrossing(object):
 
             x1 = 2.* self.gateLons[i] - 100. * self.synCrossEWUpper[:, i]
             x2 = 2.* self.gateLons[i] - 100. * self.synCrossEWLower[:, i]
-            ax1.fill_betweenx(self.gateLats[:-1], x1, x2, 
+            ax1.fill_betweenx(self.gateLats[:-1], x1, x2,
                               color='0.75', alpha=0.7)
 
         minLonLim = 2. * (self.lon_range.min() - 10.)
@@ -575,7 +500,8 @@ class LongitudeCrossing(object):
         ax2.set_ylim(self.gateLats.min(), self.gateLats[-2])
         ax2.set_ylabel('Latitude')
         ax2.grid(True)
-        
+
+        fig.tight_layout()
         canvas = FigureCanvas(fig)
         canvas.print_figure(pjoin(self.plotPath,'lon_crossing_syn.png'))
 
@@ -594,6 +520,6 @@ class LongitudeCrossing(object):
         self.synthetic()
 
         pp.barrier()
-        
+
         self.plotCrossingRates()
         self.save()

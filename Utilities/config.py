@@ -68,6 +68,7 @@ PARSERS = {
     'Actions_executewindfield': parseBool,
     'Actions_plotdata': parseBool,
     'Actions_plothazard': parseBool,
+    'Actions_createdatabase': parseBool,
     'Actions_downloaddata': parseBool,
     'Actions_executeevaluate': parseBool,
     'DataProcess_inputfile': str,
@@ -81,6 +82,7 @@ PARSERS = {
     'Hazard_samplesize': int,
     'Hazard_percentilerange': int,
     'Input_landmask': str,
+    'Input_locationfile': str,
     'Input_mslpgrid': parseList,
     'Logging_logfile': str,
     'Logging_loglevel': str,
@@ -112,7 +114,6 @@ PARSERS = {
     'TrackGenerator_numsimulations': int,
     'TrackGenerator_seasonseed': int,
     'TrackGenerator_trackseed': int,
-    'TrackGenerator_yearspersimulation': int,
     'TrackGenerator_numtimesteps': int,
     'TrackGenerator_timestep': float,
     'WindfieldInterface_beta': float,
@@ -138,6 +139,7 @@ ExecuteHazard=True
 ExecuteEvaluate=True
 PlotData=True
 PlotHazard=True
+CreateDatabase=True
 DownloadData=True
 
 [Region]
@@ -158,7 +160,6 @@ minSamplesCell=100
 
 [TrackGenerator]
 NumSimulations=500
-YearsPerSimulation=1
 NumTimeSteps=360
 TimeStep=1.0
 Format=csv
@@ -189,6 +190,7 @@ PlotSpeedUnits=mps
 GetRMWDistFromInputData=False
 
 [Input]
+LocationFile=input/stationlist.shp
 LandMask=input/landmask.nc
 MSLPFile=MSLP/slp.day.ltm.nc
 Datasets=IBTRACS,LTMSLP

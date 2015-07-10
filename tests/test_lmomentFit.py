@@ -22,10 +22,10 @@
  Description: Unit testing module for lmomentFit.py
 
  Version: $Rev: 737 $
- 
- ModifiedBy: 
- ModifiedDate: 
- Modification: 
+
+ ModifiedBy:
+ ModifiedDate:
+ Modification:
 
  $Id: test_lmomentFit.py 737 2012-11-21 00:59:42Z carthur $
 """

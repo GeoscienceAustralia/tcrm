@@ -31,9 +31,9 @@ def pdf(x, y):
 
 def plot(ax, Z, title):
     ax.scatter(rvs[:, 0], rvs[:, 1], alpha=0.3, s=1, color='black')
-    ax.imshow(Z, aspect=1, origin='lower', 
-              cmap=sns.light_palette((210, 90, 60), 
-                                     input='husl', 
+    ax.imshow(Z, aspect=1, origin='lower',
+              cmap=sns.light_palette((210, 90, 60),
+                                     input='husl',
                                      as_cmap=True),
               extent=(rvs[:, 0].min(),
                       rvs[:, 0].max(),
@@ -42,8 +42,8 @@ def plot(ax, Z, title):
     ax.contour(x, y, Z, linewidth=1)
     ax.set_title(title)
 
-x_flat = np.r_[rvs[:, 0].min():rvs[:, 0].max():128j]
-y_flat = np.r_[rvs[:, 1].min():rvs[:, 1].max():128j]
+x_flat = np.r_[rvs[:, 0].min():rvs[:, 0].max():128j] #pylint: disable=E1127
+y_flat = np.r_[rvs[:, 1].min():rvs[:, 1].max():128j] #pylint: disable=E1127
 x, y = np.meshgrid(x_flat, y_flat)
 grid = np.hstack([x.reshape(-1, 1), y.reshape(-1, 1)])
 

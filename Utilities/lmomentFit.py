@@ -32,11 +32,16 @@ DIVISION, T. J. WATSON RESEARCH CENTER, YORKTOWN HEIGHTS, NEW YORK
 
 """
 
-import numpy
+import numpy as np
 from scipy import special
+import logging
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
+
 __version__ = "$Id: lmomentFit.py 686 2012-03-29 04:24:59Z carthur $"
 
-def pelgev(XMOM):
+def pelgev(xmom):
     """
     Parameter estimation via L-moments for the Generalised Extreme
     Value Distribution. For -0.8 <= TAU3 < 1., K is approximated by
@@ -44,9 +49,9 @@ def pelgev(XMOM):
     Commun. Statist. Simul. Comput.). If TAU3 is outside this range,
     Newton-Raphson iteration is used.
 
-    :param XMOM: Array of length 3, containing the L-moments Lambda-1,
+    :param xmom: Array of length 3, containing the L-moments Lambda-1,
                  Lambda-2 and TAU3.
-    :type  XMOM: List or :class:`numpy.ndarray`
+    :type  xmom: List or :class:`numpy.ndarray`
 
     :returns: Location, scale and shape parameters of the GEV
               distribution.
@@ -72,7 +77,7 @@ def pelgev(XMOM):
     #  DISTRIBUTION
     #
     #  PARAMETERS OF ROUTINE:
-    #  XMOM   * INPUT* ARRAY OF LENGTH 3. CONTAINS THE L-MOMENTS LAMBDA-1,
+    #  xmom   * INPUT* ARRAY OF LENGTH 3. CONTAINS THE L-MOMENTS LAMBDA-1,
     #                  LAMBDA-2, TAU-3.
     #  PARA   *OUTPUT* ARRAY OF LENGTH 3. ON EXIT, CONTAINS THE PARAMETERS
     #                  IN THE ORDER XI, ALPHA, K (LOCATION, SCALE, SHAPE).
@@ -82,16 +87,14 @@ def pelgev(XMOM):
     # METHOD: FOR  -0.8 LE TAU3 LT 1,  K IS APPROXIMATED BY RATIONAL
     # FUNCTIONS AS IN DONALDSON (1996, COMMUN. STATIST. SIMUL. COMPUT.).
     # IF TAU3 IS OUTSIDE THIS RANGE, NEWTON-RAPHSON ITERATION IS USED.
-    #XMOM = numpy.array([1.235, 0.11367, 0.10557])
-    PARA = numpy.zeros(3)
-    P8 = 0.8
-    P97 = 0.97
+    #xmom = np.array([1.235, 0.11367, 0.10557])
+    para = np.zeros(3)
 
-    # SMALL IS USED TO TEST WHETHER K IS EFFECTIVELY ZERO
-    # EPS,MAXIT CONTROL THE TEST FOR CONVERGENCE OF N-R ITERATION
-    SMALL = 1E-5
-    EPS = 1E-6
-    MAXIT = 20
+    # small IS USED TO TEST WHETHER K IS EFFECTIVELY ZERO
+    # epsilon, maxit CONTROL THE TEST FOR CONVERGENCE OF N-R ITERATION
+    small = 1E-5
+    epsilon = 1E-6
+    maxit = 20
 
     # EU IS EULER'S CONSTANT
     # DL2 IS LOG(2), DL3 IS LOG(3)
@@ -115,86 +118,91 @@ def pelgev(XMOM):
     D1 = -0.64363929
     D2 = 0.08985247
 
-    T3 = XMOM[2]
-    if XMOM[1] <= 0.0:
-        print ' *** ERROR *** ROUTINE PELGEV : L-MOMENTS INVALID'
-        return PARA
-    if numpy.abs(T3) >= 1.0:
-        print ' *** ERROR *** ROUTINE PELGEV : L-MOMENTS INVALID'
-        return PARA
-    if T3 > 0.0:
+    t3 = xmom[2]
+    if xmom[1] <= 0.0:
+        log.debug(' *** ERROR *** ROUTINE PELGEV : L-MOMENTS INVALID')
+        return para
+    if np.abs(t3) >= 1.0:
+        log.debug(' *** ERROR *** ROUTINE PELGEV : L-MOMENTS INVALID')
+        return para
+    if t3 > 0.0:
         # RATIONAL-FUNCTION APPROXIMATION FOR TAU3 BETWEEN 0 AND 1
-        Z = 1.0 - T3
-        G = (-1.0+Z*(C1+Z*(C2+Z*C3)))/(1.0+Z*(D1+Z*D2))
-        if numpy.abs(G) < SMALL:
+        Z = 1.0 - t3
+        G = (-1.0 + Z * (C1 + Z * (C2 + Z * C3)))/(1.0 + Z * (D1 + Z * D2))
+        if np.abs(G) < small:
             # ESTIMATED K EFFECTIVELY ZERO
-            PARA[2] = 0.0
-            PARA[1] = XMOM[1]/DL2
-            PARA[0] = XMOM[0] - EU*PARA[1]
-            return PARA
-        PARA[2] = G
-        GAM = special.gamma(1.0+G)
-        PARA[1] = XMOM[1]*G/(GAM*(1.0-2.0**(-G)))
-        PARA[0] = XMOM[0]-PARA[1]*(1.0-GAM)/G
-        return PARA
+            para[2] = 0.0
+            para[1] = xmom[1] / DL2
+            para[0] = xmom[0] - EU * para[1]
+            return para
+        para[2] = G
+        gam = special.gamma(1.0 + G)
+        para[1] = xmom[1] * G / (gam * (1.0 - 2.0**(-G)))
+        para[0] = xmom[0] - para[1] * (1.0 - gam)/G
+        return para
 
     # RATIONAL-FUNCTION APPROXIMATION FOR TAU3 BETWEEN -0.8 AND 0
-    G = (A0+T3*(A1+T3*(A2+T3*(A3+T3*A4))))/(1.0+T3*(B1+T3*(B2+T3*B3)))
-    if T3 < -P8:
+    G = (A0 + t3 * (A1 + t3 * (A2 + t3 * (A3 + t3 * A4))))/\
+        (1.0 + t3 * (B1 + t3 * (B2 + t3 * B3)))
+    if t3 < -0.8:
         # NEWTON-RAPHSON ITERATION FOR TAU3 LESS THAN -0.8
-        if T3 <= -P97:
-            G = 1.0 - numpy.log(1.0 + T3)/DL2
-        T0 = (T3 + 3.0)*0.5
+        if t3 <= -0.97:
+            G = 1.0 - np.log(1.0 + t3)/DL2
+        T0 = (t3 + 3.0) * 0.5
 
         convg = False
-        for IT in xrange(1, MAXIT+1):
-            X2 = 2.0**(-G)
-            X3 = 3.0**(-G)
-            XX2 = 1.0 - X2
-            XX3 = 1.0 - X3
-            T = XX3/XX2
-            DERIV = (XX2*X3*DL3 - XX3*X2*DL2)/(XX2*XX2)
+        for IT in xrange(1, maxit + 1):
+            x2 = 2.0**(-G)
+            x3 = 3.0**(-G)
+            xx2 = 1.0 - x2
+            xx3 = 1.0 - x3
+            T = xx3 / xx2
+            DERIV = (xx2 * x3 * DL3 - xx3 * x2 * DL2)/(xx2 * xx2)
             GOLD = G
             G = G - (T - T0)/DERIV
-            if numpy.abs(G-GOLD) <= EPS*G:
+            if np.abs(G - GOLD) <= epsilon * G:
                 convg = True
                 break
 
         if convg == False:
-            print ' ** WARNING ** ROUTINE PELGEV : ITERATION HAS NOT CONVERGED. RESULTS MAY BE UNRELIABLE.'
+            log.debug((' ** WARNING ** ROUTINE PELGEV : ITERATION HAS '
+                       'NOT CONVERGED. RESULTS MAY BE UNRELIABLE.'))
 
     # ESTIMATE ALPHA,XI
-    PARA[2] = G
-    GAM = special.gamma(1.0+G)
-    PARA[1] = XMOM[1]*G/(GAM*(1.0-2.0**(-G)))
-    PARA[0] = XMOM[0]-PARA[1]*(1.0-GAM)/G
-    return PARA
+    para[2] = G
+    gam = special.gamma(1.0 + G)
+    para[1] = xmom[1] * G / (gam * (1.0 - 2.0**(-G)))
+    para[0] = xmom[0] - para[1] * (1.0 - gam)/G
+    return para
 
-def pelgpa(XMOM):
-    
-    PARA = numpy.zeros(3)
-    T3 = XMOM[2]
-    if XMOM[1] <= 0.0:
-        print ' *** ERROR *** ROUTINE PELGPA : L-MOMENTS INVALID'
-        return PARA
-    if numpy.abs(T3) >= 1.0:
-        print ' *** ERROR *** ROUTINE PELGPA : L-MOMENTS INVALID'
-        return PARA
+def pelgpa(xmom):
+    """
+    Parameter estimation via L-moments for the Generalised Pareto
+    Distribution.
+    """
+    para = np.zeros(3)
+    t3 = xmom[2]
+    if xmom[1] <= 0.0:
+        log.debug(' *** ERROR *** ROUTINE PELGPA : L-MOMENTS INVALID')
+        return para
+    if np.abs(t3) >= 1.0:
+        log.debug(' *** ERROR *** ROUTINE PELGPA : L-MOMENTS INVALID')
+        return para
 
-    G = (1.0 - 3.0 * T3) / (1.0 + T3)
-    PARA[2] = G
-    PARA[1] = (1.0 + G) * (2.0 + G) * XMOM[1]
-    PARA[0] = XMOM[0] - PARA[1] / (1.0 + G)
+    gg = (1.0 - 3.0 * t3) / (1.0 + t3)
+    para[2] = gg
+    para[1] = (1.0 + gg) * (2.0 + gg) * xmom[1]
+    para[0] = xmom[0] - para[1] / (1.0 + gg)
 
-    return PARA
+    return para
 
-def samlmu(X, NMOM):
+def samlmu(data, nmom):
     """
     Sample L-moments for a data array.
 
-    :param X: Array of length N, containing the data in ascending order.
-    :type  X: :class:`numpy.ndarray`
-    :param NMOM: Number of L-moments to be found (maximum 100).
+    :param data: Array of length N, containing the data in ascending order.
+    :type  data: :class:`numpy.ndarray`
+    :param nmom: Number of L-moments to be found (maximum 100).
 
     :returns: The sample L-moments.
     :rtype: :class:`numpy.ndarray`
@@ -217,131 +225,136 @@ def samlmu(X, NMOM):
     #  SAMPLE L-MOMENTS OF A DATA ARRAY
     #
     #  PARAMETERS OF ROUTINE:
-    #  X      * INPUT* ARRAY OF LENGTH N. CONTAINS THE DATA, IN ASCENDING
+    #  x      * INPUT* ARRAY OF LENGTH N. CONTAINS THE DATA, IN ASCENDING
     #                  ORDER.
     #  N      * INPUT* NUMBER OF DATA VALUES
-    #  XMOM   *OUTPUT* ARRAY OF LENGTH NMOM. CONTAINS THE SAMPLE L-MOMENTS,
+    #  xmom   *OUTPUT* ARRAY OF LENGTH nmom. CONTAINS THE SAMPLE L-MOMENTS,
     #                  STORED AS DESCRIBED BELOW.
-    #  NMOM   * INPUT* NUMBER OF L-MOMENTS TO BE FOUND. AT MOST 100.
+    #  nmom   * INPUT* NUMBER OF L-MOMENTS TO BE FOUND. AT MOST 100.
     #
 
-    # If NMOM == 3, use optimised code
-    if NMOM == 3:
-        return samlmu3(X)
+    if len(data) <= 2:
+        raise ValueError, "Not enough values for L-moment calculation"
+    # If nmom == 3, use optimised code
+    if nmom == 3:
+        return samlmu3(data)
 
-    MAXMOM = 100
-    X = numpy.array(X)
-    N = numpy.size(X)
-    NMOM = int(NMOM)
-    XMOM = numpy.zeros(NMOM)
-    COEF = numpy.zeros([2,NMOM])
+    maxmom = 100
+    data = np.array(data)
+    n = np.size(data)
+    nmom = int(nmom)
+    xmom = np.zeros(nmom)
+    coef = np.zeros([2, nmom])
 
-    if NMOM > MAXMOM:
-        print ' ** WARNING ** ROUTINE SAMLMU : PARAMETER NMOM INVALID'
+    if nmom > maxmom:
+        log.debug(' ** WARNING ** ROUTINE SAMLMU : PARAMETER nmom INVALID')
         return
-    DN = N
-    XMOM[:] = 0.0
-    if NMOM <= 2.0:
+    dn = n
+    xmom[:] = 0.0
+    if nmom <= 2.0:
         # AT MOST TWO L-MOMENTS
-        SUM1 = 0.0
-        SUM2 = 0.0
-        TEMP = -DN + 1.0
-        for I in xrange(1,N+1):
-            SUM1 = SUM1 + X[I-1]
-            SUM2 = SUM2 + X[I-1]*TEMP
-            TEMP = TEMP + 2.0
-        XMOM[1-1] = SUM1/DN
-        if NMOM == 1:
-            return XMOM
-        XMOM[1] = SUM2/(DN*(DN-1.0))
-        return XMOM
+        sum1 = 0.0
+        sum2 = 0.0
+        temp = -dn + 1.0
+        for i in xrange(1, n + 1):
+            sum1 = sum1 + data[i - 1]
+            sum2 = sum2 + data[i - 1] * temp
+            temp = temp + 2.0
+        xmom[1-1] = sum1 / dn
+        if nmom == 1:
+            return xmom
+        xmom[1] = sum2 / (dn * (dn - 1.0))
+        return xmom
 
     # UNBIASED ESTIMATES OF L-MOMENTS -- THE 'DO 30' LOOP
     # RECURSIVELY CALCULATES DISCRETE LEGENDRE POLYNOMIALS, VIA
     # EQ.(9) OF NEUMAN AND SCHONBACH (1974, INT.J.NUM.METH.ENG.)
-    for J in xrange(3, NMOM + 1):
-        TEMP = 1.0/((J - 1)*(N - J + 1))
-        COEF[0,J-1] = (J + J - 3)*TEMP
-        COEF[1,J-1] = ((J - 2)*(N + J - 2))*TEMP
+    for j in xrange(3, nmom + 1):
+        temp = 1.0/((j - 1) * (n - j + 1))
+        coef[0, j-1] = (j + j - 3) * temp
+        coef[1, j-1] = ((j - 2) * (n + j - 2)) * temp
 
-    TEMP = -DN - 1.0
-    CONST = 1.0/(DN - 1.0)
-    NHALF = N/2
-    for I in xrange(1,NHALF + 1):
-        TEMP = TEMP + 2.0
-        XI = X[I-1]
-        XII = X[N - I]
-        TERMP = XI + XII
-        TERMN = XI - XII
-        XMOM[0] = XMOM[0] + TERMP
+    temp = -dn - 1.0
+    const = 1.0 / (dn - 1.0)
+    nhalf = n/2
+    for i in xrange(1, nhalf + 1):
+        temp = temp + 2.0
+        xi = data[i - 1]
+        xii = data[n - i]
+        termp = xi + xii
+        termn = xi - xii
+        xmom[0] = xmom[0] + termp
         S1 = 1.0
-        S = TEMP*CONST
-        XMOM[1] = XMOM[1] + S*TERMN
-        for J in xrange(3,NMOM + 1,2):
+        S = temp * const
+        xmom[1] = xmom[1] + S * termn
+        for j in xrange(3, nmom + 1, 2):
             S2 = S1
             S1 = S
-            S = COEF[0,J - 1]*TEMP*S1 - COEF[1,J - 1]*S2
-            XMOM[J - 1] = XMOM[J - 1] + S*TERMP
-            if J == NMOM:
+            S = coef[0, j - 1] * temp * S1 - coef[1, j - 1] * S2
+            xmom[j - 1] = xmom[j - 1] + S * termp
+            if j == nmom:
                 break
-            JJ = J + 1
+            jj = j + 1
             S2 = S1
             S1 = S
-            S = COEF[0,JJ - 1]*TEMP*S1 - COEF[1,JJ - 1]*S2
-            XMOM[JJ - 1] = XMOM[JJ - 1] + S*TERMN
+            S = coef[0, jj - 1] * temp * S1 - coef[1, jj - 1] * S2
+            xmom[jj - 1] = xmom[jj - 1] + S * termn
 
-    if not (N == NHALF+NHALF):
-        TERM = X[NHALF]
-        S = 1.0
-        XMOM[0] = XMOM[0] + TERM
-        for J in xrange(3,NMOM+1,2):
-            S = -COEF[1, J - 1]*S
-            XMOM[J - 1] = XMOM[J - 1] + S*TERM
+    if not (n == nhalf + nhalf):
+        term = data[nhalf]
+        s = 1.0
+        xmom[0] = xmom[0] + term
+        for j in xrange(3, nmom + 1, 2):
+            s = -coef[1, j - 1] * s
+            xmom[j - 1] = xmom[j - 1] + s * term
 
     # L-MOMENT RATIOS
-    XMOM[0] = XMOM[0]/DN
-    if XMOM[1] == 0.0:
-        print ' *** ERROR *** ROUTINE SAMLMU : ALL DATA VALUES EQUAL'
-        XMOM[:] = 0.0
+    xmom[0] = xmom[0]/dn
+    if xmom[1] == 0.0:
+        log.debug(' *** ERROR *** ROUTINE SAMLMU : ALL DATA VALUES EQUAL')
+        xmom[:] = 0.0
         return
-    for J in xrange(3, NMOM + 1):
-        XMOM[J - 1] = XMOM[J - 1]/XMOM[1]
-    XMOM[1] = XMOM[1]/DN
-    return numpy.array(XMOM)
+    for j in xrange(3, nmom + 1):
+        xmom[j - 1] = xmom[j - 1] / xmom[1]
+    xmom[1] = xmom[1] / dn
+    return np.array(xmom)
 
 
-def samlmu3(X):
+def samlmu3(data):
     """
-    Functional equivalent to lmoments.samlmu(X, 3). Vectorised for
+    Functional equivalent to lmoments.samlmu(data, 3). Vectorised for
     speed but still about half speed of original fortran package.
 
-    :param X: Array of length N, containing the data in ascending order.
+    :param data: Array of length N, containing the data in ascending order.
     :returns: First 3 L-moments.
     :rtype: :class:`numpy.ndarray`
-    
+
     """
-    X = numpy.array(X)
-    N = numpy.size(X)
-    XMOM = numpy.zeros(3)
+    if len(data) <= 2:
+        raise ValueError, "Not enough values for L-moment calculation"
+    data = np.array(data)
+    n = np.size(data)
+    xmom = np.zeros(3)
 
-    TEMP0 = 1.0/(2*N - 4)
-    COEF02 = 3*TEMP0
-    COEF12 = (N + 1)*TEMP0
+    tempo = 1.0 / (2 * n - 4)
+    coef02 = 3 * tempo
+    coef12 = (n + 1) * tempo
 
-    TEMP = range(-N+1,0,2)
-    CONST = 1.0/(N - 1.0)
-    NHALF = N/2
-    XI = X[0:NHALF]
-    XII = X[-1:-NHALF-1:-1]
-    TERMP = XI + XII
-    TERMN = XI - XII
-    XMOM[0] = sum(TERMP)
-    XMOM[1] = sum(TEMP*TERMN*CONST)
-    S = [k*k*COEF02*CONST - COEF12 for k in TEMP]
-    XMOM[2] = sum(S*TERMP)
+    temp = range(-n + 1, 0, 2)
+    const = 1.0 / (n - 1.0)
+    nhalf = n / 2
+    xi = data[0:nhalf]
+    xii = data[-1:-nhalf - 1:-1]
+    termp = xi + xii
+    termn = xi - xii
+    xmom[0] = sum(termp)
+    xmom[1] = sum(temp * termn * const)
+    s = [k * k * coef02 * const - coef12 for k in temp]
+    xmom[2] = sum(s * termp)
 
-    if N != NHALF+NHALF:
-        XMOM[0] = XMOM[0] + X[NHALF]
-        XMOM[2] = XMOM[2] - COEF12*X[NHALF]
-    XMOM = [XMOM[0]/N, XMOM[1]/N, XMOM[2]/XMOM[1]]
-    return numpy.array(XMOM)
+    if n != nhalf + nhalf:
+        xmom[0] = xmom[0] + data[nhalf]
+        xmom[2] = xmom[2] - coef12 * data[nhalf]
+    xmom = [xmom[0] / n, xmom[1] / n, xmom[2] / xmom[1]]
+    return np.array(xmom)
+

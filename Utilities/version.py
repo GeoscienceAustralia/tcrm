@@ -41,7 +41,7 @@ def git(command):
     :param str command: A valid git command.
     :return: Output from the given command.
     :rtype: str
-    
+
     """
     with open(os.devnull) as devnull:
         return subprocess.check_output('git ' + command,
@@ -54,7 +54,7 @@ def status():
     :returns: A message containing a listing of recent
               changes to the model code.
     :rtype: str
-    
+
     """
 
     msg = ''
@@ -81,10 +81,10 @@ def version():
     :rtype: str
     :raises: :mod:`subprocess.CalledProcessError` if the git
              command fails.
-             
+
     .. note:: This requires ``git`` to be installed to execute.
     """
-    
+
     vers = ''
 
     try:
@@ -96,5 +96,5 @@ def version():
         fname = os.path.join(path, name+ext)
         fdate = flModDate(fname)
         vers = '{0} modified {1}'.format(fname, fdate)
-    
+
     return vers

@@ -30,8 +30,8 @@ from Utilities import shapefile
 from Utilities import pathLocator
 
 
-OUTPUTFMT = ['%s', '%s', '%9.5f', '%9.5f', 
-              '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
+OUTPUTFMT = ['%s', '%s', '%9.5f', '%9.5f',
+              '%6.2f', '%6.2f', '%6.2f', '%6.2f',
               '%7.2f']
 INPUTFMT = ('|S16', '|S16', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
 INPUTNAMES = ('Station', 'Time', 'Longitude', 'Latitude', 'Speed', 'UU', 'VV',
@@ -40,14 +40,14 @@ INPUTNAMES = ('Station', 'Time', 'Longitude', 'Latitude', 'Speed', 'UU', 'VV',
 MINMAX_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
                 'Speed', 'UU', 'VV', 'Bearing', 'Pressure')
 MINMAX_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
-MINMAX_FMT = ['%s', '%s', '%9.5f', '%9.5f', 
-              '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
+MINMAX_FMT = ['%s', '%s', '%9.5f', '%9.5f',
+              '%6.2f', '%6.2f', '%6.2f', '%6.2f',
               '%7.2f']
 
 def tsmultiply(inputFile, multipliers, outputFile):
     """
     Apply multipliers to a single file. Values are combined then written
-    back to the source file. 
+    back to the source file.
 
     :param str inputFile: Path to the input timeseries file. This will need
                           to contain the values of the three multipliers
@@ -59,12 +59,12 @@ def tsmultiply(inputFile, multipliers, outputFile):
 
     :returns: The records corresponding to the maximum (localised) wind speed
               and minimum pressure.
-    
+
     """
-    
+
     log.info("Processing {0}".format(inputFile))
     tsdata = np.genfromtxt(inputFile, dtype=INPUTFMT, names=INPUTNAMES,
-                           delimiter=',', skip_header=1) 
+                           delimiter=',', skip_header=1)
     tstep = tsdata['Time']
     lon = tsdata['Longitude']
     lat = tsdata['Latitude']
@@ -75,9 +75,9 @@ def tsmultiply(inputFile, multipliers, outputFile):
     pressure = tsdata['Pressure']
     bear = 2*np.pi - (np.arctan2(-vv, -uu) - np.pi/2)
     bear = (180./np.pi) * np.mod(bear, 2.*np.pi)
-    
+
     mcn, mcne, mce, mcse, mcs, mcsw, mcw, mcnw = multipliers
-   
+
     # Apply multipliers:
 
     ii = np.where((bear >= 0.0) & (bear < 45.))
@@ -108,7 +108,7 @@ def tsmultiply(inputFile, multipliers, outputFile):
 
     ii = np.where(gust==0)
     bear[ii] = 0
-    
+
     data = np.array([tsdata['Station'], tstep, lon, lat, gust, uu, vv, bear, pressure]).T
 
     maxidx = np.argmax(gust)
@@ -119,7 +119,7 @@ def tsmultiply(inputFile, multipliers, outputFile):
     header = 'Station,Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
     np.savetxt(outputFile, data, fmt='%s', delimiter=',',
                header=header, comments='')
-    
+
     return maxdata, mindata
 
 
@@ -131,25 +131,25 @@ def process_timeseries(config_file):
     and records are keyed by the same code that is used to select
     stations for sampling.
 
-    :param str config_file: Path to a configuration file. 
+    :param str config_file: Path to a configuration file.
 
     """
 
     config = ConfigParser()
     config.read(config_file)
 
-    stnFile = config.get('Timeseries', 'StationFile')
+    stnFile = config.get('Input', 'LocationFile')
     key_name = config.get('Timeseries', 'StationID')
-    inputPath = pjoin(config.get('Output', 'Path'), 
+    inputPath = pjoin(config.get('Output', 'Path'),
                                   'process', 'timeseries')
     outputPath = pjoin(inputPath, 'local')
-    
+
     if not isdir(outputPath):
         try:
             os.makedirs(outputPath)
         except OSError:
             raise
-        
+
     log.info("Loading stations from %s"%stnFile)
     log.info("Timeseries data will be written into %s"%outputPath)
 
@@ -197,8 +197,8 @@ def process_timeseries(config_file):
                header=maxheader, comments='')
     np.savetxt(minfile, min_data.data, fmt=MINMAX_FMT, delimiter=',',
                header=maxheader, comments='')
-            
-        
+
+
 def startup():
     """
     Parse command line arguments and call the :func:`main` function.
@@ -240,7 +240,7 @@ def startup():
         debug = True
 
     flStartLog(logfile, logLevel, verbose, datestamp)
-    
+
     if debug:
         process_timeseries(config_file)
     else:
@@ -251,7 +251,7 @@ def startup():
             tblines = traceback.format_exc().splitlines()
             for line in tblines:
                 log.critical(line.lstrip())
-    
+
     log.info("Completed {0}".format(sys.argv[0]))
 if __name__ == "__main__":
     startup()

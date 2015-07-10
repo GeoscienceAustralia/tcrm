@@ -14,7 +14,9 @@ use in other sections.
 
 """
 
-import os, sys, pdb, logging
+import os
+import sys
+import logging
 
 #from scipy import array, arange, transpose
 import numpy as np
@@ -66,7 +68,7 @@ class KDEParameters:
                            then it is the path to a file containing
                            the values. If an array is passed, then it
                            should hold the parameter values.
-        
+
         :param kdeStep: Increment of the ordinate values at which
                         the distributions will be calculated.
         :type  kdeStep: float, default=`0.1`
@@ -92,7 +94,7 @@ class KDEParameters:
         returns: If ``kdeParameters`` is given, returns ``None``
                   (data are saved to file), otherwise
                   :class:`numpy.ndarray` of the parameter grid, the PDF and CDF.
-                 
+
         """
 
         self.logger.debug("Running generateKDE")
@@ -160,7 +162,7 @@ class KDEParameters:
         :param str genDays: Name of file containing genesis days
                             (as day of year).
         :param lonLat: Array of genesis longitudes and latitudes.
-        :param float bw: Optional. Bandwidth of the KDE to use. 
+        :param float bw: Optional. Bandwidth of the KDE to use.
         :param str genesisKDE: Optional. File name to save resulting CDF to.
         :type  lonLat: :class:`numpy.ndarray`
 
@@ -260,7 +262,6 @@ if __name__ == "__main__":
     k.generateKDE(pressure_rate, kdeStep, kde_pressure_rate, cdf_pressure_rate)
     #k.generateKDE(bearing_rate, kde_bearing_rate, cdf_bearing_rate)
     #k.generateKDE(speed_rate, kde_speed_rate, cdf_speed_rate)
-    #pdb.set_trace()
     #k.plotKdeInit()
     #k.plotKdeAll()
     #k.plotKdeNoInit()

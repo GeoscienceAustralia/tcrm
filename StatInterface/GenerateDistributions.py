@@ -44,7 +44,7 @@ class GenerateDistributions:
                            :class:`dict` should contain the keys
                            :attr:`xMin`, :attr:`xMax`, :attr:`yMin`
                            and :attr:`yMax`. The *x* variable bounds
-                           the longitude and the *y* variable 
+                           the longitude and the *y* variable
                            bounds the latitude.
     :param dict gridSpace: The default grid cell size. The :class:`dict`
                            should contain keys of :attr:`x` and
@@ -103,12 +103,12 @@ class GenerateDistributions:
                        it is the path to a file containing the
                        longitude/latitude information. If an array
                        is given, then it should be a 2-d array
-                       containing the data values. 
+                       containing the data values.
         :type  lonLat: str or :class:`numpy.ndarray`
         :param parameterList: Parameter values. If a string is given,
                               then it is the path to a file containing
                               the values. If an array is passed, then it
-                              should hold the parameter values. 
+                              should hold the parameter values.
         :type  parameterList: str or :class:`numpy.ndarray`
         :param str parameterName: Optional. If given, then the
                                   cell distributions will be saved to a
@@ -131,7 +131,7 @@ class GenerateDistributions:
                   (data are saved to file), otherwise
                   :class:`numpy.ndarray`.
 
-        
+
         """
         if parameterName:
             self.logger.debug("Running allDistributions for %s"%parameterName)
@@ -229,13 +229,13 @@ class GenerateDistributions:
 
         :param int cellNum: The cell number to process.
         :returns: None. The :attr:`parameter` attribute is updated.
-        :raises InvalidArguments: if the cell number is not valid
-                                  (i.e. if it is outside the possible
-                                  range of cell numbers).
+        :raises IndexError: if the cell number is not valid
+                            (i.e. if it is outside the possible
+                            range of cell numbers).
         """
         if not stats.validCellNum(cellNum, self.gridLimit, self.gridSpace):
             self.logger.critical("Invalid input on cellNum: cell number %i is out of range"%cellNum)
-            raise InvalidArguments, 'Invalid input on cellNum: cell number is out of range'
+            raise IndexError, 'Invalid input on cellNum: cell number is out of range'
         lon = self.lonLat[:,0]
         lat = self.lonLat[:,1]
         cellLon, cellLat = stats.getCellLonLat(cellNum, self.gridLimit,

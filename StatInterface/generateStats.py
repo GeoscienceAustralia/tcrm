@@ -29,17 +29,17 @@ from PlotInterface.curves import RangeCurve, saveFigure
 def acf(p, nlags=1):
     """
     Autocorrelation coefficient
-    
+
     :param p: array of values to calculate autocorrelation coefficient
     :type p: 1-d :class:`numpy.ndarray`
-    
+
     """
     ar = np.correlate(p, p, 'full')
     n = len(p)
     # Grab only the lag-one autocorrelation coeff.
     ar = ar[n-1:(n+nlags)]/ar.max()
     return ar
-    
+
 
 class parameters(object):
     """
@@ -69,7 +69,7 @@ class parameters(object):
 
 class GenerateStats:
     """
-    Generate the main statistical distributions across the grid domain. 
+    Generate the main statistical distributions across the grid domain.
 
     :type  parameter: :class:`numpy.ndarray` or str
     :param parameter: contains the data on which the statistical
@@ -86,7 +86,7 @@ class GenerateStats:
                            :class:`dict` should contain the keys
                            :attr:`xMin`, :attr:`xMax`, :attr:`yMin`
                            and :attr:`yMax`. The *x* variable bounds
-                           the longitude and the *y* variable 
+                           the longitude and the *y* variable
                            bounds the latitude.
     :param dict gridSpace: The default grid cell size. The :class:`dict`
                            should contain keys of :attr:`x` and
@@ -115,10 +115,10 @@ class GenerateStats:
                  gridSpace, gridInc, minSample=100, angular=False,
                  missingValue=sys.maxint, progressbar=None,
                  prgStartValue=0, prgEndValue=1, calculateLater=False):
-        
+
         self.logger = logging.getLogger()
         self.logger.debug('Initialising GenerateStats')
-        
+
         self.gridLimit = gridLimit
         self.gridSpace = gridSpace
         self.gridInc = gridInc
@@ -150,7 +150,7 @@ class GenerateStats:
         """
         Cycle through the cells and calculate the statistics
         for the variable.
-        
+
         """
         progressbar = self.progressbar
         prgStartValue = self.prgStartValue
@@ -168,7 +168,7 @@ class GenerateStats:
         if progressbar is not None:
             progressbar.update(1.0, prgStartValue, prgEndValue)
         self.logger.debug('Finished calculating statistics')
-        
+
     def plotStatistics(self, output_file):
 
         p = stats.statRemoveNum(np.array(self.param), self.missingValue)
@@ -208,7 +208,7 @@ class GenerateStats:
         maalpha = np.mean(aalpha, axis=1)
         uaalpha = percentile(aalpha, per=95, axis=1)
         laalpha = percentile(aalpha, per=5, axis=1)
-        
+
         fig = RangeCurve()
         fig.add(bins[:-1], mhist, uhist, lhist, "Values", "Probability", "")
         fig.add(abins[:-1], mahist, uahist, lahist, "Anomalies", "Probability", "")
@@ -217,7 +217,7 @@ class GenerateStats:
         fig.plot()
 
         saveFigure(fig, output_file + '.png')
-        
+
     def calculate(self, cellNum, onLand):
         """
         Calculate the required statistics (mean, variance,
@@ -265,15 +265,15 @@ class GenerateStats:
 
         :param int cellNum: The cell number to process.
         :returns: None. The :attr:`parameter` attribute is updated.
-        :raises InvalidArguments: if the cell number is not valid
-                                  (i.e. if it is outside the possible
-                                  range of cell numbers).
-        
+        :raises IndexError: if the cell number is not valid
+                            (i.e. if it is outside the possible
+                            range of cell numbers).
+
         """
 
         if not stats.validCellNum(cellNum, self.gridLimit, self.gridSpace):
             self.logger.critical("Invalid input on cellNum: cell number %i is out of range"%cellNum)
-            raise InvalidArguments, 'Invalid input on cellNum: cell number %i is out of range'%cellNum
+            raise IndexError, 'Invalid input on cellNum: cell number %i is out of range'%cellNum
         cellLon, cellLat = stats.getCellLonLat(cellNum, self.gridLimit,
                                                self.gridSpace)
         wLon = cellLon
@@ -396,7 +396,7 @@ class GenerateStats:
                              the statistics.
 
         """
-        
+
         self.logger.debug('Loading statistics from %s' % filename)
         from netCDF4 import Dataset
         ncdf = Dataset(filename, 'r')
@@ -412,7 +412,7 @@ class GenerateStats:
         :param str description: Name of the parameter.
 
         """
-        
+
         description = ' ' + description.strip()
         self.logger.debug('Saving' + description + ' statistics to %s' % filename)
 
@@ -485,6 +485,6 @@ class GenerateStats:
 
         nctools.ncSaveGrid(filename, dimensions, variables,
                            nodata=self.missingValue,
-                           datatitle=None, writedata=True, 
+                           datatitle=None, writedata=True,
                            keepfileopen=False)
 

@@ -45,7 +45,7 @@ def cdf(x, y):
     """
     Cumulative Density Function extracted from cdf_lin.m
 
-    
+
     """
 
     h = abs(x[1] - x[0])
@@ -225,7 +225,7 @@ def statCellFraction(gridLimit, gridSpace, valueFile):
     :param dict gridLimit: Dictionary of bounds of the grid.
     :param dict gridSpace: Resolution of the grid to calculate values.
     :param str valueFile: Path to the ascii grid file containing values to sample.
-                           
+
     :returns: :class:`numpy.ndarray` of fractional values, with length equal to the number
               of cells
 

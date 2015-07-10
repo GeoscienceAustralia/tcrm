@@ -34,7 +34,7 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
     """
     def setUp(self):
         self.ncfile = pjoin(unittest_dir, 'test_data', 'pres_temp_4D.nc')
-        
+
         self.nrecs = 2; self.nlevs = 2; self.nlats = 6; self.nlons = 12
         self.lats_out = -25.0 + 5.0*np.arange(self.nlats, dtype='float')
         self.lons_out = 125.0 + 5.0*np.arange(self.nlons, dtype='float')
@@ -60,7 +60,7 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
         temp_out.shape = (self.nrecs, self.nlevs,
                           self.nlats, self.nlons)
 
-        
+
         self.dimensions = {
             0: {
                 'name': 'time',
@@ -87,7 +87,7 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
                 'atts': self.lon_atts
                 }
             }
-        
+
         self.variables = {
             0: {
                 'name': 'pressure',
@@ -182,7 +182,7 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
                     }
                 }
             }
-            
+
         self.nullvalue_var = {
             0: {
                 'name': 'pressure',
@@ -216,11 +216,11 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
                                 clobber=True)
         # output data.
         press_out = 900. + np.arange(self.nlevs * self.nlats * \
-                                     self.nlons, dtype='f') 
-        press_out.shape = (self.nlevs, self.nlats, self.nlons) 
+                                     self.nlons, dtype='f')
+        press_out.shape = (self.nlevs, self.nlats, self.nlons)
         temp_out = 9. + np.arange(self.nlevs * self.nlats * \
-                                  self.nlons, dtype='f') 
-        temp_out.shape = (self.nlevs, self.nlats, self.nlons) 
+                                  self.nlons, dtype='f')
+        temp_out.shape = (self.nlevs, self.nlats, self.nlons)
         # create the lat and lon dimensions.
         nctools.ncCreateDim(ncobj, 'lat', self.lats_out, 'f', self.lat_atts)
         nctools.ncCreateDim(ncobj, 'lon', self.lons_out, 'f', self.lon_atts)
@@ -230,15 +230,15 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
         nctools.ncCreateDim(ncobj, 'time', np.arange(self.nrecs), 'f',
                             self.time_atts)
         dimensions = ('time', 'level', 'lat', 'lon')
-        
+
         press = nctools.ncCreateVar(ncobj, 'pressure',
                                     dimensions, 'float64')
         temp = nctools.ncCreateVar(ncobj, 'temperature',
                                    dimensions, 'float64')
-        
+
         press.units =  'hPa'
         temp.units = 'celsius'
-        
+
         for nrec in range(self.nrecs):
             press[nrec,:,::] = press_out
             temp[nrec,:,::] = temp_out
@@ -262,14 +262,14 @@ class TestNetCDF(NumpyTestCase.NumpyTestCase):
 
     def test_ncSaveGridOpenFile(self):
         """Test ncSaveGrid returns netCDF4.Dataset if keepfileopen=True"""
-        ncobj = nctools.ncSaveGrid(self.ncfile, 
+        ncobj = nctools.ncSaveGrid(self.ncfile,
                                    self.dimensions,
                                    self.variables,
                                    keepfileopen=True)
-        
+
         self.assertEqual(type(ncobj), Dataset)
         ncobj.close()
-        
+
     def test_ncSaveGridNullValue(self):
         """Test ncSaveGrid can save a variable with no values"""
         nctools.ncSaveGrid(self.ncfile,
@@ -281,7 +281,7 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
         self.ncfile = pjoin(unittest_dir, 'test_data', 'pres_temp_4D.nc')
-        
+
         self.nrecs = 2; self.nlevs = 2; self.nlats = 6; self.nlons = 12
         self.lats_out = -25.0 + 5.0*np.arange(self.nlats, dtype='float')
         self.lons_out = 125.0 + 5.0*np.arange(self.nlons, dtype='float')
@@ -298,16 +298,16 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
 
         press_out = 900. + np.arange(self.nrecs * self.nlevs * \
                                      self.nlats * self.nlons,
-                                     dtype='f') 
+                                     dtype='f')
         press_out.shape = (self.nrecs, self.nlevs,
-                           self.nlats, self.nlons) 
+                           self.nlats, self.nlons)
         temp_out = 9. + np.arange(self.nrecs * self.nlevs * \
                                   self.nlats * self.nlons,
                                   dtype='f')
         temp_out.shape = (self.nrecs, self.nlevs,
-                          self.nlats, self.nlons) 
+                          self.nlats, self.nlons)
 
-        
+
         self.dimensions = {
             0: {
                 'name': 'time',
@@ -334,7 +334,7 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
                 'atts': self.lon_atts
                 }
             }
-        
+
         self.variables = {
             0: {
                 'name': 'pressure',
@@ -357,16 +357,16 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
                     }
                 }
             }
-        
+
         ncobj = netCDF4.Dataset(self.ncfile, 'w', format='NETCDF4',
                                 clobber=True)
         # output data.
         press_out = 900. + np.arange(self.nlevs * self.nlats * \
-                                     self.nlons, dtype='f') 
-        press_out.shape = (self.nlevs, self.nlats, self.nlons) 
+                                     self.nlons, dtype='f')
+        press_out.shape = (self.nlevs, self.nlats, self.nlons)
         temp_out = 9. + np.arange(self.nlevs * self.nlats * \
-                                  self.nlons, dtype='f') 
-        temp_out.shape = (self.nlevs, self.nlats, self.nlons) 
+                                  self.nlons, dtype='f')
+        temp_out.shape = (self.nlevs, self.nlats, self.nlons)
         # create the lat and lon dimensions.
         nctools.ncCreateDim(ncobj, 'lat', self.lats_out, 'f',
                             self.lat_atts)
@@ -378,29 +378,29 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
         nctools.ncCreateDim(ncobj, 'time', np.arange(self.nrecs), 'f',
                             self.time_atts)
         dimensions = ('time', 'level', 'lat', 'lon')
-        
+
         press = nctools.ncCreateVar(ncobj, 'pressure', dimensions, 'float64')
         temp = nctools.ncCreateVar(ncobj, 'temperature', dimensions, 'float64')
-        
+
         press.units =  'hPa'
         temp.units = 'celsius'
-        
+
         for nrec in range(self.nrecs):
             press[nrec,:,::] = press_out
             temp[nrec,:,::] = temp_out
         ncobj.close()
-        
+
     def test_ncReadFile(self):
         """Test nctools functions for reading dimensions and variables"""
         ncobj = nctools.ncLoadFile(self.ncfile)
         lats_check = -25.0 + 5.0*np.arange(self.nlats, dtype='float')
         lons_check = 125.0 + 5.0*np.arange(self.nlons, dtype='float')
         press_check = 900. + np.arange(self.nlevs * self.nlats * \
-                                       self.nlons, dtype='float64') 
-        press_check.shape = (self.nlevs, self.nlats, self.nlons) 
+                                       self.nlons, dtype='float64')
+        press_check.shape = (self.nlevs, self.nlats, self.nlons)
         temp_check = 9. + np.arange(self.nlevs * self.nlats * \
-                                    self.nlons, dtype='float64') 
-        temp_check.shape = (self.nlevs, self.nlats, self.nlons) 
+                                    self.nlons, dtype='float64')
+        temp_check.shape = (self.nlevs, self.nlats, self.nlons)
         lats = nctools.ncGetDims(ncobj, 'lat')
         lons = nctools.ncGetDims(ncobj, 'lon')
         self.numpyAssertAlmostEqual(lats_check, lats)
@@ -431,6 +431,6 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
 
     def tearDown(self):
         os.unlink(self.ncfile)
-        
+
 if __name__ == "__main__":
     unittest.main()

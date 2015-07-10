@@ -76,7 +76,7 @@ _ellipsoid = [
 def LLtoUTM(Lat, Long, ReferenceEllipsoid=23, ZoneNumber=None):
     """
     Converts lat/long to UTM coords.  Equations from USGS Bulletin 1532
-    
+
     Lat and Long are in decimal degrees
     Written by Chuck Gantz- chuck.gantz@globalstar.com
 

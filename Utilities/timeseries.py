@@ -4,8 +4,8 @@
 
 Extract station timeseries from each timestep of a simulation.
 This samples the regional wind speed, not the site-specific wind speed.
-To include site-specific effects, you will first need to include the 
-multiplier values for each site in the station file, then run 
+To include site-specific effects, you will first need to include the
+multiplier values for each site in the station file, then run
 tsmultipliers.py to apply said multipliers to the output.
 
 """
@@ -32,15 +32,15 @@ OUTPUT_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
                 'Speed', 'UU', 'VV', 'Bearing',
                 'Pressure')
 OUTPUT_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
-OUTPUT_FMT = ['%s', '%s', '%9.5f', '%9.5f', 
-              '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
+OUTPUT_FMT = ['%s', '%s', '%9.5f', '%9.5f',
+              '%6.2f', '%6.2f', '%6.2f', '%6.2f',
               '%7.2f']
 
 MINMAX_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
                 'Speed', 'UU', 'VV', 'Bearing', 'Pressure')
 MINMAX_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
-MINMAX_FMT = ['%s', '%s', '%9.5f', '%9.5f', 
-              '%6.2f', '%6.2f', '%6.2f', '%6.2f', 
+MINMAX_FMT = ['%s', '%s', '%9.5f', '%9.5f',
+              '%6.2f', '%6.2f', '%6.2f', '%6.2f',
               '%7.2f']
 
 CONFIG_DEFAULTS = """
@@ -50,7 +50,7 @@ StationID=None
 
 class Station(object):
     def __init__(self, stationid, longitude, latitude):
-        
+
         self.id = stationid
         self.lon = longitude
         self.lat = latitude
@@ -67,7 +67,7 @@ class Station(object):
         if key.startswith('__') and key.endswith('__'):
             return super(Station, self).__getattr__(key)
         return self.data.data[key]
-        
+
     def insideGrid(self, gridx, gridy):
         """
         Determine if a point is within the defined grid
@@ -96,7 +96,7 @@ class Timeseries(object):
         """
         Read configuration settings, load station data and set up
         output recarrays.
-        
+
         :param str configFile: path to a configuration file.
         """
 
@@ -105,13 +105,13 @@ class Timeseries(object):
 
         self.meta = False
 
-        stnFile = config.get('Timeseries', 'StationFile')
-        self.outputPath = pjoin(config.get('Output', 'Path'), 
+        stnFile = config.get('Input', 'LocationFile')
+        self.outputPath = pjoin(config.get('Output', 'Path'),
                                     'process', 'timeseries')
 
-        self.maxfile = pjoin(config.get('Output', 'Path'), 
+        self.maxfile = pjoin(config.get('Output', 'Path'),
                                     'process', 'maxima.csv')
-        self.minfile = pjoin(config.get('Output', 'Path'), 
+        self.minfile = pjoin(config.get('Output', 'Path'),
                                     'process', 'minima.csv')
 
 
@@ -123,17 +123,17 @@ class Timeseries(object):
                 key_name = config.get('Timeseries', 'StationID')
             except NoOptionError:
                 key_name = None
-                
+
             vertices = shpGetVertices(stnFile, key_name=key_name)
 
             for stn in vertices.keys():
-                self.stations.append(Station(stn, vertices[stn][0][0], 
+                self.stations.append(Station(stn, vertices[stn][0][0],
                                                   vertices[stn][0][1]))
 
-        
+
         else:
             stndata = flLoadFile(stnFile, delimiter=',')
-            # If there are more than 3 columns, save the additional 
+            # If there are more than 3 columns, save the additional
             # columns as 'metadata'
             if stndata.shape[1] > 3:
                 self.metadata = stndata[:, 3:]
@@ -143,16 +143,16 @@ class Timeseries(object):
             stnlat = stndata[:, 2].astype(float)
             for sid, lon, lat in zip(stnid, stnlon, stnlat):
                 self.stations.append(Station(sid, lon, lat))
-        
+
     def sample(self, lon, lat, spd, uu, vv, prs, gridx, gridy):
         """
         Extract values from 2-dimensional grids at the given lat/lon.
-        
+
         :param float lon: Longitude of the point to extract.
         :param float lat: Latitude of the point to extract.
         :param spd: :class:`numpy.ndarray` of speed values.
         :param uu: :class:`numpy.ndarray` of eastward wind speed values.
-        :param vv: :class:`numpy.ndarray` of northward wind speed values.    
+        :param vv: :class:`numpy.ndarray` of northward wind speed values.
         :param prs: :class:`numpy.ndarray` of pressure values.
         :param gridx: :class:`numpy.ndarray` of grid longitudes.
         :param gridy: :class:`numpy.ndarray` of grid latitudes.
@@ -168,24 +168,24 @@ class Timeseries(object):
         vy = vv[yy, xx]
         bb = np.mod((180. / np.pi) * np.arctan2(-ux, -vy), 360.)
         pp = prs[yy, xx]
-        
+
         return (ss, ux, vy, bb, pp)
-        
+
 
     def extract(self, dt, spd, uu, vv, prs, gridx, gridy):
         """
         Extract data from the grid at the given locations.
         Data is stored in a dictionary, with keys as the station id's.
-        
+
         :param float tstep: time step being evaluated, as a float (output
                             from matplotlib.num2date)
         :param spd: :class:`numpy.ndarray` of speed values.
         :param uu: :class:`numpy.ndarray` of eastward wind speed values.
-        :param vv: :class:`numpy.ndarray` of northward wind speed values.    
+        :param vv: :class:`numpy.ndarray` of northward wind speed values.
         :param prs: :class:`numpy.ndarray` of pressure values.
         :param gridx: :class:`numpy.ndarray` of grid longitudes.
         :param gridy: :class:`numpy.ndarray` of grid latitudes.
-        
+
         """
 
         for stn in self.stations:
@@ -196,9 +196,9 @@ class Timeseries(object):
                 stn.data.append((str(stn.id), dt, stn.lon, stn.lat, ss, ux, vy, bb, pp))
 
             else:
-                stn.data.append((str(stn.id), dt, stn.lon, stn.lat, 0.0, 0.0,  
+                stn.data.append((str(stn.id), dt, stn.lon, stn.lat, 0.0, 0.0,
                                           0.0, 0.0, prs[0, 0]))
-                    
+
 
     def shutdown(self):
         """
@@ -208,7 +208,7 @@ class Timeseries(object):
         header = 'Station,Time,Longitude,Latitude,Speed,UU,VV,Bearing,Pressure'
         maxheader = ('Station,Time,Longitude,Latitude,Speed,'
                         'UU,VV,Bearing,Pressure')
-        
+
         max_data = DynamicRecArray(dtype={'names': MINMAX_NAMES,
                                           'formats':MINMAX_TYPES})
 
@@ -216,7 +216,7 @@ class Timeseries(object):
                                           'formats':MINMAX_TYPES})
 
         for stn in self.stations:
-            
+
             if np.any(stn.data.data['Speed'] > 0.0):
                 fname = pjoin(self.outputPath, 'ts.%s.csv' % str(stn.id))
                 np.savetxt(fname, np.array(stn.data.data), fmt=OUTPUT_FMT,
@@ -225,8 +225,8 @@ class Timeseries(object):
                 min_step = np.argmin(stn.data.data['Pressure'])
                 max_data.append(tuple(stn.data.data[max_step]))
                 min_data.append(tuple(stn.data.data[min_step]))
-                
-        
+
+
         np.savetxt(self.maxfile, max_data.data, fmt=MINMAX_FMT, delimiter=',',
                     header=maxheader, comments='')
         np.savetxt(self.minfile, min_data.data, fmt=MINMAX_FMT, delimiter=',',
@@ -239,8 +239,8 @@ class Timeseries(object):
                 self.maxdata[stn.id][0] = str(int(stn.id))
                 self.mindata[stn.id][0] = str(int(stn.id))
                 maxdata.append(self.maxdata[stn.id])
-                mindata.append(self.mindata[stn.id]) 
-        
+                mindata.append(self.mindata[stn.id])
+
         for stn in self.stnid:
             if type(self.maxdata[stn][3]) == datetime.datetime:
                 self.maxdata[stn][3] = self.maxdata[stn][3].strftime(ISO_FORMAT)
@@ -252,14 +252,14 @@ class Timeseries(object):
             else:
                 pass
 
-        np.savetxt(maxfname, np.array(maxdata), fmt='%s', 
+        np.savetxt(maxfname, np.array(maxdata), fmt='%s',
                    header=maxheader, delimiter=',')
                      #['%s','%7.3f','%7.3f','%s','%6.2f','%6.2f',
                      #  '%6.2f','%6.2f','%7.2f'] )
         minfname = pjoin(self.outputPath, 'minpressure.csv')
 
-        np.savetxt(minfname, np.array(mindata), fmt='%s', 
-                   header=maxheader, delimiter=',')             
+        np.savetxt(minfname, np.array(mindata), fmt='%s',
+                   header=maxheader, delimiter=',')
                    #['%s','%7.3f','%7.3f','%s','%6.2f','%6.2f',
                    #  '%6.2f','%6.2f','%7.2f'] )
         """

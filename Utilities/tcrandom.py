@@ -24,10 +24,10 @@ class Random(random.Random):
     allow sampling from additional distributions.
 
     """
-    
+
     def __init__(self, value=None):
         random.Random.__init__(self, value)
-    
+
     def logisticvariate(self, mu, sigma):
         """
         Random variate from the logistic distribution.
@@ -36,7 +36,7 @@ class Random(random.Random):
         :param float sigma: Scale parameter (|sigma| > 0).
 
         :returns: A random variate from the logistic distribution.
-        
+
         """
 
         u1 = self.random()
@@ -50,7 +50,7 @@ class Random(random.Random):
         :param float gamma: Scale parameter (|gamma| > 0)
 
         :returns: A random variate from the Cauchy distribution.
-        
+
         """
         u1 = self.random()
         return x0 + gamma * math.tan(math.pi * (u1 - 0.5))

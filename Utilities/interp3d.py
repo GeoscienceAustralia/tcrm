@@ -15,7 +15,7 @@ data in three dimensions.
 import numpy as np
 from scipy.ndimage.interpolation import map_coordinates
 
-def interp3d(input_array, coords, 
+def interp3d(input_array, coords,
              scale=[360., 180., 365.],
              offset=[0.,-90.,0.],
              prefilter=True):
@@ -58,7 +58,7 @@ def interp3d(input_array, coords,
         raise ValueError('Coordinates of points must be 3-d')
 
     dims = input_array.shape
-    indices = [d*(c - o) / s for d,c,o,s in 
+    indices = [d*(c - o) / s for d,c,o,s in
                zip(dims, coords, offset, scale)]
 
     values = map_coordinates(input_array, indices, mode='wrap',
@@ -68,13 +68,13 @@ def interp3d(input_array, coords,
 
 def _interp(data, coords, scale=[360., 180.], offset=[0., -90.]):
     """
-    Wrapper to scipy.ndimage.interpolation.map_coordinates, which converts 
-    coordinates of points to indices that correspond to the array. 
-    We assume that one is working with lon, latdata (i.e. initially 
+    Wrapper to scipy.ndimage.interpolation.map_coordinates, which converts
+    coordinates of points to indices that correspond to the array.
+    We assume that one is working with lon, latdata (i.e. initially
     designed to work with daily long term mean sea level pressure)
 
     Input:
-    input_array - a 2-d array of data at regular intervals, representing the 
+    input_array - a 2-d array of data at regular intervals, representing the
                   data to be evaluated
     coords - a 2xn array of coordinates at which the data in input_array
              will be interpolated
@@ -84,7 +84,7 @@ def _interp(data, coords, scale=[360., 180.], offset=[0., -90.]):
              before adjusting the scale (above)
 
     Output:
-    1-d array of values corresponding to the interpolated values 
+    1-d array of values corresponding to the interpolated values
     at the points given in 'coords'
 
     Example: vals = interp2d( data, coords, scale=[360., 180.],
@@ -93,12 +93,12 @@ def _interp(data, coords, scale=[360., 180.], offset=[0., -90.]):
 
     if data.ndim != np.asarray(coords).ndim:
         raise ValueError('Input array and coordinates do not have matching dimensions')
-    
+
     dims = np.array(data.shape)
-    
-    indices = [d*(c - o) / s for d, c, o, s in 
+
+    indices = [d*(c - o) / s for d, c, o, s in
                 zip(dims, coords, offset, scale)]
 
     values = map_coordinates(data, indices, mode='wrap')
-    
-    return values    
+
+    return values

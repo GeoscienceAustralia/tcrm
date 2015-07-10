@@ -28,7 +28,7 @@ roughness.
        :class:`windmodels.KepertWindFieldModel`. Users should
        carefully select the combinations of wind profiles and wind
        fields to ensure sensible results.
- 
+
 """
 
 import numpy as np
@@ -101,12 +101,12 @@ class HollandWindSpeed(WindSpeedModel):
 
     """
     .. |beta|   unicode:: U+003B2 .. GREEK SMALL LETTER BETA
-    
+
     Holland (1980), An Analytic Model of the Wind and Pressure Profiles
     in Hurricanes. Mon. Wea. Rev, 108, 1212-1218 Density of air is
     assumed to be 1.15 kg/m^3.  |beta| is assumed to be 1.3. Other values
     can be specified.  Gradient level wind (assumed maximum).
-    
+
     """
 
     def maximum(self):
@@ -205,7 +205,7 @@ class WindProfileModel(object):
 
         :returns: Array of gradient level (relative) vorticity.
         :rtype: :class:`numpy.ndarray`
-        
+
         """
         raise NotImplementedError
 
@@ -327,7 +327,7 @@ class HollandWindProfile(WindProfileModel):
 
         :returns: Array of gradient level wind speed.
         :rtype: :class:`numpy.ndarray`
-        
+
         """
 
         d2Vm = self.secondDerivative()
@@ -357,9 +357,9 @@ class HollandWindProfile(WindProfileModel):
 
         :returns: Array of gradient level (relative) vorticity.
         :rtype: :class:`numpy.ndarray`
-        
+
         """
-         
+
         beta = self.beta
         delta = (self.rMax / R) ** beta
         edelta = np.exp(-delta)
@@ -446,16 +446,16 @@ class RankineWindProfile(WindProfileModel):
 
         This includes an assumption about the shape of the profile
         outside Rmax. The literature indicates 0.4 < alpha < 0.6
-        (e.g. see Holland, 1980). 
+        (e.g. see Holland, 1980).
 
         :param R: :class:`numpy.ndarray` of distance of grid from
                   the TC centre.
 
         :returns: Array of gradient level wind speed.
         :rtype: :class:`numpy.ndarray`
-        
+
         """
-       
+
         V = self.vMax * (self.rMax / R) ** self.alpha
         icore = np.where(R <= self.rMax)
         V[icore] = self.vMax * (R[icore] / self.rMax)
@@ -472,7 +472,7 @@ class RankineWindProfile(WindProfileModel):
 
         :returns: Array of gradient level (relative) vorticity.
         :rtype: :class:`numpy.ndarray`
-        
+
         """
 
         Z = (self.vMax * ((self.rMax / R) **
@@ -511,7 +511,7 @@ class DoubleHollandWindProfile(WindProfileModel):
 
     """
     .. |beta|   unicode:: U+003B2 .. GREEK SMALL LETTER BETA
-    
+
     McConochie *et al*'s double Holland vortex model (based on Cardone *et
     al*, 1994).  This application is the Coral Sea adaptation of the
     double vortex model (it can also be used for concentric eye-wall
@@ -525,7 +525,7 @@ class DoubleHollandWindProfile(WindProfileModel):
     :param float beta1: |beta| parameter for the primary vortex.
     :param float beta2: |beta| parameter for the secondary vortex.
     :param float rmax2: Optional. Radius to the secondary wind
-                        maximum (default=250 km). 
+                        maximum (default=250 km).
     :param windSpeedModel: A maximum wind speed model to apply.
     :type  windSpeedModel: :class:`windmodels.WindSpeedModel` instance.
 
@@ -619,7 +619,7 @@ class DoubleHollandWindProfile(WindProfileModel):
 
         :returns: Array of gradient level wind speed.
         :rtype: :class:`numpy.ndarray`
-        
+
         """
         rMax = self.rMax
         rMax2 = self.rMax2
@@ -673,7 +673,7 @@ class DoubleHollandWindProfile(WindProfileModel):
 
         :returns: Array of gradient level (relative) vorticity.
         :rtype: :class:`numpy.ndarray`
-        
+
         """
         # Scale dp2 if dP is less than 1500 Pa:
         if self.dP < 1500.:
@@ -766,7 +766,7 @@ class NewHollandWindProfile(WindProfileModel):
     :param float cP: centrral pressure of the TC (hPa).
     :param float rMax: Radius to maximum wind (km).
     :param float rGale: Radius of gale force winds (default=150 km).
-    
+
     """
 
     def __init__(self, lat, lon, eP, cP, rMax, rGale=150.):
@@ -778,7 +778,7 @@ class NewHollandWindProfile(WindProfileModel):
         In this incarnation, we are assuming the pressure rate of
         change and forward velocity is zero, so there is no
         requirement for a first-pass guess at `x`.
-        
+
         Calculate velocity as a function of radial distance.
         Represents the velocity of teh gradient level vortex.
 
@@ -787,9 +787,9 @@ class NewHollandWindProfile(WindProfileModel):
 
         :returns: Array of gradient level wind speed.
         :rtype: :class:`numpy.ndarray`
-        
+
         """
-        
+
         Bs = (-0.000044 * (self.dP / 100.) ** 2. + 0.01 * (self.dP /
               100.) - 0.014 * np.abs(self.lat) + 1.0)
 
@@ -821,7 +821,7 @@ class NewHollandWindProfile(WindProfileModel):
 
         :returns: Array of gradient level (relative) vorticity.
         :rtype: :class:`numpy.ndarray`
-        
+
         """
         raise Exception
 
@@ -836,7 +836,7 @@ class WindFieldModel(object):
     (uniform) surface roughness.
 
     :param windProfileModel: A `wind.WindProfileModel` instance.
-    
+
     """
 
     def __init__(self, windProfileModel):
@@ -904,7 +904,7 @@ class HubbertWindField(WindFieldModel):
                           bearing, positive clockwise).
     :param float thetaMax: Bearing of the location of the maximum
                            wind speed, relative to the direction of
-                           motion. 
+                           motion.
     """
 
     def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
@@ -932,7 +932,7 @@ class McConochieWindField(WindFieldModel):
     McConochie, J.D., T.A. Hardy and L.B. Mason, 2004:
     Modelling tropical cyclone over-water wind and pressure fields.
     Ocean Engineering, 31, 1757-1782.
-     
+
     """
 
     def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
@@ -986,7 +986,7 @@ class KepertWindField(WindFieldModel):
     Kepert, J., 2001: The Dynamics of Boundary Layer Jets within the
     Tropical Cyclone Core. Part I: Linear Theory.  J. Atmos. Sci., 58,
     2469-2484
-    
+
     """
 
     def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
@@ -1002,19 +1002,19 @@ class KepertWindField(WindFieldModel):
         :param float thetaMax: Bearing of the location of the maximum
                                wind speed, relative to the direction of
                                motion.
-                               
+
         """
-        
+
         V = self.velocity(R)
         Z = self.vorticity(R)
         K = 50.  # Diffusivity
         Cd = 0.002  # Constant drag coefficient
-        
+
         Vt = vFm * np.ones(V.shape)
-        
+
         core = np.where(R > 4. * self.rMax)
         Vt[core] = vFm * np.exp(-((R[core] / self.rMax) - 4.) ** 2. )
-        
+
         al = ((2. * V / R ) + self.f) / (2. * K)
         be = (self.f + Z) / (2. * K)
         gam = V / (2. * K * R)
@@ -1026,7 +1026,7 @@ class KepertWindField(WindFieldModel):
         chi = (Cd / K) * V / np.sqrt(np.sqrt(al * be))
         eta = (Cd / K) * V / np.sqrt(np.sqrt(al * be) + np.abs(gam))
         psi = (Cd / K) * V / np.sqrt(np.abs(np.sqrt(al * be) - gam))
-        
+
         i = complex(0., 1.)
         A0 = (-chi * V * (1. + i * (1. + chi)) / (2. * chi ** 2. + 3.
               * chi + 2.))
@@ -1038,19 +1038,19 @@ class KepertWindField(WindFieldModel):
 
         Am = (-(psi * (1. + 2. * albe + (1. + i) * (1. + albe) * eta))
               * Vt /
-             ( albe * ((2. + 2. * i) * (1 + eta * psi) + 
+             ( albe * ((2. + 2. * i) * (1 + eta * psi) +
               3. * psi + 3. * i * eta)) )
 
         #Am[ind] = (-((1. + (1. + i) * eta[ind]) / albe[ind] +
         #           (2. + (1. + i) * eta[ind])) * psi[ind] * vFm /
         #           (2. - 2. * i + 3. * (psi[ind] + eta[ind])
         #            + (2. + 2. * i) * eta[ind] * psi[ind]))
-                    
-        AmIII = (-(psi * (1. + 2. * albe + (1. + i) * (1. + albe) * eta) 
-                * Vt) / 
-                ( albe * (2. - 2. * i + 3. * (eta + psi) + (2. + 2. * i) * 
+
+        AmIII = (-(psi * (1. + 2. * albe + (1. + i) * (1. + albe) * eta)
+                * Vt) /
+                ( albe * (2. - 2. * i + 3. * (eta + psi) + (2. + 2. * i) *
                 eta * psi)))
-                
+
         Am[ind] = AmIII[ind]
 
         # First asymmetric surface component
@@ -1062,23 +1062,23 @@ class KepertWindField(WindFieldModel):
         #      eta * vFm /
         #      ((2. + 2. * i) * (1. + eta * psi) + 3. * eta +
         #       3. * i * psi))
-               
+
         Ap = (-(eta * (1. - 2. * albe + (1. + i) * (1. - albe) * psi)) * Vt /
-                (albe * ((2. + 2. * i) * (1. + eta * psi) + 
-                3. * eta + 3. * i * psi)))               
+                (albe * ((2. + 2. * i) * (1. + eta * psi) +
+                3. * eta + 3. * i * psi)))
 
         #Ap[ind] = (-((1. + (1. - i) * psi[ind]) / albe[ind] -
         #             (2. + (1. - i) * psi[ind])) *
         #           eta[ind] * vFm /
         #           (2. + 2. * i + 3. * (eta[ind] + psi[ind]) +
         #            (2. - 2. * i) * eta[ind] * psi[ind]))
-                    
-        ApIII = (-(eta * (1. - 2. * albe + (1. - i) * (1. - albe) * psi) * Vt) / 
-                (albe * (2. + 2. * i + 3. * (eta + psi) 
+
+        ApIII = (-(eta * (1. - 2. * albe + (1. - i) * (1. - albe) * psi) * Vt) /
+                (albe * (2. + 2. * i + 3. * (eta + psi)
                 + (2. - 2. * i) * eta * psi)))
-                
+
         Ap[ind] = ApIII[ind]
-                  
+
         # Second asymmetric surface component
 
         ups = albe * (Ap * np.exp(i * lam)).real

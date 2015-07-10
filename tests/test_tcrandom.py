@@ -35,6 +35,6 @@ class TestRandom(unittest.TestCase):
         self.prng.seed(self.seed)
         result = self.prng.cauchyvariate(0, 1)
         assert_almost_equal(result, -2.22660116)
-        
+
 if __name__ == '__main__':
     unittest.main()

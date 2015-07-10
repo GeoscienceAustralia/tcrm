@@ -27,8 +27,8 @@ class IntersectionsTest(NumpyTestCase.NumpyTestCase):
 
         xverts = [100., 100., 110., 110., 100.]
         yverts = [-20., -30., -30., -20., -20.]
-        self.point1 = Intersections.Point(xverts[0],yverts[0]) 
-        self.point2 = Intersections.Point(xverts[1],yverts[1]) 
+        self.point1 = Intersections.Point(xverts[0],yverts[0])
+        self.point2 = Intersections.Point(xverts[1],yverts[1])
         self.leftPoint = Intersections.Point( 105., -25. )
         self.rightPoint = Intersections.Point( 95., -25. )
         self.circleCentre = Intersections.Point( 105., -25. )
@@ -63,25 +63,25 @@ class IntersectionsTest(NumpyTestCase.NumpyTestCase):
     def test_CircleLine(self):
         """Test Crossings.CircleLine()"""
 
-        v = self.Crossings.CircleLine(self.circleCentre, 
+        v = self.Crossings.CircleLine(self.circleCentre,
                                       self.circleRadius0,
                                       self.point1,
                                       self.point2 )
         self.assertEqual(v.status, "Outside" )
 
-        v = self.Crossings.CircleLine(self.circleCentre, 
+        v = self.Crossings.CircleLine(self.circleCentre,
                                       self.circleRadius1,
                                       self.point1,
                                       self.point2 )
         self.assertEqual(v.status, "Tangent" )
 
-        v = self.Crossings.CircleLine(self.circleCentre, 
+        v = self.Crossings.CircleLine(self.circleCentre,
                                       self.circleRadius2,
                                       self.point1,
                                       self.point2 )
         self.assertEqual(v.status, "Inside" )
-        
-        v = self.Crossings.CircleLine(self.circleCentre, 
+
+        v = self.Crossings.CircleLine(self.circleCentre,
                                       self.circleRadius3,
                                       self.point1,
                                       self.point2 )

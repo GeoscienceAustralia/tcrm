@@ -24,7 +24,7 @@ from StatInterface import KDEOrigin
 from Utilities.files import flStartLog
 
 class TestKDEOrigin(NumpyTestCase.NumpyTestCase):
-    
+
     def setUp(self):
         kdeType = 'Epanechnikov'
         gridLimit={'xMin':70, 'xMax':180, 'yMin':-36, 'yMax':0}

@@ -110,7 +110,7 @@ def convolve(im, direction, m="terrain", res=25.,height=5.):
     :type  im: :class:`numpy.ndarray`
 
     :returns: 2-d array of convolved data (convolved with the appropriate kernel)
-              The output array is the same size as the input array, with 
+              The output array is the same size as the input array, with
               boundary values set to be filled to a value of 1.0
     :rtype: :class:`numpy.ndarray`
 

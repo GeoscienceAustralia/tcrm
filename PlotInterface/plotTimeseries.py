@@ -32,10 +32,10 @@ INPUT_COLS = ('Station', 'Time', 'Longitude', 'Latitude',
               'Pressure')
 
 INPUT_FMTS = ('|S16', 'object', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
-INPUT_TITLES = ("Station", "Time", "Longitude", "Latitude", "Wind speed", 
-                "Eastward wind", "Northward wind", "Wind direction", 
+INPUT_TITLES = ("Station", "Time", "Longitude", "Latitude", "Wind speed",
+                "Eastward wind", "Northward wind", "Wind direction",
                 "Sea level pressure")
-INPUT_UNIT = ('', '%Y-%m-%d %H:%M', 'degrees', 'degrees', 'm/s', 
+INPUT_UNIT = ('', '%Y-%m-%d %H:%M', 'degrees', 'degrees', 'm/s',
                 'm/s', 'm/s','degrees', 'Pa')
 INPUT_CNVT = {
     1: lambda s: datetime.strptime(s.strip(), INPUT_UNIT[1]),
@@ -44,8 +44,8 @@ INPUT_CNVT = {
 
 def loadTimeseriesData(datafile):
     try:
-        return np.genfromtxt(datafile, dtype=INPUT_FMTS, names=INPUT_COLS, 
-                             comments='#', delimiter=',', skiprows=1, 
+        return np.genfromtxt(datafile, dtype=INPUT_FMTS, names=INPUT_COLS,
+                             comments='#', delimiter=',', skiprows=1,
                              converters=INPUT_CNVT)
     except ValueError:
         return np.empty(0, dtype={
@@ -61,9 +61,9 @@ def plotTimeseries(inputPath, outputPath, locID=None):
                            stored in.
     :param str locID: Unique identifier for a chosen location. If not
                       given, all files in the input path will be processed.
-    
+
     Example: plotTimeseries('/tcrm/output/timeseries','/tcrm/output/plots')
-    
+
     """
     if locID:
         # Only plot the data corresponding to the requested location ID:
@@ -87,7 +87,7 @@ def plotTimeseries(inputPath, outputPath, locID=None):
         fig.plot()
         fig.addTitle(title)
         saveFigure(fig, outputFile)
-        
+
     else:
         files = os.listdir(inputPath)
         inputFileList = [f for f in files if f.startswith('ts.')]
@@ -98,15 +98,15 @@ def plotTimeseries(inputPath, outputPath, locID=None):
             inputData = loadTimeseriesData(pjoin(inputPath, f))
 
 
-            stnInfo = {'ID':locID, 'lon':inputData['Longitude'][0], 
+            stnInfo = {'ID':locID, 'lon':inputData['Longitude'][0],
                         'lat':inputData['Latitude'][0]}
             title = 'Station ID: %s (%6.2f, %6.2f)' % (locID,
-                                                       inputData['Longitude'][0], 
+                                                       inputData['Longitude'][0],
                                                        inputData['Latitude'][0])
 
-            
+
             fig = TimeSeriesFigure()
-            
+
             fig.add(inputData['Time'], inputData['Pressure'],
                     [900, 1020], 'Pressure (hPa)',
                     'Sea level pressure')

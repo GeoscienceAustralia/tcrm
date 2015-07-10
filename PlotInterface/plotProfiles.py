@@ -35,7 +35,7 @@ class WindProfileFigure(Figure):
                 cls = windmodels.profile(name)
                 params = windmodels.profileParams(name)
                 values = [getattr(self, p) for p in params if hasattr(self, p)]
-                profile = cls(self.lat, self.lon, self.eP, self.cP, 
+                profile = cls(self.lat, self.lon, self.eP, self.cP,
                               self.rMax, *values)
                 V = profile.velocity(self.R)
                 ax.plot(self.R, abs(V), linewidth=2)
@@ -47,7 +47,7 @@ class WindProfileFigure(Figure):
         ax.set_xlabel('Radius (km)', fontsize=14)
         ax.set_ylabel('Wind speed (m/s)', fontsize=14)
         ax.set_title((r'$P_c = %d\hspace{0.5}hPa,\hspace{1} P_e' +
-                      r'= %d \hspace{0.5} hPa,\hspace{1} R_{max}' + 
+                      r'= %d \hspace{0.5} hPa,\hspace{1} R_{max}' +
                       r'= %d \hspace{0.5}km$') %
                       (self.cP/100., self.eP/100., self.rMax))
 
@@ -69,7 +69,7 @@ def main():
     canvas = FigureCanvas(fig)
 
     fig.plot()
-    
+
     print('saving wind profiles figure to %s' % path)
     canvas.print_figure(path)
 

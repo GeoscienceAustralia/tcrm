@@ -96,7 +96,7 @@ def doTimeseriesPlotting(configFile):
     Run functions to plot time series output.
 
     :param str configFile: Path to configuration file.
-    
+
     """
 
     config = ConfigParser()
@@ -114,7 +114,7 @@ def doWindfieldPlotting(configFile):
     Plot the wind field on a map.
 
     :param str configFile: Path to the configuration file.
-    
+
     :Note: the file name is assumed to be 'gust.interp.nc'
 
     """
@@ -136,7 +136,7 @@ def doWindfieldPlotting(configFile):
     ydata = f.variables['lat'][:]
 
     vdata = f.variables['vmax'][:]
-    
+
     gridLimit = None
     if config.has_option('Region','gridLimit'):
         gridLimit = config.geteval('Region', 'gridLimit')
@@ -158,7 +158,7 @@ def doWindfieldPlotting(configFile):
     title = "Maximum wind speed"
     cbarlabel = "Wind speed ({0})".format(f.variables['vmax'].units)
     levels = np.arange(30, 101., 5.)
-    saveWindfieldMap(vdata, xgrid, ygrid, title, levels, 
+    saveWindfieldMap(vdata, xgrid, ygrid, title, levels,
                      cbarlabel, map_kwargs, plotPath)
 
 @timer
@@ -202,7 +202,7 @@ def startup():
     """
     Parse the command line arguments and call the :func:`main`
     function.
-    
+
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config_file',

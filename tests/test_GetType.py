@@ -34,7 +34,6 @@
 """
 import os
 import sys
-import pdb
 import logging
 import unittest
 import numpy
@@ -83,10 +82,10 @@ class Test_GetType(NumpyTestCase.NumpyTestCase):
         for t,v in self.typedict.iteritems():
             retval = GetType.GetType.getType(self.Types,t)
             self.assertEqual(retval,v)
-        
+
 
 if __name__ == "__main__":
     flStartLog('','CRITICAL',False)
     testSuite = unittest.makeSuite(Test_GetType,'test')
-    
+
     unittest.TextTestRunner(verbosity=2).run(testSuite)
