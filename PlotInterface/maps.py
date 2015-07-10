@@ -92,11 +92,12 @@ def selectColormap(data_range, percent=0.1):
     x = (abs(max(data_range)) - abs(min(data_range)))/ \
         (max(data_range) - min(data_range))
     if abs(x) < percent:
-        cmap = sns.diverging_palette(210, 10, l=40, as_cmap=True)
+        palette = sns.color_palette("RdBu", 7)
+        cmap = sns.blend_palette(palette, as_cmap=True)
     else:
-        #cmap = sns.light_palette("#004C99", as_cmap=True)
-        cmap = sns.cubehelix_palette(8, start=0.5, rot=-0.75, light=0.95,
-                                     reverse=True, as_cmap=True)
+        palette = sns.color_palette("YlOrRd", 7)
+        cmap = sns.blend_palette(palette, as_cmap=True)
+
     return cmap
 
 
@@ -110,7 +111,8 @@ class MapFigure(Figure):
     def __init__(self):
         Figure.__init__(self)
         self.subfigures = []
-        self.cmap = sns.light_palette('#003366', as_cmap=True)
+        palette = sns.color_palette("YlOrRd", 7)
+        self.cmap = sns.blend_palette(palette, as_cmap=True)
 
         self.canvas = FigureCanvas
 
