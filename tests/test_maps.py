@@ -61,9 +61,10 @@ class TestSelectColorMap(unittest.TestCase):
 
     def setUp(self):
         import seaborn as sns
-
-        self.diverging_cmap = sns.diverging_palette(250, 10, as_cmap=True)
-        self.sequential_cmap = sns.light_palette("#003366", as_cmap=True)
+        div_pal = sns.color_palette("RdBu", 7)
+        seq_pal = sns.color_palette("YlOrRd", 7)
+        self.diverging_cmap = sns.blend_palette(div_pal, as_cmap=True)
+        self.sequential_cmap = sns.blend_palette(seq_pal, as_cmap=True)
 
     def test_returnsCmap(self):
         """Test select_colormap returns a cmap object"""
