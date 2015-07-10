@@ -92,10 +92,11 @@ def selectColormap(data_range, percent=0.1):
     x = (abs(max(data_range)) - abs(min(data_range)))/ \
         (max(data_range) - min(data_range))
     if abs(x) < percent:
-        cmap = sns.diverging_palette(250, 10, as_cmap=True)
+        cmap = sns.diverging_palette(210, 10, l=40, as_cmap=True)
     else:
-        cmap = sns.light_palette("#003366", as_cmap=True)
-
+        #cmap = sns.light_palette("#004C99", as_cmap=True)
+        cmap = sns.cubehelix_palette(8, start=0.5, rot=-0.75, light=0.95,
+                                     reverse=True, as_cmap=True)
     return cmap
 
 
