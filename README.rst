@@ -44,17 +44,24 @@ Dependencies
 Status
 ======
 
-.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=master
+.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=tcmip
     :target: https://travis-ci.org/GeoscienceAustralia/tcrm
     :alt: Build status
     
-.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=master
-  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=master
+.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=tcmip
+  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=tcmip
   :alt: Test coverage
 
-.. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/GeoscienceAustralia/tcrm/master
+.. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/tcmip/landscape.svg?style=flat
+   :target: https://landscape.io/github/GeoscienceAustralia/tcrm/tcmip
    :alt: Code Health
+
+Branch
+======
+
+This ``tcmip`` branch is for completing the modelling required for the Tropical Cyclone Hazard Model Intercomparison Project beng conductd by University of Queensland. There are a number of requirements of the project that imply modifications to the base code. This branch is to record those changes. 
+
+
 
 Screenshot
 ==========
@@ -64,7 +71,7 @@ Screenshot
 Contributing to TCRM
 ====================
 
-If you would like to take part in TCRM development, take a look at `docs/contributing.rst <https://giihub.com/GeoscienceAustralia/tcrm/blob/master/docs/contributing.rst>`_.
+If you would like to take part in TCRM development, take a look at `docs/contributing.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/docs/contributing.rst>`_.
 
 License information
 ===================
