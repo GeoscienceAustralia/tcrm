@@ -25,12 +25,10 @@ import os
 from os.path import join as pjoin
 import sys
 import getopt
-import itertools
 import logging as log
 
 import numpy as np
 import numpy.ma as ma
-import matplotlib as mpl
 
 from matplotlib import pyplot, cm
 from matplotlib.dates import date2num
@@ -40,23 +38,17 @@ from datetime import datetime
 
 import interpolateTracks
 from Utilities.files import flConfigFile, flStartLog
-from Utilities.config import cnfGetIniValue, ConfigParser
+from Utilities.config import ConfigParser
 from Utilities.loadData import loadTrackFile
 from Utilities.nctools import ncSaveGrid
 from Utilities.metutils import convert
 from Utilities.maputils import bearing2theta
-from Utilities.stats import between
 
 import Utilities.Intersections as Int
 import Utilities.colours as colours
 
-import pdb
-
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
-
-__version__ = "$Id: evaluate.py 803 2013-08-13 22:10:19Z carthur $"
-
 
 DEFAULTS = """
 [Input]
@@ -111,7 +103,6 @@ def ShowSyntax(exit_code=0):
     if sys.stderr.isatty() and sys.stdin.isatty():
         # Ensure that STDERR can be written to
         print "{0}: ".format(sys.argv[0])
-        print __version__
         print ""
         print "Perform an analysis of an historical event set and a series of "
         print "synthetic event sets."
@@ -135,7 +126,7 @@ def ShowSyntax(exit_code=0):
 
 
 def plotDensity(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
-                res='i', dl=10., datarange=(-1.,1.), cmap='jet_r', title=None,
+                res='i', dl=10., datarange=(-1., 1.), cmap='jet_r', title=None,
                 xlab='Longitude', ylab='Latitude', clabel=None, maskland=False,
                 maskocean=False):
     """
@@ -172,10 +163,10 @@ def plotDensity(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
     else:
         urcrnrlat = y.max()
 
-    meridians = np.arange(dl*np.floor(llcrnrlon / dl),
-                          dl*np.ceil(urcrnrlon / dl), dl)
-    parallels = np.arange(dl*np.floor(llcrnrlat / dl),
-                          dl*np.ceil(urcrnrlat / dl), dl)
+    meridians = np.arange(dl * np.floor(llcrnrlon / dl),
+                          dl * np.ceil(urcrnrlon / dl), dl)
+    parallels = np.arange(dl * np.floor(llcrnrlat / dl),
+                          dl * np.ceil(urcrnrlat / dl), dl)
 
     m = Basemap(projection='cyl',
                 resolution=res,
@@ -272,7 +263,9 @@ class Track(object):
             return super(Track, self).__getattr__(key)
         return self.data[key]
 
+
 class gridCell(object):
+
     def __init__(self, xmin, ymin, xmax, ymax, number, index):
         self.xmin = xmin
         self.ymin = ymin
@@ -280,6 +273,7 @@ class gridCell(object):
         self.ymax = ymax
         self.cell_number = number
         self.index = index
+
 
 def readTrackData(trackfile):
     """
@@ -298,15 +292,14 @@ def readTrackData(trackfile):
         return np.loadtxt(trackfile,
                           comments='%',
                           delimiter=',',
-                          dtype={
-                          'names': TRACKFILE_COLS,
-                          'formats': TRACKFILE_FMTS},
+                          dtype={'names': TRACKFILE_COLS,
+                                 'formats': TRACKFILE_FMTS},
                           converters=TRACKFILE_CNVT)
     except ValueError:
         # return an empty array with the appropriate `dtype` field names
-        return np.empty(0, dtype={
-                        'names': TRACKFILE_COLS,
-                        'formats': TRACKFILE_FMTS})
+        return np.empty(0, dtype={'names': TRACKFILE_COLS,
+                                  'formats': TRACKFILE_FMTS})
+
 
 def readMultipleTrackData(trackfile):
     """
@@ -326,6 +319,7 @@ def readMultipleTrackData(trackfile):
     else:
         datas.append(data)
     return datas
+
 
 def loadTracks(trackfile):
     """
@@ -348,6 +342,7 @@ def loadTracks(trackfile):
         tracks.append(track)
     return tracks
 
+
 def loadTracksFromPath(path):
     """
     Helper function to obtain a generator that yields :class:`Track` objects
@@ -364,6 +359,7 @@ def loadTracksFromPath(path):
     msg = 'Processing %d track files in %s' % (len(trackfiles), path)
     log.info(msg)
     return loadTracksFromFiles(sorted(trackfiles))
+
 
 def loadTracksFromFiles(trackfiles):
     """
@@ -386,7 +382,9 @@ def loadTracksFromFiles(trackfiles):
         for track in tracks:
             yield track
 
+
 class Evaluate(object):
+
     """
     Base class to define the input data, grids and output locations
     that are used by the other classes.
@@ -407,7 +405,7 @@ class Evaluate(object):
         self.synNumSimulations = kwargs.get('synNumSimulations')
         self.timeStep = 1.0
         self.percentile = kwargs.get('Percentile', 90)
-        self.lower = (100 - self.percentile)/ 2.
+        self.lower = (100 - self.percentile) / 2.
         self.upper = 100 - self.lower
 
         # We default to Australian region:
@@ -419,7 +417,6 @@ class Evaluate(object):
         self.lonRange = np.arange(self.minLon,
                                   self.maxLon + 0.1,
                                   self.gridSize)
-
 
         self.latRange = np.arange(self.minLat,
                                   self.maxLat + 0.1,
@@ -433,7 +430,6 @@ class Evaluate(object):
         self.plotPath = kwargs.get('PlotPath')
         self.dataPath = kwargs.get('DataPath')
         self.cmap = kwargs.get('ColourMap', 'hot_r')
-
 
         self.nx = len(self.lonRange) - 1
         self.ny = len(self.latRange) - 1
@@ -458,7 +454,7 @@ class Evaluate(object):
         self.ageBins = np.arange(0, 481, 12)
         self.histAgeDist = np.empty((len(self.ageBins) - 1))
         self.synAgeDist = np.empty((self.synNumSimulations,
-                                        len(self.ageBins) - 1))
+                                    len(self.ageBins) - 1))
 
         # Create dimensions for the output netcdf files:
         self.dimensions = {
@@ -478,12 +474,11 @@ class Evaluate(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Longitude',
-                    'units':'degrees_east',
+                    'units': 'degrees_east',
                     'axis': 'X'
                 }
             }
         }
-
 
         # Create global attributes for the netcdf file:
         self.gatts = {
@@ -493,17 +488,17 @@ class Evaluate(object):
             'synthetic_format': self.synFormat,
             'num_synthetic_events': self.synNumSimulations,
             'program_name': sys.argv[0],
-            'program_version': __version__
         }
 
     def calc2DHistogram(self, lon, lat):
         h, x, y = np.histogram2d(lon, lat, [self.lonRange, self.latRange],
-                                   normed=False)
+                                 normed=False)
         return h, x, y
 
     def calcHistogram(self, values, bins):
         h, n = np.histogram(values, bins, normed=False)
         return h, n
+
 
 class EvalPressureDistribution(Evaluate):
 
@@ -521,7 +516,7 @@ class EvalPressureDistribution(Evaluate):
                               ((t.Longitude >= cell.xmin) &
                                (t.Longitude < cell.xmax)))[0]
                 if len(ii) > 0:
-                    vv = t.Pressure[ii].compress(t.Pressure[ii] < sys.maxint)
+                    vv = t.Pressure[ii].compress(t.Pressure[ii] < sys.maxsize)
                     vv = vv.compress(vv > 0.0)
                     if len(vv > 0):
                         dataMean[cell.index[0], cell.index[1]] = np.mean(vv)
@@ -537,12 +532,12 @@ class EvalPressureDistribution(Evaluate):
 
     def calcMinPressure(self, tracks):
         minpressure = 1030.
-        minCP = np.zeros(index.sum())
+        minCP = np.zeros(len(tracks))
 
         for t in tracks:
             minCP[t.trackId[0]] = t.Pressure.min()
 
-        #for i in xrange(len(index) - 1):
+        # for i in xrange(len(index) - 1):
         #    if idx[i + 1] == 1:
         #        minCP[event] = minpressure
         #        event += 1
@@ -566,7 +561,9 @@ class EvalPressureDistribution(Evaluate):
                                                    interpHistFile)
 
         except (TypeError, IOError, ValueError):
-            log.critical("Cannot load historical track file: {0}".format(self.historicTrackFile))
+            log.critical(
+                "Cannot load historical track file: {0}".format(
+                    self.historicTrackFile))
             return False
         else:
             self.pHistMean, self.pHistMin, self.pHistMax, self.pHistMed = \
@@ -577,7 +574,7 @@ class EvalPressureDistribution(Evaluate):
 
     def synthetic(self):
         log.info("Processing {0} synthetic events in {1}".format(
-                    self.synNumSimulations, self.synTrackPath))
+            self.synNumSimulations, self.synTrackPath))
 
         self.synMean = np.empty(((self.synNumSimulations,) + self.hist2DShape))
         self.synMin = np.empty(((self.synNumSimulations,) + self.hist2DShape))
@@ -592,7 +589,7 @@ class EvalPressureDistribution(Evaluate):
         #synMinCP = []
         #n = 0
         #trackiter = loadTracksFromPath(self.synTrackPath)
-        #for i, track in enumerate(trackiter):
+        # for i, track in enumerate(trackiter):
         #    synMinCP.append(track.CentralPressure.min())
         #    if track.trackId[0]==track.trackId[1]:
         #        h, n = self.calcHistogram(synMinCP, self.minCpRange)
@@ -601,13 +598,14 @@ class EvalPressureDistribution(Evaluate):
         #        synMinCP = []
 
         for n in xrange(self.synNumSimulations):
-            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n))
+            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv" % (n))
             log.debug("Processing {0}".format(trackFile))
             try:
-                tracks =  loadTrackFile(self.configFile, trackFile,
-                                        self.synFormat)
+                tracks = loadTrackFile(self.configFile, trackFile,
+                                       self.synFormat)
             except (TypeError, IOError, ValueError):
-                log.critical("Cannot load synthetic track file: {0}".format(trackFile))
+                log.critical(
+                    "Cannot load synthetic track file: {0}".format(trackFile))
                 return False
             else:
                 sMean, sMin, sMax, sMed = self.processPressureData(tracks)
@@ -633,11 +631,11 @@ class EvalPressureDistribution(Evaluate):
         self.synMinUpper = percentile(msynMin, per=self.upper)
         self.synMinLower = percentile(msynMin, per=self.lower)
 
-        self.synMinCPUpper = [ percentile(self.synMinCP[:,i], per=self.upper)
-                                for i in xrange(len(self.minCpRange) - 1) ]
+        self.synMinCPUpper = [percentile(self.synMinCP[:, i], per=self.upper)
+                              for i in xrange(len(self.minCpRange) - 1)]
 
-        self.synMinCPLower = [ percentile(self.synMinCP[:,i], per=self.lower)
-                                for i in xrange(len(self.minCpRange) - 1) ]
+        self.synMinCPLower = [percentile(self.synMinCP[:, i], per=self.lower)
+                              for i in xrange(len(self.minCpRange) - 1)]
 
         self.synMinCPMean = np.mean(self.synMinCP, axis=0)
 
@@ -645,7 +643,8 @@ class EvalPressureDistribution(Evaluate):
 
     def plotPressureMaps(self):
         if not hasattr(self, 'histMinCP'):
-            log.critical("No historical minimum central pressure information calculated")
+            log.critical(
+                "No historical minimum central pressure information calculated")
             return False
         else:
             log.debug("Plotting map of mean pressures")
@@ -726,7 +725,7 @@ class EvalPressureDistribution(Evaluate):
             plotDensity(xx, yy, np.transpose(self.synMinUpper),
                         llLon=None, llLat=None, urLon=None,
                         urLat=None, res='i', dl=20., datarange=(850., 1000.),
-                        cmap='hot',title=None, xlab='Longitude',
+                        cmap='hot', title=None, xlab='Longitude',
                         ylab='Latitude', clabel=None,
                         maskland=False,
                         maskocean=False)
@@ -735,13 +734,14 @@ class EvalPressureDistribution(Evaluate):
             plotDensity(xx, yy, np.transpose(self.synMinLower),
                         llLon=None, llLat=None, urLon=None,
                         urLat=None, res='i', dl=20., datarange=(850., 1000.),
-                        cmap='hot',title=None, xlab='Longitude',
+                        cmap='hot', title=None, xlab='Longitude',
                         ylab='Latitude',
                         clabel='Minimum central pressure (hPa)',
                         maskland=False,
                         maskocean=False)
 
-            pyplot.savefig(pjoin(self.plotPath, 'synMinPressurePercentile.png'))
+            pyplot.savefig(
+                pjoin(self.plotPath, 'synMinPressurePercentile.png'))
 
             log.debug("Plotting map of median pressures")
             pyplot.figure(5)
@@ -749,7 +749,7 @@ class EvalPressureDistribution(Evaluate):
             ax1 = pyplot.subplot(211)
             plotDensity(xx, yy, np.transpose(self.pHistMed),
                         llLon=None, llLat=None, urLon=None,
-                        urLat=None, res='i', dl=20.,datarange=(950., 1000.),
+                        urLat=None, res='i', dl=20., datarange=(950., 1000.),
                         cmap='hot', title=None, xlab='Longitude',
                         ylab='Latitude', clabel=None,
                         maskland=False,
@@ -767,18 +767,18 @@ class EvalPressureDistribution(Evaluate):
 
             pyplot.savefig(pjoin(self.plotPath, 'medPressure.png'))
 
-
             return True
 
     def plotPressureDistributions(self):
 
         if not hasattr(self, 'histMinCP'):
-            log.critical("No historical minimum central pressure information calculated")
+            log.critical(
+                "No historical minimum central pressure information calculated")
             return False
         else:
             ax1 = pyplot.subplot(111)
-            ax1.plot(self.minCpRange[:-1], self.histMinCP * self.synNumYears / \
-                        self.historicNumYears, color='r', lw=2)
+            ax1.plot(self.minCpRange[:-1], self.histMinCP * self.synNumYears /
+                     self.historicNumYears, color='r', lw=2)
             ax1.plot(self.minCpRange[:-1], self.synMinCPMean, color='k', lw=2)
             ax1.fill_between(self.minCpRange[:-1], self.synMinCPUpper,
                              self.synMinCPLower, color='0.5', alpha=0.5)
@@ -795,6 +795,7 @@ class EvalPressureDistribution(Evaluate):
 
         return True
 
+
 class EvalTrackDensity(Evaluate):
 
     def historic(self):
@@ -806,8 +807,8 @@ class EvalTrackDensity(Evaluate):
                                                    self.timeStep)
 
         except (TypeError, IOError, ValueError):
-            log.critical("Cannot load historic track file: {0}".\
-                            format(self.historicTrackFile))
+            log.critical("Cannot load historic track file: {0}".
+                         format(self.historicTrackFile))
             return False
         else:
             self.hist, x, y = self.calc2DHistogram(lon, lat)
@@ -815,27 +816,25 @@ class EvalTrackDensity(Evaluate):
         return True
 
     def synthetic(self):
-        log.info("Processing {0} synthetic events in {1}".\
-                    format(self.synNumSimulations, self.synTrackPath))
+        log.info("Processing {0} synthetic events in {1}".
+                 format(self.synNumSimulations, self.synTrackPath))
 
         self.synHist = np.empty(((self.synNumSimulations,) + self.hist2DShape))
         for n in xrange(self.synNumSimulations):
-            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n))
+            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv" % (n))
             log.debug("Processing {0}".format(trackFile))
             try:
                 tracks = loadTrackFile(self.configFile, trackFile,
                                        self.synFormat)
 
             except (TypeError, IOError, ValueError):
-                log.critical("Cannot load synthetic track file: {0}".\
-                                format(trackFile))
+                log.critical("Cannot load synthetic track file: {0}".
+                             format(trackFile))
                 return False
             else:
                 self.synHist[n, :, :], x, y = self.calc2DHistogram(lon, lat)
 
-
         return True
-
 
     def synStats(self):
         """
@@ -872,7 +871,8 @@ class EvalTrackDensity(Evaluate):
         # Simple sanity check (should also include the synthetic data):
         if not hasattr(self, 'hist'):
             log.critical("No historical data available!")
-            log.critical("Check that data has been processed before trying to save data")
+            log.critical(
+                "Check that data has been processed before trying to save data")
             return
 
         log.info('Saving track density data to {0}'.format(dataFile))
@@ -886,7 +886,7 @@ class EvalTrackDensity(Evaluate):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Historical track density',
-                    'units':'observations per 1-degree grid per year'
+                    'units': 'observations per 1-degree grid per year'
                 }
             },
             1: {
@@ -896,7 +896,7 @@ class EvalTrackDensity(Evaluate):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Track density - synthetic events',
-                    'units':'observations per 1-degree grid per year'
+                    'units': 'observations per 1-degree grid per year'
                 }
             },
             2: {
@@ -907,7 +907,7 @@ class EvalTrackDensity(Evaluate):
                 'atts': {
                     'long_name': ('Track density - upper percentile '
                                   '- synthetic events'),
-                    'units':' observations per 1-degree grid per year',
+                    'units': ' observations per 1-degree grid per year',
                     'percentile': self.upper
                 }
             },
@@ -990,59 +990,59 @@ class EvalTrackDensity(Evaluate):
         pyplot.savefig(outputFile)
         return
 
+
 class EvalLongitudeCrossings(Evaluate):
 
     def __init__(self, *args, **kwargs):
 
         Evaluate.__init__(self, *args, **kwargs)
         self.lonCrossingHist = np.empty((len(self.gateLats) - 1,
-                                              len(self.gateLons)))
+                                         len(self.gateLons)))
 
         self.lonCrossingEWHist = np.empty((len(self.gateLats) - 1,
-                                                len(self.gateLons)))
+                                           len(self.gateLons)))
 
         self.lonCrossingWEHist = np.empty((len(self.gateLats) - 1,
-                                                len(self.gateLons)))
+                                           len(self.gateLons)))
 
         self.lonCrossingSyn = np.empty((self.synNumSimulations,
-                                             len(self.gateLats) - 1,
-                                             len(self.gateLons)))
+                                        len(self.gateLats) - 1,
+                                        len(self.gateLons)))
 
         self.lonCrossingSynEW = np.empty((self.synNumSimulations,
-                                               len(self.gateLats) - 1,
-                                               len(self.gateLons)))
+                                          len(self.gateLats) - 1,
+                                          len(self.gateLons)))
 
         self.lonCrossingSynWE = np.empty((self.synNumSimulations,
-                                               len(self.gateLats) - 1,
-                                               len(self.gateLons)))
+                                          len(self.gateLats) - 1,
+                                          len(self.gateLons)))
 
         self.lonCrossingSynMean = np.empty((len(self.gateLats) - 1,
-                                                 len(self.gateLons)))
+                                            len(self.gateLons)))
 
         self.lonCrossingSynEWMean = np.empty((len(self.gateLats) - 1,
-                                                   len(self.gateLons)))
+                                              len(self.gateLons)))
 
         self.lonCrossingSynWEMean = np.empty((len(self.gateLats) - 1,
-                                                   len(self.gateLons)))
+                                              len(self.gateLons)))
 
         self.lonCrossingSynUpper = np.empty((len(self.gateLats) - 1,
-                                                  len(self.gateLons)))
+                                             len(self.gateLons)))
 
         self.lonCrossingSynEWUpper = np.empty((len(self.gateLats) - 1,
-                                                    len(self.gateLons)))
+                                               len(self.gateLons)))
 
         self.lonCrossingSynWEUpper = np.empty((len(self.gateLats) - 1,
-                                                    len(self.gateLons)))
+                                               len(self.gateLons)))
 
         self.lonCrossingSynLower = np.empty((len(self.gateLats) - 1,
-                                                  len(self.gateLons)))
+                                             len(self.gateLons)))
 
         self.lonCrossingSynEWLower = np.empty((len(self.gateLats) - 1,
-                                                    len(self.gateLons)))
+                                               len(self.gateLons)))
 
         self.lonCrossingSynWELower = np.empty((len(self.gateLats) - 1,
-                                                    len(self.gateLons)))
-
+                                               len(self.gateLons)))
 
     def findCrossings(self, tracks):
         """
@@ -1085,8 +1085,10 @@ class EvalLongitudeCrossings(Evaluate):
 
             # Generate the histograms to be returned:
             h[:, n], bins = np.histogram(lats, self.gateLats, density=False)
-            ewh[:, n], bins = np.histogram(ewlats, self.gateLats, density=False)
-            weh[:, n], bins = np.histogram(welats, self.gateLats, density=False)
+            ewh[:, n], bins = np.histogram(
+                ewlats, self.gateLats, density=False)
+            weh[:, n], bins = np.histogram(
+                welats, self.gateLats, density=False)
 
         return h, ewh, weh
 
@@ -1107,29 +1109,31 @@ class EvalLongitudeCrossings(Evaluate):
     def synthetic(self):
         """Calculate synthetic rates of longitude crossing"""
 
-        log.debug("Processing {0} synthetic events in {1}".\
-                    format(self.synNumSimulations, self.synTrackPath))
+        log.debug("Processing {0} synthetic events in {1}".
+                  format(self.synNumSimulations, self.synTrackPath))
         for n in xrange(self.synNumSimulations):
-            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n))
+            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv" % (n))
             log.debug("Processing {0}".format(trackFile))
             try:
                 tracks = loadTrackFile(self.configFile, trackFile,
                                        self.synFormat)
 
             except (TypeError, IOError, ValueError):
-                log.critical("Cannot load synthetic track file: {0}".\
-                                format(trackFile))
+                log.critical("Cannot load synthetic track file: {0}".
+                             format(trackFile))
                 return False
             else:
                 self.lonCrossingSyn[n, :], self.lonCrossingSynEW[n, :], \
-                  self.lonCrossingSynWE[n, :] = self.findCrossings(i, lon, lat)
+                    self.lonCrossingSynWE[
+                        n, :] = self.findCrossings(i, lon, lat)
 
         return True
 
     def synStats(self):
         """Calculate statistics of synthetic event sets"""
 
-        log.debug("Calculating statistics for longitude crossings of synthetic events")
+        log.debug(
+            "Calculating statistics for longitude crossings of synthetic events")
         if not hasattr(self, 'lonCrossingSyn'):
             log.critical("Synthetic event sets have not been processed!")
             log.critical("Cannot calculate statistics")
@@ -1141,12 +1145,18 @@ class EvalLongitudeCrossings(Evaluate):
 
             for k in xrange(len(self.gateLats) - 1):
                 for l in xrange(len(self.gateLons)):
-                    self.lonCrossingSynUpper[k, l] = percentile(self.lonCrossingSyn[:, k, l], per=self.upper)
-                    self.lonCrossingSynEWUpper[k, l] = percentile(self.lonCrossingSynEW[:, k, l], per=self.upper)
-                    self.lonCrossingSynWEUpper[k, l] = percentile(self.lonCrossingSynWE[:, k, l], per=self.upper)
-                    self.lonCrossingSynLower[k, l] = percentile(self.lonCrossingSyn[:, k, l], per=self.lower)
-                    self.lonCrossingSynEWLower[k, l] = percentile(self.lonCrossingSynEW[:, k, l], per=self.lower)
-                    self.lonCrossingSynWELower[k, l] = percentile(self.lonCrossingSynWE[:, k, l], per=self.lower)
+                    self.lonCrossingSynUpper[k, l] = percentile(
+                        self.lonCrossingSyn[:, k, l], per=self.upper)
+                    self.lonCrossingSynEWUpper[k, l] = percentile(
+                        self.lonCrossingSynEW[:, k, l], per=self.upper)
+                    self.lonCrossingSynWEUpper[k, l] = percentile(
+                        self.lonCrossingSynWE[:, k, l], per=self.upper)
+                    self.lonCrossingSynLower[k, l] = percentile(
+                        self.lonCrossingSyn[:, k, l], per=self.lower)
+                    self.lonCrossingSynEWLower[k, l] = percentile(
+                        self.lonCrossingSynEW[:, k, l], per=self.lower)
+                    self.lonCrossingSynWELower[k, l] = percentile(
+                        self.lonCrossingSynWE[:, k, l], per=self.lower)
 
         return True
 
@@ -1162,8 +1172,8 @@ class EvalLongitudeCrossings(Evaluate):
                 'values': self.gateLats[:-1],
                 'dtype': 'f',
                 'atts': {
-                    'long_name':'Latitude',
-                    'units':'degrees_north'
+                    'long_name': 'Latitude',
+                    'units': 'degrees_north'
                 }
             },
             1: {
@@ -1171,8 +1181,8 @@ class EvalLongitudeCrossings(Evaluate):
                 'values': self.gateLons,
                 'dtype': 'f',
                 'atts': {
-                    'long_name':'Longitude',
-                    'units':'degrees_east'
+                    'long_name': 'Longitude',
+                    'units': 'degrees_east'
                 }
             }
         }
@@ -1181,11 +1191,11 @@ class EvalLongitudeCrossings(Evaluate):
             0: {
                 'name': 'hist',
                 'dims': ('lat', 'lon'),
-                'values' :self.lonCrossingHist / self.historicNumYears,
+                'values': self.lonCrossingHist / self.historicNumYears,
                 'dtype': 'f',
                 'atts': {
-                    'long_name':'Historical longitudinal crossing rate',
-                    'units':'number of crossings per year'
+                    'long_name': 'Historical longitudinal crossing rate',
+                    'units': 'number of crossings per year'
                 }
             },
             1: {
@@ -1212,7 +1222,7 @@ class EvalLongitudeCrossings(Evaluate):
             },
             3: {
                 'name': 'syn_mean',
-                'dims':('lat', 'lon'),
+                'dims': ('lat', 'lon'),
                 'values': self.lonCrossingSynMean / self.synNumYears,
                 'dtype': 'f',
                 'atts': {
@@ -1228,7 +1238,7 @@ class EvalLongitudeCrossings(Evaluate):
                 'atts': {
                     'long_name': ('Mean synthetic longitudinal crossing rate '
                                   '- east-west crossings'),
-                    'units':'number of crossings per year'
+                    'units': 'number of crossings per year'
                 }
             },
             5: {
@@ -1249,7 +1259,7 @@ class EvalLongitudeCrossings(Evaluate):
                 'dtype': 'f',
                 'atts': {
                     'long_name': ('Upper percentile synthetic longitudinal ',
-                                  'crossing rate' ),
+                                  'crossing rate'),
                     'units': 'number of crossings per year',
                     'percentile': self.upper
                 }
@@ -1284,35 +1294,35 @@ class EvalLongitudeCrossings(Evaluate):
                 'values': self.lonCrossingSynLower / self.synNumYears,
                 'dtype': 'f',
                 'atts': {
-                    'long_name':('Lower percentile synthetic longitudinal '
-                                 'crossing rate'),
-                    'units':'number of crossings per year',
-                    'percentile':self.lower
+                    'long_name': ('Lower percentile synthetic longitudinal '
+                                  'crossing rate'),
+                    'units': 'number of crossings per year',
+                    'percentile': self.lower
                 }
             },
             10: {
-                 'name': 'syn_lower_ew',
-                 'dims': ('lat', 'lon'),
-                 'values': self.lonCrossingSynEWLower / self.synNumYears,
-                 'dtype': 'f',
-                 'atts': {
-                    'long_name':('Lower percentile synthetic longitudinal '
+                'name': 'syn_lower_ew',
+                'dims': ('lat', 'lon'),
+                'values': self.lonCrossingSynEWLower / self.synNumYears,
+                'dtype': 'f',
+                'atts': {
+                    'long_name': ('Lower percentile synthetic longitudinal '
                                   'crossing rate - east-west crossings'),
-                    'units':'number of crossings per year',
-                    'percentile':self.lower
+                    'units': 'number of crossings per year',
+                    'percentile': self.lower
                 }
             },
             11: {
-                 'name': 'syn_lower_we',
-                 'dims': ('lat', 'lon'),
-                 'values': self.lonCrossingSynWELower / self.synNumYears,
-                 'dtype': 'f',
-                 'atts': {
+                'name': 'syn_lower_we',
+                'dims': ('lat', 'lon'),
+                'values': self.lonCrossingSynWELower / self.synNumYears,
+                'dtype': 'f',
+                'atts': {
                     'long_name': ('Lower percentile synthetic longitudinal '
-                                   'crossing rate - west-east crossings'),
+                                  'crossing rate - west-east crossings'),
                     'units': 'number of crossings per year',
                     'percentile': self.lower
-                 }
+                }
             }
         }
 
@@ -1326,12 +1336,12 @@ class EvalLongitudeCrossings(Evaluate):
         log.debug("Plotting longitude crossing rates")
         ax1 = pyplot.subplot(211)
         for i in range(len(self.gateLons)):
-            ax1.plot(2 * self.gateLons[i] - self.lonCrossingEWHist[:, i] * \
+            ax1.plot(2 * self.gateLons[i] - self.lonCrossingEWHist[:, i] *
                      self.synNumYears / self.historicNumYears,
                      self.gateLats[:-1], color='r', lw=2)
 
-            ax1.plot(2 * self.gateLons[i] - self.lonCrossingSynEWMean[:, i], \
-                     self.gateLats[:-1],color='k',lw=2)
+            ax1.plot(2 * self.gateLons[i] - self.lonCrossingSynEWMean[:, i],
+                     self.gateLats[:-1], color='k', lw=2)
 
             x1 = 2 * self.gateLons[i] - self.lonCrossingSynEWUpper[:, i]
             x2 = 2 * self.gateLons[i] - self.lonCrossingSynEWLower[:, i]
@@ -1351,7 +1361,7 @@ class EvalLongitudeCrossings(Evaluate):
 
         ax2 = pyplot.subplot(212)
         for i in range(len(self.gateLons)):
-            ax2.plot(2 * self.gateLons[i] + self.lonCrossingWEHist[:, i] * \
+            ax2.plot(2 * self.gateLons[i] + self.lonCrossingWEHist[:, i] *
                      self.synNumYears / self.historicNumYears,
                      self.gateLats[:-1], color='r', lw=2)
 
@@ -1372,9 +1382,10 @@ class EvalLongitudeCrossings(Evaluate):
         pyplot.ylabel('Latitude')
         pyplot.grid(True)
         ax2.tick_params(direction='out', top='off', right='off')
-        pyplot.savefig(pjoin(self.plotPath,'lon_crossing_syn.png'))
+        pyplot.savefig(pjoin(self.plotPath, 'lon_crossing_syn.png'))
 
         return
+
 
 class EvalAgeDistribution(Evaluate):
 
@@ -1388,11 +1399,11 @@ class EvalAgeDistribution(Evaluate):
         end = np.empty(len(start))
         end[:-1] = start[1:] - 1
         end[-1] = len(index) - 1
-        startDT = [datetime(int(yr[i]), int(mon[i]), int(day[i]),\
-                                int(hr[i]), int(mn[i])) for i in start ]
+        startDT = [datetime(int(yr[i]), int(mon[i]), int(day[i]),
+                            int(hr[i]), int(mn[i])) for i in start]
 
-        endDT = [datetime(int(yr[i]), int(mon[i]), int(day[i]),\
-                              int(hr[i]), int(mn[i])) for i in end ]
+        endDT = [datetime(int(yr[i]), int(mon[i]), int(day[i]),
+                          int(hr[i]), int(mn[i])) for i in end]
 
         startDN = date2num(startDT)
         endDN = date2num(endDT)
@@ -1407,19 +1418,19 @@ class EvalAgeDistribution(Evaluate):
         """Calculate historical rates of longitude crossing"""
         log.debug("Processing historical tracks for age distribution")
         [i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe] = \
-                interpolateTracks.parseTracks(self.configFile,
-                                              self.historicTrackFile,
-                                              self.historicFormat, self.timeStep)
+            interpolateTracks.parseTracks(self.configFile,
+                                          self.historicTrackFile,
+                                          self.historicFormat, self.timeStep)
 
         self.histAgeDist = self.calculateAge(i, y, m, d, h, mn)
         return True
 
     def synthetic(self):
-        log.debug("Processing {0} synthetic events in {1}".\
-                    format(self.synNumSimulations, self.synTrackPath))
+        log.debug("Processing {0} synthetic events in {1}".
+                  format(self.synNumSimulations, self.synTrackPath))
 
         for n in xrange(self.synNumSimulations):
-            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv"%(n))
+            trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv" % (n))
             log.debug("Processing {0}".format(trackFile))
             try:
                 i, y, m, d, h, mn, lon, lat, p, s, b, w, r, pe = \
@@ -1427,12 +1438,11 @@ class EvalAgeDistribution(Evaluate):
                                   trackFile,
                                   self.synFormat)
             except (TypeError, IOError, ValueError):
-                log.critical("Cannot load synthetic track file: {0}".\
-                                format(trackFile))
+                log.critical("Cannot load synthetic track file: {0}".
+                             format(trackFile))
                 return False
             else:
                 self.synAgeDist[n, :] = self.calculateAge(i, y, m, d, h, mn)
-
 
         return True
 
@@ -1442,10 +1452,10 @@ class EvalAgeDistribution(Evaluate):
             log.critical("Cannot calculate statistics")
             return False
         else:
-            self.synAgeUpper = [ percentile(self.synAgeDist[:, i], per=self.upper)
-                                    for i in xrange(len(self.ageBins) - 1) ]
-            self.synAgeLower = [ percentile(self.synAgeDist[:, i], per=self.lower)
-                                    for i in xrange(len(self.ageBins) - 1) ]
+            self.synAgeUpper = [percentile(
+                self.synAgeDist[:, i], per=self.upper) for i in xrange(len(self.ageBins) - 1)]
+            self.synAgeLower = [percentile(
+                self.synAgeDist[:, i], per=self.lower) for i in xrange(len(self.ageBins) - 1)]
             self.synAgeMean = np.mean(self.synAgeDist, axis=0)
 
             return True
@@ -1454,8 +1464,13 @@ class EvalAgeDistribution(Evaluate):
         x = np.arange(len(self.ageBins) - 1)
         pyplot.figure(1)
         ax1 = pyplot.subplot(111)
-        ax1.plot(x, self.histAgeDist * self.synNumYears / self.historicNumYears,
-                 color='r', lw=2)
+        ax1.plot(
+            x,
+            self.histAgeDist *
+            self.synNumYears /
+            self.historicNumYears,
+            color='r',
+            lw=2)
 
         ax1.plot(x, self.synAgeMean, color='k', lw=2)
         ax1.fill_between(x, self.synAgeLower, self.synAgeUpper,
@@ -1469,6 +1484,7 @@ class EvalAgeDistribution(Evaluate):
 
         pyplot.savefig(pjoin(self.plotPath, 'tcAgeDistribution.png'))
 
+
 def run(config_file):
     """Run the process"""
 
@@ -1478,23 +1494,26 @@ def run(config_file):
 
     gridLimit = config.geteval('Region', 'gridLimit')
 
-    args = dict(configFile        = config_file,
-                historicTrackFile = config.get('DataProcess', 'InputFile'),
-                historicFormat    = config.get('DataProcess', 'Source'),
-                historicNumYears  = config.getint('Input', 'HistoricNumYears'),
-                synTrackPath      = pjoin(outputPath, 'tracks'),
-                synFormat         = 'TCRM',
-                synNumSimulations = config.getint('TrackGenerator', 'NumSimulations'),
-                synNumYears       = config.getint('TrackGenerator', 'YearsPerSimulation'),
-                MinLongitude      = config.getfloat('Region', 'MinimumLongitude', 60.),
-                MaxLongitude      = config.getfloat('Region', 'MaximumLongitude', 180.),
-                MinLatitude       = config.getfloat('Region', 'MinimumLatitude', -40.),
-                MaxLatitude       = config.getfloat('Region', 'MaximumLatitude', 0.),
-                GridSize          = config.getfloat('Region', 'GridSize', 1.0),
-                PlotPath          = pjoin(outputPath, 'plots', 'stats'),
-                DataPath          = pjoin(outputPath, 'process'),
-                ColourMap         = config.get('Output', 'ColourMap', 'hot_r'))
-
+    args = dict(configFile=config_file,
+                historicTrackFile=config.get('DataProcess', 'InputFile'),
+                historicFormat=config.get('DataProcess', 'Source'),
+                historicNumYears=config.getint('Input', 'HistoricNumYears'),
+                synTrackPath=pjoin(outputPath, 'tracks'),
+                synFormat='TCRM',
+                synNumSimulations=config.getint(
+                    'TrackGenerator', 'NumSimulations'),
+                synNumYears=config.getint(
+                    'TrackGenerator', 'YearsPerSimulation'),
+                MinLongitude=config.getfloat(
+                    'Region', 'MinimumLongitude', 60.),
+                MaxLongitude=config.getfloat(
+                    'Region', 'MaximumLongitude', 180.),
+                MinLatitude=config.getfloat('Region', 'MinimumLatitude', -40.),
+                MaxLatitude=config.getfloat('Region', 'MaximumLatitude', 0.),
+                GridSize=config.getfloat('Region', 'GridSize', 1.0),
+                PlotPath=pjoin(outputPath, 'plots', 'stats'),
+                DataPath=pjoin(outputPath, 'process'),
+                ColourMap=config.get('Output', 'ColourMap', 'hot_r'))
 
     log.info("Processing track density information")
     tD = EvalTrackDensity(**args)
@@ -1513,7 +1532,6 @@ def run(config_file):
     pD.plotPressureMaps()
     pD.plotPressureDistributions()
 
-
     log.info("Processing longitude crossing information")
     lc = EvalLongitudeCrossings(**args)
     lc.historic()
@@ -1529,13 +1547,15 @@ def run(config_file):
     aD.synStats()
     aD.plotAgeDistribution()
 
+
 def process_args(argv):
     """Main process to read the config settings and process the data"""
 
     verbose = False
     gConfigFile = flConfigFile()
     try:
-        opts, args = getopt.getopt(argv, 'c:hv', ['config=', 'help', 'verbose'])
+        opts, args = getopt.getopt(
+            argv, 'c:hv', ['config=', 'help', 'verbose'])
     except getopt.GetoptError:
         ShowSyntax(2)
     except IndexError:
@@ -1548,8 +1568,8 @@ def process_args(argv):
                 gConfigFile = arg
             elif opt in ("-v", "--verbose"):
                 verbose = True
-
-
+    config = ConfigParser()
+    config.read(gConfigFile)
     log = flStartLog(config.get('Logging', 'LogFile'),
                      config.get('Logging', 'LogLevel'),
                      config.getboolean('Logging', 'Verbose'),

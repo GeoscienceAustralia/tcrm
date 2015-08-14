@@ -237,7 +237,7 @@ class HazardDatabase(sqlite3.Connection):
         cur = conn.execute(SELECTLOCATIONS, (self.domain['xMin'],
                                              self.domain['xMax'],
                                              self.domain['yMin'],
-                                             self.domain['yMax']) )
+                                             self.domain['yMax']))
 
         locations = cur.fetchall()
         conn.close()
@@ -568,7 +568,7 @@ def locationRecordsExceeding(hazard_db, locId, windSpeed):
              "INNER JOIN tblWindSpeed w ON l.locId = w.locId "
              "JOIN tblEvents e ON e.eventId = w.eventId "
              "WHERE w.wspd > ? and l.locId = ? "
-             "ORDER BY w.wspd ASC" )
+             "ORDER BY w.wspd ASC")
 
     cur = hazard_db.execute(query, (windSpeed, locId,))
     results = cur.fetchall()
