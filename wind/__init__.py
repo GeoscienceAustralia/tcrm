@@ -157,10 +157,10 @@ class WindfieldAroundTrack(object):
     :param margin:
 
     :type  resolution: float
-    :param resolution:
+    :param resolution: Grid resolution (in degrees)
 
     :type  gustFactor: float
-    :param gustFactor:
+    :param gustFactor: Conversion from 1-min mean to 0.2-sec gust wind speed.
 
     :type  gridLimit: :class:`dict`
     :param gridLimit: the domain where the tracks will be generated.
@@ -173,8 +173,8 @@ class WindfieldAroundTrack(object):
     """
 
     def __init__(self, track, profileType='powell', windFieldType='kepert',
-                 beta=1.5, beta1=1.5, beta2=1.4, thetaMax=70.0,
-                 margin=2.0, resolution=0.05, gustFactor=1.23,
+                 beta=1.3, beta1=1.5, beta2=1.4, thetaMax=70.0,
+                 margin=2.0, resolution=0.05, gustFactor=1.188,
                  gridLimit=None, domain='bounded'):
         self.track = track
         self.profileType = profileType
@@ -494,7 +494,7 @@ class WindfieldGenerator(object):
                                   margin=self.margin,
                                   resolution=self.resolution,
                                   gridLimit=self.gridLimit,
-                                  gustFactor=0.9009,
+                                  gustFactor=0.9355,
                                   domain=self.domain)
 
         return track, wt.regionalExtremes(self.gridLimit, callback)
