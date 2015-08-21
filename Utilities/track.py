@@ -280,11 +280,11 @@ def ncSaveTracks(trackfile, tracks,
         t.data['Datetime'] = date2num(t.data['Datetime'], timeunits, calendar)
         times[:] = t.data['Datetime']
         times.units = 'hours since 1900-01-01 00:00'
-        times.calendar = 'standard'
+        times.calendar = calendar
         tvar[:] = t.data.astype(track_dtype)
         tvar.long_name = "Tropical cyclone track data"
         tvar.time_units = 'hours since 1900-01-01 00:00'
-        tvar.calendar = 'standard'
+        tvar.calendar = calendar
         tvar.lon_units = 'degrees east'
         tvar.lat_units = 'degrees north'
         tvar.pressure_units = 'hPa'
