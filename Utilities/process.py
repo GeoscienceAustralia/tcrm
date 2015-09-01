@@ -14,17 +14,14 @@
 """
 
 import os
+from os.path import join as pjoin
 import logging
 
 from Utilities.files import flGetStat, flModDate
 
-global GLOBAL_DATFILE
-global GLOBAL_PROCFILES
-global GLOBAL_ARCHDIR
-global GLOBAL_TIMESTAMP
-global GLOBAL_DATEFMT
 LOGGER = logging.getLogger()
 
+GLOBAL_DATFILE = None
 GLOBAL_PROCFILES = {}
 GLOBAL_ARCHDIR = ''
 GLOBAL_DATEFMT = '%Y%m%d%H%M'
@@ -41,7 +38,6 @@ def pSetProcessedEntry(directory, filename, attribute, value):
 
     """
 
-    global GLOBAL_DATFILE
     global GLOBAL_PROCFILES
     if directory in GLOBAL_PROCFILES:
         if filename in GLOBAL_PROCFILES[directory]:
@@ -67,8 +63,6 @@ def pGetProcessedEntry(directory, filename, attribute):
 
     """
 
-    global GLOBAL_DATFILE
-    global GLOBAL_PROCFILES
     try:
         value = GLOBAL_PROCFILES[directory][filename][attribute]
         rc = value
@@ -91,7 +85,6 @@ def pGetProcessedFiles(datFileName=None):
     """
 
     global GLOBAL_DATFILE
-    global GLOBAL_PROCFILES
     rc = 0
     if datFileName:
         GLOBAL_DATFILE = datFileName
@@ -99,8 +92,7 @@ def pGetProcessedFiles(datFileName=None):
             fh = open(datFileName)
 
         except IOError:
-            LOGGER.warn("Couldn't open dat file %s",
-                        (datFileName))
+            LOGGER.warn("Couldn't open dat file %s", datFileName)
             return rc
         else:
             LOGGER.debug("Getting previously-processed files from %s",
@@ -117,8 +109,8 @@ def pGetProcessedFiles(datFileName=None):
 
     else:
         LOGGER.info("No dat file name provided - all files will be processed")
-
         return rc
+
     return rc
 
 def pWriteProcessedFile(filename):
@@ -134,14 +126,13 @@ def pWriteProcessedFile(filename):
 
     """
     global GLOBAL_DATFILE
-    global GLOBAL_PROCFILES
     rc = 0
     if GLOBAL_DATFILE:
         directory, fname, md5sum, moddate = flGetStat(filename)
         try:
             fh = open(GLOBAL_DATFILE, 'a')
         except IOError:
-            LOGGER.info("Cannot open %s"%(GLOBAL_DATFILE))
+            LOGGER.info("Cannot open %s", GLOBAL_DATFILE)
 
         else:
             pSetProcessedEntry(directory, fname, 'md5sum', md5sum)
@@ -150,7 +141,8 @@ def pWriteProcessedFile(filename):
             fh.close()
             rc = 1
     else:
-        LOGGER.warn("Dat file name not provided. Can't record %s as processed."%(filename))
+        LOGGER.warn(("Dat file name not provided. "
+                     "Can't record %s as processed."), filename)
 
     return rc
 
@@ -165,13 +157,11 @@ def pDeleteDatFile():
 
     """
 
-    global GLOBAL_DATFILE
-    global GLOBAL_PROCFILES
     rc = 0
     if os.unlink(GLOBAL_DATFILE):
         rc = 1
     else:
-        LOGGER.warn("Cannot remove dat file %s"%(GLOBAL_DATFILE))
+        LOGGER.warn("Cannot remove dat file %s", GLOBAL_DATFILE)
     return rc
 
 def pAlreadyProcessed(directory, filename, attribute, value):
@@ -190,7 +180,6 @@ def pAlreadyProcessed(directory, filename, attribute, value):
 
     """
     global GLOBAL_DATFILE
-    global GLOBAL_PROCFILES
     rc = False
     if pGetProcessedEntry(directory, filename, attribute) == value:
         rc = True
@@ -220,7 +209,7 @@ def pArchiveDir(archive_dir=None):
             try:
                 os.makedirs(GLOBAL_ARCHDIR)
             except:
-                LOGGER.exception("Cannot create %s"%(GLOBAL_ARCHDIR))
+                LOGGER.exception("Cannot create %s", GLOBAL_ARCHDIR)
                 raise OSError
 
     rc = GLOBAL_ARCHDIR
@@ -279,10 +268,10 @@ def pMoveFile(origin, destination):
     try:
         os.rename(origin, destination)
     except OSError:
-        LOGGER.warn("Error moving %s to %s"%(origin, destination))
+        LOGGER.warn("Error moving %s to %s", origin, destination)
         rc = 0
     else:
-        LOGGER.debug("%s moved to %s"%(origin, destination))
+        LOGGER.debug("%s moved to %s", origin, destination)
         rc = 1
 
     return rc
@@ -309,14 +298,14 @@ def pArchiveFile(filename):
             try:
                 os.makedirs(archive_dir)
             except OSError:
-                LOGGER.critcal("Cannot create %s"%(archive_dir))
+                LOGGER.critcal("Cannot create %s", archive_dir)
                 raise
 
     if pArchiveTimestamp():
         archive_date = flModDate(filename, GLOBAL_DATEFMT)
-        archive_file_name = os.path.join(archive_dir, "%s.%s.%s"%(base, archive_date, ext))
+        archive_file_name = pjoin(archive_dir, "%s.%s.%s"%(base, archive_date, ext))
     else:
-        archive_file_name = os.path.join(archive_dir, "%s.%s"%(base, ext))
+        archive_file_name = pjoin(archive_dir, "%s.%s"%(base, ext))
 
     rc = pMoveFile(filename, archive_file_name)
     return rc
