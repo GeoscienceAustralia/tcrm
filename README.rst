@@ -69,7 +69,7 @@ If you would like to take part in TCRM development, take a look at `docs/contrib
 License information
 ===================
 
-See the file `LICENSE.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/LICENCE.rst>`_ 
+See the file `LICENSE.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/LICENSE.rst>`_ 
 for information on the history of this software, terms and conditions for usage, 
 and a DISCLAIMER OF ALL WARRANTIES.
 
