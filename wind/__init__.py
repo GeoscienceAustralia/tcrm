@@ -413,7 +413,6 @@ class WindfieldGenerator(object):
                                   margin=self.margin,
                                   resolution=self.resolution,
                                   gridLimit=self.gridLimit,
-                                  gustFactor=0.9355,
                                   domain=self.domain)
 
         return track, wt.regionalExtremes(self.gridLimit, callback)
