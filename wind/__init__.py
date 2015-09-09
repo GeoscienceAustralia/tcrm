@@ -7,8 +7,8 @@ calculations. It provides the radial profile models to define the
 primary vortex of the simulated TC, and bounday layer models that
 define the asymmetry induced by surface friction and forward motion of
 the TC over the earth's surface. The final output from the module is a
-netCDF file containing the maximum surface gust wind speed (a 3-second
-gust, at 10 metres above ground level), along with the components
+netCDF file containing the maximum surface gust wind speed (a 10-minute 
+mean wind speed, at 10 metres above ground level), along with the components
 (eastward and westward) that generated the wind gust and the minimum
 mean sea level pressure over the lifetime of the event. If multiple
 TCs are contained in a track file, then the output file contains the
@@ -81,10 +81,10 @@ class WindfieldAroundTrack(object):
     :param margin:
 
     :type  resolution: float
-    :param resolution:
+    :param resolution: Grid resolution (in degrees)
 
     :type  gustFactor: float
-    :param gustFactor:
+    :param gustFactor: Conversion from 1-min mean to 0.2-sec gust wind speed.
 
     :type  gridLimit: :class:`dict`
     :param gridLimit: the domain where the tracks will be generated.
@@ -97,8 +97,8 @@ class WindfieldAroundTrack(object):
     """
 
     def __init__(self, track, profileType='powell', windFieldType='kepert',
-                 beta=1.5, beta1=1.5, beta2=1.4, thetaMax=70.0,
-                 margin=2.0, resolution=0.05, gustFactor=1.23,
+                 beta=1.3, beta1=1.5, beta2=1.4, thetaMax=70.0,
+                 margin=2.0, resolution=0.05, gustFactor=1.188,
                  gridLimit=None, domain='bounded'):
         self.track = track
         self.profileType = profileType
@@ -413,6 +413,7 @@ class WindfieldGenerator(object):
                                   margin=self.margin,
                                   resolution=self.resolution,
                                   gridLimit=self.gridLimit,
+                                  gustFactor=0.9355,
                                   domain=self.domain)
 
         return track, wt.regionalExtremes(self.gridLimit, callback)
