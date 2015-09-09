@@ -384,17 +384,17 @@ class HazardDatabase(sqlite3.Connection):
                          float(locVa), float(locPr), " ", datetime.now())
             params.append(locParams)
 
-            try:
-                self.executemany(INSWINDSPEED, params)
-            except sqlite3.Error as err:
-                log.exception("Cannot insert records into tblWindSpeed: {0}".\
-                              format(err.args[0]))
-                return 0
-            except sqlite3.ProgrammingError as err:
-                log.exception("Programming error: {0}".format(err.args[0]))
-                return 0 
-            else:
-                self.commit()
+        try:
+            self.executemany(INSWINDSPEED, params)
+        except sqlite3.Error as err:
+            log.exception("Cannot insert records into tblWindSpeed: {0}".\
+                          format(err.args[0]))
+            return 0
+        except sqlite3.ProgrammingError as err:
+            log.exception("Programming error: {0}".format(err.args[0]))
+            return 0 
+        else:
+            self.commit()
                 
         return 1
         
@@ -601,11 +601,9 @@ def locationRecordsExceeding(hazard_db, locId, windSpeed):
 
     """
 
-    query = ("SELECT l.locId, l.locName, w.wspd, w.eventId, "
-             "e.eventFile "
+    query = ("SELECT l.locId, l.locName, w.wspd, w.eventId "
              "FROM tblLocations l "
              "INNER JOIN tblWindSpeed w ON l.locId = w.locId "
-             "JOIN tblEvents e ON e.eventId = w.eventId "
              "WHERE w.wspd > ? and l.locId = ? "
              "ORDER BY w.wspd ASC" )
 
