@@ -186,10 +186,10 @@ class HazardDatabase(sqlite3.Connection):
         self.hazardDB = pjoin(self.outputPath, 'hazard.db')
         self.locationDB = pjoin(self.outputPath, 'locations.db')
         self.datfile = config.get('Process', 'DatFile')
-        self.excludePastProcessed = config.getboolean('Process', 
+        self.excludePastProcessed = config.getboolean('Process',
                                                       'ExcludePastProcessed')
 
-        rc = pGetProcessedFiles(self.datfile) 
+        pGetProcessedFiles(self.datfile)
 
         sqlite3.Connection.__init__(self, self.hazardDB,
                                     detect_types=PARSE_DECLTYPES|PARSE_COLNAMES)
@@ -237,11 +237,9 @@ class HazardDatabase(sqlite3.Connection):
         """
         Populate _tblLocations_ in the hazard database with all
         locations from the default locations database that lie
-        within the simulation domain. If the table exists and is 
-        populated, the records will be updated and any new records 
+        within the simulation domain. If the table exists and is
+        populated, the records will be updated and any new records
         inserted.
-
-        
 
         """
 
@@ -250,7 +248,7 @@ class HazardDatabase(sqlite3.Connection):
         cur = conn.execute(SELECTLOCATIONS, (self.domain['xMin'],
                                              self.domain['xMax'],
                                              self.domain['yMin'],
-                                             self.domain['yMax']) )
+                                             self.domain['yMax']))
 
         locations = cur.fetchall()
         conn.close()
@@ -338,14 +336,11 @@ class HazardDatabase(sqlite3.Connection):
                     os.path.isfile(pjoin(self.windfieldPath, f))]
 
         locations = self.getLocations()
-        pattern = re.compile(r'\d+')
-        for n, f in enumerate(sorted(fileList)):
-            directory, fname, md5sum, moddate = \
-                        flGetStat(pjoin(self.windfieldPath, f))
-            if (pAlreadyProcessed(directory, fname, 'md5sum', md5sum) and
-                self.excludePastProcessed):
+        for f in sorted(fileList):
+            fstat = flGetStat(pjoin(self.windfieldPath, f))
+            if (pAlreadyProcessed(fstat[0], fstat[1], 'md5sum', fstat[2]) and
+                    self.excludePastProcessed):
                 log.debug("Already processed %s", f)
-                pass
             else:
                 log.debug("Processing {0}".format(f))
                 if self.processEvent(f, locations):
@@ -358,7 +353,7 @@ class HazardDatabase(sqlite3.Connection):
         :param list locations: List of locations to sample data for.
         """
         log.debug("Processing {0}".format(pjoin(self.windfieldPath, filename)))
-        pattern = re.compile(r'\d+') 
+        pattern = re.compile(r'\d+')
         sim, num = pattern.findall(filename)
         eventId = "%s-%s" % (sim, num)
 
@@ -392,12 +387,12 @@ class HazardDatabase(sqlite3.Connection):
             return 0
         except sqlite3.ProgrammingError as err:
             log.exception("Programming error: {0}".format(err.args[0]))
-            return 0 
+            return 0
         else:
             self.commit()
-                
+
         return 1
-        
+
     def processHazard(self):
         """
         Update _tblHazard_ with the return period wind speed data.
@@ -510,7 +505,7 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
     :param str location_db: Path to the location database.
     :param str location_file: Path to a shape file containing location data.
 
-    :returns: List of tuples containing location Id, name, longitude,
+    :returns: :class:`numpy.recarray` containing location Id, name, longitude,
               latitude, elevation, country, comments and current datetime.
 
     TODO: Build a way to ingest user-defined list of fields that correspond
@@ -588,7 +583,7 @@ def locationRecordsExceeding(hazard_db, locId, windSpeed):
                             at the given location is greater than
                             this value.
 
-    :returns: List of tuples, each tuple contains the name, longitude
+    :returns: :class:`numpy.recarray` containing the name, longitude
               & latitude of the location, the wind speed of the
               record, the event Id and the event file that holds the
               event that generated the wind speed.
@@ -605,10 +600,13 @@ def locationRecordsExceeding(hazard_db, locId, windSpeed):
              "FROM tblLocations l "
              "INNER JOIN tblWindSpeed w ON l.locId = w.locId "
              "WHERE w.wspd > ? and l.locId = ? "
-             "ORDER BY w.wspd ASC" )
+             "ORDER BY w.wspd ASC")
 
     cur = hazard_db.execute(query, (windSpeed, locId,))
     results = cur.fetchall()
+    results = np.rec.fromrecords(results,
+                                 names=('locId,locName,wspd,eventId'))
+
     return results
 
 def locationRecords(hazard_db, locId):
@@ -617,6 +615,9 @@ def locationRecords(hazard_db, locId):
 
     :param hazard_db: :class:`HazardDatabase` instance.
     :param int locId: Location identifier.
+
+    :returns: :class:`numpy.recarray` containing the location id, location
+              name, wind speed and event id.
 
     """
 
@@ -627,7 +628,9 @@ def locationRecords(hazard_db, locId):
              "WHERE l.locId = ? ORDER BY w.wspd ASC")
     cur = hazard_db.execute(query, (locId,))
     results = cur.fetchall()
-    
+    results = np.rec.fromrecords(results,
+                                 names=('locId,locName,wspd,eventId'))
+
     return results
 
 def locationPassage(hazard_db, locId, distance=50):
@@ -638,6 +641,11 @@ def locationPassage(hazard_db, locId, distance=50):
     :param hazard_db: :class:`HazardDatabase` instance.
     :param int locId: Location identifier.
     :param distance: Distance threshold (in kilometres).
+
+    :returns: :class:`numpy.recarray` containing the location id, location
+              name, event id, closest distance of approach, wind speed and
+              event file for all events that pass within the defined
+              distance of the selected location.
 
     Example::
 
@@ -656,6 +664,9 @@ def locationPassage(hazard_db, locId, distance=50):
              "WHERE t.distClosest < ? and l.locId = ?")
     cur = hazard_db.execute(query, (locId, distance))
     results = cur.fetchall()
+    results = np.rec.fromrecords(results,
+                                 names=('locId,locName,eventId,'
+                                        'distClosest,wspd,eventFile'))
     return results
 
 def locationReturnPeriodEvents(hazard_db, locId, return_period):
@@ -666,6 +677,19 @@ def locationReturnPeriodEvents(hazard_db, locId, return_period):
     :param hazard_db: :class:`HazardDatabase` instance.
     :param int locId: Location identifier.
     :param int return_period: Nominated return period.
+
+    :returns: :class:`numpy.recarray` of location id and wind speeds of
+              all events that are greater than the return level of the
+              nominated return period.
+
+    The following example would return the wind speeds of all events that
+    exceed the 500-year return period wind speed for the selected location.
+
+    Example::
+
+        >>> db = HazardDatabase(configFile)
+        >>> locId = 000001
+        >>> records = locationReturnPeriodEvents(db, locId, 500)
 
     """
 
@@ -687,6 +711,10 @@ def locationAllReturnLevels(hazard_db, locId):
     :param hazard_db: :class:`HazardDatabase` instance.
     :param int locId: Location identifier.
 
+    :returns: :class:`numpy.recarray` containing the location id, location
+              name, return period, return period windspeed and lower/upper
+              estimates of the return period wind speed.
+
     """
 
     query = ("SELECT l.locId, l.locName, h.returnPeriod, h.wspd, "
@@ -698,5 +726,8 @@ def locationAllReturnLevels(hazard_db, locId):
 
     cur = hazard_db.execute(query, (locId,))
     results = cur.fetchall()
+    results = np.rec.fromrecords(results,
+                                 names=('locId,locName,,returnPeriod,'
+                                        'wspd,wspdLower,wspdUpper'))
 
     return results
