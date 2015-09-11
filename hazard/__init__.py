@@ -642,7 +642,7 @@ def aggregateWindFields(inputPath, numSimulations, tilelimits):
     log.info("Aggregating individual events to annual maxima")
     ysize = tilelimits[3] - tilelimits[2]
     xsize = tilelimits[1] - tilelimits[0]
-    Vm = np.empty((numSimulations, ysize, xsize), dtype='f')
+    Vm = np.zeros((numSimulations, ysize, xsize), dtype='f')
 
     for year in xrange(numSimulations):
         filespec = pjoin(inputPath, "gust.*-%05d.nc"%year)
@@ -651,7 +651,7 @@ def aggregateWindFields(inputPath, numSimulations, tilelimits):
             Vm[year, :, :] = np.zeros((ysize, xsize), dtype='f')
             continue
 
-        Va = np.empty((len(fileList), ysize, xsize), dtype='f')
+        Va = np.zeros((len(fileList), ysize, xsize), dtype='f')
         for n, f in enumerate(fileList):
             Va[n, :, :] = loadFile(f, tilelimits)
 

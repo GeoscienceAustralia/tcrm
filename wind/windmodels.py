@@ -20,6 +20,10 @@ the surface wind speed, incorporating the wavenumber-1 assymetry due
 to storm forward motion, and the effects of (uniform) surface
 roughness.
 
+Wind speeds are assumed to represent a 1-minute mean wind
+speed. Conversion to other averaging periods is performed by
+application of gust factors in the calling classes.
+
 :Note: Not all models are fully implemented - some cannot be fully
        implemented, as the mathematical formulation results in
        discontinuous profiles (e.g. Rankine vortex), for which a

@@ -1703,7 +1703,7 @@ def run(configFile, callback=None):
         trackFile = pjoin(trackPath, sim.outfile)
         tracks = tg.generateTracks(sim.ntracks, sim.index)
         ncTrackFile = pjoin(trackPath, "tracks.{0:05d}.nc".format(sim.index))
-        ncSaveTracks(ncTrackFile, tracks)
+        ncSaveTracks(ncTrackFile, tracks, calendar='julian')
 
     log.info('Simulating tropical cyclone tracks:' +
              ' 100 percent complete')
