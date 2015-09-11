@@ -2,27 +2,17 @@ import os
 import sys
 import logging
 
-if 'NullHandler' not in dir(logging):
-    from Utilities import py26compat
-    logging.NullHandler = py26compat.NullHandler
-
 import datetime
 import numpy as np
 from time import ctime, localtime, strftime
 
-try:
-    import hashlib
-    md5_constructor = hashlib.md5
-except ImportError:
-    import md5
-    md5_constructor = md5.new
+import hashlib
 
-__version__ = '$Id: files.py 685 2012-03-29 04:22:32Z carthur $'
-
-logger = logging.getLogger()
+LOGGER = logging.getLogger()
 
 if not getattr(__builtins__, "WindowsError", None):
-        class WindowsError(OSError): pass
+    class WindowsError(OSError):
+        pass
 
 def flModulePath(level=1):
     """
@@ -94,8 +84,9 @@ def flLoadFile(filename, comments='%', delimiter=',', skiprows=0):
     :type  delimiter: str, int or sequence, optional
 
     """
-    return np.genfromtxt(filename, comments=comments, delimiter=delimiter,
-            skip_header=skiprows)
+    return np.genfromtxt(filename, comments=comments,
+                         delimiter=delimiter,
+                         skip_header=skiprows)
 
 
 def flSaveFile(filename, data, header='', delimiter=',', fmt='%.18e'):
@@ -119,7 +110,7 @@ def flSaveFile(filename, data, header='', delimiter=',', fmt='%.18e'):
 
     try:
         np.savetxt(filename, data, header=header, delimiter=delimiter, fmt=fmt,
-                comments='%')
+                   comments='%')
     except TypeError:
         np.savetxt(filename, data, delimiter=delimiter, fmt=fmt, comments='%')
 
@@ -145,23 +136,23 @@ def flGetStat(filename, CHUNK=2 ** 16):
         fh = open(filename)
         fh.close()
     except:
-        logger.exception("Cannot open %s" % (filename))
+        LOGGER.exception("Cannot open %s" % (filename))
         raise IOError("Cannot open %s" % (filename))
 
     try:
         directory, fname = os.path.split(filename)
     except:
-        logger.exception('Input file is not a string')
+        LOGGER.exception('Input file is not a string')
         raise TypeError('Input file is not a string')
 
     try:
         si = os.stat(filename)
     except IOError:
-        logger.exception('Input file is not a valid file: %s' % (filename))
+        LOGGER.exception('Input file is not a valid file: %s' % (filename))
         raise IOError('Input file is not a valid file: %s' % (filename))
 
     moddate = ctime(si.st_mtime)
-    m = md5_constructor()
+    m = hashlib.md5()
     f = open(filename, 'rb')
 
     while 1:
@@ -225,11 +216,11 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
     Example: flStartLog('/home/user/log/app.log', 'INFO', verbose=True)
     """
     if datestamp:
-        b, e = os.path.splitext(logFile)
+        base, ext = os.path.splitext(logFile)
         curdate = datetime.datetime.now()
         curdatestr = curdate.strftime('%Y%m%d%H%M')
         # The lstrip on the extension is required as splitext leaves it on.
-        logFile = "%s.%s.%s" % (b, curdatestr, e.lstrip('.'))
+        logFile = "%s.%s.%s" % (base, curdatestr, ext.lstrip('.'))
 
     logDir = os.path.dirname(os.path.realpath(logFile))
     if not os.path.isdir(logDir):
@@ -251,9 +242,9 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
                         datefmt='%Y-%m-%d %H:%M:%S',
                         filename=logFile,
                         filemode=mode)
-    logger = logging.getLogger()
+    LOGGER = logging.getLogger()
 
-    if len(logger.handlers) < 2:
+    if len(LOGGER.handlers) < 2:
         # Assume that the second handler is a StreamHandler for verbose
         # logging. This ensures we do not create multiple StreamHandler
         # instances that will *each* print to STDOUT
@@ -263,11 +254,11 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
             formatter = logging.Formatter('%(asctime)s: %(message)s',
                                           '%H:%M:%S', )
             console.setFormatter(formatter)
-            logger.addHandler(console)
+            LOGGER.addHandler(console)
 
-    logger.info('Started log file %s (detail level %s)' % (logFile, logLevel))
-    logger.info('Running %s (pid %d)' % (sys.argv[0], os.getpid()))
-    return logger
+    LOGGER.info('Started log file %s (detail level %s)' % (logFile, logLevel))
+    LOGGER.info('Running %s (pid %d)' % (sys.argv[0], os.getpid()))
+    return LOGGER
 
 
 def flLogFatalError(tblines):
@@ -280,7 +271,7 @@ def flLogFatalError(tblines):
 
     """
     for line in tblines:
-        logger.critical(line.lstrip())
+        LOGGER.critical(line.lstrip())
     sys.exit()
 
 
@@ -299,7 +290,7 @@ def flModDate(filename, dateformat='%Y-%m-%d %H:%M:%S'):
     try:
         si = os.stat(filename)
     except (IOError, WindowsError):
-        logger.exception('Input file is not a valid file: %s' % (filename))
+        LOGGER.exception('Input file is not a valid file: %s' % (filename))
         raise IOError('Input file is not a valid file: %s' % (filename))
     moddate = localtime(si.st_mtime)
 
@@ -319,7 +310,7 @@ def flSize(filename):
     try:
         si = os.stat(filename)
     except (IOError, WindowsError):
-        logger.exception('Input file is not a valid file: %s' % (filename))
+        LOGGER.exception('Input file is not a valid file: %s' % (filename))
         raise OSError('Input file is not a valid file: %s' % (filename))
     else:
         size = si.st_size
