@@ -27,6 +27,7 @@ TODO::
 - Check for existing database and create new/replace existing db if
   configuration settings have changed. Requires config settings to
   be stored in the db (?).
+- Separate the query functions to separate files.
 
 
 
