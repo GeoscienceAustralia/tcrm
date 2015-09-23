@@ -648,6 +648,7 @@ def aggregateWindFields(inputPath, numSimulations, tilelimits):
         filespec = pjoin(inputPath, "gust.*-%05d.nc"%year)
         fileList = glob(filespec)
         if len(fileList) == 0:
+            log.debug("No files for year: {0}".format(year))
             Vm[year, :, :] = np.zeros((ysize, xsize), dtype='f')
             continue
 
