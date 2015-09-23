@@ -177,7 +177,7 @@ def main(configFile):
     source = config.get('DataProcess', 'Source')
     delta = 1/12.
     outputPath = pjoin(config.get('Output','Path'), 'tracks')
-    outputTrackFile = pjoin(outputPath, "tracks.interp.csv")
+    outputTrackFile = pjoin(outputPath, "tracks.interp.nc")
 
     # This will save interpolated track data in TCRM format:
     interpTrack = interpolateTracks.parseTracks(configFile, trackFile,

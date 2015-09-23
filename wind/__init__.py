@@ -176,7 +176,7 @@ class WindfieldAroundTrack(object):
         eP = convert(self.track.EnvPressure[i], 'hPa', 'Pa')
         cP = convert(self.track.CentralPressure[i], 'hPa', 'Pa')
         rMax = self.track.rMax[i]
-        vFm = self.track.Speed[i]
+        vFm = convert(self.track.Speed[i], 'kmh', 'mps')
         thetaFm = bearing2theta(self.track.Bearing[i] * np.pi/180.),
         thetaMax = self.thetaMax
 
@@ -218,7 +218,7 @@ class WindfieldAroundTrack(object):
         :param timeStepCallback: the function to be called on each time step.
         """
         if len(self.track.data) > 0:
-            envPressure = self.track.EnvPressure[0]
+            envPressure = convert(self.track.EnvPressure[0], 'hPa', 'Pa')
         else:
             envPressure = np.NaN
 
@@ -308,6 +308,9 @@ class WindfieldAroundTrack(object):
                 P < pressure[jmin:jmax, imin:imax],
                 P, pressure[jmin:jmax, imin:imax])
 
+        #log.info("Vmax: {0}; Vt: {1}; Pmin: {2}".format(gust.max(), 
+        #                                                 self.track.Speed.max()/3.6, 
+        #                                                 self.track.CentralPressure.min()))
         return gust, bearing, UU, VV, pressure, lonGrid / 100., latGrid / 100.
 
 
