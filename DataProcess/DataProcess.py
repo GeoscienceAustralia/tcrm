@@ -496,17 +496,17 @@ class DataProcess(object):
             speed_no_init = pjoin(self.processPath, 'speed_no_init')
             # Extract all speeds
             self.logger.debug('Outputting data into %s' % all_speed)
-            header = 'all cyclone speed in km/hour'
+            header = 'all cyclone speed in m/s'
             flSaveFile(all_speed, speed, header, fmt='%6.2f')
 
             # Extract initial speeds
             self.logger.debug('Outputting data into %s' % init_speed)
-            header = 'initial cyclone speed in km/hour'
+            header = 'initial cyclone speed in m/s'
             flSaveFile(init_speed, initSpeed, header, fmt='%f')
 
             # Extract speeds, excluding initial speeds
             self.logger.debug('Outputting data into %s' % speed_no_init)
-            header = 'cyclone speed without initial ones in km/hour'
+            header = 'cyclone speed without initial ones in m/s'
             flSaveFile(speed_no_init, speedNoInit, header, fmt='%6.2f')
 
     def _pressure(self, pressure, indicator):

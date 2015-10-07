@@ -485,7 +485,8 @@ class BarbMapFigure(MapFigure):
         CB = mapobj.colorbar(CS, location='right', pad='5%',
                              fig=self, ax=axes, ticks=lvls[::2])
         CB.set_label(cbarlab)
-        mapobj.barbs(xgrid, ygrid, xdata, ydata, length=5, linewidth=0.5)
+        mapobj.barbs(xgrid, ygrid, xdata, ydata, length=5, linewidth=0.5, 
+                     latlon=True)
         axes.set_title(title)
         self.addGraticule(axes, mapobj)
         self.addCoastline(mapobj)

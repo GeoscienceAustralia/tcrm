@@ -27,6 +27,7 @@ TODO::
 - Check for existing database and create new/replace existing db if
   configuration settings have changed. Requires config settings to
   be stored in the db (?).
+- Separate the query functions to separate files.
 
 
 
@@ -267,7 +268,8 @@ class HazardDatabase(sqlite3.Connection):
         :raises: `sqlite3.Error` if unable to retrieve the locations.
         """
         try:
-            cur = self.execute("SELECT locId, locLon, locLat FROM tblLocations")
+            cur = self.execute(("SELECT locId, locName, locLon, locLat "
+                                "FROM tblLocations"))
         except sqlite3.Error as err:
             log.exception("Cannot retrieve locations from tblLocations: {0}".\
                           format(err.args[0]))
@@ -275,6 +277,8 @@ class HazardDatabase(sqlite3.Connection):
         else:
             locations = cur.fetchall()
 
+        locations = np.rec.fromrecords(locations,
+                                       names=("locId,locName,locLon,locLat"))
         return locations
 
     def generateEventTable(self):
@@ -290,15 +294,18 @@ class HazardDatabase(sqlite3.Connection):
                  _tblEvents_.
 
         """
+        log.info("Inserting records into tblEvents")
+
         fileList = os.listdir(self.windfieldPath)
-        fileList = [f for f in fileList if os.path.isfile(f)]
+        fileList = [f for f in fileList if 
+                    os.path.isfile(pjoin(self.windfieldPath, f))]
 
         pattern = re.compile(r'\d+')
         params = []
         for n, f in enumerate(sorted(fileList)):
             log.debug("Processing {0}".format(f))
             sim, num = pattern.findall(f)
-            eventId = "%s-%s" % (sim, num)
+            eventId = "%03d-%05d" % (int(sim), int(num))
             fname = pjoin(self.windfieldPath, f)
             si = os.stat(fname)
             dtWindfieldFile = datetime.fromtimestamp(int(si.st_mtime))
@@ -308,6 +315,7 @@ class HazardDatabase(sqlite3.Connection):
                            trackfile, float(maxwind), float(minslp),
                            dtTrackFile, dtWindfieldFile, tcrm_version,
                            "", datetime.now()))
+
 
         try:
             self.executemany(INSEVENTS, params)
@@ -355,8 +363,7 @@ class HazardDatabase(sqlite3.Connection):
         log.debug("Processing {0}".format(pjoin(self.windfieldPath, filename)))
         pattern = re.compile(r'\d+')
         sim, num = pattern.findall(filename)
-        eventId = "%s-%s" % (sim, num)
-
+        eventId = "%03d-%05d" % (int(sim), int(num))
         ncobj = Dataset(pjoin(self.windfieldPath, filename))
         lon = ncobj.variables['lon'][:]
         lat = ncobj.variables['lat'][:]
@@ -368,7 +375,7 @@ class HazardDatabase(sqlite3.Connection):
         params = list()
 
         for loc in locations:
-            locId, locLon, locLat = loc
+            locId, locName, locLon, locLat = loc
             i = find_index(lon, locLon)
             j = find_index(lat, locLat)
             locVm = vmax[j, i]
@@ -427,8 +434,8 @@ class HazardDatabase(sqlite3.Connection):
         params = []
         for k, year in enumerate(years):
             for loc in locations:
-                locId, locLon, locLat = loc
-                log.debug("Extracting data for location: {0}".format(locId))
+                locId, locName, locLon, locLat = loc
+                log.debug("Extracting data for location: {0}".format(locName))
                 i = find_index(lon, locLon)
                 j = find_index(lat, locLat)
                 locWspd = wspd[k, j, i]
@@ -463,7 +470,7 @@ class HazardDatabase(sqlite3.Connection):
         """
         log.info("Inserting records into tblTracks")
         locations = self.getLocations()
-        points = [Point(loc[1], loc[2]) for loc in locations]
+        points = [Point(loc[2], loc[3]) for loc in locations]
 
         files = os.listdir(self.trackPath)
         trackfiles = [pjoin(self.trackPath, f) for f in files \
@@ -475,7 +482,7 @@ class HazardDatabase(sqlite3.Connection):
                 continue
             distances = track.minimumDistance(points)
             for (loc, dist) in zip(locations, distances):
-                locParams = (loc[0], "%s-%s"%(track.trackId),
+                locParams = (loc[0], "%03d-%05d"%(track.trackId),
                              dist, None, None, "", datetime.now())
 
                 params.append(locParams)
@@ -621,7 +628,7 @@ def locationRecords(hazard_db, locId):
 
     """
 
-    query = ("SELECT w.locId, l.locName, w.wspd, w.eventId "
+    query = ("SELECT w.locId, l.locName, w.wspd, w.umax, w.vmax, w.eventId "
              "FROM tblWindSpeed w "
              "INNER JOIN tblLocations l "
              "ON w.locId = l.locId "
@@ -629,7 +636,8 @@ def locationRecords(hazard_db, locId):
     cur = hazard_db.execute(query, (locId,))
     results = cur.fetchall()
     results = np.rec.fromrecords(results,
-                                 names=('locId,locName,wspd,eventId'))
+                                 names=('locId,locName,wspd,'
+                                        'umax,vmax,eventId'))
 
     return results
 
@@ -662,11 +670,41 @@ def locationPassage(hazard_db, locId, distance=50):
              "JOIN tblWindSpeed w on w.eventId = t.eventId "
              "JOIN tblEvents e on e.eventId = t.eventId "
              "WHERE t.distClosest < ? and l.locId = ?")
-    cur = hazard_db.execute(query, (locId, distance))
+    cur = hazard_db.execute(query, (distance, locId))
     results = cur.fetchall()
     results = np.rec.fromrecords(results,
                                  names=('locId,locName,eventId,'
                                         'distClosest,wspd,eventFile'))
+    return results
+
+def locationPassageWindSpeed(hazard_db, locId, speed, distance):
+    """
+    Select records from _tblWindSpeed_, _tblTracks_ and _tblEvents_ that
+    generate a defined wind speed and pass within a given distance
+    of the location.
+
+    :param hazard_db: :class:`HazardDatabase` instance.
+    :param int locId: Location identifier.
+    :param float speed: Minimum wind speed (m/s).
+    :param float distance: Distance threshold (kilometres).
+
+    """
+
+    query = ("SELECT l.locName, w.wspd, w.umax, w.vmax, w.eventId, "
+             "t.distClosest, e.eventMaxWind, e.eventMinPressure "
+             "FROM tblLocations l "
+             "JOIN tblWindSpeed w on l.locId = w.locId "
+             "JOIN tblEvents e ON e.eventId = w.eventId "
+             "JOIN tblTracks t ON w.locId = t.locId AND w.eventId = t.eventId "
+             "WHERE l.locId = ? and w.wspd > ? AND t.distClosest <= ? "
+             "ORDER BY w.wspd ASC")
+
+    cur = hazard_db.execute(query, (locId, speed, distance))
+    results = cur.fetchall()
+    results = np.rec.fromrecords(results,
+                                 names=('locName,wspd,umax,vmax,eventId,'
+                                        'distClosest,maxwind,pmin'))
+
     return results
 
 def locationReturnPeriodEvents(hazard_db, locId, return_period):
@@ -730,4 +768,24 @@ def locationAllReturnLevels(hazard_db, locId):
                                  names=('locId,locName,,returnPeriod,'
                                         'wspd,wspdLower,wspdUpper'))
 
+    return results
+
+def selectEvents(hazard_db):
+    """
+    Select all events from _tblEvents_.
+
+    :param hazard_db: :class:`HazardDatabase` instance.
+
+    :returns: :class:`numpy.recarray` containing the full listing of each
+              event in the table.
+
+    """
+
+    query = "SELECT * FROM tblEvents ORDER BY eventMaxWind ASC"
+    cur = hazard_db.execute(query)
+    results = cur.fetchall()
+    names = ("eventNum,eventId,eventFile,eventTrackFile,eventMaxWind,"
+             "eventMinPressure,dtTrackFile,dtWindfieldFile,tcrmVer,"
+             "Comments,dtCreated")
+    results = np.rec.fromrecords(results, names=names)
     return results

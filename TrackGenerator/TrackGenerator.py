@@ -143,25 +143,21 @@ class TrackGenerator(object):
     :param maxTimeSteps: the maximum number of tropical cyclone time
                          steps that will be simulated.
 
-    :type  sizeMean: float (default: 57.0)
+    :type  sizeMean: float (default: 46.5.0)
     :param sizeMean: the fallback average tropical cyclone size to use
                      when the empirical distribution data cannot be
-                     loaded from file. The default value is taken from
-                     McConochie et al. (2004)
+                     loaded from file.
 
-
-    :type  sizeStdDev: float (default: 0.6)
+    :type  sizeStdDev: float (default: 0.5)
     :param sizeStdDev: the fallback standard deviation of the tropical
                        cyclone size to use when the empirical
                        distribution data cannot be loaded from file.
-                       The default value is taken from McConochie et al.
-                       (2004).
 
     """
 
     def __init__(self, processPath, gridLimit, gridSpace, gridInc, mslp,
                  landfall, innerGridLimit=None, dt=1.0, maxTimeSteps=360,
-                 sizeMean=57.0, sizeStdDev=0.6):
+                 sizeMean=46.5, sizeStdDev=0.5):
         self.processPath = processPath
         self.gridLimit = gridLimit
         self.gridSpace = gridSpace
@@ -773,7 +769,7 @@ class TrackGenerator(object):
         penv[0] = initEnvPressure
         rmax[0] = initRmax
         land[0] = 0
-        dist[0] = self.dt * initSpeed
+        dist[0] = self.dt * speed[0]
 
         timestep = timedelta(self.dt/24.)
 

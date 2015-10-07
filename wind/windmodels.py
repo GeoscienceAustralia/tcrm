@@ -920,7 +920,7 @@ class HubbertWindField(WindFieldModel):
         inflow[core] = 0
         inflow = inflow * np.pi / 180
 
-        thetaMaxAbsolute = thetaFm + thetaMax
+        thetaMaxAbsolute = np.array(thetaFm) + thetaMax
         asym = vFm * np.cos(thetaMaxAbsolute - lam + np.pi)
         Vsf = Km * V + asym
         phi = inflow - lam
@@ -962,7 +962,7 @@ class McConochieWindField(WindFieldModel):
         inflow[inner] = 10. * R[inner] / self.rMax
         inflow = inflow * np.pi / 180.
 
-        thetaMaxAbsolute = thetaFm + thetaMax
+        thetaMaxAbsolute = np.array(thetaFm) + thetaMax
         phi = inflow - lam
 
         asym = (0.5 * (1. + np.cos(thetaMaxAbsolute - lam)) * vFm * (V
@@ -1014,26 +1014,29 @@ class KepertWindField(WindFieldModel):
         K = 50.  # Diffusivity
         Cd = 0.002  # Constant drag coefficient
 
-        Vt = vFm * np.ones(V.shape)
-
-        core = np.where(R > 4. * self.rMax)
-        Vt[core] = vFm * np.exp(-((R[core] / self.rMax) - 4.) ** 2. )
+        Vm = np.abs(V).max()
+        if (vFm > 0) and (Vm/vFm < 5.):
+            Umod = vFm * (1. - (1. - Vm/vFm)/5.)
+        else:
+            Umod = vFm
+        Vt = Umod * np.ones(V.shape)
+        
+        core = np.where(R > 2. * self.rMax)
+        Vt[core] = Umod * np.exp(-((R[core] / (2.*self.rMax)) - 1.) ** 2. )
 
         al = ((2. * V / R ) + self.f) / (2. * K)
         be = (self.f + Z) / (2. * K)
-        gam = V / (2. * K * R)
-        if self.f > 0:
-            gam *= -1.
+        gam = np.abs(V / (2. * K * R))
+        
         albe = np.sqrt(al / be)
 
         ind = np.where(np.abs(gam) > np.sqrt(al * be))
-        chi = (Cd / K) * V / np.sqrt(np.sqrt(al * be))
-        eta = (Cd / K) * V / np.sqrt(np.sqrt(al * be) + np.abs(gam))
-        psi = (Cd / K) * V / np.sqrt(np.abs(np.sqrt(al * be) - gam))
+        chi = np.abs((Cd / K) * V / np.sqrt(np.sqrt(al * be)))
+        eta = np.abs((Cd / K) * V / np.sqrt(np.sqrt(al * be) + gam))
+        psi = np.abs((Cd / K) * V / np.sqrt(np.abs(np.sqrt(al * be) - gam)))
 
         i = complex(0., 1.)
-        A0 = (-chi * V * (1. + i * (1. + chi)) / (2. * chi ** 2. + 3.
-              * chi + 2.))
+        A0 = -chi * V * (1. + i * (1. + chi)) / (2. * chi ** 2. + 3. * chi + 2.)
 
         # Symmetric surface wind component
 
@@ -1042,8 +1045,8 @@ class KepertWindField(WindFieldModel):
 
         Am = (-(psi * (1. + 2. * albe + (1. + i) * (1. + albe) * eta))
               * Vt /
-             ( albe * ((2. + 2. * i) * (1 + eta * psi) +
-              3. * psi + 3. * i * eta)) )
+             (albe * ((2. + 2. * i) * (1 + eta * psi) +
+              3. * psi + 3. * i * eta)))
 
         #Am[ind] = (-((1. + (1. + i) * eta[ind]) / albe[ind] +
         #           (2. + (1. + i) * eta[ind])) * psi[ind] * vFm /
@@ -1055,7 +1058,7 @@ class KepertWindField(WindFieldModel):
                 ( albe * (2. - 2. * i + 3. * (eta + psi) + (2. + 2. * i) *
                 eta * psi)))
 
-        Am[ind] = AmIII[ind]
+        #Am[ind] = AmIII[ind]
 
         # First asymmetric surface component
 
@@ -1081,7 +1084,7 @@ class KepertWindField(WindFieldModel):
                 (albe * (2. + 2. * i + 3. * (eta + psi)
                 + (2. - 2. * i) * eta * psi)))
 
-        Ap[ind] = ApIII[ind]
+        #Ap[ind] = ApIII[ind]
 
         # Second asymmetric surface component
 
@@ -1090,7 +1093,7 @@ class KepertWindField(WindFieldModel):
 
         # Total surface wind in (moving coordinate system)
 
-        us = u0s + ups + ums
+        us = np.sign(self.f) * (u0s + ups + ums)
         vs = V + v0s + vps + vms
 
         usf = us + Vt * np.cos(lam - thetaFm)
@@ -1098,9 +1101,8 @@ class KepertWindField(WindFieldModel):
         phi = np.arctan2(usf, vsf)
 
         # Surface winds, cartesian coordinates
-
-        Ux = (np.sqrt(usf ** 2. + vsf ** 2.) * np.sin(phi - lam))
-        Vy = (np.sqrt(usf ** 2. + vsf ** 2.) * np.cos(phi - lam))
+        Ux = np.sqrt(usf ** 2. + vsf ** 2.) * np.sin(phi - lam)
+        Vy = np.sqrt(usf ** 2. + vsf ** 2.) * np.cos(phi - lam)
 
         return Ux, Vy
 

@@ -261,8 +261,9 @@ def ncSaveTracks(trackfile, tracks,
 
     # Fidget with the dtype to convert :class:`datetime` objects to floats:
     track_dtype = np.dtype(tracks[0].data.dtype)
+    dtidx = track_dtype.names.index('Datetime')
     track_dtype = track_dtype.descr
-    track_dtype[1] = ('Datetime', 'f4')
+    track_dtype[dtidx] = ('Datetime', 'f8')
     track_dtype = np.dtype(track_dtype)
 
     for n, t in enumerate(tracks):
@@ -273,7 +274,7 @@ def ncSaveTracks(trackfile, tracks,
         tdtype = tdata.createCompoundType(track_dtype, 'track_dtype')
 
         dims = tdata.createDimension('time', None)
-        times = tdata.createVariable('time', 'f4', ('time',),
+        times = tdata.createVariable('time', 'f8', ('time',),
                                      zlib=True, complevel=8, shuffle=True)
         tvar = tdata.createVariable('track', tdtype, ('time',),
                                     zlib=True, complevel=8, shuffle=True)

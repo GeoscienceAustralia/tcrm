@@ -8,7 +8,7 @@ from scipy.interpolate import interp1d, splev, splrep
 
 from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile
-from Utilities.track import Track
+from Utilities.track import Track, ncSaveTracks
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -292,6 +292,7 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
 
     if outputFile:
         # Save data to file:
-        saveTracks(results, outputFile)
+        ncSaveTracks(outputFile, results)
+
 
     return results
