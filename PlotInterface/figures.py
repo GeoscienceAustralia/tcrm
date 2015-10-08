@@ -17,16 +17,16 @@ import numpy as np
 import scipy.stats as stats
 import wind.windmodels as windmodels
 
-from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
-from matplotlib.artist import setp
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from mpl_toolkits.basemap import Basemap
 
 import seaborn as sns
 sns.set(style="ticks")
 
 class WindProfileFigure(Figure):
+    """
+    Generate a plot of all available wind profiles.
+
+    """
 
     def __init__(self, lat, lon, eP, cP, rMax, beta, beta1=1.5, beta2=1.4):
 
@@ -42,6 +42,13 @@ class WindProfileFigure(Figure):
         self.beta2 = beta2
 
     def plot(self, profileType=None):
+        """
+        Execute the plot.
+
+        :param str profileType: Name of the radial profile to plot. If `None`,
+                                all available profiles are plotted.
+
+        """
         profiles = []
 
         if profileType:
@@ -61,8 +68,8 @@ class WindProfileFigure(Figure):
                 values = [getattr(self, p) for p in params if hasattr(self, p)]
                 profile = cls(self.lat, self.lon, self.eP, self.cP,
                               self.rMax, *values)
-                V = profile.velocity(self.R)
-                ax.plot(self.R, abs(V), linewidth=2)
+                vel = profile.velocity(self.R)
+                ax.plot(self.R, abs(vel), linewidth=2)
                 legend.append(name.capitalize())
             except TypeError:
                 pass
@@ -73,7 +80,7 @@ class WindProfileFigure(Figure):
         ax.set_title((r'$P_c = %d\hspace{0.5}hPa,\hspace{1} P_e' +
                       r'= %d \hspace{0.5} hPa,\hspace{1} R_{max}' +
                       r'= %d \hspace{0.5}km$') %
-                    (self.cP / 100., self.eP / 100., self.rMax))
+                     (self.cP / 100., self.eP / 100., self.rMax))
 
 class ScatterHistogramFigure(Figure):
 
@@ -85,13 +92,14 @@ class ScatterHistogramFigure(Figure):
         x = xdata[i]
         y = ydata[i]
 
-        jp = sns.jointplot(x, y, kind='reg',
-                           joint_kws={'scatter_kws':{
-                                          'color':'slategray',
-                                          'alpha':0.5
-                                          }
-                                      },
-                           **kwargs)
+        sns.jointplot(x, y, kind='reg',
+                      joint_kws={
+                          'scatter_kws':{
+                              'color':'slategray',
+                              'alpha':0.5
+                          }
+                      },
+                      **kwargs)
         self.tight_layout()
 
 
@@ -200,7 +208,7 @@ class RegressionFigure(Figure):
         def filterOutliers(data, m=12.):
             d = np.abs(data - np.median(data))
             mdev = np.median(d)
-            s  = d/mdev if mdev else 0
+            s = d/mdev if mdev else 0
             return data[s < m]
 
         xmin = filterOutliers(xdata).min()
@@ -398,7 +406,7 @@ def main():
     saveBearingFigure(bearings, bearingRates)
 
     freq = files.flLoadFile(pjoin(inputPath, 'frequency'))
-    saveFrequencyFigure(np.array(freq[:,0],int), freq[:,1])
+    saveFrequencyFigure(np.array(freq[:, 0], int), freq[:, 1])
 
 if __name__ == "__main__":
     main()

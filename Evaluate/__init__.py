@@ -9,11 +9,11 @@
 
 """
 
-from pressureDistribution import PressureDistribution
-from trackDensity import TrackDensity
-from longitudeCrossing import LongitudeCrossing
-from landfallRates import LandfallRates
-from genesisDensity import GenesisDensity
+from Evaluate.pressureDistribution import PressureDistribution
+from Evaluate.trackDensity import TrackDensity
+from Evaluate.longitudeCrossing import LongitudeCrossing
+from Evaluate.landfallRates import LandfallRates
+from Evaluate.genesisDensity import GenesisDensity
 
 
 def run(configFile):
@@ -25,14 +25,14 @@ def run(configFile):
 
     """
 
-    PD = PressureDistribution(configFile)
-    TD = TrackDensity(configFile)
-    LC = LongitudeCrossing(configFile)
-    LF = LandfallRates(configFile)
-    GD = GenesisDensity(configFile)
+    pd = PressureDistribution(configFile)
+    td = TrackDensity(configFile)
+    lc = LongitudeCrossing(configFile)
+    lf = LandfallRates(configFile)
+    gd = GenesisDensity(configFile)
 
-    PD.run()
-    TD.run()
-    LC.run()
-    LF.run()
-    GD.run()
+    pd.run()
+    td.run()
+    lc.run()
+    lf.run()
+    gd.run()
