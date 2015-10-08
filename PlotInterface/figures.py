@@ -87,7 +87,7 @@ class ScatterHistogramFigure(Figure):
     def __init__(self):
         Figure.__init__(self)
 
-    def plot(self, xdata, ydata):
+    def plot(self, xdata, ydata, **kwargs):
         i = np.where((xdata < sys.maxint) & (ydata < sys.maxint))[0]
         x = xdata[i]
         y = ydata[i]
