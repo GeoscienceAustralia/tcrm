@@ -386,7 +386,7 @@ def convert(value, input, output):
     
     """
     startValue = value
-    value = numpy.array(value)
+    value = numpy.array(value, dtype=float)
     if input == output:
         # Do nothing:
         return value
@@ -490,6 +490,6 @@ def genesisPotential(zeta, rh, vmax, shear):
     """
     Calculate genesis potential index
     """
-    gpi = power(abs((10**5)*zeta),
+    gpi = numpy.power(abs((10**5)*zeta),
                 1.5)*((rh/50.)**3)*((vmax/70.)**3)/((1.+0.1*shear)**2)
     return gpi
