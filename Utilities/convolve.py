@@ -96,7 +96,7 @@ def getKernel(d, mtype, res=25., height=5.):
             ii = np.where((bear >= -112.5) & (bear <= -67.5) &
                           (rr <= 20.*height))
         elif d == "SE":
-            ii = np.where((bear >= -67.5) & (bear <= -22.5) & 
+            ii = np.where((bear >= -67.5) & (bear <= -22.5) &
                           (rr <= 20.*height))
 
     g[ii] = 1.

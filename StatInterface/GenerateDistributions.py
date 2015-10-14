@@ -134,7 +134,8 @@ class GenerateDistributions(object):
 
         """
         if parameterName:
-            self.logger.debug("Running allDistributions for %s"%parameterName)
+            self.logger.debug("Running allDistributions for %s",
+                              parameterName)
         else:
             self.logger.debug("Running allDistributions")
 
@@ -145,7 +146,7 @@ class GenerateDistributions(object):
             self.lonLat = lonLat
 
         if isinstance(parameterList, str):
-            self.logger.debug("Loading parameter data from file: %s" %
+            self.logger.debug("Loading parameter data from file: %s",
                               parameterList)
             self.pList = np.array(flLoadFile(parameterList))
         else:
@@ -160,7 +161,7 @@ class GenerateDistributions(object):
                            "cells into files"))
 
         for cellNum in xrange(0, maxCellNum + 1):
-            self.logger.debug("Processing cell number %i"%cellNum)
+            self.logger.debug("Processing cell number %i", cellNum)
 
             # Generate cyclone parameter data for the cell number
             self.extractParameter(cellNum)
@@ -173,8 +174,8 @@ class GenerateDistributions(object):
             if plotParam:
                 self._plotParameter(cellNum, kdeStep)
             self.logger.debug(('size of parameter array = %d: '
-                               'size of cdf array = %d') %
-                              (self.parameter.size, cdf.size))
+                               'size of cdf array = %d'), 
+                              self.parameter.size, cdf.size)
 
             cellNumlist = []
             for i in range(len(cdf)):
@@ -183,7 +184,7 @@ class GenerateDistributions(object):
                 results = np.transpose(np.array([cellNumlist,
                                                  cdf[:, 0], cdf[:, 2]]))
             else:
-                self.logger.debug('size of results = %s'%str(results.size))
+                self.logger.debug('size of results = %s', str(results.size))
                 results = np.concatenate((results,
                                           np.transpose(np.array([cellNumlist,
                                                                  cdf[:, 0],
@@ -270,7 +271,7 @@ class GenerateDistributions(object):
             wLon, eLon, nLat, sLat = self._expandCell(lon, lat, wLon, eLon,
                                                       nLat, sLat)
             if ((wLon == wLon_last) & (eLon == eLon_last) &
-                (nLat == nLat_last) & (sLat == sLat_last)):
+                    (nLat == nLat_last) & (sLat == sLat_last)):
                 errMsg = ("Insufficient grid points in selected domain to "
                           "estimate storm statistics - please select a larger "
                           "domain. Samples = %i / %i")%(np.size(self.parameter),
@@ -296,19 +297,19 @@ class GenerateDistributions(object):
             wLon, eLon, nLat, sLat = self._expandCell(lon, lat, wLon,
                                                       eLon, nLat, sLat)
             if ((wLon == wLon_last) & (eLon == eLon_last) &
-                (nLat == nLat_last) & (sLat == sLat_last)):
+                    (nLat == nLat_last) & (sLat == sLat_last)):
                 errMsg = ("Insufficient grid points in selected domain "
                           "to estimate storm statistics - "
                           "please select a larger domain.")
                 self.logger.critical(errMsg)
                 raise StopIteration, errMsg
             indij = np.where(((lat >= sLat) & (lat < nLat)) &
-                              ((lon >= wLon) & (lon < eLon)))
+                             ((lon >= wLon) & (lon < eLon)))
             parameter_ = self.pList[indij]
             self.parameter = stats.statRemoveNum(np.array(parameter_),
                                                  self.missingValue)
-        self.logger.debug("Number of valid observations in cell %s : %s" %
-                          (str(cellNum), str(np.size(self.parameter))))
+        self.logger.debug("Number of valid observations in cell %s : %s",
+                          str(cellNum), str(np.size(self.parameter)))
 
 
     def _plotParameter(self, cellNum, kdeStep):

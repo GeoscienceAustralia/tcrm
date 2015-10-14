@@ -29,16 +29,10 @@ from Utilities.loadData import loadTrackFile
 from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities import pathLocator
 
-import Utilities.Intersections as Int
-
-from shapely.geometry import Point, LineString, Polygon
-from statsmodels.nonparametric.kernel_density import KDEMultivariate
-
 from PlotInterface.maps import FilledContourMapFigure, saveFigure, levels
-from PlotInterface.tracks import TrackMapFigure
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
 
 def loadTracks(trackfile):
     """
@@ -69,10 +63,17 @@ def loadTracksFromFiles(trackfiles):
             yield track
 
 def loadTracksFromPath(path):
+    """
+    Load a collection of track files from a given path.
+
+    :param str path: Path to load track files from.
+
+    :returns: iterator of :class:`Track` objects.
+    """
     files = os.listdir(path)
     trackfiles = [pjoin(path, f) for f in files if f.startswith('tracks')]
     msg = 'Processing %d track files in %s' % (len(trackfiles), path)
-    log.info(msg)
+    LOG.info(msg)
     return loadTracksFromFiles(sorted(trackfiles))
 
 class GenesisDensity(object):
@@ -130,7 +131,7 @@ class GenesisDensity(object):
         histogram, x, y = np.histogram2d(lon, lat,
                                          [self.lon_range,
                                           self.lat_range],
-                                          normed=False)
+                                         normed=False)
         return histogram
 
     def calculatePDF(self, tracks):
@@ -152,7 +153,7 @@ class GenesisDensity(object):
             lat = np.append(lat, t.Latitude)
 
         xy = np.vstack([self.X.ravel(), self.Y.ravel()])
-        data = np.array([[lon],[lat]])
+        data = np.array([[lon], [lat]])
 
         kde = KDEMultivariate(data, bw='cv_ml', var_type='cc')
         pdf = kde.pdf(data_predict=xy)
@@ -165,12 +166,12 @@ class GenesisDensity(object):
 
         :param tracks: Collection of :class:`Track` objects.
         """
-        log.debug("Calculating PDF for set of {0:d} tracks".format(len(tracks)))
+        LOG.debug("Calculating PDF for set of {0:d} tracks".format(len(tracks)))
 
         hist = ma.zeros((len(self.lon_range) - 1,
                          len(self.lat_range) - 1))
 
-        xy= np.vstack([self.X.ravel(), self.Y.ravel()])
+        xy = np.vstack([self.X.ravel(), self.Y.ravel()])
 
         x = []
         y = []
@@ -188,9 +189,9 @@ class GenesisDensity(object):
         xx = np.array(x)
         yy = np.array(y)
         ii = np.where((xx >= self.gridLimit['xMin']) &
-                        (xx <= self.gridLimit['xMax']) &
+                      (xx <= self.gridLimit['xMax']) &
                       (yy >= self.gridLimit['yMin']) &
-                        (yy <= self.gridLimit['yMax']))
+                      (yy <= self.gridLimit['yMax']))
 
         values = np.vstack([xx[ii], yy[ii]])
         kernel = KDEMultivariate(values, bw='cv_ml', var_type='cc')
@@ -215,7 +216,7 @@ class GenesisDensity(object):
     @disableOnWorkers
     def historic(self):
         """Load historic data and calculate histogram"""
-        log.info("Processing historic track records")
+        LOG.info("Processing historic track records")
         config = ConfigParser()
         config.read(self.configFile)
         inputFile = config.get('DataProcess', 'InputFile')
@@ -228,7 +229,7 @@ class GenesisDensity(object):
             tracks = loadTrackFile(self.configFile, inputFile, source)
 
         except (TypeError, IOError, ValueError):
-            log.critical("Cannot load historical track file: {0}".\
+            LOG.critical("Cannot load historical track file: {0}".\
                          format(inputFile))
             raise
         else:
@@ -238,7 +239,7 @@ class GenesisDensity(object):
                 startYr = min(startYr, min(t.Year))
                 endYr = max(endYr, max(t.Year))
             numYears = endYr - startYr
-            log.info("Range of years: %d - %d" % (startYr, endYr))
+            LOG.info("Range of years: %d - %d" % (startYr, endYr))
             self.hist = self._calculate(tracks)
             #self.hist = self._calculate(tracks) / numYears
 
@@ -260,12 +261,12 @@ class GenesisDensity(object):
             n = 0
             for d in range(1, pp.size()):
                 pp.send(trackfiles[w], destination=d, tag=work_tag)
-                log.debug("Processing track file {0:d} of {1:d}".\
+                LOG.debug("Processing track file {0:d} of {1:d}".\
                           format(w, len(trackfiles)))
                 w += 1
 
             terminated = 0
-            while (terminated < pp.size() - 1):
+            while terminated < pp.size() - 1:
                 results, status = pp.receive(pp.any_source, tag=result_tag,
                                              return_status=True)
                 self.synHist[n, :, :] = results
@@ -274,7 +275,7 @@ class GenesisDensity(object):
                 d = status.source
                 if w < len(trackfiles):
                     pp.send(trackfiles[w], destination=d, tag=work_tag)
-                    log.debug("Processing track file {0:d} of {1:d}".\
+                    LOG.debug("Processing track file {0:d} of {1:d}".\
                               format(w, len(trackfiles)))
                     w += 1
                 else:
@@ -284,19 +285,19 @@ class GenesisDensity(object):
             self.calculateMeans()
 
         elif (pp.size() > 1) and (pp.rank() != 0):
-            while(True):
+            while True:
                 trackfile = pp.receive(source=0, tag=work_tag)
                 if trackfile is None:
                     break
 
-                log.debug("Processing %s" % (trackfile))
+                LOG.debug("Processing %s", trackfile)
                 tracks = loadTracks(trackfile)
                 results = self._calculate(tracks) #/ self.synNumYears
                 pp.send(results, destination=0, tag=result_tag)
 
         elif (pp.size() == 1) and (pp.rank() == 0):
             for n, trackfile in enumerate(trackfiles):
-                log.debug("Processing track file {0:d} of {1:d}".\
+                LOG.debug("Processing track file {0:d} of {1:d}".\
                           format(n + 1, len(trackfiles)))
                 tracks = loadTracks(trackfile)
                 self.synHist[n, :, :] = self._calculate(tracks) #/ self.synNumYears
@@ -309,12 +310,12 @@ class GenesisDensity(object):
 
         # Simple sanity check (should also include the synthetic data):
         if not hasattr(self, 'hist'):
-            log.critical("No historical data available!")
-            log.critical(("Check that data has been processed "
+            LOG.critical("No historical data available!")
+            LOG.critical(("Check that data has been processed "
                           "before trying to save data"))
             return
 
-        log.info('Saving genesis density data to {0}'.format(dataFile))
+        LOG.info('Saving genesis density data to {0}'.format(dataFile))
         dimensions = {
             0: {
                 'name': 'lat',

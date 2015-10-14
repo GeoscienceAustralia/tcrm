@@ -36,7 +36,7 @@ from mpl_toolkits.basemap import Basemap
 from scipy.stats import scoreatpercentile as percentile
 from datetime import datetime
 
-import interpolateTracks
+import Evaluate.interpolateTracks as interpolateTracks
 from Utilities.files import flConfigFile, flStartLog
 from Utilities.config import ConfigParser
 from Utilities.loadData import loadTrackFile
@@ -811,6 +811,13 @@ class EvalTrackDensity(Evaluate):
                          format(self.historicTrackFile))
             return False
         else:
+            lon = []
+            lat = []
+
+            for t in tracks:
+                #if t.inRegion(self.gridLimit):
+                lon = np.append(lon, t.Longitude)
+                lat = np.append(lat, t.Latitude)
             self.hist, x, y = self.calc2DHistogram(lon, lat)
 
         return True
@@ -832,6 +839,13 @@ class EvalTrackDensity(Evaluate):
                              format(trackFile))
                 return False
             else:
+                lon = []
+                lat = []
+
+                for t in tracks:
+                    #if t.inRegion(self.gridLimit):
+                    lon = np.append(lon, t.Longitude)
+                    lat = np.append(lat, t.Latitude)
                 self.synHist[n, :, :], x, y = self.calc2DHistogram(lon, lat)
 
         return True
@@ -1048,6 +1062,8 @@ class EvalLongitudeCrossings(Evaluate):
         """
         Given a series of track points and a longitude, calculate
         if the tracks intersect that line of longitude
+
+        :param tracks: list of `Track` objects.
         """
 
         h = np.zeros((len(self.gateLats) - 1, len(self.gateLons)))
@@ -1102,7 +1118,7 @@ class EvalLongitudeCrossings(Evaluate):
                                                self.timeStep)
 
         self.lonCrossingHist, self.lonCrossingEWHist, \
-            self.lonCrossingWEHist = self.findCrossings(i, lon, lat)
+            self.lonCrossingWEHist = self.findCrossings(tracks)
 
         return
 
@@ -1124,16 +1140,15 @@ class EvalLongitudeCrossings(Evaluate):
                 return False
             else:
                 self.lonCrossingSyn[n, :], self.lonCrossingSynEW[n, :], \
-                    self.lonCrossingSynWE[
-                        n, :] = self.findCrossings(i, lon, lat)
+                    self.lonCrossingSynWE[n, :] = self.findCrossings(tracks)
 
         return True
 
     def synStats(self):
         """Calculate statistics of synthetic event sets"""
 
-        log.debug(
-            "Calculating statistics for longitude crossings of synthetic events")
+        log.debug(("Calculating statistics for longitude "
+                   "crossings of synthetic events"))
         if not hasattr(self, 'lonCrossingSyn'):
             log.critical("Synthetic event sets have not been processed!")
             log.critical("Cannot calculate statistics")

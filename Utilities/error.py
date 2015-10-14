@@ -44,11 +44,10 @@ def errDieWithLog(message=None):
         tb = tb.tb_next
 
     for frame in stack:
-        LOG.critical("Frame %s in %s at line %s" % (frame.f_code.co_name,
-                                                    frame.f_code.co_filename,
-                                                    frame.f_lineno))
+        LOG.critical("Frame %s in %s at line %s", frame.f_code.co_name,
+                     frame.f_code.co_filename, frame.f_lineno)
         for key, value in frame.f_locals.items():
-            LOG.critical("%s = %s"%(key, repr(value)))
+            LOG.critical("%s = %s", key, repr(value))
 
     if message:
         LOG.critical(message)
@@ -63,7 +62,7 @@ class ErrFileOpenError(Exception):
         Exception.__init__()
         self.fileName = fileName
     def __str__(self):
-        LOG.exception("File open error: cannot open %s"%(repr(self.fileName)))
+        LOG.exception("File open error: cannot open %s", repr(self.fileName))
         return "File open error : cannot open %s"%(repr(self.fileName))
 
 class ErrFileCloseError(Exception):
@@ -75,7 +74,7 @@ class ErrFileCloseError(Exception):
         Exception.__init__()
         self.value = value
     def __str__(self):
-        LOG.exception("File close error: cannot close %s"%(repr(self.fileName)))
+        LOG.exception("File close error: cannot close %s", repr(self.fileName))
         return "File close error: cannot close %s"%(repr(self.fileName))
 
 class ErrNetCDFError(Exception):
@@ -87,7 +86,7 @@ class ErrNetCDFError(Exception):
         Exception.__init__()
         self.value = value
     def __str__(self):
-        LOG.exception("Error in nctools: %s"%repr(self.value))
+        LOG.exception("Error in nctools: %s", repr(self.value))
         return "Error in nctools: %s"%repr(self.value)
 
 

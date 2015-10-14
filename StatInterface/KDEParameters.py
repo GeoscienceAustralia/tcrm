@@ -131,8 +131,8 @@ class KDEParameters(object):
 
         if self.grid.size < 2:
             LOG.critical("Grid for CDF generation is a single value")
-            LOG.critical("xmin=%7.3f, xmax=%7.3f, kdeStep=%7.3f" %
-                         (xmin, xmax, kdeStep))
+            LOG.critical("xmin=%7.3f, xmax=%7.3f, kdeStep=%7.3f", 
+                         xmin, xmax, kdeStep)
             raise ValueError
 
         bw = KPDF.UPDFOptimumBandwidth(self.parameters)
