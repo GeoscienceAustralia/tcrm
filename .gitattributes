@@ -1,1 +1,2 @@
-*.pck -crlf -diff -merge
+*.pck -crlf -diff -merge linguist-vendored=false
+*.nc linguist-vendored=false
