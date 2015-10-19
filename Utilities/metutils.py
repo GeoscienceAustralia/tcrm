@@ -385,7 +385,7 @@ def convert(value, inunits, outunits):
 
     """
     startValue = value
-    value = np.array(value)
+    value = np.array(value, dtype=float)
     if inunits == outunits:
         # Do nothing:
         return value
