@@ -589,7 +589,7 @@ def saveWindfieldMap(data, xgrid, ygrid, title, lvls,
     """
     fig = WindfieldMap()
     fig.plot(data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs)
-    fig.save(fig, filename)
+    fig.save(filename)
 
 def saveArrayMap(data, xgrid, ygrid, title, datarange, cbarlab,
                  map_kwargs, filename):
@@ -599,7 +599,7 @@ def saveArrayMap(data, xgrid, ygrid, title, datarange, cbarlab,
     """
     fig = ArrayMap()
     fig.plot(data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs)
-    fig.save(fig, filename)
+    fig.save(filename)
 
 def demo():
     """
