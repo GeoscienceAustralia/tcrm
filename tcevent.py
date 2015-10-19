@@ -127,7 +127,7 @@ def doWindfieldPlotting(configFile):
     windfieldPath = pjoin(outputPath, 'windfield')
 
     # Note the assumption about the file name!
-    outputWindFile = pjoin(windfieldPath, 'gust.interp.nc')
+    outputWindFile = pjoin(windfieldPath, 'gust.001-00001.nc')
     plotPath = pjoin(outputPath, 'plots', 'maxwind.png')
 
     f = Dataset(outputWindFile, 'r')
