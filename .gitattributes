@@ -1,3 +1,3 @@
 *.pck -crlf -diff -merge 
-tests/test_data/* linguist-documentation
+tests/test_data/*.pck linguist-vendored
 *.nc linguist-documentation
