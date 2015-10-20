@@ -1,3 +1,3 @@
-*.pck binary -crlf -diff -merge
-tests/test_data/* linguist-vendored=true
-*.nc linguist-vendored=true
+tests/test_data/*.pck binary
+tests/test_data/* linguist-vendored
+*/*.nc linguist-vendored
