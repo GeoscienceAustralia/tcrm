@@ -22,7 +22,7 @@ from matplotlib.figure import Figure
 import seaborn as sns
 sns.set(style="ticks")
 
-class WindProfileFigure(Figure):
+class WindProfileFigure(Figure, object):
     """
     Generate a plot of all available wind profiles.
 
