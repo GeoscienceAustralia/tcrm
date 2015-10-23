@@ -52,7 +52,7 @@ def formatList(lst):
 
     """
 
-    return ','.join(map(str, lst))
+    return ','.join([str(l) for l in lst])
 
 
 FORMATERS = {
@@ -237,6 +237,12 @@ def singleton(cls):
     instances = {}
 
     def getinstance(*args, **kwargs):
+        """
+        Retrieve an instance of a class. If one (instantiated with
+        the provided args & kwargs) does not exist, then 
+        create an instance and return it.
+        """
+
         if cls not in instances:
             instances[cls] = cls(*args, **kwargs)
         return instances[cls]
@@ -304,7 +310,7 @@ class ConfigParser(RawConfigParser):
                 parsed[name] = value
         return parsed.items()
 
-    def set(self, section, option, value):
+    def set(self, section, option, value=None):
         """
         Set the value of a specific section and option in the configuration.
 

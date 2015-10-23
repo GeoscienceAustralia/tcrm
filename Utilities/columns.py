@@ -35,7 +35,7 @@ def colReadCSV(configFile, dataFile, source):
     numHeadingLines = config.getint(source, 'NumberOfHeadingLines')
     cols = config.get(source, 'Columns').split(delimiter)
 
-    usecols = [i for i,c in enumerate(cols) if c != 'skip']
+    usecols = [i for i, c in enumerate(cols) if c != 'skip']
     try:
         data = np.genfromtxt(dataFile, dtype=None, delimiter=delimiter,
                              usecols=usecols, comments=None,
