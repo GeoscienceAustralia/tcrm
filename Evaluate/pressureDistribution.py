@@ -14,8 +14,6 @@ import os
 import sys
 import logging
 
-import pdb
-
 import numpy as np
 import numpy.ma as ma
 
@@ -252,10 +250,10 @@ class PressureDistribution(object):
         self.synMin = ma.mean(synMin, axis=0)
         self.synMax = ma.mean(synMax, axis=0)
 
-        self.synMeanUpper = percentile(ma.compressed(synMean), per=95, axis=0)
-        self.synMeanLower = percentile(ma.compressed(synMean), per=5, axis=0)
-        self.synMinUpper = percentile(ma.compressed(synMin), per=95, axis=0)
-        self.synMinLower = percentile(ma.compressed(synMin), per=5, axis=0)
+        self.synMeanUpper = percentile(synMean, per=95, axis=0)
+        self.synMeanLower = percentile(synMean, per=5, axis=0)
+        self.synMinUpper = percentile(synMin, per=95, axis=0)
+        self.synMinLower = percentile(synMin, per=5, axis=0)
 
         self.synMinCPDist = np.mean(synMinCP, axis=0)
         self.synMinCPLower = percentile(synMinCP, per=5, axis=0)
