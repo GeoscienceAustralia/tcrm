@@ -1613,6 +1613,11 @@ def run(configFile, callback=None):
     if config.has_option('TrackGenerator', 'TrackSeed'):
         trackSeed = config.getint('TrackGenerator', 'TrackSeed')
 
+    if config.has_option('TrackGenerator', 'YearsPerSimulation'):
+        yrsPerSim = config.getint('TrackGenerator', 'YearsPerSimulation')
+    else:
+        yrsPerSim = 1
+
     # Attempt to start the track generator in parallel
     global pp
     pp = attemptParallel()
@@ -1646,7 +1651,7 @@ def run(configFile, callback=None):
     # they will all get exactly the same simulation outcome. This also
     # behaves correctly when not done in parallel.
 
-    nCyclones = np.random.poisson(meanFreq, nSimulations)
+    nCyclones = np.random.poisson(yrsPerSim * meanFreq, nSimulations)
 
     # Estimate the maximum number of random values to be drawn from the
     # PRNG for each track and calculate how much each track simulation
