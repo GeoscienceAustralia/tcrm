@@ -344,7 +344,11 @@ def cnfGetIniValue(configFile, section, option, default=None):
     if not config.has_option(section, option):
         return default
     if default is None:
-        return config.get(section, option)
+        try:
+            res = config.geteval(section, option)
+        except NameError:
+            res = config.get(section, option)
+        return res
     if isinstance(default, str):
         return config.get(section, option)
     if isinstance(default, bool):
