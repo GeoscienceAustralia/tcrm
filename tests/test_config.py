@@ -1,8 +1,13 @@
 import unittest
+from os.path import join as pjoin
 
 import io
 
-import config
+#from Utilities
+import Utilities.config as config #.config import ConfigParser, cnfGetIniValue, parseBool, parseList, formatList
+import pathLocate
+
+unittest_dir = pathLocate.getUnitTestDirectory()
 
 class TestParsers(unittest.TestCase):
 
@@ -32,34 +37,13 @@ class TestParsers(unittest.TestCase):
 class TestConfigParser(unittest.TestCase):
 
     def setUp(self):
-        self.testConfig = """
-[Boolean]
-Option1=True
-Option2=False
-
-[Integer]
-Option1=1
-Option2=10
-
-[Float]
-Option1=0.5
-Option2=2.5
-
-[String]
-Option=randomstring
-
-[List]
-Option1=A,B,C,D,E
-Option2=A
-
-[Evaluate]
-Option={'x':1.0,'y':0.5}
-"""
-        self.config = config.ConfigParser(defaults=self.testConfig)
+        self.configFile = pjoin(unittest_dir, 'test_data', 'test_config.ini')
+        self.config = config.ConfigParser()
+        self.config.read(self.configFile)
         self.evalopt = {'x':1.0,'y':0.5}
         self.listopt1 = ["A", "B", "C", "D", "E"]
         self.listopt2 = ["A"]
-
+        
     def test_geteval(self):
         """Test geteval returns correct object"""
         self.assertIsInstance(self.config.geteval('Evaluate', 'Option'), dict)
@@ -67,35 +51,12 @@ Option={'x':1.0,'y':0.5}
 
 #    def test_items(self):
 #        """Test ConfigParser.items method"""
-#        self.assertEqual(self.config.items('Float'), [('option1', 0.5), ('option2', 2.5)])
+#        self.assertItemsEqual(self.config.items('Float'), [('option1', 0.5), ('option2', 2.5)])
 
 class TestOldStyleConfig(unittest.TestCase):
     def setUp(self):
-        self.testConfig = """
-[Boolean]
-Option1=True
-Option2=False
-
-[Integer]
-Option1=1
-Option2=10
-
-[Float]
-Option1=0.5
-Option2=2.5
-
-[String]
-Option=randomstring
-
-[List]
-Option1=A,B,C,D,E
-Option2=A
-
-[Evaluate]
-Option={'x':1.0,'y':0.5}
-"""
-        self.configFile = io.BytesIO(self.testConfig)
-
+        self.configFile = pjoin(unittest_dir, 'test_data', 'test_config.ini')
+        
     def test_cnfReadIniValue(self):
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'Integer', 'Option1'), 1)
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'Integer', 'Option2'), 10)
