@@ -265,7 +265,7 @@ class PressureDistribution(object):
                 w += 1
 
             terminated = 0
-            while (terminated < pp.size() - 1):
+            while terminated < pp.size() - 1:
                 results, status = pp.receive(pp.any_source, tag=result_tag,
                                              return_status=True)
 
@@ -292,7 +292,7 @@ class PressureDistribution(object):
             self.calculateMeans(synMean, synMin, synMed, synMax, synMinCPDist)
 
         elif (pp.size() > 1) and (pp.rank() != 0):
-            while(True):
+            while True:
                 trackfile = pp.receive(source=0, tag=work_tag)
                 if trackfile is None:
                     break

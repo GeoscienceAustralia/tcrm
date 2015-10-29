@@ -24,56 +24,70 @@
 
  $Id: error.py 642 2012-02-21 07:54:04Z nsummons $
 """
-import os, sys, pdb, logging, traceback
-filename = os.getenv('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
+import sys
+import logging
 
-logger = logging.getLogger()
+LOG = logging.getLogger()
 
 def errDieWithLog(message=None):
+    """
+    Capture exception message, log it and die gracefully.
+
+    :param str message: Optional additional error message.
+
+    """
+
     tb = sys.exc_info()[2]
     stack = []
     while tb:
         stack.append(tb.tb_frame)
         tb = tb.tb_next
 
-    #traceback.print_exc()
-    #logger.critical("Locals by frame, innermost last")
     for frame in stack:
-        logger.critical("Frame %s in %s at line %s" % (frame.f_code.co_name,
-                                                        frame.f_code.co_filename,
-                                                        frame.f_lineno))
+        LOG.critical("Frame %s in %s at line %s", frame.f_code.co_name,
+                     frame.f_code.co_filename, frame.f_lineno)
         for key, value in frame.f_locals.items():
-            logger.critical("%s = %s"%(key, repr(value)))
+            LOG.critical("%s = %s", key, repr(value))
 
     if message:
-        logger.critical(message)
+        LOG.critical(message)
     sys.exit(1)
 
-class errFileOpenError(Exception):
+class ErrFileOpenError(Exception):
+    """
+    Handle errors when attempting to open files.
+
+    """
     def __init__(self, fileName):
+        Exception.__init__()
         self.fileName = fileName
     def __str__(self):
-        logger.exception("File open error: cannot open %s"%(repr(self.fileName)))
+        LOG.exception("File open error: cannot open %s", repr(self.fileName))
         return "File open error : cannot open %s"%(repr(self.fileName))
-    pass
 
-class errFileCloseError(Exception):
+class ErrFileCloseError(Exception):
+    """
+    Handle errors when attempting to close files.
+
+    """
     def __init__(self, value):
+        Exception.__init__()
         self.value = value
     def __str__(self):
-        logger.exception("File close error: cannot close %s"%(repr(self.fileName)))
+        LOG.exception("File close error: cannot close %s", repr(self.fileName))
         return "File close error: cannot close %s"%(repr(self.fileName))
-    pass
 
-class errNetCDFError(Exception):
+class ErrNetCDFError(Exception):
+    """
+    Handle errors when working with netCDF files.
+
+    """
     def __init__(self, value):
+        Exception.__init__()
         self.value = value
     def __str__(self):
-        logger.exception("Error in nctools: %s"%repr(self.value))
+        LOG.exception("Error in nctools: %s", repr(self.value))
         return "Error in nctools: %s"%repr(self.value)
-    pass
 
 
 

@@ -9,7 +9,8 @@
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
 """
-import os, math, numpy, pdb
+import math
+
 
 def convert2vertex(a1, a2):
     """
@@ -22,9 +23,9 @@ def convert2vertex(a1, a2):
 
     """
 
-
     result = [Point(x, y) for x, y in zip(a1, a2)]
     return result
+
 
 def inLand(P, V):
     """
@@ -40,6 +41,7 @@ def inLand(P, V):
 
     """
     return _cnPnPoly(P, V) and _wnPnPoly(P, V)
+
 
 def _cnPnPoly(P, V):
     """
@@ -62,13 +64,14 @@ def _cnPnPoly(P, V):
     n = len(V) - 1
     # loop through all edges of the polygon
     for i in xrange(n):    # edge from V[i] to V[i+1]
-        if (((V[i].y <= P.y) and (V[i+1].y > P.y)) \
-            or ((V[i].y > P.y) and (V[i+1].y <= P.y))):   # a downward crossing
+        if (V[i].y <= P.y and V[i + 1].y > P.y) \
+                or (V[i].y > P.y and V[i + 1].y <= P.y):   # a downward crossing
             # compute the actual edge-ray intersect x-coordinate
-            vt = (P.y - V[i].y) / (V[i+1].y - V[i].y)
-            if (P.x < V[i].x + vt * (V[i+1].x - V[i].x)):  # P.x < intersect
+            vt = (P.y - V[i].y) / (V[i + 1].y - V[i].y)
+            if P.x < V[i].x + vt * (V[i + 1].x - V[i].x):  # P.x < intersect
                 cn += 1   # a valid crossing of y=P.y right of P.x
-    return (cn % 2 == 1)  # 0 if even (out), and 1 if odd (in)
+    return cn % 2 == 1  # 0 if even (out), and 1 if odd (in)
+
 
 def _wnPnPoly(P, V):
     """
@@ -92,14 +95,15 @@ def _wnPnPoly(P, V):
     n = len(V) - 1
     # loop through all edges of the polygon
     for i in xrange(n):    # edge from V[i] to V[i+1]
-        if (V[i].y <= P.y):          # start y <= P.y
-            if (V[i+1].y > P.y):      # an upward crossing
-                if (_isLeft(V[i], V[i+1], P) > 0):  # P left of edge
+        if V[i].y <= P.y:          # start y <= P.y
+            if V[i + 1].y > P.y:      # an upward crossing
+                if _isLeft(V[i], V[i + 1], P) > 0:  # P left of edge
                     wn += 1            # have a valid up intersect
-            elif (V[i+1].y <= P.y):     # a downward crossing
-                if (_isLeft(V[i], V[i+1], P) < 0):  # P right of edge
+            elif V[i + 1].y <= P.y:     # a downward crossing
+                if _isLeft(V[i], V[i + 1], P) < 0:  # P right of edge
                     wn -= 1            # have a valid down intersect
-    return (wn != 0)
+    return wn != 0
+
 
 def _isLeft(P0, P1, P2):
     """
@@ -123,7 +127,8 @@ def _isLeft(P0, P1, P2):
     return (P1.x - P0.x) * (P2.y - P0.y) - (P2.x - P0.x) * (P1.y - P0.y)
 
 
-class Intersection:
+class Intersection(object):
+
     """
     An Intersection object.
 
@@ -136,7 +141,7 @@ class Intersection:
 
     """
 
-    def __init__(self, state = None):
+    def __init__(self, state=None):
         """
         Initialise the members of the object
         """
@@ -144,7 +149,8 @@ class Intersection:
         self.points = []
 
 
-class Crossings:
+class Crossings(object):
+
     """
     Determine if a a line intersects some other geometric feature
     (another line, a circle, a polygon).
@@ -178,29 +184,29 @@ class Crossings:
 
         a = (a2.x - a1.x) * (a2.x - a1.x) + (a2.y - a1.y) * (a2.y - a1.y)
         b = 2. * ((a2.x - a1.x) * (a1.x - c.x) + (a2.y - a1.y) * (a1.y - c.y))
-        cc = c.x*c.x + c.y*c.y + a1.x*a1.x + a1.y*a1.y - 2. * \
-            (c.x * a1.x + c.y * a1.y) - r*r
-        deter = b*b - 4.*a*cc
+        cc = c.x * c.x + c.y * c.y + a1.x * a1.x + a1.y * a1.y - 2. * \
+            (c.x * a1.x + c.y * a1.y) - r * r
+        deter = b * b - 4. * a * cc
 
-        if (deter < 0.):
+        if deter < 0.:
             result = Intersection("Outside")
-        elif (deter == 0.):
+        elif deter == 0.:
             result = Intersection("Tangent")
         else:
             e = math.sqrt(deter)
-            u1 = (-b + e) / (2.*a)
-            u2 = (-b - e) / (2.*a)
-            if ((u1 < 0. or u1 > 1.) and (u2 < 0. or u2 > 1.)):
-                if ((u1 < 0. and u2 < 0.) or (u1 > 1. and u2 > 1.)):
+            u1 = (-b + e) / (2. * a)
+            u2 = (-b - e) / (2. * a)
+            if (u1 < 0. or u1 > 1.) and (u2 < 0. or u2 > 1.):
+                if (u1 < 0. and u2 < 0.) or (u1 > 1. and u2 > 1.):
                     result = Intersection("Outside")
                 else:
                     result = Intersection("Inside")
             else:
                 result = Intersection("Intersection")
-                if (0. <= u1 and u1 <= 1.):
+                if 0. <= u1 and u1 <= 1.:
                     p = self.lerp(a1, a2, u1)
                     result.points.append(Point(p[0], p[1]))
-                if (0. <= u2 and u2 <= 1.):
+                if 0. <= u2 and u2 <= 1.:
                     p = self.lerp(a1, a2, u2)
                     result.points.append(Point(p[0], p[1]))
 
@@ -222,25 +228,24 @@ class Crossings:
         """
 
         result = Intersection("No Intersection")
-        if type(points) == list:
+        if isinstance(points, list):
             for p in points:
                 for i in xrange(len(p) - 1):
                     a1 = p[i]
-                    a2 = p[i-1]
+                    a2 = p[i - 1]
                     inter = self.CircleLine(c, r, a1, a2)
                     if inter.status == "Intersection":
                         result.points.append(inter.points)
                         result.status = "Intersection"
         else:
-            for i in xrange(len(points)-1):
+            for i in xrange(len(points) - 1):
                 a1 = points[i]
-                a2 = points[i+1]
+                a2 = points[i + 1]
                 inter = self.CircleLine(c, r, a1, a2)
                 if inter.status == "Intersection":
                     result.points.append(inter.points)
                     result.status = "Intersection"
-        #if ( len(result.points) > 0. ):
-
+        # if ( len(result.points) > 0. ):
 
         return result
 
@@ -279,18 +284,18 @@ class Crossings:
         ub_t = (a2.x - a1.x) * (a1.y - b1.y) - (a2.y - a1.y) * (a1.x - b1.x)
         u_b = (b2.y - b1.y) * (a2.x - a1.x) - (b2.x - b1.x) * (a2.y - a1.y)
 
-        if (u_b != 0):
+        if u_b != 0:
             ua = ua_t / u_b
             ub = ub_t / u_b
 
-            if (0 <= ua and ua <= 1 and 0 <= ub and ub <= 1):
+            if 0 <= ua and ua <= 1 and 0 <= ub and ub <= 1:
                 result = Intersection("Intersection")
                 result.points.append(Point(a1.x + ua * (a2.x - a1.x),
                                            a1.y + ua * (a2.y - a1.y)))
             else:
                 result = Intersection("No Intersection")
         else:
-            if (ua_t == 0 or ub_t == 0):
+            if ua_t == 0 or ub_t == 0:
                 result = Intersection("Coincident")
             else:
                 result = Intersection("Parallel")
@@ -309,7 +314,7 @@ class Crossings:
 
         """
         result = Intersection("No Intersection")
-        if type(points) == list:
+        if isinstance(points, list):
             for p in points:
                 for i in xrange(len(p) - 1):
                     b1 = p[i]
@@ -317,24 +322,26 @@ class Crossings:
                     inter = self.LineLine(a1, a2, b1, b2)
                     result.points.append(inter.points)
         else:
-            for i in xrange(len(points)-1):
+            for i in xrange(len(points) - 1):
                 b1 = points[i]
-                b2 = points[i+1]
+                b2 = points[i + 1]
                 inter = self.LineLine(a1, a2, b1, b2)
                 result.points.append(inter.points)
 
-        if (len(result.points) > 0):
+        if len(result.points) > 0:
             result.status = "Intersection"
 
         return result
 
 
-class Point:
+class Point(object):
+
     """
     Class representation for a Point
     Contains x and y members
     Created by Geoff Xu, 2006
     """
+
     def __init__(self, x, y):
         self.x = float(x)
         self.y = float(y)
@@ -344,4 +351,3 @@ class Point:
 
     def getY(self):
         return self.y
-

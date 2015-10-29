@@ -30,8 +30,8 @@ import Utilities.Intersections as Int
 
 from PlotInterface.curves import RangeCompareCurve, saveFigure
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
 
 def loadTracks(trackfile):
     """
@@ -70,8 +70,8 @@ class LandfallRates(object):
         try:
             gateFile = config.get('Input', 'CoastlineGates')
         except NoOptionError:
-            log.exception(("No coastline gate file specified "
-                          "in configuration file"))
+            LOG.exception(("No coastline gate file specified "
+                           "in configuration file"))
             raise
 
         gateData = np.genfromtxt(gateFile, delimiter=',')
@@ -174,7 +174,7 @@ class LandfallRates(object):
     def historic(self):
         """Calculate historical rates of landfall"""
 
-        log.info("Processing landfall rates of historical tracks")
+        LOG.info("Processing landfall rates of historical tracks")
         config = ConfigParser()
         config.read(self.configFile)
         inputFile = config.get('DataProcess', 'InputFile')
@@ -187,7 +187,7 @@ class LandfallRates(object):
         try:
             tracks = loadTrackFile(self.configFile, inputFile, source)
         except (TypeError, IOError, ValueError):
-            log.critical("Cannot load historical track file: {0}".\
+            LOG.critical("Cannot load historical track file: {0}".\
                          format(inputFile))
             raise
         else:
@@ -198,7 +198,7 @@ class LandfallRates(object):
 
     def synthetic(self):
         """Load synthetic data and calculate histogram"""
-        log.info("Processing landfall rates of synthetic events")
+        LOG.info("Processing landfall rates of synthetic events")
 
         work_tag = 0
         result_tag = 1
@@ -214,12 +214,12 @@ class LandfallRates(object):
             n = 0
             for d in range(1, pp.size()):
                 pp.send(trackfiles[w], destination=d, tag=work_tag)
-                log.debug("Processing track file {0:d} of {1:d}".\
+                LOG.debug("Processing track file {0:d} of {1:d}".\
                           format(w + 1, len(trackfiles)))
                 w += 1
 
             terminated = 0
-            while (terminated < pp.size() - 1):
+            while terminated < pp.size() - 1:
                 results, status = pp.receive(pp.any_source, tag=result_tag,
                                              return_status=True)
 
@@ -230,7 +230,7 @@ class LandfallRates(object):
 
                 if w < len(trackfiles):
                     pp.send(trackfiles[w], destination=d, tag=work_tag)
-                    log.debug("Processing track file {0:d} of {1:d}".\
+                    LOG.debug("Processing track file {0:d} of {1:d}".\
                               format(w + 1, len(trackfiles)))
                     w += 1
                 else:
@@ -240,12 +240,12 @@ class LandfallRates(object):
             self.calculateStats()
 
         elif (pp.size() > 1) and (pp.rank() != 0):
-            while(True):
+            while True:
                 trackfile = pp.receive(source=0, tag=work_tag)
                 if trackfile is None:
                     break
 
-                log.debug("Processing %s" % (trackfile))
+                LOG.debug("Processing %s", trackfile)
                 tracks = loadTracks(trackfile)
                 results = self.processTracks(tracks)
                 pp.send(results, destination=0, tag=result_tag)
@@ -253,7 +253,7 @@ class LandfallRates(object):
         elif pp.size() == 1 and pp.rank() == 0:
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
             for n, trackfile in enumerate(sorted(trackfiles)):
-                log.debug("Processing track file {0:d} of {1:d}".\
+                LOG.debug("Processing track file {0:d} of {1:d}".\
                           format(n + 1, len(trackfiles)))
                 tracks = loadTracks(trackfile)
                 results = self.processTracks(tracks)

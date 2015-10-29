@@ -12,7 +12,7 @@ Define the class for sampling tropical cyclone origins.
 
 """
 
-import os
+from os.path import join as pjoin
 import logging
 
 from Utilities.files import flLoadFile, flSaveFile
@@ -20,6 +20,8 @@ from Utilities.grid import grdRead, grdReadFromNetcdf
 import numpy as np
 import scipy
 import Utilities.stats as stats
+
+LOG = logging.getLogger()
 
 class SamplingOrigin(object):
     """
@@ -43,27 +45,25 @@ class SamplingOrigin(object):
         Initialise the array of probabilities of genesis, plus the
         lon/lat arrays.
         """
-        self.logger = logging.getLogger()
-
         if isinstance(kdeOrigin, str):
-            self.logger.debug("Loading PDF from %s"%kdeOrigin)
+            LOG.debug("Loading PDF from %s", kdeOrigin)
             try:
                 if kdeOrigin.endswith('nc'):
                     self.x, self.y, self.z = grdReadFromNetcdf(kdeOrigin)
                 else:
                     self.x, self.y, self.z = grdRead(kdeOrigin)
             except IOError:
-                self.logger.critical(('Error! Files relating to cdf of cyclone '
-                                      'parameters does not exist, please '
-                                      'generate KDE of cyclone parameters '
-                                      'first.'))
+                LOG.critical(('Error! Files relating to cdf of cyclone '
+                              'parameters does not exist, please '
+                              'generate KDE of cyclone parameters '
+                              'first.'))
                 raise
-            self._calculateCDF()  # calculate CDF of (x,Px) and (y,Py)
+            self._calculateCDF()
         elif isinstance(kdeOrigin, np.ndarray):
             self.x = x
             self.y = y
             self.z = kdeOrigin
-            self._calculateCDF()  # calculate CDF of (x,Px) and (y,Py)
+            self._calculateCDF()
         else:
             self.x = np.array([])
             self.y = np.array([])
@@ -90,30 +90,30 @@ class SamplingOrigin(object):
         """
         if outputPath:
             try:
-                self.x, self.y. self.z = grdRead(os.path.join(self.outputPath,
-                                                              'originPDF.txt'))
+                self.x, self.y, self.z = grdRead(pjoin(self.outputPath,
+                                                       'originPDF.txt'))
             except IOError:
-                self.logger.critical(('Error! Files relating to KDE of cyclone '
-                                      'origins does not exist. Execute KDE of '
-                                      'cyclone origins first.'))
+                LOG.critical(('Error! Files relating to KDE of cyclone '
+                              'origins does not exist. Execute KDE of '
+                              'cyclone origins first.'))
                 raise
-            self._calculateCDF() #calculate CDF of (x,Px) and (y,Py)
+            self._calculateCDF()
         elif isinstance(kdeOriginZ, str):
             try:
                 self.x = flLoadFile(kdeOriginX)
                 self.y = flLoadFile(kdeOriginY)
                 self.z = flLoadFile(kdeOriginZ)
             except IOError:
-                self.logger.critical(('Error! Files relating to CDF of cyclone '
-                                      'parameters do not exist. Generate KDE of '
-                                      'cyclone parameters first.'))
+                LOG.critical(('Error! Files relating to CDF of cyclone '
+                              'parameters do not exist. Generate KDE of '
+                              'cyclone parameters first.'))
                 raise
-            self._calculateCDF()  # calculate CDF of (x,Px) and (y,Py)
+            self._calculateCDF()
         elif isinstance(kdeOriginZ, np.ndarray):
             self.x, self.y, self.z = grdRead(kdeOriginZ)
-            self._calculateCDF()  # calculate CDF of (x,Px) and (y,Py)
+            self._calculateCDF()
         else:
-            self.logger.error("No input arguments")
+            LOG.error("No input arguments")
             raise
 
     def generateOneSample(self):
@@ -125,7 +125,7 @@ class SamplingOrigin(object):
         xi = np.array(self.cdfX).searchsorted(unifX)
         yj = self.cdfY[xi, :].searchsorted(unifY)
 
-        return self.x[xi], self.y[yj] #lon, lat
+        return self.x[xi], self.y[yj]
 
     def ppf(self, q1, q2):
         """
@@ -139,22 +139,22 @@ class SamplingOrigin(object):
         """
         xi = self.cdfX.searchsorted(q1)
         yj = self.cdfY[xi, :].searchsorted(q2)
-        return self.x[xi], self.y[yj] #lon, lat
+        return self.x[xi], self.y[yj]
 
-    def cdf(self, x, y):
+    def cdf(self, xx, yy):
         """
         Return CDF value at the given location.
 
-        :param float x: x-ccordinate.
-        :param float y: y-coordinate.
+        :param float xx: x-ccordinate.
+        :param float yy: y-coordinate.
 
         :returns: CDF values for x & y at the given location.
 
         """
 
         # crude, this should be an interpolation
-        xi = self.x.searchsorted(x) - 1
-        yi = self.y.searchsorted(y) - 1
+        xi = self.x.searchsorted(xx) - 1
+        yi = self.y.searchsorted(yy) - 1
         return self.cdfX[xi], self.cdfY[xi, yi]
 
     def generateSamples(self, ns, outputFile=None):
@@ -173,7 +173,8 @@ class SamplingOrigin(object):
 
         """
         if ns <= 0:
-            self.logger.error('Invalid input on ns: number of sample cannot be zero or negative')
+            LOG.error(("Invalid input on ns: number of samples "
+                       "cannot be zero or negative"))
             raise ValueError
 
         # Generate 2 vectors of uniform random variables
@@ -189,15 +190,15 @@ class SamplingOrigin(object):
                 xi = self.cdfX.searchsorted(unifX[i])
                 yj = self.cdfY[xi, :].searchsorted(unifY[i])
                 if (i % (ns/100)) == 0 and i != 0:
-                    self.logger.debug("Processing %ith element"%i)
+                    LOG.debug("Processing %ith element"%i)
                 self.oLon[i] = self.x[xi]
                 self.oLat[i] = self.y[yj]
 
         except IndexError:
-            self.logger.debug("i = %s"%str(i))
-            self.logger.debug("unifX = %s"%str(unifX[i]))
-            self.logger.debug("unifY = %s"%str(unifY[i]))
-            self.logger.debug("cdfY[xi,:] = %s"%str(self.cdfY[xi, :]))
+            LOG.debug("i = %s"%str(i))
+            LOG.debug("unifX = %s"%str(unifX[i]))
+            LOG.debug("unifY = %s"%str(unifY[i]))
+            LOG.debug("cdfY[xi,:] = %s"%str(self.cdfY[xi, :]))
             raise
 
         if outputFile:
@@ -234,15 +235,15 @@ class SamplingOrigin(object):
                 for j in xrange(len(cdfTemp)):
                     cdfY[i, j] = cdfTemp[j]
         except IndexError:
-            self.logger.debug("i = %s"%str(i))
-            self.logger.debug("j = %s"%str(j))
-            self.logger.debug("p_y[%s, %s] = %s"%(str(i), str(j), str(py[i, j])))
-            self.logger.debug("z[%s, %s] = %s"%(str(i), str(j), str(self.z[j, i])))
-            self.logger.debug("p_x[%s] = %s"%(str(i), str(px[i])))
-            self.logger.debug("cdfy dim = %s"%(str(cdfY.shape)))
-            self.logger.debug("p_y dim = %s"%(str(py.shape)))
-            self.logger.debug("cdfx dim = %s"%(str(cdfX.shape)))
-            self.logger.debug("p_x dim = %s"%(str(px.shape)))
+            LOG.debug("i = %s", str(i))
+            LOG.debug("j = %s", str(j))
+            LOG.debug("p_y[%s, %s] = %s"%(str(i), str(j), str(py[i, j])))
+            LOG.debug("z[%s, %s] = %s"%(str(i), str(j), str(self.z[j, i])))
+            LOG.debug("p_x[%s] = %s"%(str(i), str(px[i])))
+            LOG.debug("cdfy dim = %s", (str(cdfY.shape)))
+            LOG.debug("p_y dim = %s", (str(py.shape)))
+            LOG.debug("cdfx dim = %s", (str(cdfX.shape)))
+            LOG.debug("p_x dim = %s", (str(px.shape)))
 
             raise
 

@@ -10,8 +10,6 @@
 """
 import re
 
-__version__ = '$Id: template.py 680 2012-03-19 01:52:37Z carthur $'
-
 def replace(infile, outfile, replacements):
     """
     Replace all instances of the keys with values in infile and w
@@ -40,7 +38,7 @@ def replace(infile, outfile, replacements):
     fo = open(outfile, 'w')
     for line in fi:
         newline = line
-        for key,val in replacements.items():
+        for key, val in replacements.items():
             newline = re.sub('{'+key+'}', val, newline)
 
         fo.write(newline)

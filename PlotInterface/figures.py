@@ -17,16 +17,16 @@ import numpy as np
 import scipy.stats as stats
 import wind.windmodels as windmodels
 
-from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
-from matplotlib.artist import setp
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from mpl_toolkits.basemap import Basemap
 
 import seaborn as sns
 sns.set(style="ticks")
 
-class WindProfileFigure(Figure):
+class WindProfileFigure(Figure, object):
+    """
+    Generate a plot of all available wind profiles.
+
+    """
 
     def __init__(self, lat, lon, eP, cP, rMax, beta, beta1=1.5, beta2=1.4):
 
@@ -42,6 +42,13 @@ class WindProfileFigure(Figure):
         self.beta2 = beta2
 
     def plot(self, profileType=None):
+        """
+        Execute the plot.
+
+        :param str profileType: Name of the radial profile to plot. If `None`,
+                                all available profiles are plotted.
+
+        """
         profiles = []
 
         if profileType:
@@ -61,8 +68,8 @@ class WindProfileFigure(Figure):
                 values = [getattr(self, p) for p in params if hasattr(self, p)]
                 profile = cls(self.lat, self.lon, self.eP, self.cP,
                               self.rMax, *values)
-                V = profile.velocity(self.R)
-                ax.plot(self.R, abs(V), linewidth=2)
+                vel = profile.velocity(self.R)
+                ax.plot(self.R, abs(vel), linewidth=2)
                 legend.append(name.capitalize())
             except TypeError:
                 pass
@@ -73,25 +80,40 @@ class WindProfileFigure(Figure):
         ax.set_title((r'$P_c = %d\hspace{0.5}hPa,\hspace{1} P_e' +
                       r'= %d \hspace{0.5} hPa,\hspace{1} R_{max}' +
                       r'= %d \hspace{0.5}km$') %
-                    (self.cP / 100., self.eP / 100., self.rMax))
+                     (self.cP / 100., self.eP / 100., self.rMax))
 
 class ScatterHistogramFigure(Figure):
+    """
+    Generate a scatter plot with histograms on the top/right margins
+    for the two components (see `seaborn.jointplot`).
 
+    """
     def __init__(self):
         Figure.__init__(self)
 
-    def plot(self, xdata, ydata):
+    def plot(self, xdata, ydata, **kwargs):
+        """
+        Generate a plot using the given data arrays. Additional kwargs are
+        passed directly to `seaborn.jointplot`
+
+        :param xdata: :class:`numpy.ndarray` of data for x values.
+        :param ydata: :class:`numpy.ndarray` of data for y values.
+        :param **kwargs: Additional keyword args.
+
+        """
+
         i = np.where((xdata < sys.maxint) & (ydata < sys.maxint))[0]
         x = xdata[i]
         y = ydata[i]
 
-        jp = sns.jointplot(x, y, kind='reg',
-                           joint_kws={'scatter_kws':{
-                                          'color':'slategray',
-                                          'alpha':0.5
-                                          }
-                                      },
-                           **kwargs)
+        sns.jointplot(x, y, kind='reg',
+                      joint_kws={
+                          'scatter_kws':{
+                              'color':'slategray',
+                              'alpha':0.5
+                          }
+                      },
+                      **kwargs)
         self.tight_layout()
 
 
@@ -182,7 +204,9 @@ class QuantileFigure(Figure):
             self.subplot(axes, subfigure)
 
 class RegressionFigure(Figure):
-
+    """
+    Basic regression figure
+    """
     def __init__(self):
         Figure.__init__(self)
         self.subfigures = []
@@ -200,7 +224,7 @@ class RegressionFigure(Figure):
         def filterOutliers(data, m=12.):
             d = np.abs(data - np.median(data))
             mdev = np.median(d)
-            s  = d/mdev if mdev else 0
+            s = d/mdev if mdev else 0
             return data[s < m]
 
         xmin = filterOutliers(xdata).min()
@@ -213,11 +237,11 @@ class RegressionFigure(Figure):
         axes.set_xticks(np.linspace(xmin, xmax, 7))
         axes.set_yticks(np.linspace(ymin, ymax, 7))
 
-        return xmin, xmax
+        return
 
     def subplot(self, axes, subfigure):
         xdata, ydata, xlabel, ylabel, title, transform = subfigure
-        color = axes._get_lines.color_cycle
+        color = axes._get_lines.color_cycle #pylint:disable=W0212
 
         xdata, ydata = self.prepareData(xdata, ydata, transform)
         k = color.next()
@@ -225,7 +249,7 @@ class RegressionFigure(Figure):
                        'alpha':0.5}
         sns.regplot(xdata, ydata, ax=axes, scatter_kws=scatter_kws)
 
-        xmin, xmax = self.formatAxes(axes, xdata, ydata)
+        self.formatAxes(axes, xdata, ydata)
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
         axes.set_title(title)
@@ -246,7 +270,11 @@ class RegressionFigure(Figure):
 
 
 class LaggedRegressionFigure(RegressionFigure):
-
+    """
+    Generate a regression figure, where the data is
+    regressed using a lag-1 regression (i.e. data at time _t_ compared
+    to data at time _t-1_).
+    """
     def add(self, data, label='x', title='x', transform=lambda x: x):
         super(LaggedRegressionFigure, self).add(data[1:],
                                                 data[:-1],
@@ -260,7 +288,10 @@ class LaggedRegressionFigure(RegressionFigure):
         axes.set_aspect('equal')
 
 class LineRegressionFigure(RegressionFigure):
-
+    """
+    Generate a regression plot that includes
+    a fitted regression line.
+    """
     def add(self, x, y, xlabel='x', ylabel='y', title='x'):
         super(LineRegressionFigure, self).add(x, y,
                                               xlabel,
@@ -269,7 +300,7 @@ class LineRegressionFigure(RegressionFigure):
 
     def subplot(self, axes, subfigure):
         xdata, ydata, xlabel, ylabel, title, transform = subfigure
-        color = axes._get_lines.color_cycle
+        color = axes._get_lines.color_cycle #pylint:disable=W0212
 
         xdata, ydata = self.prepareData(xdata, ydata, transform)
 
@@ -278,7 +309,7 @@ class LineRegressionFigure(RegressionFigure):
                        'alpha':0.5}
         sns.regplot(xdata, ydata, ax=axes, scatter_kws=scatter_kws)
 
-        xmin, xmax = self.formatAxes(axes, xdata, ydata)
+        self.formatAxes(axes, xdata, ydata)
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
         axes.set_title(title)
@@ -287,7 +318,9 @@ class LineRegressionFigure(RegressionFigure):
         legend.get_frame().set_alpha(0.5)
 
 class PressureFigure(LaggedRegressionFigure):
-
+    """
+    Plot central pressure/rate data
+    """
     def plot(self, pressures, pressureRates):
         self.add(pressures, 'p', 'Pressure')
         self.add(pressureRates, r'\Delta p', 'Pressure rate of change')
@@ -295,7 +328,9 @@ class PressureFigure(LaggedRegressionFigure):
 
 
 class SpeedFigure(LaggedRegressionFigure):
-
+    """
+    Plot TC speed data.
+    """
     def plot(self, speeds, speedRates):
         self.add(speeds, 'v', 'Speed')
         self.add(speedRates, r'\Delta v', 'Speed rate of change (Acceleration)')
@@ -303,7 +338,9 @@ class SpeedFigure(LaggedRegressionFigure):
 
 
 class BearingFigure(LaggedRegressionFigure):
-
+    """
+    Plot TC bearing data.
+    """
     def plot(self, bearings, bearingRates):
         def transform(z):
             return np.cos(np.radians(z))
@@ -314,6 +351,9 @@ class BearingFigure(LaggedRegressionFigure):
 
 
 class FrequencyFigure(LineRegressionFigure):
+    """
+    Plot TC frequency data
+    """
 
     def plot(self, years, frequency):
         self.add(np.array(years[1:-1], int), frequency[1:-1], 'Year',
@@ -322,6 +362,12 @@ class FrequencyFigure(LineRegressionFigure):
 
 
 def saveFigure(figure, filename):
+    """
+    Save a :class:`matplotlib.figure` instance to file.
+
+    :param figure: :class:`matplotlib.figure` instance.
+    :param str filename: Path to save the figure to.
+    """
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     canvas = FigureCanvas(figure)
     canvas.print_figure(filename)
@@ -329,6 +375,18 @@ def saveFigure(figure, filename):
 
 def saveWindProfilesFigure(lat, lon, eP, cP, rMax, beta,
                            filename='docs/windprofiles.png'):
+    """
+    Generate a plot of the available wind profiles and save to file.
+
+    :param float lat: Sample latitude for the example profiles.
+    :param float lon: Sample longitude for the example profiles.
+    :param float eP: Environmental pressure for the example profiles (Pa).
+    :param float cP: Central pressure for the example profiles (Pa).
+    :param float rMax: Radius to maximum wind for the example profiles (km).
+    :param float beta: Holland beta parameter for the example profiles.
+    :param str filename: Path to save the figure to.
+    """
+
     fig = WindProfileFigure(lat, lon, eP, cP, rMax, beta)
     fig.plot()
     saveFigure(fig, filename)
@@ -336,6 +394,14 @@ def saveWindProfilesFigure(lat, lon, eP, cP, rMax, beta,
 
 def savePressureFigure(pressures, pressureRates,
                        filename='docs/prs_corr.png'):
+    """
+    Generate and save a plot of pressure and pressure rates
+    with lag-1 autoregression.
+
+    :param pressures: :class:`numpy.ndarray` of pressure values.
+    :param pressureRates: :class:`numpy.ndarray` of pressure rate values.
+    :param str filename: Path to save the figure to.
+    """
     fig = PressureFigure()
     fig.plot(pressures, pressureRates)
     saveFigure(fig, filename)
@@ -348,6 +414,14 @@ def savePressureFigure(pressures, pressureRates,
 
 
 def saveSpeedFigures(speeds, speedRates):
+    """
+    Generate and save a plot of TC speed and speed rates
+    with lag-1 autoregression.
+
+    :param speeds: :class:`numpy.ndarray` of speed values.
+    :param speedRates: :class:`numpy.ndarray` of speed rate values.
+    :param str filename: Path to save the figure to.
+    """
     fig = SpeedFigure()
     fig.plot(speeds, speedRates)
     saveFigure(fig, 'docs/spd_corr.png')
@@ -359,6 +433,14 @@ def saveSpeedFigures(speeds, speedRates):
     saveFigure(fig, 'docs/speedratesh.png')
 
 def saveBearingFigure(bearings, bearingRates):
+    """
+    Generate and save a plot of TC bearing and bearing rates
+    with lag-1 autoregression.
+
+    :param bearings: :class:`numpy.ndarray` of bearing values.
+    :param bearingRates: :class:`numpy.ndarray` of bearing rate values.
+    :param str filename: Path to save the figure to.
+    """
     fig = BearingFigure()
     fig.plot(bearings, bearingRates)
     saveFigure(fig, 'docs/bear_corr.png')
@@ -372,6 +454,13 @@ def saveBearingFigure(bearings, bearingRates):
 
 
 def saveFrequencyFigure(years, frequency, filename='docs/freq_corr.png'):
+    """
+    Plot and save annual frequency figure.
+
+    :param years: :class:`numpy.ndarray` of the years of data.
+    :param frequency: :class:`numpy.ndarray` of the annual frequency of TCs.
+    :param str filename: Path to save the figure to.
+    """
     fig = FrequencyFigure()
     fig.plot(years, frequency)
     saveFigure(fig, filename)
@@ -398,7 +487,7 @@ def main():
     saveBearingFigure(bearings, bearingRates)
 
     freq = files.flLoadFile(pjoin(inputPath, 'frequency'))
-    saveFrequencyFigure(np.array(freq[:,0],int), freq[:,1])
+    saveFrequencyFigure(np.array(freq[:, 0], int), freq[:, 1])
 
 if __name__ == "__main__":
     main()

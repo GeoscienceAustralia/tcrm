@@ -24,7 +24,7 @@ matplotlib.use('Agg', warn=False)
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-import interpolateTracks
+import Evaluate.interpolateTracks as interpolateTracks
 
 from Utilities.config import ConfigParser
 from Utilities.track import ncReadTrackData
@@ -34,8 +34,8 @@ from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities import pathLocator
 import Utilities.Intersections as Int
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
 
 def loadTracks(trackfile):
     """
@@ -90,7 +90,7 @@ class LongitudeCrossing(object):
 
         # Add configuration settings to global attributes:
         self.gatts = {'history': "Longitude crossing rates for TCRM simulation",
-                      'version': flProgramVersion() }
+                      'version': flProgramVersion()}
 
         for section in config.sections():
             for option in config.options(section):
@@ -108,7 +108,7 @@ class LongitudeCrossing(object):
         :return: h, ewh, weh, histograms for each line of longitude,
                  recording the rate of crossings
         """
-        log.debug("Processing %d tracks" % (len(tracks)))
+        LOG.debug("Processing %d tracks" % (len(tracks)))
         h = np.zeros((len(self.gateLats) - 1, len(self.gateLons)))
         ewh = np.zeros((len(self.gateLats) - 1, len(self.gateLons)))
         weh = np.zeros((len(self.gateLats) - 1, len(self.gateLons)))
@@ -177,7 +177,7 @@ class LongitudeCrossing(object):
     def historic(self):
         """Calculate historical rates of longitude crossing"""
 
-        log.info("Processing historical tracks for longitude crossings")
+        LOG.info("Processing historical tracks for longitude crossings")
         config = ConfigParser()
         config.read(self.configFile)
         inputFile = config.get('DataProcess', 'InputFile')
@@ -195,7 +195,7 @@ class LongitudeCrossing(object):
                                                    timestep,
                                                    interpolation_type='linear')
         except (TypeError, IOError, ValueError):
-            log.critical("Cannot load historical track file: {0}".\
+            LOG.critical("Cannot load historical track file: {0}".\
                          format(inputFile))
             raise
         else:
@@ -207,7 +207,7 @@ class LongitudeCrossing(object):
     def synthetic(self):
         """Calculate synthetic rates of longitude crossing"""
 
-        log.info("Processing synthetic rates of longitude crossing")
+        LOG.info("Processing synthetic rates of longitude crossing")
 
         work_tag = 0
         result_tag = 1
@@ -231,12 +231,12 @@ class LongitudeCrossing(object):
             n = 0
             for d in range(1, pp.size()):
                 pp.send(trackfiles[w], destination=d, tag=work_tag)
-                log.debug("Processing track file {0:d} of {1:d}".\
+                LOG.debug("Processing track file {0:d} of {1:d}".\
                           format(w + 1, len(trackfiles)))
                 w += 1
 
             terminated = 0
-            while (terminated < pp.size() - 1):
+            while terminated < pp.size() - 1:
                 results, status = pp.receive(pp.any_source, tag=result_tag,
                                              return_status=True)
 
@@ -248,7 +248,7 @@ class LongitudeCrossing(object):
 
                 if w < len(trackfiles):
                     pp.send(trackfiles[w], destination=d, tag=work_tag)
-                    log.debug("Processing track file {0:d} of {1:d}".\
+                    LOG.debug("Processing track file {0:d} of {1:d}".\
                               format(w + 1, len(trackfiles)))
                     w += 1
                 else:
@@ -258,12 +258,12 @@ class LongitudeCrossing(object):
             self.calcStats(lonCrossHist, lonCrossEW, lonCrossWE)
 
         elif (pp.size() > 1) and (pp.rank() != 0):
-            while(True):
+            while True:
                 trackfile = pp.receive(source=0, tag=work_tag)
                 if trackfile is None:
                     break
 
-                log.debug("Processing %s" % (trackfile))
+                LOG.debug("Processing %s", trackfile)
                 tracks = loadTracks(trackfile)
                 lonCross, lonCrossEW, lonCrossWE = self.findCrossings(tracks)
                 results = (lonCross, lonCrossEW, lonCrossWE)
@@ -283,7 +283,7 @@ class LongitudeCrossing(object):
         """Save data to file for archival and/or further processing"""
 
         dataFile = pjoin(self.dataPath, 'lonCrossings.nc')
-        log.debug("Saving longitude crossing data to %s" % dataFile)
+        LOG.debug("Saving longitude crossing data to %s" % dataFile)
 
         dimensions = {
             0: {
@@ -380,7 +380,7 @@ class LongitudeCrossing(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': ('Upper percentile synthetic longitudinal ',
-                                  'crossing rate' ),
+                                  'crossing rate'),
                     'units': 'number of crossings per year',
                     'percentile': 90
                 }
@@ -422,28 +422,28 @@ class LongitudeCrossing(object):
                 }
             },
             10: {
-                 'name': 'syn_lower_ew',
-                 'dims': ('lat', 'lon'),
-                 'values': self.synCrossEWLower,
-                 'dtype': 'f',
-                 'atts': {
+                'name': 'syn_lower_ew',
+                'dims': ('lat', 'lon'),
+                'values': self.synCrossEWLower,
+                'dtype': 'f',
+                'atts': {
                     'long_name':('Lower percentile synthetic longitudinal '
-                                  'crossing rate - east-west crossings'),
+                                 'crossing rate - east-west crossings'),
                     'units':'number of crossings per year',
                     'percentile': 5
                 }
             },
             11: {
-                 'name': 'syn_lower_we',
-                 'dims': ('lat', 'lon'),
-                 'values': self.synCrossWELower,
-                 'dtype': 'f',
-                 'atts': {
+                'name': 'syn_lower_we',
+                'dims': ('lat', 'lon'),
+                'values': self.synCrossWELower,
+                'dtype': 'f',
+                'atts': {
                     'long_name': ('Lower percentile synthetic longitudinal '
-                                   'crossing rate - west-east crossings'),
+                                  'crossing rate - west-east crossings'),
                     'units': 'number of crossings per year',
                     'percentile': 5
-                 }
+                }
             }
         }
 
@@ -454,7 +454,7 @@ class LongitudeCrossing(object):
     @disableOnWorkers
     def plotCrossingRates(self):
         """Plot longitude crossing rates"""
-        log.debug("Plotting longitude crossing rates")
+        LOG.debug("Plotting longitude crossing rates")
         fig = Figure()
         ax1 = fig.add_subplot(2, 1, 1)
         for i in range(len(self.gateLons)):
@@ -462,7 +462,7 @@ class LongitudeCrossing(object):
                      self.gateLats[:-1], color='r', lw=2)
 
             ax1.plot(2.* self.gateLons[i] - 100. * self.synCrossEW[:, i],
-                     self.gateLats[:-1],color='k',lw=2)
+                     self.gateLats[:-1], color='k', lw=2)
 
             x1 = 2.* self.gateLons[i] - 100. * self.synCrossEWUpper[:, i]
             x2 = 2.* self.gateLons[i] - 100. * self.synCrossEWLower[:, i]
@@ -503,7 +503,7 @@ class LongitudeCrossing(object):
 
         fig.tight_layout()
         canvas = FigureCanvas(fig)
-        canvas.print_figure(pjoin(self.plotPath,'lon_crossing_syn.png'))
+        canvas.print_figure(pjoin(self.plotPath, 'lon_crossing_syn.png'))
 
         return
 

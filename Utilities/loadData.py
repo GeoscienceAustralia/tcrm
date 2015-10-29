@@ -448,7 +448,7 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
                 minute = np.zeros((hour.size), 'i')
 
         datetimes = np.array([datetime(y, m, d, h, mn) for y, m, d, h, mn
-                                in zip(year, month, day, hour, minute)])
+                              in zip(year, month, day, hour, minute)])
 
     return year, month, day, hour, minute, datetimes
 
@@ -689,7 +689,7 @@ def getMinPressure(track, missingValue=sys.maxint):
     """
 
     p = track.CentralPressure
-    if np.all(p==missingValue):
+    if np.all(p == missingValue):
         track.trackMinPressure = missingValue
     else:
         track.trackMinPressure = p[p != missingValue].min()
@@ -709,7 +709,7 @@ def getMaxWind(track, missingValue=sys.maxint):
     """
 
     w = track.WindSpeed
-    if np.all(w==missingValue):
+    if np.all(w == missingValue):
         track.trackMaxWind = missingValue
     else:
         track.trackMaxWind = w[w != missingValue].max()
@@ -771,11 +771,13 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
 
     # Sort date/time information
     if 'age' in inputData.dtype.names:
-        year, month, day, hour, minute, datetimes = parseAge(inputData, indicator)
+        year, month, day, hour, minute, datetimes = parseAge(inputData,
+                                                             indicator)
         timeElapsed = inputData['age']
     else:
-        year, month, day, hour, minute, datetimes = parseDates(inputData, indicator,
-                                                    inputDateFormat)
+        year, month, day, hour, minute, datetimes = parseDates(inputData,
+                                                               indicator,
+                                                               inputDateFormat)
         timeElapsed = getTimeElapsed(indicator, year, month, day, hour, minute)
 
     # Time between observations:
@@ -805,7 +807,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         novalue_index = np.where(windspeed == sys.maxint)
         windspeed = metutils.convert(windspeed, inputSpeedUnits, "mps")
         windspeed[novalue_index] = missingValue
-    except (ValueError,KeyError):
+    except (ValueError, KeyError):
         logger.debug("No max wind speed data - all values will be zero")
         windspeed = np.zeros(indicator.size, 'f')
     assert lat.size == indicator.size
@@ -827,7 +829,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     else:
         logger.debug("No ambient MSLP data in this input file")
         logger.debug("Sampling data from MSLP data defined in "
-                    "configuration file")
+                     "configuration file")
         # Warning: using sampled data will likely lead to some odd behaviour
         # near the boundary of the MSLP grid boundaries - higher resolution
         # MSLP data will decrease this unusual behaviour.
@@ -849,14 +851,15 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     TCID = np.cumsum(indicator)
 
     data = np.empty(len(indicator),
-                        dtype={
-                               'names': trackFields,
-                               'formats': trackTypes
-                               } )
-    for key, value in zip(trackFields, [indicator, TCID, year, month,
-                                           day, hour, minute, timeElapsed, datetimes,
-                                           lon, lat, speed, bearing,
-                                           pressure, windspeed, rmax, penv]):
+                    dtype={
+                        'names': trackFields,
+                        'formats': trackTypes
+                    })
+    for key, value in zip(trackFields,
+                          [indicator, TCID, year, month,
+                           day, hour, minute, timeElapsed,
+                           datetimes, lon, lat, speed, bearing,
+                           pressure, windspeed, rmax, penv]):
         data[key] = value
 
     tracks = []
