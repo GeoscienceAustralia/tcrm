@@ -43,7 +43,10 @@ class TestConfigParser(unittest.TestCase):
         self.evalopt = {'x':1.0,'y':0.5}
         self.listopt1 = ["A", "B", "C", "D", "E"]
         self.listopt2 = ["A"]
-        
+    
+    def tearDown(self):
+        self.config._drop()
+
     def test_geteval(self):
         """Test geteval returns correct object"""
         self.assertIsInstance(self.config.geteval('Evaluate', 'Option'), dict)
@@ -56,7 +59,7 @@ class TestConfigParser(unittest.TestCase):
 class TestOldStyleConfig(unittest.TestCase):
     def setUp(self):
         self.configFile = pjoin(unittest_dir, 'test_data', 'test_config.ini')
-        
+
     def test_cnfReadIniValue(self):
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'Integer', 'Option1'), 1)
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'Integer', 'Option2'), 10)
@@ -69,7 +72,6 @@ class TestOldStyleConfig(unittest.TestCase):
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'String', 'Option'), 'randomstring')
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'Evaluate', 'Option'), {'x':1.0,'y':0.5})
 
-        
     def test_returnDefault(self):
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'Integer', 'Option3', 1), 1)
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'String', 'Option2', 'otherstring'), 'otherstring')

@@ -231,23 +231,27 @@ path=MSLP
 filename=slp.day.ltm.nc
 
 """
-
-
 def singleton(cls):
-    instances = {}
+    """
+    Actually a Borg!
+    Ensure only a single state for all instances of the class
+    
+    See http://code.activestate.com/recipes/66531/#c30 - I added the _drop() 
+    method to permit clean up in testing frameworks.
 
-    def getinstance(*args, **kwargs):
-        """
-        Retrieve an instance of a class. If one (instantiated with
-        the provided args & kwargs) does not exist, then 
-        create an instance and return it.
-        """
+    """
+    cls._state = {}
+    originit = cls.__init__
+    def newinit(self, *args, **kwargs):
+        self.__dict__ = cls._state
+        originit(self, *args, **kwargs)
+    def _drop(self):
+        cls._state = {}
+        self.__dict__ = {}
 
-        if cls not in instances:
-            instances[cls] = cls(*args, **kwargs)
-        return instances[cls]
-    return getinstance
-
+    cls._drop = _drop
+    cls.__init__ = newinit
+    return cls
 
 @singleton
 class ConfigParser(RawConfigParser):
@@ -262,7 +266,7 @@ class ConfigParser(RawConfigParser):
         RawConfigParser.__init__(self)
         self.readfp(io.BytesIO(defaults))
         self.readonce = False
-
+        
     def geteval(self, section, option):
         """
         :param str section: Section name to evaluate.

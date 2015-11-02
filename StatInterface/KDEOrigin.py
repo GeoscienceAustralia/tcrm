@@ -79,12 +79,12 @@ class KDEOrigin(object):
         self.cz = None
 
         self.configFile = configFile
-        config = ConfigParser()
-        config.read(configFile)
+        self.config = ConfigParser()
+        self.config.read(configFile)
 
         if lonLat is None:
             # Load the data from file:
-            self.outputPath = config.get('Output', 'Path')
+            self.outputPath = self.config.get('Output', 'Path')
             self.processPath = pjoin(self.outputPath, 'process')
             LOGGER.debug("Loading " + pjoin(self.processPath, 'init_lon_lat'))
             ll = flLoadFile(pjoin(self.processPath, 'init_lon_lat'), '%', ',')

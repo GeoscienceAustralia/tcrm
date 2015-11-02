@@ -32,6 +32,9 @@ class TestKDEOrigin(NumpyTestCase.NumpyTestCase):
         lonLat = cPickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_origin_lonLat.pck')))
         self.kdeOrigin = KDEOrigin.KDEOrigin(None, gridLimit, kdeStep, lonLat)
 
+    def tearDown(self):
+        self.kdeOrigin.config._drop()
+
     def test_GenerateKDE(self):
         """Testing GenerateKDE for 2D data"""
         pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kdeOrigin_xyz.pck'), 'r')
