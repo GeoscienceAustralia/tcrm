@@ -31,7 +31,7 @@
 """
 import os, sys
 import unittest
-from scipy import array
+from scipy import array, zeros
 import NumpyTestCase
 try:
     import pathLocate
@@ -59,7 +59,13 @@ class TestStats(NumpyTestCase.NumpyTestCase):
         y = array([0, 1, 2, 3, 4])
 
         self.numpyAssertAlmostEqual(statutils.cdf(y, pdf), cdf)
-
+        
+    def test_cdfzeros(self):
+        """Test cdf returns zero array for zero input"""
+        x = array([0, 1, 2, 3, 4])
+        y = zeros(len(x))
+        self.numpyAssertAlmostEqual(statutils.cdf(y, x),
+                                    zeros(len(x)))
     def test_cdf2d(self):
         """Testing cdf2d"""
         pdf = array([[0.07383899, 0.66509486, 0.21795259, 0.349258],
