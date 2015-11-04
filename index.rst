@@ -50,13 +50,14 @@ Bleeding edge versions are accessible `here <https://github.com/GeoscienceAustra
 
 Contributions are welcome -- create a `fork
 <https://github.com/GeoscienceAustralia/tcrm/fork>`_ or clone the
-repo.
+repo. Read the page on :ref:`contributing` to TCRM for more details.
 
 Contents
 ========
 .. toctree::
    :maxdepth: 1
 
+   License information <LICENSE>
    Introduction <docs/intro>
    Installation <docs/install>
    Setting up the model <docs/setup>
@@ -68,7 +69,7 @@ Contents
    Contributing to TCRM <docs/contributing>
    Utilities <docs/Utilities>
    Glossary <docs/glossary>
-   License information <LICENSE>
+   GNU General Public Licence <docs/gnugpl>
 
 * :ref:`genindex`
 * :ref:`modindex`
