@@ -64,12 +64,12 @@ Screenshot
 Contributing to TCRM
 ====================
 
-If you would like to take part in TCRM development, take a look at `docs/contributing.rst <https://giihub.com/GeoscienceAustralia/tcrm/blob/master/docs/contributing.rst>`_.
+If you would like to take part in TCRM development, take a look at `docs/contributing.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/docs/contributing.rst>`_.
 
 License information
 ===================
 
-See the file `LICENSE.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/LICENCE.rst>`_ 
+See the file `LICENSE.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/LICENSE.rst>`_ 
 for information on the history of this software, terms and conditions for usage, 
 and a DISCLAIMER OF ALL WARRANTIES.
 
