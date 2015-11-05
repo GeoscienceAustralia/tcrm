@@ -162,7 +162,7 @@ numbered sequentially through the locations.
 The data is stored in a separate csv file for each location, and data
 is plotted on a simple figure for visual inspection.
 
-.. figure:: ./maxwind_example.png
+.. figure:: maxwind_example.png
     :align: center
     :alt: Maximum wind speed swath of Typhoon *Haiyan*
     :figclass: align-center
@@ -174,7 +174,7 @@ is plotted on a simple figure for visual inspection.
     typhoon. No attempt is made to fit the radial profile to defined
     wind radii (e.g. radius of 46-, 50- or 34-knots).
 
-.. figure:: ./timeseries_example.png
+.. figure:: timeseries_example.png
     :align: center
     :alt: Time series example from Guiuan, Philippines
     :figclass: align-center
