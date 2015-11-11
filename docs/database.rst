@@ -12,6 +12,11 @@ The database is built on the :mod:`sqlite3` module that is part of the
 standard Python library. Extension to a spatial database system has
 been identified as an enhancement for future development.
 
+Tables
+======
+
+Following is a description of the tables contained in the database. Tables are generated 
+
 Locations table
 ---------------
 
@@ -171,4 +176,22 @@ tracks and their proximity to each individual location in the domain.
 +-------------+----------------------------------------------------------------------+------------+
 | dtCreated   | Creation date/time for the record                                    | Timestamp  |
 +-------------+----------------------------------------------------------------------+------------+
+
+
+Queries
+=======
+
+A small number of queries are pre-built into the module. These are
+provided to indicate approaches users can use to develop their own
+queries that satisfy their needs.
+
+Queries use SQL syntax, and are passed to the
+:class:`HazardDatabase.execute` method to perform the SQL command. Queries
+are assembled using the :class:`sqlite3` DB-API parameter substitution
+(see the `sqlite3 <https://docs.python.org/2/library/sqlite3.html>`_
+documentation for more details).
+
+Results from queries are returned as a :class:`numpy.recarray`, with
+the dtype defined by the corresponding type of the database field (see
+above for field types).
 
