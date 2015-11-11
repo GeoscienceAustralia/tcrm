@@ -765,7 +765,7 @@ def locationAllReturnLevels(hazard_db, locId):
     cur = hazard_db.execute(query, (locId,))
     results = cur.fetchall()
     results = np.rec.fromrecords(results,
-                                 names=('locId,locName,,returnPeriod,'
+                                 names=('locId,locName,returnPeriod,'
                                         'wspd,wspdLower,wspdUpper'))
 
     return results
