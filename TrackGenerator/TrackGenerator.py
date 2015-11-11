@@ -31,7 +31,8 @@ file, and each file contains a simulation 'year' (though in the case
 of multi-year simulations, multiple years are contained in the file).
 
 Here's an example that shows the group structure in a track file. The
-track file contains five tracks, each with only two variables - 'time' and 'track'::
+track file contains five tracks, each with only two variables - 'time'
+and 'track'::
 
     >>> from netCDF4 import Dataset
     >>> rootgrp = Dataset("tracks.00001.nc", "r")
@@ -123,8 +124,6 @@ variable (taking the last track from the previous example)::
     path = /tracks\tracks-0004
     unlimited dimensions: time
     current shape = (220,)
-
-
 
 """
 
