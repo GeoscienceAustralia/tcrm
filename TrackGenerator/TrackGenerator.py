@@ -1,5 +1,4 @@
-"""
-:mod:`TrackGenerator` -- Tropical cyclone track generation
+""":mod:`TrackGenerator` -- Tropical cyclone track generation
 ==========================================================
 
 This module contains the core objects for tropical cyclone track
@@ -20,6 +19,112 @@ calling :meth:`run` with the location of a configuration file::
 Alternatively, it can be run from the command line::
 
     $ python TrackGenerator.py cairns.ini
+
+
+Track format
+------------
+
+Tracks are stored in netCDF4 format files, making use of the compound
+variable types and heirarchical group structure available in this
+version of netCDF. Each event is contained as a separate group in the
+file, and each file contains a simulation 'year' (though in the case
+of multi-year simulations, multiple years are contained in the file).
+
+Here's an example that shows the group structure in a track file. The
+track file contains five tracks, each with only two variables - 'time' and 'track'::
+
+    >>> from netCDF4 import Dataset
+    >>> rootgrp = Dataset("tracks.00001.nc", "r")
+    >>> print rootgrp.groups
+    OrderedDict([(u'tracks', <netCDF4.Group object at 0x04B92E88>)])
+    >>> def walktree(top):
+    >>>  values = top.groups.values()
+    >>>  yield values
+    >>>  for value in top.groups.values():
+    >>>   for children in walktree(value):
+    >>>    yield children
+
+    >>> print rootgrp
+    <type 'netCDF4.Dataset'>
+    root group (NETCDF4 file format):
+        created_on: 2015-09-23 14:12:20
+        created_by: u12161
+        dimensions:
+        variables:
+        groups: tracks
+
+    >>> for children in walktree(rootgrp):
+    >>>  for child in children:
+    >>>   print child
+
+    <type 'netCDF4.Group'>
+    group /tracks:
+        dimensions:
+        variables:
+        groups: tracks-0000, tracks-0001, tracks-0002, tracks-0003, tracks-0004
+
+    <type 'netCDF4.Group'>
+    group /tracks\tracks-0000:
+        dimensions: time
+        variables: time, track
+        groups:
+
+    <type 'netCDF4.Group'>
+    group /tracks\tracks-0001:
+        dimensions: time
+        variables: time, track
+        groups:
+
+    <type 'netCDF4.Group'>
+    group /tracks\tracks-0002:
+        dimensions: time
+        variables: time, track
+        groups:
+
+    <type 'netCDF4.Group'>
+    group /tracks\tracks-0003:
+        dimensions: time
+        variables: time, track
+        groups:
+
+    <type 'netCDF4.Group'>
+    group /tracks\tracks-0004:
+        dimensions: time
+        variables: time, track
+        groups:
+
+The 'time' variable is an unlimited dimension representing the length
+of the track in hours since genesis.
+
+The 'track' variable is a compound variable akin to a
+:class:`numpy.recarray`. Here's an example of the summary of a 'track'
+variable (taking the last track from the previous example)::
+
+    >>> print child.variables['track']
+    <type 'netCDF4.Variable'>
+    compound track(time)
+        long_name: Tropical cyclone track data
+        time_units: hours since 1900-01-01 00:00
+        calendar: julian
+        lon_units: degrees east
+        lat_units: degrees north
+        pressure_units: hPa
+        speed_units: m/s
+        length_units: km
+        trackId: (5, 1)
+    compound data type: {'names':[u'CycloneNumber',u'Datetime',u'TimeElapsed',
+                                  u'Longitude',u'Latitude',u'Speed',
+                                  u'Bearing',u'CentralPressure',
+                                  u'EnvPressure',u'rMax'],
+                         'formats':['<i4','<f8','<f4','<f8','<f8','<f8',
+                                    '<f8','<f8','<f8','<f8'],
+                         'offsets':[0,8,16,24,32,40,48,56,64,72],
+                         'itemsize':80}
+    path = /tracks\tracks-0004
+    unlimited dimensions: time
+    current shape = (220,)
+
+
 
 """
 
