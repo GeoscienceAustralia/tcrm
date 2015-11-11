@@ -125,6 +125,9 @@ variable (taking the last track from the previous example)::
     unlimited dimensions: time
     current shape = (220,)
 
+A thorough explanation of the netcdf4-python API is given on the
+`Unidata Github page <http://unidata.github.io/netcdf4-python/>`_.
+
 """
 
 import os
