@@ -24,7 +24,7 @@ of the configuration file should remain unchanged. ::
     ExecuteHazard=False
     PlotHazard=False
     PlotData=False
-    ExecuteEvaluate=False
+    ExecuteEvaluate=True
     DownloadData=True
 
     [Input]

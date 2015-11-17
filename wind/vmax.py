@@ -74,10 +74,10 @@ def vmax(pCentre, pEnv, type="holland", beta=1.3, rho=1.15):
              wind observations so should be used with caution at
              the gradient level.
     :raises ValueError: if environmental pressure is lower than central pressure
-    
+
     Note: The pressure should ideally be passed in units of Pa, but the
     function will accept hPa and automatically convert to Pa.
-    
+
     """
     # Convert from hPa to Pa if necessary:
     if pCentre < 10000:
@@ -120,7 +120,7 @@ def pDiff(vMax, pEnv, vMaxType="holland", beta=1.3, rho=1.15):
     Inverse functions to calculate central pressure from vMax
     Assumes vMax is given in metres/second.
     Returns pCentre in Pa.
-    
+
     """
     if pEnv < 10000:
         pEnv = metutils.convert(pEnv, "hPa", "Pa")

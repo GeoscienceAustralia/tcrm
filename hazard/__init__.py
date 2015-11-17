@@ -39,8 +39,6 @@ from Utilities.parallel import attemptParallel, disableOnWorkers
 import Utilities.nctools as nctools
 import evd
 
-import pdb
-
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
@@ -51,7 +49,7 @@ def setDomain(inputPath):
     :param str inputPath: path of folder containing wind field files
 
     :return:  Longitudes and latitudes of the wind field grid.
-    :rtype: `numpy.ndarray` 
+    :rtype: `numpy.ndarray`
 
     """
 
@@ -62,19 +60,6 @@ def setDomain(inputPath):
     wf_lat = nctools.ncGetDims(ncobj, 'lat')
     ncobj.close()
     return wf_lon, wf_lat
-
-def disableOnWorkers(f):
-    """
-    Disable function calculation on workers. Function will
-    only be evaluated on the master.
-    """
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if pp.size() > 1 and pp.rank() > 0:
-            return
-        else:
-            return f(*args, **kwargs)
-    return wrap
 
 class Tile(object):
     """
@@ -280,8 +265,8 @@ class HazardCalculator(object):
 
         :param tilelimits: `tuple` of tile limits
         """
-        Vr = loadFilesFromPath(self.inputPath, tilelimits)
-
+        #Vr = loadFilesFromPath(self.inputPath, tilelimits)
+        Vr = aggregateWindFields(self.inputPath, self.numSim, tilelimits)
         Rp, loc, scale, shp = calculate(Vr, self.years, self.nodata,
                                         self.minRecords, self.yrsPerSim)
 
@@ -644,7 +629,36 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
 
     return RpUpper, RpLower
 
+def aggregateWindFields(inputPath, numSimulations, tilelimits):
+    """
+    Aggregate wind field data into annual maxima for use in fitting
+    extreme value distributions.
 
+    :param str inputPath: path to individual wind field files.
+    :param int numSimulations: Number of simulated years of activity.
+
+    """
+    from glob import glob
+    log.info("Aggregating individual events to annual maxima")
+    ysize = tilelimits[3] - tilelimits[2]
+    xsize = tilelimits[1] - tilelimits[0]
+    Vm = np.zeros((numSimulations, ysize, xsize), dtype='f')
+
+    for year in xrange(numSimulations):
+        filespec = pjoin(inputPath, "gust.*-%05d.nc"%year)
+        fileList = glob(filespec)
+        if len(fileList) == 0:
+            log.debug("No files for year: {0}".format(year))
+            Vm[year, :, :] = np.zeros((ysize, xsize), dtype='f')
+            continue
+
+        Va = np.zeros((len(fileList), ysize, xsize), dtype='f')
+        for n, f in enumerate(fileList):
+            Va[n, :, :] = loadFile(f, tilelimits)
+
+        Vm[year, :, :] = np.max(Va, axis=0)
+
+    return Vm
 
 def loadFilesFromPath(inputPath, tilelimits):
     """

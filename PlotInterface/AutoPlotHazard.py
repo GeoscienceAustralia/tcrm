@@ -22,24 +22,14 @@ import numpy.ma as ma
 import matplotlib
 matplotlib.use('Agg', warn=False)
 
-try:
-    from mpl_toolkits.basemap import Basemap
-    NO_BASEMAP = False
-except ImportError:
-    NO_BASEMAP = True
-    logging.warn('Basemap package not installed. Disabling some plots')
-
 from os.path import join as pjoin
 
 from Utilities.config import ConfigParser
 
 from Utilities.maputils import find_index
 import Utilities.nctools as nctools
-from Utilities.smooth import smooth
 from Utilities import pathLocator
 from Utilities import metutils
-from Utilities import colours
-#from Utilities.progressbar import ProgressBar
 
 from PlotInterface.maps import saveHazardMap
 from PlotInterface.curves import saveHazardCurve
@@ -80,7 +70,7 @@ class AutoPlotHazard(object):
         config = ConfigParser()
         config.read(configFile)
 
-        outputPath = config.get('Output','Path')
+        outputPath = config.get('Output', 'Path')
 
         try:
             self.localityID = config.get('Region', 'LocalityID')
@@ -113,7 +103,7 @@ class AutoPlotHazard(object):
                           resolution='i')
 
         for i, year in enumerate(years):
-            log.debug("Plotting %d-year return period hazard map"%(year))
+            log.debug("Plotting %d-year return period hazard map", year)
             title = '%d-Year Return Period Cyclonic Wind Hazard' % (year)
             imageFilename = '%d_yrRP_hazard_map.png' % (year)
             filename = pjoin(self.plotPath, imageFilename)
@@ -180,7 +170,7 @@ class AutoPlotHazard(object):
                   within the model domain.
 
         """
-        
+
         # If locality is not found in domain, revert to plotting return
         # curves for all localities in domain:
         self.sqlcur.execute(('select placename from localities where lon > ? '
@@ -211,7 +201,7 @@ class AutoPlotHazard(object):
         placeLons = list(placeLons)
 
         return placeNames, parentCountries, placeLats, placeLons
-    
+
     def plotHazardCurves(self, inputFile, plotPath):
         """
         Plot the hazard values stored in hazardFile, at the stns
@@ -249,10 +239,10 @@ class AutoPlotHazard(object):
         # intercomparisons:
         defaultMax = np.ceil(metutils.convert(100.0, 'mps',
                                               self.plotUnits.units)/10.0)*10.0
-        
+
         placeNames, parentCountries, placeLats, placeLons = \
             self.getLocations(minLon, maxLon, minLat, maxLat)
-        
+
         for name, plat, plon, country in zip(placeNames, placeLats,
                                              placeLons, parentCountries):
 
@@ -277,7 +267,7 @@ class AutoPlotHazard(object):
                                                   self.plotUnits.units)
                 placeWspdUpper  = metutils.convert(wUpper[:,j,i], 'mps',
                                                    self.plotUnits.units)
-                
+
             saveHazardCurve(years, placeWspd, placeWspdUpper, placeWspdLower,
                             xlabel, ylabel, title, filename)
 

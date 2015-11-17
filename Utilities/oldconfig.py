@@ -25,28 +25,32 @@
  SeeAlso: files.py
  Version :$Rev: 642 $
 
- $Id: config.py 642 2012-02-21 07:54:04Z nsummons $
 """
 
-import os, sys, pdb, logging
-import time
+import sys
+import logging
 import ConfigParser
-from files import flConfigFile
+from Utilities.files import flConfigFile
 import inspect
 import re
 
-__version__ = '$Id: config.py 642 2012-02-21 07:54:04Z nsummons $'
-config_dict = {}
-logger = logging.getLogger()
+CONFIG_DICT = {}
+LOG = logging.getLogger()
+
 
 class ConfigError(Exception):
+
     """
     Exception class to handle configuration errors
     """
+
     def __init__(self, value):
+        Exception.__init__()
         self.value = value
+
     def __str__(self):
         return repr(self.value)
+
 
 def cnfCacheIniFile(configFile=None):
     """
@@ -58,54 +62,55 @@ def cnfCacheIniFile(configFile=None):
     Input: configuration file name (optional, defaults to output from
            flConfigFile())
     Output: configuration dictionary
-    Example: config_dict = cnfCacheIniFile(configFile)
+    Example: CONFIG_DICT = cnfCacheIniFile(configFile)
     """
     if configFile:
         try:
-            FH = open(configFile)
+            fh = open(configFile)
         except IOError:
-            logger.info("Cannot open {0}".format(configFile))
-            return config_dict
+            LOG.info("Cannot open %s", configFile)
+            return CONFIG_DICT
     elif len(sys.argv) > 1:
         try:
-            FH = open(sys.argv[1])
+            fh = open(sys.argv[1])
         except IOError:
-            logger.info("No configuration file given at command line")
+            LOG.info("No configuration file given at command line")
     else:
         try:
-            FH = open(flConfigFile(level=len(inspect.stack())))
-            logger.info("Opening default config file %s" % \
-                         flConfigFile(level=len(inspect.stack())))
+            fh = open(flConfigFile(level=len(inspect.stack())))
+            LOG.info("Opening default config file %s",
+                     flConfigFile(level=len(inspect.stack())))
         except IOError:
-            logger.info("Cannot open default config file %s" % \
-                         flConfigFile(level=len(inspect.stack())))
-            return config_dict
+            LOG.info("Cannot open default config file %s",
+                     flConfigFile(level=len(inspect.stack())))
+            return CONFIG_DICT
 
     cp = ConfigParser.ConfigParser()
     cp.optionxform = str
-    cp.readfp(FH)
+    cp.readfp(fh)
     for sec in cp.sections():
         name = sec
-        if name not in config_dict:
-            config_dict[name] = {}
+        if name not in CONFIG_DICT:
+            CONFIG_DICT[name] = {}
         for opt in cp.options(sec):
             try:
-                config_dict[name][opt] = cp.getint(sec, opt)
+                CONFIG_DICT[name][opt] = cp.getint(sec, opt)
             except ValueError:
                 try:
-                    config_dict[name][opt] = cp.getfloat(sec, opt)
+                    CONFIG_DICT[name][opt] = cp.getfloat(sec, opt)
                 except ValueError:
                     try:
-                        config_dict[name][opt] = cp.getboolean(sec, opt)
+                        CONFIG_DICT[name][opt] = cp.getboolean(sec, opt)
                     except ValueError:
-                        config_dict[name][opt] = cp.get(sec, opt)
-    FH.close()
-    return config_dict
+                        CONFIG_DICT[name][opt] = cp.get(sec, opt)
+    fh.close()
+    return CONFIG_DICT
+
 
 def cnfGetCachedIniValue(section, option):
     """
     Get the cached value of an option
-    Assumes the global config_dict dictionary exists & is populated
+    Assumes the global CONFIG_DICT dictionary exists & is populated
 
     Input: section, option
     Output: value
@@ -113,34 +118,35 @@ def cnfGetCachedIniValue(section, option):
     Example: value = cnfGetCachedIniValue( section, option )
     """
     try:
-        if section in config_dict:
-            if option in config_dict[section]:
-                return config_dict[section][option]
+        if section in CONFIG_DICT:
+            if option in CONFIG_DICT[section]:
+                return CONFIG_DICT[section][option]
             else:
                 return None
         else:
             return None
     except ConfigParser.NoSectionError:
-        logger.exception("No {0} section in the configuration file".\
-                            format(section))
+        LOG.exception("No %s section in the configuration file", section)
         raise
+
 
 def cnfSetCachedIniValue(section, option, value):
     """
-    Set the cached value of an option in the config_dict object
-    Assumes the global config_dict dictionary exists.
+    Set the cached value of an option in the CONFIG_DICT object
+    Assumes the global CONFIG_DICT dictionary exists.
 
     Input: section, option, value
     Output: None
     Example: cnfSetCachedIniValue( section, option, value )
     """
 
-    if section in config_dict:
-        if option in config_dict[section]:
-            config_dict[section][option] = value
+    if section in CONFIG_DICT:
+        if option in CONFIG_DICT[section]:
+            CONFIG_DICT[section][option] = value
     else:
-        config_dict[section] = {option:value}
+        CONFIG_DICT[section] = {option: value}
     return
+
 
 def __cnfGetIniValue(configFile, section, option, default=None):
     """
@@ -161,16 +167,16 @@ def __cnfGetIniValue(configFile, section, option, default=None):
     if value is not None:
         return value
     else:
-        config_dict = cnfCacheIniFile(configFile)
+        CONFIG_DICT = cnfCacheIniFile(configFile)
     value = cnfGetCachedIniValue(section, option)
     if value is not None:
         return value
     elif default is not None:
         return default
     else:
-        raise ConfigError("No value set for section: {0}, option: {1} (and no \
-        default value was given)".format(section,option))
-        #return None
+        raise ConfigError("No value set for section: %s, option: %s (and no \
+        default value was given)", section, repr(option))
+        # return None
 
 
 def cnfGetIniList(configFile, section, first=1, last=None):
@@ -185,19 +191,19 @@ def cnfGetIniList(configFile, section, first=1, last=None):
     duplicate values (we can't define which would be retrieved!).
     """
     if configFile is None:
-        FH = open(flConfigFile())
+        fh = open(flConfigFile())
     else:
-        FH = open(configFile)
+        fh = open(configFile)
     cp = ConfigParser.ConfigParser()
     cp.optionxform = str
-    cp.readfp(FH)
+    cp.readfp(fh)
     values = []
     try:
         options = cp.options(section)
     except ConfigParser.NoSectionError:
-        logger.exception("No section named {0} in configuration file {1}".\
-                            format(section, configFile))
-        FH.close()
+        LOG.exception("No section named %s in configuration file %s",
+                      section, configFile)
+        fh.close()
         raise
 
     options = [int(o) for o in options]
@@ -216,7 +222,7 @@ def cnfGetIniList(configFile, section, first=1, last=None):
                         except ValueError:
                             values.append(cp.get(section, str(opt)))
         else:
-            if (int(opt) >= first):
+            if int(opt) >= first:
                 try:
                     values.append(cp.getint(section, str(opt)))
                 except ValueError:
@@ -227,8 +233,9 @@ def cnfGetIniList(configFile, section, first=1, last=None):
                             values.append(cp.getboolean(section, str(opt)))
                         except ValueError:
                             values.append(cp.get(section, str(opt)))
-    FH.close()
+    fh.close()
     return values
+
 
 def cnfGetIniFileValue(configFile, section, option, default=None):
     """
@@ -245,18 +252,18 @@ def cnfGetIniFileValue(configFile, section, option, default=None):
                                         default)
     """
     if configFile is None:
-        FH = open(flConfigFile())
+        fh = open(flConfigFile())
     else:
-        FH = open(configFile)
+        fh = open(configFile)
     cp = ConfigParser.ConfigParser()
     cp.optionxform = str
-    cp.readfp(FH)
+    cp.readfp(fh)
     try:
         sections = cp.sections()
     except ConfigParser.NoSectionError:
-        logger.exception("No section named {0} in configuration file {1}".\
-                            format(section, configFile))
-        FH.close()
+        LOG.exception("No section named %s in configuration file %s",
+                      section, configFile)
+        fh.close()
         raise
 
     if section in sections:
@@ -276,8 +283,9 @@ def cnfGetIniFileValue(configFile, section, option, default=None):
             value = default
     else:
         value = default
-    FH.close()
+    fh.close()
     return value
+
 
 def cnfGetUnorderedList(configFile, section):
     """
@@ -291,7 +299,7 @@ def cnfGetUnorderedList(configFile, section):
     the configuration file, as ConfigParser in Python versions
     prior to 2.7 cannot handle options with no value. The workaround
     reads the configuration file and constructs a dict similar
-    to config_dict used elsewhere in this module.
+    to CONFIG_DICT used elsewhere in this module.
     Lists of unordered values are included in the dict with the
     key and subkey equal to the section name.
     i.e. cfgDict[ section ][ section ] = [list]
@@ -304,18 +312,18 @@ def cnfGetUnorderedList(configFile, section):
     if configFile is None:
         configFile = flConfigFile()
     try:
-        FH = open(configFile)
+        fh = open(configFile)
     except IOError:
-        logger.warn("Cannot open {0}".format(configFile))
+        LOG.warn("Cannot open %s", configFile)
     else:
-        for line in FH:
+        for line in fh:
             line = line.lstrip().rstrip('\n')
             cm = re.match('^;', line)
             if cm:
                 # Ignore lines that begin with a comment character
                 continue
-            sm = re.match('^\[(\w*)\]', line)
-            am = re.match('^([^=]+)=(.+)', line)
+            sm = re.match(r'^\[(\w*)\]', line)
+            am = re.match(r'^([^=]+)=(.+)', line)
             if sm:
                 new_sect = sm.group(1)
                 if sect:
@@ -339,9 +347,10 @@ def cnfGetUnorderedList(configFile, section):
             elif len(line):
                 sect_list.append(line)
 
-        FH.close()
+        fh.close()
 
     return cfgDict[section][section]
+
 
 def _cnfCacheIniFile(filename):
     """
@@ -353,53 +362,53 @@ def _cnfCacheIniFile(filename):
     Input: configuration file name (optional, defaults to output from
            flConfigFile())
     Output: configuration dictionary
-    Example: config_dict = _cnfCacheIniFile(configFile)
+    Example: CONFIG_DICT = _cnfCacheIniFile(configFile)
     """
 
-    section = None
-
+    cfgDict = {}
     try:
-        FH = open( filename )
+        fh = open(filename)
     except IOError:
-        logger.warn( "Cannot open {0}".format( filename ) )
+        LOG.warn("Cannot open %s", filename)
     else:
-        for line in FH:
-            line = line.rstrip( '\n' )
-            line = line.lstrip( )
-            cm = re.match( '^[;#]', line )
+        for line in fh:
+            line = line.rstrip('\n')
+            line = line.lstrip()
+            cm = re.match('^[;#]', line)
             if cm:
                 # Ignore comment lines
                 continue
-            sm = re.match('^\[(\w*)\]', line )
-            am = re.match('^([^=]+)=(.+)', line )
+            sm = re.match(r'^\[(\w*)\]', line)
+            am = re.match(r'^([^=]+)=(.+)', line)
             if sm:
-                new_sect = sm.group( 1 )
-                if sect:
+                new_sect = sm.group(1)
+                if sect:  # pylint: disable=E0601
                     key = sect
                     subkey = key
-                    cfgDict[ key ][ subkey ] = sect_list
+                    cfgDict[key][subkey] = sect_list  # pylint: disable=E0601
                 sect = new_sect
                 sect_list = []
 
             elif am:
                 # Attribute/value pair
-                att = am.group( 1 )
-                val = am.group( 2 )
-                att = att.rstrip( )
-                val = val.rstrip( ).lstrip( )
-                if cfgDict.has_key( sect ):
-                    cfgDict[ sect ][ att ] = val
+                att = am.group(1)
+                val = am.group(2)
+                att = att.rstrip()
+                val = val.rstrip().lstrip()
+                if cfgDict.has_key(sect):
+                    cfgDict[sect][att] = val
                 else:
-                    cfgDict[ sect ] = { }
-                    cfgDict[ sect ][ att ] = val
-            elif len( line ):
-                sect_list.append( line )
+                    cfgDict[sect] = {}
+                    cfgDict[sect][att] = val
+            elif len(line):
+                sect_list.append(line)
 
-        FH.close( )
+        fh.close()
 
     return cfgDict
 
-def cnfRefreshCachedIniFile( configFile ):
+
+def cnfRefreshCachedIniFile(configFile):
     """
     Reload a configuration file into the configuration
     dictionary. This will replace all values with the values from
@@ -407,7 +416,7 @@ def cnfRefreshCachedIniFile( configFile ):
     may have been changed.
 
     Input: ini file name
-    Output: None. The config_dict object is updated
+    Output: None. The CONFIG_DICT object is updated
     Example: cnfRefreshCachedIniFile( configFile )
     """
-    config_dict = cnfCacheIniFile( configFile )
+    CONFIG_DICT = cnfCacheIniFile(configFile)

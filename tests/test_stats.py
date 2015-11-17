@@ -22,16 +22,16 @@
  Description: Unit testing module for statutils.py
 
  Version: $Rev: 563 $
- 
- ModifiedBy: 
- ModifiedDate: 
- Modification: 
+
+ ModifiedBy:
+ ModifiedDate:
+ Modification:
 
  $Id: TestStat.py 563 2007-10-24 02:52:40Z carthur $
 """
 import os, sys
 import unittest
-from scipy import array
+from scipy import array, zeros
 import NumpyTestCase
 try:
     import pathLocate
@@ -45,19 +45,27 @@ import Utilities.stats as statutils
 from Utilities.files import flStartLog
 
 
-class Teststatutils(NumpyTestCase.NumpyTestCase):
+class TestStats(NumpyTestCase.NumpyTestCase):
 
     gridLimit = {'xMin':70, 'xMax':180, 'yMin':-40, 'yMax':0}
     gridSpace = {'x':5, 'y':5}
 
     def test_cdf(self):
         """Testing cdf"""
-        pdf = array([0.33350065, 0.71365127, 0.42428029, 0.99204143, 0.01738811])
-        cdf = array([0.13442936, 0.42209201, 0.59311334, 0.9929911 , 1.0])
+        pdf = array([0.33350065, 0.71365127, 0.42428029,
+                     0.99204143, 0.01738811])
+        cdf = array([0.13442936, 0.42209201, 0.59311334,
+                     0.9929911 , 1.0])
         y = array([0, 1, 2, 3, 4])
 
         self.numpyAssertAlmostEqual(statutils.cdf(y, pdf), cdf)
-
+        
+    def test_cdfzeros(self):
+        """Test cdf returns zero array for zero input"""
+        x = array([0, 1, 2, 3, 4])
+        y = zeros(len(x))
+        self.numpyAssertAlmostEqual(statutils.cdf(y, x),
+                                    zeros(len(x)))
     def test_cdf2d(self):
         """Testing cdf2d"""
         pdf = array([[0.07383899, 0.66509486, 0.21795259, 0.349258],
@@ -69,7 +77,7 @@ class Teststatutils(NumpyTestCase.NumpyTestCase):
                     [0.10186128, 0.25910395, 0.30762902, 0.44421163],
                     [0.19578378, 0.39088508, 0.5602783 , 0.75825101],
                     [0.27055752, 0.49773705, 0.71886075, 1.0]])
-        
+
         x = array([0, 1, 2, 3])
         y = array([0, 1, 2, 3])
 
@@ -78,58 +86,73 @@ class Teststatutils(NumpyTestCase.NumpyTestCase):
     def test_GetCellNum(self):
         """Testing getCellNum"""
         #valid values
-        knownValues = ((173, -39, 174), (173, -30, 152), (133, -30, 144), (70, 0, 0), (173.5, -0.5, 20))
+        knownValues = ((173, -39, 174), (173, -30, 152), (133, -30, 144),
+                       (70, 0, 0), (173.5, -0.5, 20))
         for lon, lat, cell in knownValues:
-            result = statutils.getCellNum(lon, lat, self.gridLimit, self.gridSpace)
+            result = statutils.getCellNum(lon, lat, self.gridLimit,
+                                          self.gridSpace)
             self.assertEqual(cell, result)
 
         #outside of limits
-        invalidLatLongs = ((60, -20), (190, -20), (90, -50), (90, 20), (180, 0), (70, -40))
+        invalidLatLongs = ((60, -20), (190, -20), (90, -50), (90, 20),
+                           (180, 0), (70, -40))
         for lon, lat in invalidLatLongs:
-            self.assertRaises(ValueError, statutils.getCellNum, lon, lat, self.gridLimit, self.gridSpace)
+            self.assertRaises(ValueError, statutils.getCellNum,
+                              lon, lat, self.gridLimit, self.gridSpace)
 
     def test_GetCellLonLat(self):
         """Testing getCellLonLat"""
         #valid values
-        knownValues = ((0, 70, 0), (50, 100, -10), (150, 160, -30), (175, 175, -35))
+        knownValues = ((0, 70, 0), (50, 100, -10), (150, 160, -30),
+                       (175, 175, -35))
         for cell, lon, lat in knownValues:
-            (lon_, lat_) = statutils.getCellLonLat(cell, self.gridLimit, self.gridSpace)
+            (lon_, lat_) = statutils.getCellLonLat(cell, self.gridLimit,
+                                                   self.gridSpace)
             self.assertEqual((lon_,lat_), (lon,lat))
-            
+
         invalidCells = (-10, 176, 2000)
         for cell in invalidCells:
-            self.assertRaises(IndexError, statutils.getCellLonLat, cell, self.gridLimit, self.gridSpace)
+            self.assertRaises(IndexError, statutils.getCellLonLat,
+                              cell, self.gridLimit, self.gridSpace)
 
     def test_ValidCellNum(self):
         """Testing validCellNum"""
-        knownValues = ((-10, False), (0, True), (100, True), (175, True), (176, False), (2000, False))
+        knownValues = ((-10, False), (0, True), (100, True),
+                       (175, True), (176, False), (2000, False))
         for cell, valid in knownValues:
-            result = statutils.validCellNum(cell, self.gridLimit, self.gridSpace)
+            result = statutils.validCellNum(cell, self.gridLimit,
+                                            self.gridSpace)
             self.assertEqual(result, valid)
 
     def test_MaxCellNum(self):
         """Testing maxCellNum"""
         maxCellNum = 175
-        self.assertEqual(maxCellNum, statutils.maxCellNum(self.gridLimit, self.gridSpace))
-        
+        self.assertEqual(maxCellNum, statutils.maxCellNum(self.gridLimit,
+                                                          self.gridSpace))
+
     def test_GetOccurence(self):
         """Testing getOccurance"""
         occurList = [-10, 20, 30, 40]
-        
+
         indList = [0, 2]
-        self.numpyAssertEqual(array([-10, 30]), statutils.getOccurence(occurList, indList))
+        self.numpyAssertEqual(array([-10, 30]),
+                              statutils.getOccurence(occurList, indList))
 
         indList = []
-        self.numpyAssertEqual(array([]), statutils.getOccurence(occurList, indList))
-    
+        self.numpyAssertEqual(array([]),
+                              statutils.getOccurence(occurList, indList))
+
         indList = [-10, 2]
-        self.assertRaises(IndexError, statutils.getOccurence, occurList, indList)
+        self.assertRaises(IndexError, statutils.getOccurence,
+                          occurList, indList)
 
         indList = [0, 20]
-        self.assertRaises(IndexError, statutils.getOccurence, occurList, indList)
+        self.assertRaises(IndexError, statutils.getOccurence,
+                          occurList, indList)
 
         occurList = []
-        self.assertRaises(IndexError, statutils.getOccurence, occurList, indList)
+        self.assertRaises(IndexError, statutils.getOccurence,
+                          occurList, indList)
 
     def test_GetMaxRange(self):
         """Testing getMaxRange"""
@@ -137,7 +160,7 @@ class Teststatutils(NumpyTestCase.NumpyTestCase):
         for minVal, maxVal, step, maxRange in knownValues:
             result = statutils.statMaxRange(minVal, maxVal, step)
             self.assertEqual(maxRange, result)
-        
+
     def test_GetMinRange(self):
         """Testing getMinRange"""
         knownValues = ((10, 20, 9, 2), (-123, 2002, 3, -125))
@@ -147,5 +170,5 @@ class Teststatutils(NumpyTestCase.NumpyTestCase):
 
 if __name__ == "__main__":
     flStartLog('', 'CRITICAL', False)
-    testSuite = unittest.makeSuite(Teststatutils,'test')
+    testSuite = unittest.makeSuite(TestStats,'test')
     unittest.TextTestRunner(verbosity=2).run(testSuite)

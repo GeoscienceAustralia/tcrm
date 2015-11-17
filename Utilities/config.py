@@ -52,7 +52,7 @@ def formatList(lst):
 
     """
 
-    return ','.join(map(str, lst))
+    return ','.join([str(l) for l in lst])
 
 
 FORMATERS = {
@@ -68,6 +68,7 @@ PARSERS = {
     'Actions_executewindfield': parseBool,
     'Actions_plotdata': parseBool,
     'Actions_plothazard': parseBool,
+    'Actions_createdatabase': parseBool,
     'Actions_downloaddata': parseBool,
     'Actions_executeevaluate': parseBool,
     'DataProcess_inputfile': str,
@@ -81,6 +82,7 @@ PARSERS = {
     'Hazard_samplesize': int,
     'Hazard_percentilerange': int,
     'Input_landmask': str,
+    'Input_locationfile': str,
     'Input_mslpgrid': parseList,
     'Logging_logfile': str,
     'Logging_loglevel': str,
@@ -112,7 +114,6 @@ PARSERS = {
     'TrackGenerator_numsimulations': int,
     'TrackGenerator_seasonseed': int,
     'TrackGenerator_trackseed': int,
-    'TrackGenerator_yearspersimulation': int,
     'TrackGenerator_numtimesteps': int,
     'TrackGenerator_timestep': float,
     'WindfieldInterface_beta': float,
@@ -138,6 +139,7 @@ ExecuteHazard=True
 ExecuteEvaluate=True
 PlotData=True
 PlotHazard=True
+CreateDatabase=True
 DownloadData=True
 
 [Region]
@@ -158,7 +160,6 @@ minSamplesCell=100
 
 [TrackGenerator]
 NumSimulations=500
-YearsPerSimulation=1
 NumTimeSteps=360
 TimeStep=1.0
 Format=csv
@@ -189,6 +190,7 @@ PlotSpeedUnits=mps
 GetRMWDistFromInputData=False
 
 [Input]
+LocationFile=input/stationlist.shp
 LandMask=input/landmask.nc
 MSLPFile=MSLP/slp.day.ltm.nc
 Datasets=IBTRACS,LTMSLP
@@ -229,17 +231,27 @@ path=MSLP
 filename=slp.day.ltm.nc
 
 """
-
-
 def singleton(cls):
-    instances = {}
+    """
+    Actually a Borg!
+    Ensure only a single state for all instances of the class
+    
+    See http://code.activestate.com/recipes/66531/#c30 - I added the _drop() 
+    method to permit clean up in testing frameworks.
 
-    def getinstance(*args, **kwargs):
-        if cls not in instances:
-            instances[cls] = cls(*args, **kwargs)
-        return instances[cls]
-    return getinstance
+    """
+    cls._state = {}
+    originit = cls.__init__
+    def newinit(self, *args, **kwargs):
+        self.__dict__ = cls._state
+        originit(self, *args, **kwargs)
+    def _drop(self):
+        cls._state = {}
+        self.__dict__ = {}
 
+    cls._drop = _drop
+    cls.__init__ = newinit
+    return cls
 
 @singleton
 class ConfigParser(RawConfigParser):
@@ -254,7 +266,7 @@ class ConfigParser(RawConfigParser):
         RawConfigParser.__init__(self)
         self.readfp(io.BytesIO(defaults))
         self.readonce = False
-
+        
     def geteval(self, section, option):
         """
         :param str section: Section name to evaluate.
@@ -302,7 +314,7 @@ class ConfigParser(RawConfigParser):
                 parsed[name] = value
         return parsed.items()
 
-    def set(self, section, option, value):
+    def set(self, section, option, value=None):
         """
         Set the value of a specific section and option in the configuration.
 
@@ -342,7 +354,11 @@ def cnfGetIniValue(configFile, section, option, default=None):
     if not config.has_option(section, option):
         return default
     if default is None:
-        return config.get(section, option)
+        try:
+            res = config.geteval(section, option)
+        except NameError:
+            res = config.get(section, option)
+        return res
     if isinstance(default, str):
         return config.get(section, option)
     if isinstance(default, bool):

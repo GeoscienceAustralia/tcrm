@@ -1,55 +1,99 @@
 The Tropical Cyclone Risk Model
 ===============================
 
-The **Tropical Cyclone Risk Model** is a stochastic tropical cyclone 
-model developed by
-`Geoscience Australia <http://www.ga.gov.au>`_ for
-estimating the wind hazard from tropical cyclones. 
+The **Tropical Cyclone Risk Model** is a stochastic tropical cyclone
+model developed by `Geoscience Australia <http://www.ga.gov.au>`_ for estimating the wind hazard from tropical cyclones.
 
-
-Due to the relatively short record of quality-controlled, consistent tropical 
-cyclone observations, it is difficult to estimate average recurrence interval 
-wind speeds ue to tropical cyclones. To overcome the restriction of observed 
-data, TCRM uses an autoregressive model to generate thousands of years of 
-events that are statistically similar to the historical record. To translate 
-these events to estimated wind speeds, TCRM applies a parametric windfield and 
-boundary layer model to each event. Finally an extreme value distribution is 
-fitted to the aggregated windfields at each grid point in the model domain to 
-provide ARI wind speed estimates. 
+Due to the relatively short record of quality-controlled, consistent
+tropical cyclone observations, it is difficult to estimate average
+recurrence interval wind speeds ue to tropical cyclones. To overcome
+the restriction of observed data, TCRM uses an autoregressive model to
+generate thousands of years of events that are statistically similar
+to the historical record. To translate these events to estimated wind
+speeds, TCRM applies a parametric windfield and boundary layer model
+to each event. Finally an extreme value distribution is fitted to the
+aggregated windfields at each grid point in the model domain to
+provide ARI wind speed estimates.
 
 
 Features
 ========
-
-
 * **Multi-platform**: TCRM can run on desktop machines through to massively-parallel systems (tested on Windows XP/Vista/7, \*NIX);
 * **Multiple options for wind field & boundary layer models**: A number of radial profiles and simple boundary layer models have been included to allow users to test sensitivity to these options.
 * **Globally applicable**: Users can set up a domain in any TC basin in the globe. The model is not tuned to any one region of the globe. Rather, the model is designed to draw sufficient information from best-track archives;
 * **Evaluation metrics**: Offers capability to run objective evaluation of track model metrics (e.g. landfall rates);
 * **Single scenarios**: Users can run a single TC event (e.g. using a b-deck format track file) at high temporal resolution and extract time series data at chosen locations;
 
+Branch
+======
 
+This development branch (`tc-dat`) is developing a relational database
+system to allow interrogation of simulations. Users will be able to
+execute queries to identify synthetic events that represent an
+arbitrary return period, some wind speed threshold or proximity to
+tracks with some specified intensity. 
+
+Once a simulation has been executed, the synthetic catalog of events,
+and the corresponding wind fields, will be processed to extract
+details for locations within the simulation domain. The data is stored
+in an `SQLite <http://www.sqlite.org>`_ database using Python's
+`sqlite3 <https://docs.python.org/2/library/sqlite3.html>`_
+module. Presently only generates the database, but will be extended to
+provide a collection of simple queries as part of the standard set-up.
+
+We are also transitioning track files to netcdf4 format to improve
+file management for large simulations.
+
+**NOTE**: Because some dependencies are built only for Python 2.7, this branch is not backward compatible with Python 2.6.
 
 Dependencies
 ============
 
-* TCRM requires `Python (2.7 preferred) <https://www.python.org/>`_,
-  `Numpy <http://www.numpy.org/>`_, `Scipy <http://www.scipy.org/>`_,
-  `Matplotlib <http://matplotlib.org/>`_, `Basemap
-  <http://matplotlib.org/basemap/index.html>`_, `netcdf4-python
-  <https://code.google.com/p/netcdf4-python/>`_, 
-  `Shapely <https://github.com/Toblerity/Shapely>`_, 
-  `Statsmodels <http://statsmodels.sourceforge.net/>`_ and a C compiler;
-* For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
+TCRM requires:
+
+ * `Python 2.7 <https://www.python.org/>`_;
+ * `numpy <http://www.numpy.org/>`_; 
+ * `scipy <http://www.scipy.org/>`_;
+ * `matplotlib 1.4.3 <http://matplotlib.org/>`_; 
+ * `Basemap 1.0.8 <http://matplotlib.org/basemap/index.html>`_; 
+ * `netcdf4-python <https://code.google.com/p/netcdf4-python/>`_; 
+ * `pandas <http://pandas.pydata.org/>`_; 
+ * `Shapely <https://github.com/Toblerity/Shapely>`_; 
+ * `seaborn 0.5.1 <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_;
+ * and `gcc`.  
+
+For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
 
 Status
 ======
 
-.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=master
+.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=tc-dat
     :target: https://travis-ci.org/GeoscienceAustralia/tcrm
+    :alt: Build status
+
+
+.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=tc-dat
+  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=tc-dat
+  :alt: Test coverage
+
+    
+.. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/tc-dat/landscape.svg?style=flat
+    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/tc-dat
+    :alt: Code Health
 
 Screenshot
 ==========
 
 .. image:: https://rawgithub.com/GeoscienceAustralia/tcrm/master/docs/screenshot.png
 
+Contributing to TCRM
+====================
+
+If you would like to take part in TCRM development, take a look at `docs/contributing.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/docs/contributing.rst>`_.
+
+License information
+===================
+
+See the file `LICENSE.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/LICENSE.rst>`_ 
+for information on the history of this software, terms and conditions for usage,
+and a DISCLAIMER OF ALL WARRANTIES.

@@ -20,7 +20,7 @@ Title: generate_localities_database.py
 Author: Nicholas Summons, nicholas.summons@ga.gov.au
 CreationDate: 2012-02-16
 Description: Generates country/division/locality database from text file provided on the
-"world-gazetteer.com" website.  The database is used by the configuration editor GUI 
+"world-gazetteer.com" website.  The database is used by the configuration editor GUI
 to determine place names and location coordinates.
 
 Data licence details from website:
@@ -29,7 +29,7 @@ Data licence details from website:
       This project is to be regarded as a free data provider.  Some requests let
       me precise the copyright information. If you use its data or images the only
       thing I ask you is to promote this site. If you would like to republish the
-      data presented here, please do not change the data and use a copyright note 
+      data presented here, please do not change the data and use a copyright note
       as described as follows: (c) by Stefan Helders www.world-gazetteer.com
       all data (c) 2005 by Stefan Helders"
 """
@@ -37,7 +37,6 @@ Data licence details from website:
 import sqlite3
 import codecs
 import os.path
-import pdb
 import numpy
 
 # Settings
@@ -51,7 +50,7 @@ if os.path.isfile(dBaseName):
 else:
     print "Generating database....."
     conn = sqlite3.connect(dBaseName)
-   
+
     c = conn.cursor()
 
     # Create table
@@ -63,7 +62,7 @@ else:
         if len(z) == 12:
             lat_str = z[6]
             lon_str = z[7]
-           
+
             if (z[4] == 'locality') and (len(lat_str)==0 or len(lon_str)==0):
                 # Skip if locality has no lat/lon coordinates
                 pass
@@ -100,9 +99,9 @@ else:
             c.execute('select placename from localities where parentcountry=? and parentdivision=? and placetype=?', (country, division, 'locality'))
             locations = [z[0] for z in c.fetchall()]
             if len(locations)==0:
-                c.execute('delete from localities where placename=? and parentcountry=? and placetype<>?', (division, country, 'locality'))              
+                c.execute('delete from localities where placename=? and parentcountry=? and placetype<>?', (division, country, 'locality'))
     conn.commit()
-    
+
     # Handle cases when localities have no division (e.g. Niue)
     for country in countries:
         c.execute('select placename from localities where parentcountry=? and parentdivision=?', (country, noDivisionStr))

@@ -54,7 +54,7 @@ def grdSave(filename, data, lon, lat, delta, delimiter=' ', nodata=-9999,
                        If ``coords='UTM'``, then the latitude &
                        longitudes are converted to the local UTM
                        coordinate system.
-                       
+
     :raises ValueError: If the ``filename`` is not a string of file handle.
 
     Usage::
@@ -107,12 +107,12 @@ def grdReadFromNetcdf(filename):
     Read formatted data from a netcdf file.
     Returns the longitude and latitude of the grid and the data
     values. Assumes that there is only one (non-coordinate) variable
-    in the file, which is only 2 dimensional. 
+    in the file, which is only 2 dimensional.
 
     :param str filename: Path to a netcdf file to read.
 
     :returns: longitude, latitude and grid data.
-    
+
     Usage:
     longitude, latitude, data = grdReadFromNetcdf(filename)
     """
@@ -131,7 +131,8 @@ def grdReadFromNetcdf(filename):
         data = ncdf.variables[dataname][:]
         ncdf.close()
 
-    log.debug('Loaded filename %s, memory usage (bytes): lon %i lat %i data %i' % (filename, lon.nbytes, lat.nbytes, data.nbytes))
+    log.debug('Loaded filename %s, memory use (bytes): lon %i lat %i data %i' %
+              (filename, lon.nbytes, lat.nbytes, data.nbytes))
 
     return lon, lat, data
 
@@ -159,19 +160,18 @@ def grdRead(filename, delimiter=None):
         nc_obj = nctools.ncLoadFile(filename)
         lon = numpy.array(nctools.ncGetDims(nc_obj, 'lon'),dtype=float)
         lat = numpy.array(nctools.ncGetDims(nc_obj, 'lat'),dtype=float)
-        #lat = numpy.flipud(lat)
         data_varname = set.difference(set(nc_obj.variables.keys()),
                                       set(nc_obj.dimensions.keys()))
         if len(data_varname) != 1:
-            raise IOError, 'Cannot resolve data variable in netcdf file: ' + filename
-        data = numpy.array(nctools.ncGetData(nc_obj, data_varname.pop()),dtype=float)
+            raise IOError('Cannot resolve data variable in netcdf file: ' + filename)
+        data = numpy.array(nctools.ncGetData(nc_obj, data_varname.pop()),
+                           dtype=float)
         nc_obj.close()
     else:
         try:
             fh = open(filename, 'r')
         except:
-            #g_logger.flLog("Cannot open %s"%filename)
-            raise IOError, "Cannot open %s"%filename
+            raise IOError("Cannot open %s"%filename)
             return
 
         metadata = {}
@@ -190,10 +190,10 @@ def grdRead(filename, delimiter=None):
 
         lon0 = metadata["xllcorner"]
         lon = numpy.array(range(int(metadata["ncols"])), dtype=float)
-        lon = lon*metadata["cellsize"]+lon0
+        lon = lon * metadata["cellsize"] + lon0
         lat0 = metadata["yllcorner"]
         lat = numpy.array(range(int(metadata["nrows"])), dtype=float)
-        lat = lat*metadata["cellsize"]+lat0
+        lat = lat * metadata["cellsize"] + lat0
         lat = numpy.flipud(lat)
 
         data = numpy.zeros([metadata["nrows"], metadata["ncols"]], dtype=float)
@@ -204,12 +204,13 @@ def grdRead(filename, delimiter=None):
             for j, val in enumerate(line.split(delimiter)):
                 value = float(val)
                 if value == metadata["NODATA_value"]:
-                    value = Nan
+                    value = numpy.nan
                 row[j] = value
             data[i,:] = row
         fh.close()
 
-    log.debug('filename %s mem:: lon %i lat %i data %i' % (filename, lon.nbytes, lat.nbytes, data.nbytes))
+    log.debug('filename %s mem:: lon %i lat %i data %i' % 
+              (filename, lon.nbytes, lat.nbytes, data.nbytes))
 
     return lon, lat, data
 
@@ -224,7 +225,7 @@ class SampleGrid:
     :param str filename: Path to a file containing gridded data.
 
     Example::
-        
+
           >>> grid = SampleGrid( '/foo/bar/grid.nc' )
           >>> value = grid.sampleGrid( 100., -25. )
 

@@ -10,17 +10,17 @@ def isSystemDLL(pathname):
     return origIsSystemDLL(pathname)
 py2exe.build_exe.isSystemDLL = isSystemDLL
 
-setup(console=['main.py', 'configeditor.pyw', '.\\unittests\\test_all.py'], 
+setup(console=['main.py', 'configeditor.pyw', '.\\unittests\\test_all.py'],
       data_files=[(r'mpl-data\data',glob.glob(r'C:\Python25\Lib\site-packages\mpl_toolkits\basemap\data\*.*'))] + \
                  matplotlib.get_py2exe_datafiles() + \
                  [(r'test_data',glob.glob(r'.\unittests\test_data\*.*'))] + \
                  [(r'MSLP',glob.glob(r'.\MSLP\*.nc'))] + \
                  [(r'output',[])] + \
                  [(r'input',glob.glob(r'.\input\*.*'))],
-      options={'py2exe': { "includes" : ["matplotlib.backends", 
+      options={'py2exe': { "includes" : ["matplotlib.backends",
                                          "matplotlib.backends.backend_qt4agg",
                                          "matplotlib.figure",
-                                         "pylab", 
+                                         "pylab",
                                          "numpy",
                                          "matplotlib.numerix.fft",
                                          "matplotlib.numerix.linear_algebra",

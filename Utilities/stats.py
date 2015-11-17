@@ -9,13 +9,11 @@
 
 """
 
-import os
 import sys
 import logging
 
 import math
-from scipy import array, arange, size, zeros
-from numpy import *
+import numpy as np
 
 from grid import grdRead
 
@@ -41,21 +39,24 @@ validCellNum(cellNum, gridLimit, gridSpace): boolean
 maxCellNum(gridLimit, gridSpace): int
     Determine maximum cell number based on grid limits and spacing.
 """
+
+
 def cdf(x, y):
     """
     Cumulative Density Function extracted from cdf_lin.m
 
-    
+
     """
 
-    h = abs(x[1] - x[0])
-    y = h*y
+    h = np.abs(x[1] - x[0])
+    y = h * y
     cy = y.cumsum()
     if cy[-1] == 0:
         return cy
-    #normalize cy
-    cy = cy/cy[-1]
+    # normalize cy
+    cy = cy / cy[-1]
     return cy
+
 
 def cdf2d(x, y, z):
     """
@@ -63,25 +64,27 @@ def cdf2d(x, y, z):
     Assumes the grid is uniformly defined, i.e. dx and dy are
     constant.
     """
-    if size(x) < 2 or size(y) < 2:
+    if np.size(x) < 2 or np.size(y) < 2:
         logger.critical("X or Y grids are not arrays")
         raise TypeError, "X or Y grids are not arrays"
-    grid_area = abs(x[1] - x[0])*abs(y[1] - y[0])
-    grid_volume = grid_area*z
+    grid_area = np.abs(x[1] - x[0]) * np.abs(y[1] - y[0])
+    grid_volume = grid_area * z
 
-    cz = zeros([x.size, y.size], 'd')
-    cz[:, 0] = (grid_volume[:,0]).cumsum()
-    cz[0, :] = (grid_volume[0,:]).cumsum()
+    cz = np.zeros([x.size, y.size], 'd')
+    cz[:, 0] = (grid_volume[:, 0]).cumsum()
+    cz[0, :] = (grid_volume[0, :]).cumsum()
 
     for i in xrange(1, len(x)):
         for j in xrange(1, len(y)):
-            cz[i,j] = cz[i-1,j] + cz[i,j-1] - cz[i-1,j-1] + grid_volume[i,j]
+            cz[i, j] = cz[i - 1, j] + cz[i, j - 1] - \
+                cz[i - 1, j - 1] + grid_volume[i, j]
 
-    if cz[-1,-1] == 0:
+    if cz[-1, -1] == 0:
         return cz
-    #normalize cy
-    cz = cz/cz[-1,-1]
+    # normalize cy
+    cz = cz / cz[-1, -1]
     return cz
+
 
 def getCellNum(lon, lat, gridLimit, gridSpace):
     """
@@ -90,58 +93,69 @@ def getCellNum(lon, lat, gridLimit, gridSpace):
     lon = int(math.floor(lon))
     lat = int(math.ceil(lat))
 
-    if (lon < gridLimit['xMin'] or lon >= gridLimit['xMax'] or \
-        lat <= gridLimit['yMin'] or lat > gridLimit['yMax']):
+    if (lon < gridLimit['xMin'] or lon >= gridLimit['xMax'] or
+            lat <= gridLimit['yMin'] or lat > gridLimit['yMax']):
         raise ValueError, 'Invalid input on cellNum: cell number is out of range'
 
-    j = abs((abs(lon) - abs(gridLimit['xMin'])))/abs(gridSpace['x'])
-    i = abs((abs(lat) - abs(gridLimit['yMax'])))/abs(gridSpace['y'])
+    j = abs((abs(lon) - abs(gridLimit['xMin']))) / abs(gridSpace['x'])
+    i = abs((abs(lat) - abs(gridLimit['yMax']))) / abs(gridSpace['y'])
 
-    return int(i*abs((gridLimit['xMax'] - gridLimit['xMin'])/gridSpace['x']) + j)
+    return int(i * abs((gridLimit['xMax'] - gridLimit['xMin']) / gridSpace['x']) + j)
+
 
 def getCellLonLat(cellNum, gridLimit, gridSpace):
     """
     Return the lon/lat of a given cell, based on gridLimit and gridSpace
     """
-    if (cellNum < 0):
+    if cellNum < 0:
         raise IndexError, 'Index is negative'
 
-    lat = arange(gridLimit['yMax'], gridLimit['yMin'], -gridSpace['y'])
-    lon = arange(gridLimit['xMin'], gridLimit['xMax'], gridSpace['x'])
-    indLat = cellNum/lon.size
-    indLon = cellNum%lon.size
+    lat = np.arange(gridLimit['yMax'], gridLimit['yMin'], -gridSpace['y'])
+    lon = np.arange(gridLimit['xMin'], gridLimit['xMax'], gridSpace['x'])
+    indLat = cellNum / lon.size
+    indLon = cellNum % lon.size
     return lon[indLon], lat[indLat]
+
 
 def validCellNum(cellNum, gridLimit, gridSpace):
     """
     Checks whether the given cell number is valid
     """
-    if (cellNum < 0):
+    if cellNum < 0:
         return False
 
-    latCells = size(arange(gridLimit['yMax'], gridLimit['yMin'], -gridSpace['y']))
-    lonCells = size(arange(gridLimit['xMin'], gridLimit['xMax'], gridSpace['x']))
+    latCells = np.size(
+        np.arange(gridLimit['yMax'], gridLimit['yMin'], -gridSpace['y']))
+    lonCells = np.size(
+        np.arange(gridLimit['xMin'], gridLimit['xMax'], gridSpace['x']))
 
-    numCells = latCells*lonCells - 1
-    if (cellNum > numCells):
+    numCells = latCells * lonCells - 1
+    if cellNum > numCells:
         return False
     else:
         return True
+
 
 def maxCellNum(gridLimit, gridSpace):
     """
     Get maximum cell number based on grid and grid space
     """
-    latCells = size(arange(gridLimit['yMax'], gridLimit['yMin'], -gridSpace['y']))
-    lonCells = size(arange(gridLimit['xMin'], gridLimit['xMax'], gridSpace['x']))
+    latCells = np.size(np.arange(gridLimit['yMax'],
+                                 gridLimit['yMin'],
+                                 -gridSpace['y']))
+    lonCells = np.size(np.arange(gridLimit['xMin'],
+                                 gridLimit['xMax'],
+                                 gridSpace['x']))
 
-    return latCells*lonCells - 1
+    return latCells * lonCells - 1
+
 
 def getOccurence(occurList, indList):
     """
     Returns an array of indices corresponding to cyclone observations that
     """
-    return array([occurList[ind] for ind in indList])
+    return np.array([occurList[ind] for ind in indList])
+
 
 def statMaxRange(minval, maxval, step):
     """
@@ -153,8 +167,9 @@ def statMaxRange(minval, maxval, step):
     if step <= 0:
         raise ValueError, 'Invalid step input: step cannot be 0 or negative number'
 
-    ran = arange(minval, maxval + step, step)
+    ran = np.arange(minval, maxval + step, step)
     return ran[-1]
+
 
 def statMinRange(minval, maxval, step):
     """
@@ -165,58 +180,65 @@ def statMinRange(minval, maxval, step):
         raise ValueError, 'Invalid minval maxval input: minval cannot be greater than maxval'
     if step <= 0:
         raise ValueError, 'Invalid step input: step cannot be 0 or negative number'
-    ran = arange(maxval, minval - step, -step)
+    ran = np.arange(maxval, minval - step, -step)
     return ran[-1]
+
 
 def rMaxDist(mean, sig, maxrad=200.):
     """rMaxDist(mean, sig, maxrad=200.)
     Based on the logarithmic distribution reported by Willoughby & Rahn (2004)
     """
-    x = arange(1., maxrad, 1.)
-    mu = log(mean) - (0.5*sig**2)
-    pdf = exp(-((log(x)-mu)**2)/(2*sig**2))/(x*sig*sqrt(2*pi))
+    x = np.arange(1., maxrad, 1.)
+    mu = np.log(mean) - (0.5 * sig ** 2)
+    pdf = np.exp(-((np.log(x) - mu) ** 2) / (2 * sig ** 2)) / \
+          (x * sig * np.sqrt(2 * np.pi))
     cy = cdf(x, pdf)
     return x, pdf, cy
 
-def circmean(samples, high=2*pi, low=0):
+
+def circmean(samples, high=2 * np.pi, low=0):
     """
     Compute the circular mean for samples assumed to be in the range
     [low to high]
     """
-    ang = (samples - low)*2*pi / (high-low)
-    res = angle(mean(exp(1j*ang)))
-    if (res < 0):
-        res = res + 2*pi
-    return res*(high-low)/2.0/pi + low
+    ang = (samples - low) * 2 * np.pi / (high - low)
+    res = np.angle(np.mean(np.exp(1j * ang)))
+    if res < 0:
+        res = res + 2 * np.pi
+    return res * (high - low) / 2.0 / np.pi + low
 
-def circvar(samples, high=2*pi, low=0):
+
+def circvar(samples, high=2 * np.pi, low=0):
     """
     Compute the circular variance for samples assumed to be in the range
     [low to high]
     """
-    ang = (samples - low)*2*pi / (high-low)
-    res = mean(exp(1j*ang))
-    V = 1-abs(res)
-    return ((high-low)/2.0/pi)**2 * V
+    ang = (samples - low) * 2 * np.pi / (high - low)
+    res = np.mean(np.exp(1j * ang))
+    V = 1 - np.abs(res)
+    return ((high - low) / 2.0 / np.pi) ** 2 * V
 
-def circstd(samples, high=2*pi, low=0):
+
+def circstd(samples, high=2 * np.pi, low=0):
     """
     Compute the circular standard deviation for samples assumed to be
     in the range [low to high]
     """
-    ang = (samples - low)*2*pi / (high-low)
-    res = mean(exp(1j*ang))
-    V = 1-abs(res)
-    return ((high-low)/2.0/pi) * sqrt(V)
+    ang = (samples - low) * 2 * np.pi / (high - low)
+    res = np.mean(np.exp(1j * ang))
+    V = 1 - np.abs(res)
+    return ((high - low) / 2.0 / np.pi) * np.sqrt(V)
+
 
 def statRemoveNum(a, Num=sys.maxint):
     """
     Remove all elements in an array for which value is Num
     """
-    if shape(a) == ():
+    if np.shape(a) == ():
         raise ValueError, "Input array must be a 1-d array"
     tmp = a.compress(a <> Num)
-    return tmp.compress(tmp<sys.maxint)
+    return tmp.compress(tmp < sys.maxint)
+
 
 def statCellFraction(gridLimit, gridSpace, valueFile):
     """
@@ -225,7 +247,7 @@ def statCellFraction(gridLimit, gridSpace, valueFile):
     :param dict gridLimit: Dictionary of bounds of the grid.
     :param dict gridSpace: Resolution of the grid to calculate values.
     :param str valueFile: Path to the ascii grid file containing values to sample.
-                           
+
     :returns: :class:`numpy.ndarray` of fractional values, with length equal to the number
               of cells
 
@@ -234,7 +256,7 @@ def statCellFraction(gridLimit, gridSpace, valueFile):
     """
     gLon, gLat, gData = grdRead(valueFile)
     nCells = maxCellNum(gridLimit, gridSpace) + 1
-    output = zeros(nCells)
+    output = np.zeros(nCells)
     for cellNum in xrange(nCells):
         cellLon, cellLat = getCellLonLat(cellNum, gridLimit, gridSpace)
         wLon = cellLon
@@ -242,20 +264,22 @@ def statCellFraction(gridLimit, gridSpace, valueFile):
         nLat = cellLat
         sLat = cellLat - gridSpace['y']
 
-        ii = where((gLon<=eLon) & (gLon>=wLon))
-        jj = where((gLat<=nLat) & (gLat>=sLat))
-        cellValues = gData[meshgrid(jj[0],ii[0])]
+        ii = np.where((gLon <= eLon) & (gLon >= wLon))
+        jj = np.where((gLat <= nLat) & (gLat >= sLat))
+        cellValues = gData[np.meshgrid(jj[0], ii[0])]
 
         if abs(cellValues).max() == 0:
-            output[cellNum] = average(cellValues)
+            output[cellNum] = np.average(cellValues)
         else:
-            output[cellNum] = average(cellValues)/abs(cellValues).max()
+            output[cellNum] = np.average(cellValues) / abs(cellValues).max()
     return output
+
 
 def probability(return_period):
     """Return an annual probability given a return period"""
-    p = 1.0 - exp(-1.0/return_period)
+    p = 1.0 - np.exp(-1.0 / return_period)
     return p
+
 
 def between(value, minval, maxval, fuzz=2, inclusive=True):
     """
@@ -280,8 +304,8 @@ def between(value, minval, maxval, fuzz=2, inclusive=True):
     """
     # expand bounds
     for _ in xrange(fuzz):
-        minval = nextafter(minval, minval - 1e6)
-        maxval = nextafter(maxval, maxval + 1e6)
+        minval = np.nextafter(minval, minval - 1e6)
+        maxval = np.nextafter(maxval, maxval + 1e6)
 
     if inclusive:
         return minval <= value <= maxval

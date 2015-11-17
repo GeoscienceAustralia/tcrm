@@ -45,7 +45,7 @@ if pathLocator.is_frozen():
 def timer(f):
     """
     A simple timing decorator for the entire process.
-    
+
     """
     @wraps(f)
     def wrap(*args, **kwargs):
@@ -87,12 +87,12 @@ def doDataDownload(configFile):
 
     This will attempt to download the gzipped csv file from the given URL
     and save it to the given filename, in the 'input' folder under the current
-    directory. Gzipped files are automatically unzipped. 
+    directory. Gzipped files are automatically unzipped.
 
-    
+
     :param str configFile: Name of configuration file.
     :raises IOError: If the data cannot be downloaded.
-    
+
 
     """
 
@@ -250,7 +250,7 @@ def doDataPlotting(configFile):
     :param str configFile: Name of configuration file.
 
     """
-
+    import numpy as np
     config = ConfigParser()
     config.read(configFile)
 
@@ -268,6 +268,8 @@ def doDataPlotting(configFile):
     bAllData = flLoadFile(pjoin(processPath, 'all_bearing'))
     sRateData = flLoadFile(pjoin(processPath, 'speed_rate'))
     sAllData = flLoadFile(pjoin(processPath, 'all_speed'))
+    freq = flLoadFile(pjoin(processPath, 'frequency'))
+
 
     indLonLat = flLoadFile(pjoin(processPath, 'cyclone_tracks'),
                            delimiter=',')
@@ -275,53 +277,51 @@ def doDataPlotting(configFile):
     lonData = indLonLat[:, 1]
     latData = indLonLat[:, 2]
 
-    from PlotInterface.plotStats import PlotData
-    plotting = PlotData(statsPlotPath, "png")
+    jdayobs = flLoadFile(pjoin(processPath, 'jday_obs'), delimiter=',')
+    jdaygenesis = flLoadFile(pjoin(processPath, 'jday_genesis'), delimiter=',')
+
+
+    from PlotInterface.plotStats import PlotPressure, PlotBearing, \
+        PlotSpeed, PlotFrequency, PlotDays, PlotLonLat
 
     log.info('Plotting pressure data')
     pbar.update(0.05)
+    PrsPlot = PlotPressure(statsPlotPath, "png")
+    PrsPlot.plotPressure(pAllData)
+    PrsPlot.plotPressureRate(pRateData)
+    PrsPlot.plotMinPressure(indicator, pAllData)
 
-    plotting.plotPressure(pAllData, pRateData)
-    plotting.scatterHistogram(
-        pAllData[1:], pAllData[:-1], 'prs_scatterHist', allpos=True)
-    plotting.scatterHistogram(
-        pRateData[1:], pRateData[:-1], 'prsRate_scatterHist')
-    plotting.minPressureHist(indicator, pAllData)
-    plotting.minPressureLat(pAllData, latData)
-
+    #FIXME: To be moved into `PlotPressure` class.
+    #plotting.minPressureLat(pAllData, latData)
 
     log.info('Plotting bearing data')
     pbar.update(0.15)
-
-    plotting.plotBearing(bAllData, bRateData)
+    BearPlot = PlotBearing(statsPlotPath, "png")
+    BearPlot.plotBearing(bAllData)
+    BearPlot.plotBearingRate(bRateData)
 
     log.info('Plotting speed data')
     pbar.update(0.25)
+    SpeedPlot = PlotSpeed(statsPlotPath, "png")
+    SpeedPlot.plotSpeed(sAllData)
+    SpeedPlot.plotSpeedRate(sRateData)
 
-    plotting.plotSpeed(sAllData, sRateData)
-
-    log.info('Plotting longitude and lattitude data')
+    log.info('Plotting longitude and latitude data')
     pbar.update(0.45)
 
-    plotting.plotLonLat(lonData, latData, indicator)
+    # FIXME: To be moved to it's own class in PlotStats
+    LLPlot = PlotLonLat(statsPlotPath, "png")
+    LLPlot.plotLonLat(lonData, latData, indicator)
 
-    log.info('Plotting quantiles for pressure, bearing, and speed')
     pbar.update(0.65)
-
-    plotting.quantile(pRateData, "Pressure", "logistic")
-    plotting.quantile(bRateData, "Bearing", "logistic")
-    plotting.quantile(sRateData, "Speed", "logistic")
 
     log.info('Plotting frequency data')
     pbar.update(0.85)
+    FreqPlot = PlotFrequency(statsPlotPath, "png")
+    FreqPlot.plotFrequency(freq[:, 0], freq[:, 1])
 
-    try:
-        freq = flLoadFile(pjoin(processPath, 'frequency'))
-        years = freq[:, 0]
-        frequency = freq[:, 1]
-        plotting.plotFrequency(years, frequency)
-    except IOError:
-        log.warning("No frequency file available - skipping this stage")
+    DayPlot = PlotDays(statsPlotPath, "png")
+    DayPlot.plotJulianDays(jdayobs, jdaygenesis)
 
     pbar.update(1.0)
 
@@ -431,6 +431,39 @@ def doHazardPlotting(configFile):
 
     pbar.update(1.0)
 
+@disableOnWorkers
+def doDatabaseUpdate(configFile):
+    """
+    Build a database containing info on the events, locations, return
+    period wind speeds and tracks.
+
+    :param str configFile: Name of the configuration file.
+
+    """
+
+    log.info("Creating hazard database")
+    import database
+
+    config = ConfigParser()
+    config.read(configFile)
+
+
+    outputPath = config.get('Output', 'Path')
+    location_db = pjoin(outputPath, 'locations.db')
+    if not os.path.exists(location_db):
+        location_file = config.get('Input', 'LocationFile')
+        database.buildLocationDatabase(location_db, location_file)
+
+    db = database.HazardDatabase(configFile)
+    db.createDatabase()
+    db.generateEventTable()
+    db.setLocations()
+    db.processEvents()
+    db.processHazard()
+    db.processTracks()
+    db.close()
+    log.info("Created and populated database")
+
 
 def doEvaluation(configFile):
     """
@@ -445,7 +478,7 @@ def doEvaluation(configFile):
         [Actions]
         ExecuteTrackGenerator=True
         ExecuteEvaluate=True
-        
+
         [TrackGenerator]
         NumSimulations=1000
         YearsPerSimulation=50
@@ -454,7 +487,7 @@ def doEvaluation(configFile):
     TC activity. :mod:`Evaluate` will then compare pressure distributions,
     track density, landfall rates and longitude crossing rates for the
     input dataset and the full 1000 simulations.
-    
+
     :param str configFile: Name of the configuration file.
 
     """
@@ -472,7 +505,8 @@ def main(configFile='main.ini'):
     5 interfaces: DataProcess, StatInterface, TrackGenerator,
     WindfieldInterface and HazardInterface
 
-    :param str configFile: Name of file containing configuration settings for running TCRM
+    :param str configFile: Name of file containing configuration settings
+                           for running TCRM
 
     """
 
@@ -525,6 +559,11 @@ def main(configFile='main.ini'):
         doHazardPlotting(configFile)
 
     pp.barrier()
+
+    if config.getboolean('Actions', 'CreateDatabase'):
+        doDatabaseUpdate(configFile)
+
+    pp.barrier()
     if config.getboolean('Actions', 'ExecuteEvaluate'):
         doEvaluation(config)
 
@@ -539,7 +578,7 @@ def startup():
     to execute the main TCRM functions.
 
     """
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config_file', help='The configuration file')
     parser.add_argument('-v', '--verbose', help='Verbose output',

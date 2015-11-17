@@ -41,7 +41,7 @@ from Utilities.files import flStartLog
 
 class TestGenerateStats(NumpyTestCase.NumpyTestCase):
 
-    pkl_file = open(os.path.join(unittest_dir, 'test_data', 
+    pkl_file = open(os.path.join(unittest_dir, 'test_data',
                                  'generateStatsTestData.pck'), 'r')
     lonLat = cPickle.load(pkl_file)
     parameter = cPickle.load(pkl_file)  # all_speed
@@ -61,7 +61,7 @@ class TestGenerateStats(NumpyTestCase.NumpyTestCase):
         """Testing generateStats (warning: will take about 2 mins to run)
         """
         wP = generateStats.GenerateStats(self.parameter, self.lonLat, self.gridLimit,
-                                         self.gridSpace, self.gridInc, self.minSample, self.angular, 
+                                         self.gridSpace, self.gridInc, self.minSample, self.angular,
                                          self.missingValue)
 
         coeffs_mu_sample = wP.coeffs.mu[0:10]
@@ -85,7 +85,7 @@ class TestGenerateStats(NumpyTestCase.NumpyTestCase):
         self.numpyAssertAlmostEqual(coeffs_phi_sample, coeffs_phi_test)
 
         coeffs_min_sample = wP.coeffs.min[0:20]
-        coeffs_min_test = numpy.array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 
+        coeffs_min_test = numpy.array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
                                        0., 1.82, 1.85, 1.85, 1.85])
         self.numpyAssertAlmostEqual(coeffs_min_sample, coeffs_min_test)
 

@@ -47,13 +47,17 @@ Modification: Added plotArray and plotBarb functions.
 Id: $Id: plotField.py 642 2012-02-21 07:54:04Z nsummons $
 """
 
-import os, sys, logging
+import os
+import sys
+import logging
 
 logger = logging.getLogger()
 
-import getopt, traceback
+import getopt
+import traceback
 
-from numpy import *
+import numpy as np
+import numpy.ma as ma
 from matplotlib import pyplot, cm, rcParams
 
 try:
@@ -66,6 +70,7 @@ except ImportError:
 # GA modules:
 from files import flStartLog, flConfigFile, flLogFatalError
 from config import cnfGetIniValue
+import metutils
 import nctools
 import grid
 import colours
@@ -120,6 +125,7 @@ def _usage():
 
     """
 
+
 def _process(argv):
     """
     A wrapper function to provide an interface between the command line
@@ -127,7 +133,7 @@ def _process(argv):
     from a configuration file and then passes those arguments to the
     plotField function.
     """
-    if len(argv)==0:
+    if len(argv) == 0:
         _usage()
         sys.exit(2)
 
@@ -137,11 +143,11 @@ def _process(argv):
 
     try:
         opts, args = getopt.getopt(argv, "c:hl:v", ["config=", "help",
-                                                   "loglevel=", "verbose"])
+                                                    "loglevel=", "verbose"])
     except getopt.GetoptError:
         _usage()
         sys.exit(2)
-    for opt,arg in opts:
+    for opt, arg in opts:
         if opt in ("-h", "--help"):
             _usage()
             sys.exit(2)
@@ -158,16 +164,17 @@ def _process(argv):
 
     # Input data:
     inputFile = cnfGetIniValue(configFile, 'Input', 'File')
-    inputFormat = cnfGetIniValue(configFile, 'Input', 'Format', os.path.splitext(inputFile)[-1])
-    varname = cnfGetIniValue(configFile,'Input','Variable','')
-    record = cnfGetIniValue(configFile,'Input','Record',0)
-    lvl = cnfGetIniValue(configFile,'Input','Level',0)
+    inputFormat = cnfGetIniValue(
+        configFile, 'Input', 'Format', os.path.splitext(inputFile)[-1])
+    varname = cnfGetIniValue(configFile, 'Input', 'Variable', '')
+    record = cnfGetIniValue(configFile, 'Input', 'Record', 0)
+    lvl = cnfGetIniValue(configFile, 'Input', 'Level', 0)
 
     # Output settings - the default is to use the input filename, with
     # the extension replaced by the image format:
     # The smoothing is optional. Set it to the number of grid points to
     # smooth over (recommend the reciprocal of the data resolution in degrees).
-    imgfmt = cnfGetIniValue(configFile, 'Output', 'Format','png')
+    imgfmt = cnfGetIniValue(configFile, 'Output', 'Format', 'png')
     outputFile = cnfGetIniValue(configFile, 'Output', 'File',
                                 "%s.%s" % (os.path.splitext(inputFile)[0], imgfmt))
     smoothing = cnfGetIniValue(configFile, 'Output', 'Smoothing', False)
@@ -176,34 +183,34 @@ def _process(argv):
     mask = cnfGetIniValue(configFile, 'Output', 'MaskLand', False)
     maskocean = cnfGetIniValue(configFile, 'Output', 'MaskOcean', False)
     fill = cnfGetIniValue(configFile, 'Output', 'FillContours', True)
-    title = cnfGetIniValue(configFile,'Plot','Title',None)
+    title = cnfGetIniValue(configFile, 'Plot', 'Title', None)
     # Load data:
     if inputFormat == '.txt':
         # Attempt to load the dataset:
         try:
-            lon,lat,data = grid.grdRead(inputFile)
+            lon, lat, data = grid.grdRead(inputFile)
         except:
-            logger.critical("Cannot load input file: %s"%inputFile)
+            logger.critical("Cannot load input file: %s" % inputFile)
             raise
     elif inputFormat == '.nc':
         try:
             ncobj = nctools.ncLoadFile(inputFile)
-            lon = nctools.ncGetDims(ncobj,'lon')
-            lat = nctools.ncGetDims(ncobj,'lat')
-            data = nctools.ncGetData(ncobj,varname)
-            mv = getattr(ncobj.variables[varname],'_FillValue')
+            lon = nctools.ncGetDims(ncobj, 'lon')
+            lat = nctools.ncGetDims(ncobj, 'lat')
+            data = nctools.ncGetData(ncobj, varname)
+            mv = getattr(ncobj.variables[varname], '_FillValue')
             ncobj.close()
         except:
-            logger.critical("Cannot load input file: %s"%inputFile)
+            logger.critical("Cannot load input file: %s" % inputFile)
             raise
-        if len(shape(data))==3:
-            data = data[record,:,:]
-        elif len(shape(data))==4:
-            data = data[record,lvl,:,:]
+        if len(data.shape) == 3:
+            data = data[record, :, :]
+        elif len(data.shape) == 4:
+            data = data[record, lvl, :, :]
 
         # Create a masked array:
-        datamask = (data==mv)
-        data = ma.array(data,mask=datamask)
+        datamask = (data == mv)
+        data = ma.array(data, mask=datamask)
 
     else:
         logger.critical("Unknown data format")
@@ -228,24 +235,25 @@ def _process(argv):
         res = cnfGetIniValue(configFile, domain, 'Resolution', res)
         dl = cnfGetIniValue(configFile, domain, 'GridInterval', dl)
 
-    [x,y] = meshgrid(lon, lat)
+    [x, y] = np.meshgrid(lon, lat)
 
     # Set the scale:
     scaleMin = cnfGetIniValue(configFile, 'Output', 'ScaleMin', 0)
     scaleMax = cnfGetIniValue(configFile, 'Output', 'ScaleMax', 101)
     scaleInt = cnfGetIniValue(configFile, 'Output', 'ScaleInt', 10)
-    levels = arange(scaleMin, scaleMax, scaleInt)
-    plotField(x,y,data, llLon, llLat, urLon, urLat, res, dl, levels,
+    levels = np.arange(scaleMin, scaleMax, scaleInt)
+    plotField(x, y, data, llLon, llLat, urLon, urLat, res, dl, levels,
               cmapName, smoothing, title=title, xlab='Longitude',
               ylab='Latitude', clab=label, maskland=mask,
-              maskocean=maskocean,outputFile=outputFile,fill=fill)
+              maskocean=maskocean, outputFile=outputFile, fill=fill)
 
-    logger.info("Completed %s"%sys.argv[0])
+    logger.info("Completed %s" % sys.argv[0])
+
 
 def plotField(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
               res='i', dl=10., levels=10, cmap='jet', smoothing=False,
               title=None, xlab='Longitude', ylab='Latitude', clab=None,
-              maskland=False,maskocean=False,outputFile=None,fill=True):
+              maskland=False, maskocean=False, outputFile=None, fill=True):
     """
     plotField:
     The main function. This function sets up the map instance (using
@@ -257,8 +265,8 @@ def plotField(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
 
     pyplot.rcdefaults()
     pyplot.figure()
-    if (len(x.shape)<2)and(len(y.shape)<2):
-        [xx,yy] = meshgrid(x,y)
+    if (len(x.shape) < 2)and(len(y.shape) < 2):
+        [xx, yy] = np.meshgrid(x, y)
     else:
         xx = x
         yy = y
@@ -285,7 +293,7 @@ def plotField(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
     # Apply smoothing:
     if smoothing:
         logger.debug("Applying smoothing to data")
-        if hasattr(data,'mask'):
+        if hasattr(data, 'mask'):
             # Masked array
             data.data[:] = smooth(data.data, smoothing)
         else:
@@ -297,17 +305,19 @@ def plotField(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
     else:
         cmap = colours.colourMap(cmap, 'stretched')
 
-    meridians = arange(dl*floor(llcrnrlon/dl), dl*ceil(urcrnrlon/dl), dl)
-    parallels = arange(dl*floor(llcrnrlat/dl), dl*ceil(urcrnrlat/dl), dl)
+    meridians = np.arange(dl * np.floor(llcrnrlon / dl),
+                          dl * np.ceil(urcrnrlon / dl), dl)
+    parallels = np.arange(dl * np.floor(llcrnrlat / dl),
+                          dl * np.ceil(urcrnrlat / dl), dl)
     logger.debug("Generating map object")
     # Create the map object:
     try:
         m = Basemap(projection='cyl',
-                resolution=res,
-                llcrnrlon=llcrnrlon,
-                urcrnrlon=urcrnrlon,
-                llcrnrlat=llcrnrlat,
-                urcrnrlat=urcrnrlat)
+                    resolution=res,
+                    llcrnrlon=llcrnrlon,
+                    urcrnrlon=urcrnrlon,
+                    llcrnrlat=llcrnrlat,
+                    urcrnrlat=urcrnrlat)
     except IOError:
         flLogFatalError(traceback.format_exc().splitlines())
 
@@ -318,29 +328,30 @@ def plotField(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
             try:
                 from mpl_toolkits.basemap import maskoceans
             except ImportError:
-                logger.debug("Maskoceans module unavailable, skipping this command")
+                logger.debug(
+                    "Maskoceans module unavailable, skipping this command")
                 pass
             else:
-                datam = maskoceans(x,y,data,inlands=False)
+                datam = maskoceans(x, y, data, inlands=False)
                 m.contourf(x, y, datam, levels, extend='both', cmap=cmap)
         else:
             m.contourf(xx, yy, data, levels, extend='both', cmap=cmap)
-        cb = pyplot.colorbar(shrink=0.5, orientation='horizontal', extend='both',
-                             ticks=levels[::2], pad=0.05)
+        cb = pyplot.colorbar(shrink=0.5, orientation='horizontal',
+                             extend='both', ticks=levels[::2], pad=0.05)
         cb.set_label(clab, fontsize=10)
-        if cb.orientation=='horizontal':
+        if cb.orientation == 'horizontal':
             for t in cb.ax.get_xticklabels():
                 t.set_fontsize(8)
     else:
-        CS = m.contour(xx,yy,data,levels,colors='k',linewidth=0.5)
-        pyplot.clabel(CS, CS.levels,inline=True,fontsize=7)
+        CS = m.contour(xx, yy, data, levels, colors='k', linewidth=0.5)
+        pyplot.clabel(CS, CS.levels, inline=True, fontsize=7)
 
     # Add meridians, parallels, coastlines, etc:
     m.drawcoastlines(linewidth=0.5)
     if maskland:
         m.fillcontinents()
-    m.drawparallels(parallels, labels=[1,0,0,0], fontsize=9, linewidth=0.2)
-    m.drawmeridians(meridians, labels=[0,0,0,1], fontsize=9, linewidth=0.2)
+    m.drawparallels(parallels, labels=[1, 0, 0, 0], fontsize=9, linewidth=0.2)
+    m.drawmeridians(meridians, labels=[0, 0, 0, 1], fontsize=9, linewidth=0.2)
     pyplot.grid(True)
 
     if title is not None:
@@ -351,6 +362,7 @@ def plotField(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
         pyplot.savefig(outputFile)
     else:
         pyplot.show()
+
 
 def plotWindfield(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
                   res='i', dl=10., cmapName='jet', smoothing=None,
@@ -367,16 +379,17 @@ def plotWindfield(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
     if llLon is None:
         # Assume in this case that none of the remaining corner
         # co-ords are defined either.
-        llLon = min(x[0,:])
-        urLon = max(x[0,:])
-        llLat = min(y[:,0])
-        urLat = max(y[:,0])
+        llLon = min(x[0, :])
+        urLon = max(x[0, :])
+        llLat = min(y[:, 0])
+        urLat = max(y[:, 0])
 
-    levels = arange(30, 101, 5)
+    levels = np.arange(30, 101, 5)
 
     plotField(x, y, data, llLon, llLat, urLon, urLat, res, dl, levels,
               cmapName, smoothing, title=title, xlab='Longitude',
               ylab='Latitude', clab=clab, outputFile=outputFile)
+
 
 def plotPressurefield(x, y, data, llLon=None, llLat=None, urLon=None,
                       urLat=None, res='i', dl=10., cmapName='jet_r',
@@ -391,40 +404,40 @@ def plotPressurefield(x, y, data, llLon=None, llLat=None, urLon=None,
 
     # Convert to hectopascals if necessary (crudely, we check the minimum
     # pressure value to determine whether the data is in hPa or Pa):
-    pMin = pressure.min()
+    pMin = data.min()
     if pMin > 5000.:
-        pressure = metutils.convert(pressure, 'Pa', 'hPa')
+        pressure = metutils.convert(data, 'Pa', 'hPa')
 
     if llLon is None:
-        llLon = min(xGrid[0,:])
-        urLon = max(xGrid[0,:])
-        llLat = min(yGrid[:,0])
-        urLat = max(yGrid[:,0])
+        llLon = min(x[0, :])
+        urLon = max(x[0, :])
+        llLat = min(y[:, 0])
+        urLat = max(y[:, 0])
 
-    levels = arange(900, 1020, 5)
+    levels = np.arange(900, 1020, 5)
 
     plotField(x, y, data, llLon, llLat, urLon, urLat, res, dl, levels,
               cmapName, smoothing, title=title, xlab='Lonigtude',
               ylab='Latitude', clab=clab, outputFile=outputFile)
 
 
-def plotArray(x,y,data,llLon=None, llLat=None, urLon=None,
-              urLat=None, res='i', dl=10., datarange=(-1.,1.),
-              cmap='jet_r',title=None, xlab='Longitude',
+def plotArray(x, y, data, llLon=None, llLat=None, urLon=None,
+              urLat=None, res='i', dl=10., datarange=(-1., 1.),
+              cmap='jet_r', title=None, xlab='Longitude',
               ylab='Latitude', clab=None, maskland=False,
               maskocean=False, outputFile=None):
     """
     Plot a grid of values using pyplot.pcolormesh() to create a pseudocolour
     plot of a 2-dimensional array, with a basemap included.
     """
-    #pyplot.rcdefaults()
+    # pyplot.rcdefaults()
 
     if NO_BASEMAP:
         return
 
     pyplot.figure()
-    if (len(x.shape)<2)and(len(y.shape)<2):
-        [xx,yy] = meshgrid(x,y)
+    if (len(x.shape) < 2)and(len(y.shape) < 2):
+        [xx, yy] = np.meshgrid(x, y)
     else:
         xx = x
         yy = y
@@ -447,8 +460,10 @@ def plotArray(x,y,data,llLon=None, llLat=None, urLon=None,
         urcrnrlat = urLat
     else:
         urcrnrlat = y.max()
-    meridians = arange(dl*floor(llcrnrlon/dl), dl*ceil(urcrnrlon/dl), dl)
-    parallels = arange(dl*floor(llcrnrlat/dl), dl*ceil(urcrnrlat/dl), dl)
+    meridians = np.arange(dl * np.floor(llcrnrlon / dl),
+                          dl * np.ceil(urcrnrlon / dl), dl)
+    parallels = np.arange(dl * np.floor(llcrnrlat / dl),
+                          dl * np.ceil(urcrnrlat / dl), dl)
     m = Basemap(projection='cyl',
                 resolution=res,
                 llcrnrlon=llcrnrlon,
@@ -466,15 +481,21 @@ def plotArray(x,y,data,llLon=None, llLat=None, urLon=None,
         try:
             from mpl_toolkits.basemap import maskoceans
         except ImportError:
-            logger.debug("Maskoceans module unavailable, skipping this command")
+            logger.debug(
+                "Maskoceans module unavailable, skipping this command")
             pass
         else:
-            datam = maskoceans(xx,yy,data,inlands=False)
-            m.pcolormesh(xx,yy,datam,edgecolors='None',vmin=datarange[0],vmax=datarange[1],cmap=cmap)
+            datam = maskoceans(xx, yy, data, inlands=False)
+            m.pcolormesh(xx, yy, datam, edgecolors='None',
+                         vmin=datarange[0], vmax=datarange[1],
+                         cmap=cmap)
     else:
-        m.pcolormesh(xx,yy,data,edgecolors='None',vmin=datarange[0],vmax=datarange[1],cmap=cmap)
-    cb = pyplot.colorbar(shrink=0.5, orientation='horizontal', extend='both',pad=0.05)
-    if cb.orientation=='horizontal':
+        m.pcolormesh(xx, yy, data, edgecolors='None',
+                     vmin=datarange[0], vmax=datarange[1],
+                     cmap=cmap)
+    cb = pyplot.colorbar(shrink=0.5, orientation='horizontal',
+                         extend='both', pad=0.05)
+    if cb.orientation == 'horizontal':
         for t in cb.ax.get_xticklabels():
             t.set_fontsize(10)
     if clab is not None:
@@ -483,8 +504,8 @@ def plotArray(x,y,data,llLon=None, llLat=None, urLon=None,
     m.drawcoastlines(linewidth=0.5)
     if maskland:
         m.fillcontinents(color='white')
-    m.drawparallels(parallels, labels=[1,0,0,0], fontsize=9, linewidth=0.2)
-    m.drawmeridians(meridians, labels=[0,0,0,1], fontsize=9, linewidth=0.2)
+    m.drawparallels(parallels, labels=[1, 0, 0, 0], fontsize=9, linewidth=0.2)
+    m.drawmeridians(meridians, labels=[0, 0, 0, 1], fontsize=9, linewidth=0.2)
     pyplot.grid(True)
 
     # Save the image:
@@ -493,9 +514,10 @@ def plotArray(x,y,data,llLon=None, llLat=None, urLon=None,
     else:
         pyplot.show()
 
-def plotBarb(x,y,u,v,llLon=None,llLat=None,urLon=None,
-             urLat=None, res='i', dl=10.,cmapName='jet_r',
-             title=None, xlab='Longitude',ylab='Latitude',
+
+def plotBarb(x, y, u, v, llLon=None, llLat=None, urLon=None,
+             urLat=None, res='i', dl=10., cmapName='jet_r',
+             title=None, xlab='Longitude', ylab='Latitude',
              clab=None, plotMagnitude=False, outputFile=None):
     """
     Plot vector data on a grid using wind barbs. Options exist (plotMagnitude)
@@ -506,8 +528,8 @@ def plotBarb(x,y,u,v,llLon=None,llLat=None,urLon=None,
 
     pyplot.rcdefaults()
     pyplot.figure()
-    if (len(x.shape)<2)and(len(y.shape)<2):
-        [xx,yy] = meshgrid(x,y)
+    if (len(x.shape) < 2)and(len(y.shape) < 2):
+        [xx, yy] = np.meshgrid(x, y)
     else:
         xx = x
         yy = y
@@ -532,8 +554,10 @@ def plotBarb(x,y,u,v,llLon=None,llLat=None,urLon=None,
     else:
         urcrnrlat = y.max()
 
-    meridians = arange(dl*floor(llcrnrlon/dl), dl*ceil(urcrnrlon/dl), dl)
-    parallels = arange(dl*floor(llcrnrlat/dl), dl*ceil(urcrnrlat/dl), dl)
+    meridians = np.arange(dl * np.floor(llcrnrlon / dl),
+                          dl * np.ceil(urcrnrlon / dl), dl)
+    parallels = np.arange(dl * np.floor(llcrnrlat / dl),
+                          dl * np.ceil(urcrnrlat / dl), dl)
     m = Basemap(projection='cyl',
                 resolution=res,
                 llcrnrlon=llcrnrlon,
@@ -542,23 +566,24 @@ def plotBarb(x,y,u,v,llLon=None,llLat=None,urLon=None,
                 urcrnrlat=urcrnrlat)
 
     if plotMagnitude:
-        mag = sqrt(u*u+v*v)
-        m.contourf(xx, yy, ws, levels, extend='both', cmap=cmap)
-        cb = pyplot.colorbar(shrink=0.5, orientation='horizontal', extend='both',
-                     ticks=levels[::2], pad=0.05)
+        mag = np.sqrt(u * u + v * v)
+        levels = np.arange(30, 101, 5)
+        m.contourf(xx, yy, mag, levels, extend='both', cmap=cmapName)
+        cb = pyplot.colorbar(shrink=0.5, orientation='horizontal',
+                             extend='both', ticks=levels[::2], pad=0.05)
 
         cb.set_label(clab, fontsize=10)
-        if cb.orientation=='horizontal':
+        if cb.orientation == 'horizontal':
             for t in cb.ax.get_xticklabels():
                 t.set_fontsize(8)
 
-    dx = numpy.mean(numpy.diff(lon))
+    dx = np.mean(np.diff(x))
     xdim = urcrnrlon - llcrnrlon
-    nx = xdim/dx
-    skip = int(numpy.round(nx/25))
-    m.barbs(xx[0::skip,0::skip],yy[0::skip,0::skip],
-            u[0::skip,0::skip],v[0::skip,0::skip],
-            length=5,linewidth=0.5)
+    nx = xdim / dx
+    skip = int(np.round(nx / 25))
+    m.barbs(xx[0::skip, 0::skip], yy[0::skip, 0::skip],
+            u[0::skip, 0::skip], v[0::skip, 0::skip],
+            length=5, linewidth=0.5)
 
     m.drawcoastlines()
 
@@ -568,6 +593,6 @@ def plotBarb(x,y,u,v,llLon=None,llLat=None,urLon=None,
     else:
         pyplot.show()
 
-#To run this program from the command line, call the main program:
+# To run this program from the command line, call the main program:
 if __name__ == "__main__":
     _process(sys.argv[1:])

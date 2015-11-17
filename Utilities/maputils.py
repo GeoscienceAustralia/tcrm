@@ -61,7 +61,7 @@ def latLon2Azi(lat, lon, ieast=1, azimuth=0, wantdeg=True):
     :param boolean wantdeg: If ``True`` return bearings as degrees, not radians.
 
     :returns: azimuth (+ve clockwise from north) and distance (in km).
-    
+
     """
     #if len(lat) != len(lon):
     #   raise ArrayMismatch, "Input array sizes do not match"
@@ -124,7 +124,7 @@ def latLon2XY(xr, yr, lat, lon, ieast=1, azimuth=0):
     points. Will bomb at North and South Poles. Assumes geographical
     coordinates and azimuth in decimal degrees, local Cartesian
     coordinates in km.
-    
+
     :param xr: Reference longitude, normally 0.
     :param yr: Reference latitude, normally 0.
     :param lat: Array of latitudes.
@@ -181,7 +181,7 @@ def distGC(lat, lon):
 
         >>> dist = distGC([-20, -40],[120,190])
         6914.42
-    
+
     """
     radius = 6367.0 # Earth radius (km)
 
@@ -222,10 +222,10 @@ def gridLatLonDist(cLon, cLat, lonArray, latArray, units=None):
              (``cLon``, ``cLat``).
 
     Example::
-            
+
         >>> lonArray = np.arange(90.,100.,0.1)
         >>> latArray = np.arange(-20.,-10.,0.1)
-        >>> dist = gridLatLonDist( 105., -15., lonArray, latArray, 'km') 
+        >>> dist = gridLatLonDist( 105., -15., lonArray, latArray, 'km')
 
     """
 
@@ -317,7 +317,7 @@ def gridLatLonBear(cLon, cLat, lonArray, latArray):
     (lonArray,latArray) from the point defined by (cLon,cLat).
     (lonArray,latArray) and (cLon,cLat) are in degrees.
     Returns bearing in radians.
-    
+
     :param float cLon: Longitude of the point to measure the distance from.
     :param float cLat: Latitude of the point to measure the distance from.
     :param lonArray: 1-d array of longitude values that will define the
@@ -341,14 +341,14 @@ def gridLatLonBear(cLon, cLat, lonArray, latArray):
                 -2.36317282, -2.37263233],
                [-1.93192776, -1.93369762, -1.93549204, ..., -2.34343069,
                 -2.35269718, -2.36215458],
-                ..., 
+                ...,
                [-1.29066433, -1.28850464, -1.28632113, ..., -0.84374983,
                 -0.83405688, -0.82416555],
                [-1.28446304, -1.28227062, -1.28005406, ..., -0.83332654,
                 -0.82361918, -0.813717  ],
                [-1.27828819, -1.27606348, -1.27381433, ..., -0.82310335,
                 -0.81338586, -0.80347714]])
-    
+
     """
 
     # #CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -441,7 +441,7 @@ def bearing2theta(bearing):
     """
     theta = np.pi / 2. - bearing
     theta = np.mod(theta, 2.*np.pi)
-    
+
     return theta
 
 def theta2bearing(theta):
@@ -458,7 +458,7 @@ def theta2bearing(theta):
     """
     bearing = 2. * np.pi - (theta - np.pi / 2.)
     bearing = np.mod(bearing, 2. * np.pi)
-    
+
     return bearing
 
 def makeGrid(cLon, cLat, margin=2, resolution=0.01, minLon=None, maxLon=None,
@@ -480,9 +480,9 @@ def makeGrid(cLon, cLat, margin=2, resolution=0.01, minLon=None, maxLon=None,
     :param float maxLat: Maximum latitude of points to include in the grid.
 
     :returns: 2 2-d arrays containing the distance (km) and bearing (azimuthal)
-              of all points in a grid from the ``cLon``, ``cLat``. 
+              of all points in a grid from the ``cLon``, ``cLat``.
     """
-    if (type(cLon)==list or type(cLat)==list or 
+    if (type(cLon)==list or type(cLat)==list or
         type(cLon)==np.ndarray or type(cLat)==np.ndarray):
         raise TypeError, "Input values must be scalar values"
 
@@ -514,12 +514,12 @@ def makeGrid(cLon, cLat, margin=2, resolution=0.01, minLon=None, maxLon=None,
 
     return R, theta
 
-def makeGridDomain(cLon, cLat, minLon, maxLon, minLat, maxLat, 
+def makeGridDomain(cLon, cLat, minLon, maxLon, minLat, maxLat,
                    margin=2, resolution=0.01):
     """
     Generate a grid of the distance and angle of a grid of points
     across a complete model domain, given the location of the storm.
-    
+
     :param float cLon: Reference longitude.
     :param float cLat: Reference latitude.
     :param float minLon: Minimum longitude of points to include in the grid.
@@ -533,9 +533,9 @@ def makeGridDomain(cLon, cLat, minLon, maxLon, minLat, maxLat,
     :returns: 2 2-d arrays containing the distance (km) and bearing (azimuthal)
               of all points in a grid from the ``cLon``, ``cLat``, spanning the
               complete region.
-    
+
     """
-    if (type(cLon)==list or type(cLat)==list or 
+    if (type(cLon)==list or type(cLat)==list or
         type(cLon)==np.ndarray or type(cLat)==np.ndarray):
         raise TypeError, "Input values must be scalar values"
     gridSize = int(resolution * 1000)
@@ -549,7 +549,7 @@ def makeGridDomain(cLon, cLat, minLon, maxLon, minLat, maxLat,
 
     R = gridLatLonDist(cLon, cLat, xGrid / 1000., yGrid / 1000.)
     np.putmask(R, R==0, 1e-30)
-    theta = np.pi / 2. - gridLatLonBear(cLon, cLat, 
+    theta = np.pi / 2. - gridLatLonBear(cLon, cLat,
                                         xGrid / 1000., yGrid / 1000.)
     return R, theta
 
@@ -566,9 +566,9 @@ def meshLatLon(cLon, cLat, margin=2, resolution=0.01):
     :returns: Coordinate matrices for the longitude and latitude
               vectors, covering the region within ``margin``
               degrees of (``cLon``, ``cLat``).
-    
+
     """
-    if (type(cLon)==list or type(cLat)==list or 
+    if (type(cLon)==list or type(cLat)==list or
         type(cLon)==np.ndarray or type(cLat)==np.ndarray):
         raise TypeError, "Input values must be scalar values"
     gridSize = int(1000 * resolution)
@@ -584,7 +584,7 @@ def meshLatLon(cLon, cLat, margin=2, resolution=0.01):
     xGrid, yGrid = np.meshgrid(xx, yy)
     return xGrid / 1000., yGrid / 1000.
 
-def meshLatLonDomain(minLon, maxLon, minLat, maxLat, 
+def meshLatLonDomain(minLon, maxLon, minLat, maxLat,
                      margin=2, resolution=0.01):
     """
     Create a meshgrid of the lon/lat grid across th full model domain.
@@ -599,7 +599,7 @@ def meshLatLonDomain(minLon, maxLon, minLat, maxLat,
 
     :returns: Coordinate matrices for the longitude and latitude
               vectors, covering the full domain, plus an additional
-              margin of ``margin`` degrees. 
+              margin of ``margin`` degrees.
     """
     gridSize = int(1000 * resolution)
 
@@ -661,7 +661,7 @@ def coriolis(lat):
     :type  lat: Array-like.
 
     :returns: Coriolis factor.
-    
+
     """
     omega = 2 * np.pi / 24. / 3600.
     f = 2 * omega * np.sin(np.radians(lat))
@@ -674,24 +674,24 @@ def find_index(array, value):
 
     :param array: array of data values.
     :type array: :class:`numpy.ndarray` or `list`.
-    :param value: a value to search `array` for 
+    :param value: a value to search `array` for
                  (or find the index of the nearest value to `value`).
-    
-    :param int idx: index of `array` that most closely matches 
+
+    :param int idx: index of `array` that most closely matches
                     `value`
     :raises: ValueError if `value` is a :class:`numpy.ndarray` or
              a list
-    
+
     Example::
-        
+
         >>> find_index(np.arange(0., 100., 0.5), 15.25)
         30
-        
+
     """
     if type(value) == np.ndarray or type(value) == list:
         raise ValueError, "Value cannot be an array"
 
-    if (value > array.max()): 
+    if (value > array.max()):
         # Value is above the largest value in the array - return the last index:
         return len(array) - 1
     elif (value < array.min()):
@@ -705,14 +705,14 @@ def find_index(array, value):
 def find_nearest(array, value):
     """
     Find the closest value in 'array' to 'value'
-    
+
     :param array: array of data values.
     :type array: :class:`numpy.ndarray`
-    :param value: a value to search the array for (or find the index of the 
+    :param value: a value to search the array for (or find the index of the
                   nearest value to 'value'
     :type value: int or float
-    
-    :returns: array[idx], where idx is the index of array that corresponds 
+
+    :returns: array[idx], where idx is the index of array that corresponds
               to the value closest to 'value'.
 
     :raises ValueError: If `value` is a :class:`numpy.ndarray` or
@@ -720,10 +720,10 @@ def find_nearest(array, value):
     :raises IndexError: If the `value` cannot be found in the `array`
 
     Example::
-    
+
         >>> n = find_nearest( np.arange(0,100.,0.5), 15.25 )
         15.0
-        
+
     """
     if type(value) == np.ndarray or type(value) == list:
         raise ValueError, "Value cannot be an array"

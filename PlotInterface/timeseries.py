@@ -18,7 +18,7 @@ class TimeSeriesFigure(Figure):
         self.dateFormat = DateFormatter('%H:%M \n %Y-%m-%d')
         self.set_size_inches(12, 4)
         self.dirTickLocator = MultipleLocator(45)
-        
+
 
     def make_patch_spines_invisible(self, axes):
         axes.set_frame_on(True)
@@ -30,7 +30,7 @@ class TimeSeriesFigure(Figure):
         self.subfigures.append((dt, ydata, yrange, ylabel, title))
 
     def subplot(self, axes, subfigure, color):
-    
+
         dt, ydata, yrange, ylabel, title = subfigure
         ymin, ymax = yrange
 
@@ -44,7 +44,7 @@ class TimeSeriesFigure(Figure):
         axes.tick_params(axis='y', colors=p[0].get_color())
         axes.tick_params(axis='x', colors=p[0].get_color())
         return p[0]
-        
+
     def subplot_twinx(self, axes, subfigure, color, position):
 
         axes.spines['right'].set_position(("axes", position))
@@ -60,7 +60,7 @@ class TimeSeriesFigure(Figure):
         axes.yaxis.label.set_color(p[0].get_color())
         axes.tick_params(axis='y', colors=p[0].get_color())
         return p[0]
-        
+
     def plot(self):
 
         axes = self.add_subplot(111)
@@ -73,16 +73,16 @@ class TimeSeriesFigure(Figure):
         self.make_patch_spines_invisible(ax2)
         ax2.spines['right'].set_visible(True)
 
-        
+
         dt, ydata0, yrange0, ylabel0, title0 = self.subfigures[0]
         dt, ydata1, yrange1, ylabel1, title1 = self.subfigures[1]
         dt, ydata2, yrange2, ylabel2, title2 = self.subfigures[2]
 
-        p0, = axes.plot(dt, ydata0, color=color.next(), 
+        p0, = axes.plot(dt, ydata0, color=color.next(),
                         label=title0, linewidth=2, alpha=0.5)
-        p1, = ax1.plot(dt, ydata1, color=color.next(), 
+        p1, = ax1.plot(dt, ydata1, color=color.next(),
                         label=title1, linewidth=2, alpha=0.5)
-        p2, = ax2.plot(dt, ydata2, color=color.next(), 
+        p2, = ax2.plot(dt, ydata2, color=color.next(),
                         label=title2, linewidth=2, alpha=0.5)
 
         axes.set_xlabel('Time')
@@ -135,9 +135,9 @@ class TimeSeriesFigure(Figure):
         self.formatXticks(axes)
         self.addGrid(axes)
 
-        
+
     def addLegend(self, axes):
-        l = axes.legend(loc=2, handletextpad=0.1, borderpad=0.07, 
+        l = axes.legend(loc=2, handletextpad=0.1, borderpad=0.07,
                         labelspacing=0.07)
         for t in l.get_texts():
             t.set_fontsize('xx-small')
@@ -147,13 +147,13 @@ class TimeSeriesFigure(Figure):
         axes.xaxis.set_minor_locator(self.hourLocator)
         axes.xaxis.set_major_formatter(self.dateFormat)
         axes.format_xdata = self.dateFormat
-    
+
     def addGrid(self, axes):
         axes.grid(True, which='major', color='k', linestyle='-', linewidth=0.2)
 
     def addTitle(self, title):
         self.suptitle(title)
-        
+
 def saveFigure(figure, filename):
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     canvas = FigureCanvas(figure)

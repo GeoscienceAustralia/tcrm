@@ -1,50 +1,45 @@
-import os 
-import logging
+"""
+:mod:`plotStats` -- statistical plotting routines
+=================================================
+
+.. module:: plotStats
+    :synopsis: A collection of statistical plotting routines.
+
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
+
+"""
+
 import sys
 
 from os.path import join as pjoin
-from matplotlib import pyplot
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from scipy.stats import linregress, probplot
-from scipy.stats import scoreatpercentile as percentile
-import numpy
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import matplotlib.ticker as ticker
 
-import Utilities.files as files
-import Utilities.config as config
-import Utilities.nctools as nctools
-import Utilities.stats as stats
+from PlotInterface.figures import LaggedRegressionFigure
+from scipy.stats import linregress, probplot, frechet_l
+import numpy as np
 
-__version__ = '$Id: plotStats.py 810 2012-02-21 07:52:50Z nsummons $'
+import seaborn as sns
+sns.set_style("ticks")
 
-log = logging.getLogger(__name__)
-pyplot.ioff()
-
-def get_bins(data, allpos=False):
-    """
-    Establish nice bin widths for plotting histograms - as a default it sets
-    the width to 0.25 times the standard deviation of the data
-    """
-    binwidth = 0.25*numpy.std( data )
-    dmax = numpy.max(numpy.fabs( data ))
-
-    lims = (int(dmax/binwidth) + 1) * binwidth
-    if allpos:
-
-        bins = numpy.arange(0, lims+binwidth, binwidth)
-    else:
-        bins = numpy.arange(-lims, lims+binwidth, binwidth)
-
-    return bins
+plt.ioff()
 
 
-def _linreg(data):
+MONTH_LOCATOR = mdates.MonthLocator(bymonthday=15, interval=1)
+YEAR_LOCATOR = mdates.YearLocator()
+TICK_LOCATOR = ticker.MultipleLocator(base=5)
+MONTH_FORMATTER = mdates.DateFormatter("%b")
+YEAR_FORMATTER = mdates.DateFormatter("%Y")
+
+def linreg(data):
     """
     Calculate the linear regression of the data against itself (lag-1)
     Returns the slope, intercept, correlation, two-tailed
     probability and standard error of the estimate.
     """
-    tData = numpy.array([data[1:], data[:-1]])
-    i = numpy.where((tData[0, :] < sys.maxint) & (tData[1, :] < sys.maxint))[0]
+    tData = np.array([data[1:], data[:-1]])
+    i = np.where((tData[0, :] < sys.maxint) & (tData[1, :] < sys.maxint))[0]
     m, c, r, pr, err = linregress(tData[:, i])
     return m, c, r, pr, err
 
@@ -54,7 +49,7 @@ class PlotData(object):
     Base class for plotting summaries of input data.
 
     """
-    def __init__(self, output_path, output_format):
+    def __init__(self, output_path, output_format, context="poster"):
         """
         Initialise statistical plotting routines, fixing the output path and
         the format of all images generated
@@ -62,6 +57,7 @@ class PlotData(object):
         self.outpath = output_path
         self.fmt = output_format
         self.fignum = 0
+        sns.set_context(context)
 
     def figurenum(self):
         """
@@ -72,363 +68,96 @@ class PlotData(object):
 
     def savefig(self, filename, **kwargs):
         """
-        Provide a shortcut to pyplot.savefig() that adds the output path to the
+        Provide a shortcut to plt.savefig() that adds the output path to the
         filename.
         All keyword args are passed without alteration
         """
         outputfile = ".".join([filename, self.fmt])
-        pyplot.savefig(pjoin(self.outpath, outputfile),
+        plt.savefig(pjoin(self.outpath, outputfile),
                        format=self.fmt, **kwargs)
-        pyplot.close()
+        plt.close()
 
-    def scatterHistogram(self, x, y, img_name, allpos=False):
+    def scatterHistogram(self, xdata, ydata, labels, name,
+                         transform=lambda x: x, **kwargs):
         """
-        Generate a combined scatter/histogram plot of data
-        """
-        pyplot.figure(self.figurenum(), figsize=(8, 8))
-        i = numpy.where((x < sys.maxint) & (y < sys.maxint))[0]
-        axScatter = pyplot.subplot(111)
-        axScatter.scatter(x[i], y[i], color='k', s=3)
-        axScatter.set_aspect(1.)
-        for yticks in axScatter.get_yticklabels():
-            yticks.set_fontsize('small')
-        for xticks in axScatter.get_xticklabels():
-            xticks.set_fontsize('small')
+        Create a scatter plot with marginal distributions
 
-        # Create new axes instance on the right of the current axes
-        divider = make_axes_locatable(axScatter)
-        axHistX = divider.append_axes("top", 1.2, pad=0.1, sharex=axScatter)
-        axHistY = divider.append_axes("right", 1.2, pad=0.2, sharey=axScatter)
+        :param x: `numpy.ndarray` of x values.
+        :param y: `numpy.ndarray` of y values.
+        :param list labels: A length-2 list with the x and y labels as strings.
+        :param str name: Name to use in the file name for saving the
+                         figure.
+        :param func transform: A function to transform the data.
+        :param kwargs: Additional keyword arguments passed to
+                       `seaborn.jointplot`.
 
-        # Make labels invisible:
-        pyplot.setp(axHistX.get_xticklabels() + axHistY.get_yticklabels(), visible=False)
 
-        xbins = get_bins(x[i], allpos)
-        ybins = get_bins(y[i], allpos)
-
-        axHistX.hist(x[i], bins=xbins, fc='k', ec=None)
-        axHistY.hist(y[i], bins=ybins, fc='k', ec=None, orientation='horizontal')
-
-        for xticks in axHistX.get_xticklabels():
-            xticks.set_visible(False)
-        for yticks in axHistX.get_yticklabels():
-            yticks.set_fontsize('x-small')
-
-        for yticks in axHistY.get_yticklabels():
-            yticks.set_visible(False)
-        for xticks in axHistY.get_xticklabels():
-            xticks.set_fontsize('x-small')
-            xticks.set_rotation(90)
-
-        outputfile = '%s.%s' % (img_name, self.fmt)
-        pyplot.savefig(os.path.join(self.outpath, outputfile), format=self.fmt)
-        pyplot.close()
-
-    def plotPressure(self, pAllData, pRateData):
-        """
-        Plot the input pressure values lagged against themselves,
-        and the same for the changes in pressure.
         """
 
-        pyplot.figure(self.figurenum(), figsize=(7, 12))
-        pyplot.subplot(211)
-        pyplot.plot(pAllData[1:], pAllData[:-1], 'k.', markersize=1)
+        i = np.where((xdata < sys.maxint) & (ydata < sys.maxint))[0]
+        xx = transform(xdata[i])
+        yy = transform(ydata[i])
+        jp = sns.jointplot(xx, yy, kind='reg',
+                           joint_kws={'scatter_kws':
+                                      {'color':'slategray',
+                                       'alpha':0.5}},
+                           **kwargs)
 
-        m, c, r, p, e = _linreg(pAllData)
+        jp.set_axis_labels(*labels)
+        plt.tight_layout()
 
-        x = numpy.arange(880., 1021., 1.)
-        y = m*x + c
+        self.savefig(name)
 
-        pyplot.plot(x, y, 'r-')
-        pyplot.plot(x, x, 'k-')
-        pyplot.text(900, 1010, "r = %5.3f"%r, ha='center', va='center',
-                    color='r', size=14)
-        pyplot.xlim(880., 1020.)
-        pyplot.ylim(880., 1020.)
-        pyplot.xticks(numpy.arange(880., 1021., 20.))
-        pyplot.yticks(numpy.arange(880., 1021., 20.))
-        pyplot.ylabel(r"$p (t)$", fontsize=16)
-        pyplot.xlabel(r"$p (t-1)$", fontsize=16)
-        #pyplot.grid(True, linewidth=0.5)
-        pyplot.title("Pressure")
-
-        pyplot.subplot(212)
-
-        pyplot.plot(pRateData[1:], pRateData[:-1], 'k.', markersize=1)
-        m, c, r, p, e = _linreg(pRateData)
-        pyplot.text(-8., 8., "r = %5.3f"%r, ha='center', va='center',
-                    color='r', size=14)
-        pyplot.xlim(-10., 10.)
-        pyplot.ylim(-10., 10.)
-        pyplot.xticks(numpy.arange(-10., 11., 2.5))
-        pyplot.yticks(numpy.arange(-10., 11., 2.5))
-        pyplot.ylabel(r"$\partial p/\partial t (t)$", fontsize=16)
-        pyplot.xlabel(r"$\partial p/\partial t (t-1)$", fontsize=16)
-        #pyplot.grid(True)
-        pyplot.title("Pressure rate of change")
-
-        outputfile = 'prs_corr.%s' % self.fmt
-        pyplot.savefig(os.path.join(self.outpath, outputfile), format=self.fmt)
-        pyplot.close()
-
-    def plotSpeed(self, speedData, speedRate):
+    def barPlot(self, xdata, ydata, name, labels):
         """
-        Plot the input speed values lagged against themselves,
-        and the same for the changes in speed.
-        """
-        pyplot.figure(self.figurenum(), figsize=(7, 12))
-        pyplot.subplot(211)
-        pyplot.plot(speedData[1:], speedData[:-1], 'k.', markersize=1)
+        Bar plot, with added trend line or mean line
 
-        m, c, r, p, e = _linreg(speedData)
-
-        x = numpy.arange(0., 101., 1.)
-        y = m*x+c
-        pyplot.plot(x, y, 'r-')
-        pyplot.plot(x, x, 'k-')
-        pyplot.text(10, 90, "r = %5.3f"%r, ha='center', va='center',
-                    color='r', size=14)
-        pyplot.xlim(0., 100.)
-        pyplot.ylim(0., 100.)
-        pyplot.xticks(numpy.arange(0, 101., 20))
-        pyplot.yticks(numpy.arange(0, 101., 20))
-        #pyplot.grid(True)
-        pyplot.ylabel(r"$v (t)$", fontsize=14)
-        pyplot.xlabel(r"$v (t-1)$", fontsize=14)
-
-        pyplot.title("Speed")
-
-        pyplot.subplot(212)
-        pyplot.plot(speedRate[1:], speedRate[:-1], 'k.', markersize=1)
-        m, c, r, p, e = _linreg(speedRate)
-        pyplot.text(-25, 25, "r = %5.3f"%r,
-                    ha='center', va='center', color='r', size=14)
-        pyplot.xlim(-30.,30.)
-        pyplot.ylim(-30.,30.)
-        pyplot.xticks(numpy.arange(-30.,31.,10.))
-        pyplot.yticks(numpy.arange(-30.,31.,10.))
-
-        pyplot.ylabel(r"$\partial v /\partial t (t)$", fontsize=14)
-        pyplot.xlabel(r"$\partial v /\partial t (t-1)$", fontsize=14)
-        #pyplot.grid(True)
-        pyplot.title("Speed rate of change")
-        self.savefig("spd_corr")
-
-        #pyplot.rcdefaults()
-
-        self.scatterHistogram(speedData[1:], speedData[:-1],
-                              'speed_scatterHist', allpos=True)
-
-        self.scatterHistogram(speedRate[1:], speedRate[:-1],
-                              'speedRate_scatterHist', allpos=True)
-
-    def plotBearing(self, bAllData, bRateData):
-        """
-        Plot the (cosine of) input bearing values lagged against themselves,
-        and the same for the changes in bearing.
+        :param x: `numpy.ndarray` of x-values.
+        :param y: `numpy.ndarray` of y-values.
+        :param str name: Name of the parameter, which will be used
+                         in the filename.
+        :param list labels: A list of the x- and y-axis labels to apply.
         """
 
-        pyplot.figure(self.figurenum(), figsize=(7, 12))
-        pyplot.subplot(211)
-    #    pyplot.plot(numpy.cos(bAllData[1:]),numpy.cos(bAllData[:-1]),'kx')
-    #    pyplot.xlim(-1.,1.)
-    #    pyplot.ylim(-1.,1.)
-    #    pyplot.xticks(numpy.arange(-1.,1.1,1.))
-    #    pyplot.yticks(numpy.arange(-1.,1.1,1.))
-        bAllData_t0 = bAllData[1:]
-        bAllData_tm1 = bAllData[:-1]
-        bAllData_skip = (bAllData_t0>=sys.maxint) | (bAllData_tm1>=sys.maxint)
-        bAllData_t0 = bAllData_t0.compress(bAllData_skip == False)
-        bAllData_tm1 = bAllData_tm1.compress(bAllData_skip == False)
-        pyplot.plot(numpy.cos(numpy.radians(bAllData_t0)),
-                    numpy.cos(numpy.radians(bAllData_tm1)),
-                    'k.', markersize=1)
-        pyplot.xlim(-1., 1.)
-        pyplot.ylim(-1., 1.)
-        pyplot.xticks(numpy.arange(-1.,1.1,1.))
-        pyplot.yticks(numpy.arange(-1.,1.1,1.))
-        m, c, r, p, e = _linreg(numpy.cos(numpy.radians(bAllData)). \
-                                compress(bAllData < sys.maxint))
+        fig, ax = plt.subplots(1, 1)
+        sns.barplot(xdata, ydata, ax=ax)
+        ax.set_xlabel(labels[0])
+        ax.set_ylabel(labels[1])
+        ax.axhline(np.mean(ydata))
+        sns.despine()
+        fig.tight_layout()
+        self.savefig(name)
 
-        x = numpy.arange(-1.0,1.1,0.1)
-        y = m*x+c
-        pyplot.plot(x,y,'r-')
-        pyplot.plot(x,x,'k-')
-
-        pyplot.text(-0.8, 0.8, "r = %5.3f"%r,
-                    ha='center', va='center', color='r', size=14)
-        pyplot.ylabel(r"$cos(\theta (t))$", fontsize=16)
-        pyplot.xlabel(r"$cos(\theta (t-1))$", fontsize=16)
-        #pyplot.grid(True)
-        pyplot.title("Bearing")
-
-        pyplot.subplot(212)
-        pyplot.plot(bRateData[1:],bRateData[:-1],'k.',markersize=1)
-        m,c,r,p,e = _linreg(numpy.cos(numpy.radians(bRateData)))
-        pyplot.text(-25, 25, "r = %5.3f"%r,
-                    ha='center', va='center', color='r', size=14)
-
-        pyplot.xlim(-30., 30.)
-        pyplot.ylim(-30., 30.)
-        pyplot.xticks(numpy.arange(-30., 31., 10.))
-        pyplot.yticks(numpy.arange(-30., 31., 10.))
-        pyplot.ylabel(r"$\partial \theta /\partial t (t)$", fontsize=16)
-        pyplot.xlabel(r"$\partial \theta /\partial t (t-1)$", fontsize=16)
-        #pyplot.grid(True)
-        pyplot.title("Bearing rate of change")
-        self.savefig('bear_corr')
-        #pyplot.savefig(os.path.join(outputPath,'bear_corr.eps'))
-        self.scatterHistogram(bAllData[1:], bAllData[:-1],
-                              'bear_scatterHist', allpos=True)
-
-        self.scatterHistogram(bRateData[1:], bRateData[:-1],
-                              'bearRate_scatterHist', allpos=True)
-
-    def julianDay(self, julianDayObs, julianDayGenesis):
+    def plotRegression(self, xdata, name, labels, transform=lambda x: x):
         """
-        Plot bar graphs of the number of TC observations and genesis events
+        A generic function to plot a lag-1 autoregression of the
+        variable, with a joint probability plot including
+        marginal distribution plots.
+
+        :param x: `numpy.ndarray` of the data variable to plot.
+        :param str name: Name of the variable. Used for saving the
+                         resulting image.
+        :param list labels: A list of the x- and y-axis labels to apply.
+        :param func transform: A transform function to apply to
+                               the data. Default is to leave the
+                               data unchanged.
+
         """
+        figure = LaggedRegressionFigure()
+        figure.add(xdata, labels[0], name, transform)
+        self.savefigure(figure, name)
 
-        pyplot.figure(self.figurenum(), figsize=(10, 6))
-        pyplot.clf()
-        pyplot.bar(julianDayObs[:, 0], julianDayObs[:, 1])
-        pyplot.xlim((1, 365))
-        pyplot.xlabel('Day of year', fontsize=10)
-        pyplot.ylabel('Number of observations', fontsize=10)
-        self.savefig("julian_day_obs")
+        x_t = xdata[1:]
+        x_tm = xdata[:-1]
+        skip = (x_t >= sys.maxint) | (x_tm >= sys.maxint)
+        x_t = x_t.compress(skip==False)
+        x_tm = x_tm.compress(skip==False)
 
-        pyplot.figure(self.figurenum())
-        pyplot.clf()
-        pyplot.bar(julianDayGenesis[:, 0], julianDayGenesis[:, 1])
-        pyplot.xlim((1, 365))
-        pyplot.xlabel('Day of year', fontsize=10)
+        x_t = transform(x_t)
+        x_tm = transform(x_tm)
 
-        pyplot.ylabel('Number of genesis events', fontsize=10)
-        self.savefig("julian_day_genesis")
+        self.scatterHistogram(x_t, x_tm, labels, name+'_scatter')
 
-    def plotLonLat(self, lonData, latData, indicator):
-        """
-        Plot the input lat/lon values lagged against themselves,
-        and the same for the changes in lat/lon.
-        """
-
-        pyplot.figure(self.figurenum(), figsize=(7, 12))
-
-        dlon = lonData[1:] - lonData[:-1]
-        dlat = latData[1:] - latData[:-1]
-        j = numpy.where(indicator[1:] == 0)
-        dlon = dlon[j]
-        dlat = dlat[j]
-
-        # Correct change in longitude where the value jumps across the 180E
-        # meridian
-        k = numpy.where(dlon<-180.)
-        dlon[k] += 360.
-
-        pyplot.subplot(211)
-        pyplot.plot(dlon[1:], dlon[:-1], 'k.', markersize=1)
-        m, c, r, p, e = _linreg(dlon)
-        pyplot.text(-3, 3, "r = %5.3f"%r, ha='center',
-                    va='center', color='r', size=14)
-        pyplot.xlim(-4., 4.)
-        pyplot.ylim(-4., 4.)
-        pyplot.xticks(numpy.arange(-4., 4.1, 1.))
-        pyplot.yticks(numpy.arange(-4., 4.1, 1.))
-        pyplot.ylabel(r"$\Delta lon (t)$", fontsize=16)
-        pyplot.xlabel(r"$\Delta lon (t-1)$", fontsize=16)
-        #pyplot.grid(True)
-        pyplot.title("Longitude rate of change")
-
-        pyplot.subplot(212)
-        pyplot.plot(dlat[1:], dlat[:-1], 'k.', markersize=1)
-        m, c, r, p, e = _linreg(dlat)
-        pyplot.text(-3, 3, "r = %5.3f"%r, ha='center',
-                    va='center', color='r', size=14)
-        pyplot.xlim(-4., 4.)
-        pyplot.ylim(-4., 4.)
-        pyplot.xticks(numpy.arange(-4., 4.1, 1.))
-        pyplot.yticks(numpy.arange(-4., 4.1, 1.))
-        pyplot.ylabel(r"$\Delta lat (t)$", fontsize=16)
-        pyplot.xlabel(r"$\Delta lat (t-1)$", fontsize=16)
-        pyplot.title("Latitude rate of change")
-
-        self.savefig('lonlat_corr')
-        pyplot.rcdefaults()
-
-        self.scatterHistogram(dlon[1:], dlon[:-1], 'dlon_scatterHist')
-
-        self.scatterHistogram(dlat[1:], dlat[:-1], 'dlat_scatterHist')
-
-    def plotFrequency(self, years, frequency):
-        """Plot annual frequency of TCs, plus linear trend line"""
-
-        pyplot.figure(self.figurenum(), figsize=(14, 5))
-        pyplot.plot(years, frequency, 'k-', linewidth=3)
-        xmax = 5*int((1 + years.max()/5))
-        xmin = 5*int((years.min()/5))
-        ymax = 5*int(1 + frequency.max()/5)
-        pyplot.xlim(xmin, xmax)
-        pyplot.ylim(0.0, ymax)
-        pyplot.xticks(numpy.arange(xmin, xmax, 5))
-        pyplot.yticks(numpy.arange(5, ymax, 5))
-
-        pyplot.xlabel("Year")
-        pyplot.ylabel("Frequency")
-
-        m, c, r, pr, err = linregress(numpy.array([years, frequency]))
-        x = numpy.arange(xmin,xmax)
-        y = m*x + c
-
-        pyplot.plot(x, y, 'r--', linewidth=0.5)
-
-        pyplot.xlim(xmin, xmax)
-        pyplot.ylim(0.0, ymax)
-        pyplot.xticks(numpy.arange(xmin, xmax, 5))
-        pyplot.yticks(numpy.arange(0, ymax, 5))
-
-        pyplot.grid(True)
-        pyplot.title("Annual frequency (%d - %d)"%(years.min(), years.max()))
-        self.savefig('frequency')
-        #pyplot.rcdefaults()
-        return
-
-    def minPressureLat(self, pAllData, latData, latMin=-40., latMax=0.):
-        """
-        Plot the minimum central pressures as a function of latitude
-        """
-        rLat = numpy.round(latData, 0)
-        lats = numpy.arange(latMin, latMax + 0.1, 1)
-        minP = numpy.zeros(len(lats))
-        n = 0
-        for l in lats:
-            i = numpy.where(rLat == l)[0]
-            if len(i > 0):
-                pvals = pAllData[i]
-                pvals = stats.statRemoveNum(pvals, 0)
-                if len(pvals)>0:
-                    minP[n] = pvals.min()
-                else:
-                    minP[n] = 1020.
-            else:
-                minP[n] = 1020.
-            n += 1
-        pyplot.figure(self.figurenum())
-        pyplot.plot(lats, minP, 'r-', linewidth=2, label=r'Min $P_{centre}$')
-        pyplot.xlim(latMin, latMax)
-        pyplot.ylim(800, 1020)
-
-        pyplot.xlabel('Latitude', fontsize=10)
-        pyplot.ylabel('Minimum central pressure (hPa)', fontsize=10)
-        pyplot.legend(loc=3)
-        pyplot.grid(True)
-
-        self.savefig("min_pressure_lat")
-
-        x = numpy.zeros((len(lats), 2))
-        x[:, 0] = lats
-        x[:, 1] = minP
-        files.flSaveFile(os.path.join(self.outpath, 'min_pressure_lat.csv'), x,
-                         delimiter=',', fmt='%6.2f')
 
     def minPressureHist(self, index, pAllData):
         """
@@ -436,8 +165,8 @@ class PlotData(object):
         dataset.
         """
 
-        pyplot.figure(self.figurenum(), figsize=(8, 7))
-        pyplot.clf()
+        plt.figure(self.figurenum(), figsize=(8, 7))
+        plt.clf()
         pcarray = []
         index = index.astype(int)
         for i in range(len(index) - 1):
@@ -448,94 +177,220 @@ class PlotData(object):
                     if pAllData[i] < pcarray[-1]:
                         pcarray[-1] = pAllData[i]
 
-        pbins = numpy.arange(850., 1020., 5)
-        n, b, p = pyplot.hist(numpy.array(pcarray), pbins, normed=False,
-                              lw=2, ec='k', fc='w')
-        pyplot.xlabel("Minimum central pressure (hPa)")
-        pyplot.ylabel("Count")
-        pyplot.title("Distribution of minimum central pressure")
-        self.savefig("min_pressure_hist")
+        pbins = np.arange(850., 1020., 5)
+        pcarray = np.array(pcarray)
+        pc = np.take(pcarray, np.where(pcarray<sys.maxint))
+        ax = sns.distplot(pc, bins=pbins, fit=frechet_l,
+                          kde_kws={'label':'KDE'},
+                          fit_kws={'color':'r',
+                                   'label':'Fitted distribution'})
 
-        x = numpy.zeros((len(b), 2))
-        x[:, 0] = b
-        x[1:, 1] = n
-        files.flSaveFile(os.path.join(self.outpath, 'min_pressure_hist.csv'), x,
-                         delimiter=',', fmt='%6.2f')
-        #pyplot.rcdefaults()
+        sns.despine(ax=ax, offset=10, trim=True)
+        ax.set_xlabel("Minimum central pressure (hPa)")
+        ax.set_ylabel("Probability")
+        ax.set_title("Distribution of minimum central pressure")
+        ax.legend(loc=0)
+        plt.tight_layout()
+        self.savefig("min_pressure_hist")
 
     def plotSpeedBear(self, sAllData, bAllData):
         """
         Plot speed and bearing against each other
         """
-        pyplot.figure(self.figurenum(), figsize=(7, 7))
-        pyplot.subplot(111)
-        ii = numpy.where((sAllData < sys.maxint) & (bAllData < sys.maxint))
-        pyplot.polar((numpy.pi/2. - numpy.radians(bAllData[ii])), sAllData[ii],
+        plt.figure(self.figurenum(), figsize=(7, 7))
+        plt.subplot(111)
+        ii = np.where((sAllData < sys.maxint) & (bAllData < sys.maxint))
+        plt.polar((np.pi/2. - np.radians(bAllData[ii])), sAllData[ii],
                      'k.', markersize=2)
-        thetalabels=(90 - numpy.arange(0, 360, 45))
-        ii = numpy.where(thetalabels < 0)
+        thetalabels = (90 - np.arange(0, 360, 45))
+        ii = np.where(thetalabels < 0)
         thetalabels[ii] += 360
-        lines, labels = pyplot.rgrids(numpy.arange(20., 101., 20.),
+        lines, labels = plt.rgrids(np.arange(20., 101., 20.),
                                       labels=None, angle=67.5)
-        lines, labels = pyplot.thetagrids(numpy.arange(0., 360., 45.),
+        lines, labels = plt.thetagrids(np.arange(0., 360., 45.),
                                           thetalabels)
-        pyplot.ylim(0, 100.)
-        pyplot.grid(True)
-        r = numpy.corrcoef(bAllData[ii], sAllData[ii])[1, 0]
-        pyplot.text(45, 125, "r = %5.3f"%r, ha='center',
+        plt.ylim(0, 100.)
+        plt.grid(True)
+        r = np.corrcoef(bAllData[ii], sAllData[ii])[1, 0]
+        plt.text(45, 125, "r = %5.3f"%r, ha='center',
                     va='center', color='r', size=14)
-        pyplot.title("Speed vs bearing")
+        plt.title("Speed vs bearing")
         self.savefig('spd_bear_corr')
-        #pyplot.rcdefaults()
 
-    def quantile(self, data, parameterName, dist='normal', mean=0.0, sigma=1.0):
+    def quantile(self, data, parameterName, dist='norm'):
         """
         Generate a probability plot of the given data; data should be an
         array of anomalies
 
         """
-        pyplot.figure(self.figurenum(), figsize=(8, 7))
-        pyplot.clf()
+        #plt.figure(self.figurenum(), figsize=(8, 7))
+        #plt.clf()
         d = data.compress(data < sys.maxint)
-        m = numpy.average(d)
-        sd = numpy.std(d)
+        m = np.average(d)
+        sd = np.std(d)
         nd = (d-m)/sd
-        (osm, osr), (slope, intercept, r) = probplot(nd, dist=dist, plot=pyplot)
-        #pyplot.xticks(numpy.arange(-3.,3.1,1.))
-        #pyplot.yticks(numpy.arange(-3.,3.1,1.))
-        #pyplot.xlabel("Normal")
-        pyplot.ylabel(parameterName)
-        pyplot.title("Q-Q plot - %s" % parameterName)
-        pyplot.xlim((-5, 5))
-        pyplot.ylim((-5, 5))
+        (osm, osr), (slope, intercept, r) = probplot(nd, dist=dist, plot=plt)
+
+        plt.ylabel(parameterName)
+        plt.title("Q-Q plot - %s" % parameterName)
+        plt.xlim((-5, 5))
+        plt.ylim((-5, 5))
         pos = (2, -4.8)
-        pyplot.text(2, -4.9, r"$r^2=%1.4f$" % r, fontsize=12)
+        plt.text(2, -4.9, r"$r^2=%1.4f$" % r, fontsize=12)
 
         self.savefig('qqplot_%s' % parameterName)
-        #pyplot.rcdefaults()
 
-if __name__=="__main__":
-    from os.path import join as pjoin
 
-    configFile = sys.argv[1]
-    dataPath = config.cnfGetIniValue(configFile, 'Output', 'Path', os.getcwd())
-    inputPath = pjoin(dataPath, 'process')
-    outputPath = pjoin(dataPath, 'plots')
-    pyplot.rcParams['figure.figsize'] = (7, 12)
+class PlotPressure(PlotData):
 
-    pRateData = files.flLoadFile(pjoin(inputPath, 'pressure_rate'))
-    pAllData = files.flLoadFile(pjoin(inputPath, 'all_pressure'))
-    bRateData = files.flLoadFile(pjoin(inputPath, 'bearing_rate'))
-    bAllData = files.flLoadFile(pjoin(inputPath, 'all_bearing'))
-    sRateData = files.flLoadFile(pjoin(inputPath, 'speed_rate'))
-    sAllData = files.flLoadFile(pjoin(inputPath, 'all_speed'))
-    freq = files.flLoadFile(pjoin(inputPath, 'frequency'))
-    years = freq[:, 0]
-    frequency = freq[:, 1]
+    def plotPressure(self, data):
+        labels = [r'$p_c(t)$', r'$p_c(t-1)$']
+        self.scatterHistogram(data[1:], data[:-1],
+                              labels, 'pressure',
+                              xlim=(850, 1020), ylim=(850, 1020))
 
-    plotting = PlotData(outputPath, "png")
-    plotting.plotPressure(pAllData, pRateData)
-    plotting.plotBearing(bAllData, bRateData)
-    plotting.plotSpeed(sAllData, sRateData)
-    plotting.plotFrequency(years, frequency)
-    plotting.plotSpeedBear(sAllData, bAllData)
+    def plotPressureRate(self, data):
+        labels = [r'$\frac{\delta p_c}{\delta t}(t)$',
+                  r'$\frac{\delta p_c}{\delta t}(t-1)$']
+        self.scatterHistogram(data[1:], data[:-1],
+                              labels, 'pressure_rate')
+        self.quantile(data, 'pressure_rate', 'logistic')
+
+    def plotMinPressure(self, index, pAllData):
+        """
+        Plot the distribution of minimum central pressure, and
+        include a fitted distribution (presently uses the
+        `scipy.stats.frechet_l` distribution).
+
+        :param index: `numpy.ndarray` of 1/0 that indicates the start of
+                      separate TC tracks.
+        :param pAllData: `numpy.ndarray` of pressure observations from
+                         TC events.
+
+        """
+        pcarray = []
+        index = index.astype(int)
+        for i in range(len(index) - 1):
+            if index[i] == 1:
+                pcarray.append(pAllData[i])
+            else:
+                if pAllData[i] is not None:
+                    if pAllData[i] < pcarray[-1]:
+                        pcarray[-1] = pAllData[i]
+
+        pbins = np.arange(850., 1020., 5)
+        pcarray = np.array(pcarray)
+        pc = np.take(pcarray, np.where(pcarray<sys.maxint))
+        ax = sns.distplot(pc, bins=pbins, fit=frechet_l,
+                          kde_kws={'label':'KDE'},
+                          fit_kws={'color':'r',
+                                   'label':'Fitted distribution'})
+
+        sns.despine(ax=ax, offset=10, trim=True)
+        ax.set_xlabel("Minimum central pressure (hPa)")
+        ax.set_ylabel("Probability")
+        ax.set_title("Distribution of minimum central pressure")
+        ax.legend(loc=0)
+        plt.tight_layout()
+        self.savefig("min_pressure_hist")
+
+class PlotBearing(PlotData):
+
+    def plotBearing(self, data):
+        labels = [r'$\theta(t)$', r'$\theta(t-1)$']
+        def transform(x):
+            return np.cos(x/2.)
+
+        self.scatterHistogram(data[1:], data[:-1], labels, 'bearing',
+                              transform=transform, xlim=(-1, 1),
+                              ylim=(-1, 1))
+
+    def plotBearingRate(self, data):
+        labels = [r'$\frac{\delta \theta(t)}{\delta t}$',
+                  r'$\frac{\delta \theta(t-1)}{\delta t}$']
+        self.scatterHistogram(data[1:], data[:-1],
+                              labels, 'bearing_rate')
+        self.quantile(data, 'bearing_rate', 'logistic')
+
+class PlotSpeed(PlotData):
+
+    def plotSpeed(self, data):
+        labels = [r'$v (t)$', r'$v (t-1)$']
+        self.scatterHistogram(data[1:], data[:-1], labels, 'speed',
+                              xlim=(0, 100), ylim=(0, 100))
+
+    def plotSpeedRate(self, data):
+        labels = [r'$\frac{\delta v(t)}{\delta t}$',
+                  r'$\frac{\delta v(t-1)}{\delta t}$']
+        self.scatterHistogram(data[1:], data[:-1],
+                              labels, 'speed_rate')
+        self.quantile(data, 'speed_rate', 'logistic')
+
+class PlotFrequency(PlotData):
+
+    def plotFrequency(self, years, frequency):
+        """
+        Plot annual count of events within the domain.
+
+        TODO: Automatically adjust the x-tickmarks to be spaced
+              nicely (i.e. no overlap of labels).
+              Offer option of drawing the mean value (using
+              `axes.axhline`) or a linear trend line.
+        """
+        labels = ["Year", "Number"]
+        self.barPlot(years.astype(int), frequency, "frequency", labels)
+
+class PlotDays(PlotData):
+
+    def plotJulianDays(self, julianDayObs, julianDayGenesis):
+        """
+        Plot bar graphs of the number of TC observations per day of year
+        and genesis events per day of year.
+
+        TODO: Format the tick marks to represent monthly intervals.
+              Add a KDE over both bar plots, remembering this is cyclic
+              data (so KDE[-1] ~ KDE[0]).
+        """
+
+        f, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+        dateLocator = mdates.MonthLocator(bymonthday=15, interval=1)
+        dateFormat = mdates.DateFormatter("%b")
+        dates = mdates.num2date(julianDayObs[:, 0])
+
+        sns.barplot(julianDayObs[:, 0], julianDayObs[:, 1], ax=ax1)
+        ax1.set_xlim((1, 365))
+        ax1.set_ylabel('Observations')
+
+        sns.barplot(julianDayGenesis[:, 0], julianDayGenesis[:, 1], ax=ax2)
+        ax2.set_xlim((1, 365))
+        ax2.set_xlabel('Month')
+        ax2.set_ylabel('Genesis events')
+
+        ax2.xaxis.set_major_locator(MONTH_LOCATOR)
+        ax2.xaxis.set_major_formatter(MONTH_FORMATTER)
+
+        sns.despine()
+        self.savefig("julian_day")
+
+class PlotLonLat(PlotData):
+
+    def plotLonLat(self, lonData, latData, indicator):
+        dlon = lonData[1:] - lonData[:-1]
+        dlat = latData[1:] - latData[:-1]
+        j = np.where(indicator[1:] == 0)
+        dlon = dlon[j]
+        dlat = dlat[j]
+        k = np.where(dlon < -180.)
+        dlon[k] += 360.
+        labels = [r"$\Delta \phi (t-1)$", r"$\Delta \phi (t)$"]
+        self.scatterHistogram(dlon[1:], dlon[:-1], labels, 'delta_lon')
+
+        labels = [r"$\Delta \lambda (t-1)$", r"$\Delta \lambda (t)$"]
+        self.scatterHistogram(dlat[1:], dlat[:-1], labels, 'delta_lat')
+
+        labels = [r"$\Delta \phi (t)$", r"$\Delta \lambda (t)$"]
+        self.scatterHistogram(dlon, dlat, labels, 'lonlat_corr')
+
+        self.quantile(dlon, 'delta_lon', 'logistic')
+        self.quantile(dlat, 'delta_lat', 'logistic')
+

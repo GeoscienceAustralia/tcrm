@@ -65,8 +65,10 @@ Contents
    Model evaluation <docs/evaluation>
    Using different TC databases <docs/sources>
    Scenario simulation <docs/scenarios>
+   Contributing to TCRM <docs/contributing>
    Utilities <docs/Utilities>
    Glossary <docs/glossary>
+   License information <LICENSE>
 
 * :ref:`genindex`
 * :ref:`modindex`

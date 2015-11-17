@@ -22,7 +22,7 @@ def attemptParallel():
     If pypar cannot be loaded then a dummy `pp` is created.
 
     :returns: A pypar object - either a dummy or the real thing
-    
+
     """
 
     global pp
@@ -35,7 +35,7 @@ def attemptParallel():
     except ImportError:
 
         # no pypar, create a dummy one
-        
+
         class DummyPypar(object):
 
             def size(self):
@@ -61,7 +61,7 @@ def disableOnWorkers(f):
     :param f: Function to be wrapped
     :type f: function
     """
-    
+
     @wraps(f)
     def wrap(*args, **kwargs):
         if pp.size() > 1 and pp.rank() > 0:

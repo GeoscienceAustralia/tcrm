@@ -43,7 +43,7 @@ from Utilities.files import flStartLog
 
 
 class TestSamplingOrigin(NumpyTestCase.NumpyTestCase):
-    
+
     def setUp(self):
         self.numberOfSamples = 1000
         pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kdeOrigin_xyz.pck'), 'r')
@@ -65,7 +65,7 @@ class TestSamplingOrigin(NumpyTestCase.NumpyTestCase):
         """Testing GenerateOneSample"""
         xp = 151.6999999999
         yp = -8.5
-        
+
         x, y = self.sampOrg.generateOneSample()
         self.assertAlmostEqual(xp, x, 4)
         self.assertAlmostEqual(yp, y, 4)

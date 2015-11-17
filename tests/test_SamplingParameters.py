@@ -43,7 +43,7 @@ from Utilities.files import flStartLog
 
 
 class TestSamplingParameters(NumpyTestCase.NumpyTestCase):
-    
+
     def setUp(self):
         self.numberOfSamples = 1000
         pr = cPickle.load(open(os.path.join(unittest_dir, 'test_data', 'sampling_parameters_xacy.pck')))

@@ -1,10 +1,10 @@
 """
-:mod:`dynarray` -- a dynamic record array 
+:mod:`dynarray` -- a dynamic record array
 ================================================
 
 .. module:: dynarray
     :synopsis: A dynamic record array to enable appending
-               and extending an existing record array with 
+               and extending an existing record array with
                additional records.
 
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
@@ -55,4 +55,4 @@ class DynamicRecArray(object):
         Convenience function to return the data stored in the array.
         """
         return self._data[:self.length]
-    
+

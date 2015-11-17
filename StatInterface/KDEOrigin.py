@@ -16,13 +16,13 @@ from os.path import join as pjoin
 import logging
 import numpy as np
 
-import Utilities.stats as stats
 from Utilities.files import flLoadFile
-from Utilities.grid import grdSave
 from Utilities.nctools import ncSaveGrid
 from Utilities.config import ConfigParser
 
 from statsmodels.nonparametric.kernel_density import KDEMultivariate
+
+LOGGER = logging.getLogger(__name__)
 
 def getOriginBandwidth(data):
     """
@@ -41,55 +41,53 @@ class KDEOrigin(object):
     Initialise the class for generating the genesis probability distribution.
     Initialisation will load the required data (genesis locations) and
     calculate the optimum bandwidth for the kernel density method.
-    
+
     :param str configFile: Path to the configuration file.
      :param dict gridLimit: The bounds of the model domain. The
                            :class:`dict` should contain the keys
                            :attr:`xMin`, :attr:`xMax`, :attr:`yMin`
                            and :attr:`yMax`. The *x* variable bounds
-                           the longitude and the *y* variable 
+                           the longitude and the *y* variable
                            bounds the latitude.
     :param float kdeStep: Increment of the ordinate values at which
                           the distributions will be calculated.
                           Default=`0.1`
     :param lonLat: If given, a 2-d array of the longitude and latitude
                    of genesis locations. If not given, attempt to load
-                   an ``init_lon_lat`` file from the processed files. 
+                   an ``init_lon_lat`` file from the processed files.
     :param progressbar: A :meth:`SimpleProgressBar` object to print
                         progress to STDOUT.
     :type  lonLat: :class:`numpy.ndarray`
     :type  progressbar: :class:`Utilities.progressbar` object.
 
-    
+
     """
 
-    def __init__(self, configFile, gridLimit, kdeStep, lonLat=None, 
+    def __init__(self, configFile, gridLimit, kdeStep, lonLat=None,
                  progressbar=None):
         """
-        
+
         """
-        self.logger = logging.getLogger()
         self.progressbar = progressbar
-        self.logger.info("Initialising KDEOrigins")
+        LOGGER.info("Initialising KDEOrigin")
         self.x = np.arange(gridLimit['xMin'], gridLimit['xMax'], kdeStep)
         self.y = np.arange(gridLimit['yMax'], gridLimit['yMin'], -kdeStep)
 
         self.kdeStep = kdeStep
+        self.kde = None
         self.pdf = None
         self.cz = None
 
         self.configFile = configFile
-        config = ConfigParser()
-        config.read(configFile)
+        self.config = ConfigParser()
+        self.config.read(configFile)
 
         if lonLat is None:
             # Load the data from file:
-            self.outputPath = config.get('Output', 'Path')
+            self.outputPath = self.config.get('Output', 'Path')
             self.processPath = pjoin(self.outputPath, 'process')
-            self.logger.debug("Loading " + pjoin(self.processPath,
-                                                  'init_lon_lat'))
-            ll = flLoadFile(pjoin(self.processPath, 'init_lon_lat'),
-                            '%', ',')
+            LOGGER.debug("Loading " + pjoin(self.processPath, 'init_lon_lat'))
+            ll = flLoadFile(pjoin(self.processPath, 'init_lon_lat'), '%', ',')
             self.lonLat = ll[:, 0:2]
         else:
             self.lonLat = lonLat[:, 0:2]
@@ -98,11 +96,11 @@ class KDEOrigin(object):
                       (self.lonLat[:, 0] <= gridLimit['xMax']) &
                       (self.lonLat[:, 1] >= gridLimit['yMin']) &
                       (self.lonLat[:, 1] <= gridLimit['yMax']))
-        
+
         self.lonLat = self.lonLat[ii]
-        
+
         self.bw = getOriginBandwidth(self.lonLat)
-        self.logger.debug("Bandwidth: {0}".format(self.bw))
+        LOGGER.info("Bandwidth: %s", repr(self.bw))
 
 
     def generateKDE(self, save=False, plot=False):
@@ -118,13 +116,13 @@ class KDEOrigin(object):
         :param boolean plot: If ``True``, plot the resulting PDF.
 
         :returns: ``x`` and ``y`` grid and the PDF values.
-        
+
         """
 
-        kde = KDEMultivariate(self.lonLat, bw=self.bw, var_type='cc')
+        self.kde = KDEMultivariate(self.lonLat, bw=self.bw, var_type='cc')
         xx, yy = np.meshgrid(self.x, self.y)
         xy = np.vstack([xx.ravel(), yy.ravel()])
-        pdf = kde.pdf(data_predict=xy)
+        pdf = self.kde.pdf(data_predict=xy)
         pdf = pdf.reshape(xx.shape)
 
         self.pdf = pdf.transpose()
@@ -138,8 +136,8 @@ class KDEOrigin(object):
                     'atts': {
                         'long_name':' Latitude',
                         'units': 'degrees_north'
-                        }
-                    },
+                    }
+                },
                 1: {
                     'name': 'lon',
                     'values': self.x,
@@ -147,9 +145,9 @@ class KDEOrigin(object):
                     'atts': {
                         'long_name': 'Longitude',
                         'units': 'degrees_east'
-                        }
                     }
                 }
+            }
 
             variables = {
                 0: {
@@ -164,37 +162,32 @@ class KDEOrigin(object):
                     }
                 }
 
-            ncSaveGrid(pjoin(self.processPath, 'originPDF.nc'), 
+            ncSaveGrid(pjoin(self.processPath, 'originPDF.nc'),
                        dimensions, variables)
 
         if plot:
+            from PlotInterface.maps import FilledContourMapFigure, \
+                saveFigure, levels
 
-            from PlotInterface.maps import FilledContourMapFigure, saveFigure
-            # Automatically determine appropriate contour levels
-            min_lvls = 6.0
-            lvls_options = np.array([1.0, 0.5, 0.25, 0.2, 0.1])
-            pdfMax = pdf.max()
-            exponent = int(np.floor(np.log10(pdfMax)))
-            significand = pdfMax * 10**-exponent
-            lvl_step = lvls_options[np.where((significand/lvls_options) > \
-                                             min_lvls)[0][0]]
-            lvls = np.arange(0, pdf.max(), lvl_step*(10.0**exponent))
+            lvls, exponent = levels(pdf.max())
+
             [gx, gy] = np.meshgrid(self.x, self.y)
+
             map_kwargs = dict(llcrnrlon=self.x.min(),
                               llcrnrlat=self.y.min(),
                               urcrnrlon=self.x.max(),
                               urcrnrlat=self.y.max(),
                               projection='merc',
                               resolution='i')
-            
+
             cbarlabel = r'Genesis probability ($\times 10^{' + \
                         str(exponent) + '}$)'
-            title = 'TC Genesis probability'
             figure = FilledContourMapFigure()
-            figure.add(pdf, gx, gy, title, lvls, cbarlabel, map_kwargs)
+            figure.add(pdf*(10**-exponent), gx, gy, 'TC Genesis probability',
+                       lvls*(10**-exponent), cbarlabel, map_kwargs)
             figure.plot()
 
-            outputFile = pjoin(self.outputPath, 'plots', 
+            outputFile = pjoin(self.outputPath, 'plots',
                                'stats', 'originPDF.png')
             saveFigure(figure, outputFile)
 
@@ -207,47 +200,45 @@ class KDEOrigin(object):
 
         :param boolean save: If ``True``, save the CDF to a netcdf file
                              called 'originCDF.nc'. If ``False``, return
-                             the CDF. 
-    
+                             the CDF.
+
         """
-        self.cz = stats.cdf2d(self.x, self.y, self.pdf)
-        if save:
-            self.logger.debug("Saving origin CDF to file")
-            grdSave(self.processPath + 'originCDF.txt', self.cz, self.x,
-                    self.y, self.kdeStep)
+        xx, yy = np.meshgrid(self.x, self.y)
+        xy = np.vstack([xx.ravel(), yy.ravel()])
+        self.cz = self.kde.cdf(data_predict=xy)
 
         if save:
             outputFile = pjoin(self.processPath, 'originCDF.nc')
             dimensions = {
-            0: {
-                'name': 'lat',
-                'values': self.y,
-                'dtype': 'f',
-                'atts': {
-                    'long_name': 'Latitude',
-                    'units': 'degrees_north'
+                0: {
+                    'name': 'lat',
+                    'values': self.y,
+                    'dtype': 'f',
+                    'atts': {
+                        'long_name': 'Latitude',
+                        'units': 'degrees_north'
                     }
                 },
-            1: {
-                'name': 'lon',
-                'values': self.x,
-                'dtype': 'f',
-                'atts': {
-                    'long_name': 'Longitude',
-                    'units':'degrees_east'
+                1: {
+                    'name': 'lon',
+                    'values': self.x,
+                    'dtype': 'f',
+                    'atts': {
+                        'long_name': 'Longitude',
+                        'units':'degrees_east'
                     }
                 }
             }
 
-            variables =  {
+            variables = {
                 0: {
                     'name': 'gcdf',
-                    'dims': ('lat','lon'),
+                    'dims': ('lat', 'lon'),
                     'values': np.array(self.cz),
                     'dtype': 'f',
                     'atts': {
                         'long_name': ('TC Genesis cumulative '
-                                        'distribution'),
+                                      'distribution'),
                         'units': ''
                         }
                     }
@@ -262,8 +253,8 @@ class KDEOrigin(object):
         Callback function to update progress bar from C code
 
         :param int n: Current step.
-        :param int nMax: Maximum step. 
-        
+        :param int nMax: Maximum step.
+
         """
         if self.progressbar:
             self.progressbar.update(step/float(stepMax), 0.0, 0.7)

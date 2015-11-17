@@ -8,24 +8,27 @@
 
 .. moduleauthor: Craig Arthur <craig.arthur@ga.gov.au>
 
+The routines here make use of the themes from
+`seaborn <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_ to
+define the line styles and annotations (font sizes, etc.).
+
 """
 
 from __future__ import division
-import sys
 import numpy as np
-import scipy.stats as stats
+
+import seaborn
+seaborn.set_style("ticks")
 
 from matplotlib.figure import Figure
-from matplotlib.artist import setp
 from matplotlib.ticker import LogLocator, FormatStrFormatter
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 class CurveFigure(Figure):
     """
     Base class for plotting line figures.
 
     """
-    
+
     def __init__(self):
         Figure.__init__(self)
         self.subfigures = []
@@ -46,9 +49,9 @@ class CurveFigure(Figure):
         :param str title: Plot title
 
         """
-        
+
         self.subfigures.append((xdata, ydata, xlabel, ylabel, title))
-    
+
     def subplot(self, axes, subfigure):
         """
         Draw a line plot on an :class:`matplotlib.axes` instance. The
@@ -61,10 +64,10 @@ class CurveFigure(Figure):
                                 to the subplot.
 
         """
-        
+
         xdata, ydata, xlabel, ylabel, title = subfigure
 
-        axes.plot(xdata, ydata, '-', color='k')
+        axes.plot(xdata, ydata, '-')
         axes.set_xlabel(xlabel)
         axes.set_ticklabels(xdata.astype(int))
         axes.autoscale(True, axis='x', tight=True)
@@ -80,7 +83,7 @@ class CurveFigure(Figure):
         :param axes: :class:`axes` instance.
 
         """
-        
+
         axes.autoscale(True, axis='x', tight=True)
         axes.grid(True, which='both', color='k', linestyle=':', linewidth=0.2)
 
@@ -97,18 +100,17 @@ class CurveFigure(Figure):
         :type ymax: `numpy.ndarray`
 
         """
-        
-        axes.fill_between(xdata, ymax, ymin, facecolor='0.75',
-                          edgecolor='0.99', alpha=0.7)
+
+        axes.fill_between(xdata, ymax, ymin, alpha=0.5)
 
 
     def plot(self):
         """
-        Plot the subfigures. 
+        Plot the subfigures.
 
         For a number of subplots, they are organised into an approximately
         square arrangement.
-        
+
         """
 
         n = len(self.subfigures)
@@ -122,12 +124,12 @@ class CurveFigure(Figure):
             self.subplot(axes, subfigure)
         self.tight_layout()
 
-class SemilogxCurve(CurveFigure):
+class SemilogCurve(CurveFigure):
     """
     Extend the basic :class:`CurveFigure` to use a logarithmic scale
     on the x-axis.
     """
-    
+
     def subplot(self, axes, subfigure):
         """
         Draw a line plot on an :class:`matplotlib.axes` instance, with a
@@ -140,32 +142,34 @@ class SemilogxCurve(CurveFigure):
                                 to the subplot.
 
         """
-        
+
         xdata, ydata, xlabel, ylabel, title = subfigure
 
-        axes.semilogx(xdata, ydata, '-', color='k', subsx=xdata)
+        axes.semilogx(xdata, ydata, '-', subsx=xdata)
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
         axes.set_title(title)
         self.addGrid(axes)
-        
+
     def addGrid(self, axes):
         """
-        Add a graticule to the subplot axes. The x-axis is autoscaled,
-        the grid is a dotted black line, linewidth 0.2. Minor
-        tickmarks are included.
+        Add a logarithmic graticule to the subplot axes.
 
         :param axes: :class:`axes` instance.
-        
+
         """
-        
+
         axes.xaxis.set_major_locator(LogLocator())
         axes.xaxis.set_major_formatter(FormatStrFormatter('%d'))
         axes.xaxis.set_minor_locator(LogLocator(subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9]))
         axes.autoscale(True, axis='x', tight=True)
-        axes.grid(True, which='major', color='k', linestyle='-', linewidth=0.1)
-        
+        axes.grid(True, which='major', linestyle='-', linewidth=0.5)
+        axes.grid(True, which='minor', linestyle='-', linewidth=0.5)
+
 class RangeCurve(CurveFigure):
+    """
+    A line plot, with additional range (e.g. confidence interval)
+    """
 
     def add(self, xdata, ymean, ymax, ymin, xlabel='x', ylabel='y', title='x'):
         """
@@ -186,7 +190,7 @@ class RangeCurve(CurveFigure):
         :param str xlabel: Label for the x-axis
         :param str ylabel: Label for the y-axis
         :param str title: Plot title
-        
+
         """
         self.subfigures.append((xdata, ymean, ymax, ymin,
                                 xlabel, ylabel, title))
@@ -201,12 +205,12 @@ class RangeCurve(CurveFigure):
         :param axes: :class:`matplotlib.axes` instance.
         :param tuple subfigure: Holds the data and labels to be added
                                 to the subplot.
-                                
+
         """
-        
+
         xdata, ymean, ymax, ymin, xlabel, ylabel, title = subfigure
 
-        axes.plot(xdata, ymean, color='k', lw=2)
+        axes.plot(xdata, ymean, lw=2)
         self.addRange(axes, xdata, ymin, ymax)
 
         axes.set_xlabel(xlabel)
@@ -216,6 +220,12 @@ class RangeCurve(CurveFigure):
         self.addGrid(axes)
 
 class RangeCompareCurve(CurveFigure):
+    """
+    A line plot, with additional range (e.g. confidence interval) and a second
+    line for comparison. e.g. if you have model output (with an upper and lower
+    estimate) and an observed value to compare against.
+
+    """
 
     def add(self, xdata, y1, y2, y2max, y2min, xlabel='x',
             ylabel='y', title='x'):
@@ -239,7 +249,7 @@ class RangeCompareCurve(CurveFigure):
         :param str xlabel: Label for the x-axis
         :param str ylabel: Label for the y-axis
         :param str title: Plot title
-        
+
         """
         self.subfigures.append((xdata, y1, y2, y2max, y2min,
                                 xlabel, ylabel, title))
@@ -260,14 +270,19 @@ class RangeCompareCurve(CurveFigure):
         axes.plot(xdata, y1, color='r', lw=2, label="")
         axes.plot(xdata, y2, color='k', lw=2, label="")
         self.addRange(axes, xdata, y2min, y2max)
-        
+
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
         axes.set_title(title)
         axes.autoscale(True, axis='x', tight=True)
         self.addGrid(axes)
 
-class SemilogRangeCurve(CurveFigure):
+class SemilogRangeCurve(SemilogCurve):
+    """
+    A line plot on a semilog-x plot with additional range (e.g. confidence
+    interval).
+
+    """
 
     def add(self, xdata, ymean, ymax, ymin, xlabel, ylabel, title):
         """
@@ -288,35 +303,19 @@ class SemilogRangeCurve(CurveFigure):
         :param str xlabel: Label for the x-axis
         :param str ylabel: Label for the y-axis
         :param str title: Plot title
-        
+
         """
-        
+
         self.subfigures.append((xdata, ymean, ymax, ymin,
                                 xlabel, ylabel, title))
-    def addGrid(self, axes):
-        """
-        Add a graticule to the subplot axes. The x-axis is autoscaled,
-        the grid is a dotted black line, linewidth 0.2. Minor
-        tickmarks are included.
 
-        :param axes: :class:`axes` instance.
-
-        """
-        
-        axes.xaxis.set_major_locator(LogLocator())
-        axes.xaxis.set_major_formatter(FormatStrFormatter('%d'))
-        axes.xaxis.set_minor_locator(LogLocator(subs=[.1, .2, .3, .4,
-                                                      .5, .6, .7, .8, .9]))
-        axes.autoscale(True, axis='x', tight=True)
-        axes.grid(True, which='major', color='k', linestyle='-', linewidth=0.1)
-        
     def subplot(self, axes, subfigure):
         """
         Draw a line and range plot on an :class:`matplotlib.axes`
         instance, with a logarithmic scale on the x-axis. Data and
         labels are contained in a tuple. x-ticks presented as integer
         values. A grid is added with a call to
-        :meth:`RangeFigure.addGrid`.
+        :meth:`SemilogCurve.addGrid`.
 
         :param axes: :class:`matplotlib.axes` instance.
         :param tuple subfigure: Holds the data and labels to be added
@@ -325,19 +324,25 @@ class SemilogRangeCurve(CurveFigure):
         """
         xdata, ymean, ymax, ymin, xlabel, ylabel, title = subfigure
 
-        axes.semilogx(xdata, ymean, color='k', lw=2, subsx=xdata)
+        axes.semilogx(xdata, ymean, lw=2, subsx=xdata)
         if (ymin[0] > 0) and (ymax[0] > 0):
             self.addRange(axes, xdata, ymin, ymax)
 
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
-        axes.set_title(title, fontsize='small')
+        axes.set_title(title)
         ylim = (0., np.max([100, np.ceil(ymean.max()/10.)*10.]))
         axes.set_ylim(ylim)
         self.addGrid(axes)
 
-class SemilogRangeCompareCurve(CurveFigure):
+class SemilogRangeCompareCurve(SemilogCurve):
+    """
+    A line plot on a semilog-x plot with additional range (e.g. confidence
+    interval) and a second line for comparison. e.g. if you have model
+    output (with an upper and lower estimate) and an observed value to
+    compare against.
 
+    """
     def add(self, xdata, y1, y2, y2max, y2min, xlabel='x',
             ylabel='y', title='x'):
         """
@@ -360,26 +365,11 @@ class SemilogRangeCompareCurve(CurveFigure):
         :param str xlabel: Label for the x-axis
         :param str ylabel: Label for the y-axis
         :param str title: Plot title
-        
+
         """
         self.subfigures.append((xdata, y1, y2, y2max, y2min,
                                 xlabel, ylabel, title))
-        
-    def addGrid(self, axes):
-        """
-        Add a graticule to the subplot axes. The x-axis is autoscaled,
-        the grid is a dotted black line, linewidth 0.2. Minor
-        tickmarks are included.
 
-        :param axes: :class:`axes` instance.
-
-        """
-        axes.xaxis.set_major_locator(LogLocator())
-        axes.xaxis.set_major_formatter(FormatStrFormatter('%d'))
-        axes.xaxis.set_minor_locator(LogLocator(subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9]))
-        axes.autoscale(True, axis='x', tight=True)
-        axes.grid(True, which='major', color='k', linestyle='-', linewidth=0.1)
-        
     def subplot(self, axes, subfigure):
         """
         Draw a range-compare plot on an :class:`matplotlib.axes`
@@ -423,13 +413,13 @@ class HazardCurve(SemilogRangeCurve):
         :type wspd: `numpy.ndarray`
         :type wspdupper: `numpy.ndarray`
         :type wspdlower: `numpy.ndarray`
-        
+
         :param str xlabel: x-axis label.
         :param str ylabel: y-axis label.
         :param str title: Plot title.
 
         """
-        
+
         self.add(years, wspd, wspdupper, wspdlower, xlabel, ylabel, title)
         super(HazardCurve, self).plot()
 
@@ -457,7 +447,7 @@ class DistributionCurve(RangeCompareCurve):
         :param str xlabel: Label for the x-axis
         :param str ylabel: Label for the y-axis
         :param str title: Plot title
-        
+
         """
         self.add(x, y1, y2, y2max, y2min, xlabel, ylabel, title)
         super(DistributionCurve, self).plot()
@@ -469,9 +459,9 @@ def saveFigure(figure, filename):
 
     :param figure: :class:`Figure` instance.
     :param str filename: Path to the location to store the image.
-    
+
     """
-    
+
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     canvas = FigureCanvas(figure)
     canvas.print_figure(filename)
@@ -491,12 +481,12 @@ def saveHazardCurve(years, wspd, wspdupper, wspdlower,
     :type wspd: `numpy.ndarray`
     :type wspdupper: `numpy.ndarray`
     :type wspdlower: `numpy.ndarray`
-        
+
     :param str xlabel: x-axis label.
     :param str ylabel: y-axis label.
     :param str title: Plot title.
     :param str filename: Path to save teh figure to.
-    
+
     """
 
     fig = HazardCurve()
@@ -527,9 +517,9 @@ def saveDistributionCurve(x, y1, y2, y2max, y2min,
     :param str ylabel: Label for the y-axis
     :param str title: Plot title
     :param str filename: Path to save teh figure to.
-     
+
     """
     fig = DistributionCurve()
     fig.plot(x, y1, y2, y2max, y2min, xlabel, ylabel, title)
     saveFigure(fig, filename)
-    
+

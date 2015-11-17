@@ -166,7 +166,7 @@ class TestWindField(NumpyTestCase.NumpyTestCase):
         pkl_file.close()
 
     def test_Kepert(self):
-        profile = WindProfileModel(0.0, 0.0, 1000., 1000., self.rMax, WindSpeedModel)
+        profile = WindProfileModel(-15, 0.0, 1000., 1000., self.rMax, WindSpeedModel)
         profile.f = self.f
         windField = KepertWindField(profile)
         windField.V = self.V

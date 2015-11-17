@@ -24,13 +24,16 @@ from StatInterface import KDEOrigin
 from Utilities.files import flStartLog
 
 class TestKDEOrigin(NumpyTestCase.NumpyTestCase):
-    
+
     def setUp(self):
         kdeType = 'Epanechnikov'
         gridLimit={'xMin':70, 'xMax':180, 'yMin':-36, 'yMax':0}
         kdeStep = 0.1
         lonLat = cPickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_origin_lonLat.pck')))
         self.kdeOrigin = KDEOrigin.KDEOrigin(None, gridLimit, kdeStep, lonLat)
+
+    def tearDown(self):
+        self.kdeOrigin.config._drop()
 
     def test_GenerateKDE(self):
         """Testing GenerateKDE for 2D data"""

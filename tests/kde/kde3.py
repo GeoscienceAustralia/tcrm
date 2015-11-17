@@ -3,11 +3,16 @@ import scipy.stats as stats
 import matplotlib.pyplot as plt
 
 import Utilities.KPDF as KPDF
+import statsmodels.nonparametric.kernel_density as smkde
+import statsmodels.nonparametric.bandwidths as smbw
 
-xrvs = [stats.norm(loc=1.0, scale=0.2), stats.norm(loc=5.0, scale=0.1)]
+import seaborn as sns
+sns.set_context("paper")
+
+xrvs = [stats.norm(loc=1.0, scale=0.2), stats.norm(loc=3.0, scale=0.1)]
 yrvs = [stats.norm(loc=0.0, scale=0.2), stats.norm(loc=1.0, scale=0.3)]
 
-N = 1600
+N = 3000
 M = N / (len(xrvs) + len(yrvs))
 
 rvs = []
@@ -25,17 +30,20 @@ def pdf(x, y):
 
 
 def plot(ax, Z, title):
-    ax.scatter(rvs[:, 0], rvs[:, 1], alpha=0.3, s=2, color='black')
+    ax.scatter(rvs[:, 0], rvs[:, 1], alpha=0.3, s=1, color='black')
     ax.imshow(Z, aspect=1, origin='lower',
-              cmap=plt.cm.GnBu, extent=(rvs[:, 0].min(),
-                                        rvs[:, 0].max(),
-                                        rvs[:, 1].min(),
-                                        rvs[:, 1].max()))
-    ax.contour(x, y, Z, colors='magenta')
+              cmap=sns.light_palette((210, 90, 60),
+                                     input='husl',
+                                     as_cmap=True),
+              extent=(rvs[:, 0].min(),
+                      rvs[:, 0].max(),
+                      rvs[:, 1].min(),
+                      rvs[:, 1].max()))
+    ax.contour(x, y, Z, linewidth=1)
     ax.set_title(title)
 
-x_flat = np.r_[rvs[:, 0].min():rvs[:, 0].max():128j]
-y_flat = np.r_[rvs[:, 1].min():rvs[:, 1].max():128j]
+x_flat = np.r_[rvs[:, 0].min():rvs[:, 0].max():128j] #pylint: disable=E1127
+y_flat = np.r_[rvs[:, 1].min():rvs[:, 1].max():128j] #pylint: disable=E1127
 x, y = np.meshgrid(x_flat, y_flat)
 grid = np.hstack([x.reshape(-1, 1), y.reshape(-1, 1)])
 
@@ -50,7 +58,7 @@ print('scale: %s' % scale)
 print('bandwidth kpdf=%f scott=%f silverman=%f' %
       (bw_kpdf, bw_scott, bw_silverman))
 
-fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(8, 11))
+fig, axes = plt.subplots(nrows=4, ncols=2, figsize=(8, 11))
 axes = axes.flat
 
 p = pdf(x, y)
@@ -86,5 +94,19 @@ w = w.reshape(x.shape) / w.max()
 plot(axes[5], w, 'KPDF bw:scott/2 ($\ell_2$ norm: %.3f)' % np.linalg.norm((
     p - w).flat))
 
-plt.savefig('fig3.pdf')
+dens = smkde.KDEMultivariate(rvs, 'cc', bw='cv_ml')
+print "SM bandwidth (cv_ml): " + repr(dens.bw)
+w = dens.pdf(grid)
+w = w.reshape(x.shape) / w.max()
+plot(axes[6], w, 'SM bw:CVML ($\ell_2$ norm: %.3f)' % np.linalg.norm((p -
+     w).flat))
+
+dens = smkde.KDEMultivariate(rvs, 'cc', bw='cv_ls')
+print "SM bandwidth (cv_ls): " + repr(dens.bw)
+w = dens.pdf(grid)
+w = w.reshape(x.shape) / w.max()
+plot(axes[7], w, 'SM bw:CVLS ($\ell_2$ norm: %.3f)' % np.linalg.norm((p -
+     w).flat))
+
+plt.savefig('fig3.png')
 plt.show()
