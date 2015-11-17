@@ -31,10 +31,11 @@ from Utilities import pathLocator
 from Utilities.nctools import ncSaveGrid
 from Utilities.parallel import attemptParallel, disableOnWorkers
 
-from PlotInterface.maps import ArrayMapFigure, saveFigure
+from PlotInterface.maps import ArrayMapFigure
 from PlotInterface.curves import saveDistributionCurve
 from PlotInterface.figures import QuantileFigure, saveFigure
 
+pp = None
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
@@ -128,7 +129,7 @@ class PressureDistribution(object):
                             len(self.lat_range) - 1))
         dataMed = ma.zeros((len(self.lon_range) - 1,
                             len(self.lat_range) - 1))
-        log.debug("Processing %d tracks" % (len(tracks)))
+        log.debug("Processing %d tracks", len(tracks))
         for cell in self.gridCells:
             vcell = np.array([])
             for t in tracks:
@@ -297,7 +298,7 @@ class PressureDistribution(object):
                 if trackfile is None:
                     break
 
-                log.debug("Processing %s" % (trackfile))
+                log.debug("Processing %s", trackfile)
                 tracks = loadTracks(trackfile)
                 sMean, sMin, sMax, sMed = self.calculate(tracks)
                 sMinCPDist, sMinCP = self.calcMinPressure(tracks)

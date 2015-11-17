@@ -22,24 +22,14 @@ import numpy.ma as ma
 import matplotlib
 matplotlib.use('Agg', warn=False)
 
-try:
-    from mpl_toolkits.basemap import Basemap
-    NO_BASEMAP = False
-except ImportError:
-    NO_BASEMAP = True
-    logging.warn('Basemap package not installed. Disabling some plots')
-
 from os.path import join as pjoin
 
 from Utilities.config import ConfigParser
 
 from Utilities.maputils import find_index
 import Utilities.nctools as nctools
-from Utilities.smooth import smooth
 from Utilities import pathLocator
 from Utilities import metutils
-from Utilities import colours
-#from Utilities.progressbar import ProgressBar
 
 from PlotInterface.maps import saveHazardMap
 from PlotInterface.curves import saveHazardCurve
@@ -80,7 +70,7 @@ class AutoPlotHazard(object):
         config = ConfigParser()
         config.read(configFile)
 
-        outputPath = config.get('Output','Path')
+        outputPath = config.get('Output', 'Path')
 
         try:
             self.localityID = config.get('Region', 'LocalityID')
@@ -113,7 +103,7 @@ class AutoPlotHazard(object):
                           resolution='i')
 
         for i, year in enumerate(years):
-            log.debug("Plotting %d-year return period hazard map"%(year))
+            log.debug("Plotting %d-year return period hazard map", year)
             title = '%d-Year Return Period Cyclonic Wind Hazard' % (year)
             imageFilename = '%d_yrRP_hazard_map.png' % (year)
             filename = pjoin(self.plotPath, imageFilename)
