@@ -27,24 +27,27 @@ Features
 Branch
 ======
 
-This development branch (`tc-dat`) is developing a relational database
-system to allow interrogation of simulations. Users will be able to
-execute queries to identify synthetic events that represent an
-arbitrary return period, some wind speed threshold or proximity to
-tracks with some specified intensity. 
+Version 2.0 release candidate branch. Development branches should be progressively merged into this branch. 
 
-Once a simulation has been executed, the synthetic catalog of events,
-and the corresponding wind fields, will be processed to extract
-details for locations within the simulation domain. The data is stored
-in an `SQLite <http://www.sqlite.org>`_ database using Python's
-`sqlite3 <https://docs.python.org/2/library/sqlite3.html>`_
-module. Presently only generates the database, but will be extended to
-provide a collection of simple queries as part of the standard set-up.
+Changelog
+=========
 
-We are also transitioning track files to netcdf4 format to improve
-file management for large simulations.
+New features:
+-------------
 
-**NOTE**: Because some dependencies are built only for Python 2.7, this branch is not backward compatible with Python 2.6.
+* Stores individual events as separate tracks and wind fields;
+* Tracks stored in netCDF4 files, using the heirachical structure and compound variables to improve file management for large simulations;
+* Provides a relational database to allow interrogation of simulations (using an `SQLite <http://www.sqlite.org>`_ database);
+* Updated visualisation of outputs using `Seaborn <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_; 
+
+Bug fixes:
+----------
+
+* Update kernel density estimation methods. Previous version oversmoothed the distribution and used an isotropic bandwidth. Now uses statsmodels `Multivariate KDE method <http://statsmodels.sourceforge.net/stable/generated/statsmodels.nonparametric.kernel_density.KDEMultivariate.html>`_ for 2-dimensional KDE;
+* Numpy 1.10.1 compatibility fix (see commit `0361c7c <https://github.com/GeoscienceAustralia/tcrm/commit/0361c7c1ffcc230d767ba2905a693df53156ed98>`_);
+* Wind speed averaging times are as per `WMO-TD1555 <http://www.wmo.int/pages/prog/www/tcp/documents/WMO_TD_1555_en.pdf>`_ - default output is 0.2 second wind gust;
+
+
 
 Dependencies
 ============
@@ -67,18 +70,18 @@ For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is requir
 Status
 ======
 
-.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=tc-dat
+.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=v2.0
     :target: https://travis-ci.org/GeoscienceAustralia/tcrm
     :alt: Build status
 
 
-.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=tc-dat
-  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=tc-dat
+.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=v2.0
+  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=v2.0
   :alt: Test coverage
 
     
-.. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/tc-dat/landscape.svg?style=flat
-    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/tc-dat
+.. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/v2.0/landscape.svg?style=flat
+    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/v2.0
     :alt: Code Health
 
 Screenshot
