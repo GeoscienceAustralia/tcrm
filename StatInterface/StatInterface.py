@@ -237,20 +237,20 @@ class StatInterface(object):
         log.debug('Calculating cell statistics for speed')
         vStats = calculate('all_speed')
         vStats.plotStatistics(pjoin(self.outputPath, 'plots',
-                                     'stats','speed_stats'))
+                                    'stats', 'speed_stats'))
         log.debug('Saving cell statistics for speed to netcdf file')
         vStats.save(pjoin(path, 'speed_stats.nc'), 'speed')
 
         dvStats = calculate('speed_rate')
         dvStats.plotStatistics(pjoin(self.outputPath, 'plots',
-                                     'stats','speed_rate_stats'))
+                                     'stats', 'speed_rate_stats'))
         log.debug('Saving cell statistics for speed rate to netcdf file')
         dvStats.save(pjoin(path, 'speed_rate_stats.nc'), 'speed_rate')
 
         log.debug('Calculating cell statistics for pressure')
         pStats = calculate('all_pressure')
         pStats.plotStatistics(pjoin(self.outputPath, 'plots',
-                                     'stats','pressure_stats'))
+                                    'stats', 'pressure_stats'))
         log.debug('Saving cell statistics for pressure to netcdf file')
         pStats.save(pjoin(path, 'pressure_stats.nc'), 'pressure')
 
@@ -258,7 +258,7 @@ class StatInterface(object):
                   ' of change')
         dpStats = calculate('pressure_rate')
         dpStats.plotStatistics(pjoin(self.outputPath, 'plots',
-                                     'stats','pressure_rate_stats'))
+                                     'stats', 'pressure_rate_stats'))
 
         log.debug('Saving cell statistics for pressure rate to netcdf file')
         dpStats.save(pjoin(path, 'pressure_rate_stats.nc'), 'pressure_rate')
@@ -266,14 +266,14 @@ class StatInterface(object):
         log.debug('Calculating cell statistics for bearing')
         bStats = calculate('all_bearing', angular=True)
         bStats.plotStatistics(pjoin(self.outputPath, 'plots',
-                                     'stats','bearing_stats'))
+                                    'stats', 'bearing_stats'))
         log.debug('Saving cell statistics for bearing to netcdf file')
         bStats.save(pjoin(path, 'bearing_stats.nc'), 'bearing')
 
         log.debug('Calculating cell statistics for bearing rate of change')
-        bStats = calculate('bearing_rate', angular=True)
-        bStats.plotStatistics(pjoin(self.outputPath, 'plots',
-                                     'stats','bearing_rate_stats'))
+        dbStats = calculate('bearing_rate', angular=True)
+        dbStats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats', 'bearing_rate_stats'))
         log.debug('Saving cell statistics for bearing to netcdf file')
-        bStats.save(pjoin(path, 'bearing_rate_stats.nc'), 'bearing_rate')
+        dbStats.save(pjoin(path, 'bearing_rate_stats.nc'), 'bearing_rate')
 
