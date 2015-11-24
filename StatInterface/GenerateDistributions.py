@@ -22,7 +22,7 @@ import logging
 from os.path import join as pjoin
 
 import Utilities.stats as stats
-import StatInterface.KDEParameters as KDEParameters
+import KDEParameters
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile, flSaveFile, flStartLog
 
