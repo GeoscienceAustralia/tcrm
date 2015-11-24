@@ -70,11 +70,15 @@ class TestOldStyleConfig(unittest.TestCase):
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'List', 'Option1'), "A,B,C,D,E")
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'List', 'Option2'), "A")
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'String', 'Option'), 'randomstring')
+        self.assertEqual(config.cnfGetIniValue(self.configFile, 'String', 'Option1'), '/path/string')
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'Evaluate', 'Option'), {'x':1.0,'y':0.5})
 
-    def test_returnDefault(self):
+    def test_returnDefaultMissingOption(self):
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'Integer', 'Option3', 1), 1)
         self.assertEqual(config.cnfGetIniValue(self.configFile, 'String', 'Option2', 'otherstring'), 'otherstring')
+
+    def test_returnDefaultMissingSection(self):
+        self.assertEqual(config.cnfGetIniValue(self.configFile, 'Missing', 'Option', 'Default'), 'Default')
 
 if __name__ == "__main__":
     unittest.main()
