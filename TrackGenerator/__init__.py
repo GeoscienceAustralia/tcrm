@@ -21,14 +21,21 @@ Alternatively, it can be run from the command line::
 
     $ python TrackGenerator.py cairns.ini
 
+Note the absence of a '-c' flag (c.f. the normal TCRM command line arguments).
 """
 
 import os
 import sys
 
 from TrackGenerator import run
+from Utilities.parallel import attemptParallel
 
 if __name__ == "__main__":
+
+    global pp
+    pp = attemptParallel()
+    import atexit
+    atexit.register(pp.finalize)
     try:
         configFile = sys.argv[1]
     except IndexError:
@@ -45,3 +52,4 @@ if __name__ == "__main__":
         raise IOError(errorMsg)
 
     run(configFile)
+    pp.finalize()

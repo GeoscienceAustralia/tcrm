@@ -1817,6 +1817,6 @@ def run(configFile, callback=None):
     log.info('Simulating tropical cyclone tracks:' +
              ' 100 percent complete')
 
-    pp.finalize()
+    pp.barrier()
 
 
