@@ -351,12 +351,16 @@ def cnfGetIniValue(configFile, section, option, default=None):
     """
     config = ConfigParser()
     config.read(configFile)
+
+    if not config.has_section(section):
+        return default
     if not config.has_option(section, option):
         return default
+
     if default is None:
         try:
             res = config.geteval(section, option)
-        except NameError:
+        except (NameError, SyntaxError):
             res = config.get(section, option)
         return res
     if isinstance(default, str):

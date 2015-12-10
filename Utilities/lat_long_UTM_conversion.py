@@ -20,7 +20,7 @@ Usage::
 See http://www.pygps.org
 
 """
-
+from __future__ import division
 from math import pi, sin, cos, tan, sqrt
 
 _deg2rad = pi / 180.0
@@ -28,10 +28,9 @@ _rad2deg = 180.0 / pi
 
 _EquatorialRadius = 2
 _eccentricitySquared = 3
-
-_ellipsoid = [
 # id, Ellipsoid name, Equatorial Radius, square of eccentricity
 # first once is a placeholder only, To allow array indices to match id numbers
+_ellipsoid = [
     [-1, "Placeholder", 0, 0],
     [1, "Airy", 6377563, 0.00667054],
     [2, "Australian National", 6378160, 0.006694542],
@@ -69,131 +68,132 @@ _ellipsoid = [
 # Department of Defense World Geodetic System 1984 Technical Report.
 # Part I and II. Washington, DC: Defense Mapping Agency.
 
-# def LLtoUTM(int ReferenceEllipsoid, const double Lat,
-#             const double Long, double &UTMNorthing,
+# def LLtoUTM(int ReferenceEllipsoid, const double lat,
+#             const double long, double &UTMNorthing,
 #             double &UTMEasting, char* UTMZone)
 
-def LLtoUTM(Lat, Long, ReferenceEllipsoid=23, ZoneNumber=None):
+def LLtoUTM(lat, long, reference_ellipsoid=23, ZoneNumber=None):
     """
     Converts lat/long to UTM coords.  Equations from USGS Bulletin 1532
 
-    Lat and Long are in decimal degrees
+    Lat and long are in decimal degrees
     Written by Chuck Gantz- chuck.gantz@globalstar.com
 
     :param float Lat: Latitude. North latitudes are positive, south
                       latitudes are negative.
-    :param float Lon: Longitude. East longitudes are positive, west
+    :param float Lon: longitude. East longitudes are positive, west
                       longitudes are negative.
-    :param int ReferenceEllipsoid: Reference ellipsoid for the coordinate
+    :param int reference_ellipsoid: Reference ellipsoid for the coordinate
                                    system (default=23 -- WGS84).
     :param str ZoneNumber: UTM Zone for coordinates.
 
     :returns: Tuple of (ZoneNumber, UTMEasting, UTMNorthing)
     """
-    a = _ellipsoid[ReferenceEllipsoid][_EquatorialRadius]
-    eccSquared = _ellipsoid[ReferenceEllipsoid][_eccentricitySquared]
+    a = _ellipsoid[reference_ellipsoid][_EquatorialRadius]
+    eccSquared = _ellipsoid[reference_ellipsoid][_eccentricitySquared]
     k0 = 0.9996
 
     # Make sure the longitude is between -180.00 .. 179.9
-    LongTemp = (Long+180)-int((Long+180)/360)*360-180  # -180.00 .. 179.9
+    longTemp = (long+180)-int((long+180)/360)*360-180  # -180.00 .. 179.9
 
-    LatRad = Lat*_deg2rad
-    LongRad = LongTemp*_deg2rad
+    latRad = lat*_deg2rad
+    longRad = longTemp*_deg2rad
 
     if ZoneNumber is None:
-        ZoneNumber = int((LongTemp + 180)/6) + 1
+        ZoneNumber = int((longTemp + 180)/6) + 1
 
-        if Lat >= 56.0 and Lat < 64.0 and LongTemp >= 3.0 and LongTemp < 12.0:
+        if lat >= 56.0 and lat < 64.0 and longTemp >= 3.0 and longTemp < 12.0:
             ZoneNumber = 32
 
         # Special zones for Svalbard
-        if Lat >= 72.0 and Lat < 84.0:
-            if LongTemp >= 0.0 and LongTemp < 9.0:ZoneNumber = 31
-            elif LongTemp >= 9.0 and LongTemp < 21.0: ZoneNumber = 33
-            elif LongTemp >= 21.0 and LongTemp < 33.0: ZoneNumber = 35
-            elif LongTemp >= 33.0 and LongTemp < 42.0: ZoneNumber = 37
+        if lat >= 72.0 and lat < 84.0:
+            if longTemp >= 0.0 and longTemp < 9.0: ZoneNumber = 31
+            elif longTemp >= 9.0 and longTemp < 21.0: ZoneNumber = 33
+            elif longTemp >= 21.0 and longTemp < 33.0: ZoneNumber = 35
+            elif longTemp >= 33.0 and longTemp < 42.0: ZoneNumber = 37
 
-    LongOrigin = (ZoneNumber - 1)*6 - 180 + 3  # +3 puts origin in middle of zone
-    LongOriginRad = LongOrigin * _deg2rad
+    longOrigin = (ZoneNumber - 1)*6 - 180 + 3  # +3 puts origin in middle of zone
+    longOriginRad = longOrigin * _deg2rad
 
     # compute the UTM Zone from the latitude and longitude
-    UTMZone = "%d%c" % (ZoneNumber, _UTMLetterDesignator(Lat))
+    #UTMZone = "%d%c" % (ZoneNumber, _UTMLetterDesignator(lat))
 
     eccPrimeSquared = (eccSquared)/(1-eccSquared)
-    N = a/sqrt(1-eccSquared*sin(LatRad)*sin(LatRad))
-    T = tan(LatRad)*tan(LatRad)
-    C = eccPrimeSquared*cos(LatRad)*cos(LatRad)
-    A = cos(LatRad)*(LongRad-LongOriginRad)
+    N = a/sqrt(1-eccSquared*sin(latRad)*sin(latRad))
+    T = tan(latRad)*tan(latRad)
+    C = eccPrimeSquared*cos(latRad)*cos(latRad)
+    A = cos(latRad)*(longRad-longOriginRad)
 
     M = a*((1
             - eccSquared/4
             - 3*eccSquared*eccSquared/64
-            - 5*eccSquared*eccSquared*eccSquared/256)*LatRad
+            - 5*eccSquared*eccSquared*eccSquared/256)*latRad
            - (3*eccSquared/8
               + 3*eccSquared*eccSquared/32
-              + 45*eccSquared*eccSquared*eccSquared/1024)*sin(2*LatRad)
-           + (15*eccSquared*eccSquared/256 + 45*eccSquared*eccSquared*eccSquared/1024)*sin(4*LatRad)
-           - (35*eccSquared*eccSquared*eccSquared/3072)*sin(6*LatRad))
+              + 45*eccSquared*eccSquared*eccSquared/1024)*sin(2*latRad)
+           + (15*eccSquared*eccSquared/256 + 45*eccSquared*eccSquared*eccSquared/1024)*sin(4*latRad)
+           - (35*eccSquared*eccSquared*eccSquared/3072)*sin(6*latRad))
 
     UTMEasting = (k0*N*(A+(1-T+C)*A*A*A/6
                         + (5-18*T+T*T+72*C-58*eccPrimeSquared)*A*A*A*A*A/120)
                   + 500000.0)
 
-    UTMNorthing = (k0*(M+N*tan(LatRad)*(A*A/2+(5-T+9*C+4*C*C)*A*A*A*A/24
+    UTMNorthing = (k0*(M+N*tan(latRad)*(A*A/2+(5-T+9*C+4*C*C)*A*A*A*A/24
                                         + (61
                                            -58*T
                                            +T*T
                                            +600*C
                                            -330*eccPrimeSquared)*A*A*A*A*A*A/720)))
 
-    if Lat < 0:
-        UTMNorthing = UTMNorthing + 10000000.0; #10000000 meter offset for southern hemisphere
+    if lat < 0:
+        #10000000 meter offset for southern hemisphere
+        UTMNorthing = UTMNorthing + 10000000.0; 
     # UTMZone was originally returned here.  I don't know what the
     # letter at the end was for.
     # print "UTMZone", UTMZone
     return (ZoneNumber, UTMEasting, UTMNorthing)
 
 
-def _UTMLetterDesignator(Lat):
+def _UTMLetterDesignator(lat):
     """
     This routine determines the correct UTM letter designator for the
     given latitude returns 'Z' if latitude is outside the UTM limits of
     84N to 80S.
     Written by Chuck Gantz- chuck.gantz@globalstar.com
     """
-    if 84 >= Lat >= 72: return 'X'
-    elif 72 > Lat >= 64: return 'W'
-    elif 64 > Lat >= 56: return 'V'
-    elif 56 > Lat >= 48: return 'U'
-    elif 48 > Lat >= 40: return 'T'
-    elif 40 > Lat >= 32: return 'S'
-    elif 32 > Lat >= 24: return 'R'
-    elif 24 > Lat >= 16: return 'Q'
-    elif 16 > Lat >= 8: return 'P'
-    elif  8 > Lat >= 0: return 'N'
-    elif  0 > Lat >= -8: return 'M'
-    elif -8> Lat >= -16: return 'L'
-    elif -16 > Lat >= -24: return 'K'
-    elif -24 > Lat >= -32: return 'J'
-    elif -32 > Lat >= -40: return 'H'
-    elif -40 > Lat >= -48: return 'G'
-    elif -48 > Lat >= -56: return 'F'
-    elif -56 > Lat >= -64: return 'E'
-    elif -64 > Lat >= -72: return 'D'
-    elif -72 > Lat >= -80: return 'C'
-    else: return 'Z'    # if the Latitude is outside the UTM limits
+    if 84 >= lat >= 72: return 'X'
+    elif 72 > lat >= 64: return 'W'
+    elif 64 > lat >= 56: return 'V'
+    elif 56 > lat >= 48: return 'U'
+    elif 48 > lat >= 40: return 'T'
+    elif 40 > lat >= 32: return 'S'
+    elif 32 > lat >= 24: return 'R'
+    elif 24 > lat >= 16: return 'Q'
+    elif 16 > lat >= 8: return 'P'
+    elif  8 > lat >= 0: return 'N'
+    elif  0 > lat >= -8: return 'M'
+    elif -8> lat >= -16: return 'L'
+    elif -16 > lat >= -24: return 'K'
+    elif -24 > lat >= -32: return 'J'
+    elif -32 > lat >= -40: return 'H'
+    elif -40 > lat >= -48: return 'G'
+    elif -48 > lat >= -56: return 'F'
+    elif -56 > lat >= -64: return 'E'
+    elif -64 > lat >= -72: return 'D'
+    elif -72 > lat >= -80: return 'C'
+    else: return 'Z'    # if the latitude is outside the UTM limits
 
-#void UTMtoLL(int ReferenceEllipsoid, const double UTMNorthing,
+#void UTMtoLL(int reference_ellipsoid, const double UTMNorthing,
 #             const double UTMEasting, const char* UTMZone,
-#             double& Lat,  double& Long )
+#             double& lat,  double& long )
 
 def UTMtoLL(northing, easting, zone, isSouthernHemisphere=True,
-            ReferenceEllipsoid=23):
+            reference_ellipsoid=23):
     """
     Converts UTM coords to lat/long.  Equations from USGS Bulletin 1532
-    East Longitudes are positive, West longitudes are negative.
+    East longitudes are positive, West longitudes are negative.
     North latitudes are positive, South latitudes are negative
-    Lat and Long are in decimal degrees.
+    lat and long are in decimal degrees.
     Written by Chuck Gantz- chuck.gantz@globalstar.com
     Converted to Python by Russ Nelson <nelson@crynwr.com>
 
@@ -236,14 +236,14 @@ def UTMtoLL(northing, easting, zone, isSouthernHemisphere=True,
     :param int zone: UTM zone number.
     :param boolean isSouthernHemisphere: ``True`` if the location is in
                                          the southern hemisphere (default).
-    :param int ReferenceEllipsoid: Reference ellipsoid for the coordinate
+    :param int reference_ellipsoid: Reference ellipsoid for the coordinate
                                    system (default=23 -- WGS84).
 
     :returns: Tuple pair of latitude, longitude for the point.
     """
     k0 = 0.9996
-    a = _ellipsoid[ReferenceEllipsoid][_EquatorialRadius]
-    eccSquared = _ellipsoid[ReferenceEllipsoid][_eccentricitySquared]
+    a = _ellipsoid[reference_ellipsoid][_EquatorialRadius]
+    eccSquared = _ellipsoid[reference_ellipsoid][_eccentricitySquared]
     e1 = (1-sqrt(1-eccSquared))/(1+sqrt(1-eccSquared))
 
     x = easting - 500000.0 #remove 500,000 meter offset for longitude
@@ -254,7 +254,7 @@ def UTMtoLL(northing, easting, zone, isSouthernHemisphere=True,
         y -= 10000000.0         # remove 10,000,000 meter offset used
                                 # for southern hemisphere
 
-    LongOrigin = (ZoneNumber - 1)*6 - 180 + 3  # +3 puts origin in middle of zone
+    longOrigin = (ZoneNumber - 1)*6 - 180 + 3  # +3 puts origin in middle of zone
 
     eccPrimeSquared = (eccSquared)/(1-eccSquared)
 
@@ -272,14 +272,14 @@ def UTMtoLL(northing, easting, zone, isSouthernHemisphere=True,
     R1 = a*(1-eccSquared)/pow(1-eccSquared*sin(phi1Rad)*sin(phi1Rad), 1.5)
     D = x/(N1*k0)
 
-    Lat = phi1Rad - (N1*tan(phi1Rad)/R1)*(D*D/2-(5+3*T1+10*C1-4*C1*C1-9*eccPrimeSquared)*D*D*D*D/24
+    lat = phi1Rad - (N1*tan(phi1Rad)/R1)*(D*D/2-(5+3*T1+10*C1-4*C1*C1-9*eccPrimeSquared)*D*D*D*D/24
                                           +(61+90*T1+298*C1+45*T1*T1-252*eccPrimeSquared-3*C1*C1)*D*D*D*D*D*D/720)
-    Lat = Lat * _rad2deg
+    lat = lat * _rad2deg
 
-    Long = (D-(1+2*T1+C1)*D*D*D/6+(5-2*C1+28*T1-3*C1*C1+8*eccPrimeSquared+24*T1*T1)
+    long = (D-(1+2*T1+C1)*D*D*D/6+(5-2*C1+28*T1-3*C1*C1+8*eccPrimeSquared+24*T1*T1)
             *D*D*D*D*D/120)/cos(phi1Rad)
-    Long = LongOrigin + Long * _rad2deg
-    return (Lat, Long)
+    long = longOrigin + long * _rad2deg
+    return (lat, long)
 
 if __name__ == '__main__':
     (z, e, n) = LLtoUTM(45.00, -75.00, 23)

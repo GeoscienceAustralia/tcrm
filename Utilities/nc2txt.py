@@ -1,6 +1,6 @@
 """
-    Tropical Cyclone Risk Model (TCRM) - Version 1.0 (beta release)
-    Copyright (C) 2011 Commonwealth of Australia (Geoscience Australia)
+    Tropical Cyclone Risk Model (TCRM) - Version 2.0
+    Copyright (C) 2015 Commonwealth of Australia (Geoscience Australia)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,17 +24,17 @@
 
  $Id: nc2txt.py 642 2012-02-21 07:54:04Z nsummons $
 """
-import os, sys, pdb, logging, getopt
-filename=os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
+import os
+import sys
+import logging
+import getopt
 
-import numpy
-import grid
-import nctools
+import numpy as np
+import Utilities.grid as grid
+import Utilities.nctools as nctools
 __version__ = "%Id$"
 
-def _usage():
+def usage():
     """
     Short description of the program and how to run it
     """
@@ -50,25 +50,30 @@ def _usage():
     print "      than 2 dimensions, this specifies the name of the third"
     print "      dimension"
 
-def _process(argv):
+def process(argv):
     recdim = None
     mv = -9999.
     try:
-        opts, args = getopt.getopt(argv,"f:hm:r:v:",["filename=","help","missingvalue=","record=","variable="])
+        opts, args = getopt.getopt(argv, "f:hm:r:v:",
+                                   ["filename=",
+                                    "help",
+                                    "missingvalue=",
+                                    "record=",
+                                    "variable="])
     except getopt.GetoptError:
-        _usage()
+        usage()
         sys.exit(2)
-    for opt,arg in opts:
-        if opt in ("-h","--help"):
-            _usage()
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            usage()
             sys.exit(2)
-        elif opt in ("-f","--filename"):
+        elif opt in ("-f", "--filename"):
             filename = arg
-        elif opt in ("-m","--missingvalue"):
+        elif opt in ("-m", "--missingvalue"):
             mv = arg
-        elif opt in ("-v","--variable"):
+        elif opt in ("-v", "--variable"):
             variable = arg
-        elif opt in ("-r,--record"):
+        elif opt in ("-r", "--record"):
             recdim = arg
 
     ncobj = nctools.ncLoadFile(filename)
@@ -78,22 +83,25 @@ def _process(argv):
     delta = lon[1] - lon[0]
 
     # Fix incorrectly reported corner of lower left pixel
-    lon = lon - delta/2
-    lat = lat - delta/2
+    lon = lon - delta/2.
+    lat = lat - delta/2.
     if recdim:
-        recval = nctools.ncGetDims(ncobj,recdim)
-    #data = nctools.ncGetData(ncobj, variable, missingValue=mv)
+        recval = nctools.ncGetDims(ncobj, recdim)
+
     data = nctools.ncGetData(ncobj, variable)
     ncobj.close()
     if recdim:
-        for i,v in enumerate(recval):
-            outputfile = "%s.%s.%s"%(os.path.splitext(filename)[0],repr(recval[i]),'txt')
+        for i, v in enumerate(recval):
+            outputfile = "%s.%s.%s"%(os.path.splitext(filename)[0],
+                                     repr(recval[i]), 'txt')
             print "Saving data to %s"%outputfile
-            grid.grdSave(outputfile, numpy.flipud(data[i]), lon, lat, delta, delimiter=' ', nodata=mv, fmt='%6.2f')
+            grid.grdSave(outputfile, np.flipud(data[i]), lon, lat,
+                         delta, delimiter=' ', nodata=mv, fmt='%6.2f')
     else:
-        outputfile="%s.%s"%(os.path.splitext(filename)[0],'txt')
+        outputfile = "%s.%s"%(os.path.splitext(filename)[0], 'txt')
         print "Saving data to %s"%outputfile
-        grid.grdSave(outputfile, numpy.flipud(data), lon, lat, delta, delimiter=' ', nodata=mv, fmt='%6.2f')
+        grid.grdSave(outputfile, np.flipud(data), lon, lat,
+                     delta, delimiter=' ', nodata=mv, fmt='%6.2f')
 
 if __name__ == '__main__':
-    _process(sys.argv[1:])
+    process(sys.argv[1:])
