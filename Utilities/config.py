@@ -12,7 +12,7 @@
 
 import io
 from ConfigParser import RawConfigParser
-
+from Utilities.singleton import Singleton
 
 def parseBool(txt):
     """
@@ -231,37 +231,15 @@ path=MSLP
 filename=slp.day.ltm.nc
 
 """
-def singleton(cls):
-    """
-    Actually a Borg!
-    Ensure only a single state for all instances of the class
-    
-    See http://code.activestate.com/recipes/66531/#c30 - I added the _drop() 
-    method to permit clean up in testing frameworks.
 
-    """
-    cls._state = {}
-    originit = cls.__init__
-    def newinit(self, *args, **kwargs):
-        self.__dict__ = cls._state
-        originit(self, *args, **kwargs)
-    def _drop(self):
-        cls._state = {}
-        self.__dict__ = {}
-
-    cls._drop = _drop
-    cls.__init__ = newinit
-    return cls
-
-@singleton
-class ConfigParser(RawConfigParser):
+class _ConfigParser(RawConfigParser, Singleton):
 
     """
     A configuration file parser that extends
     :class:`ConfigParser.RawConfigParser` with a few helper functions
     and default options.
     """
-
+    ignoreSubsequent = True
     def __init__(self, defaults=DEFAULTS):
         RawConfigParser.__init__(self)
         self.readfp(io.BytesIO(defaults))
@@ -331,6 +309,8 @@ class ConfigParser(RawConfigParser):
             newvalue = value
         RawConfigParser.set(self, section, option, newvalue)
 
+def ConfigParser():
+    return _ConfigParser.getInstance()
 
 def cnfGetIniValue(configFile, section, option, default=None):
     """

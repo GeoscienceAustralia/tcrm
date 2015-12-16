@@ -5,6 +5,7 @@ import io
 
 #from Utilities
 import Utilities.config as config #.config import ConfigParser, cnfGetIniValue, parseBool, parseList, formatList
+from Utilities.singleton import forgetAllSingletons
 import pathLocate
 
 unittest_dir = pathLocate.getUnitTestDirectory()
@@ -37,6 +38,8 @@ class TestParsers(unittest.TestCase):
 class TestConfigParser(unittest.TestCase):
 
     def setUp(self):
+        # Destroy any existing configuration instances:
+        forgetAllSingletons()
         self.configFile = pjoin(unittest_dir, 'test_data', 'test_config.ini')
         self.config = config.ConfigParser()
         self.config.read(self.configFile)
@@ -45,7 +48,8 @@ class TestConfigParser(unittest.TestCase):
         self.listopt2 = ["A"]
     
     def tearDown(self):
-        self.config._drop()
+        # Destroy any outstanding configuration instances
+        forgetAllSingletons()
 
     def test_geteval(self):
         """Test geteval returns correct object"""
