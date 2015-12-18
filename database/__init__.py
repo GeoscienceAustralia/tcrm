@@ -17,7 +17,9 @@ wind speed, at each location in the domain, which could then be
 selected for more detailed modelling.
 
 :class:`HazardDatabase` is initially intended to be created once, then
-queried from subsequent scripts or interactive sessions.
+queried from subsequent scripts or interactive sessions. By 
+inheriting from the :class:`Singleton` class, this will only ever return
+the first instance of :class:`HazardDatabase` created in a session.
 
 
 TODO::
@@ -54,6 +56,7 @@ from Utilities.files import flModDate, flGetStat
 from Utilities.maputils import find_index
 from Utilities.loadData import loadTrackFile
 from Utilities.track import loadTracksFromFiles
+from Utilities.singleton import Singleton
 from Utilities.process import pAlreadyProcessed, pWriteProcessedFile, \
     pGetProcessedFiles
 log = logging.getLogger(__name__)
@@ -153,19 +156,10 @@ def windfieldAttributes(ncfile):
     ncobj.close()
     return (trackfile, trackfiledate, tcrm_vers, minslp, maxwind)
 
-def singleton(cls):
-    instances = {}
+def HazardDatabase(configFile):
+    return _HazardDatabase.getInstance(configFile)
 
-    def getinstance(*args, **kwargs):
-        """Retrieve existing instance"""
-        if cls not in instances:
-            instances[cls] = cls(*args, **kwargs)
-        return instances[cls]
-    return getinstance
-
-
-@singleton
-class HazardDatabase(sqlite3.Connection):
+class _HazardDatabase(sqlite3.Connection, Singleton):
     """
     Create and update a database of locations, events, hazard, wind
     speed and tracks.
@@ -173,7 +167,7 @@ class HazardDatabase(sqlite3.Connection):
     :param str configFile: Path to the simulation configuration file.
 
     """
-
+    ignoreSubsequent = True
     def __init__(self, configFile):
 
         config = ConfigParser()
