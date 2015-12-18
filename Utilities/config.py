@@ -309,8 +309,8 @@ class _ConfigParser(RawConfigParser, Singleton):
             newvalue = value
         RawConfigParser.set(self, section, option, newvalue)
 
-def ConfigParser():
-    return _ConfigParser.getInstance()
+def ConfigParser(defaults=DEFAULTS):
+    return _ConfigParser.getInstance(defaults)
 
 def cnfGetIniValue(configFile, section, option, default=None):
     """
