@@ -138,7 +138,11 @@ def windfieldAttributes(ncfile):
               global attributes in the netCDF file.
 
     """
-    ncobj = Dataset(ncfile, 'r')
+    try:
+        ncobj = Dataset(ncfile, 'r')
+    except Exception as err:
+        log.exception("Cannot open file: {0}: {1}".format(ncfile, err.args[0]))
+        raise
     trackfile = getattr(ncobj, 'track_file')
     trackfiledate = getattr(ncobj, 'track_file_date')
     trackfiledate = datetime.strptime(trackfiledate, '%Y-%m-%d %H:%M:%S')
