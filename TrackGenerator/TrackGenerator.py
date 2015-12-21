@@ -954,7 +954,6 @@ class TrackGenerator(object):
 
             bearing[i] = self.theta
             speed[i] = abs(self.v)  # reflect negative speeds
-            pressure[i] = pressure[i - 1] + self.dp * self.dt
 
             # Calculate the central pressure
 
