@@ -87,7 +87,7 @@ class TestFitRmax(NumpyTestCase.NumpyTestCase):
         params = trackSize.fitRmax(self.rmw, self.dp, self.lat)
         self.assertEqual(type(params), list)
         self.assertEqual(len(params), 5)
-        self.assertListEqual(params, self.params)
+        self.numpyAssertAlmostEqual(np.array(params), np.array(self.params))
     
 if __name__ == "__main__":
     unittest.main(verbosity=2)
