@@ -142,6 +142,7 @@ from datetime import datetime, timedelta
 
 import Utilities.stats as stats
 import trackLandfall
+import trackSize
 import Utilities.nctools as nctools
 import Utilities.Cmap as Cmap
 import Utilities.Cstats as Cstats
@@ -525,17 +526,6 @@ class TrackGenerator(object):
             else:
                 genesisSpeed = initSpeed
 
-            # Sample an initial maximum radius if none is provided
-
-            if not initRmax:
-                if not self.allCDFInitSize:
-                    cdfSize = self.cdfSize[:, [0, 2]]
-                else:
-                    ind = self.allCDFInitSize[:, 0] == initCellNum
-                    cdfSize = self.allCDFInitSize[ind, 1:3]
-                genesisRmax = ppf(uniform(), cdfSize)
-            else:
-                genesisRmax = initRmax
 
             # Sample an initial day if none is provided
 
@@ -572,7 +562,22 @@ class TrackGenerator(object):
                                       cdfInitPressure)
             else:
                 genesisPressure = initPressure
+                
+            # Sample an initial maximum radius if none is provided
 
+            if not initRmax:
+                if not self.allCDFInitSize:
+                    cdfSize = self.cdfSize[:, [0, 2]]
+                else:
+                    ind = self.allCDFInitSize[:, 0] == initCellNum
+                    cdfSize = self.allCDFInitSize[ind, 1:3]
+                #genesisRmax = ppf(uniform(), cdfSize)
+                dp = initEnvPressure - genesisPressure
+                self.rmwEps = np.random.normal(0, scale=0.357)
+                genesisRmax = trackSize.rmax(dp, genesisLat, self.rmwEps)
+                
+            else:
+                genesisRmax = initRmax
             # Do not generate tracks from this genesis point if we are
             # going to exit the domain on the first step
 
@@ -994,7 +999,9 @@ class TrackGenerator(object):
                 if rmax[i] <= 1.0:
                     rmax[i] = rmax[i - 1] - self.ds * self.dt
             else:
-                rmax[i] = rmax[i - 1]
+                dp = penv[i] - pressure[i]
+                rmax[i] = trackSize.rmax(dp, lat[i], self.rmwEps)
+                #rmax[i] = rmax[i - 1]
 
             # Update the distance and the age of the cyclone
 
@@ -1765,7 +1772,7 @@ def run(configFile, callback=None):
     # should jump ahead in the PRNG stream to ensure that it is
     # independent of all other simulations.
 
-    maxRvsPerTrack = 5 * (maxTimeSteps + 2)
+    maxRvsPerTrack = 6 * (maxTimeSteps + 2)
     jumpAhead = np.hstack([[0],
                           np.cumsum(nCyclones * maxRvsPerTrack)[:-1]])
 
