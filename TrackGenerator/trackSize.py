@@ -35,7 +35,8 @@ def rmax(dp, lat, eps, coeffs=[4.4651, -0.04249, 0.000337239, 0.000215]):
     :param lat: Latitude of the storm (degrees)
     :param eps: random variate. This would normally be held constant
                 for a single storm.
-    :param coeffs: A list of coefficients for the functional form.
+    :param coeffs: A list of coefficients for the functional form. Default
+                   values are based on JTWC data from the southern hemisphere.
 
     :returns: radius to maximum wind value.
 
@@ -45,7 +46,8 @@ def rmax(dp, lat, eps, coeffs=[4.4651, -0.04249, 0.000337239, 0.000215]):
         LOG.warn("Using default values")
         coeffs = [4.4651, -0.04249, 0.000337239, 0.000215]
 
-    if isinstance(dp, (np.ndarray, list)):
+    if isinstance(dp, (np.ndarray, list)) and \
+      isinstance(lat, (np.ndarray, list)):
         assert len(dp) == len(lat)
     rm = np.exp(coeffs[0] + coeffs[1] * dp + coeffs[2] * dp * dp +
                 coeffs[3] * lat * lat + eps)
