@@ -39,8 +39,8 @@ from Utilities.track import Track, trackFields, trackTypes
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
 
 """
 
@@ -308,7 +308,7 @@ def getInitialPositions(data):
     """
     try:
         indicator = np.array(data['index'], 'i')
-        logger.debug("Using index contained in file to "
+        LOG.debug("Using index contained in file to "
                      "determine initial TC positions")
         return indicator
     except (ValueError, KeyError):
@@ -316,7 +316,7 @@ def getInitialPositions(data):
 
     try:
         tcSerialNo = data['tcserialno']
-        logger.debug("Using TC serial number to determine initial "
+        LOG.debug("Using TC serial number to determine initial "
                      "TC positions")
         indicator = np.ones(len(tcSerialNo), 'i')
         for i in range(1, len(tcSerialNo)):
@@ -329,7 +329,7 @@ def getInitialPositions(data):
     try:
         num = np.array(data['num'], 'i')
         season = np.array(data['season'], 'i')
-        logger.debug("Using season and TC number to determine initial "
+        LOG.debug("Using season and TC number to determine initial "
                      "TC positions")
         indicator = np.ones(num.size, 'i')
         for i in range(1, len(num)):
@@ -341,7 +341,7 @@ def getInitialPositions(data):
 
     try:
         num = np.array(data['num'], 'i')
-        logger.debug("Using TC number to determine initial TC positions "
+        LOG.debug("Using TC number to determine initial TC positions "
                      "(no season information)")
         indicator = np.ones(num.size, 'i')
         ind_ = np.diff(num)
@@ -443,7 +443,7 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
                 minute = np.mod(hour, 100)
                 hour = hour / 100
             else:
-                logger.warning("Missing minute data from input data" + \
+                LOG.warning("Missing minute data from input data" + \
                                "- setting minutes to 00 for all times")
                 minute = np.zeros((hour.size), 'i')
 
@@ -578,7 +578,7 @@ def julianDays(year, month, day, hour, minute):
               observation.
 
     """
-    logger.debug("Calculating julian day (day of year) values")
+    LOG.debug("Calculating julian day (day of year) values")
 
     if np.any(year < 0):
         raise ValueError("Error in input year information - check input file")
@@ -631,7 +631,7 @@ def ltmPressure(jdays, time, lon, lat, ncfile):
     jtime = jdays + np.modf(time)[0]
     coords = np.array([jtime, lat, lon])
 
-    logger.debug("Sampling data from MSLP data in {0}".format(ncfile))
+    LOG.debug("Sampling data from MSLP data in {0}".format(ncfile))
     ncobj = nctools.ncLoadFile(ncfile)
     slpunits = getattr(ncobj.variables['slp'], 'units')
 
@@ -646,6 +646,59 @@ def ltmPressure(jdays, time, lon, lat, ncfile):
 
     return penv
 
+def getPoci(penv, pcentre, lat, jdays, eps,
+            coeffs=[2288.07, -0.6496398, -1.33467,
+                    7.085303e-04, 4.87049101e-03,
+                    -1.43573905],
+            missingValue=sys.maxint):
+    """
+    Calculate a modified pressure for the outermost closed isobar, based
+    on a model of daily long-term mean SLP values, central pressure,
+    latitude and day of year.
+
+    :param penv: environmental pressure estimate (from long term mean pressure
+                 dataset, hPa).
+    :param pcentre: Central pressure of storm (hPa).
+    :param lat: Latitude of storm (degrees).
+    :param jdays: Julian day (day of year).
+    :param eps: random variate. Retained as a constant for a single storm.
+
+    :returns: Revised estimate for the pressure of outermost closed isobar.
+    """
+
+    if len(coeffs) < 6:
+        LOG.warn("Insufficient coefficients for poci calculation")
+        LOG.warn("Using default values")
+        coeffs=[2288.07, -0.6496398,-1.33467, 
+                7.085303e-04, 4.87049101e-03,
+                -1.43573905]
+
+    if isinstance(penv, (np.ndarray, list)) and \
+      isinstance(pcentre, (np.ndarray, list)) and \
+      isinstance(lat, (np.ndarray, list)) and \
+      isinstance(jdays, (np.ndarray, list)):
+      assert len(penv) == len(pcentre)
+      assert len(penv) == len(lat)
+      assert len(penv) == len(jdays)
+      
+    poci_model = coeffs[0] + coeffs[1]*penv + coeffs[2]*pcentre \
+      + coeffs[3]*pcentre*pcentre + coeffs[4]*lat*lat + \
+        coeffs[5]*np.cos(np.pi*2*jdays/365) + eps
+
+    if isinstance(poci_model, (np.ndarray, list)):
+        nvidx = np.where(pcentre == missingValue)
+        poci_model[nvidx] = missingValue
+
+        nvidx = np.where(penv < pcentre)
+        poci_model[nvidx] = missingValue
+
+    elif penv < pcentre:
+        poci_model = missingValue
+    elif pcentre == missingValue:
+        poci_model = missingValue
+    
+    return poci_model
+    
 
 def filterPressure(pressure, inputPressureUnits='hPa',
                    missingValue=sys.maxint):
@@ -748,7 +801,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
 
     """
 
-    logger.info("Loading %s" % trackFile)
+    LOG.info("Loading %s" % trackFile)
     inputData = colReadCSV(configFile, trackFile, source) #,
                           #nullValue=missingValue)
 
@@ -808,7 +861,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         windspeed = metutils.convert(windspeed, inputSpeedUnits, "mps")
         windspeed[novalue_index] = missingValue
     except (ValueError, KeyError):
-        logger.debug("No max wind speed data - all values will be zero")
+        LOG.debug("No max wind speed data - all values will be zero")
         windspeed = np.zeros(indicator.size, 'f')
     assert lat.size == indicator.size
     assert lon.size == indicator.size
@@ -821,15 +874,15 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         rmax[novalue_index] = missingValue
 
     except (ValueError, KeyError):
-        logger.debug("No radius to max wind data - all values will be zero")
+        LOG.debug("No radius to max wind data - all values will be zero")
         rmax = np.zeros(indicator.size, 'f')
 
     if 'penv' in inputData.dtype.names:
         penv = np.array(inputData['penv'], 'd')
     else:
-        logger.debug("No ambient MSLP data in this input file")
-        logger.debug("Sampling data from MSLP data defined in "
-                     "configuration file")
+        LOG.debug("No ambient MSLP data in this input file")
+        LOG.debug("Sampling data from MSLP data defined in "
+                  "configuration file")
         # Warning: using sampled data will likely lead to some odd behaviour
         # near the boundary of the MSLP grid boundaries - higher resolution
         # MSLP data will decrease this unusual behaviour.
@@ -837,16 +890,23 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         try:
             ncfile = cnfGetIniValue(configFile, 'Input', 'MSLPFile')
         except:
-            logger.exception("No input MSLP file specified in configuration")
+            LOG.exception("No input MSLP file specified in configuration")
             raise
         time = getTime(year, month, day, hour, minute)
         penv = ltmPressure(jdays, time, lon, lat, ncfile)
+
+    if 'poci' in inputData.dtype.names:
+        poci = np.array(inputData['poci'], 'd')
+    else:
+        LOG.debug("Determining poci")
+        poci = getPoci(penv, pressure, lat, jdays)
+
 
     speed, bearing = getSpeedBearing(indicator, lon, lat, dt,
                                      missingValue=missingValue)
 
     if calculateWindSpeed:
-        windspeed = maxWindSpeed(indicator, dt, lon, lat, pressure, penv)
+        windspeed = maxWindSpeed(indicator, dt, lon, lat, pressure, poci)
 
     TCID = np.cumsum(indicator)
 
@@ -859,7 +919,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
                           [indicator, TCID, year, month,
                            day, hour, minute, timeElapsed,
                            datetimes, lon, lat, speed, bearing,
-                           pressure, windspeed, rmax, penv]):
+                           pressure, windspeed, rmax, poci]):
         data[key] = value
 
     tracks = []
