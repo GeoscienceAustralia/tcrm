@@ -378,73 +378,73 @@ class TestGetPoci(unittest.TestCase):
         self.lat = np.arange(-24, -2, 2)
         self.jdays = np.arange(1, 365, 36)
 
-        self.pociOutput = np.array([1016.01467599, 1014.67594501,
-                                    1013.94715145, 1013.5640314,
-                                    1013.20095481, 1012.59202993,
-                                    1011.62999046, 1010.40608877,
-                                    1009.17615842, 1008.26546764,
-                                    1007.94774957])
+        self.pociOutput = np.array([1016.11315678, 1014.75370624,
+                                    1014.00665338, 1013.6080981,
+                                    1013.23285869, 1012.61540945,
+                                    1011.64863179, 1010.42365243,
+                                    1009.1959527, 1008.29035302,
+                                    1007.98020964])
         self.pociOutputCoeffs = np.array([])
 
     def test_getPociDefaults(self):
         """Test getPoci returns correct value based on defaults"""
-        eps = np.random.normal(0, scale=2.63449388)
+        eps = np.random.normal(0, scale=2.5717404300409674)
         Poci = loadData.getPoci(1000, 900, -24, 1, eps)
-        assert_almost_equal(Poci, 1016.01467599)
+        assert_almost_equal(Poci, 1016.1131567762006)
 
     def test_getPociWrongLengths(self):
         """getPoci raises exception when inputs are different lengths"""
-        eps = np.random.normal(0, scale=2.63449388)
+        eps = np.random.normal(0, scale=2.5717404300409674)
         self.assertRaises(Exception, loadData.getPoci, self.penv[:-1],
                           self.pcentre, self.lat, self.jdays, eps)
 
     def test_getPociArrayInput(self):
         """Test getPoci with array input"""
-        eps = np.random.normal(0, scale=2.63449388)
+        eps = np.random.normal(0, scale=2.5717404300409674)
         Poci = loadData.getPoci(self.penv, self.pcentre, self.lat,
                                 self.jdays, eps)
         assert_almost_equal(Poci, self.pociOutput)
 
     def test_getPociArrayMissingValues(self):
         """getPoci filters values where input data is missing"""
-        eps = np.random.normal(0, scale=2.63449388)
+        eps = np.random.normal(0, scale=2.5717404300409674)
         pcentre = self.pcentre
         pcentre[-1] = sys.maxint
         Poci = loadData.getPoci(self.penv, pcentre, self.lat,
                                 self.jdays, eps)
-        PociOutput = np.array([1016.01467599, 1014.67594501,
-                               1013.94715145, 1013.5640314,
-                               1013.20095481, 1012.59202993,
-                               1011.62999046, 1010.40608877,
-                               1009.17615842, 1008.26546764,
+        PociOutput = np.array([1016.11315678, 1014.75370624,
+                               1014.00665338, 1013.6080981,
+                               1013.23285869, 1012.61540945,
+                               1011.64863179, 1010.42365243,
+                               1009.1959527, 1008.29035302,
                                sys.maxint])
         assert_almost_equal(Poci, PociOutput)
 
     def test_getPociArrayInvalidInput(self):
         """getPoci filters values where penv < pcentre"""
-        eps = np.random.normal(0, scale=2.63449388)
+        eps = np.random.normal(0, scale=2.5717404300409674)
         penv = self.penv
         penv[-1] = 999
         Poci = loadData.getPoci(self.penv, self.pcentre, self.lat,
                                 self.jdays, eps)
-        PociOutput = np.array([1016.01467599, 1014.67594501,
-                               1013.94715145, 1013.5640314,
-                               1013.20095481, 1012.59202993,
-                               1011.62999046, 1010.40608877,
-                               1009.17615842, 1008.26546764,
+        PociOutput = np.array([1016.11315678, 1014.75370624,
+                               1014.00665338, 1013.6080981,
+                               1013.23285869, 1012.61540945,
+                               1011.64863179, 1010.42365243,
+                               1009.1959527, 1008.29035302,
                                sys.maxint])
         assert_almost_equal(Poci, PociOutput)
     
     def test_getPociWithCoeffs(self):
         """getPoci with user-defined set of coefficients"""
-        eps = np.random.normal(0, scale=2.63449388)
+        eps = np.random.normal(0, scale=2.5717404300409674)
         coeffs = [2288, -0.65, -1.33, 7.0e-04, 5e-03, -1.5]
         Poci = loadData.getPoci(1000, 900, -24, 1, eps, coeffs)
-        self.assertAlmostEqual(Poci, 1012.888278737)
+        self.assertAlmostEqual(Poci, 1012.8047170899531)
 
     def test_getPociIncompleteCoeffs(self):
         """Test getPoci falls back to default coeffs if input incomplete"""
-        eps = np.random.normal(0, scale=2.63449388)
+        eps = np.random.normal(0, scale=2.5717404300409674)
         coeffs = [-0.6496398,-1.33467, 
                   7.085303e-04, 4.87049101e-03,
                   -1.43573905]

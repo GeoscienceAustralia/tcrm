@@ -647,9 +647,9 @@ def ltmPressure(jdays, time, lon, lat, ncfile):
     return penv
 
 def getPoci(penv, pcentre, lat, jdays, eps,
-            coeffs=[2288.07, -0.6496398, -1.33467,
-                    7.085303e-04, 4.87049101e-03,
-                    -1.43573905],
+            coeffs=[2324.1564738613392, -0.6539853183796136,
+                    -1.3984456535888878, 0.00074072928008818927,
+                    0.0044469231429346088, -1.4337623534206905],
             missingValue=sys.maxint):
     """
     Calculate a modified pressure for the outermost closed isobar, based
@@ -669,9 +669,9 @@ def getPoci(penv, pcentre, lat, jdays, eps,
     if len(coeffs) < 6:
         LOG.warn("Insufficient coefficients for poci calculation")
         LOG.warn("Using default values")
-        coeffs=[2288.07, -0.6496398,-1.33467, 
-                7.085303e-04, 4.87049101e-03,
-                -1.43573905]
+        coeffs=[2324.1564738613392, -0.6539853183796136,
+                -1.3984456535888878, 0.00074072928008818927,
+                0.0044469231429346088, -1.4337623534206905]
 
     if isinstance(penv, (np.ndarray, list)) and \
       isinstance(pcentre, (np.ndarray, list)) and \
