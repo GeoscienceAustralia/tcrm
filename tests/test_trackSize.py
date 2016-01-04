@@ -21,39 +21,39 @@ class TestRmaxModel(NumpyTestCase.NumpyTestCase):
         np.random.seed(10)
         self.dparray = np.arange(10, 51, 5)
         self.latarray = np.arange(-23, -5, 2)
-        self.rmaxout = np.array([ 105.95720455, 87.69107765, 73.93504829,
-                                  63.50608684, 55.57127783, 49.53993723,
-                                  44.99150895, 41.62705669, 39.23655673])
-        self.rmaxoutcoeffs = np.array([110.07658843, 90.79247266,
-                                       75.76044949, 63.95478709,
-                                       54.61870366, 47.18973462,
-                                       41.24691747, 36.47315031,
-                                       32.62818163])
+        self.rmaxout = np.array([104.08747056, 87.24373672, 74.36633603,
+                                 64.46512563, 56.83025497, 50.94959054,
+                                 46.45239542, 43.07069234, 40.61270477])
+        self.rmaxoutcoeffs = np.array([109.4918411, 90.31016614,
+                                       75.35799588, 63.61504735,
+                                       54.32855894, 46.93905396,
+                                       41.02780616, 36.27939815,
+                                       32.45485465])
 
 
     def test_rmaxDefaults(self):
         """Test rmax returns correct value based on defaults"""
         dp = 25
         lat = -15
-        eps = np.random.normal(0, scale=0.357)
+        eps = np.random.normal(0, scale=0.353)
         rmw = trackSize.rmax(dp, lat, eps)
-        self.assertEqual(rmw, 62.638227644545715)
+        self.assertEqual(rmw, 63.867449833342235)
 
     def test_rmaxWrongLengths(self):
         """rmax raises exception when inputs are different lengths"""
-        eps = np.random.normal(0, scale=0.357)
+        eps = np.random.normal(0, scale=0.353)
         latarray = np.arange(-23, 5, 2)
         self.assertRaises(Exception, trackSize.rmax, self.dparray, latarray, eps)
 
     def test_rmaxArrayInput(self):
         """Test rmax with array input"""
-        eps = np.random.normal(0, scale=0.357)
+        eps = np.random.normal(0, scale=0.353)
         rmw = trackSize.rmax(self.dparray, self.latarray, eps)
         self.numpyAssertAlmostEqual(rmw, self.rmaxout)
 
     def test_rmaxWithCoeffs(self):
         """Test rmax with user-defined coefficients"""
-        eps = np.random.normal(0, scale=0.357)
+        eps = np.random.normal(0, scale=0.353)
         coeffs = [4.5, -0.04, 0.0002, 0.0002]
         rmw = trackSize.rmax(self.dparray, self.latarray, eps, coeffs)
         self.numpyAssertAlmostEqual(rmw, self.rmaxoutcoeffs)
@@ -61,19 +61,24 @@ class TestRmaxModel(NumpyTestCase.NumpyTestCase):
     def test_rmaxWithIncompleteCoeffs(self):
         """Test rmax falls back to default coefficients if not enough given"""
         coeffs = [4.45, -0.05, 0.0002]
-        eps = np.random.normal(0, scale=0.357)
+        eps = np.random.normal(0, scale=0.353)
         rmw = trackSize.rmax(self.dparray, self.latarray, eps, coeffs=coeffs)
         self.numpyAssertAlmostEqual(rmw, self.rmaxout)
 
 class TestFitRmax(NumpyTestCase.NumpyTestCase):
-
+    """
+    Note: this test uses a subset of the full dataset used to determine
+    the default coefficients for the Rmw model used in `TrackGenerator`
+    """
     def setUp(self):
         pklfile = open(os.path.join(unittest_dir, 'test_data', 'rmw.pck'), 'r')
         self.dp = cPickle.load(pklfile)
         self.lat = cPickle.load(pklfile)
         self.rmw = cPickle.load(pklfile)
-        self.params = [4.465060890211495, -0.042494641709204063,
-                       0.0003372389283945545, 0.0002150245839531746,
+        self.params = [4.4650608902114888,
+                       -0.042494641709203987,
+                       0.00033723892839458182,
+                       0.00021502458395316267,
                        0.35665997379737535]
         pklfile.close()
 

@@ -18,7 +18,10 @@ import statsmodels.api as sm
 
 LOG = logging.getLogger()
 
-def rmax(dp, lat, eps, coeffs=[4.4651, -0.04249, 0.000337239, 0.000215]):
+def rmax(dp, lat, eps, coeffs=[4.4726049824584306, 
+                               -0.04057322103602546, 
+                               0.00031318220949448573, 
+                               0.00014553984831170656]):
     """
     Calculate radius to maximum wind based on pressure deficit and
     latitude. This function allows for the random variate to be set
@@ -44,7 +47,10 @@ def rmax(dp, lat, eps, coeffs=[4.4651, -0.04249, 0.000337239, 0.000215]):
     if len(coeffs) < 4:
         LOG.warn("Insufficient coefficients for rmw calculation!")
         LOG.warn("Using default values")
-        coeffs = [4.4651, -0.04249, 0.000337239, 0.000215]
+        coeffs = [4.4726049824584306, 
+                  -0.04057322103602546, 
+                  0.00031318220949448573, 
+                  0.00014553984831170656]
 
     if isinstance(dp, (np.ndarray, list)) and \
       isinstance(lat, (np.ndarray, list)):
