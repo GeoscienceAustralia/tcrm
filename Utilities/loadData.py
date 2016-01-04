@@ -899,7 +899,8 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         poci = np.array(inputData['poci'], 'd')
     else:
         LOG.debug("Determining poci")
-        poci = getPoci(penv, pressure, lat, jdays)
+        eps = np.random.normal(0, scale=2.5717)
+        poci = getPoci(penv, pressure, lat, jdays, eps)
 
 
     speed, bearing = getSpeedBearing(indicator, lon, lat, dt,
