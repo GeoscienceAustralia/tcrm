@@ -145,7 +145,7 @@ class AutoPlotHazard(object):
             ncobj.close()
             del ncobj
         except:
-            self.logger.critical("Cannot load input file: %s"%inputFile)
+            log.critical("Cannot load input file: %s"%inputFile)
             try:
                 ncobj.close()
             except (IOError, KeyError, RuntimeError):
@@ -153,7 +153,7 @@ class AutoPlotHazard(object):
             raise
 
         # Create a masked array:
-        mask = (data==mv)
+        mask = (data == mv)
         mdata = ma.array(data, mask=mask)
         return lon, lat, years, mdata
 
@@ -176,9 +176,9 @@ class AutoPlotHazard(object):
         self.sqlcur.execute(('select placename from localities where lon > ? '
                              'and lon < ? and lat > ? and lat < ? '
                              'and placeID = ?'),
-                             (minLon, maxLon,
-                              minLat, maxLat,
-                              str(self.localityID)))
+                            (minLon, maxLon,
+                             minLat, maxLat,
+                             str(self.localityID)))
 
         if len([z[0] for z in self.sqlcur.fetchall()]) == 0:
             self.localityID = -99999
@@ -187,11 +187,11 @@ class AutoPlotHazard(object):
             self.sqlcur.execute(('select placename, parentcountry, lat, lon '
                                  'from localities where lon > ? and lon < ? '
                                  'and lat > ? and lat < ?'),
-                                 (minLon, maxLon, minLat, maxLat))
+                                (minLon, maxLon, minLat, maxLat))
         else:
             self.sqlcur.execute(('select placename, parentcountry, lat, lon '
                                  'from localities where placeID = ?'),
-                                 (str(self.localityID),))
+                                (str(self.localityID),))
 
         placeNames, parentCountries, placeLats, placeLons = \
             zip(*self.sqlcur.fetchall())
@@ -223,7 +223,7 @@ class AutoPlotHazard(object):
         # Load data
         wspd = nctools.ncGetData(ncobj, 'wspd')
         try:
-            wLower  = nctools.ncGetData(ncobj, 'wspdlower')
+            wLower = nctools.ncGetData(ncobj, 'wspdlower')
             wUpper = nctools.ncGetData(ncobj, 'wspdupper')
             ciBounds = True
         except KeyError:
@@ -237,8 +237,8 @@ class AutoPlotHazard(object):
 
         # Use the same maximum value for all localities to simplify
         # intercomparisons:
-        defaultMax = np.ceil(metutils.convert(100.0, 'mps',
-                                              self.plotUnits.units)/10.0)*10.0
+        #defaultMax = np.ceil(metutils.convert(100.0, 'mps',
+        #                                      self.plotUnits.units)/10.0)*10.0
 
         placeNames, parentCountries, placeLats, placeLons = \
             self.getLocations(minLon, maxLon, minLat, maxLat)
@@ -257,16 +257,15 @@ class AutoPlotHazard(object):
 
             name = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore')
             name.replace(' ', '')
-            filename = pjoin(plotPath, 'ARI_curve_%s.%s'%(name,"png"))
+            filename = pjoin(plotPath, 'ARI_curve_%s.%s'%(name, "png"))
             log.debug("Saving hazard curve for %s to %s"%(name, filename))
             placeWspd = metutils.convert(wspd[:, j, i], 'mps',
                                          self.plotUnits.units)
-            maxWspd = placeWspd.max()
             if ciBounds:
-                placeWspdLower = metutils.convert(wLower[:,j,i], 'mps',
+                placeWspdLower = metutils.convert(wLower[:, j, i], 'mps',
                                                   self.plotUnits.units)
-                placeWspdUpper  = metutils.convert(wUpper[:,j,i], 'mps',
-                                                   self.plotUnits.units)
+                placeWspdUpper = metutils.convert(wUpper[:, j, i], 'mps',
+                                                  self.plotUnits.units)
 
             saveHazardCurve(years, placeWspd, placeWspdUpper, placeWspdLower,
                             xlabel, ylabel, title, filename)
