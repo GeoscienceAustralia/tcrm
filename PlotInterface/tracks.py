@@ -44,7 +44,10 @@ class TrackMapFigure(MapFigure):
     Base class for plotting track maps.
     """
 
-    def colorline(self, xdata, ydata, zdata=None, alpha=0.9):
+    def colorline(self, xdata, ydata, zdata=None, alpha=0.9,
+                  colours=['0.75', '#0FABF6', '#0000FF', 
+                           '#00FF00', '#FF8100', '#ff0000'],
+                  intervals=[0, 17.5, 24.5, 32.5, 44.2, 55.5, 1000]):
         """
         Create and add line collections to an axes instance, using
         an optional magnitude value to colourize the line segments.
@@ -55,6 +58,10 @@ class TrackMapFigure(MapFigure):
                   colourize the line segments.
         :param float linewidth: Line width of the line segments to plot.
         :param float alpha: Transparency level of the line segments.
+        :param list colours: List of HTML colour codes to use for colourizing
+                             the line segments.
+        :param list intervals: List of break points for colourizing the 
+                               line segments.
 
         """
 
@@ -67,9 +74,8 @@ class TrackMapFigure(MapFigure):
         zdata = np.asarray(zdata)
 
         segments = makeSegments(xdata, ydata)
-        cmap = ListedColormap(['0.75', '#0FABF6', '#0000FF',
-                               '#00FF00', '#FF8100', '#ff0000'])
-        norm = BoundaryNorm([0, 17.5, 24.5, 32.5, 44.2, 55.5, 1000], cmap.N)
+        cmap = ListedColormap(colours)
+        norm = BoundaryNorm(intervals, cmap.N)
         lc = LineCollection(segments, array=zdata, cmap=cmap,
                             norm=norm, alpha=alpha)
 
@@ -93,6 +99,7 @@ class TrackMapFigure(MapFigure):
         for track in tracks:
             mlon, mlat = mapobj(track.Longitude, track.Latitude)
             self.colorline(mlon, mlat, track.WindSpeed, alpha=0.75)
+                           
         axes.set_title(title)
         #self.labelAxes(axes)
         self.addGraticule(axes, mapobj)
