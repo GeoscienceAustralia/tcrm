@@ -35,7 +35,9 @@ except ImportError:
 
 def estimateEVD(v, years, missingValue=-9999., minRecords=50, yrspersim=1):
     """
-    Calculate extreme value distribution parameters using the Lmoments module
+    Calculate extreme value distribution parameters using the Lmoments module.
+    Return period values are not calculated if the shape parameter is negative
+    or zero.
 
     :param v: array of data values.
     :type v: :class:`numpy.ndarray`
@@ -88,7 +90,7 @@ def estimateEVD(v, years, missingValue=-9999., minRecords=50, yrspersim=1):
                                            missingValue]
 
     for i, t in enumerate(years):
-        if shp == -9999:
+        if shp <= 0.:
             w[i] = missingValue
         else:
             w[i] = (np.transpose(loc + (scale / shp) *
