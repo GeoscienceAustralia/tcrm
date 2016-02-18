@@ -172,7 +172,7 @@ class MapFigure(Figure):
         dx = abs(xmin - xmax)
         dy = abs(ymin - ymax)
         dd = max(dx, dy)
-        gr_opts = np.array([30., 15., 10., 5., 4., 2.])
+        gr_opts = np.array([30., 10., 5., 4., 2.])
         min_gr = 5
         dl = gr_opts[np.where((dd/gr_opts) >= min_gr)[0][0]]
 
