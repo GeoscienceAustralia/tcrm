@@ -11,6 +11,7 @@
 
 import math
 import numpy as np
+import numpy.ma as ma
 
 #Define constants
 gPressureUnits = "hPa"
@@ -385,7 +386,7 @@ def convert(value, inunits, outunits):
 
     """
     startValue = value
-    value = np.array(value, dtype=float)
+    value = ma.array(value, dtype=float)
     if inunits == outunits:
         # Do nothing:
         return value
