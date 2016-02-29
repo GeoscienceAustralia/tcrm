@@ -380,9 +380,7 @@ class TrackGenerator(object):
                                              'all_cell_cdf_init_rmax'))
 
         except IOError:
-            log.warning('RMW distribution file does not exist!' +
-                        ' Assuming lognormal with mean %f and stdev %f.'
-                        % (self.sizeMean, self.sizeStdDev))
+            log.warning('RMW distribution file does not exist. Using RMW model instead.')
             self.cdfSize = np.array(stats.rMaxDist(self.sizeMean,
                                                    self.sizeStdDev,
                                                    maxrad=120.0)).T
