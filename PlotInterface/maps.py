@@ -16,6 +16,7 @@ Note: Many of the defaults (e.g. coastline colours, font sizes for
 from __future__ import division
 
 import numpy as np
+import numpy.ma as ma
 
 from matplotlib.figure import Figure
 from mpl_toolkits.basemap import Basemap
@@ -200,7 +201,7 @@ class MapFigure(Figure):
         mapobj.drawcoastlines(linewidth=.5, color="k")
         mapobj.drawmapboundary(fill_color="#BEE8FF")
 
-    def fillContinents(self, mapobj):
+    def fillContinents(self, mapobj, fillcolor="#FFDAB5"):
         """
         Fill continents with a base color in the current
         `Basemap` instance.
@@ -209,7 +210,7 @@ class MapFigure(Figure):
         continents on.
 
         """
-        mapobj.fillcontinents(color="#FFDAB5",
+        mapobj.fillcontinents(color=fillcolor,
                               lake_color="#BEE8FF",
                               zorder=0)
 
@@ -382,8 +383,11 @@ class MaskedContourMapFigure(FilledContourMapFigure):
         from mpl_toolkits.basemap import maskoceans
         data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs = subfigure
         mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
-
+        dmask = data.mask
         masked_data = maskoceans(xgrid, ygrid, data, inlands=False)
+        omask = ma.getmask(masked_data)
+        nmask = ma.mask_or(dmask, omask)
+        masked_data.mask = nmask
         cmap = selectColormap(lvls)
         CS = mapobj.contourf(mx, my, masked_data, levels=lvls,
                              extend='both', cmap=cmap)
@@ -394,6 +398,7 @@ class MaskedContourMapFigure(FilledContourMapFigure):
         self.labelAxes(axes)
         self.addGraticule(axes, mapobj)
         self.addCoastline(mapobj)
+        self.fillContinents(mapobj, fillcolor="#EEEEEE")
         self.addMapScale(mapobj)
 
 class ArrayMapFigure(MapFigure):
@@ -536,7 +541,9 @@ class HazardMap(MaskedContourMapFigure):
     def plot(self, data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs):
         # Smooth the data to reduce 'lines-on-a-map' inferences:
         dx = np.mean(np.diff(xgrid))
+        dmask = data.mask
         data = smooth(data, int(1/dx))
+        data = ma.array(data, mask=dmask)
         self.add(data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs)
         self.cmap = sns.light_palette("orange", as_cmap=True)
         super(HazardMap, self).plot()

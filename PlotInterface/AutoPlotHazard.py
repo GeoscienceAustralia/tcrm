@@ -93,8 +93,9 @@ class AutoPlotHazard(object):
             lon = lon - 360.
 
         [xgrid, ygrid] = np.meshgrid(lon, lat)
+        dmask = inputData.mask
         inputData = metutils.convert(inputData, 'mps', self.plotUnits.units)
-
+        inputData = ma.array(inputData, mask=dmask)
         map_kwargs = dict(llcrnrlon=xgrid.min(),
                           llcrnrlat=ygrid.min(),
                           urcrnrlon=xgrid.max(),
