@@ -194,7 +194,9 @@ def getSpeedBearing(index, lon, lat, deltatime, ieast=1,
     speed = dist / deltatime
     # Delete speeds less than 0, greated than 200,
     # or where indicator == 1.
-    np.putmask(speed, (speed < 0) | (speed > 200) | index, missingValue)
+    np.putmask(speed, (speed < 0), missingValue) 
+    np.putmask(speed, (speed > 200), missingValue)
+    np.putmask(speed, index, missingValue)
     np.putmask(speed, np.isnan(speed), missingValue)
 
     return speed, bearing
@@ -662,6 +664,9 @@ def getPoci(penv, pcentre, lat, jdays, eps,
     :param lat: Latitude of storm (degrees).
     :param jdays: Julian day (day of year).
     :param eps: random variate. Retained as a constant for a single storm.
+    :param list coeffs: Coefficients of the model. Defaults based on 
+                        Southern Hemisphere data 
+                        (IBTrACS v03r06, 1981-2014). 
 
     :returns: Revised estimate for the pressure of outermost closed isobar.
     """
@@ -687,16 +692,16 @@ def getPoci(penv, pcentre, lat, jdays, eps,
 
     if isinstance(poci_model, (np.ndarray, list)):
         nvidx = np.where(pcentre == missingValue)
-        poci_model[nvidx] = missingValue
+        poci_model[nvidx] = np.nan
 
         nvidx = np.where(penv < pcentre)
-        poci_model[nvidx] = missingValue
+        poci_model[nvidx] = np.nan
 
     elif penv < pcentre:
-        poci_model = missingValue
+        poci_model = np.nan
     elif pcentre == missingValue:
-        poci_model = missingValue
-    
+        poci_model = np.nan
+
     return poci_model
     
 

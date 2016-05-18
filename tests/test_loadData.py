@@ -417,7 +417,7 @@ class TestGetPoci(unittest.TestCase):
                                1013.23285869, 1012.61540945,
                                1011.64863179, 1010.42365243,
                                1009.1959527, 1008.29035302,
-                               sys.maxint])
+                               np.nan])
         assert_almost_equal(Poci, PociOutput)
 
     def test_getPociArrayInvalidInput(self):
@@ -432,7 +432,7 @@ class TestGetPoci(unittest.TestCase):
                                1013.23285869, 1012.61540945,
                                1011.64863179, 1010.42365243,
                                1009.1959527, 1008.29035302,
-                               sys.maxint])
+                               np.nan])
         assert_almost_equal(Poci, PociOutput)
     
     def test_getPociWithCoeffs(self):
