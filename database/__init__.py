@@ -30,6 +30,12 @@ TODO::
   configuration settings have changed. Requires config settings to
   be stored in the db (?).
 - Separate the query functions to separate files.
+- Modify :func:`windfieldAttributes` to take a :class:`netcdf4.Dataset`
+  instance. The instance would be created in 
+  :func:`HazardDatabase.processEvent`, where it will also be used to extract
+  the data. This will result in each file being opened only once. It will also
+  require :func:`HazardDatabase.generateEventTable` to be merged into 
+  :func:`HazardDatabase.processEvents`
 
 
 
@@ -352,16 +358,15 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                 if self.processEvent(f, locations):
                     pWriteProcessedFile(pjoin(self.windfieldPath, f))
 
-    def processEvent(self, filename, locations):
+    def loadWindfieldFile(self, filename):
         """
-        Process an individual event file
-        :param str filename: Full path to a file to process.
-        :param list locations: List of locations to sample data for.
+        Load an individual dataset.
+
+        :param str filename: filename to load.
+
+        :returns: tuple containing longitude, latitude, wind speed,
+                  eastward and northward components and pressure grids.
         """
-        log.debug("Processing {0}".format(pjoin(self.windfieldPath, filename)))
-        pattern = re.compile(r'\d+')
-        sim, num = pattern.findall(filename)
-        eventId = "%03d-%05d" % (int(sim), int(num))
         ncobj = Dataset(pjoin(self.windfieldPath, filename))
         lon = ncobj.variables['lon'][:]
         lat = ncobj.variables['lat'][:]
@@ -370,6 +375,19 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         va = ncobj.variables['va'][:]
         pmin = ncobj.variables['slp'][:]
         ncobj.close()
+        return (lon, lat, vmax, ua, va, pmin)
+
+    def processEvent(self, filename, locations):
+        """
+        Process an individual event file
+        :param str filename: Name of a file to process.
+        :param list locations: List of locations to sample data for.
+        """
+        log.debug("Processing {0}".format(pjoin(self.windfieldPath, filename)))
+        pattern = re.compile(r'\d+')
+        sim, num = pattern.findall(filename)
+        eventId = "%03d-%05d" % (int(sim), int(num))
+        lon, lat, vmax, ua, va, pmin = self.loadWindfieldFile(filename)
         params = list()
 
         for loc in locations:
