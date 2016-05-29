@@ -29,10 +29,7 @@
 
  $Id: AsyncRun.py 642 2012-02-21 07:54:04Z nsummons $
 """
-import os, sys, pdb, logging
-filename = os.environ.get('PYTHONSTARTUP')
-if filename and os.path.isfile(filename):
-    execfile(filename)
+
 import threading
 __version__ = '$Id: AsyncRun.py 642 2012-02-21 07:54:04Z nsummons $'
 class AsyncRun(threading.Thread):

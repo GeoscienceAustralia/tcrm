@@ -61,7 +61,7 @@ class CalcTrackDomain(object):
                      TC positions
 
         """
-
+        logging.debug("Determining track generation domain")
         tg_domain = self.wf_domain.copy()
         track_limits = {'xMin':9999, 'xMax':-9999,
                         'yMin':9999, 'yMax':-9999}
@@ -111,10 +111,10 @@ class CalcTrackDomain(object):
 
         :rtype: dict
         :returns: the domain where the tracks will be generated.
-                           The :class:`dict` should contain the keys :attr:`xMin`,
-                           :attr:`xMax`, :attr:`yMin` and :attr:`yMax`. The *x*
-                           variable bounds the longitude and the *y* variable
-                           bounds the latitude.
+                  The :class:`dict` should contain the keys :attr:`xMin`,
+                  :attr:`xMax`, :attr:`yMin` and :attr:`yMax`. The *x*
+                  variable bounds the longitude and the *y* variable
+                  bounds the latitude.
 
         """
 

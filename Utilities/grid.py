@@ -23,16 +23,16 @@ ascii files are assumend to have and ArcGIS GIRD format::
 
 """
 
-import os, sys
+import os
 import logging as log
 
 import numpy
-import threading
+
 from lat_long_UTM_conversion import LLtoUTM, UTMtoLL
 import metutils
 import nctools
 
-
+# pylint: disable=R0913, R0914
 def grdSave(filename, data, lon, lat, delta, delimiter=' ', nodata=-9999,
             fmt='%.10e', coords='latlon'):
     """
@@ -73,12 +73,12 @@ def grdSave(filename, data, lon, lat, delta, delimiter=' ', nodata=-9999,
         fh = filename
     else:
         try:
-            fh = open(filename,'w')
+            fh = open(filename, 'w')
         except:
             raise ValueError('Filename must be a string or file handle')
 
     if coords == 'UTM':
-        zone, xllcorner, yllcorner = LLtoUTM(lat.min(),lon.min())
+        zone, xllcorner, yllcorner = LLtoUTM(lat.min(), lon.min())
         delta = metutils.convert(delta, "deg", "m")
     else:
         # Assume geographic coordinates
@@ -127,7 +127,7 @@ def grdReadFromNetcdf(filename):
         lon = ncdf.variables['lon'][:]
         lat = ncdf.variables['lat'][:]
         dataname = (set(ncdf.variables.keys()) -
-                set(ncdf.dimensions.keys())).pop()
+                    set(ncdf.dimensions.keys())).pop()
         data = ncdf.variables[dataname][:]
         ncdf.close()
 
@@ -158,12 +158,13 @@ def grdRead(filename, delimiter=None):
     # Otherwise load with grdRead
     if fileext == 'nc':
         nc_obj = nctools.ncLoadFile(filename)
-        lon = numpy.array(nctools.ncGetDims(nc_obj, 'lon'),dtype=float)
-        lat = numpy.array(nctools.ncGetDims(nc_obj, 'lat'),dtype=float)
+        lon = numpy.array(nctools.ncGetDims(nc_obj, 'lon'), dtype=float)
+        lat = numpy.array(nctools.ncGetDims(nc_obj, 'lat'), dtype=float)
         data_varname = set.difference(set(nc_obj.variables.keys()),
                                       set(nc_obj.dimensions.keys()))
         if len(data_varname) != 1:
-            raise IOError('Cannot resolve data variable in netcdf file: ' + filename)
+            raise IOError('Cannot resolve data variable in netcdf file: '
+                          + filename)
         data = numpy.array(nctools.ncGetData(nc_obj, data_varname.pop()),
                            dtype=float)
         nc_obj.close()
@@ -182,7 +183,7 @@ def grdRead(filename, delimiter=None):
         metadata["cellsize"] = []
         metadata["NODATA_value"] = []
 
-        for i in xrange(0,6):
+        for i in xrange(0, 6):
             line = fh.readline()
             contents = line.split()
             label = contents[0]
@@ -206,15 +207,15 @@ def grdRead(filename, delimiter=None):
                 if value == metadata["NODATA_value"]:
                     value = numpy.nan
                 row[j] = value
-            data[i,:] = row
+            data[i, :] = row
         fh.close()
 
-    log.debug('filename %s mem:: lon %i lat %i data %i' % 
+    log.debug('filename %s mem:: lon %i lat %i data %i' %
               (filename, lon.nbytes, lat.nbytes, data.nbytes))
 
     return lon, lat, data
 
-class SampleGrid:
+class SampleGrid(object):
     """
     Sample data from a gridded data file. The class is instantiated
     with a gridded data file (either an ascii file or a netcdf file

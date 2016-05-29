@@ -24,14 +24,12 @@ calling the :meth: `run` with the location of a *configFile*::
 
 import os
 import sys
-import itertools
 import numpy as np
 import logging
 import random
 
 from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
-from functools import wraps
 
 from Utilities.files import flProgramVersion
 from Utilities.config import ConfigParser

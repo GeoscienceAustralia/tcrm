@@ -31,11 +31,8 @@
 
  $Id: PlotGates.py 556 2007-10-23 23:51:09Z carthur $
 """
-import os
 
 import Utilities.my_tool as myutils
-import Utilities.maputils as maputils
-import numpy
 import math
 import pylab
 from matplotlib.toolkits.basemap import Basemap

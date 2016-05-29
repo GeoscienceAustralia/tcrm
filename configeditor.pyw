@@ -27,7 +27,6 @@ import wx
 import time
 import wx.richtext
 import wx.grid
-import pdb
 import csv
 import math
 import numpy
@@ -37,7 +36,6 @@ from copy import deepcopy
 from wx import ImageFromStream, BitmapFromImage, EmptyIcon
 import cStringIO, zlib
 from Utilities import pathLocator
-from Utilities import columns
 import sqlite3
 
 # Switch off minor warning messages

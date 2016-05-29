@@ -35,11 +35,10 @@ Acknowledgements:
 Input data: mslp_seasonal_clim.nc (contains monthly means averaged over 28 year period)
 """
 
-import os, sys, logging, traceback, pdb
-from numpy import *
+import os
+import numpy as np
 import Utilities.nctools as nctools
 from Utilities import pathLocator
-import calendar
 
 
 class MSLPGrid:
@@ -56,13 +55,13 @@ class MSLPGrid:
         mslp_all = nctools.ncGetData(ncobj, 'mslp')
         self.lon = nctools.ncGetDims(ncobj, 'lon')
         self.lat = nctools.ncGetDims(ncobj, 'lat')
-        dim0,dim1,dim2 = shape(mslp_all)
+        dim0,dim1,dim2 = np.shape(mslp_all)
 
         # Average over selected months
-        mslp_sum = zeros([dim1,dim2],dtype='float32')
+        mslp_sum = np.zeros([dim1, dim2], dtype='float32')
         for month in selected_months:
             mslp_sum = mslp_sum + mslp_all[month-1,:,:]
-        self.mslp_av = flipud(mslp_sum / len(selected_months))
+        self.mslp_av = np.flipud(mslp_sum / len(selected_months))
 
     def sampleGrid(self, lon, lat):
         """sampleGrid(self, lon, lat):

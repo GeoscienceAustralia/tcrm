@@ -9,10 +9,9 @@ To build C extensions in-place:
 import matplotlib
 import numpy
 import sys
-
 from distutils.core import setup, Extension
 from distutils.sysconfig import get_python_lib
-from os.path import join as pjoin, split as psplit
+from os.path import join as pjoin
 from glob import glob
 
 opts = {}

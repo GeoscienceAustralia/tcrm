@@ -250,7 +250,7 @@ def doDataPlotting(configFile):
     :param str configFile: Name of configuration file.
 
     """
-    import numpy as np
+
     config = ConfigParser()
     config.read(configFile)
 

@@ -1,6 +1,7 @@
 from distutils.core import setup
 import matplotlib
-import py2exe, sys, os
+import py2exe
+import os
 import glob
 
 origIsSystemDLL = py2exe.build_exe.isSystemDLL

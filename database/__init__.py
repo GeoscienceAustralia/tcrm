@@ -58,9 +58,9 @@ from netCDF4 import Dataset
 import numpy as np
 
 from Utilities.config import ConfigParser
-from Utilities.files import flModDate, flGetStat
+from Utilities.files import flGetStat
 from Utilities.maputils import find_index
-from Utilities.loadData import loadTrackFile
+
 from Utilities.track import loadTracksFromFiles
 from Utilities.singleton import Singleton
 from Utilities.process import pAlreadyProcessed, pWriteProcessedFile, \

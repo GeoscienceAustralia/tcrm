@@ -51,7 +51,6 @@ import numpy as np
 
 import Utilities.stats as stats
 import Utilities.files as files
-import Utilities.config as config
 import Utilities.my_tool as myutils
 
 #-------------------------------------------------------------------------------
@@ -168,9 +167,9 @@ class PlotCell:
         ii = np.where(bearing < 0)
         bearing[ii] += 2 * np.pi
         rads, bins = np.histogram(bearing, bins=12,
-                                  range=(0., 2.*pi), new=True)
+                                  range=(0., 2.*np.pi), new=True)
 
-        bars = ax.bar(theta, rads, width=pi/6., bottom=0.0)
+        bars = ax.bar(theta, rads, width=np.pi/6., bottom=0.0)
 
         [b.set_facecolor(cm.RdYlBu(float(r)/float(max(rads))))
          for r, b in zip(rads, bars)]

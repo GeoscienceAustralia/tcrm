@@ -15,9 +15,8 @@ on [0,2*pi).
 """
 
 import numpy as np
-import KPDF
 from scipy.special import i0
-from math import pi
+import KPDF
 import stats
 
 def circularKDE(parameters, kdeStep=np.pi/16.):
@@ -26,7 +25,7 @@ def circularKDE(parameters, kdeStep=np.pi/16.):
     e.g. bearings. Returns the grid on which the PDF is defined, the
     PDF itself and the corresponding CDF.
 
-    By default, the grid is specified on [0,2\*pi)
+    By default, the grid is specified on [0, 2*pi)
 
     :param parameters: :class:`numpy.ndarray` of parameter values.
     :param float kdeStep: Increment of the ordinate at which the

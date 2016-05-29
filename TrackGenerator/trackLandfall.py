@@ -23,7 +23,6 @@ import logging
 import numpy as np
 
 from Utilities.grid import SampleGrid
-from Utilities import pathLocator
 from Utilities.config import ConfigParser
 
 log = logging.getLogger(__name__)

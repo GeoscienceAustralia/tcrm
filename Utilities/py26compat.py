@@ -4,7 +4,6 @@ import logging
 import sys
 import os
 import re
-import types
 import traceback
 from fnmatch import fnmatch
 

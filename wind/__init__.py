@@ -35,8 +35,7 @@ import math
 import os
 import sys
 import windmodels
-from datetime import datetime
-from os.path import join as pjoin, split as psplit, splitext as psplitext
+from os.path import join as pjoin
 from collections import defaultdict
 
 from PlotInterface.maps import saveWindfieldMap
@@ -308,9 +307,6 @@ class WindfieldAroundTrack(object):
                 P < pressure[jmin:jmax, imin:imax],
                 P, pressure[jmin:jmax, imin:imax])
 
-        #log.info("Vmax: {0}; Vt: {1}; Pmin: {2}".format(gust.max(), 
-        #                                                 self.track.Speed.max()/3.6, 
-        #                                                 self.track.CentralPressure.min()))
         return gust, bearing, UU, VV, pressure, lonGrid / 100., latGrid / 100.
 
 

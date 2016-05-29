@@ -43,11 +43,13 @@ INPUT_CNVT = {
     }
 
 def loadTimeseriesData(datafile):
+    logging.debug("Loading timeseries data from {0}".format(datafile))
     try:
         return np.genfromtxt(datafile, dtype=INPUT_FMTS, names=INPUT_COLS,
                              comments='#', delimiter=',', skiprows=1,
                              converters=INPUT_CNVT)
     except ValueError:
+        logging.warn("Timeseries data file is empty - returning empty array")
         return np.empty(0, dtype={
                         'names': INPUT_COLS,
                         'formats': INPUT_FMTS})
@@ -67,6 +69,7 @@ def plotTimeseries(inputPath, outputPath, locID=None):
     """
     if locID:
         # Only plot the data corresponding to the requested location ID:
+        logging.debug("Plotting data for station {0}".format(locID))
         inputFile = pjoin(inputPath, 'ts.%s.csv' % (locID))
         outputFile = pjoin(outputPath, 'ts.%s.png' % (locID))
         inputData = loadTimeseriesData(inputFile)

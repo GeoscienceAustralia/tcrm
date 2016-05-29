@@ -51,8 +51,6 @@ $Id: vmax.py 810 2012-02-21 07:52:50Z nsummons $
 
 """
 
-import os, sys, pdb, logging
-
 from scipy import sqrt, exp, power
 import Utilities.metutils as metutils
 

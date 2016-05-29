@@ -2,6 +2,7 @@ import numpy as np
 import wind.windmodels as windmodels
 from matplotlib.figure import Figure
 import seaborn as sns
+sns.set(style="ticks")
 
 class WindProfileFigure(Figure):
 

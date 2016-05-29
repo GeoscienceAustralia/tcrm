@@ -12,7 +12,6 @@
 
 """
 
-import os
 import logging
 import sys
 
@@ -21,7 +20,6 @@ import numpy as np
 import Utilities.stats as stats
 
 from Utilities.files import flLoadFile
-from Utilities.config import ConfigParser
 
 from scipy.stats import scoreatpercentile as percentile
 from PlotInterface.curves import RangeCurve, saveFigure

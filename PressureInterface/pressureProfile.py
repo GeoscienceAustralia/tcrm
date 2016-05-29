@@ -46,7 +46,7 @@ Mon. Wea. Rev., 132, 3033-3048
 $Id: pressureProfile.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
-import os, sys, pdb, logging
+import logging
 
 import Utilities.metutils as metutils
 

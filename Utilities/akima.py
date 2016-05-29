@@ -186,6 +186,5 @@ __docformat__ = "restructuredtext en"
 
 if __name__ == "__main__":
     import doctest
-    import random
     doctest.testmod()
 
