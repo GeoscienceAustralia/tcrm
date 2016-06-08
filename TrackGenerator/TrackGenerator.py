@@ -887,6 +887,7 @@ class TrackGenerator(object):
         # Initialise variables that will be used when performing a step
 
         self.offshorePressure = initPressure
+        self.landfallSpeed = initSpeed
         self.theta = initBearing
         self.v = initSpeed
         self.vChi = 0.0
@@ -963,9 +964,13 @@ class TrackGenerator(object):
             if onLand:
                 tol += float(self.dt)
                 deltaP = penv[i] - self.offshorePressure
-                alpha = -0.001479 + 0.001061 * deltaP + \
-                        nct(12.283, 8.559, -0.108, 0.0118)
-                #alpha = 0.008 + 0.0008 * deltaP + normal(0, 0.001)
+                #alpha = -0.001479 + 0.001061 * deltaP + \
+                #        nct(12.283, 8.559, -0.108, 0.0118)
+
+                alpha = 0.00115 + 0.0002 * deltaP + \
+                        0.0015 * self.landfallSpeed + \
+                        nct(12.57, 9.215, -0.1097, 0.0112)
+
                 pressure[i] = (penv[i] - deltaP *
                                np.exp(-alpha * tol))
 
@@ -986,6 +991,7 @@ class TrackGenerator(object):
                                    abs(self.dp) * self.dt)
 
                 self.offshorePressure = pressure[i]
+                self.landfallSpeed = speed[i]
 
             # If the empirical distribution of tropical cyclone size is
             # loaded then sample and update the maximum radius.
