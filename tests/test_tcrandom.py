@@ -36,5 +36,25 @@ class TestRandom(unittest.TestCase):
         result = self.prng.cauchyvariate(0, 1)
         assert_almost_equal(result, -2.22660116)
 
+    def testNCT(self):
+        self.prng.seed(self.seed)
+        result = self.prng.nctvariate(1, 0)
+        assert_almost_equal(result, -2.22660116)
+        self.prng.seed(1)
+        result = self.prng.nctvariate(10, 0.5, 1, 0.5)
+        assert_almost_equal(result, 0.68386525)
+
+    def testLogisticInvalidParams(self):
+        self.assertRaises(ValueError, self.prng.logisticvariate,
+                          0, -1)
+
+    def testCauchyInvalidParams(self):
+        self.assertRaises(ValueError, self.prng.cauchyvariate,
+                          0, -1)
+
+    def testNCTInvalidParams(self):
+        self.assertRaises(ValueError, self.prng.nctvariate,
+                          -5, 0)
+
 if __name__ == '__main__':
     unittest.main()
