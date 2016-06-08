@@ -963,7 +963,9 @@ class TrackGenerator(object):
             if onLand:
                 tol += float(self.dt)
                 deltaP = penv[i] - self.offshorePressure
-                alpha = 0.008 + 0.0008 * deltaP + normal(0, 0.001)
+                alpha = -0.001479 + 0.001061 * deltaP + \
+                        nct(12.283, 8.559, -0.108, 0.0118)
+                #alpha = 0.008 + 0.0008 * deltaP + normal(0, 0.001)
                 pressure[i] = (penv[i] - deltaP *
                                np.exp(-alpha * tol))
 
@@ -1612,6 +1614,11 @@ def logistic(loc=0., scale=1.0):
     """
     return PRNG.logisticvariate(loc, scale)
 
+def nct(df, nc, loc=0.0, scale=1.0):
+    """
+    Sample from a non-central T distribution.
+    """
+    return PRNG.nctvariate(df, nc, loc, scale)
 
 def ppf(q, cdf):
     """
