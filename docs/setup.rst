@@ -58,6 +58,7 @@ All options are boolean (i.e. ``True`` or ``False``). ::
     PlotHazard = True
     PlotData = False
     ExecuteEvaluate = False
+    CreateDatabase = True
     DownloadData = True
 
 .. _configureregion:
@@ -296,7 +297,10 @@ well as the datasets to be automatically downloaded. The ``LandMask``
 option specifies the path to a netcdf file (supplied) that contains a
 land/sea mask. The ``MSLPFile`` option specifies the path to a netcdf
 file (downloaded) that contains daily long-term mean sea level
-pressure data (e.g. from a NCEP/NCAR reanalysis products).
+pressure data (e.g. from a NCEP/NCAR reanalysis products). The 
+``LocationFile`` option specifies the path to a point shape file that contains
+the longitude and latitude of locations for which to extract hazard information
+at the conclusion of a simulation.
 
 The ``Datasest`` option is a comma separated list of values indicating
 the data that should be downloaded on first execution. For each value
@@ -321,6 +325,7 @@ text file that holds the points of a series of coastline gates that
 are used in the :mod:`Evaluate.landfallRates` module. ::
 
     [Input]
+    LocationFile = input/stationlist.shp
     LandMask = input/landmask.nc
     MSLPFile = MSLP/slp.day.ltm.nc
     Datasets = IBTRACS,LTMSLP
