@@ -456,7 +456,6 @@ def doDatabaseUpdate(configFile):
 
     db = database.HazardDatabase(configFile)
     db.createDatabase()
-    db.generateEventTable()
     db.setLocations()
     db.processEvents()
     db.processHazard()
