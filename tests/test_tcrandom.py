@@ -55,6 +55,8 @@ class TestRandom(unittest.TestCase):
     def testNCTInvalidParams(self):
         self.assertRaises(ValueError, self.prng.nctvariate,
                           -5, 0)
+        self.assertRaises(ValueError, self.prng.nctvariate,
+                          1, 0, 1, -1)
 
 if __name__ == '__main__':
     unittest.main()

@@ -45,34 +45,36 @@ class Random(random.Random):
             raise ValueError("Invalid input parameter: `sigma` must be positive")
         return mu + sigma * math.log(u1 / (1 - u1))
 
-    def cauchyvariate(self, x0, gamma):
+    def cauchyvariate(self, mu, sigma):
         """
         Random variate from the Cauchy distribution.
 
-        :param float x0: Location parameter.
-        :param float gamma: Scale parameter (|gamma| > 0)
+        :param float mu: Location parameter.
+        :param float sigma: Scale parameter (|sigma| > 0)
 
         :returns: A random variate from the Cauchy distribution.
 
         """
         u1 = self.random()
-        if gamma <= 0.0:
-            raise ValueError("Invalid input parameter: `gamma` must be positive")
-        return x0 + gamma * math.tan(math.pi * (u1 - 0.5))
+        if sigma <= 0.0:
+            raise ValueError("Invalid input parameter: `sigma` must be positive")
+        return mu + sigma * math.tan(math.pi * (u1 - 0.5))
 
-    def nctvariate(self, df, nc, loc=0.0, scale=1.0):
+    def nctvariate(self, df, nc, mu=0.0, sigma=1.0):
         """
         Random variate from the non-central T distribution.
 
         :param float df: degrees of freedom for the distribution.
         :param float nc: non-centrality parameter.
-        :param float loc: Location parameter.
-        :param float scale: Scale parameter.
+        :param float mu: Location parameter.
+        :param float sigma: Scale parameter.
 
         :returns: A random variate from the non-central T distribution.
         """
         if df <= 0.0:
             raise ValueError("Invalid input parameter: `df` must be positive")
+        if sigma <= 0.0:
+            raise ValueError("Invalid input parameter: `sigma` must be positive")
 
         u1 = self.random()
-        return loc + scale * nctdtrit(df, nc, u1)
+        return mu + sigma * nctdtrit(df, nc, u1)
