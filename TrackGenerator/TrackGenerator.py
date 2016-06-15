@@ -163,6 +163,7 @@ from Utilities.config import ConfigParser
 from Utilities.interp3d import interp3d
 from Utilities.parallel import attemptParallel
 from Utilities.track import ncSaveTracks, Track, TCRM_COLS, TCRM_FMTS
+from Utilities.loadData import getPoci
 
 class SamplePressure(object):
     """
@@ -862,13 +863,13 @@ class TrackGenerator(object):
         speed = np.empty(self.maxTimeSteps, 'f')
         bearing = np.empty(self.maxTimeSteps, 'f')
         pressure = np.empty(self.maxTimeSteps, 'f')
-        penv = np.empty(self.maxTimeSteps, 'f')
+        poci = np.empty(self.maxTimeSteps, 'f')
         rmax = np.empty(self.maxTimeSteps, 'f')
         land = np.empty(self.maxTimeSteps, 'i')
         dist = np.empty(self.maxTimeSteps, 'f')
 
         # Initialise the track
-
+        poci_eps = normal(0, 2.5717)
         age[0] = 0
         dates[0] = initTime
         jday[0] = int(initTime.strftime("%j")) + initTime.hour/24.
@@ -877,7 +878,8 @@ class TrackGenerator(object):
         speed[0] = initSpeed
         bearing[0] = initBearing
         pressure[0] = initPressure
-        penv[0] = initEnvPressure
+        poci[0] = getPoci(initEnvPressure, initPressure,
+                          initLat, jday[0], poci_eps)
         rmax[0] = initRmax
         land[0] = 0
         dist[0] = self.dt * speed[0]
@@ -923,10 +925,10 @@ class TrackGenerator(object):
             # Sample the environment pressure
 
             #penv[i] = self.mslp.sampleGrid(lon[i], lat[i])
-            penv[i] = self.mslp.get_pressure(np.array([[jday[i]],
-                                                      [lat[i]],
-                                                      [lon[i]]]))
-
+            penv = self.mslp.get_pressure(np.array([[jday[i]],
+                                                    [lat[i]],
+                                                    [lon[i]]]))
+            
             # Terminate and return the track if it steps out of the
             # domain
 
@@ -940,7 +942,7 @@ class TrackGenerator(object):
 
                 return (index[:i], dates[:i], age[:i], lon[:i], lat[:i],
                         speed[:i], bearing[:i], pressure[:i],
-                        penv[:i], rmax[:i])
+                        poci[:i], rmax[:i])
 
             cellNum = Cstats.getCellNum(lon[i], lat[i],
                                         self.gridLimit, self.gridSpace)
@@ -963,7 +965,7 @@ class TrackGenerator(object):
 
             if onLand:
                 tol += float(self.dt)
-                deltaP = penv[i] - self.offshorePressure
+                deltaP = poci[i - 1] - self.offshorePressure
                 #alpha = -0.001479 + 0.001061 * deltaP + \
                 #        nct(12.283, 8.559, -0.108, 0.0118)
 
@@ -971,9 +973,9 @@ class TrackGenerator(object):
                         0.0015 * self.landfallSpeed + \
                         nct(12.57, 9.215, -0.1097, 0.0112)
 
-                pressure[i] = (penv[i] - deltaP *
+                pressure[i] = (poci[i - 1] - deltaP *
                                np.exp(-alpha * tol))
-
+                poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
                 log.debug('Central pressure after landfall: %7.2f', pressure[i])
             else:
                 pstat = self.pStats.coeffs
@@ -992,6 +994,8 @@ class TrackGenerator(object):
 
                 self.offshorePressure = pressure[i]
                 self.landfallSpeed = speed[i]
+
+                poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], eps)
 
             # If the empirical distribution of tropical cyclone size is
             # loaded then sample and update the maximum radius.
@@ -1015,17 +1019,17 @@ class TrackGenerator(object):
 
             # Terminate the track if it doesn't satisfy certain criteria
 
-            if self._notValidTrackStep(pressure[i], penv[i], age[i],
+            if self._notValidTrackStep(pressure[i], poci[i], age[i],
                                        lon[0], lat[0], lon[i], lat[i]):
                 log.debug('Track no longer satisfies criteria, ' +
                           'terminating at time %i.', i)
 
                 return (index[:i], dates[:i], age[:i], lon[:i], lat[:i],
-                        speed[:i], bearing[:i], pressure[:i], penv[:i],
+                        speed[:i], bearing[:i], pressure[:i], poci[:i],
                         rmax[:i])
 
         return (index, dates, age, lon, lat, speed, bearing, pressure,
-                penv, rmax)
+                poci, rmax)
 
     def _stepPressureChange(self, c, i, onLand):
         """
@@ -1195,20 +1199,20 @@ class TrackGenerator(object):
         else:
             self.ds = mu[c] + sigma[c] * self.dsChi
 
-    def _notValidTrackStep(self, pressure, penv, age, lon0, lat0,
+    def _notValidTrackStep(self, pressure, poci, age, lon0, lat0,
                            nextlon, nextlat):
         """
         This is called to check if a tropical cyclone track meets
         certain conditions.
         """
 
-        if age > 12 and ((penv - pressure) < 5.0):
+        if age > 12 and ((poci - pressure) < 5.0):
             log.debug('Pressure difference < 5.0' +
-                      ' (penv: %f pressure: %f)', penv, pressure)
+                      ' (penv: %f pressure: %f)', poci, pressure)
             return True
-        elif age <= 12 and ((penv - pressure) < 1.0):
+        elif age <= 12 and ((poci - pressure) < 1.0):
             log.debug('Pressure difference < 1.0' +
-                      ' (penv: %f pressure: %f)', penv, pressure)
+                      ' (penv: %f pressure: %f)', poci, pressure)
             return True
 
         return False
@@ -1783,7 +1787,7 @@ def run(configFile, callback=None):
     # should jump ahead in the PRNG stream to ensure that it is
     # independent of all other simulations.
 
-    maxRvsPerTrack = 6 * (maxTimeSteps + 2)
+    maxRvsPerTrack = 8 * (maxTimeSteps + 2)
     jumpAhead = np.hstack([[0],
                           np.cumsum(nCyclones * maxRvsPerTrack)[:-1]])
 
