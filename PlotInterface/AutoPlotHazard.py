@@ -261,6 +261,10 @@ class AutoPlotHazard(object):
             filename = pjoin(plotPath, 'ARI_curve_%s.%s'%(name, "png"))
             log.debug("Saving hazard curve for %s to %s"%(name, filename))
             wspd = ncobj.variables['wspd'][:, j, i]
+            if np.all(wspd):
+                log.debug("All values for {0} are null".format(name))
+                continue
+
             placeWspd = metutils.convert(wspd, 'mps',
                                          self.plotUnits.units)
             if ciBounds:
