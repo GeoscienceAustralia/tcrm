@@ -995,7 +995,7 @@ class TrackGenerator(object):
                 self.offshorePressure = pressure[i]
                 self.landfallSpeed = speed[i]
 
-                poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], eps)
+                poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
 
             # If the empirical distribution of tropical cyclone size is
             # loaded then sample and update the maximum radius.
