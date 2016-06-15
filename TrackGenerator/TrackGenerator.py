@@ -1009,7 +1009,7 @@ class TrackGenerator(object):
                 if rmax[i] <= 1.0:
                     rmax[i] = rmax[i - 1] - self.ds * self.dt
             else:
-                dp = penv[i] - pressure[i]
+                dp = poci[i] - pressure[i]
                 rmax[i] = trackSize.rmax(dp, lat[i], self.rmwEps)
                 #rmax[i] = rmax[i - 1]
 
