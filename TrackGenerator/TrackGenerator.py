@@ -870,6 +870,8 @@ class TrackGenerator(object):
 
         # Initialise the track
         poci_eps = normal(0, 2.5717)
+        lfeps =  nct(7.7669, 10.93564, 0.008575, 0.007056)
+        #lfeps = nct(12.283, 8.559, -0.108, 0.0118)
         age[0] = 0
         dates[0] = initTime
         jday[0] = int(initTime.strftime("%j")) + initTime.hour/24.
@@ -889,6 +891,7 @@ class TrackGenerator(object):
         # Initialise variables that will be used when performing a step
 
         self.offshorePressure = initPressure
+        self.offshorePoci = poci[0]
         self.landfallSpeed = initSpeed
         self.theta = initBearing
         self.v = initSpeed
@@ -965,16 +968,12 @@ class TrackGenerator(object):
 
             if onLand:
                 tol += float(self.dt)
-                deltaP = poci[i - 1] - self.offshorePressure
-                #alpha = -0.001479 + 0.001061 * deltaP + \
-                #        nct(12.283, 8.559, -0.108, 0.0118)
+                deltaP = self.offshorePoci - self.offshorePressure
+                #alpha = -0.001479 + 0.001061 * deltaP + lfeps
+                alpha = 0.0115 + 0.00022 * deltaP + \
+                        0.0015 * self.landfallSpeed + lfeps
 
-                alpha = 0.00115 + 0.0002 * deltaP + \
-                        0.0015 * self.landfallSpeed + \
-                        nct(12.57, 9.215, -0.1097, 0.0112)
-
-                pressure[i] = (poci[i - 1] - deltaP *
-                               np.exp(-alpha * tol))
+                pressure[i] = poci[i - 1] - deltaP * np.exp(-alpha * tol)
                 poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
                 log.debug('Central pressure after landfall: %7.2f', pressure[i])
             else:
@@ -996,7 +995,7 @@ class TrackGenerator(object):
                 self.landfallSpeed = speed[i]
 
                 poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
-
+                self.offshorePoci = poci[i]
             # If the empirical distribution of tropical cyclone size is
             # loaded then sample and update the maximum radius.
             # Otherwise, keep the maximum radius constant.
@@ -1205,7 +1204,8 @@ class TrackGenerator(object):
         This is called to check if a tropical cyclone track meets
         certain conditions.
         """
-
+        if np.isnan(poci):
+            return True
         if age > 12 and ((poci - pressure) < 5.0):
             log.debug('Pressure difference < 5.0' +
                       ' (penv: %f pressure: %f)', poci, pressure)
