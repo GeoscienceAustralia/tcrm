@@ -682,9 +682,9 @@ def getPoci(penv, pcentre, lat, jdays, eps,
       isinstance(pcentre, (np.ndarray, list)) and \
       isinstance(lat, (np.ndarray, list)) and \
       isinstance(jdays, (np.ndarray, list)):
-      assert len(penv) == len(pcentre)
-      assert len(penv) == len(lat)
-      assert len(penv) == len(jdays)
+        assert len(penv) == len(pcentre)
+        assert len(penv) == len(lat)
+        assert len(penv) == len(jdays)
       
     poci_model = coeffs[0] + coeffs[1]*penv + coeffs[2]*pcentre \
       + coeffs[3]*pcentre*pcentre + coeffs[4]*lat*lat + \
@@ -694,14 +694,14 @@ def getPoci(penv, pcentre, lat, jdays, eps,
         nvidx = np.where(pcentre == missingValue)
         poci_model[nvidx] = np.nan
 
-        nvidx = np.where(penv < pcentre)
+        nvidx = np.where(penv <= pcentre)
         poci_model[nvidx] = np.nan
 
     elif penv < pcentre:
         poci_model = np.nan
     elif pcentre == missingValue:
         poci_model = np.nan
-
+    
     return poci_model
     
 
