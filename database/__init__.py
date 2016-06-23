@@ -30,12 +30,6 @@ TODO::
   configuration settings have changed. Requires config settings to
   be stored in the db (?).
 - Separate the query functions to separate files.
-- Modify :func:`windfieldAttributes` to take a :class:`netcdf4.Dataset`
-  instance. The instance would be created in
-  :func:`HazardDatabase.processEvent`, where it will also be used to extract
-  the data. This will result in each file being opened only once. It will also
-  require :func:`HazardDatabase.generateEventTable` to be merged into
-  :func:`HazardDatabase.processEvents`
 
 
 
@@ -63,6 +57,8 @@ from Utilities.maputils import find_index
 
 from Utilities.track import loadTracksFromFiles
 from Utilities.singleton import Singleton
+from Utilities.parallel import attemptParallel, disableOnWorkers
+
 from Utilities.process import pAlreadyProcessed, pWriteProcessedFile, \
     pGetProcessedFiles
 log = logging.getLogger(__name__)
@@ -203,6 +199,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         import atexit
         atexit.register(self.close)
 
+    @disableOnWorkers
     def createDatabase(self):
         """
         Create the database.
@@ -217,7 +214,8 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         self.exists = True
         self.commit()
         return
-
+    
+    @disableOnWorkers
     def createTable(self, tblName, tblDef):
         """
         Create a table.
@@ -237,6 +235,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                           format(tblName, err.args[0]))
             raise
 
+    @disableOnWorkers
     def setLocations(self):
         """
         Populate _tblLocations_ in the hazard database with all
@@ -357,6 +356,86 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                 if self.processEvent(fname, locations, eventNum):
                     pWriteProcessedFile(pjoin(self.windfieldPath, fname))
 
+    def insertEvents(self, eventparams):
+        log.debug("Inserting records into tblEvents")
+        try:
+            self.execute(INSEVENTS, eventparams)
+        except sqlite3.Error as err:
+            log.exception("Cannot insert records into tblEvents: {0}".\
+                          format(err.args[0]))
+        else:
+            self.commit()
+
+    def insertWindSpeeds(self, wsparams):
+        nrecords = len(wsparams)
+        log.debug("Inserting {0} records into tblWindSpeed".format(nrecords))
+        try:
+            self.executemany(INSWINDSPEED, wsparams)
+        except sqlite3.Error as err:
+            log.exception("Cannot insert records into tblWindSpeed: {0}".\
+                          format(err.args[0]))
+        except sqlite3.ProgrammingError as err:
+            log.exception("Programming error: {0}".format(err.args[0]))
+        else:
+            self.commit()
+
+
+    def parallelProcessEvents(self):
+        fileList = os.listdir(self.windfieldPath)
+        fileList = [f for f in fileList if
+                    os.path.isfile(pjoin(self.windfieldPath, f))]
+        
+        work_tag = 0
+        result_tag = 1
+        if (pp.rank() == 0) and (pp.size() > 1):
+            locations = self.getLocations()
+            w = 0
+            p = pp.size() - 1
+            for d in range(1, pp.size()):
+                if w < len(fileList):
+                    pp.send((fileList[w], locations, w), destination=d, tag=work_tag)
+                    log.debug("Processing file %d of %d" % (w, len(fileList)))
+                    w += 1
+                else:
+                    pp.send(None, destination=d, tag=work_tag)
+                    p = w
+            
+            terminated = 0
+            
+            while(terminated < p):
+                result, status = pp.receive(pp.any_source, tag=result_tag,
+                                            return_status=True)
+                eventparams, wsparams = result
+                self.insertEvents(eventparams)
+                self.insertWindSpeeds(wsparams)
+
+                d = status.source
+                if w < len(fileList):
+                    pp.send((fileList[w], locations, w), destination=d, tag=work_tag)
+                    log.debug("Processing file %d of %d" % (w, len(fileList)))
+                    w += 1
+                else:
+                    pp.send(None, destination=d, tag=work_tag)
+                    terminated += 1
+
+        elif (pp.size() > 1) and (pp.rank() !=0):
+            while(True):
+                W = pp.receieve(source=0, tag=work_tag)
+                if W is None:
+                    break
+                results = self.processEvent(*W)
+                pp.send(results, destination=0, tag=work_tag)
+
+        elif pp.size() == 1 and pp.rank() == 0:
+            # Assume no Pypar:
+            locations = self.getLocations()
+            for eventNum, filename in enumerate(fileList):
+                result = self.processEvent(filename, locations, eventNum)
+                eventparams, wsparams = result
+                self.insertEvents(eventparams)
+                self.insertWindSpeeds(wsparams)
+
+
     def loadWindfieldFile(self, ncobj):
         """
         Load an individual dataset.
@@ -401,16 +480,6 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                        dtTrackFile, dtWindfieldFile, tcrm_version,
                        "", datetime.now())
 
-        try:
-            self.execute(INSEVENTS, eventparams)
-        except sqlite3.Error as err:
-            log.exception("Cannot insert records into tblEvents: {0}".\
-                          format(err.args[0]))
-            ncobj.close()
-            return 0
-        else:
-            self.commit()
-
         # Perform update for tblWindSpeed:
         lon, lat, vmax, ua, va, pmin = self.loadWindfieldFile(ncobj)
         ncobj.close()
@@ -428,20 +497,9 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                          float(locVa), float(locPr), " ", datetime.now())
             wsparams.append(locParams)
 
-        try:
-            self.executemany(INSWINDSPEED, wsparams)
-        except sqlite3.Error as err:
-            log.exception("Cannot insert records into tblWindSpeed: {0}".\
-                          format(err.args[0]))
-            return 0
-        except sqlite3.ProgrammingError as err:
-            log.exception("Programming error: {0}".format(err.args[0]))
-            return 0
-        else:
-            self.commit()
+        return eventparams, wsparams
 
-        return 1
-
+    @disableOnWorkers
     def processHazard(self):
         """
         Update _tblHazard_ with the return period wind speed data.
@@ -538,6 +596,36 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         else:
             self.commit()
 
+def run(configFile):
+    """
+    Run database update
+
+    :param str configFile: path to a configuration file.
+
+    """
+
+    log.info('Running database update')
+
+    config = ConfigParser()
+    config.read(configFile)
+    outputPath = config.get('Output', 'Path')
+    location_db = pjoin(outputPath, 'locations.db')
+    if not os.path.exists(location_db):
+        location_file = config.get('Input', 'LocationFile')
+        buildLocationDatabase(location_db, location_file)
+
+    global pp
+    pp = attemptParallel()
+
+    db = HazardDatabase(configFile)
+    db.createDatabase()
+    db.setLocations()
+    db.parallelProcessEvents()
+    db.processHazard()
+    db.processTracks()
+    db.close()
+    log.info("Created and populated database")
+    
 
 def buildLocationDatabase(location_db, location_file, location_type='AWS'):
     """

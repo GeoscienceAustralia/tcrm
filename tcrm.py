@@ -431,7 +431,6 @@ def doHazardPlotting(configFile):
 
     pbar.update(1.0)
 
-@disableOnWorkers
 def doDatabaseUpdate(configFile):
     """
     Build a database containing info on the events, locations, return
@@ -443,24 +442,24 @@ def doDatabaseUpdate(configFile):
 
     log.info("Creating hazard database")
     import database
+    database.run(configFile)
+    #config = ConfigParser()
+    #config.read(configFile)
 
-    config = ConfigParser()
-    config.read(configFile)
 
+    #outputPath = config.get('Output', 'Path')
+    #location_db = pjoin(outputPath, 'locations.db')
+    #if not os.path.exists(location_db):
+    #    location_file = config.get('Input', 'LocationFile')
+    #    database.buildLocationDatabase(location_db, location_file)
 
-    outputPath = config.get('Output', 'Path')
-    location_db = pjoin(outputPath, 'locations.db')
-    if not os.path.exists(location_db):
-        location_file = config.get('Input', 'LocationFile')
-        database.buildLocationDatabase(location_db, location_file)
-
-    db = database.HazardDatabase(configFile)
-    db.createDatabase()
-    db.setLocations()
-    db.processEvents()
-    db.processHazard()
-    db.processTracks()
-    db.close()
+    #db = database.HazardDatabase(configFile)
+    #db.createDatabase()
+    #db.setLocations()
+    #db.processEvents()
+    #db.processHazard()
+    #db.processTracks()
+    #db.close()
     log.info("Created and populated database")
 
 
