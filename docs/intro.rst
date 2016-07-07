@@ -21,10 +21,11 @@ community).
 Model outline
 -------------
 
-TCRM has 5 main modules to generate hazard information:
+TCRM has 6 main modules to generate hazard information:
 :mod:`DataProcess`, :mod:`StatInterface`, :mod:`TrackGenerator`,
-:mod:`wind` and :mod:`hazard`. Supporting :mod:`Utilities` and
-plotting routines (:mod:`PlotInterface`) are included.
+:mod:`wind`, :mod:`hazard` and :mod:`database`. Supporting
+:mod:`Utilities` and plotting routines (:mod:`PlotInterface`) are
+included.
 
 The :mod:`DataProcess` module reads the input track database and
 extracts parameters from the data, namely intensity and location
@@ -63,6 +64,14 @@ each grid point across the model domain to determine return
 period wind speeds. The fitting routine uses the method of
 L-moments [#]_ to determine the location, shape and scale
 parameters of the GEV.
+
+The :mod:`database` module builds a SQLite database that holds
+information about the simulation. The wind speeds associated with all
+events in the simulation catalouge are extracted for locations in the
+model domain, along with recurrence interval wind speeds. Details
+(maximum wind, minimun central pressure, lifetime, etc.) of each storm
+are recorded, as well as the closest distance of approach for storms
+to locations.
 
 
 

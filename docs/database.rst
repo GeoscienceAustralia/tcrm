@@ -15,7 +15,11 @@ been identified as an enhancement for future development.
 Tables
 ======
 
-Following is a description of the tables contained in the database. Tables are generated 
+Following is a description of the tables contained in the
+database. Tables are created when the database is first
+generated. Tables are populated with information from the
+simulation. Presently, the tables are not updateable - that is, the
+records cannot be modified once inserted into teh database.
 
 Locations table
 ---------------
