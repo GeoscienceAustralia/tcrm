@@ -162,12 +162,21 @@ def windfieldAttributes(ncobj):
     return (trackfile, trackfiledate, tcrm_vers, minslp, maxwind)
 
 def HazardDatabase(configFile):
+    """
+    Wrapper function to create (or retrieve existing) instance of
+    :class:`HazardDatabase`.
+
+    :param str configFile: Path to the simulation configuration file.
+
+    """
     return _HazardDatabase.getInstance(configFile)
 
 class _HazardDatabase(sqlite3.Connection, Singleton):
     """
     Create and update a database of locations, events, hazard, wind
-    speed and tracks.
+    speed and tracks. Because it subclasses the :class:`Singleton` object,
+    it will create a new instance if there is not already an active instance,
+    or it will return an existing instance.
 
     :param str configFile: Path to the simulation configuration file.
 
@@ -202,7 +211,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
     @disableOnWorkers
     def createDatabase(self):
         """
-        Create the database.
+        Create the database and the tables in the database.
 
         """
         log.info("Building the hazard database...")
@@ -214,7 +223,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         self.exists = True
         self.commit()
         return
-    
+
     @disableOnWorkers
     def createTable(self, tblName, tblDef):
         """
@@ -335,6 +344,16 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         modelled wind speed (or the missing value) at each grid point,
         from each synthetic event.
 
+        Also populates _tblEvents_ with the details of the synthetic events
+        generated in the simulation. This table only holds the
+        metadata of the events. At this time, since TCRM generates
+        annual event sets, this table only stores details of the
+        annual event set. Future versions can hold additional metadata
+        about each individual synthetic TC event.
+
+        :raises: `sqlite3.Error` if unable to insert events into
+                 _tblEvents_.
+
         :raises: `sqlite3.Error` if unable to insert records into
                  _tblWindSpeed_.
 
@@ -357,6 +376,13 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                     pWriteProcessedFile(pjoin(self.windfieldPath, fname))
 
     def insertEvents(self, eventparams):
+        """
+        Insert records into _tblEvents_, using the collection of event
+        parameters.
+
+        :param eventparams: A collection of tuples, each of which represents
+                            an individual event record.
+        """
         log.debug("Inserting records into tblEvents")
         try:
             self.execute(INSEVENTS, eventparams)
@@ -367,6 +393,13 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
             self.commit()
 
     def insertWindSpeeds(self, wsparams):
+        """
+        Insert records into _tblWindSpeed_, using the collection of
+        location-specific wind speeds extracted from the event catalogue.
+
+        :param wsparams: A collection of tuples, each of which represents
+                         an individual location record.
+        """
         nrecords = len(wsparams)
         log.debug("Inserting {0} records into tblWindSpeed".format(nrecords))
         try:
@@ -381,10 +414,20 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
 
 
     def parallelProcessEvents(self):
+        """
+        Process the events (wind fields) for each location within the
+        model domain and populate _tblWindSpeed_. This will store the
+        modelled wind speed (or the missing value) at each grid point,
+        from each synthetic event.
+
+        :raises: `sqlite3.Error` if unable to insert records into
+                 _tblWindSpeed_.
+
+        """
         fileList = os.listdir(self.windfieldPath)
         fileList = [f for f in fileList if
                     os.path.isfile(pjoin(self.windfieldPath, f))]
-        
+
         work_tag = 0
         result_tag = 1
         if (pp.rank() == 0) and (pp.size() > 1):
@@ -393,16 +436,17 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
             p = pp.size() - 1
             for d in range(1, pp.size()):
                 if w < len(fileList):
-                    pp.send((fileList[w], locations, w), destination=d, tag=work_tag)
+                    pp.send((fileList[w], locations, w),
+                            destination=d, tag=work_tag)
                     log.debug("Processing file %d of %d" % (w, len(fileList)))
                     w += 1
                 else:
                     pp.send(None, destination=d, tag=work_tag)
                     p = w
-            
+
             terminated = 0
-            
-            while(terminated < p):
+
+            while terminated < p:
                 result, status = pp.receive(pp.any_source, tag=result_tag,
                                             return_status=True)
                 eventparams, wsparams = result
@@ -411,16 +455,17 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
 
                 d = status.source
                 if w < len(fileList):
-                    pp.send((fileList[w], locations, w), destination=d, tag=work_tag)
+                    pp.send((fileList[w], locations, w),
+                            destination=d, tag=work_tag)
                     log.debug("Processing file %d of %d" % (w, len(fileList)))
                     w += 1
                 else:
                     pp.send(None, destination=d, tag=work_tag)
                     terminated += 1
 
-        elif (pp.size() > 1) and (pp.rank() !=0):
-            while(True):
-                W = pp.receieve(source=0, tag=work_tag)
+        elif (pp.size() > 1) and (pp.rank() != 0):
+            while True:
+                W = pp.receive(source=0, tag=work_tag)
                 if W is None:
                     break
                 results = self.processEvent(*W)
@@ -625,8 +670,8 @@ def run(configFile):
     db.processTracks()
     db.close()
     log.info("Created and populated database")
-    
 
+@disableOnWorkers
 def buildLocationDatabase(location_db, location_file, location_type='AWS'):
     """
     Build a database of locations, using a point shape file of the locations.
