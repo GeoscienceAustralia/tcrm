@@ -31,20 +31,16 @@ TODO::
   be stored in the db (?).
 - Separate the query functions to separate files.
 
-
-
 """
 
 import os
 import logging
 import sqlite3
-
 from sqlite3 import PARSE_DECLTYPES, PARSE_COLNAMES
 
 from datetime import datetime
 import unicodedata
 import re
-
 from os.path import join as pjoin
 
 from shapely.geometry import Point
@@ -54,16 +50,13 @@ import numpy as np
 from Utilities.config import ConfigParser
 from Utilities.files import flGetStat
 from Utilities.maputils import find_index
-
 from Utilities.track import loadTracksFromFiles
 from Utilities.singleton import Singleton
 from Utilities.parallel import attemptParallel, disableOnWorkers
-
 from Utilities.process import pAlreadyProcessed, pWriteProcessedFile, \
     pGetProcessedFiles
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
-
 
 # pylint: disable=R0914,R0902
 
@@ -337,44 +330,6 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         else:
             self.commit()
 
-    def processEvents(self):
-        """
-        Process the events (wind fields) for each location within the
-        model domain and populate _tblWindSpeed_. This will store the
-        modelled wind speed (or the missing value) at each grid point,
-        from each synthetic event.
-
-        Also populates _tblEvents_ with the details of the synthetic events
-        generated in the simulation. This table only holds the
-        metadata of the events. At this time, since TCRM generates
-        annual event sets, this table only stores details of the
-        annual event set. Future versions can hold additional metadata
-        about each individual synthetic TC event.
-
-        :raises: `sqlite3.Error` if unable to insert events into
-                 _tblEvents_.
-
-        :raises: `sqlite3.Error` if unable to insert records into
-                 _tblWindSpeed_.
-
-        """
-        log.info("Inserting records into tblWindSpeed")
-        fileList = os.listdir(self.windfieldPath)
-
-        fileList = [f for f in fileList if
-                    os.path.isfile(pjoin(self.windfieldPath, f))]
-
-        locations = self.getLocations()
-        for eventNum, fname in enumerate(sorted(fileList)):
-            fstat = flGetStat(pjoin(self.windfieldPath, fname))
-            if (pAlreadyProcessed(fstat[0], fstat[1], 'md5sum', fstat[2]) and
-                    self.excludePastProcessed):
-                log.debug("Already processed %s", fname)
-            else:
-                log.debug("Processing {0}".format(fname))
-                if self.processEvent(fname, locations, eventNum):
-                    pWriteProcessedFile(pjoin(self.windfieldPath, fname))
-
     def insertEvents(self, eventparams):
         """
         Insert records into _tblEvents_, using the collection of event
@@ -413,7 +368,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
             self.commit()
 
 
-    def parallelProcessEvents(self):
+    def processEvents(self):
         """
         Process the events (wind fields) for each location within the
         model domain and populate _tblWindSpeed_. This will store the
@@ -490,14 +445,13 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         :returns: tuple containing longitude, latitude, wind speed,
                   eastward and northward components and pressure grids.
         """
-        #ncobj = Dataset(pjoin(self.windfieldPath, filename))
         lon = ncobj.variables['lon'][:]
         lat = ncobj.variables['lat'][:]
         vmax = ncobj.variables['vmax'][:]
         ua = ncobj.variables['ua'][:]
         va = ncobj.variables['va'][:]
         pmin = ncobj.variables['slp'][:]
-        #ncobj.close()
+
         return (lon, lat, vmax, ua, va, pmin)
 
     def processEvent(self, filename, locations, eventNum):
@@ -615,25 +569,99 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         """
         log.info("Inserting records into tblTracks")
         locations = self.getLocations()
-        points = [Point(loc[2], loc[3]) for loc in locations]
 
         files = os.listdir(self.trackPath)
         trackfiles = [pjoin(self.trackPath, f) for f in files \
                       if f.startswith('tracks')]
         tracks = loadTracksFromFiles(sorted(trackfiles))
-        params = []
-        for track in tracks:
-            if len(track.data) == 0:
-                continue
-            distances = track.minimumDistance(points)
-            for (loc, dist) in zip(locations, distances):
-                locParams = (loc[0], "%03d-%05d"%(track.trackId),
-                             dist, None, None, "", datetime.now())
 
-                params.append(locParams)
+        work_tag = 0
+        result_tag = 1
 
+        if (pp.rank() == 0) and (pp.size() > 1):
+            w = 0
+            p = pp.size() - 1
+            for d in range(1, pp.size()):
+                if w < len(tracks):
+                    pp.send((tracks[w], locations),
+                            destination=d, tag=work_tag)
+                    log.debug("Processing track {0:d} of {1:d}".\
+                              format(w, len(tracks)))
+                    w += 1
+                else:
+                    pp.send(None, destination=d, tag=work_tag)
+                    p = w
+
+            terminated = 0
+
+            while terminated < p:
+                result, status = pp.receive(pp.any_source, tag=result_tag,
+                                            return_status=True)
+                if result is not None:
+                    self.insertTracks(result)
+                d = status.source
+                if w < len(tracks):
+                    pp.send((tracks[w], locations),
+                            destination=d, tag=work_tag)
+                    log.debug("Processing track {0:d} of {1:d}".\
+                              format(w, len(tracks)))
+                    w += 1
+                else:
+                    pp.send(None, destination=d, tag=work_tag)
+                    terminated += 1
+
+        elif (pp.size() > 1) and (pp.rank() != 0):
+            while True:
+                W = pp.receive(source=0, tag=work_tag)
+                if W is None:
+                    break
+                results = self.processTrack(*W)
+                pp.send(results, destination=0, tag=work_tag)
+
+        elif pp.size() == 1 and pp.rank() == 0:
+            # No Pypar
+            for w, track in enumerate(tracks):
+                log.debug("Processing track {0:d} of {1:d}".\
+                          format(w, len(tracks)))
+                if len(track.data) == 0:
+                    continue
+                result = self.processTrack(track, locations)
+                if result is not None:
+                    self.insertTracks(result)
+
+    def processTrack(self, track, locations):
+        """
+        Process individual track to determine distance to locations, etc.
+
+        Any empty tracks are filtered at an earlier stage. If an empty
+        track is passed, then a None result is returned.
+
+        :param track: :class:`Track` instance.
+        :param locations: list of locations in the simulation domain.
+        """
+        points = [Point(loc[2], loc[3]) for loc in locations]
+        records = []
+        if len(track.data) == 0:
+            log.debug("Got an empty track: returning None")
+            return None
+        distances = track.minimumDistance(points)
+        for (loc, dist) in zip(locations, distances):
+            locRecs = (loc[0], "%03d-%05d"%(track.trackId),
+                       dist, None, None, "", datetime.now())
+
+            records.append(locRecs)
+        return records
+
+    def insertTracks(self, trackRecords):
+        """
+        Insert track parameters into _tblTracks_, using details for each
+        location in relation to the track
+
+        :param trackParams: collection of tuples that hold records (i.e.
+                            (location details) for each track.
+        """
         try:
-            self.executemany(INSTRACK, params)
+            self.executemany(INSTRACK, trackRecords)
         except sqlite3.Error as err:
             log.exception(("Cannot insert records into tblTracks: "
                            "{0}").format(err.args[0]))
@@ -665,7 +693,7 @@ def run(configFile):
     db = HazardDatabase(configFile)
     db.createDatabase()
     db.setLocations()
-    db.parallelProcessEvents()
+    db.processEvents()
     db.processHazard()
     db.processTracks()
     db.close()
