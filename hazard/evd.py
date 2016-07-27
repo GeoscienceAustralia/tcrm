@@ -23,6 +23,7 @@ of the Royal Statistical Society, 52, 1, 105-124.
 
 import logging as log
 import numpy as np
+from scipy.stats import genpareto, scoreatpercentile
 
 try:
     import lmoments as lmom
@@ -101,3 +102,67 @@ def estimateEVD(v, years, missingValue=-9999., minRecords=50, yrspersim=1):
                 w[i] = missingValue
 
     return w, loc, scale, shp
+
+def gpdReturnLevel(intervals, mu, xi, sigma, rate, npyr=365.25):
+    """
+    Calculate return levels for specified intervals for a distribution with
+    the given threshold, scale and shape parameters.
+
+    :param intervals: :class:`numpy.ndarray` or float of recurrence intervals
+              to evaluate return levels for.
+    :param float mu: Threshold parameter (also called location).
+    :param float xi: Shape parameter.
+    :param float sigma: Scale parameter.
+    :param float rate: Rate of exceedances (i.e. number of observations greater
+                       than `mu`, divided by total number of observations).
+    :param float npyr: Number of observations per year.
+
+    :returns: return levels for the specified recurrence intervals.
+
+    """
+
+    rp = mu + (sigma / xi) * (np.power(intervals * npyr * rate, xi) - 1.)
+    return rp
+
+def gpdfit(data, rate, years, missingValue=-9999, minrecords=50, thresh=99.7):
+    """
+    Fit a Generalised Pareto Distribution to the data. For a quick evaluation,
+    we use the 99.7th percentile as a threshold. 
+
+    :param data: array of data values.
+    :type data: :class:`numpy.ndarray`
+    :param years: array of years for which to calculate return period values.
+    :type years: :class:`numpy.ndarray`
+    :param float missingValue: value to insert if fit does not converge.
+    :param int minRecords: minimum number of valid observations required to
+                           perform fitting.
+    :param float thresh: Threshold for performing the fitting. Default is the
+                     99.7th percentile
+
+    :return: return period values
+    :rtype: :class:`numpy.ndarray`
+    :return: location, shape and scale parameters of the distribution,
+             determined using MLE (as per :meth:`scipy.stats.rv_continuous`)
+    :rtype: float
+    """
+
+    mu = scoreatpercentile(data, thresh)
+
+    if len(data[data > 0]) < minrecords:
+        return 
+    loc, scale, shp = [missingValue, missingValue, missingValue]
+    w = missingValue * np.ones(len(years))
+
+    if len(data[data > 0]) < minrecords:
+        return w, loc, scale, shp
+
+    rate = float(len(data[data > mu])) / float(len(mu))
+
+    try:
+        params = genpareto.fit(data[data > mu], floc=mu)
+    except:
+        return w, loc, scale, shp
+
+    w = gpdReturnLevel(years, mu, params[0], params[2], rate)
+    
+    return w, mu, params[2], params[0]
