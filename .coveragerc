@@ -1,2 +1,2 @@
 [run]
-omit=*ConfigParser*,*FixTk*,*PIL*,ast,*calendar*,*colorsys*,*contextlib*,*copy_reg*,*csv*,*ctypes*,*dateutil*,*decimal*,*distutils*,*email*,*encodings*,*getpass*,*getopt*,*gzip*,*httplib*,*importlib*,*io*,*matplotlib*,*mimetools*,*mpl_toolkits*,*netCDF4*,*netcdftime*,*numbers*,*numpy*,*pandas*,*patsy*,*pyparsing*,*PyQt4*,*pytz*,*rfc*,*seaborn*,*scipy*,*shapely*,*shlex*,*six*,*sqlite3*,*statsmodels*,*strptime*,*subprocess*,*tarfile*,*urllib*,*uuid*
+include=./*
