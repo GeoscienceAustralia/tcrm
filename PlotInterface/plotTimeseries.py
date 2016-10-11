@@ -46,7 +46,7 @@ def loadTimeseriesData(datafile):
     logging.debug("Loading timeseries data from {0}".format(datafile))
     try:
         return np.genfromtxt(datafile, dtype=INPUT_FMTS, names=INPUT_COLS,
-                             comments='#', delimiter=',', skiprows=1,
+                             comments='#', delimiter=',', skip_header=1,
                              converters=INPUT_CNVT)
     except ValueError:
         logging.warn("Timeseries data file is empty - returning empty array")
