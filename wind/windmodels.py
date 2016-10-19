@@ -377,6 +377,15 @@ class HollandWindProfile(WindProfileModel):
               np.sqrt(4 * (beta * self.dP / self.rho) * delta * edelta
                       + (self.f * R) ** 2)))
 
+        Z = np.abs(self.f) + \
+        ((beta ** 2) * self.dP * (delta ** 2) * edelta / (2 * self.rho * R) \
+         - (self.beta ** 2) * self.dP * delta * edelta / (2 * self.rho * R) + \
+         (R * self.f ** 2) / 4 ) / np.sqrt(beta * self.dP * delta * edelta / \
+                                           self.rho + (R * self.f / 2) ** 2) \
+        + (np.sqrt(beta * self.dP * delta * edelta / self.rho + \
+                   (R * self.f / 2) ** 2)) / R
+                                                                
+
         # Calculate first and second derivatives at R = Rmax:
         d2Vm = self.secondDerivative()
         aa = ((d2Vm / 2 - (-1.0 *  self.vMax /
@@ -1026,21 +1035,22 @@ class KepertWindField(WindFieldModel):
 
         al = ((2. * V / R ) + self.f) / (2. * K)
         be = (self.f + Z) / (2. * K)
-        gam = np.abs(V / (2. * K * R))
+        gam = (V / (2. * K * R))
         
         albe = np.sqrt(al / be)
 
         ind = np.where(np.abs(gam) > np.sqrt(al * be))
         chi = np.abs((Cd / K) * V / np.sqrt(np.sqrt(al * be)))
-        eta = np.abs((Cd / K) * V / np.sqrt(np.sqrt(al * be) + gam))
-        psi = np.abs((Cd / K) * V / np.sqrt(np.abs(np.sqrt(al * be) - gam)))
+        eta = np.abs((Cd / K) * V / np.sqrt(np.sqrt(al * be) + np.abs(gam)))
+        psi = np.abs((Cd / K) * V / np.sqrt(np.abs(np.sqrt(al * be)
+                                                   - np.abs(gam))))
 
         i = complex(0., 1.)
         A0 = -chi * V * (1. + i * (1. + chi)) / (2. * chi ** 2. + 3. * chi + 2.)
 
         # Symmetric surface wind component
 
-        u0s = albe * A0.real
+        u0s = np.sign(self.f) * albe * A0.real
         v0s = A0.imag
 
         Am = (-(psi * (1. + 2. * albe + (1. + i) * (1. + albe) * eta))
@@ -1048,48 +1058,32 @@ class KepertWindField(WindFieldModel):
              (albe * ((2. + 2. * i) * (1 + eta * psi) +
               3. * psi + 3. * i * eta)))
 
-        #Am[ind] = (-((1. + (1. + i) * eta[ind]) / albe[ind] +
-        #           (2. + (1. + i) * eta[ind])) * psi[ind] * vFm /
-        #           (2. - 2. * i + 3. * (psi[ind] + eta[ind])
-        #            + (2. + 2. * i) * eta[ind] * psi[ind]))
-
         AmIII = (-(psi * (1. + 2. * albe + (1. + i) * (1. + albe) * eta)
                 * Vt) /
                 ( albe * (2. - 2. * i + 3. * (eta + psi) + (2. + 2. * i) *
                 eta * psi)))
 
-        #Am[ind] = AmIII[ind]
+        Am[ind] = AmIII[ind]
 
         # First asymmetric surface component
 
-        ums = albe * (Am * np.exp(-(i * lam))).real
-        vms = (Am * np.exp(-(i * lam))).imag
-
-        #Ap = (-((1. + (1. + i) * psi) / albe - (2. + (1. + i) * psi)) *
-        #      eta * vFm /
-        #      ((2. + 2. * i) * (1. + eta * psi) + 3. * eta +
-        #       3. * i * psi))
+        ums = albe * (Am * np.exp(-(i * lam * np.sign(self.f)))).real
+        vms = np.sign(self.f) * (Am * np.exp(-(i * lam))).imag
 
         Ap = (-(eta * (1. - 2. * albe + (1. + i) * (1. - albe) * psi)) * Vt /
                 (albe * ((2. + 2. * i) * (1. + eta * psi) +
                 3. * eta + 3. * i * psi)))
 
-        #Ap[ind] = (-((1. + (1. - i) * psi[ind]) / albe[ind] -
-        #             (2. + (1. - i) * psi[ind])) *
-        #           eta[ind] * vFm /
-        #           (2. + 2. * i + 3. * (eta[ind] + psi[ind]) +
-        #            (2. - 2. * i) * eta[ind] * psi[ind]))
-
         ApIII = (-(eta * (1. - 2. * albe + (1. - i) * (1. - albe) * psi) * Vt) /
                 (albe * (2. + 2. * i + 3. * (eta + psi)
                 + (2. - 2. * i) * eta * psi)))
 
-        #Ap[ind] = ApIII[ind]
+        Ap[ind] = ApIII[ind]
 
         # Second asymmetric surface component
 
-        ups = albe * (Ap * np.exp(i * lam)).real
-        vps = (Ap * np.exp(i * lam)).imag
+        ups = albe * (Ap * np.exp(i * lam * np.sign(self.f))).real
+        vps = np.sign(self.f) * (Ap * np.exp(i * lam)).imag
 
         # Total surface wind in (moving coordinate system)
 
