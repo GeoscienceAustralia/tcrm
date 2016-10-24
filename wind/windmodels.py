@@ -307,8 +307,9 @@ class HollandWindProfile(WindProfileModel):
         rMax = self.rMax
 
         E = exp(1)
+        
         d2Vm = ((beta * dP * (-4 * beta ** 3 * dP / rho -
-                (-2 + beta ** 2) * E * (f * rMax) ** 2)) /
+                (-2 + beta ** 2) * E * (np.abs(f) * rMax) ** 2)) /
                 (E * rho * sqrt((4 * beta * dP) / (E * rho)
                  + (f * rMax) ** 2) * (4 * beta * dP * rMax ** 2 / rho
                  + E * (f * rMax ** 2) ** 2)))
@@ -320,6 +321,22 @@ class HollandWindProfile(WindProfileModel):
             raise
 
         return d2Vm
+
+    def firstDerivative(self):
+        """
+        First derivative of profile at rMax
+        """
+        beta = self.beta
+        dP = self.dP
+        rho = self.rho
+        f = self.f
+        rMax = self.rMax
+
+        E = exp(1)
+        
+        dVm = (-np.abs(f)/2 + (E*(f**2)*rMax*np.sqrt((4*beta*dP/rho)/E + (f*rMax)**2))/ \
+                  (2*(4*beta*dP/rho + E*(f*rMax)**2)))
+        return dVm
 
     def velocity(self, R):
         """
@@ -335,14 +352,15 @@ class HollandWindProfile(WindProfileModel):
         """
 
         d2Vm = self.secondDerivative()
-        aa = ((d2Vm / 2. - (-self.vMax / self.rMax) / self.rMax) /
+        dVm = self.firstDerivative()
+        aa = ((d2Vm / 2. - (dVm - self.vMax / self.rMax) / self.rMax) /
               self.rMax)
         bb = (d2Vm - 6 * aa * self.rMax) / 2.
-        cc = -3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
+        cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
         delta = (self.rMax / R) ** self.beta
         edelta = np.exp(-delta)
 
-        V = ( np.sqrt((self.dP * self.beta / self.rho)
+        V = (np.sqrt((self.dP * self.beta / self.rho)
              * delta * edelta + (R * self.f / 2.) ** 2) - R *
              np.abs(self.f) / 2.)
 
@@ -354,7 +372,9 @@ class HollandWindProfile(WindProfileModel):
     def vorticity(self, R):
         """
         Calculate the vorticity associated with the (gradient level)
-        vortex.
+        vortex. 
+        
+        Note: radii are converted to metres for this calculation.
 
         :param R: :class:`numpy.ndarray` of distance of grid from
                   the TC centre.
@@ -365,36 +385,27 @@ class HollandWindProfile(WindProfileModel):
         """
 
         beta = self.beta
-        delta = (self.rMax / R) ** beta
+        rr = R * 1000.
+        rm = self.rMax * 1000.
+        delta = (rm / R) ** beta
         edelta = np.exp(-delta)
 
-        Z = ((np.sqrt((self.dP * beta / self.rho) *
-             delta * edelta + (R * self.f / 2.) ** 2)) / R -
-             np.abs(self.f) + edelta *
-             (2 * (beta ** 2) * self.dP * (delta - 1) * delta +
-              self.rho * edelta * (self.f * R) ** 2) /
-             (2 * self.rho * R *
-              np.sqrt(4 * (beta * self.dP / self.rho) * delta * edelta
-                      + (self.f * R) ** 2)))
-
-        Z = np.abs(self.f) + \
-        ((beta ** 2) * self.dP * (delta ** 2) * edelta / (2 * self.rho * R) \
-         - (self.beta ** 2) * self.dP * delta * edelta / (2 * self.rho * R) + \
-         (R * self.f ** 2) / 4 ) / np.sqrt(beta * self.dP * delta * edelta / \
-                                           self.rho + (R * self.f / 2) ** 2) \
-        + (np.sqrt(beta * self.dP * delta * edelta / self.rho + \
-                   (R * self.f / 2) ** 2)) / R
-                                                                
+        Z = np.abs(self.f) + (beta**2*self.dP*(delta**2)*edelta/(2*self.rho*rr) \
+                              - beta**2*self.dP*delta*edelta/(2*self.rho*rr) + \
+                              rr*self.f**2/4) \
+             / np.sqrt(beta*self.dP*delta*edelta/self.rho + (rr*self.f/2)**2) + \
+             (np.sqrt(beta*self.dP*delta*edelta/self.rho + (rr*self.f/2)**2))/rr
 
         # Calculate first and second derivatives at R = Rmax:
         d2Vm = self.secondDerivative()
-        aa = ((d2Vm / 2 - (-1.0 *  self.vMax /
+        dVm = self.firstDerivative()
+        aa = ((d2Vm / 2 - (dVm - self.vMax /
               self.rMax) / self.rMax) / self.rMax)
         bb = (d2Vm - 6 * aa * self.rMax) / 2
-        cc = -3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
+        cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
 
-        icore = np.where(R <= self.rMax)
-        Z[icore] = R[icore] * (R[icore] * 4 * aa + 3 * bb) + 2 * cc
+        icore = np.where(rr <= rm)
+        Z[icore] = rr[icore] * (rr[icore] * 4 * aa + 3 * bb) + 2 * cc
         Z = np.sign(self.f) * Z
         return Z
 
@@ -688,6 +699,10 @@ class DoubleHollandWindProfile(WindProfileModel):
         :rtype: :class:`numpy.ndarray`
 
         """
+
+        rm = self.rMax * 1000.
+        rm2 = self.rMax2 * 1000.
+        rr = R*1000.
         # Scale dp2 if dP is less than 1500 Pa:
         if self.dP < 1500.:
             dp2 = (self.dP / 1500.) * (800. + (self.dP - 800.) / 2000.)
@@ -722,7 +737,7 @@ class DoubleHollandWindProfile(WindProfileModel):
 
         d2Vm = self.secondDerivative()
         aa = ((d2Vm / 2.0 - (-1.0 * np.sign(self.f) * self.vMax /
-              self.rMax) / self.rMax) / self.rMax)
+                             self.rMax) / self.rMax) / self.rMax)
         bb = (d2Vm - 6.0 * aa * self.rMax) / 2.0
         cc = -3.0 * aa * self.rMax ** 2.0 - 2.0 * bb * self.rMax
 
@@ -1046,52 +1061,38 @@ class KepertWindField(WindFieldModel):
                                                    - np.abs(gam))))
 
         i = complex(0., 1.)
-        A0 = -chi * V * (1. + i * (1. + chi)) / (2. * chi ** 2. + 3. * chi + 2.)
-
+        A0 = -(chi * (1 + i * (1 + chi))*V) / (2*chi**2 + 3*chi +2)
+        
         # Symmetric surface wind component
-
         u0s = np.sign(self.f) * albe * A0.real
-        v0s = A0.imag
+        v0s =                          A0.imag
 
-        Am = (-(psi * (1. + 2. * albe + (1. + i) * (1. + albe) * eta))
-              * Vt /
-             (albe * ((2. + 2. * i) * (1 + eta * psi) +
-              3. * psi + 3. * i * eta)))
-
-        AmIII = (-(psi * (1. + 2. * albe + (1. + i) * (1. + albe) * eta)
-                * Vt) /
-                ( albe * (2. - 2. * i + 3. * (eta + psi) + (2. + 2. * i) *
-                eta * psi)))
-
+        Am = -(psi * (1 + 2 * albe + (1 + i) * (1 + albe) * eta) * Umod) / \
+             (albe * ((2 + 2 * i) * (1 + eta * psi) + 3 * psi + 3* i * eta))
+        AmIII = -(psi * (1 + 2 * albe + (1 + i) * (1 + albe) * eta) * Umod) / \
+                (albe * ((2 - 2 * i + 3 * (eta + psi) + (2 + 2 * i)*eta * psi)))
         Am[ind] = AmIII[ind]
 
         # First asymmetric surface component
+        ums =            albe * (Am * np.exp(-i * lam * np.sign(self.f))).real
+        vms = np.sign(self.f) * (Am * np.exp(-i * lam * np.sign(self.f))).imag
 
-        ums = albe * (Am * np.exp(-(i * lam * np.sign(self.f)))).real
-        vms = np.sign(self.f) * (Am * np.exp(-(i * lam))).imag
-
-        Ap = (-(eta * (1. - 2. * albe + (1. + i) * (1. - albe) * psi)) * Vt /
-                (albe * ((2. + 2. * i) * (1. + eta * psi) +
-                3. * eta + 3. * i * psi)))
-
-        ApIII = (-(eta * (1. - 2. * albe + (1. - i) * (1. - albe) * psi) * Vt) /
-                (albe * (2. + 2. * i + 3. * (eta + psi)
-                + (2. - 2. * i) * eta * psi)))
-
+        Ap = -(eta * (1 - 2 * albe + (1 + i)*(1 - albe) * psi) * Umod) / \
+             (albe * ((2 + 2*i)*(1 + eta * psi) + 3*eta + 3*i*psi))
+        ApIII = -(eta * (1 - 2 * albe + (1 - i)*(1 - albe)*psi)*Umod) / \
+                (albe * (2 + 2 * i + 3 * (eta + psi) + (2 -2 * i)*eta*psi))
         Ap[ind] = ApIII[ind]
 
         # Second asymmetric surface component
-
-        ups = albe * (Ap * np.exp(i * lam * np.sign(self.f))).real
-        vps = np.sign(self.f) * (Ap * np.exp(i * lam)).imag
+        ups =            albe * (Ap * np.exp(i * lam * np.sign(self.f))).real
+        vps = np.sign(self.f) * (Ap * np.exp(i * lam * np.sign(self.f))).imag
 
         # Total surface wind in (moving coordinate system)
-
-        us = np.sign(self.f) * (u0s + ups + ums)
+        us =     u0s + ups + ums
         vs = V + v0s + vps + vms
 
-        usf = us + Vt * np.cos(lam - thetaFm)
-        vsf = vs - Vt * np.sin(lam - thetaFm)
+        usf = us + Umod * np.cos(lam - thetaFm)
+        vsf = vs - Umod * np.sin(lam - thetaFm)
         phi = np.arctan2(usf, vsf)
 
         # Surface winds, cartesian coordinates
