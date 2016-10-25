@@ -105,7 +105,7 @@ class Timeseries(object):
 
         self.meta = False
 
-        stnFile = config.get('Input', 'LocationFile')
+        stnFile = config.get('Timeseries', 'LocationFile')
         self.outputPath = pjoin(config.get('Output', 'Path'),
                                     'process', 'timeseries')
 
@@ -115,7 +115,7 @@ class Timeseries(object):
                                     'process', 'minima.csv')
 
 
-        log.debug("Loading stations from %s"%stnFile)
+        log.info("Loading timeseries stations from %s"%stnFile)
         log.debug("Timeseries data will be written into %s"%self.outputPath)
         self.stations = []
         if stnFile.endswith("shp"):

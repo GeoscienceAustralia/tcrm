@@ -76,7 +76,7 @@ this::
 
     [Timeseries]
     Extract = True
-    StationFile = ./input/stationlist.shp
+    LocationFile = ./input/stationlist.shp
     StationID = WMO
  
     [Input]
