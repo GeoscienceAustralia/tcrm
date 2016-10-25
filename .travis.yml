@@ -44,7 +44,7 @@ install:
 # Script execution
 script: 
   - python installer/setup.py build_ext -i
-  - nosetests -w tests/ -v --with-coverage
+  - nosetests -v --with-coverage
 
 # Post
 after_success: 
