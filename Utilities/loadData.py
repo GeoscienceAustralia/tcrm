@@ -387,8 +387,10 @@ def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):
     for i in xrange(len(dates)):
         try:
             d = datetime.strptime(str(dates[i]), datefmt)
-        except ValueError:
-            raise ValueError("Error in date information for record %d" % i)
+        except ValueError as e:
+            LOG.exception("Error in date information for record {0}".format(i))
+            LOG.exception(e.message)
+            raise
         else:
             year[i] = d.year
             month[i] = d.month
@@ -420,7 +422,7 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
     """
     try:
         year, month, day, hour, minute, datetimes = date2ymdh(data['date'], datefmt)
-    except (ValueError, KeyError):
+    except (KeyError):
         # Sort out date/time information:
         month = np.array(data['month'], 'i')
         day = np.array(data['day'], 'i')
