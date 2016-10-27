@@ -175,8 +175,8 @@ class WindfieldAroundTrack(object):
         eP = convert(self.track.EnvPressure[i], 'hPa', 'Pa')
         cP = convert(self.track.CentralPressure[i], 'hPa', 'Pa')
         rMax = self.track.rMax[i]
-        vFm = convert(self.track.Speed[i], 'kmh', 'mps')
-        thetaFm = bearing2theta(self.track.Bearing[i] * np.pi/180.),
+        vFm = convert(self.track.Speed[i], 'kph', 'mps')
+        thetaFm = bearing2theta(self.track.Bearing[i] * np.pi/180.)
         thetaMax = self.thetaMax
 
         #FIXME: temporary way to do this
@@ -194,8 +194,9 @@ class WindfieldAroundTrack(object):
         params = windmodels.fieldParams(self.windFieldType)
         values = [getattr(self, p) for p in params if hasattr(self, p)]
         windfield = cls(profile, *values)
-
+        log.debug("cp: {0}; ep: {1}; rMax: {2}; vFm: {3}; thetaFm: {4}".format(cP, eP, rMax, vFm, thetaFm))
         Ux, Vy = windfield.field(R, theta, vFm, thetaFm,  thetaMax)
+        log.debug("Maximum local wind speed: {0}".format(np.max(np.sqrt(Ux*Ux+Vy*Vy))))
 
         return (Ux, Vy, P)
 
