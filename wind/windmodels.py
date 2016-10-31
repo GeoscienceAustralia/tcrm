@@ -223,7 +223,7 @@ class JelesnianskiWindProfile(WindProfileModel):
     :param float lon: Longitude of TC centre.
     :param float eP: environmental pressure (hPa).
     :param float cP: centrral pressure of the TC (hPa).
-    :param float rMax: Radius to maximum wind (km).
+    :param float rMax: Radius to maximum wind (m).
     :param windSpeedModel: A maximum wind speed model to apply.
     :type  windSpeedModel: :class:`windmodels.WindSpeedModel` instance.
 
@@ -231,6 +231,7 @@ class JelesnianskiWindProfile(WindProfileModel):
 
     def __init__(self, lat, lon, eP, cP, rMax,
                  windSpeedModel=WilloughbyWindSpeed):
+        rMax = rMax
         WindProfileModel.__init__(self, lat, lon, eP, cP, rMax,
                                   windSpeedModel)
 
@@ -240,12 +241,13 @@ class JelesnianskiWindProfile(WindProfileModel):
         Represents the velocity of teh gradient level vortex.
 
         :param R: :class:`numpy.ndarray` of distance of grid from
-                  the TC centre.
+                  the TC centre (metres).
 
         :returns: Array of gradient level wind speed.
         :rtype: :class:`numpy.ndarray`
 
         """
+
         V = 2 * self.vMax * self.rMax * R / (self.rMax ** 2 + R ** 2)
         V = np.sign(self.f) * V
         return V
@@ -256,16 +258,17 @@ class JelesnianskiWindProfile(WindProfileModel):
         vortex.
 
         :param R: :class:`numpy.ndarray` of distance of grid from
-                  the TC centre.
+                  the TC centre (metres).
 
         :returns: Array of gradient level (relative) vorticity.
         :rtype: :class:`numpy.ndarray`
 
         """
+        rr = R * 1000.
         Z = (np.sign(self.f) * 2 * self.vMax * self.rMax / (self.rMax
-             ** 2 + R ** 2) + np.sign(self.f) * 2 * self.vMax *
-             self.rMax * (self.rMax ** 2 - R ** 2) /
-             (self.rMax ** 2 + R ** 2) ** 2)
+             ** 2 + rr ** 2) + np.sign(self.f) * 2 * self.vMax *
+             self.rMax * (self.rMax ** 2 - rr ** 2) /
+             (self.rMax ** 2 + rr ** 2) ** 2)
         return Z
 
 
@@ -282,7 +285,7 @@ class HollandWindProfile(WindProfileModel):
     :param float lon: Longitude of TC centre.
     :param float eP: environmental pressure (hPa).
     :param float cP: centrral pressure of the TC (hPa).
-    :param float rMax: Radius to maximum wind (km).
+    :param float rMax: Radius to maximum wind (m).
     :param float beta: |beta| parameter.
     :param windSpeedModel: A maximum wind speed model to apply.
     :type  windSpeedModel: :class:`windmodels.WindSpeedModel` instance.
@@ -334,7 +337,8 @@ class HollandWindProfile(WindProfileModel):
 
         E = exp(1)
         
-        dVm = (-np.abs(f)/2 + (E*(f**2)*rMax*np.sqrt((4*beta*dP/rho)/E + (f*rMax)**2))/ \
+        dVm = (-np.abs(f)/2 + (E*(f**2)*rMax*np.sqrt((4*beta*dP/rho)/E + \
+                                                     (f*rMax)**2))/ \
                   (2*(4*beta*dP/rho + E*(f*rMax)**2)))
         return dVm
 
@@ -344,7 +348,7 @@ class HollandWindProfile(WindProfileModel):
         Represents the velocity of teh gradient level vortex.
 
         :param R: :class:`numpy.ndarray` of distance of grid from
-                  the TC centre.
+                  the TC centre (metres).
 
         :returns: Array of gradient level wind speed.
         :rtype: :class:`numpy.ndarray`
@@ -353,8 +357,8 @@ class HollandWindProfile(WindProfileModel):
 
         d2Vm = self.secondDerivative()
         dVm = self.firstDerivative()
-        aa = ((d2Vm / 2. - (dVm - self.vMax / self.rMax) / self.rMax) /
-              self.rMax)
+        aa = ((d2Vm / 2. - (dVm - self.vMax /self.rMax) 
+               / self.rMax) / self.rMax)
         bb = (d2Vm - 6 * aa * self.rMax) / 2.
         cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
         delta = (self.rMax / R) ** self.beta
@@ -374,10 +378,8 @@ class HollandWindProfile(WindProfileModel):
         Calculate the vorticity associated with the (gradient level)
         vortex. 
         
-        Note: radii are converted to metres for this calculation.
-
         :param R: :class:`numpy.ndarray` of distance of grid from
-                  the TC centre.
+                  the TC centre (metres).
 
         :returns: Array of gradient level (relative) vorticity.
         :rtype: :class:`numpy.ndarray`
@@ -385,16 +387,14 @@ class HollandWindProfile(WindProfileModel):
         """
 
         beta = self.beta
-        rr = R * 1000.
-        rm = self.rMax * 1000.
-        delta = (rm / R) ** beta
+        delta = (self.rMax / R) ** beta
         edelta = np.exp(-delta)
 
-        Z = np.abs(self.f) + (beta**2*self.dP*(delta**2)*edelta/(2*self.rho*rr) \
-                              - beta**2*self.dP*delta*edelta/(2*self.rho*rr) + \
-                              rr*self.f**2/4) \
-             / np.sqrt(beta*self.dP*delta*edelta/self.rho + (rr*self.f/2)**2) + \
-             (np.sqrt(beta*self.dP*delta*edelta/self.rho + (rr*self.f/2)**2))/rr
+        Z = np.abs(self.f) + (beta**2*self.dP*(delta**2)*edelta/(2*self.rho*R) \
+                              - beta**2*self.dP*delta*edelta/(2*self.rho*R) + \
+                              R*self.f**2/4) \
+             / np.sqrt(beta*self.dP*delta*edelta/self.rho + (R*self.f/2)**2) + \
+             (np.sqrt(beta*self.dP*delta*edelta/self.rho + (R*self.f/2)**2))/R
 
         # Calculate first and second derivatives at R = Rmax:
         d2Vm = self.secondDerivative()
@@ -404,8 +404,8 @@ class HollandWindProfile(WindProfileModel):
         bb = (d2Vm - 6 * aa * self.rMax) / 2
         cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
 
-        icore = np.where(rr <= rm)
-        Z[icore] = rr[icore] * (rr[icore] * 4 * aa + 3 * bb) + 2 * cc
+        icore = np.where(R <= self.rMax)
+        Z[icore] = R[icore] * (R[icore] * 4 * aa + 3 * bb) + 2 * cc
         Z = np.sign(self.f) * Z
         return Z
 
@@ -436,7 +436,7 @@ class WilloughbyWindProfile(HollandWindProfile):
                  windSpeedModel=WilloughbyWindSpeed):
         HollandWindProfile.__init__(self, lat, lon, eP, cP, rMax, 1.0,
                                     windSpeedModel)
-        self.beta = (1.0036 + 0.0173 * self.vMax - 0.313 * np.log(rMax)
+        self.beta = (1.0036 + 0.0173 * self.vMax - 0.313 * np.log(rMax/1000.)
                      + 0.0087 * np.abs(lat))
         self.speed = HollandWindSpeed(self)
 
@@ -498,14 +498,12 @@ class RankineWindProfile(WindProfileModel):
         :rtype: :class:`numpy.ndarray`
 
         """
-
-        Z = (self.vMax * ((self.rMax / R) **
-             self.alpha) / R - self.alpha * self.vMax * (self.rMax **
-             self.alpha) / (R ** self.alpha))
+        V = self.velocity(R)
+        Z = V/R - self.alpha*self.vMax*self.rMax/(R**(self.alpha+1))
         icore = np.where(R <= self.rMax)
-        Z[icore] = ((self.vMax * (R[icore] /
+        Z[icore] = np.sign(self.f) * ((self.vMax * (R[icore] /
                     self.rMax) + self.vMax / self.rMax))
-        Z = np.sign(self.f) * Z
+
         return Z
 
 
@@ -770,12 +768,11 @@ class PowellWindProfile(HollandWindProfile):
     """
 
     def __init__(self, lat, lon, eP, cP, rMax):
-        beta = 1.881093 - 0.010917 * np.abs(lat) - 0.005567 * rMax
+        beta = 1.881093 - 0.010917 * np.abs(lat) - 0.005567 * rMax/1000
         if beta < 0.8:
             beta = 0.8
         if beta > 2.2:
             beta = 2.2
-
         HollandWindProfile.__init__(self, lat, lon, eP, cP, rMax, beta)
 
 
@@ -798,7 +795,8 @@ class NewHollandWindProfile(WindProfileModel):
     """
 
     def __init__(self, lat, lon, eP, cP, rMax, rGale=150.):
-        WindProfileModel.__init__(self, lat, lon, eP, cP, rMax)
+        WindProfileModel.__init__(self, lat, lon, eP, cP, rMax,
+                                  windSpeedModel=HollandWindSpeed)
         self.rGale = rGale
 
     def velocity(self, R):
@@ -851,7 +849,7 @@ class NewHollandWindProfile(WindProfileModel):
         :rtype: :class:`numpy.ndarray`
 
         """
-        raise Exception
+        raise NotImplementedError
 
 
 class WindFieldModel(object):
@@ -937,20 +935,21 @@ class HubbertWindField(WindFieldModel):
 
     def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
         V = self.velocity(R)
-
+        thetaFm = 90. - thetaFm
         Km = .70
-        inflow = 25. * np.ones(np.shape(R))
+        inflow = -np.sign(self.f) * 25. * np.ones(np.shape(R))
         core = np.where(R < self.rMax)
         inflow[core] = 0
         inflow = inflow * np.pi / 180
 
-        thetaMaxAbsolute = np.array(thetaFm) + thetaMax
+        thetaMaxAbsolute = (np.array(thetaFm) + thetaMax)*np.pi/180.
         asym = vFm * np.cos(thetaMaxAbsolute - lam + np.pi)
         Vsf = Km * V + asym
         phi = inflow - lam
 
-        Ux = Vsf * np.sin(phi)
-        Vy = Vsf * np.cos(phi)
+        # Additional factor to convert to 1-munite sustained wind speed:
+        Ux = Vsf * np.sin(phi) * 1.069
+        Vy = Vsf * np.cos(phi) * 1.069
 
         return Ux, Vy
 
@@ -960,6 +959,9 @@ class McConochieWindField(WindFieldModel):
     McConochie, J.D., T.A. Hardy and L.B. Mason, 2004:
     Modelling tropical cyclone over-water wind and pressure fields.
     Ocean Engineering, 31, 1757-1782.
+
+    It appears this paper used 10-minute mean wind speeds for calibration.
+    Therefore, we convert to return a 1-minute sustained wind speed equivalent.
 
     """
 
@@ -978,32 +980,33 @@ class McConochieWindField(WindFieldModel):
                                motion.
         """
         V = self.velocity(R)
-
+        thetaFm = 90. - thetaFm
         inflow = 25. * np.ones(np.shape(R))
         mid = np.where(R < 1.2 * self.rMax)
         inflow[mid] = 10. + 75. * (R[mid] / self.rMax - 1.)
         inner = np.where(R < self.rMax)
         inflow[inner] = 10. * R[inner] / self.rMax
-        inflow = inflow * np.pi / 180.
+        inflow = -np.sign(self.f) * inflow * np.pi / 180.
 
-        thetaMaxAbsolute = np.array(thetaFm) + thetaMax
+        thetaMaxAbsolute = (np.array(thetaFm) + thetaMax)*np.pi/180.
         phi = inflow - lam
 
-        asym = (0.5 * (1. + np.cos(thetaMaxAbsolute - lam)) * vFm * (V
-                / np.abs(V).max()))
+        asym = (0.5 * (1. + np.cos(thetaMaxAbsolute - lam)) * 
+                vFm * (V / np.abs(V).max()))
         Vsf = V + asym
 
         # Surface wind reduction factor:
         swrf = 0.81 * np.ones(np.shape(Vsf))
-        low = np.where(Vsf >= 6)
-        med = np.where(Vsf >= 19.5)
-        high = np.where(Vsf >= 45)
-        swrf[low] = 0.81 - (2.93 * (Vsf[low] - 6.) / 1000.)
-        swrf[med] = 0.77 - (4.31 * (Vsf[med] - 19.5) / 1000.)
+        low = np.where(np.abs(Vsf) >= 6)
+        med = np.where(np.abs(Vsf) >= 19.5)
+        high = np.where(np.abs(Vsf) >= 45)
+        swrf[low] = 0.81 - (2.93 * (np.abs(Vsf[low]) - 6.) / 1000.)
+        swrf[med] = 0.77 - (4.31 * (np.abs(Vsf[med]) - 19.5) / 1000.)
         swrf[high] = 0.66
 
-        Ux = swrf * Vsf * np.sin(phi)
-        Vy = swrf * Vsf * np.cos(phi)
+        # Additional factor to convert to 1-munite sustained wind speed:
+        Ux = swrf * Vsf * np.sin(phi) * 1.069
+        Vy = swrf * Vsf * np.cos(phi) * 1.069
 
         return Ux, Vy
 
@@ -1037,7 +1040,7 @@ class KepertWindField(WindFieldModel):
         Z = self.vorticity(R)
         K = 50.  # Diffusivity
         Cd = 0.002  # Constant drag coefficient
-
+        thetaFm = (90. - thetaFm) * np.pi/180.
         Vm = np.abs(V).max()
         if (vFm > 0) and (Vm/vFm < 5.):
             Umod = vFm * (1. - (1. - Vm/vFm)/5.)

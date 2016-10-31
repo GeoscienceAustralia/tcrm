@@ -195,7 +195,7 @@ class WindfieldAroundTrack(object):
         values = [getattr(self, p) for p in params if hasattr(self, p)]
         windfield = cls(profile, *values)
 
-        Ux, Vy = windfield.field(R, theta, vFm, thetaFm,  thetaMax)
+        Ux, Vy = windfield.field(R * 1000, theta, vFm, thetaFm,  thetaMax)
 
         return (Ux, Vy, P)
 
