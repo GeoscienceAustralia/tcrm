@@ -175,8 +175,8 @@ class WindfieldAroundTrack(object):
         eP = convert(self.track.EnvPressure[i], 'hPa', 'Pa')
         cP = convert(self.track.CentralPressure[i], 'hPa', 'Pa')
         rMax = self.track.rMax[i]
-        vFm = convert(self.track.Speed[i], 'kmh', 'mps')
-        thetaFm = bearing2theta(self.track.Bearing[i] * np.pi/180.),
+        vFm = convert(self.track.Speed[i], 'kph', 'mps')
+        thetaFm = bearing2theta(self.track.Bearing[i] * np.pi/180.)
         thetaMax = self.thetaMax
 
         #FIXME: temporary way to do this
