@@ -480,11 +480,45 @@ class TrackGenerator(object):
         :rtype :class:`numpy.array`
         :return: the tracks generated.
         """
+        # Define some filter functions
+
+        def empty(track):
+            """
+            :return: True if the track is empty. False, otherwise.
+            """
+            return len(track.Longitude) == 0
+
+        def diedEarly(track, minAge=12):
+            """
+            :return: True if the track dies before `minAge`. False,
+            otherwise.
+            """
+            return track.TimeElapsed[-1] < minAge
+
+        def insideDomain(track):
+            """
+            :return: True if the track stays inside the domain. False,
+            otherwise.
+            """
+            inside = [track.Longitude[k] > self.innerGridLimit['xMin'] and
+                      track.Longitude[k] < self.innerGridLimit['xMax'] and
+                      track.Latitude[k] > self.innerGridLimit['yMin'] and
+                      track.Latitude[k] < self.innerGridLimit['yMax']
+                      for k in range(len(track.Longitude))]
+            return all(inside)
+
+        def validPressures(track):
+            """
+            :return: True if a valid pressure. False, otherwise.
+            """
+            return all(np.round(track.CentralPressure, 2) < np.round(track.EnvPressure, 2))
 
         log.debug('Generating %d tropical cyclone tracks', nTracks)
         genesisYear = int(uniform(1900, 9998))
         results = []
-        for j in range(1, nTracks + 1):
+        j = 0
+        while j < nTracks:
+        #for j in range(1, nTracks + 1):
 
             if not (initLon and initLat):
                 log.debug('Cyclone origin not given, sampling a' +
@@ -614,43 +648,21 @@ class TrackGenerator(object):
             data = np.core.records.fromarrays(data, dtype=track_dtype)
             track = Track(data)
             track.trackId = (j, simId)
-            log.debug("Completed track {0:03d}-{1:04d}".format(*track.trackId))
-
-            results.append(track)
-
-        # Define some filter functions
-
-        def empty(track):
-            """
-            :return: True if the track is empty. False, otherwise.
-            """
-            return len(track.Longitude) == 0
-
-        def diedEarly(track, minAge=12):
-            """
-            :return: True if the track dies before `minAge`. False,
-            otherwise.
-            """
-            return track.TimeElapsed[-1] < minAge
-
-        def insideDomain(track):
-            """
-            :return: True if the track stays inside the domain. False,
-            otherwise.
-            """
-            inside = [track.Longitude[k] > self.innerGridLimit['xMin'] and
-                      track.Longitude[k] < self.innerGridLimit['xMax'] and
-                      track.Latitude[k] > self.innerGridLimit['yMin'] and
-                      track.Latitude[k] < self.innerGridLimit['yMax']
-                      for k in range(len(track.Longitude))]
-            return all(inside)
-
-        def validPressures(track):
-            """
-            :return: True if a valid pressure. False, otherwise.
-            """
-            return all(np.round(track.CentralPressure, 2) < np.round(track.EnvPressure, 2))
-
+                        
+            if not (empty(track) or diedEarly(track)) \
+               and validPressures(track):
+                if self.innerGridLimit and not insideDomain(track):
+                    log.debug("Track exits inner grid limit - rejecting")
+                    continue
+                else:
+                    results.append(track)
+                    log.debug("Completed track {0:03d}-{1:04d}".\
+                              format(*track.trackId))
+                    j += 1
+            else:
+                log.debug("Eliminated invalid track")
+        
+        """
         # Filter the generated tracks based on certain criteria
         nbefore = len(results)
         results = [track for track in results if not empty(track)]
@@ -671,7 +683,7 @@ class TrackGenerator(object):
             results = [track for track in results if insideDomain(track)]
             log.debug('Removed %i tracks that do not pass inside' +
                       ' domain.', nbefore - len(results))
-
+        """
         # Return the tracks:
 
         return results
