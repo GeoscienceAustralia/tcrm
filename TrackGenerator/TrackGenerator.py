@@ -135,6 +135,7 @@ import os
 import sys
 import logging as log
 import math
+import time
 import itertools
 import numpy as np
 
@@ -1752,14 +1753,14 @@ def run(configFile, callback=None):
         seasonSeed = config.getint('TrackGenerator', 'SeasonSeed')
     else:
         log.info("Setting seasonSeed")
-        seasonSeed = int(time.time()/1314000)
+        seasonSeed = int(time.time()/1314000) # Days since epoch
         config.set('TrackGenerator', 'SeasonSeed', seasonSeed)
 
     if config.has_option('TrackGenerator', 'TrackSeed'):
         trackSeed = config.getint('TrackGenerator', 'TrackSeed')
     else:
         log.info("Setting trackSeed")
-        trackSeed = int(time.time())
+        trackSeed = int(time.time())  # Seconds since epoch
         config.set('TrackGenerator', 'TrackSeed', trackSeed)
 
     if config.has_option('TrackGenerator', 'YearsPerSimulation'):
