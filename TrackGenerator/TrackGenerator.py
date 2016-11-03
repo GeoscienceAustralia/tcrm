@@ -1750,9 +1750,17 @@ def run(configFile, callback=None):
 
     if config.has_option('TrackGenerator', 'SeasonSeed'):
         seasonSeed = config.getint('TrackGenerator', 'SeasonSeed')
+    else:
+        log.info("Setting seasonSeed")
+        seasonSeed = int(time.time()/1314000)
+        config.set('TrackGenerator', 'SeasonSeed', seasonSeed)
 
     if config.has_option('TrackGenerator', 'TrackSeed'):
         trackSeed = config.getint('TrackGenerator', 'TrackSeed')
+    else:
+        log.info("Setting trackSeed")
+        trackSeed = int(time.time())
+        config.set('TrackGenerator', 'TrackSeed', trackSeed)
 
     if config.has_option('TrackGenerator', 'YearsPerSimulation'):
         yrsPerSim = config.getint('TrackGenerator', 'YearsPerSimulation')
