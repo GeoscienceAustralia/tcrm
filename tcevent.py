@@ -196,7 +196,8 @@ def main(configFile):
     wind.run(configFile, status)
 
     doWindfieldPlotting(configFile)
-    doTimeseriesPlotting(configFile)
+    if config.getboolean('Timeseries', 'Extract'):
+        doTimeseriesPlotting(configFile)
 
 def startup():
     """
