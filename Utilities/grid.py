@@ -197,10 +197,12 @@ def grdRead(filename, delimiter=None):
         lat = lat * metadata["cellsize"] + lat0
         lat = numpy.flipud(lat)
 
-        data = numpy.zeros([metadata["nrows"], metadata["ncols"]], dtype=float)
+        data = numpy.zeros([int(metadata["nrows"]),
+                            int(metadata["ncols"])], 
+                           dtype=float)
 
         for i in xrange(int(metadata["nrows"])):
-            row = numpy.zeros([metadata["ncols"]], dtype=float)
+            row = numpy.zeros([int(metadata["ncols"])], dtype=float)
             line = fh.readline()
             for j, val in enumerate(line.split(delimiter)):
                 value = float(val)
