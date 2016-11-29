@@ -26,6 +26,10 @@ from Utilities.maputils import bearing2theta
 
 from netCDF4 import Dataset, date2num, num2date
 
+#if not getattr(__builtins__, "WindowsError", None):
+#    class WindowsError(IOError):
+#        pass
+
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
@@ -365,9 +369,14 @@ def loadTracks(trackfile):
     :return: list of :class:`Track` objects.
 
     """
-
-    tracks = ncReadTrackData(trackfile)
-    return tracks
+    if not isinstance(trackfile, str):
+        raise TypeError("Track file name is not a string: {0}".\
+                        format(trackfile))
+    if os.path.exists(trackfile):
+        tracks = ncReadTrackData(trackfile)
+        return tracks
+    else:
+        raise IOError("Track file doesn't exist: {0}".format(trackfile))
 
 def loadTracksFromFiles(trackfiles):
     """
@@ -384,14 +393,19 @@ def loadTracksFromFiles(trackfiles):
     :type  trackfiles: list of strings
     :param trackfiles: list of track filenames. The filenames must include the
                        path to the file.
+
+    :raises: TypeError if input argument is not a list.
     """
+    if not isinstance(trackfiles, list):
+        raise TypeError("Input argument is not a list")
+
     for f in trackfiles:
-        msg = 'Loading tracks in %s' % f
+        msg = "Loading tracks in {0}".format(f)
         log.debug(msg)
         tracks = loadTracks(f)
         for track in tracks:
             yield track
-
+    
 def loadTracksFromPath(path):
     """
     Helper function to obtain a generator that yields :class:`Track` objects
@@ -402,9 +416,14 @@ def loadTracksFromPath(path):
 
     :type  path: str
     :param path: the directory path.
+
+    :raises: IOError if the path does not exist.
     """
-    files = os.listdir(path)
-    trackfiles = [pjoin(path, f) for f in files if f.startswith('tracks')]
-    msg = 'Loading %d track files in %s' % (len(trackfiles), path)
-    log.info(msg)
-    return loadTracksFromFiles(sorted(trackfiles))
+    try: 
+        files = os.listdir(path)
+        trackfiles = [pjoin(path, f) for f in files if f.startswith('tracks')]
+        msg = "Loading {0} track files in {1}".format(len(trackfiles), path)
+        log.info(msg)
+        return loadTracksFromFiles(sorted(trackfiles))
+    except (IOError, WindowsError):
+        raise IOError("Path {0} does not exist".format(path))
