@@ -569,13 +569,13 @@ class WindfieldGenerator(object):
                 'values': speed,
                 'dtype': 'f',
                 'atts': {
-                    'long_name': 'Maximum 3-second gust wind speed',
+                    'long_name': 'Maximum 0.2-second gust wind speed',
                     'standard_name': 'wind_speed_of_gust',
                     'units': 'm/s',
                     'actual_range': (np.min(speed), np.max(speed)),
                     'valid_range': (0.0, 200.),
-                    'cell_methods': ('time: maximum '
-                                     'time: maximum (interval: 3 seconds)'),
+                    'cell_methods': ('time: maximum ',
+                                     'time: maximum (interval: 0.2 seconds)'),
                     'grid_mapping': 'crs'
                 }
             },
