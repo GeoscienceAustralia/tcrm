@@ -26,7 +26,7 @@ def rmax(dp, lat, eps, coeffs=[4.4726049824584306,
     Calculate radius to maximum wind based on pressure deficit and
     latitude. This function allows for the random variate to be set
     when calling the function. Default coefficients for the functional
-    form of ln(Rmw) are given.
+    form of ln(Rmw) are given, based on JTWC data for the southern hemisphere.
     
     ln(Rmw) = a + b*dp + c*dp^2 + d*lat^2 + eps
 
