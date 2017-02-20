@@ -514,6 +514,12 @@ class TrackGenerator(object):
             """
             return all(np.round(track.CentralPressure, 2) < np.round(track.EnvPressure, 2))
 
+        def validSize(track):
+            """
+            :return: True if all rmax values are > 5.0 km, False otherwise.
+            """
+            return all(track.rMax > 5.)
+
         log.debug('Generating %d tropical cyclone tracks', nTracks)
         genesisYear = int(uniform(1900, 9998))
         results = []
@@ -605,10 +611,16 @@ class TrackGenerator(object):
                 else:
                     ind = self.allCDFInitSize[:, 0] == initCellNum
                     cdfSize = self.allCDFInitSize[ind, 1:3]
-                #genesisRmax = ppf(uniform(), cdfSize)
+
                 dp = initEnvPressure - genesisPressure
                 self.rmwEps = np.random.normal(0, scale=0.357)
                 genesisRmax = trackSize.rmax(dp, genesisLat, self.rmwEps)
+
+                # Censor the initial Rmax to be < 100 km.
+                if genesisRmax > 100.:
+                    while genesisRmax > 100.:
+                        self.rmwEps = np.random.normal(0, scale=0.357)
+                        genesisRmax = trackSize.rmax(dp, genesisLat, self.rmwEps)
                 
             else:
                 genesisRmax = initRmax
@@ -651,7 +663,7 @@ class TrackGenerator(object):
             track.trackId = (j, simId)
                         
             if not (empty(track) or diedEarly(track)) \
-               and validPressures(track):
+               and validPressures(track) and validSize(track):
                 if self.innerGridLimit and not insideDomain(track):
                     log.debug("Track exits inner grid limit - rejecting")
                     continue
@@ -1223,8 +1235,8 @@ class TrackGenerator(object):
             log.debug('Pressure difference < 5.0' +
                       ' (penv: %f pressure: %f)', poci, pressure)
             return True
-        elif age <= 12 and ((poci - pressure) < 1.0):
-            log.debug('Pressure difference < 1.0' +
+        elif age <= 12 and ((poci - pressure) < 2.0):
+            log.debug('Pressure difference < 2.0' +
                       ' (penv: %f pressure: %f)', poci, pressure)
             return True
 
