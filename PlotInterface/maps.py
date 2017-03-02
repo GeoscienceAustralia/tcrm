@@ -175,7 +175,10 @@ class MapFigure(Figure):
         dd = max(dx, dy)
         gr_opts = np.array([30., 10., 5., 4., 2.])
         min_gr = 5
-        dl = gr_opts[np.where((dd/gr_opts) >= min_gr)[0][0]]
+        try:
+            dl = gr_opts[np.where((dd/gr_opts) >= min_gr)[0][0]]
+        except IndexError:
+            dl = 2.
 
         meridians = np.arange(dl*np.floor(xmin / dl),
                               dl*np.ceil(xmax / dl) + dl, dl)

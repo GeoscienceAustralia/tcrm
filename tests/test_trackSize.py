@@ -21,49 +21,48 @@ class TestRmaxModel(NumpyTestCase.NumpyTestCase):
         np.random.seed(10)
         self.dparray = np.arange(10, 51, 5)
         self.latarray = np.arange(-23, -5, 2)
-        self.rmaxout = np.array([104.08747056, 87.24373672, 74.36633603,
-                                 64.46512563, 56.83025497, 50.94959054,
-                                 46.45239542, 43.07069234, 40.61270477])
-        self.rmaxoutcoeffs = np.array([109.4918411, 90.31016614,
-                                       75.35799588, 63.61504735,
-                                       54.32855894, 46.93905396,
-                                       41.02780616, 36.27939815,
-                                       32.45485465])
+        self.rmaxout = np.array([66.21418972, 54.96078787, 45.7678418,
+                                 39.33639152, 35.22023191, 32.67958816,
+                                 31.07181726, 29.95463557, 29.06996118])
+
+        self.rmaxoutcoeffs = np.array([57.74931727, 49.76638251, 42.67145839,
+                                       37.24632781, 33.47199844, 30.98197273,
+                                       29.3570741, 28.25288743, 27.43217413])
 
 
     def test_rmaxDefaults(self):
         """Test rmax returns correct value based on defaults"""
         dp = 25
         lat = -15
-        eps = np.random.normal(0, scale=0.353)
+        eps = 0
         rmw = trackSize.rmax(dp, lat, eps)
-        self.assertEqual(rmw, 63.867449833342235)
+        self.assertAlmostEqual(rmw, 39.21410711, places=1)
 
     def test_rmaxWrongLengths(self):
         """rmax raises exception when inputs are different lengths"""
-        eps = np.random.normal(0, scale=0.353)
+        eps = 0
         latarray = np.arange(-23, 5, 2)
         self.assertRaises(Exception, trackSize.rmax, self.dparray, latarray, eps)
 
     def test_rmaxArrayInput(self):
         """Test rmax with array input"""
-        eps = np.random.normal(0, scale=0.353)
+        eps = 0
         rmw = trackSize.rmax(self.dparray, self.latarray, eps)
-        self.numpyAssertAlmostEqual(rmw, self.rmaxout)
+        self.numpyAssertAlmostEqual(rmw, self.rmaxout, prec=0.1)
 
     def test_rmaxWithCoeffs(self):
         """Test rmax with user-defined coefficients"""
-        eps = np.random.normal(0, scale=0.353)
-        coeffs = [4.5, -0.04, 0.0002, 0.0002]
+        eps = 0
+        coeffs = [3.5, -0.004, 0.7, 0.002, .001]
         rmw = trackSize.rmax(self.dparray, self.latarray, eps, coeffs)
         self.numpyAssertAlmostEqual(rmw, self.rmaxoutcoeffs)
 
     def test_rmaxWithIncompleteCoeffs(self):
         """Test rmax falls back to default coefficients if not enough given"""
         coeffs = [4.45, -0.05, 0.0002]
-        eps = np.random.normal(0, scale=0.353)
+        eps = 0
         rmw = trackSize.rmax(self.dparray, self.latarray, eps, coeffs=coeffs)
-        self.numpyAssertAlmostEqual(rmw, self.rmaxout)
+        self.numpyAssertAlmostEqual(rmw, self.rmaxout, prec=0.1)
 
 class TestFitRmax(NumpyTestCase.NumpyTestCase):
     """

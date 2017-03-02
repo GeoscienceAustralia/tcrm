@@ -106,12 +106,14 @@ the ``$PATH`` for this to work.
 Compiling the extensions
 ------------------------
 
-Unix
-~~~~
 The model requires a number of C extensions to be compiled before
 execution. These can be built using Python's inbuilt :mod:`distutils`
-module. Copy the required files from the `installer` directory to the
-base directory and then execute the build process::
+module.
+
+
+Unix
+~~~~
+From the base directory, execute the build process::
 
     python intaller/setup.py build_ext -i
 
@@ -120,7 +122,12 @@ Windows
 ~~~~~~~
 
 For Windows users, the code includes the ``compile.cmd`` script in the
-main TCRM diretory that will build these extensions in place.
+main TCRM diretory that will build these extensions in place. By default, TCRM uses the MinGW suite (http://www.mingw.org) for compiling the extensions. Other Windows-based packages can also be used (e.g. Cygwin). See the Python documentation on writing configuration files for the :mod:`distutils` package for more details.
+
+Notes
+~~~~~
+
+It is recommended to use a stand-alone Python installation for compiling and running TCRM. Installations linked to other software such as ArcGIS have resulted in compilation errors, as the required :mod:`numpy` libraries are pre-compiled and packaged with such installations. 
 
 .. _testing:
 
