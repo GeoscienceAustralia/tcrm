@@ -18,17 +18,16 @@ import statsmodels.api as sm
 
 LOG = logging.getLogger()
 
-def rmax(dp, lat, eps, coeffs=[4.4726049824584306, 
-                               -0.04057322103602546, 
-                               0.00031318220949448573, 
-                               0.00014553984831170656]):
+def rmax(dp, lat, eps, coeffs=[3.5843946536979779,-0.0045486143609339436,
+                               0.78621467400844858, 0.0024030344245284741,
+                               0.0015567629057007433]):
     """
     Calculate radius to maximum wind based on pressure deficit and
     latitude. This function allows for the random variate to be set
     when calling the function. Default coefficients for the functional
     form of ln(Rmw) are given.
     
-    ln(Rmw) = a + b*dp + c*dp^2 + d*lat^2 + eps
+    ln(Rmw) = a + b*dp + c*exp(-d*dp^2) + f*lat^2 + eps
 
     eps is not included in the coefficients (though that may be considered
     by some to be more logical), so that it can remain constant for a single
@@ -47,17 +46,16 @@ def rmax(dp, lat, eps, coeffs=[4.4726049824584306,
     if len(coeffs) < 4:
         LOG.warn("Insufficient coefficients for rmw calculation!")
         LOG.warn("Using default values")
-        coeffs = [4.4726049824584306, 
-                  -0.04057322103602546, 
-                  0.00031318220949448573, 
-                  0.00014553984831170656]
+        coeffs = [3.5843946536979779,-0.0045486143609339436,
+                  0.78621467400844858, 0.0024030344245284741,
+                  0.0015567629057007433]
 
     if isinstance(dp, (np.ndarray, list)) and \
       isinstance(lat, (np.ndarray, list)):
         assert len(dp) == len(lat)
-    rm = np.exp(coeffs[0] + coeffs[1] * dp + coeffs[2] * dp * dp +
-                coeffs[3] * lat * lat + eps)
-      
+    yy = coeffs[0] + coeffs[1]*dp + coeffs[2] * np.exp(-coeffs[3] * dp * dp) +\
+         coeffs[4] * np.abs(lat) + eps
+    rm = np.exp(yy)
     return rm
 
 def fitRmax(rmw, dp, lat):
