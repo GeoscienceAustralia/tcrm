@@ -9,7 +9,6 @@ addons:
     packages: 
     - build-essential 
     - libgeos-c1
-    - lib-geos-dev
     - libhdf5-serial-dev
     - libatlas-base-dev
     - gfortran
