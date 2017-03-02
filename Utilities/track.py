@@ -29,7 +29,7 @@ from netCDF4 import Dataset, date2num, num2date
 try:
     from exceptions import WindowsError
 except:
-    class WindowsError(OSError): pass
+    class WindowsError(IOError): pass
 
 #if not getattr(__builtins__, "WindowsError", None):
 #    class WindowsError(IOError):
@@ -430,5 +430,5 @@ def loadTracksFromPath(path):
         msg = "Loading {0} track files in {1}".format(len(trackfiles), path)
         log.info(msg)
         return loadTracksFromFiles(sorted(trackfiles))
-    except (IOError, WindowsError):
+    except (IOError, OSError, WindowsError):
         raise IOError("Path {0} does not exist".format(path))
