@@ -26,6 +26,11 @@ from Utilities.maputils import bearing2theta
 
 from netCDF4 import Dataset, date2num, num2date
 
+try:
+    from exceptions import WindowsError
+except:
+    class WindowsError(OSError): pass
+
 #if not getattr(__builtins__, "WindowsError", None):
 #    class WindowsError(IOError):
 #        pass
