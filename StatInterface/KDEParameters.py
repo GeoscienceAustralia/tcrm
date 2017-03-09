@@ -86,7 +86,7 @@ class KDEParameters(object):
                          data (e.g. day of year). If given, it should
                          be the period of the data (e.g. for annual data,
                          ``periodic=365``).
-        :type  periodic: boolean or float, default=``False``
+        :type  periodic: boolean or int, default=``False``
         :param missingValue: Missing values have this value (default
                          :attr:`sys.maxint`).
 
@@ -139,8 +139,9 @@ class KDEParameters(object):
         self.pdf = self._generatePDF(self.grid, bw, self.parameters)
 
         if periodic:
-            self.pdf = 3.0*self.pdf[(periodic/kdeStep):2*(periodic/kdeStep)]
-            self.grid = self.grid[(periodic/kdeStep):2*(periodic/kdeStep)]
+            idx = int(periodic/kdeStep)
+            self.pdf = 3.0*self.pdf[idx:2*idx]
+            self.grid = self.grid[idx:2*idx]
 
         self.cy = stats.cdf(self.grid, self.pdf)
         if kdeParameters is None:
