@@ -520,6 +520,9 @@ class TrackGenerator(object):
             """
             return all(track.rMax > 5.)
 
+        def validInitSize(track):
+            return track.rMax[0] < 100.
+
         log.debug('Generating %d tropical cyclone tracks', nTracks)
         genesisYear = int(uniform(1900, 9998))
         results = []
@@ -613,13 +616,13 @@ class TrackGenerator(object):
                     cdfSize = self.allCDFInitSize[ind, 1:3]
 
                 dp = initEnvPressure - genesisPressure
-                self.rmwEps = np.random.normal(0, scale=0.357)
+                self.rmwEps = np.random.normal(0, scale=0.335)
                 genesisRmax = trackSize.rmax(dp, genesisLat, self.rmwEps)
 
                 # Censor the initial Rmax to be < 100 km.
                 if genesisRmax > 100.:
                     while genesisRmax > 100.:
-                        self.rmwEps = np.random.normal(0, scale=0.357)
+                        self.rmwEps = np.random.normal(0, scale=0.335)
                         genesisRmax = trackSize.rmax(dp, genesisLat, self.rmwEps)
                 
             else:
@@ -648,6 +651,10 @@ class TrackGenerator(object):
                           ' for this genesis point.')
                 continue
 
+            if (initEnvPressure - genesisPressure) < 2:
+                log.debug("Track does not start with sufficient pressure deficit")
+                continue
+
             log.debug('** Generating track %i from point (%.2f,%.2f)',
                       j, genesisLon, genesisLat)
 
@@ -663,7 +670,7 @@ class TrackGenerator(object):
             track.trackId = (j, simId)
                         
             if not (empty(track) or diedEarly(track)) \
-               and validPressures(track) and validSize(track):
+               and validPressures(track) and validSize(track) and validInitSize(track):
                 if self.innerGridLimit and not insideDomain(track):
                     log.debug("Track exits inner grid limit - rejecting")
                     continue
