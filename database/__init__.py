@@ -591,10 +591,12 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         log.info("Inserting records into tblTracks")
         locations = self.getLocations()
 
+        log.debug("Processing tracks in {0}".format(self.trackPath))
         files = os.listdir(self.trackPath)
-        trackfiles = [pjoin(self.trackPath, f) for f in files \
-                      if f.startswith('tracks')]
-        tracks = [t for t in loadTracksFromFiles(sorted(trackfiles))]
+        trackfiles = [pjoin(self.trackPath, f) for f in files if f.startswith('tracks')]
+        #tracks = [t for t in loadTracksFromFiles(sorted(trackfiles))]
+        log.debug("There are {0} track files".format(len(trackfiles)))
+
 
         work_tag = 0
         result_tag = 1
@@ -603,11 +605,12 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
             w = 0
             p = pp.size() - 1
             for d in range(1, pp.size()):
-                if w < len(tracks):
-                    pp.send((tracks[w], locations),
+                if w < len(trackfiles):
+                    pp.send((trackfiles[w], locations),
                             destination=d, tag=work_tag)
+                    log.debug("Processing {0}".format(trackfiles[w]))
                     log.debug("Processing track {0:d} of {1:d}".\
-                              format(w, len(tracks)))
+                              format(w, len(trackfiles)))
                     w += 1
                 else:
                     pp.send(None, destination=d, tag=work_tag)
@@ -618,14 +621,15 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
             while terminated < p:
                 result, status = pp.receive(pp.any_source, tag=result_tag,
                                             return_status=True)
-                if result is not None:
+                if result:
+                    log.debug("Inserting results into tblTracks")
                     self.insertTracks(result)
                 d = status.source
-                if w < len(tracks):
-                    pp.send((tracks[w], locations),
+                if w < len(trackfiles):
+                    pp.send((trackfiles[w], locations),
                             destination=d, tag=work_tag)
                     log.debug("Processing track {0:d} of {1:d}".\
-                              format(w, len(tracks)))
+                              format(w, len(trackfiles)))
                     w += 1
                 else:
                     pp.send(None, destination=d, tag=work_tag)
@@ -634,23 +638,25 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         elif (pp.size() > 1) and (pp.rank() != 0):
             while True:
                 W = pp.receive(source=0, tag=work_tag)
+                log.debug("Received track on node {0}".format(pp.rank()))
                 if W is None:
                     break
+
                 results = self.processTrack(*W)
-                pp.send(results, destination=0, tag=work_tag)
+                pp.send(results, destination=0, tag=result_tag)
 
         elif pp.size() == 1 and pp.rank() == 0:
             # No Pypar
-            for w, track in enumerate(tracks):
-                log.debug("Processing track {0:d} of {1:d}".\
-                          format(w, len(tracks)))
-                if len(track.data) == 0:
-                    continue
-                result = self.processTrack(track, locations)
+            for w, trackfile in enumerate(trackfiles):
+                log.debug("Processing trackfile {0:d} of {1:d}".\
+                          format(w, len(trackfiles)))
+                #if len(track.data) == 0:
+                #    continue
+                result = self.processTrack(trackfile, locations)
                 if result is not None:
                     self.insertTracks(result)
 
-    def processTrack(self, track, locations):
+    def processTrack(self, trackfile, locations):
         """
         Process individual track to determine distance to locations, etc.
 
@@ -660,18 +666,22 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         :param track: :class:`Track` instance.
         :param locations: list of locations in the simulation domain.
         """
-        
+        tracks = [t for t in loadTracksFromFiles([trackfile])]
         points = [Point(loc[2], loc[3]) for loc in locations]
         records = []
-        if len(track.data) == 0:
-            log.debug("Got an empty track: returning None")
-            return None
-        distances = track.minimumDistance(points)
-        for (loc, dist) in zip(locations, distances):
-            locRecs = (loc[0], "%03d-%05d"%(track.trackId),
-                       dist, None, None, "", datetime.now())
+        for track in tracks:
+            if len(track.data) == 0:
+                log.debug("Got an empty track: returning None")
+                continue #return None
+            distances = track.minimumDistance(points)
+            for (loc, dist) in zip(locations, distances):
+                locRecs = (loc[0], "%03d-%05d"%(track.trackId),
+                           dist, None, None, "", datetime.now())
 
-            records.append(locRecs)
+                records.append(locRecs)
+            log.debug("Track {0}-{1} has {2} records".format(track.trackId[0], 
+                                                             track.trackId[1],
+                                                             len(records)))
         return records
 
     def insertTracks(self, trackRecords):
@@ -690,6 +700,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
             raise
         else:
             self.commit()
+            log.debug("Inserted {0} records into tblTracks".format(len(trackRecords)))
 
 def run(configFile):
     """
@@ -728,6 +739,7 @@ def run(configFile):
     pp.barrier()
 
     db.close()
+    pp.barrier()
     log.info("Created and populated database")
     log.info("Finished running database creation")
 
@@ -771,6 +783,7 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
     """
 
     from Utilities.shptools import shpReadShapeFile
+    log.info("Creating location database")
     locations = []
     vertices, records = shpReadShapeFile(location_file)
 
@@ -802,6 +815,8 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
         locCountry = r[4]
         locElev = r[7]
         locComment = r[1]
+        log.debug("Inserting record for: {0} ({1}): ({2}, {3})".\
+                      format(locName, locCode, locLon, locLat))
         locations.append((None, locCode, locName, location_type,
                           locLon, locLat, locElev, locCountry,
                           os.path.basename(location_file),
