@@ -27,7 +27,7 @@ def rmax(dp, lat, eps, coeffs=[3.5843946536979779,-0.0045486143609339436,
     when calling the function. Default coefficients for the functional
     form of ln(Rmw) are given, based on JTWC data for the southern hemisphere.
     
-    ln(Rmw) = a + b*dp + c*exp(-d*dp^2) + f*lat^2 + eps
+    ln(Rmw) = a + b*dp + c*exp(-d*dp^2) + f*|lat| + eps
 
     eps is not included in the coefficients (though that may be considered
     by some to be more logical), so that it can remain constant for a single
