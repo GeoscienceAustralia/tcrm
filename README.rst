@@ -27,7 +27,7 @@ Features
 Branch
 ======
 
-Version 2.0 release candidate branch. Development branches should be progressively merged into this branch. 
+CDP - evaluate cyclone damage potential. Initial development by Ming Ge (NCAR). 
 
 Changelog
 =========
