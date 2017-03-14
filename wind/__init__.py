@@ -83,7 +83,9 @@ class WindfieldAroundTrack(object):
     :param resolution: Grid resolution (in degrees)
 
     :type  gustFactor: float
-    :param gustFactor: Conversion from 1-min mean to 0.2-sec gust wind speed.
+    :param gustFactor: Conversion from 1-min mean to 0.2-sec gust wind speed,
+                       for off-sea conditions. See WMO TD1555 (2010) for 
+                       details.
 
     :type  gridLimit: :class:`dict`
     :param gridLimit: the domain where the tracks will be generated.
@@ -97,7 +99,7 @@ class WindfieldAroundTrack(object):
 
     def __init__(self, track, profileType='powell', windFieldType='kepert',
                  beta=1.3, beta1=1.5, beta2=1.4, thetaMax=70.0,
-                 margin=2.0, resolution=0.05, gustFactor=1.188,
+                 margin=2.0, resolution=0.05, gustFactor=1.35,
                  gridLimit=None, domain='bounded'):
         self.track = track
         self.profileType = profileType
