@@ -85,7 +85,7 @@ class TestWindVelocity(NumpyTestCase.NumpyTestCase):
             self.grid, self.pEnv, self.pCentre, self.vFm, self.dcP,
             self.vMax, self.rMax)
         V = profile.velocity(self.grid)
-        self.numptAssertAlmostEqual(V, self.test_wP_newHolland,
+        self.numpyAssertAlmostEqual(V, self.test_wP_newHolland,
                                     prec=1.000000000000001e-004)
 
 class TestWindVorticity(NumpyTestCase.NumpyTestCase):
