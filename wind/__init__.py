@@ -43,10 +43,11 @@ from PlotInterface.maps import saveWindfieldMap
 from Utilities.files import flModDate, flProgramVersion
 from Utilities.config import ConfigParser
 from Utilities.metutils import convert
-from Utilities.maputils import bearing2theta, makeGrid
+from Utilities.maputils import bearing2theta, ModelGrid
 from Utilities.parallel import attemptParallel
 
 import Utilities.nctools as nctools
+from PressureInterface.pressureProfile import PrsProfile as PressureProfile
 
 from Utilities.track import ncReadTrackData, Track
 
@@ -120,21 +121,20 @@ class WindfieldAroundTrack(object):
         :type  i: int
         :param i: the time.
         """
-        if self.domain == 'full':
-            R, theta = makeGrid(self.track.Longitude[i],
-                                self.track.Latitude[i],
-                                self.margin, self.resolution,
-                                minLon=self.gridLimit['xMin'],
-                                maxLon=self.gridLimit['xMax'],
-                                minLat=self.gridLimit['yMin'],
-                                maxLat=self.gridLimit['yMax'])
-        else:
-            R, theta = makeGrid(self.track.Longitude[i],
-                                self.track.Latitude[i],
-                                self.margin, self.resolution)
-        return R, theta
+        modelGrid = ModelGrid(self.track.Longitude[i],
+                              self.track.Latitude[i],
+                              self.margin, self.resolution,)
 
-    def pressureProfile(self, i, R):
+        if self.domain == 'full':
+            modelGrid.makeGrid(minLon=self.gridLimit['xMin'],
+                               maxLon=self.gridLimit['xMax'],
+                               minLat=self.gridLimit['yMin'],
+                               maxLat=self.gridLimit['yMax'])
+        else:
+            modelGrid.makeGrid()
+        return modelGrid
+
+    def pressureProfile(self, i, grid):
         """
         Calculate the pressure profile at time `i` at the radiuses `R`
         around the tropical cyclone.
@@ -146,9 +146,8 @@ class WindfieldAroundTrack(object):
         :type  R: :class:`numpy.ndarray`
         :param R: the radiuses around the tropical cyclone.
         """
-        from PressureInterface.pressureProfile import PrsProfile as PressureProfile
-
-        p = PressureProfile(R, convert(self.track.EnvPressure[i], 'hPa', 'Pa'),
+        p = PressureProfile(grid.R, 
+                            convert(self.track.EnvPressure[i], 'hPa', 'Pa'),
                             convert(self.track.CentralPressure[i], 'hPa', 'Pa'),
                             self.track.rMax[i],
                             self.track.Latitude[i],
@@ -185,9 +184,9 @@ class WindfieldAroundTrack(object):
         values = [getattr(self, p) for p in params if hasattr(self, p)]
         profile = cls(lat, lon, eP, cP, rMax, *values)
 
-        R, theta = self.polarGridAroundEye(i)
+        grid = self.polarGridAroundEye(i)
 
-        P = self.pressureProfile(i, R)
+        P = self.pressureProfile(i, grid)
 
         #FIXME: temporary way to do this
         cls = windmodels.field(self.windFieldType)
@@ -195,7 +194,8 @@ class WindfieldAroundTrack(object):
         values = [getattr(self, p) for p in params if hasattr(self, p)]
         windfield = cls(profile, *values)
 
-        Ux, Vy = windfield.field(R * 1000, theta, vFm, thetaFm,  thetaMax)
+        Ux, Vy = windfield.field(grid.R * 1000, grid.theta, vFm,
+                                 thetaFm,  thetaMax)
 
         return (Ux, Vy, P)
 

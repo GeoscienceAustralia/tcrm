@@ -461,6 +461,77 @@ def theta2bearing(theta):
 
     return bearing
 
+class ModelGrid(object):
+    """ 
+    A class to hold the grid definition for each timestep.
+
+    :param float cLon: Reference longitude
+    :param float cLat: Reference latitude
+    :param float margin: Distance (in degrees) around the storm centre to 
+                         fit the grid.
+    :param float resolution: Grid resolution (in degrees).
+
+    """
+    def __init__(self, cLon, cLat, margin=2, resolution=0.01,):
+        """
+        """
+
+        if (type(cLon)==list or type(cLat)==list or 
+            type(cLon)==np.ndarray or type(cLat)==np.ndarray):
+            raise TypeError, "Input values must be scalar values"
+        self.cLon = cLon
+        self.cLat = cLat
+        self.margin = margin
+        self.resolution = resolution
+
+        
+    def makeGrid(self, minLon=None, maxLon=None, minLat=None, maxLat=None):
+        """
+        Generate the model grid, including radial distance, angle, longitude
+        and latitude of grid points surrounding a storm given the location of
+        the storm.
+
+        :param float minLon: Minimum longitude of points to include in the grid.
+        :param float maxLon: Maximum longitude of points to include in the grid.
+        :param float minLat: Minimum latitude of points to include in the grid.
+        :param float maxLat: Maximum latitude of points to include in the grid.
+        """
+        self.minLon = minLon
+        self.maxLon = maxLon
+        self.minLat = minLat
+        self.maxLat = maxLat
+        gridSize = int(self.resolution * 1000)
+        if minLon:
+            minLon_ = int(1000 * (self.minLon)) - int(1000 * self.margin)
+        else:
+            minLon_ = int(1000 * (self.cLon)) - int(1000 * self.margin)
+        if maxLon:
+            maxLon_ = int(1000 * (self.maxLon)) + int(1000 * self.margin) + 1
+        else:
+            maxLon_ = int(1000 * (self.cLon)) + int(1000 * self.margin) + 1
+        if minLat:
+            minLat_ = int(1000 * (self.minLat)) - int(1000 * self.margin)
+        else:
+            minLat_ = int(1000 * (self.cLat)) - int(1000 * self.margin)
+        if maxLat:
+            maxLat_ = int(1000 * (self.maxLat)) + int(1000 * self.margin) + 1
+        else:
+            maxLat_ = int(1000 * (self.cLat)) + int(1000 * self.margin) + 1
+
+        lonGrid = np.array(np.arange(minLon_, maxLon_, gridSize), dtype=int)
+        latGrid = np.array(np.arange(minLat_, maxLat_, gridSize), dtype=int)
+
+        self.lonGrid = lonGrid/1000.
+        self.latGrid = latGrid/1000.
+        self.R = gridLatLonDist(self.cLon, self.cLat,
+                                self.lonGrid, self.latGrid)
+        np.putmask(self.R, self.R==0, 1e-30)
+        self.theta = np.pi/2. - gridLatLonBear(self.cLon, self.cLat,
+                                               self.lonGrid,
+                                               self.latGrid)
+        return
+
+
 def makeGrid(cLon, cLat, margin=2, resolution=0.01, minLon=None, maxLon=None,
              minLat=None, maxLat=None):
     """
