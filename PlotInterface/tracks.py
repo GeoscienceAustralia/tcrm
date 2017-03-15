@@ -98,7 +98,23 @@ class TrackMapFigure(MapFigure):
 
         for track in tracks:
             mlon, mlat = mapobj(track.Longitude, track.Latitude)
-            self.colorline(mlon, mlat, track.WindSpeed, alpha=0.75)
+            if hasattr(track, 'WindSpeed'):
+                self.colorline(mlon, mlat, track.WindSpeed, alpha=0.75)
+            else:
+                # Calculate an estimated max wind speed from the 
+                # storm atributes.
+                from Utilities.loadData import maxWindSpeed
+                index = track.CycloneNumber
+                index[0] = 1
+                index[1:] = 0
+                deltatime = np.mean(np.diff(track.TimeElapsed))
+                lon = track.Longitude
+                lat = track.Latitude
+                pressure = track.CentralPressure
+                pEnv = track.EnvPressure
+                windSpeed = maxWindSpeed(index, deltatime, lon, lat, pressure, pEnv)
+                self.colorline(mlon, mlat, windSpeed, alpha=0.75)
+                
                            
         axes.set_title(title)
         #self.labelAxes(axes)
