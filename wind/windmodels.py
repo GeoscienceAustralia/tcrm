@@ -266,11 +266,10 @@ class JelesnianskiWindProfile(WindProfileModel):
         :rtype: :class:`numpy.ndarray`
 
         """
-        rr = grid.R * 1000.
         Z = (np.sign(self.f) * 2 * self.vMax * self.rMax / (self.rMax
-             ** 2 + rr ** 2) + np.sign(self.f) * 2 * self.vMax *
-             self.rMax * (self.rMax ** 2 - rr ** 2) /
-             (self.rMax ** 2 + rr ** 2) ** 2)
+             ** 2 + grid.R ** 2) + np.sign(self.f) * 2 * self.vMax *
+             self.rMax * (self.rMax ** 2 - grid.R ** 2) /
+             (self.rMax ** 2 + grid.R ** 2) ** 2)
         return Z
 
 
@@ -356,22 +355,22 @@ class HollandWindProfile(WindProfileModel):
         :rtype: :class:`numpy.ndarray`
 
         """
-        R = grid.R
+
         d2Vm = self.secondDerivative()
         dVm = self.firstDerivative()
         aa = ((d2Vm / 2. - (dVm - self.vMax /self.rMax) 
                / self.rMax) / self.rMax)
         bb = (d2Vm - 6 * aa * self.rMax) / 2.
         cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
-        delta = (self.rMax / R) ** self.beta
+        delta = (self.rMax / grid.R) ** self.beta
         edelta = np.exp(-delta)
 
         V = (np.sqrt((self.dP * self.beta / self.rho)
-             * delta * edelta + (R * self.f / 2.) ** 2) - R *
+             * delta * edelta + (grid.R * self.f / 2.) ** 2) - grid.R *
              np.abs(self.f) / 2.)
 
-        icore = np.where(R <= self.rMax)
-        V[icore] = (R[icore] * (R[icore] * (R[icore] * aa + bb) + cc))
+        icore = np.where(grid.R <= self.rMax)
+        V[icore] = (grid.R[icore] * (grid.R[icore] * (grid.R[icore] * aa + bb) + cc))
         V = np.sign(self.f) * V
         return V
 
@@ -387,16 +386,16 @@ class HollandWindProfile(WindProfileModel):
         :rtype: :class:`numpy.ndarray`
 
         """
-        R = grid.R
+
         beta = self.beta
-        delta = (self.rMax / R) ** beta
+        delta = (self.rMax / grid.R) ** beta
         edelta = np.exp(-delta)
 
-        Z = np.abs(self.f) + (beta**2*self.dP*(delta**2)*edelta/(2*self.rho*R) \
-                              - beta**2*self.dP*delta*edelta/(2*self.rho*R) + \
-                              R*self.f**2/4) \
-             / np.sqrt(beta*self.dP*delta*edelta/self.rho + (R*self.f/2)**2) + \
-             (np.sqrt(beta*self.dP*delta*edelta/self.rho + (R*self.f/2)**2))/R
+        Z = np.abs(self.f) + (beta**2*self.dP*(delta**2)*edelta/(2*self.rho*grid.R) \
+                              - beta**2*self.dP*delta*edelta/(2*self.rho*grid.R) + \
+                              grid.R*self.f**2/4) \
+             / np.sqrt(beta*self.dP*delta*edelta/self.rho + (grid.R*self.f/2)**2) + \
+             (np.sqrt(beta*self.dP*delta*edelta/self.rho + (grid.R*self.f/2)**2))/grid.R
 
         # Calculate first and second derivatives at R = Rmax:
         d2Vm = self.secondDerivative()
@@ -406,8 +405,8 @@ class HollandWindProfile(WindProfileModel):
         bb = (d2Vm - 6 * aa * self.rMax) / 2
         cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
 
-        icore = np.where(R <= self.rMax)
-        Z[icore] = R[icore] * (R[icore] * 4 * aa + 3 * bb) + 2 * cc
+        icore = np.where(grid.R <= self.rMax)
+        Z[icore] = grid.R[icore] * (grid.R[icore] * 4 * aa + 3 * bb) + 2 * cc
         Z = np.sign(self.f) * Z
         return Z
 
@@ -681,7 +680,7 @@ class DoubleHollandWindProfile(WindProfileModel):
         # cubic profile to eliminate barotropic instability
 
         if self.dP >= 1500.:
-            icore = np.where(grid.R <= rMax)
+            icore = np.where(r <= rMax)
             V[icore] = (np.sign(self.f) * grid.R[icore] * (grid.R[icore] *
                         (grid.R[icore] * aa + bb) + cc))
 
@@ -700,9 +699,9 @@ class DoubleHollandWindProfile(WindProfileModel):
 
         """
 
-        rm = self.rMax * 1000.
-        rm2 = self.rMax2 * 1000.
-        rr = grid.R*1000.
+        rm = self.rMax
+        rm2 = self.rMax2
+
         # Scale dp2 if dP is less than 1500 Pa:
         if self.dP < 1500.:
             dp2 = (self.dP / 1500.) * (800. + (self.dP - 800.) / 2000.)
@@ -770,7 +769,7 @@ class PowellWindProfile(HollandWindProfile):
     """
 
     def __init__(self, grid, eP, cP, rMax):
-        beta = 1.881093 - 0.010917 * np.abs(grid.cLat) - 0.005567 * rMax/1000
+        beta = 1.881093 - 0.010917 * np.abs(grid.cLat) - 0.005567 * rMax/1000.
         if beta < 0.8:
             beta = 0.8
         if beta > 2.2:
@@ -1003,7 +1002,7 @@ class McConochieWindField(WindFieldModel):
                                wind speed, relative to the direction of
                                motion.
         """
-        V = self.velocity(grid.R)
+        V = self.velocity(grid)
         thetaFm = 90. - thetaFm
         inflow = 25. * np.ones(np.shape(grid.R))
         mid = np.where(grid.R < 1.2 * self.rMax)

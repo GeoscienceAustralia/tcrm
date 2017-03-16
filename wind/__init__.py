@@ -179,14 +179,13 @@ class WindfieldAroundTrack(object):
         vFm = convert(self.track.Speed[i], 'kph', 'mps')
         thetaFm = bearing2theta(self.track.Bearing[i] * np.pi/180.)
         thetaMax = self.thetaMax
+        grid = self.polarGridAroundEye(i)
 
         #FIXME: temporary way to do this
         cls = windmodels.profile(self.profileType)
         params = windmodels.profileParams(self.profileType)
         values = [getattr(self, p) for p in params if hasattr(self, p)]
-        profile = cls(lat, lon, eP, cP, rMax, *values)
-
-        grid = self.polarGridAroundEye(i)
+        profile = cls(grid, eP, cP, rMax, *values)
 
         P = self.pressureProfile(i, grid)
 
@@ -196,8 +195,7 @@ class WindfieldAroundTrack(object):
         values = [getattr(self, p) for p in params if hasattr(self, p)]
         windfield = cls(profile, *values)
 
-        Ux, Vy = windfield.field(grid.R * 1000, grid.theta, vFm,
-                                 thetaFm,  thetaMax)
+        Ux, Vy = windfield.field(grid, vFm, thetaFm,  thetaMax)
 
         return (Ux, Vy, P)
 

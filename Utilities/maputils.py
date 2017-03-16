@@ -524,7 +524,8 @@ class ModelGrid(object):
         self.lonGrid = lonGrid/1000.
         self.latGrid = latGrid/1000.
         self.R = gridLatLonDist(self.cLon, self.cLat,
-                                self.lonGrid, self.latGrid)
+                                self.lonGrid, self.latGrid,
+                                units="m")
         np.putmask(self.R, self.R==0, 1e-30)
         self.theta = np.pi/2. - gridLatLonBear(self.cLon, self.cLat,
                                                self.lonGrid,
