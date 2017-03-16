@@ -865,8 +865,9 @@ class NewHollandWindProfile(WindProfileModel):
         :rtype: :class:`numpy.ndarray`
 
         """
-        UU = self.velocity * np.sin(-grid.theta)
-        VV = self.velocity * np.cos(-grid.theta)
+        V = self.velocity(grid)
+        UU = V * np.sin(-grid.theta)
+        VV = V * np.cos(-grid.theta)
         
         # Need to determine lon/lat of the grid, based on 
         # storm centre, grid resolution and margin:
