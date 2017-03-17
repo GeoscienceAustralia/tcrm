@@ -7,7 +7,7 @@ from matplotlib.dates import num2date
 from scipy.interpolate import interp1d, splev, splrep
 
 from Utilities.maputils import latLon2Azi
-from Utilities.loadData import loadTrackFile
+from Utilities.loadData import loadTrackFile, maxWindSpeed
 from Utilities.track import Track, ncSaveTracks
 
 LOG = logging.getLogger(__name__)
@@ -64,16 +64,21 @@ def interpolate(track, delta, interpolation_type=None):
     handles numpy.ma masked arrays.
     """
     LOG.debug("Performing interpolation of TC track")
-    day_ = [datetime(*x) for x in zip(track.Year, track.Month,
-                                      track.Day, track.Hour,
-                                      track.Minute)]
+    if hasattr(track, 'Datetime'):
+        day_ = [dt._to_real_datetime() for dt in track.Datetime]
+    else:
+        day_ = [datetime(*x) for x in zip(track.Year, track.Month,
+                                          track.Day, track.Hour,
+                                          track.Minute)]
+
+    
     timestep = timedelta(delta/24.)
 
     time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.0
                       for d in day_], dtype=float)
 
     dt_ = 24.0 * np.diff(time_)
-    dt = np.empty(track.Hour.size, dtype=float)
+    dt = np.empty(len(track.data), dtype=float)
     dt[1:] = dt_
 
     # Convert all times to a time after initial observation:
@@ -86,6 +91,12 @@ def interpolate(track, delta, interpolation_type=None):
     newdates = num2date(_newtime)
     newdates = np.array([n.replace(tzinfo=None) for n in newdates])
 
+    if not hasattr(track, 'WindSpeed'):
+        idx = np.zeros(len(track.data))
+        idx[0] = 1
+        track.WindSpeed = maxWindSpeed(idx, np.mean(dt), track.Longitude,
+                                       track.Latitude, track.CentralPressure, 
+                                       track.EnvPressure)
     # Find the indices of valid pressure observations:
     validIdx = np.where(track.CentralPressure < sys.maxint)[0]
 
