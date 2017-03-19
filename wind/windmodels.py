@@ -117,8 +117,19 @@ class HollandWindSpeed(WindSpeedModel):
     def maximum(self):
         beta = self.profile.beta
         rho = 1.15
-        return sqrt(beta * self.dP / (exp(1) * rho))
+        return np.sqrt(beta * self.dP / (np.exp(1) * rho))
 
+class NewHollandWindSpeed(WindSpeedModel):
+    """"
+    .. |beta|    unicode:: U+003B2 .. GREEK SMALL LETTER BETA
+    
+    Holland et al. (2010)
+    """
+
+    def maximum(self):
+        beta = self.profile.beta
+        rho = 1.15
+        return np.sqrt(beta * self.dP/(rho * np.exp(1)))
 
 class AtkinsonWindSpeed(WindSpeedModel):
 
@@ -391,11 +402,14 @@ class HollandWindProfile(WindProfileModel):
         delta = (self.rMax / grid.R) ** beta
         edelta = np.exp(-delta)
 
-        Z = np.abs(self.f) + (beta**2*self.dP*(delta**2)*edelta/(2*self.rho*grid.R) \
-                              - beta**2*self.dP*delta*edelta/(2*self.rho*grid.R) + \
-                              grid.R*self.f**2/4) \
-             / np.sqrt(beta*self.dP*delta*edelta/self.rho + (grid.R*self.f/2)**2) + \
-             (np.sqrt(beta*self.dP*delta*edelta/self.rho + (grid.R*self.f/2)**2))/grid.R
+        Z = np.abs(self.f) +\
+            (beta**2*self.dP*(delta**2)*edelta/\
+             (2*self.rho*grid.R) - beta**2*self.dP*delta*edelta/\
+             (2*self.rho*grid.R) + grid.R*self.f**2/4) / \
+            np.sqrt(beta*self.dP*delta*edelta/self.rho + \
+                    (grid.R*self.f/2)**2) + \
+            (np.sqrt(beta*self.dP*delta*edelta/self.rho + \
+                    (grid.R*self.f/2)**2))/grid.R
 
         # Calculate first and second derivatives at R = Rmax:
         d2Vm = self.secondDerivative()
@@ -680,7 +694,7 @@ class DoubleHollandWindProfile(WindProfileModel):
         # cubic profile to eliminate barotropic instability
 
         if self.dP >= 1500.:
-            icore = np.where(r <= rMax)
+            icore = np.where(grid.R <= rMax)
             V[icore] = (np.sign(self.f) * grid.R[icore] * (grid.R[icore] *
                         (grid.R[icore] * aa + bb) + cc))
 
@@ -774,7 +788,8 @@ class PowellWindProfile(HollandWindProfile):
             beta = 0.8
         if beta > 2.2:
             beta = 2.2
-        HollandWindProfile.__init__(self, grid, eP, cP, rMax, beta)
+        HollandWindProfile.__init__(self, grid, eP, cP, rMax, beta,
+                                    windSpeedModel=HollandWindSpeed)
 
 
 class NewHollandWindProfile(WindProfileModel):
@@ -782,47 +797,48 @@ class NewHollandWindProfile(WindProfileModel):
     """
     Holland et al. 2010.  In this version, the exponent is allowed to
     vary linearly outside the radius of maximum wind. i.e. rather than
-    take the sqare root, the exponent varies around 0.5.  Currently
-    this version does not have a corresponding vorticity profile set up
-    in windVorticity, so it cannot be applied in wind field modelling.
+    take the sqare root, the exponent varies around 0.5.  
 
-    :param float lat: Latitude of TC centre.
-    :param float lon: Longitude of TC centre.
+    This uses a vorticity field calculated using teh curl of the vector
+    wind field, rather than an analytic solution.
+
+    :param grid: :class:`ModelGrid` instance defining the simulation grid.
+    :type grid: :class:`ModelGrid`
     :param float eP: environmental pressure (hPa).
     :param float cP: centrral pressure of the TC (hPa).
     :param float rMax: Radius to maximum wind (km).
+    :param float vFm: Forward speed of the cyclone (m/s).
+    :param float dcP: Rate of change of central pressure (Pa/hr).
     :param float rGale: Radius of gale force winds (default=150 km).
 
     """
 
-    def __init__(self, grid, eP, cP, vFm, dcP, vMax, rMax, rGale=150.):
+    def __init__(self, grid, eP, cP, rMax, vFm, dcP, rGale=150.):
         WindProfileModel.__init__(self, grid, eP, cP, rMax,
-                                  windSpeedModel=HollandWindSpeed)
+                                  windSpeedModel=NewHollandWindSpeed)
         self.rGale = rGale
         self.dcP = dcP
         self.vFm = vFm
 
     def velocity(self, grid):
         """
-        In this incarnation, we are assuming the pressure rate of
-        change and forward velocity is zero, so there is no
-        requirement for a first-pass guess at `x`.
-
         Calculate velocity as a function of radial distance.
-        Represents the velocity of teh gradient level vortex.
+        Represents the velocity of the gradient level vortex.
 
-        :param R: :class:`numpy.ndarray` of distance of grid from
-                  the TC centre.
-
+        :param grid: :class:`ModelGrid` instance defining the simulation grid.
         :returns: Array of gradient level wind speed.
         :rtype: :class:`numpy.ndarray`
 
+        NOTE: dP and dcP attributes are nominally held in units of 
+        Pa, but the relation for `Bs` uses hPa.
+
         """
 
-        Bs = (-0.00000044 * self.dP ** 2. + 0.0001 * self.dP 
+        Bs = (-4.4e-5 * (self.dP/100.) ** 2. + 0.01 * (self.dP/100.) 
               - 0.014 * np.abs(self.lat) + 1.0
               + 0.15 * self.vFm ** (0.6 * (1 - self.dP / 21500.))
               + 0.00015 * self.dcP)
+        self.beta = Bs
 
         deltag = np.power(self.rMax / self.rGale, Bs)
         edeltag = np.exp(1 - deltag)
@@ -853,12 +869,7 @@ class NewHollandWindProfile(WindProfileModel):
         Calculate the vorticity associated with the (gradient level)
         vortex.
 
-        :param R: :class:`numpy.ndarray` of distance of grid from
-                  the TC centre.
-        :param lam: :class:`numpy.ndarray` of direction from storm
-                    centre to the grid.
-        :param lon: :class:`numpy.ndarray` of longitude of grid
-        :param lat: :class:`numpy.ndarray` of latitude of grid.
+        :param grid: :class:`ModelGrid` instance defining the simulation grid.
 
         :returns: Array of gradient level (relative) vorticity.
         :rtype: :class:`numpy.ndarray`

@@ -30,13 +30,16 @@ class TestWindVelocity(NumpyTestCase.NumpyTestCase):
         self.rMax2 = cPickle.load(pkl_file)
         self.beta1 = cPickle.load(pkl_file)
         self.beta2 = cPickle.load(pkl_file)
+        self.vFm = cPickle.load(pkl_file)
+        self.dcP = cPickle.load(pkl_file)
+        self.vMax = cPickle.load(pkl_file)
         self.test_wP_rankine = cPickle.load(pkl_file)
         self.test_wP_jelesnianski = cPickle.load(pkl_file)
         self.test_wP_holland = cPickle.load(pkl_file)
         self.test_wP_willoughby = cPickle.load(pkl_file)
         self.test_wP_powell = cPickle.load(pkl_file)
         self.test_wP_doubleHolland = cPickle.load(pkl_file)
-        #self.test_wP_newHolland = cPickle.load(pkl_file)
+        self.test_wP_newHolland = cPickle.load(pkl_file)
         pkl_file.close()
 
     def testRankine(self):
@@ -80,11 +83,9 @@ class TestWindVelocity(NumpyTestCase.NumpyTestCase):
         self.numpyAssertAlmostEqual(V, self.test_wP_doubleHolland,
                                     prec=1.0000000000000001e-004)
 
-    @unittest.skip("WIP")
     def testNewHolland(self):
-        profile = NewHollandProfile(
-            self.grid, self.pEnv, self.pCentre, self.vFm, self.dcP,
-            self.vMax, self.rMax)
+        profile = NewHollandWindProfile(
+            self.grid, self.pEnv, self.pCentre, self.rMax, self.vFm, self.dcP)
         V = profile.velocity(self.grid)
         self.numpyAssertAlmostEqual(V, self.test_wP_newHolland,
                                     prec=1.000000000000001e-004)
@@ -105,13 +106,15 @@ class TestWindVorticity(NumpyTestCase.NumpyTestCase):
         self.beta1 = cPickle.load(pkl_file)
         self.beta2 = cPickle.load(pkl_file)
         self.vMax = cPickle.load(pkl_file)
-        self.test_vorticity_rankine = cPickle.load(pkl_file)
-        self.test_vorticity_jelesnianski = cPickle.load(pkl_file)
-        self.test_vorticity_holland = cPickle.load(pkl_file)
-        self.test_vorticity_willoughby = cPickle.load(pkl_file)
-        self.test_vorticity_doubleHolland = cPickle.load(pkl_file)
-        self.test_vorticity_powell = cPickle.load(pkl_file)
-        #self.test_voriticy_newHolland = cPickle.load(pkl_file)
+        self.vFm = cPickle.load(pkl_file)
+        self.dcP = cPickle.load(pkl_file)
+        self.test_Z_rankine = cPickle.load(pkl_file)
+        self.test_Z_jelesnianski = cPickle.load(pkl_file)
+        self.test_Z_holland = cPickle.load(pkl_file)
+        self.test_Z_willoughby = cPickle.load(pkl_file)
+        self.test_Z_doubleHolland = cPickle.load(pkl_file)
+        self.test_Z_powell = cPickle.load(pkl_file)
+        self.test_Z_newHolland = cPickle.load(pkl_file)
         pkl_file.close()
 
     def testRankine(self):
@@ -119,21 +122,21 @@ class TestWindVorticity(NumpyTestCase.NumpyTestCase):
             self.grid, self.pEnv, self.pCentre, self.rMax)
         profile.vMax = self.vMax
         Z = profile.vorticity(self.grid)
-        self.numpyAssertAlmostEqual(Z, self.test_vorticity_rankine)
+        self.numpyAssertAlmostEqual(Z, self.test_Z_rankine)
 
     def testJelesnianski(self):
         profile = JelesnianskiWindProfile(
             self.grid, self.pEnv, self.pCentre, self.rMax)
         profile.vMax = self.vMax
         Z = profile.vorticity(self.grid)
-        self.numpyAssertAlmostEqual(Z, self.test_vorticity_jelesnianski)
+        self.numpyAssertAlmostEqual(Z, self.test_Z_jelesnianski)
 
     def testHolland(self):
         profile = HollandWindProfile(self.grid, self.pEnv,
                                      self.pCentre, self.rMax, self.beta)
         profile.vMax = self.vMax
         Z = profile.vorticity(self.grid)
-        self.numpyAssertAlmostEqual(Z, self.test_vorticity_holland)
+        self.numpyAssertAlmostEqual(Z, self.test_Z_holland)
 
     def testWilloughby(self):
         profile = WilloughbyWindProfile(
@@ -143,7 +146,7 @@ class TestWindVorticity(NumpyTestCase.NumpyTestCase):
         profile.beta = 1.0036 + 0.0173 * profile.vMax - 0.313 *\
                        np.log(self.rMax) + 0.0087 * np.abs(self.grid.cLat)
         Z = profile.vorticity(self.grid)
-        self.numpyAssertAlmostEqual(Z, self.test_vorticity_willoughby)
+        self.numpyAssertAlmostEqual(Z, self.test_Z_willoughby)
 
     def testDoubleHolland(self):
         profile = DoubleHollandWindProfile(
@@ -151,23 +154,21 @@ class TestWindVorticity(NumpyTestCase.NumpyTestCase):
             self.beta1, self.beta2, self.rMax2)
         profile.vMax = self.vMax
         Z = profile.vorticity(self.grid)
-        self.numpyAssertAlmostEqual(Z, self.test_vorticity_doubleHolland)
+        self.numpyAssertAlmostEqual(Z, self.test_Z_doubleHolland)
 
     def testPowell(self):
         profile = PowellWindProfile(
             self.grid, self.pEnv, self.pCentre, self.rMax)
         profile.vMax = self.vMax
         Z = profile.vorticity(self.grid)
-        self.numpyAssertAlmostEqual(Z, self.test_vorticity_powell)
+        self.numpyAssertAlmostEqual(Z, self.test_Z_powell)
 
-    @unittest.skip("WIP")
     def testNewHolland(self):
-        profile = NewHollandProfile(
-            self.grid, self.pEnv, self.pCentre, self.vFm, self.dcP,
-            self.vMax, self.rMax)
+        profile = NewHollandWindProfile(
+            self.grid, self.pEnv, self.pCentre, self.rMax, self.vFm, self.dcP)
         profile.vMax = self.vMax
         Z = profile.vorticity(self.grid)
-        self.numpyAssertAlmostEqual(Z, self.test_vorticity_newHolland,
+        self.numpyAssertAlmostEqual(Z, self.test_Z_newHolland,
                                     prec=1.000000000000001e-004)
 
 
