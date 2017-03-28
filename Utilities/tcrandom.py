@@ -45,6 +45,17 @@ class Random(random.Random):
             raise ValueError("Invalid input parameter: `sigma` must be positive")
         return mu + sigma * math.log(u1 / (1 - u1))
 
+    def logisticvariate_new(self, mu):
+
+        u1 = self.random()
+        log_p    = mu + 1.2 * math.log(u1 / (1 - u1))
+        log_vmax = mu + 1.2 * math.log(u1 / (1 - u1))  
+        log_rmax = mu + 1.4 * math.log(u1 / (1 - u1))  
+        log_r34  = mu + 3.0 * math.log(u1 / (1 - u1))  
+        log_r64  = mu + 3.0 * math.log(u1 / (1 - u1))
+
+        return (log_p, log_vmax, log_rmax, log_r34, log_r64)
+
     def cauchyvariate(self, mu, sigma):
         """
         Random variate from the Cauchy distribution.

@@ -287,23 +287,51 @@ class TrackGenerator(object):
         self.allCDFInitSpeed = None
         self.allCDFInitPressure = None
         self.allCDFInitSize = None
+        self.allCDFInitR34 = None
+        self.allCDFInitR64 = None
+        self.allCDFInitVmax = None
         self.cdfSize = None
+        self.cdfR34 = None
         self.vStats = None
         self.pStats = None
         self.bStats = None
+        self.vmStats = None
+        self.r34Stats = None
+        self.r64Stats = None
         self.dpStats = None
+        self.dsStats = None
+        self.dvmStats = None
+        self.d34Stats = None
+        self.d64Stats = None
 
         self.dpChi = None
         self.dsChi = None
+        self.d34Chi = None
+        self.d64Chi = None
+        self.dvmChi = None
         self.pChi = None
         self.bChi = None
         self.vChi = None
+        self.sChi = None
+        self.pChi = None
+        self.vmChi = None
+        self.r34Chi = None
+        self.r64Chi = None
         self.offshorePressure = None
         self.theta = None
         self.ds = None
         self.dp = None
-        self.sChi = None
         self.v = None
+        self.p = None
+        self.vm = None
+        self.s = None
+        self.r34 = None
+        self.r64 = None
+        self.ds = None
+        self.dp = None
+        self.dvm = None
+        self.d34 = None
+        self.d64 = None
 
         originDistFile = pjoin(processPath, 'originPDF.nc')
         self.originSampler = SamplingOrigin(originDistFile, None, None)
@@ -365,21 +393,20 @@ class TrackGenerator(object):
 
         path = self.processPath
 
-        self.allCDFInitBearing = \
-            load(pjoin(path, 'all_cell_cdf_init_bearing'))
+        self.allCDFInitBearing = load(pjoin(path, 'all_cell_cdf_init_bearing'))
 
-        self.allCDFInitSpeed = \
-            load(pjoin(path, 'all_cell_cdf_init_speed'))
+        self.allCDFInitSpeed = load(pjoin(path, 'all_cell_cdf_init_speed'))
 
-        self.allCDFInitPressure = \
-            load(pjoin(path, 'all_cell_cdf_init_pressure'))
+        self.allCDFInitPressure = load(pjoin(path, 'all_cell_cdf_init_pressure'))
 
-        self.allCDFInitDay = \
-            load(pjoin(path, 'all_cell_cdf_init_day'))
+        self.allCDFInitDay = load(pjoin(path, 'all_cell_cdf_init_day'))
 
         try:
             self.allCDFInitSize = load(pjoin(path,
                                              'all_cell_cdf_init_rmax'))
+        self.allCDFInitVmax = load(pjoin(path, 'all_cell_cdf_init_vmax'))
+  
+        self.allCDFInitR34  = load(pjoin(path, 'all_cell_cdf_init_r34'))
 
         except IOError:
             log.warning('RMW distribution file does not exist. Using RMW model instead.')
@@ -398,6 +425,12 @@ class TrackGenerator(object):
             pressure_stats.nc
             bearing_stats.nc
             pressure_rate_stats.nc
+            vmax_stats.nc
+            rmax_stats.nc
+            r64_stats.nc
+            vmax_rate_stats.nc
+            rmax_rate_stats.nc
+            r64_rate_stats.nc
 
         in the :attr:`processPath` directory.
         """
@@ -431,10 +464,43 @@ class TrackGenerator(object):
         self.dpStats = init('pressure_rate')
         self.dpStats.load(pjoin(self.processPath, 'pressure_rate_stats.nc'))
 
+        log.debug('Loading cell statistics for vmax from netcdf file')
+        self.vmStats = init('all_vmax')
+        self.vmStats.load(pjoin(self.processPath, 'vmax_stats.nc'))
+
+        log.debug('Loading cell statistics for vmax_rate from netcdf file')
+        self.dvmStats = init('vmax_rate')
+        self.dvmStats.load(pjoin(self.processPath, 'vmax_rate_stats.nc'))
+
+        log.debug('Loading cell statistics for rmax from netcdf file')
+        self.sStats = init('all_rmax')
+        self.sStats.load(pjoin(self.processPath, 'rmax_stats.nc'))
+
+        log.debug('Loading cell statistics for rmax_rate from netcdf file')
+        self.dsStats = init('rmax_rate')
+        self.dsStats.load(pjoin(self.processPath, 'rmax_rate_stats.nc'))
+
+        log.debug('Loading cell statistics for r34 from netcdf file')
+        self.r34Stats = init('all_r34')
+        self.r34Stats.load(pjoin(self.processPath, 'r34_stats.nc'))
+
+        log.debug('Loading cell statistics for r34_rate from netcdf file')
+        self.d34Stats = init('r34_rate')
+        self.d34Stats.load(pjoin(self.processPath, 'r34_rate_stats.nc'))
+
+        log.debug('Loading cell statistics for r64 from netcdf file')
+        self.r64Stats = init('all_r64')
+        self.r64Stats.load(pjoin(self.processPath, 'r64_stats.nc')) 
+
+        log.debug('Loading cell statistics for r64_rate from netcdf file')
+        self.d64Stats = init('r64_rate')
+        self.d64Stats.load(pjoin(self.processPath, 'r64_rate_stats.nc'))
+
     def generateTracks(self, nTracks, simId, initLon=None, initLat=None,
                        initSpeed=None, initBearing=None,
                        initPressure=None, initEnvPressure=None,
-                       initRmax=None, initDay=None):
+                       initRmax=None, initVmax = None,
+                       initR34=None, initR64=None, initDay=None):
         """
         Generate tropical cyclone tracks from a single genesis point.
 
@@ -601,13 +667,21 @@ class TrackGenerator(object):
                 cdfInitPressure = self.allCDFInitPressure[ind, 1:3]
                 ix = cdfInitPressure[:, 0].searchsorted(initEnvPressure)
                 upperProb = cdfInitPressure[ix - 1, 1]
-                genesisPressure = ppf(uniform(0.0, upperProb),
-                                      cdfInitPressure)
+                unif_p = uniform(0.0, upper_prob)
+                unif_v = 1. - unif_p
+                genesisPressure = ppf(unif_p, cdfInitPressure)
             else:
                 genesisPressure = initPressure
                 
-            # Sample an initial maximum radius if none is provided
 
+            if not initVmax:
+                ind = self.allCDFInitVmax[:, 0] == initCellNum
+                cdfInitVmax = self.allCDFInitVmax[ind, 1:3]
+                genesisVmax = ppf(unif_v, cdfInitVmax)
+            else:
+                genesisVmax = initVmax
+
+            # Sample an initial maximum radius if none is provided
             if not initRmax:
                 if not self.allCDFInitSize:
                     cdfSize = self.cdfSize[:, [0, 2]]
@@ -627,6 +701,27 @@ class TrackGenerator(object):
                 
             else:
                 genesisRmax = initRmax
+
+            if not initR34:
+                if not isinstance(self.allCDFInitR34, np.ndarray):
+                    cdfR34 = self.cdfR34[:, [0, 2]]
+                else:
+                    ind    = self.allCDFInitR34[:, 0] == initCellNum
+                    cdfR34 = self.allCDFInitR34[ind, 1:3]
+                genesisR34 = ppf(unif_v, cdfR34)
+            else:
+                genesisR34 = initR34
+
+            if genesisVmax>=17 :
+                genesisR34 = max(genesisRmax, genesisR34)
+            else:
+                genesisR34 = 0.
+
+            if genesisVmax>=34 :
+                genesisR64 = max(genesisRmax+1, 5)
+            else:
+                genesisR64 = 0.
+
             # Do not generate tracks from this genesis point if we are
             # going to exit the domain on the first step
 
@@ -661,7 +756,8 @@ class TrackGenerator(object):
             data = self._singleTrack(j, genesisLon, genesisLat,
                                      genesisSpeed, genesisBearing,
                                      genesisPressure, initEnvPressure,
-                                     genesisRmax, genesisTime)
+                                     genesisVmax, genesisRmax, 
+                                     genesisR34, genesisR64, genesisTime)
 
             track_dtype = np.dtype({'names':TCRM_COLS, 'formats':TCRM_FMTS})
             data = np.array(data)
@@ -711,8 +807,8 @@ class TrackGenerator(object):
     def generateTracksToFile(self, outputFile, nTracks, simId, initLon=None,
                              initLat=None, initSpeed=None,
                              initBearing=None, initPressure=None,
-                             initEnvPressure=None, initRmax=None,
-                             initDay=None):
+                             initEnvPressure=None, initVmax=None, initRmax=None,
+                             initR34=None, initR64=None, initDay=None):
         """
         Generate tropical cyclone tracks from a single genesis point
         and save the tracks to a file.
@@ -732,7 +828,8 @@ class TrackGenerator(object):
             initSpeed=initSpeed, initBearing=initBearing,
             initPressure=initPressure,
             initEnvPressure=initEnvPressure,
-            initRmax=initRmax, initDay=initDay)
+            initVmax=initVmax, initRmax=initRmax, 
+            initR34=initR34, initR64=initR64, initDay=initDay)
 
         if outputFile.endswith("shp"):
             from Utilities.shptools import shpSaveTrackFile
@@ -798,11 +895,33 @@ class TrackGenerator(object):
                 'Data': results[:, 7]
             }
 
-            fields['rMax'] = {
+            fields['vMax'] = {
                 'Type': 2,
                 'Length': 5,
                 'Precision': 1,
                 'Data': results[:, 8]
+            }
+
+            fields['rMax'] = {
+                'Type': 2,
+                'Length': 5,
+                'Precision': 1,
+                'Data': results[:, 9]
+            }
+
+            fields['r34'] = {
+                'Type': 2,
+                'Length': 5,
+                'Precision': 1,
+                'Data': results[:, 10]
+            }
+
+
+            fields['r64'] = {
+                'Type': 2,
+                'Length': 5,
+                'Precision': 1,
+                'Data': results[:, 11]
             }
 
             args = {
@@ -823,7 +942,8 @@ class TrackGenerator(object):
             header = 'CycloneNumber,TimeElapsed(hr),' + \
                      'Longitude(degree),Latitude(degree),' + \
                      'Speed(km/hr),Bearing(degrees),' + \
-                     'CentralPressure(hPa),EnvPressure(hPa),rMax(km)'
+                     'CentralPressure(hPa),EnvPressure(hPa),vMax(m/s)' + \
+                     'rMax(km),r34(km),r64(km)'
 
             args = {
                 'filename': outputFile,
@@ -838,7 +958,7 @@ class TrackGenerator(object):
 
     def _singleTrack(self, cycloneNumber, initLon, initLat, initSpeed,
                      initBearing, initPressure, initEnvPressure,
-                     initRmax, initTime):
+                     initVmax, initRmax, initR34, initR64, initTime):
         """
         Generate a single tropical cyclone track from a genesis point.
 
@@ -882,8 +1002,10 @@ class TrackGenerator(object):
                       speed
                       bearing
                       pressure
-                      penv - environment pressure
+                      poci - environment pressure
+                      vmax - maximum wind speed
                       rmax - maximum radius
+                      r64  - radius of 64 kt wind speed
         """
 
         index = np.ones(self.maxTimeSteps, 'f') * cycloneNumber
@@ -896,7 +1018,10 @@ class TrackGenerator(object):
         bearing = np.empty(self.maxTimeSteps, 'f')
         pressure = np.empty(self.maxTimeSteps, 'f')
         poci = np.empty(self.maxTimeSteps, 'f')
+        vmax = np.empty(self.maxTimeSteps, 'f')
         rmax = np.empty(self.maxTimeSteps, 'f')
+        r34  = np.empty(self.maxTimeSteps, 'f')
+        r64  = np.empty(self.maxTimeSteps, 'f')
         land = np.empty(self.maxTimeSteps, 'i')
         dist = np.empty(self.maxTimeSteps, 'f')
 
@@ -915,6 +1040,18 @@ class TrackGenerator(object):
         poci[0] = getPoci(initEnvPressure, initPressure,
                           initLat, jday[0], poci_eps)
         rmax[0] = initRmax
+        vmax[0] = initVmax
+
+        if(vmax[0]>=17):
+          r34[0] = max(initR34, rmax[0]+1)
+        else:
+          r34[0] = 0.
+           
+        if(vmax[0]>=34):
+          r64[0] = max(rmax[0]+1, 5)
+        else:
+          r64[0] = 0.
+
         land[0] = 0
         dist[0] = self.dt * speed[0]
 
@@ -925,16 +1062,29 @@ class TrackGenerator(object):
         self.offshorePressure = initPressure
         self.offshorePoci = poci[0]
         self.landfallSpeed = initSpeed
-        self.theta = initBearing
-        self.v = initSpeed
-        self.vChi = 0.0
-        self.bChi = 0.0
-        self.pChi = 0.0
-        self.sChi = 0.0
-        self.dpChi = 0.0
-        self.dsChi = 0.0
-        self.dp = 0.0
-        self.ds = 0.0
+        self.v      = initSpeed
+        self.p      = initPressure
+        self.s      = initRmax
+        self.vm     = initVmax
+        self.r34    = initR34
+        self.r64    = initR64
+        self.vChi   = 0.0
+        self.sChi   = 0.0
+        self.bChi   = 0.0
+        self.pChi   = 0.0
+        self.vmChi  = 0.0
+        self.r34Chi = 0.0
+        self.r64Chi = 0.0
+        self.dpChi  = 0.0
+        self.dvmChi = 0.0
+        self.dsChi  = 0.0
+        self.d34Chi = 0.0
+        self.d64Chi = 0.0
+        self.dp     = 0.0
+        self.ds     = 0.0
+        self.dvm    = 0.0 
+        self.d34    = 0.0
+        self.d64    = 0.0
 
         # Initialise the landfall time over land (`tol`)
 
