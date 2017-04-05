@@ -209,6 +209,11 @@ def ncReadTrackData(trackfile):
                 track.Datetime = num2date(track.Datetime,
                                           data.variables['time'].units,
                                           data.variables['time'].calendar)
+                # Force the datetime to be a true datetime object, not a 
+                # netcdftime._datetime.datetime object:
+                track.Datetime = np.array([dt._to_real_datetime() 
+                                           for dt in track.Datetime],
+                                          dtype=datetime)
             except AttributeError:
                 log.exception(TRACK_DT_ERR)
                 raise AttributeError

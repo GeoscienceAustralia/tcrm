@@ -58,11 +58,13 @@ class TestLoadTracks(NumpyTestCase.NumpyTestCase):
     """
 
     def setUp(self):
-        self.test_track_file = pjoin(unittest_dir, 'test_data',
-                                     'tracks.01.nc')
+        self.test_track_file_nc = pjoin(unittest_dir, 'test_data',
+                                        'tracks.01.nc')
         self.dummy_track_file = pjoin(unittest_dir, 'test_data',
                                       'tracks.02.nc')
         self.dummy_path = pjoin(unittest_dir, 'test_path')
+        self.test_track_file_csv = pjoin(unittest_dir, 'test_data',
+                                         'tracks.01.csv')
 
     def test_NoPathExists(self):
         """loadTracksFromPath raises IOError if path doesn't exist"""
