@@ -927,7 +927,7 @@ class HubbertWindField(WindFieldModel):
     :type  lam: :class:`numpy.ndarray`
     :param float vFm: Foward speed of the storm (m/s).
     :param float thetaFm: Forward direction of the storm (geographic
-                          bearing, positive clockwise).
+                          bearing, positive clockwise, radians).
     :param float thetaMax: Bearing of the location of the maximum
                            wind speed, relative to the direction of
                            motion.
@@ -935,14 +935,14 @@ class HubbertWindField(WindFieldModel):
 
     def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
         V = self.velocity(R)
-        thetaFm = 90. - thetaFm
+        thetaFm = np.pi/2. - thetaFm
         Km = .70
         inflow = -np.sign(self.f) * 25. * np.ones(np.shape(R))
         core = np.where(R < self.rMax)
         inflow[core] = 0
         inflow = inflow * np.pi / 180
 
-        thetaMaxAbsolute = (np.array(thetaFm) + thetaMax)*np.pi/180.
+        thetaMaxAbsolute = np.array(thetaFm) + thetaMax * np.pi/180.
         asym = vFm * np.cos(thetaMaxAbsolute - lam + np.pi)
         Vsf = Km * V + asym
         phi = inflow - lam
@@ -974,13 +974,13 @@ class McConochieWindField(WindFieldModel):
         :type  lam: :class:`numpy.ndarray`
         :param float vFm: Foward speed of the storm (m/s).
         :param float thetaFm: Forward direction of the storm (geographic
-                              bearing, positive clockwise).
+                              bearing, positive clockwise, radians).
         :param float thetaMax: Bearing of the location of the maximum
                                wind speed, relative to the direction of
                                motion.
         """
         V = self.velocity(R)
-        thetaFm = 90. - thetaFm
+        thetaFm = np.pi/2. - thetaFm
         inflow = 25. * np.ones(np.shape(R))
         mid = np.where(R < 1.2 * self.rMax)
         inflow[mid] = 10. + 75. * (R[mid] / self.rMax - 1.)
@@ -988,7 +988,7 @@ class McConochieWindField(WindFieldModel):
         inflow[inner] = 10. * R[inner] / self.rMax
         inflow = -np.sign(self.f) * inflow * np.pi / 180.
 
-        thetaMaxAbsolute = (np.array(thetaFm) + thetaMax)*np.pi/180.
+        thetaMaxAbsolute = np.array(thetaFm) + thetaMax * np.pi/180.
         phi = inflow - lam
 
         asym = (0.5 * (1. + np.cos(thetaMaxAbsolute - lam)) * 
@@ -1029,7 +1029,7 @@ class KepertWindField(WindFieldModel):
         :type  lam: :class:`numpy.ndarray`
         :param float vFm: Foward speed of the storm (m/s).
         :param float thetaFm: Forward direction of the storm (geographic
-                              bearing, positive clockwise).
+                              bearing, positive clockwise, radians).
         :param float thetaMax: Bearing of the location of the maximum
                                wind speed, relative to the direction of
                                motion.
@@ -1040,7 +1040,7 @@ class KepertWindField(WindFieldModel):
         Z = self.vorticity(R)
         K = 50.  # Diffusivity
         Cd = 0.002  # Constant drag coefficient
-        thetaFm = (90. - thetaFm) * np.pi/180.
+        thetaFm = np.pi/2. - thetaFm
         Vm = np.abs(V).max()
         if (vFm > 0) and (Vm/vFm < 5.):
             Umod = vFm * (1. - (1. - Vm/vFm)/5.)

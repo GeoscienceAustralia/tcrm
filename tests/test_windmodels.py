@@ -170,7 +170,7 @@ class TestWindField(NumpyTestCase.NumpyTestCase):
         pkl_file.close()
 
     def test_Kepert(self):
-        profile = WindProfileModel(-15, 0.0, 1000., 1000., self.rMax, WindSpeedModel)
+        profile = WindProfileModel(-15., 0.0, 1000., 990., self.rMax, WindSpeedModel)
         profile.f = self.f
         windField = KepertWindField(profile)
         windField.V = self.V
@@ -181,7 +181,7 @@ class TestWindField(NumpyTestCase.NumpyTestCase):
         self.numpyAssertAlmostEqual(Vy, self.test_kepert_Vy)
 
     def test_McConochie(self):
-        profile = WindProfileModel(0.0, 0.0, 1000., 1000., self.rMax, WindSpeedModel)
+        profile = WindProfileModel(-15., 0.0, 1000., 990., self.rMax, WindSpeedModel)
         profile.f = self.f
         windField = McConochieWindField(profile)
         windField.V = self.V
@@ -191,7 +191,7 @@ class TestWindField(NumpyTestCase.NumpyTestCase):
         self.numpyAssertAlmostEqual(Vy, self.test_mcconochie_Vy)
 
     def test_Hubbert(self):
-        profile = WindProfileModel(0.0, 0.0, 1000., 1000., self.rMax, WindSpeedModel)
+        profile = WindProfileModel(-15., 0.0, 1000., 990., self.rMax, WindSpeedModel)
         profile.f = self.f
         windField = HubbertWindField(profile)
         windField.V = self.V
