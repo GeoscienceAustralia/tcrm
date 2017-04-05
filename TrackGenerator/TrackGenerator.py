@@ -404,15 +404,16 @@ class TrackGenerator(object):
         try:
             self.allCDFInitSize = load(pjoin(path,
                                              'all_cell_cdf_init_rmax'))
-        self.allCDFInitVmax = load(pjoin(path, 'all_cell_cdf_init_vmax'))
-  
-        self.allCDFInitR34  = load(pjoin(path, 'all_cell_cdf_init_r34'))
-
+            
         except IOError:
             log.warning('RMW distribution file does not exist. Using RMW model instead.')
             self.cdfSize = np.array(stats.rMaxDist(self.sizeMean,
                                                    self.sizeStdDev,
                                                    maxrad=120.0)).T
+        self.allCDFInitVmax = load(pjoin(path, 'all_cell_cdf_init_vmax'))
+  
+        self.allCDFInitR34  = load(pjoin(path, 'all_cell_cdf_init_r34'))
+
 
     def loadCellStatistics(self):
         """
