@@ -969,14 +969,14 @@ class HubbertWindField(WindFieldModel):
 
     def field(self, grid, vFm, thetaFm, thetaMax=0.):
         V = self.velocity(grid)
-        thetaFm = 90. - thetaFm
+        thetaFm = np.pi/2.0 - thetaFm
         Km = .70
         inflow = -np.sign(self.f) * 25. * np.ones(np.shape(grid.R))
         core = np.where(grid.R < self.rMax)
         inflow[core] = 0
         inflow = inflow * np.pi / 180
 
-        thetaMaxAbsolute = (np.array(thetaFm) + thetaMax)*np.pi/180.
+        thetaMaxAbsolute = np.array(thetaFm) + thetaMax * np.pi / 180.
         asym = vFm * np.cos(thetaMaxAbsolute - grid.theta + np.pi)
         Vsf = Km * V + asym
         phi = inflow - grid.theta
@@ -1014,7 +1014,7 @@ class McConochieWindField(WindFieldModel):
                                motion.
         """
         V = self.velocity(grid)
-        thetaFm = 90. - thetaFm
+        thetaFm = np.pi/2.0 - thetaFm
         inflow = 25. * np.ones(np.shape(grid.R))
         mid = np.where(grid.R < 1.2 * self.rMax)
         inflow[mid] = 10. + 75. * (grid.R[mid] / self.rMax - 1.)
@@ -1022,7 +1022,7 @@ class McConochieWindField(WindFieldModel):
         inflow[inner] = 10. * grid.R[inner] / self.rMax
         inflow = -np.sign(self.f) * inflow * np.pi / 180.
 
-        thetaMaxAbsolute = (np.array(thetaFm) + thetaMax)*np.pi/180.
+        thetaMaxAbsolute = np.array(thetaFm) + thetaMax * np.pi / 180.
         phi = inflow - grid.theta
 
         asym = (0.5 * (1. + np.cos(thetaMaxAbsolute - grid.theta)) * 
@@ -1063,7 +1063,7 @@ class KepertWindField(WindFieldModel):
         :type  lam: :class:`numpy.ndarray`
         :param float vFm: Foward speed of the storm (m/s).
         :param float thetaFm: Forward direction of the storm (geographic
-                              bearing, positive clockwise).
+                              bearing, positive clockwise, radians).
         :param float thetaMax: Bearing of the location of the maximum
                                wind speed, relative to the direction of
                                motion.
@@ -1074,7 +1074,7 @@ class KepertWindField(WindFieldModel):
         Z = self.vorticity(grid)
         K = 50.  # Diffusivity
         Cd = 0.002  # Constant drag coefficient
-        thetaFm = (90. - thetaFm) * np.pi/180.
+        thetaFm = np.pi/2. - thetaFm
         Vm = np.abs(V).max()
         if (vFm > 0) and (Vm/vFm < 5.):
             Umod = vFm * (1. - (1. - Vm/vFm)/5.)
