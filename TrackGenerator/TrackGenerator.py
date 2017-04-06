@@ -162,7 +162,7 @@ from DataProcess.CalcFrequency import CalcFrequency
 from DataProcess.CalcTrackDomain import CalcTrackDomain
 from Utilities.config import ConfigParser
 from Utilities.interp3d import interp3d
-from Utilities.parallel import attemptParallel
+from Utilities.parallel import attemptParallel, balanced
 from Utilities.track import ncSaveTracks, Track, TCRM_COLS, TCRM_FMTS
 from Utilities.loadData import getPoci
 
@@ -1824,7 +1824,7 @@ def ppf(q, cdf):
     return cdf[i, 0]
 
 
-def balanced(iterable):
+def _balanced(iterable):
     """
     Balance an iterator across processors.
 

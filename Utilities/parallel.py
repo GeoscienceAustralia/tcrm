@@ -11,6 +11,7 @@
 """
 
 from functools import wraps
+import itertools
 
 def attemptParallel():
     """
@@ -69,3 +70,17 @@ def disableOnWorkers(f):
         else:
             return f(*args, **kwargs)
     return wrap
+
+
+def balanced(iterable):
+    """
+    Balance an iterator across processors.
+
+    This partitions the work evenly across processors. However, it
+    requires the iterator to have been generated on all processors
+    before hand. This is only some magical slicing of the iterator,
+    i.e., a poor man version of scattering.
+    """
+    global pp
+    P, p = pp.size(), pp.rank()
+    return itertools.islice(iterable, p, None, P)
