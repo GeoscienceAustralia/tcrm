@@ -64,13 +64,12 @@ def interpolate(track, delta, interpolation_type=None):
     handles numpy.ma masked arrays.
     """
     LOG.debug("Performing interpolation of TC track")
-    if hasattr(track, 'Datetime'):
-        day_ = [dt._to_real_datetime() for dt in track.Datetime]
-    else:
+    if not hasattr(track, 'Datetime'):
         day_ = [datetime(*x) for x in zip(track.Year, track.Month,
                                           track.Day, track.Hour,
                                           track.Minute)]
-
+    else:
+        day_ = track.Datetime
     
     timestep = timedelta(delta/24.)
 

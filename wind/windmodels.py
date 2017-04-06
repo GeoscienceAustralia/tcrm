@@ -961,7 +961,7 @@ class HubbertWindField(WindFieldModel):
     :type  lam: :class:`numpy.ndarray`
     :param float vFm: Foward speed of the storm (m/s).
     :param float thetaFm: Forward direction of the storm (geographic
-                          bearing, positive clockwise).
+                          bearing, positive clockwise, radians).
     :param float thetaMax: Bearing of the location of the maximum
                            wind speed, relative to the direction of
                            motion.
@@ -970,6 +970,7 @@ class HubbertWindField(WindFieldModel):
     def field(self, grid, vFm, thetaFm, thetaMax=0.):
         V = self.velocity(grid)
         thetaFm = np.pi/2.0 - thetaFm
+
         Km = .70
         inflow = -np.sign(self.f) * 25. * np.ones(np.shape(grid.R))
         core = np.where(grid.R < self.rMax)
@@ -1008,7 +1009,7 @@ class McConochieWindField(WindFieldModel):
         :type  lam: :class:`numpy.ndarray`
         :param float vFm: Foward speed of the storm (m/s).
         :param float thetaFm: Forward direction of the storm (geographic
-                              bearing, positive clockwise).
+                              bearing, positive clockwise, radians).
         :param float thetaMax: Bearing of the location of the maximum
                                wind speed, relative to the direction of
                                motion.
@@ -1024,6 +1025,7 @@ class McConochieWindField(WindFieldModel):
 
         thetaMaxAbsolute = np.array(thetaFm) + thetaMax * np.pi / 180.
         phi = inflow - grid.theta
+
 
         asym = (0.5 * (1. + np.cos(thetaMaxAbsolute - grid.theta)) * 
                 vFm * (V / np.abs(V).max()))

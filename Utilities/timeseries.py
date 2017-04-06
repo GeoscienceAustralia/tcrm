@@ -127,8 +127,10 @@ class Timeseries(object):
             vertices = shpGetVertices(stnFile, key_name=key_name)
 
             for stn in vertices.keys():
-                self.stations.append(Station(stn, vertices[stn][0][0],
-                                                  vertices[stn][0][1]))
+                lat = vertices[stn][0][1]
+                lon = vertices[stn][0][0]
+                lon = np.where(lon < 0., lon + 360., lon)
+                self.stations.append(Station(stn, lon, lat))
 
 
         else:
