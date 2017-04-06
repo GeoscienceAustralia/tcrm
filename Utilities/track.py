@@ -203,22 +203,22 @@ def ncReadTrackData(trackfile):
         for i, (t, data) in enumerate(tgroup.items()):
             log.debug("Loading data for {0}".format(t))
             track_data = data.variables['track'][:]
-            track = Track(track_data)
 
-            try:
-                track.Datetime = num2date(track.Datetime,
-                                          data.variables['time'].units,
-                                          data.variables['time'].calendar)
-                # Force the datetime to be a true datetime object, not a 
-                # netcdftime._datetime.datetime object:
-                track.Datetime = np.array([dt._to_real_datetime() 
-                                           for dt in track.Datetime],
-                                          dtype=datetime)
+            try: 
+                dt = num2date(track_data['Datetime'],
+                              data.variables['time'].units,
+                              data.variables['time'].calendar)
             except AttributeError:
                 log.exception(TRACK_DT_ERR)
                 raise AttributeError
 
-            track.data = track.data.astype(track_dtype)
+            newtd = np.zeros(len(track_data), dtype=track_dtype)
+            for f in track_data.dtype.names:
+                if f != 'Datetime' and f in track_dtype.names:
+                    newtd[f] = track_data[f]
+            newtd['Datetime'] = dt
+
+            track = Track(newtd)
             track.trackfile = trackfile
             if hasattr(data.variables['track'], "trackId"):
                 track.trackId = eval(data.variables['track'].trackId)
