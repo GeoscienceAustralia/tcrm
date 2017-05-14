@@ -345,6 +345,9 @@ class TrackGenerator(object):
             all_cell_cdf_init_bearing.nc
             all_cell_cdf_init_speed.nc
             all_cell_cdf_init_pressure.nc
+            all_cell_cdf_init_vmax.nc
+            all_cell_cdf_init_rmax.nc
+            all_cell_cdf_init_r34.nc
 
         from the :attr:`processPath` directory. If it can't find those
         files then it will fallback to the csv versions of those files.
@@ -544,6 +547,14 @@ class TrackGenerator(object):
         :type  initRmax: float
         :param initRmax: the initial maximum radius of the tropical
                          cyclone.
+
+        :type  initVmax: float
+        :param initVmax: the initial maximum wind speed of the cyclone.
+
+        :param float initR34: the initial radius to gales for the cyclone.
+        :param float initR64: the initial radius to storm-force winds for 
+                              the cyclone.
+        :param float initDay: the initial day of the cyclone.
 
         :rtype :class:`numpy.array`
         :return: the tracks generated.
@@ -748,7 +759,8 @@ class TrackGenerator(object):
                 continue
 
             if (initEnvPressure - genesisPressure) < 2:
-                log.debug("Track does not start with sufficient pressure deficit")
+                log.debug(("Track does not start with sufficient "
+                           "pressure deficit"))
                 continue
 
             log.debug('** Generating track %i from point (%.2f,%.2f)',
@@ -985,13 +997,14 @@ class TrackGenerator(object):
 
         :type  initEnvPressure: float
         :param initEnvPressure: the initial environment pressure.
+        
+        :param float initVmax: the initial maximum wind speed of the cyclone.
 
-        :type  initRmax: float
-        :param initRmax: the initial maximum radius of the tropical
-                         cyclone.
-
-        :type  initDay: float
-        :param initDay: the initial day of year of the tropical cyclone.
+        :param float initRmax: the initial maximum radius of the tropical
+                               cyclone.
+        :param float initR34: initial radius to gales of the cyclone
+        :param float initR64: initial radius to storm force winds.
+        :param float initTime: the initial date/time of the tropical cyclone.
 
         :return: a tuple of :class:`numpy.ndarray`'s
                  The tuple consists of::
@@ -1128,7 +1141,7 @@ class TrackGenerator(object):
 
                 return (index[:i], dates[:i], age[:i], lon[:i], lat[:i],
                         speed[:i], bearing[:i], pressure[:i],
-                        poci[:i], rmax[:i])
+                        poci[:i], vmax[:i], rmax[:i], r34[:i], r64[:i])
 
             cellNum = Cstats.getCellNum(lon[i], lat[i],
                                         self.gridLimit, self.gridSpace)
@@ -1146,10 +1159,16 @@ class TrackGenerator(object):
 
             bearing[i] = self.theta
             speed[i] = abs(self.v)  # reflect negative speeds
+            d_speed = speed[i] - speed[i - 1]
 
             # Calculate the central pressure
 
             if onLand:
+                if d_speed > 15:
+                   speed[i] = speed[i-1] + 15
+                elif d_speed < -20:               
+                    speed[i] = speed[i-1] - 20
+
                 tol += float(self.dt)
                 deltaP = self.offshorePoci - self.offshorePressure
                 #alpha = -0.001479 + 0.001061 * deltaP + lfeps
@@ -1157,9 +1176,26 @@ class TrackGenerator(object):
                         0.0015 * self.landfallSpeed + lfeps
 
                 pressure[i] = poci[i - 1] - deltaP * np.exp(-alpha * tol)
+                
+                # set dp_min, and restrict the maximum change in central 
+                # pressure (Ming Ge, 2016)
+                dpressure   = pressure[i] - pressure[i-1] 
+                dp_min = max(0.3, 0.04*(penv[i]-pressure[i]))
+                if dpressure <dp_min :
+                    pressure[i] = pressure[i-1] + dp_min
+                elif dpressure >15. and pressure[i-1]>980.:
+                    pressure[i] = pressure[i-1] + 15. 
+                elif dpressure >30:
+                    pressure[i] = pressure[i-1] + 30.
+
                 poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
                 log.debug('Central pressure after landfall: %7.2f', pressure[i])
             else:
+                if d_speed > 25:
+                   speed[i] = speed[i-1] + 25
+                elif d_speed < -25:
+                   speed[i] = speed[i-1] - 25
+
                 pstat = self.pStats.coeffs
                 pressure[i] = pressure[i - 1] + self.dp * self.dt
 
@@ -1167,12 +1203,11 @@ class TrackGenerator(object):
                 # more than 4 std deviations lower than the minimum
                 # observed central pressure, automatically start
                 # raising the central pressure.
-
-                if (pressure[i] < (pstat.min[cellNum] -
-                                   4. * pstat.sig[cellNum])):
+                pmin_o = pstat.min[cellNum] - 4. * pstat.sig[cellNum]
+                if pressure[i] < pmin_o:
                     log.debug('Recalculting pressure as extremely low')
-                    pressure[i] = (pressure[i - 1] +
-                                   abs(self.dp) * self.dt)
+                    pressure[i] = pmin_o
+
 
                 self.offshorePressure = pressure[i]
                 self.landfallSpeed = speed[i]
@@ -1199,6 +1234,87 @@ class TrackGenerator(object):
 
             dist[i] = self.dt * speed[i]
 
+            dgrad_1      = penv[i]   - pressure[i]
+            dgrad_2      = penv[i-1] - pressure[i-1] 
+            dgrad        = dgrad_1   - dgrad_2
+            sqrt_dgrad_1 = np.sqrt(dgrad_1) 
+            sqrt_dgrad_2 = np.sqrt(dgrad_2)
+            dsqrt_dgrad  = np.sqrt(dgrad_1) - np.sqrt(dgrad_2)
+  
+            self._stepVmChange(cellNum, i, onLand)
+            
+            #"willoughby" vMax = 0.6252*sqrt(dP)   (unit:Pa)
+            if abs(self.dvm) < abs(4.252*dsqrt_dgrad): 
+                d_vmax = abs(4.252*dsqrt_dgrad) 
+            elif abs(self.dvm) > abs(8.252*dsqrt_dgrad):
+                d_vmax = abs(8.252*dsqrt_dgrad)
+            else:
+                d_vmax = abs(self.dvm)
+            
+            d_vmax = min(d_vmax, 8)
+           
+            if dgrad >=0:
+                vmax[i] = vmax[i-1] + d_vmax*self.dt
+            else:
+                vmax[i] = vmax[i-1] - d_vmax*self.dt
+
+            if onLand:
+                if vmax[i] > 12:
+                # V = Vb + (R*V0 - Vb)Exp(-alpha*t), R- alpha: 1-0.115, 0.9-0.095, 0.8-0.08
+                    vmax[i] = min(vmax[i], 12 + max((0.8*vmax[i-1]-12), 0)*np.exp(-0.08))
+                if vmax[i] > vmax[i-1] :
+                    vmax[i] = vmax[i-1]
+
+            vmax[i] = max(vmax[i], 4.252*sqrt_dgrad_1)
+            vmax[i] = min(vmax[i], 8.5*sqrt_dgrad_1)
+
+            d_vmax = vmax[i] - vmax[i - 1]    
+
+            if isinstance(self.allCDFInitR34, np.ndarray):
+                if vmax[i]<17 :
+                    r34[i] = 0
+                elif vmax[i]==17 :
+                    r34[i] = rmax[i]
+                else:
+                    self._stepR34Change(cellNum, i, onLand)
+                    d_d34 = min(10*abs(d_vmax)*(1-r34[i - 1]/600.), 40)
+                    d_d34 = min(abs(self.d34), d_d34) 
+              
+                    if d_vmax >= 0:
+                        r34[i] = r34[i - 1] + d_d34 * self.dt
+                    else:
+                        r34[i] = r34[i - 1] - d_d34 * self.dt
+
+                    if rmax[i] > r34[i]:
+                       dd = rmax[i] - r34[i]
+                       r34[i]  = rmax[i] + 0.3*dd
+                       rmax[i] = rmax[i] - 0.3*dd
+                       
+                    r34[i] = min(r34[i], 600)
+            else:
+                r34[i] = r34[i - 1]
+
+            if vmax[i]<34 :
+                r64[i] = 0
+            elif vmax[i]==34 :
+                r64[i] = rmax[i]
+            else:
+                self._stepR64Change(cellNum, i, onLand)
+                d_d64 = min(6*abs(d_vmax)*(1-r64[i - 1]/250.), 20)
+                d_d64 = min(abs(self.d64), d_d64)
+
+                if d_vmax >= 0. :
+                   r64[i] = r64[i - 1] + d_d64 * self.dt
+                else:
+                   r64[i] = r64[i - 1] - d_d64 * self.dt
+
+                if r64[i] < rmax[i]:
+                   dd = rmax[i] - r64[i]
+                   r64[i]  = rmax[i] + 0.3*dd
+                   rmax[i] = rmax[i] - 0.3*dd
+
+                r64[i] = min(r64[i], 250)     
+
             # Terminate the track if it doesn't satisfy certain criteria
 
             if self._notValidTrackStep(pressure[i], poci[i], age[i],
@@ -1208,10 +1324,10 @@ class TrackGenerator(object):
 
                 return (index[:i], dates[:i], age[:i], lon[:i], lat[:i],
                         speed[:i], bearing[:i], pressure[:i], poci[:i],
-                        rmax[:i])
+                        vmax[:i], rmax[:i], r34[:i], r64[:i])
 
         return (index, dates, age, lon, lat, speed, bearing, pressure,
-                poci, rmax)
+                poci, vmax, rmax, r34, r64)
 
     def _stepPressureChange(self, c, i, onLand):
         """
@@ -1245,8 +1361,9 @@ class TrackGenerator(object):
             sigma = self.dpStats.coeffs.sig
 
         # Do the step
-
-        self.dpChi = alpha[c] * self.dpChi + phi[c] * logistic()
+        self.log_p, self.log_vmax, self.log_rmax, \
+            self.log_r34, self.log_r64 = logistic_new() 
+        self.dpChi = alpha[c] * self.dpChi + phi[c]*self.log_p 
 
         if i == 1:
             self.dp += sigma[c] * self.dpChi
@@ -1330,7 +1447,7 @@ class TrackGenerator(object):
 
         # Do the step
 
-        self.vChi = alpha[c] * self.vChi + phi[c] * logistic()
+        self.vChi = alpha[c] * self.vChi + phi[c] * logistic(scale=0.54)
 
         # Update the speed
 
@@ -1338,6 +1455,26 @@ class TrackGenerator(object):
             self.v += abs(sigma[c] * self.vChi)
         else:
             self.v = abs(mu[c] + sigma[c] * self.vChi)
+
+    def _stepPressure(self, c, i, onLand):
+        # Ming Ge (2015)
+        if onLand:
+            alpha = self.pStats.coeffs.lalpha
+            phi   = self.pStats.coeffs.lphi
+            mu    = self.pStats.coeffs.lmu
+            sigma = self.pStats.coeffs.lsig
+        else:
+            alpha = self.pStats.coeffs.alpha
+            phi   = self.pStats.coeffs.phi
+            mu    = self.pStats.coeffs.mu
+            sigma = self.pStats.coeffs.sig
+
+        self.pChi = alpha[c] * self.pChi + phi[c] * logistic()
+
+        if i == 1:
+            self.p += abs(sigma[c] * self.pChi)
+        else:
+            self.p  = abs(mu[c] + sigma[c] * self.pChi)
 
     def _stepSizeChange(self, c, i, onLand):
         """
@@ -1372,7 +1509,7 @@ class TrackGenerator(object):
 
         # Do the step
 
-        self.dsChi = alpha[c] * self.dsChi + phi[c] * logistic()
+        self.dsChi = alpha[c] * self.dsChi + phi[c] * self.log_rmax
 
         # Update the size change
 
@@ -1380,6 +1517,66 @@ class TrackGenerator(object):
             self.ds += sigma[c] * self.dsChi
         else:
             self.ds = mu[c] + sigma[c] * self.dsChi
+
+    def _stepR34Change(self, c, i, onLand):
+
+        if onLand:
+            alpha = self.d34Stats.coeffs.lalpha
+            phi   = self.d34Stats.coeffs.lphi
+            mu    = self.d34Stats.coeffs.lmu
+            sigma = self.d34Stats.coeffs.lsig
+        else:
+            alpha = self.d34Stats.coeffs.alpha
+            phi   = self.d34Stats.coeffs.phi
+            mu    = self.d34Stats.coeffs.mu
+            sigma = self.d34Stats.coeffs.sig
+
+        self.d34Chi = alpha[c] * self.d34Chi - phi[c] * self.log_r34
+
+        if i == 1:
+            self.d34 += sigma[c] * self.d34Chi
+        else:
+            self.d34 = mu[c] + sigma[c] * self.d34Chi
+
+    def _stepR64Change(self, c, i, onLand):
+
+        if onLand:
+            alpha = self.d64Stats.coeffs.lalpha
+            phi   = self.d64Stats.coeffs.lphi
+            mu    = self.d64Stats.coeffs.lmu
+            sigma = self.d64Stats.coeffs.lsig
+        else:
+            alpha = self.d64Stats.coeffs.alpha
+            phi   = self.d64Stats.coeffs.phi
+            mu    = self.d64Stats.coeffs.mu
+            sigma = self.d64Stats.coeffs.sig
+
+        self.d64Chi = alpha[c] * self.d64Chi - phi[c] * self.log_r64
+        
+        if i == 1:
+            self.d64 += sigma[c] * self.d64Chi
+        else:
+            self.d64 = mu[c] + sigma[c] * self.d64Chi
+
+    def _stepVmChange(self, c, i, onLand):
+
+        if onLand:
+            alpha = self.dvmStats.coeffs.lalpha
+            phi   = self.dvmStats.coeffs.lphi
+            mu    = self.dvmStats.coeffs.lmu
+            sigma = self.dvmStats.coeffs.lsig
+        else:
+            alpha = self.dvmStats.coeffs.alpha
+            phi   = self.dvmStats.coeffs.phi
+            mu    = self.dvmStats.coeffs.mu
+            sigma = self.dvmStats.coeffs.sig
+
+        self.dvmChi = alpha[c] * self.dvmChi - phi[c] * self.log_vmax
+
+        if i == 1:
+            self.dvm += sigma[c] * self.dvmChi
+        else:
+            self.dvm = mu[c] + sigma[c] * self.dvmChi
 
     def _notValidTrackStep(self, pressure, poci, age, lon0, lat0,
                            nextlon, nextlat):
@@ -1777,7 +1974,7 @@ class TrackGenerator(object):
         outputFile = pjoin(self.processPath, 'coefficients.nc')
         nctools.ncSaveGrid(outputFile, dimensions, variables,
                            nodata=self.missingValue, datatitle=None,
-                           writedata=True, keepfileopen=False)
+                           dtype='f',writedata=True, keepfileopen=False)
 
 # Define a global pseudo-random number generator. This is done to
 # ensure we are sampling correctly across processors when performing
@@ -1807,6 +2004,12 @@ def logistic(loc=0., scale=1.0):
     """
     return PRNG.logisticvariate(loc, scale)
 
+def logistic_new(loc=0.):
+    """
+    Sample from a logistic distribution.
+    """
+    return PRNG.logisticvariate_new(loc)
+
 def nct(df, nc, loc=0.0, scale=1.0):
     """
     Sample from a non-central T distribution.
@@ -1822,20 +2025,6 @@ def ppf(q, cdf):
     """
     i = cdf[:, 1].searchsorted(q)
     return cdf[i, 0]
-
-
-def _balanced(iterable):
-    """
-    Balance an iterator across processors.
-
-    This partitions the work evenly across processors. However, it
-    requires the iterator to have been generated on all processors
-    before hand. This is only some magical slicing of the iterator,
-    i.e., a poor man version of scattering.
-    """
-    P, p = pp.size(), pp.rank()
-    return itertools.islice(iterable, p, None, P)
-
 
 class Simulation(object):
 
