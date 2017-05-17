@@ -24,7 +24,6 @@ from Utilities.track import ncReadTrackData
 from Utilities.nctools import ncSaveGrid
 from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities import pathLocator
-from Utilities.loadData import loadTrackFile
 
 from PlotInterface.maps import ArrayMapFigure, saveFigure
 
