@@ -13,7 +13,7 @@ genesis locations and applying a 2-d kernel density estimation method.
 """
 
 from os.path import join as pjoin
-import logging
+import logging as log
 import numpy as np
 
 from Utilities.files import flLoadFile
@@ -69,7 +69,7 @@ class KDEOrigin(object):
 
         """
         self.progressbar = progressbar
-        LOGGER.info("Initialising KDEOrigin")
+        log.info("Initialising KDEOrigin")
         self.x = np.arange(gridLimit['xMin'], gridLimit['xMax'], kdeStep)
         self.y = np.arange(gridLimit['yMax'], gridLimit['yMin'], -kdeStep)
 
@@ -86,7 +86,7 @@ class KDEOrigin(object):
             # Load the data from file:
             self.outputPath = self.config.get('Output', 'Path')
             self.processPath = pjoin(self.outputPath, 'process')
-            LOGGER.debug("Loading " + pjoin(self.processPath, 'init_lon_lat'))
+            log.debug("Loading " + pjoin(self.processPath, 'init_lon_lat'))
             ll = flLoadFile(pjoin(self.processPath, 'init_lon_lat'), '%', ',')
             self.lonLat = ll[:, 0:2]
         else:
@@ -100,7 +100,7 @@ class KDEOrigin(object):
         self.lonLat = self.lonLat[ii]
 
         self.bw = getOriginBandwidth(self.lonLat)
-        LOGGER.info("Bandwidth: %s", repr(self.bw))
+        log.info("Bandwidth: %s", repr(self.bw))
 
 
     def generateKDE(self, save=False, plot=False):

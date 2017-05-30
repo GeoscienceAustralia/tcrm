@@ -143,7 +143,7 @@ def doOutputDirectoryCreation(configFile):
 
     subdirs = ['tracks', 'hazard', 'windfield', 'plots', 'plots/hazard',
                'plots/stats', 'log', 'process', 'process/timeseries',
-               'process/dat']
+               'process/dat', 'cdp', 'vm_vt_r64']
 
     if not isdir(outputPath):
         try:
@@ -369,10 +369,14 @@ def doStatistics(configFile):
     statInterface.cdfCellPressure()
     pbar.update(0.8)
 
+    statInterface.cdfCellVmax()
+    pbar.update(0.9)
+
     statInterface.calcCellStatistics()
 
     if getRMWDistFromInputData:
         statInterface.cdfCellSize()
+        statInterface.cdfCellR34()
 
     pbar.update(1.0)
     log.info('Completed StatInterface')
@@ -402,6 +406,89 @@ def doHazard(configFile):
     hazard.run(configFile)
 
     log.info('Completed HazardInterface')
+    pbar.update(1.0)
+
+def doCDP(configFile):
+    """
+    Do the hazard calculations (extreme value distribution fitting)
+    using the :mod:`cdp` module.
+
+    :param str configFile: Name of configuration file.
+
+    """
+
+    log.info('Running CDPInterface')
+
+    config = ConfigParser()
+    config.read(configFile)
+
+    showProgressBar = config.get('Logging', 'ProgressBar')
+    pbar = ProgressBar('Performing CDP calculations: ', showProgressBar)
+
+    def status(done, total):
+        pbar.update(float(done)/total)
+
+    import cdp
+    cdp.run(configFile)
+
+    log.info('Completed CDPInterface')
+    pbar.update(1.0)
+
+def doR64(configFile):
+
+    log.info('Running R64 Interface')
+
+    config = ConfigParser()
+    config.read(configFile)
+
+    showProgressBar = config.get('Logging', 'ProgressBar')
+    pbar = ProgressBar('Performing R64 Calculations: ', showProgressBar)
+
+    def status(done, total):
+        pbar.update(float(done)/total)
+
+    import hazard_r64
+    hazard_r64.run(configFile)
+
+    log.info('Completed R64Interface')
+    pbar.update(1.0)
+
+def doVm(configFile):
+
+    log.info('Running Vm Interface')
+
+    config = ConfigParser()
+    config.read(configFile)
+
+    showProgressBar = config.get('Logging', 'ProgressBar')
+    pbar = ProgressBar('Performing Vm Calculations: ', showProgressBar)
+
+    def status(done, total):
+        pbar.update(float(done)/total)
+
+    import hazard_vm
+    hazard_vm.run(configFile)
+
+    log.info('Completed Vm Interface')
+    pbar.update(1.0)
+
+def doVt(configFile):
+
+    log.info('Running Vt Interface')
+
+    config = ConfigParser()
+    config.read(configFile)
+
+    showProgressBar = config.get('Logging', 'ProgressBar')
+    pbar = ProgressBar('Performing Vt Calculations: ', showProgressBar)
+
+    def status(done, total):
+        pbar.update(float(done)/total)
+
+    import hazard_vt
+    hazard_vt.run(configFile)
+
+    log.info('Completed Vt Interface')
     pbar.update(1.0)
 
 @disableOnWorkers
@@ -532,6 +619,26 @@ def main(configFile='main.ini'):
 
     pp.barrier()
 
+    if config.getboolean('Actions', 'ExecuteCDP'):
+        doCDP(configFile)
+
+    pp.barrier()
+
+    #if config.getboolean('Actions', 'ExecuteR64'):
+    #    doR64(configFile)
+
+    #pp.barrier()
+    
+    #if config.getboolean('Actions', 'ExecuteVm'):
+    #    doVm(configFile)
+  
+    #pp.barrier()
+
+    #if config.getboolean('Actions', 'ExecuteVt'):
+    #    doVt(configFile)
+  
+    #pp.barrier()
+
     if config.getboolean('Actions', 'PlotData'):
         doDataPlotting(configFile)
 
@@ -634,6 +741,9 @@ def startup():
             main(configFile)
         except ImportError as e:
             log.critical("Missing module: {0}".format(e))
+            tblines = traceback.format_exc().splitlines()
+            for line in tblines:
+                log.critical(line.lstrip())
         except Exception:  # pylint: disable=W0703
             # Catch any exceptions that occur and log them (nicely):
             tblines = traceback.format_exc().splitlines()

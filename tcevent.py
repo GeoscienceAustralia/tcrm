@@ -260,6 +260,9 @@ def startup():
             main(configFile)
         except ImportError as e:
             log.critical("Missing module: {0}".format(e.strerror))
+            tblines = traceback.format_exc().splitlines()
+            for line in tblines:
+                log.critical(line.lstrip())
         except Exception:  # pylint: disable=W0703
             # Catch any exceptions that occur and log them (nicely):
             tblines = traceback.format_exc().splitlines()

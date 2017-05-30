@@ -16,7 +16,7 @@ use in other sections.
 
 import os
 import sys
-import logging
+import logging as log
 
 import numpy as np
 import Utilities.stats as stats
@@ -24,8 +24,6 @@ import Utilities.KPDF as KPDF
 
 from Utilities.files import flLoadFile, flSaveFile
 from Utilities.config import cnfGetIniValue
-
-LOG = logging.getLogger()
 
 class KDEParameters(object):
     """
@@ -46,13 +44,13 @@ class KDEParameters(object):
         Initialize the logger and ensure the requested KDE type exists.
 
         """
-        LOG.info("Initialising KDEParameters")
+        log.info("Initialising KDEParameters")
 
         if hasattr(KPDF, "UPDF%s" %kdeType):
-            LOG.debug("Using %s to generate distribution", kdeType)
+            log.debug("Using %s to generate distribution", kdeType)
             self.kdeType = kdeType
         else:
-            LOG.error("Invalid KDE type: %s", kdeType)
+            log.error("Invalid KDE type: %s", kdeType)
             raise NotImplementedError("Invalid KDE type: %s" % kdeType)
 
     def generateKDE(self, parameters, kdeStep, kdeParameters=None,
@@ -96,14 +94,14 @@ class KDEParameters(object):
 
         """
 
-        LOG.debug("Running generateKDE")
+        log.debug("Running generateKDE")
         if type(parameters) is str:
             self.parameters = stats.statRemoveNum(flLoadFile(parameters,
                                                              '%', ','),
                                                   missingValue)
         else:
             if parameters.size <= 1:
-                LOG.error("Insufficient members in parameter list")
+                log.error("Insufficient members in parameter list")
                 raise IndexError("Insufficient members in parameter list")
 
             self.parameters = stats.statRemoveNum(parameters, missingValue)
@@ -118,7 +116,7 @@ class KDEParameters(object):
             xmin = self.parameters.min()
             xmax = self.parameters.max()
 
-        LOG.debug("xmin=%7.3f, xmax=%7.3f, kdeStep=%7.3f" %
+        log.debug("xmin=%7.3f, xmax=%7.3f, kdeStep=%7.3f" %
                   (xmin, xmax, kdeStep))
         if periodic:
             x = np.arange(1, periodic + 1, kdeStep)
@@ -130,8 +128,8 @@ class KDEParameters(object):
             self.grid = np.arange(xmin, xmax, kdeStep)
 
         if self.grid.size < 2:
-            LOG.critical("Grid for CDF generation is a single value")
-            LOG.critical("xmin=%7.3f, xmax=%7.3f, kdeStep=%7.3f", 
+            log.critical("Grid for CDF generation is a single value")
+            log.critical("xmin=%7.3f, xmax=%7.3f, kdeStep=%7.3f", 
                          xmin, xmax, kdeStep)
             raise ValueError
 
@@ -148,7 +146,7 @@ class KDEParameters(object):
             return np.transpose(np.array([self.grid, self.pdf, self.cy]))
         else:
             # Assume both kdeParameters and cdfParameters are defined as files:
-            LOG.debug("Saving KDE and CDF data to files")
+            log.debug("Saving KDE and CDF data to files")
             flSaveFile(kdeParameters,
                        np.transpose(np.array([self.grid, self.pdf])))
             flSaveFile(cdfParameters,
@@ -185,7 +183,7 @@ class KDEParameters(object):
         try:
             kdeMethod = getattr(KPDF, "UPDF%s" % self.kdeType)
         except AttributeError:
-            LOG.exception(("Invalid input on option: "
+            log.exception(("Invalid input on option: "
                            "KDE method UPDF%s does not exist"),
                           self.kdeType)
             raise
@@ -197,7 +195,7 @@ class KDEParameters(object):
             return np.transpose(np.array(np.concatenate([days, apdf, cy])))
         else:
             # Assume both kdeParameters and cdfParameters are defined as files:
-            LOG.debug("Saving KDE and CDF data to files")
+            log.debug("Saving KDE and CDF data to files")
             flSaveFile(genesisKDE, np.transpose(np.array([days, cy])))
 
 
@@ -206,15 +204,15 @@ class KDEParameters(object):
         Sub-function that generates the PDFs of kernel
         density estimation from raw dataset
         """
-        LOG.debug("Generating PDF")
+        log.debug("Generating PDF")
         if bw <= 0:
-            LOG.critical("bw = %d. Bandwidth cannot be negative or zero", bw)
+            log.critical("bw = %d. Bandwidth cannot be negative or zero", bw)
             raise ValueError('bw = %d. Bandwidth cannot be negative or zero'%bw)
 
         try:
             kdeMethod = getattr(KPDF, "UPDF%s" %self.kdeType)
         except AttributeError:
-            LOG.exception(("Invalid input on option: "
+            log.exception(("Invalid input on option: "
                            "KDE method UPDF%s does not exist"),
                           self.kdeType)
             raise

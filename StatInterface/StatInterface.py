@@ -110,8 +110,8 @@ class StatInterface(object):
 
         """
         log.info('Generating CDFs for TC genesis day')
-        log.debug('Reading data from %s',
-                  pjoin(self.processPath, 'jdays'))
+        log.debug('Reading data from {0}'.\
+                  format(pjoin(self.processPath, 'jdays')))
         pList = pjoin(self.processPath, 'jdays')
         lonLat = pjoin(self.processPath, 'init_lon_lat')
         kde = KDEParameters.KDEParameters(self.kdeType)
@@ -128,12 +128,12 @@ class StatInterface(object):
 
         """
         log.info('Generating CDFs for TC bearing')
-        log.debug('Reading data from %s',
-                  pjoin(self.processPath, 'init_lon_lat'))
-        log.debug('Reading data from %s',
-                  pjoin(self.processPath, 'init_bearing'))
-        log.debug('Outputting data into %s', pjoin(
-            self.processPath, 'all_cell_cdf_init_bearing'))
+        log.debug('Reading data from {0}'.\
+                  format(pjoin(self.processPath, 'init_lon_lat')))
+        log.debug('Reading data from {0}'.\
+                  format(pjoin(self.processPath, 'init_bearing')))
+        log.debug('Outputting data into {0}'.format(pjoin(
+            self.processPath, 'all_cell_cdf_init_bearing')))
 
         lonLat = pjoin(self.processPath, 'init_lon_lat')
         pList = pjoin(self.processPath, 'init_bearing')
@@ -198,6 +198,67 @@ class StatInterface(object):
         lonLat = pjoin(self.processPath, 'origin_lon_lat')
         pList = pjoin(self.processPath, 'init_rmax')
         self.generateDist.allDistributions(lonLat, pList, 'init_rmax',
+                                           self.kdeStep)
+
+    def cdfCellVmax(self):
+        """
+        Generate CDFs relating to the  maximum wind
+        of cyclones in each grid cell in the model domain.
+        
+        """
+        log.info('Generating CDFs for Vmax')
+        log.debug('Reading data from %s',
+                  pjoin(self.processPath, 'origin_lon_lat'))
+        log.debug('Reading data from %s',
+                  pjoin(self.processPath, 'init_vmax'))
+        log.debug('Outputting data into %s',
+                  pjoin(self.processPath,
+                        'all_cell_cdf_init_vmax'))
+
+        lonLat = pjoin(self.processPath, 'origin_lon_lat')
+        pList = pjoin(self.processPath, 'init_vmax')
+        self.generateDist.allDistributions(lonLat, pList, 'init_vmax',
+                                           self.kdeStep)
+    def cdfCellR34(self):
+        """
+        Generate CDFs relating to the size (radius of 34kt wind)
+        of cyclones in each grid cell in the model domain.
+        Usually there aren't sufficient points to estimate
+        I drop this one       
+        """
+        log.info('Generating CDFs for TC R34')
+        log.debug('Reading data from %s',
+                  pjoin(self.processPath, 'origin_lon_lat'))
+        log.debug('Reading data from %s',
+                  pjoin(self.processPath, 'init_r34'))
+        log.debug('Outputting data into %s',
+                  pjoin(self.processPath,
+                        'all_cell_cdf_init_r34'))
+
+        lonLat = pjoin(self.processPath, 'origin_lon_lat')
+        pList  = pjoin(self.processPath, 'init_r34')
+        self.generateDist.allDistributions(lonLat, pList, 'init_r34',
+                                           self.kdeStep)
+   
+    def cdfCellR64(self):
+        """
+        Generate CDFs relating to the size (radius of 64kt wind)
+        of cyclones in each grid cell in the model domain.
+        Usually there aren't sufficient points to estimate
+        I drop this one       
+        """
+        log.info('Generating CDFs for TC R64')
+        log.debug('Reading data from %s',
+                  pjoin(self.processPath, 'origin_lon_lat'))
+        log.debug('Reading data from %s',
+                  pjoin(self.processPath, 'init_r64'))
+        log.debug('Outputting data into %s',
+                  pjoin(self.processPath,
+                        'all_cell_cdf_init_r64'))
+
+        lonLat = pjoin(self.processPath, 'origin_lon_lat')
+        pList  = pjoin(self.processPath, 'init_r64')
+        self.generateDist.allDistributions(lonLat, pList, 'init_r64',
                                            self.kdeStep)
 
     def calcCellStatistics(self, minSample=100):
@@ -277,3 +338,62 @@ class StatInterface(object):
         log.debug('Saving cell statistics for bearing to netcdf file')
         dbStats.save(pjoin(path, 'bearing_rate_stats.nc'), 'bearing_rate')
 
+        log.debug('Calculating cell statistics for vmax')
+        vmStats = calculate('all_vmax')
+        vmStats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','vmax_stats'))
+        log.debug('Saving cell statistics for vmax to netcdf file')
+        vmStats.save(pjoin(path, 'vmax_stats.nc'), 'vmax')
+
+        log.debug('Calculating cell statistics for vmax rate of change')
+        dvmStats = calculate('vmax_rate')
+        dvmStats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','vmax_rate_stats'))
+
+        log.debug('Saving cell statistics for vmax rate to netcdf file')
+        dvmStats.save(pjoin(path, 'vmax_rate_stats.nc'), 'vmax_rate')
+
+        log.debug('Calculating cell statistics for rmax')
+        sStats = calculate('all_rmax')
+        sStats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','rmax_stats'))
+        log.debug('Saving cell statistics for rmax to netcdf file')
+        sStats.save(pjoin(path, 'rmax_stats.nc'), 'rmax')
+
+        log.debug('Calculating cell statistics for rmax rate of change')
+        dsStats = calculate('rmax_rate')
+        dsStats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','rmax_rate_stats'))
+        
+        log.debug('Saving cell statistics for rmax rate to netcdf file')
+        dsStats.save(pjoin(path, 'rmax_rate_stats.nc'), 'rmax_rate')
+
+	log.debug('Calculating cell statistics for r34')
+        r34Stats = calculate('all_r34')
+        r34Stats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','r34_stats'))
+        log.debug('Saving cell statistics for r34 to netcdf file')
+        r34Stats.save(pjoin(path, 'r34_stats.nc'), 'r34')
+
+        log.debug('Calculating cell statistics for r34 rate of change')
+        d34Stats = calculate('r34_rate')
+        d34Stats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','r34_rate_stats'))
+
+        log.debug('Saving cell statistics for r34 rate to netcdf file')
+        d34Stats.save(pjoin(path, 'r34_rate_stats.nc'), 'r34_rate')
+
+	log.debug('Calculating cell statistics for r64')
+        r64Stats = calculate('all_r64')
+        r64Stats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','r64_stats'))
+        log.debug('Saving cell statistics for r64 to netcdf file')
+        r64Stats.save(pjoin(path, 'r64_stats.nc'), 'r64')
+
+        log.debug('Calculating cell statistics for r64 rate of change')
+        d64Stats = calculate('r64_rate')
+        d64Stats.plotStatistics(pjoin(self.outputPath, 'plots',
+                                     'stats','r64_rate_stats'))
+        
+        log.debug('Saving cell statistics for r64 rate to netcdf file')
+        d64Stats.save(pjoin(path, 'r64_rate_stats.nc'), 'r64_rate')

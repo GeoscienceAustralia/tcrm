@@ -333,14 +333,20 @@ class GenerateStats:
             wLon, eLon, nLat, sLat = self._expandCell(lon, lat, wLon, eLon,
                                                       nLat, sLat)
             # Check if grid has reached maximum extent
-            if (wLon == wLon_last) & (eLon == eLon_last) & (nLat == nLat_last) & (sLat == sLat_last):
+            if (wLon == wLon_last) & (eLon == eLon_last) & \
+               (nLat == nLat_last) & (sLat == sLat_last):
                 if onLand:
                     if not self.domain_warning_raised:
                         self.domain_warning_raised = True
-                        self.logger.warning("Insufficient grid points over land in selected domain to estimate storm statistics - reverting to statistics for open ocean.")
+                        self.logger.warning(
+                            ("Insufficient grid points over land in "
+                             "selected domain to estimate storm statistics "
+                             "- reverting to statistics for open ocean."))
                     return self.extractParameter(cellNum, False)
                 else:
-                    errMsg = "Insufficient grid points in selected domain to estimate storm statistics - please select a larger domain."
+                    errMsg = ("Insufficient grid points in selected "
+                              "domain to estimate storm statistics - "
+                              "please select a larger domain.")
                     self.logger.critical(errMsg)
                     raise StopIteration, errMsg
             if onLand:
@@ -414,69 +420,110 @@ class GenerateStats:
         description = ' ' + description.strip()
         self.logger.debug('Saving' + description + ' statistics to %s' % filename)
 
-        lon = np.arange(self.gridLimit['xMin'],self.gridLimit['xMax'],self.gridSpace['x'])
-        lat = np.arange(self.gridLimit['yMax'],self.gridLimit['yMin'],-1*self.gridSpace['y'])
+        lon = np.arange(self.gridLimit['xMin'],
+                        self.gridLimit['xMax'],
+                        self.gridSpace['x'])
+        lat = np.arange(self.gridLimit['yMax'],
+                        self.gridLimit['yMin'],
+                        -1*self.gridSpace['y'])
 
         nx = len(lon)
         ny = len(lat)
 
-        dimensions = {0:{'name':'lat','values':lat,'dtype':'f',
-                         'atts':{'long_name':'Latitude','units':'degrees_north'} },
-                      1:{'name':'lon','values':lon,'dtype':'f',
-                         'atts':{'long_name':'Longitude','units':'degrees_east'} } }
+        dimensions = {0:{'name':'lat',
+                         'values':lat,
+                         'dtype':'f',
+                         'atts':{
+                             'long_name':'Latitude',
+                             'units':'degrees_north'
+                         } 
+                     },
+                      1:{'name':'lon',
+                         'values':lon,
+                         'dtype':'f',
+                         'atts':{
+                             'long_name':'Longitude',
+                             'units':'degrees_east'
+                         } 
+                     } }
 
-        variables = {0:{'name':'mu','dims':('lat','lon'),
+        variables = {0:{'name':'mu',
+                        'dims':('lat','lon'),
                         'values':self.coeffs.mu.reshape((ny,nx)),
                         'dtype':'f',
-                        'atts':{'long_name':'Mean' + description,
-                                'units':'m/s'} },
-                     1:{'name':'alpha','dims':('lat','lon'),
+                        'atts':{
+                            'long_name':'Mean' + description,
+                            'units':'m/s'} },
+                     1:{'name':'alpha',
+                        'dims':('lat','lon'),
                         'values':self.coeffs.alpha.reshape((ny,nx)),
                         'dtype':'f',
-                        'atts':{'long_name':'Lag-1 autocorrelation of' + description,
-                                'units':''} },
-                     2:{'name':'sig','dims':('lat','lon'),
+                        'atts':{
+                            'long_name':'Lag-1 autocorrelation of' + description,
+                            'units':''} },
+                     2:{'name':'sig',
+                        'dims':('lat','lon'),
                         'values':self.coeffs.sig.reshape((ny,nx)),
                         'dtype':'f',
-                        'atts':{'long_name':'Standard deviation' + description,
-                                'units':'m/s'} },
-                     3:{'name':'min','dims':('lat','lon'),
+                        'atts':{
+                            'long_name':'Standard deviation' + description,
+                            'units':'m/s'} },
+                     3:{'name':'min',
+                        'dims':('lat','lon'),
                         'values':self.coeffs.min.reshape((ny,nx)),
                         'dtype':'f',
-                        'atts':{'long_name':'Minimum' + description,
-                                'units':'m/s'} },
-                     4:{'name':'lmu','dims':('lat','lon'),
+                        'atts':{
+                            'long_name':'Minimum' + description,
+                            'units':'m/s'} },
+                     4:{'name':'lmu',
+                        'dims':('lat','lon'),
                         'values':self.coeffs.lmu.reshape((ny,nx)),
                         'dtype':'f',
-                        'atts':{'long_name':'Mean' + description +' (over land)',
-                                'units':'m/s'} },
-                     5:{'name':'lalpha','dims':('lat','lon'),
+                        'atts':{
+                            'long_name':'Mean' + description +' (over land)',
+                            'units':'m/s'} },
+                     5:{'name':'lalpha',
+                        'dims':('lat','lon'),
                         'values':self.coeffs.lalpha.reshape((ny,nx)),
                         'dtype':'f',
-                        'atts':{'long_name':'Lag-1 autocorrelation of' + description + ' (over land)',
-                                'units':''} },
-                     6:{'name':'lsig','dims':('lat','lon'),
+                        'atts':{
+                            'long_name':'Lag-1 autocorrelation of' + description + ' (over land)',
+                            'units':''} },
+                     6:{'name':'lsig',
+                        'dims':('lat','lon'),
                         'values':self.coeffs.lsig.reshape((ny,nx)),
                         'dtype':'f',
-                        'atts':{'long_name':'Standard deviation of' + description + ' (over land)',
-                                'units':'m/s'} },
-                     7:{'name':'lmin','dims':('lat','lon'),
+                        'atts':{
+                            'long_name':'Standard deviation of' + description + ' (over land)',
+                            'units':'m/s'} },
+                     7:{'name':'lmin',
+                        'dims':('lat','lon'),
                         'values':self.coeffs.lmin.reshape((ny,nx)),
                         'dtype':'f',
-                        'atts':{'long_name':'Minimum' + description + ' (over land)',
-                                'units':'m/s'} },
-                     8:{'name':'cell', 'dims':('lat','lon'),
+                        'atts':{
+                            'long_name':'Minimum' + description + ' (over land)',
+                            'units':'m/s'} },
+                     8:{'name':'cell',
+                        'dims':('lat','lon'),
                         'values':np.arange(self.maxCell+1).reshape((ny,nx)),
                         'dtype':'i',
-                        'atts':{'long_name':'Cell', 'units':''} },
-                     9:{'name':'phi', 'dims':('lat','lon'),
+                        'atts':{
+                            'long_name':'Cell',
+                            'units':''} },
+                     9:{'name':'phi',
+                        'dims':('lat','lon'),
                         'values':self.coeffs.phi.reshape((ny,nx)),
                         'dtype':'f',
-                        'atts':{'long_name':'phi', 'units':''} },
-                    10:{'name':'lphi', 'dims':('lat','lon'),
-                        'values':self.coeffs.lphi.reshape((ny,nx)),
-                        'dtype':'f',
-                        'atts':{'long_name':'land phi', 'units':''} }
+                        'atts':{
+                            'long_name':'phi',
+                            'units':''} },
+                     10:{'name':'lphi',
+                         'dims':('lat','lon'),
+                         'values':self.coeffs.lphi.reshape((ny,nx)),
+                         'dtype':'f',
+                         'atts':{
+                             'long_name':'land phi',
+                             'units':''} }
                      }
 
         import Utilities.nctools as nctools

@@ -66,8 +66,6 @@ class DataProcess(object):
 
     def __init__(self, configFile, progressbar=None):
 
-        #CalcTD = CalcTrackDomain(configFile)
-        #self.domain = CalcTD.calc()
         self.configFile = configFile
         self.progressbar = progressbar
         self.logger = logging.getLogger(__name__)
@@ -138,8 +136,12 @@ class DataProcess(object):
         for i in xrange(len(index)):
             if index[i] == 1:
                 # A new track:
-                if (stats.between(lon[i], self.domain['xMin'], self.domain['xMax']) &
-                        stats.between(lat[i], self.domain['yMin'], self.domain['yMax'])):
+                if (stats.between(lon[i],
+                                  self.domain['xMin'],
+                                  self.domain['xMax']) &
+                        stats.between(lat[i],
+                                      self.domain['yMin'],
+                                      self.domain['yMax'])):
                     # We have a track starting within the spatial domain:
                     outIndex.append(i)
                     flag = 1
@@ -301,6 +303,31 @@ class DataProcess(object):
             self._rmaxRate(rmax, dt, indicator)
         except (ValueError, KeyError):
             self.logger.warning("No rmax data available")
+            rmax = np.empty(indicator.size, 'f')
+
+	try:
+            r34 = np.array(inputData['r34'], 'd')
+	    r34 = np.where((r34 < 0) | (r34 > 500), sys.maxint, r34)
+            novalue_index = np.where(r34 == sys.maxint)
+            r34           = metutils.convert(r34, inputLengthUnits, "km")
+ 	    r34[novalue_index] = sys.maxint
+            self._r34    (r34,     indicator)
+            self._r34Rate(r34, dt, indicator)
+        except (ValueError, KeyError):
+            self.logger.warning("No r34 data available")
+            r34 = np.empty(indicator.size, 'f')
+
+        try:
+            r64 = np.array(inputData['r64'], 'd')
+	    r64 = np.where((r64 < 0) | (r64 > 300), sys.maxint, r64)
+            novalue_index = np.where(r64 == sys.maxint)
+            r64           = metutils.convert(r64, inputLengthUnits, "km")
+	    r64[novalue_index] = sys.maxint
+            self._r64    (r64,     indicator)
+            self._r64Rate(r64, dt, indicator)
+        except (ValueError, KeyError):
+            self.logger.warning("No r64 data available")
+            r64 = np.empty(indicator.size, 'f')
 
         if self.ncflag:
             self.data['index'] = indicator
@@ -335,7 +362,8 @@ class DataProcess(object):
         self._speedRate(dist, dt, indicator)
         self._pressure(pressure, indicator)
         self._pressureRate(pressure, dt, indicator)
-        self._windSpeed(vmax)
+        self._windSpeed(vmax, indicator)
+        self._windSpeedRate(vmax, dt, indicator)
 
         try:
             self._frequency(year, indicator)
@@ -556,12 +584,15 @@ class DataProcess(object):
         maxint, as the change in pressure from the previous observation
         is undefined. Entries corresponding to records with no pressure
         observation are also set to maxint.
-        Input: pressure - array of central pressure observations for TC
-               observations
-               dt - array of times between consecutive TC observations
-               indicator - array of ones/zeros representing initial TC
-                           observations (including TCs with a single
-                           observation)
+
+        :param pressure: :class:`numpy.ndarray` of central pressure 
+                         observations for TCs
+        :param dt: :class:`numpy.ndarray` of times between consecutive
+                   TC observations.
+        :param indicator: :class:`numpy.ndarray` of ones/zeros representing
+                          initial TC observations, including TCs with
+                          a single observation
+
         Output: None - data is written to file
         """
         self.logger.info('Extracting the rate of pressure change')
@@ -599,12 +630,15 @@ class DataProcess(object):
         second observation are set to maxint. The first entry is set
         to maxint as there is no bearing associated with it and the
         second entry is therefore non-sensical.
-        Input: bear - array of bearings between consecutive TC
-                      observations
-               dt - array of times between consecutive TC observations
-               indicator - array of ones/zeros representing initial TC
-                           observations (including TCs with a single
-                           observation)
+
+        :param bear :class:`numpy.ndarray` of bearing observations
+                     for TCs
+        :param dt: :class:`numpy.ndarray` of times between consecutive
+                   TC observations.
+        :param indicator: :class:`numpy.ndarray` of ones/zeros representing
+                          initial TC observations, including TCs with
+                          a single observation
+
         Output: None - data is written to file
         """
         self.logger.info('Extracting the rate of bearing change')
@@ -642,12 +676,15 @@ class DataProcess(object):
         initial position reports and the second observation are set to
         maxint. The first entry is set to maxint as there is no speed
         associated with it and the second is therefore non-sensical.
-        Input: dist - array of distances between consecutive TC
-                      observations
-               dt - array of times between consecutive TC observations
-               indicator - array of ones/zeros representing initial TC
-                           observations (including TCs with a single
-                           observation)
+
+        :param dist: :class:`numpy.ndarray` of distances between consecutive 
+                     TC observations
+        :param dt: :class:`numpy.ndarray` of times between consecutive
+                   TC observations.
+        :param indicator: :class:`numpy.ndarray` of ones/zeros representing
+                          initial TC observations, including TCs with
+                          a single observation
+
         Output: None - data is written to file
         """
         self.logger.info(
@@ -678,29 +715,102 @@ class DataProcess(object):
             header = 'All speed change rates (km/hr/hr)'
             flSaveFile(speed_rate, speedRate, header, fmt='%6.2f')
 
-    def _windSpeed(self, windSpeed):
-        """Extract maximum sustained wind speeds
-        Input: windSpeed - array of windspeeds for TC observations
+     def _windSpeed(self, vmax, indicator):
+        """
+        Extract maximum sustained wind speeds. Data is written to file.
 
-        Output: None - data is written to file
+        :param vmax: :class:`numpy.ndarray` of wind speeds from TC obs.
+        :param indicator: :class:`numpy.ndarray` of ones/zeros representing
+                          initial TC observations, including TCs with
+                          a single observation
+        
         """
         self.logger.info('Extracting maximum sustained wind speeds')
-        np.putmask(windSpeed, windSpeed > 200., sys.maxint)
+	initVmax   = vmax.compress(indicator)
+        vmaxNoInit = vmax.compress(indicator == 0)
+        vmaxNoInit = vmaxNoInit.compress(vmaxNoInit < sys.maxint)
+
         if self.ncflag:
-            self.data['windspeed'] = windSpeed
+            self.data['vmax'] = vmax
+	    self.data['init_vmax'] = initVmax
+            self.data['vmax_no_init'] = vmaxNoInit
         else:
-            wind_speed = pjoin(self.processPath, 'wind_speed')
-            self.logger.debug('Outputting data into %s' % wind_speed)
-            header = 'Maximum wind speed (m/s)'
-            flSaveFile(wind_speed, windSpeed, header, fmt='%6.2f')
+	    init_vmax = pjoin(self.processPath, 'init_vmax')
+            all_vmax = pjoin(self.processPath, 'all_vmax')
+            vmax_no_init = pjoin(self.processPath, 'vmax_no_init')
+	
+	    # Extract all vmax
+            self.logger.debug('Outputting data into %s' % all_vmax)
+            header = 'all cyclone vmax  '
+            flSaveFile(all_vmax, vmax, header, fmt='%7.2f')
+
+            # Extract initial vmax
+            self.logger.debug('Outputting data into %s' % init_vmax)
+            header = 'initial cyclone vmax'
+            flSaveFile(init_vmax, initVmax, header, fmt='%7.2f')
+
+            # Extract vmax, excluding initial times
+            self.logger.debug('Outputting data into %s' % vmax_no_init)
+            header = 'cyclone vmax without initial ones '
+            flSaveFile(vmax_no_init, vmaxNoInit, header, fmt='%7.2f')
+
+    def _windSpeedRate(self, vmax, dt, indicator):
+        """Extract the rate of vmax change from the vmax values.
+
+        Entries corresponding to initial cyclone reports are set to
+        maxint, as the change in vmax from the previous observation
+        is undefined. Entries corresponding to records with no vmax
+        observation are also set to maxint.
+
+        :param vmax: :class:`numpy.ndarray` of central vmax observations
+                     for TCs
+        :param dt: :class:`numpy.ndarray` of times between consecutive
+                   TC observations.
+        :param indicator: :class:`numpy.ndarray` of ones/zeros representing
+                          initial TC observations, including TCs with
+                          a single observation
+        """
+        self.logger.info('Extracting the rate of vmax change')
+
+        # Change in vmax:
+        vmaxChange_ = np.diff(vmax)
+        vmaxChange = np.empty(indicator.size, 'f')
+        vmaxChange[1:] = vmaxChange_
+
+        # Rate of vmax change:
+        vmaxRate = vmaxChange / dt
+
+        # Mask rates corresponding to initial times, times when
+        # the vmax is known to be missing, and when the
+        # vmax rate is greater than 10 m/s (a sanity check).
+        # The highest rate of intensification on record is
+        # Typhoon Forrest (Sept 1983) 100 mb in 24 hrs.
+
+        np.putmask(vmaxRate, indicator, sys.maxint)
+        np.putmask(vmaxRate, vmax >= sys.maxint, sys.maxint)
+        np.putmask(vmaxRate, (vmaxRate >= sys.maxint) | \
+                   (vmaxRate <= -sys.maxint), sys.maxint)
+        np.putmask(vmaxRate, np.isnan(vmaxRate), sys.maxint)
+        np.putmask(vmaxRate, np.abs(vmaxRate) > 80, sys.maxint)
+
+        if self.ncflag:
+            self.data['vmaxRate'] = vmaxRate
+        else:
+            vmax_rate = pjoin(self.processPath, 'vmax_rate')
+            self.logger.debug('Outputting data into {0}'.format(vmax_rate))
+            header = 'All vmax change rates '
+            flSaveFile(vmax_rate, vmaxRate, header, fmt='%6.2f')
 
     def _rmax(self, rmax, indicator):
-        """Extract radii to maximum wind:
-        Input: rmax - array of radii to maximum winds for TC
-                      observations
-               indicator - array of ones/zeros representing initial TC
-                           observations (including TCs with a single
-                           observation)
+        """
+        Extract radii to maximum wind.
+
+        :param rmax: :class:`numpy.ndarray` of radii to maximum winds 
+                     for TC observatons
+        :param indicator: :class:`numpy.ndarray` of ones/zeros representing
+                          initial TC observations, including TCs with a
+                          single observation.
+
         Output: None - data is written to file
         """
         self.logger.info("Extracting radii to maximum winds")
@@ -737,12 +847,15 @@ class DataProcess(object):
         maxint, as the change in rmax from the previous observation is
         undefined. Entries corresponding to records with no rmax
         observation are also set to maxint.
-        Input: rmax - array of radii to maximum winds for TC
-                      observations
-               dt - array of times between consecutive TC observations
-               indicator - array of ones/zeros representing initial TC
-                           observations (including TCs with a single
-                           observation)
+
+        :param rmax: :class:`numpy.ndarray` of radii to maximum winds 
+                     for TC observatons.
+        :param dt: :class:`numpy.ndarray` of times between consecutive
+                   TC observations.
+        :param indicator: :class:`numpy.ndarray` of ones/zeros representing
+                          initial TC observations, including TCs with a
+                          single observation.
+
         Output: None - data is written to file
 
         """
@@ -758,13 +871,14 @@ class DataProcess(object):
 
         # Mask rates corresponding to initial times and times when
         # the rmax is known to be missing.
-        self.logger.debug('Outputting data into %s' %
-                          pjoin(self.processPath, 'rmax_rate'))
+        self.logger.debug('Outputting data into {0}'.format(
+                          pjoin(self.processPath, 'rmax_rate')))
         np.putmask(rmaxRate, indicator, sys.maxint)
         np.putmask(rmaxRate, rmax >= sys.maxint, sys.maxint)
         np.putmask(rmaxRate, (rmaxRate >= sys.maxint) |
                    (rmaxRate <= -sys.maxint), sys.maxint)
         np.putmask(rmaxRate, np.isnan(rmaxRate), sys.maxint)
+        np.putmask(rmaxRate, np.abs(rmaxRate) > 100, sys.maxint)
 
         if self.ncflag:
             self.data['rmaxRate'] = rmaxRate
@@ -772,6 +886,185 @@ class DataProcess(object):
             rmax_rate = pjoin(self.processPath, 'rmax_rate')
             header = 'All rmax change rates (km/hr)'
             flSaveFile(rmax_rate, rmaxRate, header, fmt='%6.2f')
+
+    def _r34(self, r34, indicator):
+        """
+        Extract radii of 34kt wind:
+        :param r34: :class:`numpy.ndarray` of radii to 34-kt winds 
+                      for TC observatons.
+        :param indicator: :class:`numpy.ndarray` of ones/zeros representing
+                          initial TC observations, including TCs with a
+                          single observation.
+
+        Output: None - data is written to file
+        """
+        self.logger.info("Extracting radii to 34kt winds")
+        initR34   = r34.compress(indicator)
+        r34NoInit = r34.compress(indicator == 0)
+        r34NoInit = r34NoInit.compress(r34NoInit < sys.maxint)
+        if self.ncflag:
+            self.data['r34']         = r34
+            self.data['init_r34']    = initR34
+            self.data['r34_no_init'] = r34NoInit
+        else:
+            init_r34    = pjoin(self.processPath, 'init_r34')
+            all_r34     = pjoin(self.processPath, 'all_r34')
+            r34_no_init = pjoin(self.processPath, 'r34_no_init')
+
+            # extract all r34
+            self.logger.debug('Outputting data into %s' % all_r34)
+            header = 'r34 (km)'
+            flSaveFile(all_r34, r34, header, fmt='%6.2f')
+
+            # extract initial r34
+            self.logger.debug('Outputting data into %s' % init_r34)
+            header = 'initial r34 (km)'
+            flSaveFile(init_r34, initR34, header, fmt='%6.2f')
+
+            # extract r34 no init
+            self.logger.debug('Outputting data into %s' % r34_no_init)
+            header = 'r34 excluding initial ones (km)'
+            flSaveFile(r34_no_init, r34NoInit, header, fmt='%6.2f')
+
+    def _r34Rate(self, r34, dt, indicator):
+        """Extract the rate of size change from the r34 values.
+
+        Entries corresponding to initial cyclone reports are set to
+        maxint, as the change in r34 from the previous observation is
+        undefined. Entries corresponding to records with no r34
+        observation are also set to maxint.
+        :param vmax: :class:`numpy.ndarray` of central vmax observations
+                     for TCs
+        :param dt: :class:`numpy.ndarray` of times between consecutive
+                   TC observations.
+        :param indicator: :class:`numpy.ndarray` of ones/zeros representing
+                          initial TC observations, including TCs with
+                          a single observation
+        Input: r34 - array of r34
+               dt - array of times between consecutive TC observations
+               indicator - array of ones/zeros representing initial TC
+                           observations (including TCs with a single
+                           observation)
+        Output: None - data is written to file
+        
+        """
+        self.logger.info('Extracting the rate of r34 size change')
+
+        # Change in r34:
+        r34Change_ = np.diff(r34)
+        r34Change = np.empty(indicator.size, 'f')
+        r34Change[1:] = r34Change_
+
+        # Rate of r34 change:
+        r34Rate = r34Change / dt
+
+        # Mask rates corresponding to initial times and times when
+        # the r34 is known to be missing.
+        self.logger.debug('Outputting data into %s' %
+                          pjoin(self.processPath, 'r34_rate'))
+        np.putmask(r34Rate, indicator, sys.maxint)
+        np.putmask(r34Rate, r34 >= sys.maxint, sys.maxint)
+        np.putmask(r34Rate, (r34Rate >= sys.maxint) |
+                            (r34Rate <= -sys.maxint), sys.maxint)
+        np.putmask(r34Rate, np.isnan(r34Rate), sys.maxint)
+	np.putmask(r34Rate, np.abs(r34Rate) > 150, sys.maxint)
+
+        if self.ncflag:
+            self.data['r34Rate'] = r34Rate
+        else:
+            r34_rate = pjoin(self.processPath, 'r34_rate')
+            header = 'All r34 change rates (km/hr)'
+            flSaveFile(r34_rate, r34Rate, header, fmt='%6.2f')
+
+    def _r64(self, r64, indicator):
+        """Extract radii of 64kt wind:
+
+        :param r64: :class:`numpy.ndarray` of radius to 64-kt winds 
+                     from TC observations.
+        :param dt: :class:`numpy.ndarray` of times between consecutive
+                   TC observations.
+        :param indicator: :class:`numpy.ndarray` of ones/zeros representing
+                          initial TC observations, including TCs with
+                          a single observation
+
+        Output: None - data is written to file
+        """
+        self.logger.info("Extracting radii to 64kt winds")
+        initR64   = r64.compress(indicator)
+        r64NoInit = r64.compress(indicator == 0)
+        r64NoInit = r64NoInit.compress(r64NoInit < sys.maxint)
+        if self.ncflag:
+            self.data['r64'] = r64
+            self.data['init_r64'] = initR64
+            self.data['r64_no_init'] = r64NoInit
+        else:
+            init_r64 = pjoin(self.processPath, 'init_r64')
+            all_r64 = pjoin(self.processPath, 'all_r64')
+            r64_no_init = pjoin(self.processPath, 'r64_no_init')
+
+            # extract all r64
+            self.logger.debug('Outputting data into {0}'.format(all_r64))
+            header = 'r64 (km)'
+            flSaveFile(all_r64, r64, header, fmt='%6.2f')
+
+            # extract initial r64
+            self.logger.debug('Outputting data into {0}'.format(init_r64))
+            header = 'initial r64 (km)'
+            flSaveFile(init_r64, initR64, header, fmt='%6.2f')
+
+            # extract r64 no init
+            self.logger.debug('Outputting data into {0}'.format(r64_no_init))
+            header = 'r64 excluding initial ones (km)'
+            flSaveFile(r64_no_init, r64NoInit, header, fmt='%6.2f')
+
+    def _r64Rate(self, r64, dt, indicator):
+        """Extract the rate of size change from the r64 values.
+
+        Entries corresponding to initial cyclone reports are set to
+        maxint, as the change in r64 from the previous observation is
+        undefined. Entries corresponding to records with no r64
+        observation are also set to maxint.
+
+        :param r64: :class:`numpy.ndarray` of radius to 64-kt winds 
+                     from TC observations.
+        :param dt: :class:`numpy.ndarray` of times between consecutive
+                   TC observations.
+        :param indicator: :class:`numpy.ndarray` of ones/zeros representing
+                          initial TC observations, including TCs with
+                          a single observation
+
+        Output: None - data is written to file
+        
+        """
+        self.logger.info('Extracting the rate of r64 size change')
+
+        # Change in r64:
+        r64Change_    = np.diff(r64)
+        r64Change     = np.empty(indicator.size, 'f')
+        r64Change[1:] = r64Change_
+
+        # Rate of r64 change:
+        r64Rate = r64Change / dt
+        
+        # Mask rates corresponding to initial times and times when
+        # the r64 is known to be missing.
+        self.logger.debug('Outputting data into %s' %
+                          pjoin(self.processPath, 'r64_rate'))
+        np.putmask(r64Rate, indicator, sys.maxint)
+        np.putmask(r64Rate, r64 >= sys.maxint,        sys.maxint)
+        np.putmask(r64Rate, (r64Rate >= sys.maxint) |
+                            (r64Rate <= -sys.maxint), sys.maxint)
+        np.putmask(r64Rate, np.isnan(r64Rate),        sys.maxint)
+        np.putmask(r64Rate, np.abs(r64Rate) > 150,    sys.maxint)
+
+        if self.ncflag:
+            self.data['r64Rate'] = r64Rate
+        else:
+            r64_rate = pjoin(self.processPath, 'r64_rate')
+            header = 'All r64 change rates (km/hr)'
+            flSaveFile(r64_rate, r64Rate, header, fmt='%6.2f')
+
+
 
     def _frequency(self, years, indicator):
         """
@@ -793,8 +1086,10 @@ class DataProcess(object):
             flSaveFile(frequency, np.transpose([bins[:-1], n]),
                        header, fmt='%6.2f')
 
-            self.logger.info("Mean annual frequency: %5.1f" % np.mean(n))
-            self.logger.info("Standard deviation: %5.1f" % np.std(n))
+            self.logger.info("Mean annual frequency: {0:5.1f}".\
+                             format(np.mean(n)))
+            self.logger.info("Standard deviation: {0:5.1f}".\
+                             format(np.std(n)))
 
     def _juliandays(self, jdays, indicator, years):
         """
@@ -837,11 +1132,12 @@ if __name__ == "__main__":
         # If no filename is specified and default filename does not exist =>
         # raise error
         if not os.path.exists(configFile):
-            error_msg = "No configuration file specified, please type: python main.py {config filename}.ini"
+            error_msg = ("No configuration file specified, "
+                         "please type: python tcrm.py -c {config filename}.ini")
             raise IOError, error_msg
     # If config file does not exist => raise error
     if not os.path.exists(configFile):
-        error_msg = "Configuration file '" + configFile + "' not found"
+        error_msg = "Configuration file {0} not found".format(configFile)
         raise IOError, error_msg
 
     config = ConfigParser()

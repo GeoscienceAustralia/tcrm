@@ -13,15 +13,13 @@ Define the class for sampling tropical cyclone origins.
 """
 
 from os.path import join as pjoin
-import logging
+import logging as log
 
 from Utilities.files import flLoadFile, flSaveFile
 from Utilities.grid import grdRead, grdReadFromNetcdf
 import numpy as np
 import scipy
 import Utilities.stats as stats
-
-LOG = logging.getLogger()
 
 class SamplingOrigin(object):
     """
@@ -46,14 +44,14 @@ class SamplingOrigin(object):
         lon/lat arrays.
         """
         if isinstance(kdeOrigin, str):
-            LOG.debug("Loading PDF from %s", kdeOrigin)
+            log.debug("Loading PDF from %s", kdeOrigin)
             try:
                 if kdeOrigin.endswith('nc'):
                     self.x, self.y, self.z = grdReadFromNetcdf(kdeOrigin)
                 else:
                     self.x, self.y, self.z = grdRead(kdeOrigin)
             except IOError:
-                LOG.critical(('Error! Files relating to cdf of cyclone '
+                log.critical(('Error! Files relating to cdf of cyclone '
                               'parameters does not exist, please '
                               'generate KDE of cyclone parameters '
                               'first.'))
@@ -93,7 +91,7 @@ class SamplingOrigin(object):
                 self.x, self.y, self.z = grdRead(pjoin(self.outputPath,
                                                        'originPDF.txt'))
             except IOError:
-                LOG.critical(('Error! Files relating to KDE of cyclone '
+                log.critical(('Error! Files relating to KDE of cyclone '
                               'origins does not exist. Execute KDE of '
                               'cyclone origins first.'))
                 raise
@@ -104,7 +102,7 @@ class SamplingOrigin(object):
                 self.y = flLoadFile(kdeOriginY)
                 self.z = flLoadFile(kdeOriginZ)
             except IOError:
-                LOG.critical(('Error! Files relating to CDF of cyclone '
+                log.critical(('Error! Files relating to CDF of cyclone '
                               'parameters do not exist. Generate KDE of '
                               'cyclone parameters first.'))
                 raise
@@ -113,7 +111,7 @@ class SamplingOrigin(object):
             self.x, self.y, self.z = grdRead(kdeOriginZ)
             self._calculateCDF()
         else:
-            LOG.error("No input arguments")
+            log.error("No input arguments")
             raise
 
     def generateOneSample(self):
@@ -173,7 +171,7 @@ class SamplingOrigin(object):
 
         """
         if ns <= 0:
-            LOG.error(("Invalid input on ns: number of samples "
+            log.error(("Invalid input on ns: number of samples "
                        "cannot be zero or negative"))
             raise ValueError
 
@@ -190,15 +188,15 @@ class SamplingOrigin(object):
                 xi = self.cdfX.searchsorted(unifX[i])
                 yj = self.cdfY[xi, :].searchsorted(unifY[i])
                 if (i % (ns/100)) == 0 and i != 0:
-                    LOG.debug("Processing %ith element"%i)
+                    log.debug("Processing %ith element"%i)
                 self.oLon[i] = self.x[xi]
                 self.oLat[i] = self.y[yj]
 
         except IndexError:
-            LOG.debug("i = %s"%str(i))
-            LOG.debug("unifX = %s"%str(unifX[i]))
-            LOG.debug("unifY = %s"%str(unifY[i]))
-            LOG.debug("cdfY[xi,:] = %s"%str(self.cdfY[xi, :]))
+            log.debug("i = %s"%str(i))
+            log.debug("unifX = %s"%str(unifX[i]))
+            log.debug("unifY = %s"%str(unifY[i]))
+            log.debug("cdfY[xi,:] = %s"%str(self.cdfY[xi, :]))
             raise
 
         if outputFile:
@@ -235,15 +233,15 @@ class SamplingOrigin(object):
                 for j in xrange(len(cdfTemp)):
                     cdfY[i, j] = cdfTemp[j]
         except IndexError:
-            LOG.debug("i = %s", str(i))
-            LOG.debug("j = %s", str(j))
-            LOG.debug("p_y[%s, %s] = %s"%(str(i), str(j), str(py[i, j])))
-            LOG.debug("z[%s, %s] = %s"%(str(i), str(j), str(self.z[j, i])))
-            LOG.debug("p_x[%s] = %s"%(str(i), str(px[i])))
-            LOG.debug("cdfy dim = %s", (str(cdfY.shape)))
-            LOG.debug("p_y dim = %s", (str(py.shape)))
-            LOG.debug("cdfx dim = %s", (str(cdfX.shape)))
-            LOG.debug("p_x dim = %s", (str(px.shape)))
+            log.debug("i = %s", str(i))
+            log.debug("j = %s", str(j))
+            log.debug("p_y[%s, %s] = %s"%(str(i), str(j), str(py[i, j])))
+            log.debug("z[%s, %s] = %s"%(str(i), str(j), str(self.z[j, i])))
+            log.debug("p_x[%s] = %s"%(str(i), str(px[i])))
+            log.debug("cdfy dim = %s", (str(cdfY.shape)))
+            log.debug("p_y dim = %s", (str(py.shape)))
+            log.debug("cdfx dim = %s", (str(cdfX.shape)))
+            log.debug("p_x dim = %s", (str(px.shape)))
 
             raise
 

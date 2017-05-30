@@ -14,7 +14,7 @@ a single sample, or an array of samples (for multiple cyclones).
 
 import os
 import sys
-import logging
+import logging as log
 
 import scipy
 import numpy as np
@@ -38,13 +38,14 @@ class SamplingParameters:
         cyclone parameters
         """
 
-        self.logger = logging.getLogger()
-
         if type(cdfParameters) == str:
             try:
                 self.xacy = flLoadFile(cdfParameters)
             except IOError:
-                self.logger.exception('Error! Files relating to cdf of cyclone parameters does not exist, please generate KDE of cyclone parameters first.')
+                log.exception((
+                    'Error! Files relating to cdf of cyclone '
+                    'parameters does not exist, please generate '
+                    'KDE of cyclone parameters first.'))
                 raise
         elif type(cdfParameters) == np.ndarray:
             self.xacy = cdfParameters
@@ -66,7 +67,10 @@ class SamplingParameters:
             try:
                 self.xacy = flLoadFile(cdfParameters)
             except IOError:
-                self.logger.exception('Error! Files relating to cdf of cyclone parameters does not exist, please generate KDE of cyclone parameters first.')
+                log.exception((
+                    'Error! Files relating to cdf of cyclone '
+                    'parameters does not exist, please generate '
+                    'KDE of cyclone parameters first.'))
                 raise
         else:
             self.xacy = cdfParameters
@@ -94,7 +98,8 @@ class SamplingParameters:
         """
 
         if ns <= 0:
-            raise ValueError, 'invalid input on ns: number of sample cannot be zero or negative'
+            raise ValueError, ('invalid input on ns: number of '
+                               'samples cannot be zero or negative')
 
         unif_s = scipy.rand(ns)
 

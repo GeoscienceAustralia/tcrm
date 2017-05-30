@@ -18,7 +18,7 @@ determine the distributions.
 
 import os
 import sys
-import logging
+import logging as log
 from os.path import join as pjoin
 
 import Utilities.stats as stats
@@ -78,9 +78,7 @@ class GenerateDistributions(object):
         """
         Initialise required fields
         """
-        self.logger = logging.getLogger()
-
-        self.logger.info("Initialising GenerateDistributions")
+        log.info("Initialising GenerateDistributions")
         self.gridSpace = gridSpace
         self.gridLimit = gridLimit
         self.gridInc = gridInc
@@ -134,19 +132,19 @@ class GenerateDistributions(object):
 
         """
         if parameterName:
-            self.logger.debug("Running allDistributions for %s",
+            log.debug("Running allDistributions for %s",
                               parameterName)
         else:
-            self.logger.debug("Running allDistributions")
+            log.debug("Running allDistributions")
 
         if isinstance(lonLat, str):
-            self.logger.debug("Loading lat/lon data from file")
+            log.debug("Loading lat/lon data from file")
             self.lonLat = np.array(flLoadFile(lonLat, delimiter=','))
         else:
             self.lonLat = lonLat
 
         if isinstance(parameterList, str):
-            self.logger.debug("Loading parameter data from file: %s",
+            log.debug("Loading parameter data from file: %s",
                               parameterList)
             self.pList = np.array(flLoadFile(parameterList))
         else:
@@ -157,11 +155,11 @@ class GenerateDistributions(object):
         maxCellNum = stats.maxCellNum(self.gridLimit, self.gridSpace)
 
         # Writing CDF dataset for all individual cell number into files
-        self.logger.debug(("Writing CDF dataset for all individual "
+        log.debug(("Writing CDF dataset for all individual "
                            "cells into files"))
 
         for cellNum in xrange(0, maxCellNum + 1):
-            self.logger.debug("Processing cell number %i", cellNum)
+            log.debug("Processing cell number %i", cellNum)
 
             # Generate cyclone parameter data for the cell number
             self.extractParameter(cellNum)
@@ -173,7 +171,7 @@ class GenerateDistributions(object):
                                                 periodic=periodic)
             if plotParam:
                 self._plotParameter(cellNum, kdeStep)
-            self.logger.debug(('size of parameter array = %d: '
+            log.debug(('size of parameter array = %d: '
                                'size of cdf array = %d'), 
                               self.parameter.size, cdf.size)
 
@@ -184,14 +182,14 @@ class GenerateDistributions(object):
                 results = np.transpose(np.array([cellNumlist,
                                                  cdf[:, 0], cdf[:, 2]]))
             else:
-                self.logger.debug('size of results = %s', str(results.size))
+                log.debug('size of results = %s', str(results.size))
                 results = np.concatenate((results,
                                           np.transpose(np.array([cellNumlist,
                                                                  cdf[:, 0],
                                                                  cdf[:, 2]]))))
 
         if parameterName == None:
-            self.logger.debug(("Returning CDF dataset for all "
+            log.debug(("Returning CDF dataset for all "
                                "individual cell numbers"))
             return results
         else:
@@ -203,7 +201,7 @@ class GenerateDistributions(object):
             args = {"filename":allCellCdfOutput, "data":results,
                     "header":cdfHeader, "delimiter":",", "fmt":"%f"}
 
-            self.logger.debug(("Writing CDF dataset for all individual "
+            log.debug(("Writing CDF dataset for all individual "
                                "cell numbers into files"))
             flSaveFile(**args)
 
@@ -241,8 +239,8 @@ class GenerateDistributions(object):
                             range of cell numbers).
         """
         if not stats.validCellNum(cellNum, self.gridLimit, self.gridSpace):
-            self.logger.critical(("Invalid input on cellNum: "
-                                  "cell number %i is out of range")%cellNum)
+            log.critical(("Invalid input on cellNum: "
+                          "cell number %i is out of range")%cellNum)
             raise IndexError, ('Invalid input on cellNum: '
                                'cell number is out of range')
         lon = self.lonLat[:, 0]
@@ -262,8 +260,8 @@ class GenerateDistributions(object):
                                              self.missingValue)
 
         while np.size(self.parameter) <= self.minSamplesCell:
-            self.logger.debug(("Insufficient samples. Increasing the "
-                               "size of the cell"))
+            log.debug(("Insufficient samples. Increasing the "
+                       "size of the cell"))
             wLon_last = wLon
             eLon_last = eLon
             nLat_last = nLat
@@ -276,7 +274,7 @@ class GenerateDistributions(object):
                           "estimate storm statistics - please select a larger "
                           "domain. Samples = %i / %i")%(np.size(self.parameter),
                                                         self.minSamplesCell)
-                self.logger.critical(errMsg)
+                log.critical(errMsg)
                 raise StopIteration, errMsg
             indij = np.where(((lat >= sLat) & (lat < nLat)) &
                              ((lon >= wLon) & (lon < eLon)))
@@ -288,8 +286,8 @@ class GenerateDistributions(object):
         # values are the same, bandwidth would be 0, and therefore KDE
         # cannot proceed
         while self.parameter.max() == self.parameter.min():
-            self.logger.debug(("Parameter values appear to be the same. "
-                               "Increasing the size of the cell"))
+            log.debug(("Parameter values appear to be the same. "
+                       "Increasing the size of the cell"))
             wLon_last = wLon
             eLon_last = eLon
             nLat_last = nLat
@@ -301,20 +299,20 @@ class GenerateDistributions(object):
                 errMsg = ("Insufficient grid points in selected domain "
                           "to estimate storm statistics - "
                           "please select a larger domain.")
-                self.logger.critical(errMsg)
+                log.critical(errMsg)
                 raise StopIteration, errMsg
             indij = np.where(((lat >= sLat) & (lat < nLat)) &
                              ((lon >= wLon) & (lon < eLon)))
             parameter_ = self.pList[indij]
             self.parameter = stats.statRemoveNum(np.array(parameter_),
                                                  self.missingValue)
-        self.logger.debug("Number of valid observations in cell %s : %s",
-                          str(cellNum), str(np.size(self.parameter)))
+        log.debug("Number of valid observations in cell %s : %s",
+                  str(cellNum), str(np.size(self.parameter)))
 
 
     def _plotParameter(self, cellNum, kdeStep):
         import pylab
-        self.logger.debug("Plotting %s"%self.pName)
+        log.debug("Plotting %s"%self.pName)
         pMin = self.parameter.min()
         pMax = self.parameter.max()
         rng = np.arange(pMin, pMax, kdeStep)
@@ -332,7 +330,7 @@ class GenerateDistributions(object):
         This is called when there are insufficient observations
         in a cell to generate a PDF.
         """
-        self.logger.debug("Increasing cell size")
+        log.debug("Increasing cell size")
         wLon -= self.gridInc['x']
         eLon += self.gridInc['x']
         nLat += self.gridInc['y']
@@ -347,7 +345,7 @@ class GenerateDistributions(object):
         Check the bounds of the cell are within the limits of the
         region under investigation - if not then set to the limits
         """
-        self.logger.debug("Checking cell does not extend outside domain")
+        log.debug("Checking cell does not extend outside domain")
         if wLon < self.gridLimit['xMin']:
             wLon = self.gridLimit['xMin']
         if eLon > self.gridLimit['xMax']:
