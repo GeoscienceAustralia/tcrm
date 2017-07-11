@@ -38,7 +38,7 @@ application of gust factors in the calling classes.
 import numpy as np
 from math import exp, sqrt
 import Utilities.metutils as metutils
-from Utilities._vorticity import relative
+from Utilities.vorticity import relative
 import logging
 
 log = logging.getLogger(__name__)

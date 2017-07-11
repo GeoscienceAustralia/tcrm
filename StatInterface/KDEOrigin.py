@@ -22,8 +22,6 @@ from Utilities.config import ConfigParser
 
 from statsmodels.nonparametric.kernel_density import KDEMultivariate
 
-LOGGER = logging.getLogger(__name__)
-
 def getOriginBandwidth(data):
     """
     Calculate the optimal bandwidth for kernel density estimation

@@ -64,7 +64,7 @@ class TimeSeriesFigure(Figure):
     def plot(self):
 
         axes = self.add_subplot(111)
-        color = axes._get_lines.color_cycle
+        color = axes._get_lines.color_cycle #pylint:disable=W0212
         ax1 = axes.twinx()
         ax2 = axes.twinx()
 
@@ -114,7 +114,7 @@ class TimeSeriesFigure(Figure):
 
     def ooplot(self):
         axes = self.add_subplot(111)
-        color = axes._get_lines.color_cycle
+        color = axes._get_lines.color_cycle #pylint:disable=W0212
         ax = []
         plots = []
         for i in range(len(self.subfigures) - 1):
