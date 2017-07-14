@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>tcrm module &mdash; Tropical Cyclone Risk Model 1.0.2 documentation</title>
+    <title>tcrm module &#8212; Tropical Cyclone Risk Model 2.0. documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,18 +14,20 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.2',
+        VERSION:     '2.0.',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Tropical Cyclone Risk Model 1.0.2 documentation" href="../index.html" /> 
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -35,7 +37,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,7 +49,7 @@
   <div class="section" id="module-tcrm">
 <span id="tcrm-module"></span><h1>tcrm module<a class="headerlink" href="#module-tcrm" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-tcrm">
-<span id="tcrm-the-main-tcrm-interface"></span><h2><a class="reference internal" href="#module-tcrm" title="tcrm: The main interface to TCRM. Determines which components of the model system to execute, based on the configuration settings specified."><code class="xref py py-mod docutils literal"><span class="pre">tcrm</span></code></a> &#8211; the main TCRM interface<a class="headerlink" href="#module-tcrm" title="Permalink to this headline">¶</a></h2>
+<span id="tcrm-the-main-tcrm-interface"></span><h2><a class="reference internal" href="#module-tcrm" title="tcrm: The main interface to TCRM. Determines which components of the model system to execute, based on the configuration settings specified."><code class="xref py py-mod docutils literal"><span class="pre">tcrm</span></code></a> – the main TCRM interface<a class="headerlink" href="#module-tcrm" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="tcrm.doDataDownload">
 <code class="descname">doDataDownload</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDataDownload" title="Permalink to this definition">¶</a></dt>
@@ -56,25 +58,25 @@ Datasets are listed in the <cite>Input</cite> section of the configuration
 file, with the option <cite>Datasets</cite>. There must also be a corresponding
 section in the configuration file that inlcudes the url, path where
 the dataset will be stored and the filename that will be stored, e.g.:</p>
-<div class="highlight-python"><div class="highlight"><pre>[Input]
-Datasets=IBTRACS
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Input</span><span class="p">]</span>
+<span class="n">Datasets</span><span class="o">=</span><span class="n">IBTRACS</span>
 
-[IBTRACS]
-URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
-filename=Allstorms.ibtracs_wmo.v03r05.csv
-path=input
+<span class="p">[</span><span class="n">IBTRACS</span><span class="p">]</span>
+<span class="n">URL</span><span class="o">=</span><span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">eclipse</span><span class="o">.</span><span class="n">ncdc</span><span class="o">.</span><span class="n">noaa</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">pub</span><span class="o">/</span><span class="n">ibtracs</span><span class="o">/</span><span class="n">v03r05</span><span class="o">/</span><span class="n">wmo</span><span class="o">/</span><span class="n">csv</span><span class="o">/</span><span class="n">Allstorms</span><span class="o">.</span><span class="n">ibtracs_wmo</span><span class="o">.</span><span class="n">v03r05</span><span class="o">.</span><span class="n">csv</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">filename</span><span class="o">=</span><span class="n">Allstorms</span><span class="o">.</span><span class="n">ibtracs_wmo</span><span class="o">.</span><span class="n">v03r05</span><span class="o">.</span><span class="n">csv</span>
+<span class="n">path</span><span class="o">=</span><span class="nb">input</span>
 </pre></div>
 </div>
 <p>This will attempt to download the gzipped csv file from the given URL
-and save it to the given filename, in the &#8216;input&#8217; folder under the current
+and save it to the given filename, in the ‘input’ folder under the current
 directory. Gzipped files are automatically unzipped.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) &#8211; Name of configuration file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises IOError:</th><td class="field-body">If the data cannot be downloaded.</td>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>IOError</strong> – If the data cannot be downloaded.</td>
 </tr>
 </tbody>
 </table>
@@ -88,7 +90,7 @@ directory. Gzipped files are automatically unzipped.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) &#8211; Name of configuration file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
 </tr>
 </tbody>
 </table>
@@ -103,7 +105,22 @@ for the model calibration step, using the <a class="reference internal" href="Da
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) &#8211; Name of configuration file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="tcrm.doDatabaseUpdate">
+<code class="descname">doDatabaseUpdate</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDatabaseUpdate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a database containing info on the events, locations, return
+period wind speeds and tracks.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of the configuration file.</td>
 </tr>
 </tbody>
 </table>
@@ -117,9 +134,9 @@ for the model calibration step, using the <a class="reference internal" href="Da
 with several simulated years (e.g. 10, 20, 30 years) in each
 simulation.</p>
 <p>A good setting might be:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Actions</span><span class="p">]</span>
-<span class="n">ExecuteTrackGenerator</span><span class="o">=</span><span class="bp">True</span>
-<span class="n">ExecuteEvaluate</span><span class="o">=</span><span class="bp">True</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Actions</span><span class="p">]</span>
+<span class="n">ExecuteTrackGenerator</span><span class="o">=</span><span class="kc">True</span>
+<span class="n">ExecuteEvaluate</span><span class="o">=</span><span class="kc">True</span>
 
 <span class="p">[</span><span class="n">TrackGenerator</span><span class="p">]</span>
 <span class="n">NumSimulations</span><span class="o">=</span><span class="mi">1000</span>
@@ -134,7 +151,7 @@ input dataset and the full 1000 simulations.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) &#8211; Name of the configuration file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of the configuration file.</td>
 </tr>
 </tbody>
 </table>
@@ -149,7 +166,7 @@ using the <a class="reference internal" href="hazard.html#module-hazard" title="
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) &#8211; Name of configuration file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
 </tr>
 </tbody>
 </table>
@@ -165,7 +182,7 @@ the model domain). Plotting is performed by the
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) &#8211; Name of configuration file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
 </tr>
 </tbody>
 </table>
@@ -179,9 +196,9 @@ the model domain). Plotting is performed by the
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) &#8211; Name of configuration file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises OSError:</th><td class="field-body">If the directory tree cannot be created.</td>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>OSError</strong> – If the directory tree cannot be created.</td>
 </tr>
 </tbody>
 </table>
@@ -195,7 +212,7 @@ the model domain). Plotting is performed by the
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) &#8211; Name of configuration file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
 </tr>
 </tbody>
 </table>
@@ -210,7 +227,7 @@ the model domain). Plotting is performed by the
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) &#8211; Name of configuration file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
 </tr>
 </tbody>
 </table>
@@ -225,7 +242,7 @@ field settings are read from <em>configFile</em>.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) &#8211; Name of configuration file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
 </tr>
 </tbody>
 </table>
@@ -241,7 +258,8 @@ WindfieldInterface and HazardInterface</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) &#8211; Name of file containing configuration settings for running TCRM</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of file containing configuration settings
+for running TCRM</td>
 </tr>
 </tbody>
 </table>
@@ -275,7 +293,7 @@ to execute the main TCRM functions.</p>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">tcrm module</a><ul>
-<li><a class="reference internal" href="#module-tcrm"><code class="docutils literal"><span class="pre">tcrm</span></code> &#8211; the main TCRM interface</a></li>
+<li><a class="reference internal" href="#module-tcrm"><code class="docutils literal"><span class="pre">tcrm</span></code> – the main TCRM interface</a></li>
 </ul>
 </li>
 </ul>
@@ -283,21 +301,18 @@ to execute the main TCRM functions.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/docs/tcrm.txt"
+      <li><a href="../_sources/docs/tcrm.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -313,13 +328,13 @@ to execute the main TCRM functions.</p>
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2015.
-      Last updated on Nov 05, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
+      Last updated on Jul 14, 2017.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
   </body>
 </html>

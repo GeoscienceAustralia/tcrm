@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Hazard database &mdash; Tropical Cyclone Risk Model 1.0.2 documentation</title>
+    <title>Hazard database &#8212; Tropical Cyclone Risk Model 2.0. documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,18 +14,20 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.2',
+        VERSION:     '2.0.',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Tropical Cyclone Risk Model 1.0.2 documentation" href="../index.html" /> 
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -35,7 +37,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -46,11 +48,26 @@
             
   <div class="section" id="hazard-database">
 <h1>Hazard database<a class="headerlink" href="#hazard-database" title="Permalink to this headline">¶</a></h1>
-<p>To make it easier to acess hazard data, and to enable users to link an event to a return period wind speed, TCRM stores information on the individual events, the wind speeds they generate at a set of locations, and the return levels calculated in the <a class="reference internal" href="hazard.html#module-hazard" title="hazard"><code class="xref py py-mod docutils literal"><span class="pre">hazard</span></code></a> module.</p>
-<p>The database is built on the <code class="xref py py-mod docutils literal"><span class="pre">sqlite3</span></code> module that is part of the standard Python library. Extension to a spatial database system has been identified as an enhancement for future development.</p>
+<p>To make it easier to acess hazard data, and to enable users to link an
+event to a return period wind speed, TCRM stores information on the
+individual events, the wind speeds they generate at a set of
+locations, and the return levels calculated in the <a class="reference internal" href="hazard.html#module-hazard" title="hazard"><code class="xref py py-mod docutils literal"><span class="pre">hazard</span></code></a>
+module.</p>
+<p>The database is built on the <code class="xref py py-mod docutils literal"><span class="pre">sqlite3</span></code> module that is part of the
+standard Python library. Extension to a spatial database system has
+been identified as an enhancement for future development.</p>
+<div class="section" id="tables">
+<h2>Tables<a class="headerlink" href="#tables" title="Permalink to this headline">¶</a></h2>
+<p>Following is a description of the tables contained in the
+database. Tables are created when the database is first
+generated. Tables are populated with information from the
+simulation. Presently, the tables are not updateable - that is, the
+records cannot be modified once inserted into teh database.</p>
 <div class="section" id="locations-table">
-<h2>Locations table<a class="headerlink" href="#locations-table" title="Permalink to this headline">¶</a></h2>
-<p>The locations table (<em>tblLocations</em>) stores the details of the locations within the model domain. This table has been derived from a (global) listing of WMO-identified weather stations.</p>
+<h3>Locations table<a class="headerlink" href="#locations-table" title="Permalink to this headline">¶</a></h3>
+<p>The locations table (<em>tblLocations</em>) stores the details of the
+locations within the model domain. This table has been derived from a
+(global) listing of WMO-identified weather stations.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="22%" />
@@ -67,7 +84,7 @@
 <tr class="row-even"><td>locId</td>
 <td>Unique identifier for the
 location.</td>
-<td>Text</td>
+<td>Integer</td>
 </tr>
 <tr class="row-odd"><td>locName</td>
 <td>Name of the location.</td>
@@ -95,6 +112,259 @@ in geographic coordinates.</td>
 </tbody>
 </table>
 </div>
+<div class="section" id="events-table">
+<h3>Events table<a class="headerlink" href="#events-table" title="Permalink to this headline">¶</a></h3>
+<p>The events table (<em>tblEvents</em>) stores details of the individual TC
+events, such as maximum wind speed and minimum central pressure, as
+well as details on the event identifier and files associated with the
+event.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="70%" />
+<col width="12%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field name</th>
+<th class="head">Field description</th>
+<th class="head">Field type</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>eventNumber</td>
+<td>Unique identifying number for the event</td>
+<td>Integer</td>
+</tr>
+<tr class="row-odd"><td>eventId</td>
+<td>Unique identifier for the event</td>
+<td>Text</td>
+</tr>
+<tr class="row-even"><td>eventFile</td>
+<td>File name where the event data (wind and pressure fields) is stored</td>
+<td>Text</td>
+</tr>
+<tr class="row-odd"><td>eventTrackFile</td>
+<td>File name where the track data for the event is stored</td>
+<td>Text</td>
+</tr>
+<tr class="row-even"><td>eventMaxWind</td>
+<td>Maximum sustained wind speed of the event (m/s)</td>
+<td>Real</td>
+</tr>
+<tr class="row-odd"><td>eventMinPressure</td>
+<td>Minimum central pressure of the event (hPa)</td>
+<td>Real</td>
+</tr>
+<tr class="row-even"><td>dtTrackFile</td>
+<td>Creation date/time of the track file</td>
+<td>Timestamp</td>
+</tr>
+<tr class="row-odd"><td>dtWindfieldFile</td>
+<td>Creation date/time of the wind field file</td>
+<td>Timestamp</td>
+</tr>
+<tr class="row-even"><td>tcrmVersion</td>
+<td>TCRM version (usually a Git hash representing the commit)</td>
+<td>Text</td>
+</tr>
+<tr class="row-odd"><td>Comments</td>
+<td>General comments field</td>
+<td>Text</td>
+</tr>
+<tr class="row-even"><td>dtCreated</td>
+<td>Creation date/time for the record</td>
+<td>Timestamp</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="wind-speed-table">
+<h3>Wind speed table<a class="headerlink" href="#wind-speed-table" title="Permalink to this headline">¶</a></h3>
+<p>The wind speed table (<em>tblWindSpeed</em>) contains records for each
+location and event, recording the maximum wind speed at the location,
+the component wind speeds (east/west and north/south) and the minimum
+pressure at the location.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="74%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field name</th>
+<th class="head">Field description</th>
+<th class="head">Field type</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>locId</td>
+<td>Unique identifier for location</td>
+<td>Integer</td>
+</tr>
+<tr class="row-odd"><td>eventId</td>
+<td>Unique identifier for event</td>
+<td>Text</td>
+</tr>
+<tr class="row-even"><td>wspd</td>
+<td>Maximum wind speed from the event at the location (m/s)</td>
+<td>Real</td>
+</tr>
+<tr class="row-odd"><td>umax</td>
+<td>Eastward component of the maximum wind speed from the event (m/s)</td>
+<td>Real</td>
+</tr>
+<tr class="row-even"><td>vmax</td>
+<td>Northward component of the maximum wind speed from the event (m/s)</td>
+<td>Real</td>
+</tr>
+<tr class="row-odd"><td>pmin</td>
+<td>Minimum pressure from the event at the location (hPa)</td>
+<td>Real</td>
+</tr>
+<tr class="row-even"><td>Comments</td>
+<td>General comments field</td>
+<td>Text</td>
+</tr>
+<tr class="row-odd"><td>dtCreated</td>
+<td>Creation date/time for the record</td>
+<td>Timestamp</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="hazard-table">
+<h3>Hazard table<a class="headerlink" href="#hazard-table" title="Permalink to this headline">¶</a></h3>
+<p>The hazard table (<em>tblHazard</em>) records the return period wind speeds
+at each location, as well as upper/lower estimated confidence
+intervals (if calculated) and the location, scale and shape parameters
+of the fitted GEV distribution.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="77%" />
+<col width="11%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field name</th>
+<th class="head">Field description</th>
+<th class="head">Field type</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>locId</td>
+<td>Unique identifier for location</td>
+<td>Integer</td>
+</tr>
+<tr class="row-odd"><td>returnPeriod</td>
+<td>Return period (years)</td>
+<td>Real</td>
+</tr>
+<tr class="row-even"><td>wspd</td>
+<td>Return period wind speed for the location and given return period (m/s)</td>
+<td>Real</td>
+</tr>
+<tr class="row-odd"><td>wspdUpper</td>
+<td>Estimated upper confidence bound of return period wind speed (95th percentile) (m/s)</td>
+<td>Real</td>
+</tr>
+<tr class="row-even"><td>wspdLower</td>
+<td>Estimated lower confidence bound of return period wind speed (5th percentile) (m/s)</td>
+<td>Real</td>
+</tr>
+<tr class="row-odd"><td>loc</td>
+<td>Location parameter for the fitted Generalised Extreme Value (GEV) distribution</td>
+<td>Real</td>
+</tr>
+<tr class="row-even"><td>scale</td>
+<td>Scale parameter for the fitted GEV distribution</td>
+<td>Real</td>
+</tr>
+<tr class="row-odd"><td>shape</td>
+<td>Shape parameter for the fitted GEV distribution</td>
+<td>Real</td>
+</tr>
+<tr class="row-even"><td>tcrmVersion</td>
+<td>TCRM version (usually a Git hash representing the commit)</td>
+<td>Text</td>
+</tr>
+<tr class="row-odd"><td>dtHazardFile</td>
+<td>Creation date/time for the hazard file</td>
+<td>Timestamp</td>
+</tr>
+<tr class="row-even"><td>Comments</td>
+<td>General comments field</td>
+<td>Text</td>
+</tr>
+<tr class="row-odd"><td>dtCreated</td>
+<td>Creation date/time for the record</td>
+<td>Timestamp</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="tracks-table">
+<h3>Tracks table<a class="headerlink" href="#tracks-table" title="Permalink to this headline">¶</a></h3>
+<p>The tracks table (<em>tblTracks</em>) records information on the individual
+tracks and their proximity to each individual location in the domain.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="74%" />
+<col width="13%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Field name</th>
+<th class="head">Field description</th>
+<th class="head">Field type</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>locId</td>
+<td>Unique identifier for location</td>
+<td>Integer</td>
+</tr>
+<tr class="row-odd"><td>eventId</td>
+<td>Unique identifier for the event</td>
+<td>Text</td>
+</tr>
+<tr class="row-even"><td>distClosest</td>
+<td>Distance of closest approach of the track to the location (km)</td>
+<td>Real</td>
+</tr>
+<tr class="row-odd"><td>prsClosest</td>
+<td>Central pressure of the event at the point of closest approach (hPa)</td>
+<td>Real</td>
+</tr>
+<tr class="row-even"><td>dtClosest</td>
+<td>Date/time of the point of closest approach</td>
+<td>Timestamp</td>
+</tr>
+<tr class="row-odd"><td>Comments</td>
+<td>General comments field</td>
+<td>Text</td>
+</tr>
+<tr class="row-even"><td>dtCreated</td>
+<td>Creation date/time for the record</td>
+<td>Timestamp</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="queries">
+<h2>Queries<a class="headerlink" href="#queries" title="Permalink to this headline">¶</a></h2>
+<p>A small number of queries are pre-built into the module. These are
+provided to indicate approaches users can use to develop their own
+queries that satisfy their needs.</p>
+<p>Queries use SQL syntax, and are passed to the
+<code class="xref py py-class docutils literal"><span class="pre">HazardDatabase.execute</span></code> method to perform the SQL command. Queries
+are assembled using the <code class="xref py py-class docutils literal"><span class="pre">sqlite3</span></code> DB-API parameter substitution
+(see the <a class="reference external" href="https://docs.python.org/2/library/sqlite3.html">sqlite3</a>
+documentation for more details).</p>
+<p>Results from queries are returned as a <code class="xref py py-class docutils literal"><span class="pre">numpy.recarray</span></code>, with
+the dtype defined by the corresponding type of the database field (see
+above for field types).</p>
+</div>
 </div>
 
 
@@ -109,7 +379,15 @@ in geographic coordinates.</td>
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Hazard database</a><ul>
+<li><a class="reference internal" href="#tables">Tables</a><ul>
 <li><a class="reference internal" href="#locations-table">Locations table</a></li>
+<li><a class="reference internal" href="#events-table">Events table</a></li>
+<li><a class="reference internal" href="#wind-speed-table">Wind speed table</a></li>
+<li><a class="reference internal" href="#hazard-table">Hazard table</a></li>
+<li><a class="reference internal" href="#tracks-table">Tracks table</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#queries">Queries</a></li>
 </ul>
 </li>
 </ul>
@@ -117,21 +395,18 @@ in geographic coordinates.</td>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/docs/database.txt"
+      <li><a href="../_sources/docs/database.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -147,13 +422,13 @@ in geographic coordinates.</td>
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2015.
-      Last updated on Nov 05, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
+      Last updated on Jul 14, 2017.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
   </body>
 </html>

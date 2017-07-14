@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Scenario modelling &mdash; Tropical Cyclone Risk Model 1.0.2 documentation</title>
+    <title>Scenario modelling &#8212; Tropical Cyclone Risk Model 2.0. documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,20 +14,22 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.2',
+        VERSION:     '2.0.',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Tropical Cyclone Risk Model 1.0.2 documentation" href="../index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Contributing code" href="contributing.html" />
     <link rel="prev" title="Using different TC databases - source formats" href="sources.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +45,7 @@
         <li class="right" >
           <a href="sources.html" title="Using different TC databases - source formats"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -102,44 +104,44 @@ recommended to create a reduced configuration file that contains only
 the required sections and options.</p>
 <p>A basic configuration file for a scenario simulation would look like
 this:</p>
-<div class="highlight-python"><div class="highlight"><pre>[DataProcess]
-InputFile = scenario.csv
-Source = NRL
-FilterSeasons = False
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">DataProcess</span><span class="p">]</span>
+<span class="n">InputFile</span> <span class="o">=</span> <span class="n">scenario</span><span class="o">.</span><span class="n">csv</span>
+<span class="n">Source</span> <span class="o">=</span> <span class="n">NRL</span>
+<span class="n">FilterSeasons</span> <span class="o">=</span> <span class="kc">False</span>
 
-[WindfieldInterface]
-Margin = 3
-Resolution = 0.02
-profileType = powell
-windFieldType = kepert
+<span class="p">[</span><span class="n">WindfieldInterface</span><span class="p">]</span>
+<span class="n">Margin</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">Resolution</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="n">profileType</span> <span class="o">=</span> <span class="n">powell</span>
+<span class="n">windFieldType</span> <span class="o">=</span> <span class="n">kepert</span>
 
-[Timeseries]
-Extract = True
-StationFile = ./input/stationlist.shp
-StationID = WMO
+<span class="p">[</span><span class="n">Timeseries</span><span class="p">]</span>
+<span class="n">Extract</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">LocationFile</span> <span class="o">=</span> <span class="o">./</span><span class="nb">input</span><span class="o">/</span><span class="n">stationlist</span><span class="o">.</span><span class="n">shp</span>
+<span class="n">StationID</span> <span class="o">=</span> <span class="n">WMO</span>
 
-[Input]
-landmask = input/landmask.nc
-mslpfile = MSLP/slp.day.ltm.nc
+<span class="p">[</span><span class="n">Input</span><span class="p">]</span>
+<span class="n">landmask</span> <span class="o">=</span> <span class="nb">input</span><span class="o">/</span><span class="n">landmask</span><span class="o">.</span><span class="n">nc</span>
+<span class="n">mslpfile</span> <span class="o">=</span> <span class="n">MSLP</span><span class="o">/</span><span class="n">slp</span><span class="o">.</span><span class="n">day</span><span class="o">.</span><span class="n">ltm</span><span class="o">.</span><span class="n">nc</span>
 
-[Output]
-Path = ./output/scenario
+<span class="p">[</span><span class="n">Output</span><span class="p">]</span>
+<span class="n">Path</span> <span class="o">=</span> <span class="o">./</span><span class="n">output</span><span class="o">/</span><span class="n">scenario</span>
 
-[NRL]
-Columns = index,skip,skip,date,lat,lon,skip,skip,pressure,rmax
-FieldDelimiter = ,
-NumberOfHeadingLines = 0
-PressureUnits = hPa
-SpeedUnits = kts
-LengthUnits = km
-DateFormat = %Y%m%d %H:%M
+<span class="p">[</span><span class="n">NRL</span><span class="p">]</span>
+<span class="n">Columns</span> <span class="o">=</span> <span class="n">index</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">date</span><span class="p">,</span><span class="n">lat</span><span class="p">,</span><span class="n">lon</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">pressure</span><span class="p">,</span><span class="n">rmax</span>
+<span class="n">FieldDelimiter</span> <span class="o">=</span> <span class="p">,</span>
+<span class="n">NumberOfHeadingLines</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">PressureUnits</span> <span class="o">=</span> <span class="n">hPa</span>
+<span class="n">SpeedUnits</span> <span class="o">=</span> <span class="n">kts</span>
+<span class="n">LengthUnits</span> <span class="o">=</span> <span class="n">km</span>
+<span class="n">DateFormat</span> <span class="o">=</span> <span class="o">%</span><span class="n">Y</span><span class="o">%</span><span class="n">m</span><span class="o">%</span><span class="n">d</span> <span class="o">%</span><span class="n">H</span><span class="p">:</span><span class="o">%</span><span class="n">M</span>
 
-[Logging]
-LogFile = output/scenario/log/scenario.log
-LogLevel = INFO
-Verbose = True
-NewLog = True
-DateStamp = True
+<span class="p">[</span><span class="n">Logging</span><span class="p">]</span>
+<span class="n">LogFile</span> <span class="o">=</span> <span class="n">output</span><span class="o">/</span><span class="n">scenario</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">scenario</span><span class="o">.</span><span class="n">log</span>
+<span class="n">LogLevel</span> <span class="o">=</span> <span class="n">INFO</span>
+<span class="n">Verbose</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">NewLog</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">DateStamp</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
 </div>
 </div>
@@ -154,7 +156,7 @@ extent of the track.</p>
 <p>Make sure <code class="docutils literal"><span class="pre">python</span></code> is in your system path, then from the base
 directory, call the <code class="docutils literal"><span class="pre">tcevent.py</span></code> script, with the configuration
 file option included. For example, to run the example scenario:</p>
-<div class="highlight-python"><div class="highlight"><pre>python tcevent.py -c example/scenario.ini
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">tcevent</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">c</span> <span class="n">example</span><span class="o">/</span><span class="n">scenario</span><span class="o">.</span><span class="n">ini</span>
 </pre></div>
 </div>
 <p>If the <code class="docutils literal"><span class="pre">-v</span></code> option is included, then all logging messages will be
@@ -179,7 +181,7 @@ configuration file.</p>
 <tr><td class="option-group" colspan="2">
 <kbd><span class="option">-c <var>file</var></span>, <span class="option">--config <var>file</var></span></kbd></td>
 </tr>
-<tr><td>&nbsp;</td><td>Path to a configuration file.</td></tr>
+<tr><td>&#160;</td><td>Path to a configuration file.</td></tr>
 <tr><td class="option-group">
 <kbd><span class="option">-v</span>, <span class="option">--verbose</span></kbd></td>
 <td>If given, logging messages will be printed
@@ -206,7 +208,7 @@ numbered sequentially through the locations.</p>
 <ul class="simple">
 <li>Locations must be provided in geographic coordinates (longitude,
 latitude coordinates). No reprojection is performed.</li>
-<li>Output is a &#8216;regional&#8217; wind speed &#8211; that is, the wind speed at that
+<li>Output is a ‘regional’ wind speed – that is, the wind speed at that
 location, excluding local topographic or landscape effects. These
 effects can be incorporated offline (i.e. outside the TCRM
 framework).</li>
@@ -214,7 +216,7 @@ framework).</li>
 <p>The data is stored in a separate csv file for each location, and data
 is plotted on a simple figure for visual inspection.</p>
 <div class="align-center figure" id="id1">
-<img alt="Maximum wind speed swath of Typhoon *Haiyan*" src="docs\maxwind_example.png" />
+<img alt="Maximum wind speed swath of Typhoon *Haiyan*" src="docs\./maxwind_example.png" />
 <p class="caption"><span class="caption-text">Estimated maximum wind speed swath of Super Typhoon
 <em>Haiyan</em> (2013) across the Philippine archipelago. This simulation
 used the best track estimate from the Joint Typhoon Warning Center
@@ -223,7 +225,7 @@ typhoon. No attempt is made to fit the radial profile to defined
 wind radii (e.g. radius of 46-, 50- or 34-knots).</span></p>
 </div>
 <div class="align-center figure" id="id2">
-<img alt="Time series example from Guiuan, Philippines" src="docs\timeseries_example.png" />
+<img alt="Time series example from Guiuan, Philippines" src="docs\./timeseries_example.png" />
 <p class="caption"><span class="caption-text">Time series data for Super Typhoon <em>Haiyan</em> at Guiuan, Samar, Philippines.</span></p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -247,13 +249,13 @@ Python exceed 2GB (on 32-bit systems). Conditions that lead to this
 error are not clear. To resolve the problem, it is recommended to
 reduce the domain of the wind field by adding a <code class="docutils literal"><span class="pre">Region</span></code> section to
 the configuration file.:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Region</span><span class="p">]</span>
-<span class="n">gridLimit</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;xMin&#39;</span><span class="p">:</span><span class="mf">118.</span><span class="p">,</span> <span class="s">&#39;xMax&#39;</span><span class="p">:</span><span class="mf">122.</span><span class="p">,</span> <span class="s">&#39;yMin&#39;</span><span class="p">:</span><span class="o">-</span><span class="mf">23.</span><span class="p">,</span> <span class="s">&#39;yMax&#39;</span><span class="p">:</span><span class="o">-</span><span class="mf">17.</span><span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Region</span><span class="p">]</span>
+<span class="n">gridLimit</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;xMin&#39;</span><span class="p">:</span><span class="mf">118.</span><span class="p">,</span> <span class="s1">&#39;xMax&#39;</span><span class="p">:</span><span class="mf">122.</span><span class="p">,</span> <span class="s1">&#39;yMin&#39;</span><span class="p">:</span><span class="o">-</span><span class="mf">23.</span><span class="p">,</span> <span class="s1">&#39;yMax&#39;</span><span class="p">:</span><span class="o">-</span><span class="mf">17.</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>This will restrict calculation of the wind field to the defined
 domain. The <code class="docutils literal"><span class="pre">gridLimit</span></code> value is described in the
-<a class="reference internal" href="setup.html#configureregion"><span>Region</span></a> section.</p>
+<a class="reference internal" href="setup.html#configureregion"><span class="std std-ref">Region</span></a> section.</p>
 </div>
 </div>
 </div>
@@ -295,21 +297,18 @@ domain. The <code class="docutils literal"><span class="pre">gridLimit</span></c
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/docs/scenarios.txt"
+      <li><a href="../_sources/docs/scenarios.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -331,13 +330,13 @@ domain. The <code class="docutils literal"><span class="pre">gridLimit</span></c
         <li class="right" >
           <a href="sources.html" title="Using different TC databases - source formats"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2015.
-      Last updated on Nov 05, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
+      Last updated on Jul 14, 2017.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
   </body>
 </html>

@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction &mdash; Tropical Cyclone Risk Model 1.0.2 documentation</title>
+    <title>Introduction &#8212; Tropical Cyclone Risk Model 2.0. documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,20 +14,22 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.2',
+        VERSION:     '2.0.',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Tropical Cyclone Risk Model 1.0.2 documentation" href="../index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Installation" href="install.html" />
-    <link rel="prev" title="License information" href="../LICENSE.html" /> 
+    <link rel="prev" title="The Tropical Cyclone Risk Model" href="../index.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -41,9 +43,9 @@
           <a href="install.html" title="Installation"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../LICENSE.html" title="License information"
+          <a href="../index.html" title="The Tropical Cyclone Risk Model"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,8 +58,8 @@
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <p>Tropical cyclones are one of the more frequent natural disasters
 globally. The observed record is limited, so it is difficult to
-evaluate what the &#8216;worst possible&#8217; cyclone would look like. Based on
-these historic records, we can statistically &#8216;extrapolate&#8217; the record
+evaluate what the ‘worst possible’ cyclone would look like. Based on
+these historic records, we can statistically ‘extrapolate’ the record
 and use a stochastic model to generate plausible, synthetic TC events.</p>
 <p>TCRM was borne out of a desire to explore the epistemic uncertainty
 around parameterisations used in tropical cyclone hazard models. There
@@ -71,10 +73,11 @@ models into the code base (which can then be shared with the user
 community).</p>
 <div class="section" id="model-outline">
 <h2>Model outline<a class="headerlink" href="#model-outline" title="Permalink to this headline">¶</a></h2>
-<p>TCRM has 5 main modules to generate hazard information:
+<p>TCRM has 6 main modules to generate hazard information:
 <a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></code></a>, <a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><code class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></code></a>, <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></code></a>,
-<a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal"><span class="pre">wind</span></code></a> and <a class="reference internal" href="hazard.html#module-hazard" title="hazard"><code class="xref py py-mod docutils literal"><span class="pre">hazard</span></code></a>. Supporting <a class="reference internal" href="Utilities.html#module-Utilities" title="Utilities"><code class="xref py py-mod docutils literal"><span class="pre">Utilities</span></code></a> and
-plotting routines (<a class="reference internal" href="PlotInterface.html#module-PlotInterface" title="PlotInterface"><code class="xref py py-mod docutils literal"><span class="pre">PlotInterface</span></code></a>) are included.</p>
+<a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal"><span class="pre">wind</span></code></a>, <a class="reference internal" href="hazard.html#module-hazard" title="hazard"><code class="xref py py-mod docutils literal"><span class="pre">hazard</span></code></a> and <code class="xref py py-mod docutils literal"><span class="pre">database</span></code>. Supporting
+<a class="reference internal" href="Utilities.html#module-Utilities" title="Utilities"><code class="xref py py-mod docutils literal"><span class="pre">Utilities</span></code></a> and plotting routines (<a class="reference internal" href="PlotInterface.html#module-PlotInterface" title="PlotInterface"><code class="xref py py-mod docutils literal"><span class="pre">PlotInterface</span></code></a>) are
+included.</p>
 <p>The <a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></code></a> module reads the input track database and
 extracts parameters from the data, namely intensity and location
 information, speed, bearings and genesis locations. The data are
@@ -108,6 +111,13 @@ each grid point across the model domain to determine return
 period wind speeds. The fitting routine uses the method of
 L-moments <a class="footnote-reference" href="#id2" id="id1">[1]</a> to determine the location, shape and scale
 parameters of the GEV.</p>
+<p>The <code class="xref py py-mod docutils literal"><span class="pre">database</span></code> module builds a SQLite database that holds
+information about the simulation. The wind speeds associated with all
+events in the simulation catalouge are extracted for locations in the
+model domain, along with recurrence interval wind speeds. Details
+(maximum wind, minimun central pressure, lifetime, etc.) of each storm
+are recorded, as well as the closest distance of approach for storms
+to locations.</p>
 </div>
 <div class="section" id="software">
 <h2>Software<a class="headerlink" href="#software" title="Permalink to this headline">¶</a></h2>
@@ -125,7 +135,7 @@ layer models).</p>
 <tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Hosking, J. R. M. (1990): L-moments: Analysis and Estimation of
 Distributions using Linear Combinations of Order
 Statistics. <em>Journal of the Royal Statistical Society</em>, <strong>52</strong>,
-105&#8211;124.</td></tr>
+105–124.</td></tr>
 </tbody>
 </table>
 </div>
@@ -151,29 +161,26 @@ Statistics. <em>Journal of the Royal Statistical Society</em>, <strong>52</stron
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../LICENSE.html"
-                        title="previous chapter">License information</a></p>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">The Tropical Cyclone Risk Model</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="install.html"
                         title="next chapter">Installation</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/docs/intro.txt"
+      <li><a href="../_sources/docs/intro.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -193,15 +200,15 @@ Statistics. <em>Journal of the Royal Statistical Society</em>, <strong>52</stron
           <a href="install.html" title="Installation"
              >next</a> |</li>
         <li class="right" >
-          <a href="../LICENSE.html" title="License information"
+          <a href="../index.html" title="The Tropical Cyclone Risk Model"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2015.
-      Last updated on Nov 05, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
+      Last updated on Jul 14, 2017.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
   </body>
 </html>

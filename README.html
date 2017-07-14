@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>The Tropical Cyclone Risk Model &mdash; Tropical Cyclone Risk Model 1.0.2 documentation</title>
+    <title>The Tropical Cyclone Risk Model &#8212; Tropical Cyclone Risk Model 2.0. documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,18 +14,20 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0.2',
+        VERSION:     '2.0.',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Tropical Cyclone Risk Model 1.0.2 documentation" href="index.html" /> 
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -35,7 +37,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -47,17 +49,16 @@
   <div class="section" id="the-tropical-cyclone-risk-model">
 <h1>The Tropical Cyclone Risk Model<a class="headerlink" href="#the-tropical-cyclone-risk-model" title="Permalink to this headline">¶</a></h1>
 <p>The <strong>Tropical Cyclone Risk Model</strong> is a stochastic tropical cyclone
-model developed by
-<a class="reference external" href="http://www.ga.gov.au">Geoscience Australia</a> for
-estimating the wind hazard from tropical cyclones.</p>
-<p>Due to the relatively short record of quality-controlled, consistent tropical
-cyclone observations, it is difficult to estimate average recurrence interval
-wind speeds ue to tropical cyclones. To overcome the restriction of observed
-data, TCRM uses an autoregressive model to generate thousands of years of
-events that are statistically similar to the historical record. To translate
-these events to estimated wind speeds, TCRM applies a parametric windfield and
-boundary layer model to each event. Finally an extreme value distribution is
-fitted to the aggregated windfields at each grid point in the model domain to
+model developed by <a class="reference external" href="http://www.ga.gov.au">Geoscience Australia</a> for estimating the wind hazard from tropical cyclones.</p>
+<p>Due to the relatively short record of quality-controlled, consistent
+tropical cyclone observations, it is difficult to estimate average
+recurrence interval wind speeds ue to tropical cyclones. To overcome
+the restriction of observed data, TCRM uses an autoregressive model to
+generate thousands of years of events that are statistically similar
+to the historical record. To translate these events to estimated wind
+speeds, TCRM applies a parametric windfield and boundary layer model
+to each event. Finally an extreme value distribution is fitted to the
+aggregated windfields at each grid point in the model domain to
 provide ARI wind speed estimates.</p>
 </div>
 <div class="section" id="features">
@@ -70,21 +71,54 @@ provide ARI wind speed estimates.</p>
 <li><strong>Single scenarios</strong>: Users can run a single TC event (e.g. using a b-deck format track file) at high temporal resolution and extract time series data at chosen locations;</li>
 </ul>
 </div>
+<div class="section" id="branch">
+<h1>Branch<a class="headerlink" href="#branch" title="Permalink to this headline">¶</a></h1>
+<p>Version 2.0 release candidate branch. Development branches should be progressively merged into this branch.</p>
+</div>
+<div class="section" id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="new-features">
+<h2>New features:<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Stores individual events as separate tracks and wind fields;</li>
+<li>Tracks stored in netCDF4 files, using the heirachical structure and compound variables to improve file management for large simulations;</li>
+<li>Provides a relational database to allow interrogation of simulations (using an <a class="reference external" href="http://www.sqlite.org">SQLite</a> database);</li>
+<li>Updated visualisation of outputs using <a class="reference external" href="http://stanford.edu/~mwaskom/software/seaborn/index.html">Seaborn</a>;</li>
+</ul>
+</div>
+<div class="section" id="bug-fixes">
+<h2>Bug fixes:<a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Update kernel density estimation methods. Previous version oversmoothed the distribution and used an isotropic bandwidth. Now uses statsmodels <a class="reference external" href="http://statsmodels.sourceforge.net/stable/generated/statsmodels.nonparametric.kernel_density.KDEMultivariate.html">Multivariate KDE method</a> for 2-dimensional KDE;</li>
+<li>Numpy 1.10.1 compatibility fix (see commit <a class="reference external" href="https://github.com/GeoscienceAustralia/tcrm/commit/0361c7c1ffcc230d767ba2905a693df53156ed98">0361c7c</a>);</li>
+<li>Wind speed averaging times are as per <a class="reference external" href="http://www.wmo.int/pages/prog/www/tcp/documents/WMO_TD_1555_en.pdf">WMO-TD1555</a> - default output is 0.2 second wind gust;</li>
+</ul>
+</div>
+</div>
 <div class="section" id="dependencies">
 <h1>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li>TCRM requires <a class="reference external" href="https://www.python.org/">Python (2.7 preferred)</a>,
-<a class="reference external" href="http://www.numpy.org/">Numpy</a>, <a class="reference external" href="http://www.scipy.org/">Scipy</a>,
-<a class="reference external" href="http://matplotlib.org/">Matplotlib</a>, <a class="reference external" href="http://matplotlib.org/basemap/index.html">Basemap</a>, <a class="reference external" href="https://code.google.com/p/netcdf4-python/">netcdf4-python</a>,
-<a class="reference external" href="https://github.com/Toblerity/Shapely">Shapely</a> and a C compiler;</li>
-<li>For parallel execution, <a class="reference external" href="http://github.com/daleroberts/pypar">Pypar</a> is required;</li>
+<p>TCRM requires:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="https://www.python.org/">Python 2.7</a>;</li>
+<li><a class="reference external" href="http://www.numpy.org/">numpy</a>;</li>
+<li><a class="reference external" href="http://www.scipy.org/">scipy</a>;</li>
+<li><a class="reference external" href="http://matplotlib.org/">matplotlib 1.4.3</a>;</li>
+<li><a class="reference external" href="http://matplotlib.org/basemap/index.html">Basemap 1.0.8</a>;</li>
+<li><a class="reference external" href="https://code.google.com/p/netcdf4-python/">netcdf4-python</a>;</li>
+<li><a class="reference external" href="http://pandas.pydata.org/">pandas</a>;</li>
+<li><a class="reference external" href="https://github.com/Toblerity/Shapely">Shapely</a>;</li>
+<li><a class="reference external" href="http://stanford.edu/~mwaskom/software/seaborn/index.html">seaborn 0.5.1</a>;</li>
+<li>and <cite>gcc</cite>.</li>
 </ul>
+</div></blockquote>
+<p>For parallel execution, <a class="reference external" href="http://github.com/daleroberts/pypar">Pypar</a> is required;</p>
 </div>
 <div class="section" id="status">
 <h1>Status<a class="headerlink" href="#status" title="Permalink to this headline">¶</a></h1>
-<a class="reference external image-reference" href="https://travis-ci.org/GeoscienceAustralia/tcrm"><img alt="Build status" src="https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=master" /></a>
-<a class="reference external image-reference" href="https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=master"><img alt="Test coverage" src="https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=master" /></a>
-<a class="reference external image-reference" href="https://landscape.io/github/GeoscienceAustralia/tcrm/master"><img alt="Code Health" src="https://landscape.io/github/GeoscienceAustralia/tcrm/master/landscape.svg?style=flat" /></a>
+<a class="reference external image-reference" href="https://travis-ci.org/GeoscienceAustralia/tcrm"><img alt="Build status" src="https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=v2.0" /></a>
+<a class="reference external image-reference" href="https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=v2.0"><img alt="Test coverage" src="https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=v2.0" /></a>
+<a class="reference external image-reference" href="https://landscape.io/github/GeoscienceAustralia/tcrm/v2.0"><img alt="Code Health" src="https://landscape.io/github/GeoscienceAustralia/tcrm/v2.0/landscape.svg?style=flat" /></a>
 </div>
 <div class="section" id="screenshot">
 <h1>Screenshot<a class="headerlink" href="#screenshot" title="Permalink to this headline">¶</a></h1>
@@ -114,6 +148,12 @@ and a DISCLAIMER OF ALL WARRANTIES.</p>
   <ul>
 <li><a class="reference internal" href="#">The Tropical Cyclone Risk Model</a></li>
 <li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#branch">Branch</a></li>
+<li><a class="reference internal" href="#changelog">Changelog</a><ul>
+<li><a class="reference internal" href="#new-features">New features:</a></li>
+<li><a class="reference internal" href="#bug-fixes">Bug fixes:</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li><a class="reference internal" href="#status">Status</a></li>
 <li><a class="reference internal" href="#screenshot">Screenshot</a></li>
@@ -124,21 +164,18 @@ and a DISCLAIMER OF ALL WARRANTIES.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/README.txt"
+      <li><a href="_sources/README.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -154,13 +191,13 @@ and a DISCLAIMER OF ALL WARRANTIES.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2015.
-      Last updated on Nov 05, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
+      Last updated on Jul 14, 2017.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
   </body>
 </html>

@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation &mdash; Tropical Cyclone Risk Model 1.0.2 documentation</title>
+    <title>Installation &#8212; Tropical Cyclone Risk Model 2.0. documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,20 +14,22 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.2',
+        VERSION:     '2.0.',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Tropical Cyclone Risk Model 1.0.2 documentation" href="../index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Setting up the model" href="setup.html" />
     <link rel="prev" title="Introduction" href="intro.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +45,7 @@
         <li class="right" >
           <a href="intro.html" title="Introduction"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -78,13 +80,13 @@ TCRM.</p>
 </div>
 <div class="section" id="bash-shell">
 <h3>BASH shell<a class="headerlink" href="#bash-shell" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-python"><div class="highlight"><pre>export PYTHONPATH=$PYTHONPATH:/path/to/tcrm:/path/to/tcrm/Utilities
+<div class="highlight-default"><div class="highlight"><pre><span></span>export PYTHONPATH=$PYTHONPATH:/path/to/tcrm:/path/to/tcrm/Utilities
 </pre></div>
 </div>
 </div>
 <div class="section" id="csh-tcsh-shell">
 <h3>CSH/TCSH shell<a class="headerlink" href="#csh-tcsh-shell" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-python"><div class="highlight"><pre>setenv PYTHONPATH $PYTHONPATH:/path/to/tcrm:/path/to/tcrm/Utilities
+<div class="highlight-default"><div class="highlight"><pre><span></span>setenv PYTHONPATH $PYTHONPATH:/path/to/tcrm:/path/to/tcrm/Utilities
 </pre></div>
 </div>
 </div>
@@ -93,7 +95,7 @@ TCRM.</p>
 <span id="id3"></span><h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
 <p>TCRM relies on a number of additional libraries that are not part of
 the standard library. There are several ways to obtain the required
-libraries &#8211; using Python&#8217;s recommended tool <a class="reference external" href="https://pip.readthedocs.org/en/latest/">pip</a>, installing a distribution
+libraries – using Python’s recommended tool <a class="reference external" href="https://pip.readthedocs.org/en/latest/">pip</a>, installing a distribution
 such as <a class="reference external" href="http://code.google.com/p/pythonxy/">Python(x,y) package</a>
 (for Windows environments) or <a class="reference external" href="https://store.continuum.io/cshop/anaconda/">Anaconda</a> (cross-platform), or
 installing the libraries from source or binary installers
@@ -118,7 +120,7 @@ installed) requires <a class="reference external" href="http://github.com/dalero
 <p>If you have <a class="reference external" href="https://pip.readthedocs.org/en/latest/">pip</a> installed,
 the required modules can be installed using the following command,
 executed in the main TCRM directory:</p>
-<div class="highlight-python"><div class="highlight"><pre>pip -v install -r requirements.txt
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="o">-</span><span class="n">v</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>This will automatically build the required libraries (listed in the
@@ -128,20 +130,62 @@ the <code class="docutils literal"><span class="pre">$PATH</span></code> for thi
 </div>
 <div class="section" id="compiling-the-extensions">
 <span id="compilation"></span><h2>Compiling the extensions<a class="headerlink" href="#compiling-the-extensions" title="Permalink to this headline">¶</a></h2>
+<p>The model requires a number of C extensions to be compiled before
+execution. These can be built using Python’s inbuilt <code class="xref py py-mod docutils literal"><span class="pre">distutils</span></code>
+module.</p>
 <div class="section" id="unix">
 <h3>Unix<a class="headerlink" href="#unix" title="Permalink to this headline">¶</a></h3>
-<p>The model requires a number of C extensions to be compiled before
-execution. These can be built using Python&#8217;s inbuilt <code class="xref py py-mod docutils literal"><span class="pre">distutils</span></code>
-module. Copy the required files from the <cite>installer</cite> directory to the
-base directory and then execute the build process:</p>
-<div class="highlight-python"><div class="highlight"><pre>python intaller/setup.py build_ext -i
+<p>From the base directory, execute the build process:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">installer</span><span class="o">/</span><span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build_ext</span> <span class="o">-</span><span class="n">i</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="id6">
-<h3>Windows<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="ubuntu">
+<h3>Ubuntu<a class="headerlink" href="#ubuntu" title="Permalink to this headline">¶</a></h3>
+<p>The github branch issue_25 (created from the v2.0 branch) had an environment created by <a class="reference external" href="https://conda.io/docs/install/quick.html#linux-miniconda-install">installing miniconda</a> and executing the following commands.</p>
+<blockquote>
+<div>~/miniconda2/bin/conda create –name tcrm
+~/miniconda2/bin/source activate tcrm
+~/miniconda2/bin/conda install numpy
+~/miniconda2/bin/conda install scipy
+~/miniconda2/bin/conda install matplotlib
+~/miniconda2/bin/conda install basemap
+~/miniconda2/bin/conda install netcdf4
+~/miniconda2/bin/conda install shapely
+~/miniconda2/bin/conda install Tornado
+~/miniconda2/bin/conda install statsmodel
+~/miniconda2/bin/conda install seaborn
+~/miniconda2/bin/pip –proxy=http://localhost:3128 install simplejson</div></blockquote>
+<dl class="docutils">
+<dt>The following libraries were needed to compile the C extensions, and run the unit tests:</dt>
+<dd>sudo apt install libgl1-mesa-glx
+sudo apt-get install python-numpy-dev</dd>
+<dt>The C extensions were compiled from the trcm directory with:</dt>
+<dd>(tcrm) <a class="reference external" href="mailto:user&#37;&#52;&#48;server">user<span>&#64;</span>server</a>:~/tcrm$ python intaller/setup.py build_ext -i</dd>
+</dl>
+<p>An error occurred where the include file seems to have changed paths. It may be a one off,
+or it may reoccur in another version of Linux. The error was in KPDF.c and the change was to
+comment out one line and replace it with another.</p>
+<blockquote>
+<div>#include “numpy/arrayobject.h”
+/* #include “arrayobject.h” <a href="#id6"><span class="problematic" id="id7">*</span></a>/</div></blockquote>
+<p>A requiremements file was created in the root directory called <code class="docutils literal"><span class="pre">linux_v20.yml</span></code> and should (it hasn’t been tested)
+replace the <code class="docutils literal"><span class="pre">conda</span> <span class="pre">install</span></code> commands above. The command to use this file is:</p>
+<blockquote>
+<div>conda env create -f linux_v20.yml</div></blockquote>
+<dl class="docutils">
+<dt>Activating the environment would be</dt>
+<dd>source activate linux_v20</dd>
+</dl>
+</div>
+<div class="section" id="id8">
+<h3>Windows<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <p>For Windows users, the code includes the <code class="docutils literal"><span class="pre">compile.cmd</span></code> script in the
-main TCRM diretory that will build these extensions in place.</p>
+main TCRM diretory that will build these extensions in place. By default, TCRM uses the MinGW suite (<a class="reference external" href="http://www.mingw.org">http://www.mingw.org</a>) for compiling the extensions. Other Windows-based packages can also be used (e.g. Cygwin). See the Python documentation on writing configuration files for the <code class="xref py py-mod docutils literal"><span class="pre">distutils</span></code> package for more details.</p>
+</div>
+<div class="section" id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+<p>It is recommended to use a stand-alone Python installation for compiling and running TCRM. Installations linked to other software such as ArcGIS have resulted in compilation errors, as the required <code class="xref py py-mod docutils literal"><span class="pre">numpy</span></code> libraries are pre-compiled and packaged with such installations.</p>
 </div>
 </div>
 <div class="section" id="testing-the-installation">
@@ -152,7 +196,7 @@ modificaitons to the code.</p>
 <p>The test suite can be run from the main directory. On Windows, run the
 <code class="docutils literal"><span class="pre">run_test_all.cmd</span></code> script from the main TCRM directory. On Unix, use
 the command:</p>
-<div class="highlight-python"><div class="highlight"><pre>python ./tests/run.py
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">./</span><span class="n">tests</span><span class="o">/</span><span class="n">run</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
 <p>This should report no errors or failures.</p>
@@ -161,19 +205,19 @@ the command:</p>
 <p>On a Windows system, <code class="xref py py-func docutils literal"><span class="pre">tests.test_files.testModulePath()</span></code> may fail
 due to the different path separators (<code class="docutils literal"><span class="pre">/</span></code> versus <code class="docutils literal"><span class="pre">\\</span></code>) used by the
 Windows system. This test failure will appear as:</p>
-<div class="highlight-python"><div class="highlight"><pre>======================================================================
-FAIL: testModulePath (tests.test_files.TestModuleUtilities)
-Test flModulePath returns correct path, base &amp; extension
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File &quot;tcrm\tests\test_files.py&quot;, line 22, in testModulePath
-    self.assertEqual(self.path, p)
-AssertionError: &#39;tcrm/tests&#39; != &#39;tcrm\\tests&#39;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">======================================================================</span>
+<span class="n">FAIL</span><span class="p">:</span> <span class="n">testModulePath</span> <span class="p">(</span><span class="n">tests</span><span class="o">.</span><span class="n">test_files</span><span class="o">.</span><span class="n">TestModuleUtilities</span><span class="p">)</span>
+<span class="n">Test</span> <span class="n">flModulePath</span> <span class="n">returns</span> <span class="n">correct</span> <span class="n">path</span><span class="p">,</span> <span class="n">base</span> <span class="o">&amp;</span> <span class="n">extension</span>
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s2">&quot;tcrm</span><span class="se">\t</span><span class="s2">ests</span><span class="se">\t</span><span class="s2">est_files.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">22</span><span class="p">,</span> <span class="ow">in</span> <span class="n">testModulePath</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+<span class="ne">AssertionError</span><span class="p">:</span> <span class="s1">&#39;tcrm/tests&#39;</span> <span class="o">!=</span> <span class="s1">&#39;tcrm</span><span class="se">\\</span><span class="s1">tests&#39;</span>
 
-----------------------------------------------------------------------
-Ran 111 tests in 92.513s
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Ran</span> <span class="mi">111</span> <span class="n">tests</span> <span class="ow">in</span> <span class="mf">92.513</span><span class="n">s</span>
 
-FAILED (failures=1)
+<span class="n">FAILED</span> <span class="p">(</span><span class="n">failures</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Such an error will not affect model execution.</p>
@@ -206,7 +250,9 @@ FAILED (failures=1)
 </li>
 <li><a class="reference internal" href="#compiling-the-extensions">Compiling the extensions</a><ul>
 <li><a class="reference internal" href="#unix">Unix</a></li>
-<li><a class="reference internal" href="#id6">Windows</a></li>
+<li><a class="reference internal" href="#ubuntu">Ubuntu</a></li>
+<li><a class="reference internal" href="#id8">Windows</a></li>
+<li><a class="reference internal" href="#notes">Notes</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#testing-the-installation">Testing the installation</a><ul>
@@ -226,21 +272,18 @@ FAILED (failures=1)
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/docs/install.txt"
+      <li><a href="../_sources/docs/install.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -262,13 +305,13 @@ FAILED (failures=1)
         <li class="right" >
           <a href="intro.html" title="Introduction"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2015.
-      Last updated on Nov 05, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
+      Last updated on Jul 14, 2017.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
   </body>
 </html>

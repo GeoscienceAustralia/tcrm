@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Setting up the model &mdash; Tropical Cyclone Risk Model 1.0.2 documentation</title>
+    <title>Setting up the model &#8212; Tropical Cyclone Risk Model 2.0. documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,20 +14,22 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.2',
+        VERSION:     '2.0.',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Tropical Cyclone Risk Model 1.0.2 documentation" href="../index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Running the model" href="execution.html" />
     <link rel="prev" title="Installation" href="install.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +45,7 @@
         <li class="right" >
           <a href="install.html" title="Installation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -87,16 +89,17 @@ track database</li>
 to the input TC track database.</li>
 </ul>
 <p>All options are boolean (i.e. <code class="docutils literal"><span class="pre">True</span></code> or <code class="docutils literal"><span class="pre">False</span></code>).</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Actions</span><span class="p">]</span>
-<span class="n">DataProcess</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="n">ExecuteStat</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="n">ExecuteTrackGenerator</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="n">ExecuteWindfield</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="n">ExecuteHazard</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="n">PlotHazard</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="n">PlotData</span> <span class="o">=</span> <span class="bp">False</span>
-<span class="n">ExecuteEvaluate</span> <span class="o">=</span> <span class="bp">False</span>
-<span class="n">DownloadData</span> <span class="o">=</span> <span class="bp">True</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Actions</span><span class="p">]</span>
+<span class="n">DataProcess</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">ExecuteStat</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">ExecuteTrackGenerator</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">ExecuteWindfield</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">ExecuteHazard</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">PlotHazard</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">PlotData</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">ExecuteEvaluate</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">CreateDatabase</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">DownloadData</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
 </div>
 </div>
@@ -114,10 +117,10 @@ values here must be integer values, but can be different in the <code class="doc
 control the incremental increase in grid cell size when insufficient
 observations are located within a grid cell (see the <a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><code class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></code></a>
 description):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Region</span><span class="p">]</span>
-<span class="n">gridLimit</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;xMin&#39;</span><span class="p">:</span> <span class="mf">113.0</span><span class="p">,</span> <span class="s">&#39;xMax&#39;</span><span class="p">:</span> <span class="mf">124.0</span><span class="p">,</span> <span class="s">&#39;yMin&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">24.0</span><span class="p">,</span> <span class="s">&#39;yMax&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">13.0</span><span class="p">}</span>
-<span class="n">gridSpace</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;x&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span><span class="s">&#39;y&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">}</span>
-<span class="n">gridInc</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;x&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span><span class="s">&#39;y&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Region</span><span class="p">]</span>
+<span class="n">gridLimit</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;xMin&#39;</span><span class="p">:</span> <span class="mf">113.0</span><span class="p">,</span> <span class="s1">&#39;xMax&#39;</span><span class="p">:</span> <span class="mf">124.0</span><span class="p">,</span> <span class="s1">&#39;yMin&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">24.0</span><span class="p">,</span> <span class="s1">&#39;yMax&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">13.0</span><span class="p">}</span>
+<span class="n">gridSpace</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">}</span>
+<span class="n">gridInc</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -140,10 +143,10 @@ the input track database are used in calibrating the model. In the
 default case, only data from 1981 onwards is used for model
 calibration. If <code class="docutils literal"><span class="pre">FilterSeasons</span> <span class="pre">=</span> <span class="pre">False</span></code>, no season filtering is
 performed and the full input track database is used.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">DataProcess</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">DataProcess</span><span class="p">]</span>
 <span class="n">InputFile</span> <span class="o">=</span> <span class="n">Allstorms</span><span class="o">.</span><span class="n">ibtracs_wmo</span><span class="o">.</span><span class="n">v03r05</span><span class="o">.</span><span class="n">csv</span>
 <span class="n">StartSeason</span> <span class="o">=</span> <span class="mi">1981</span>
-<span class="n">FilterSeasons</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">FilterSeasons</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">Source</span> <span class="o">=</span> <span class="n">IBTRACS</span>
 </pre></div>
 </div>
@@ -164,7 +167,7 @@ variances and autocorrelations used in the <a class="reference internal" href="T
 module. If there are insufficient valid observations, then the bounds
 of the grid cell are incrementally increased (in steps as specified by
 the <code class="docutils literal"><span class="pre">gridInc</span></code> values) until sufficient observations are found.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">StatInterface</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">StatInterface</span><span class="p">]</span>
 <span class="n">kdeType</span> <span class="o">=</span> <span class="n">Gaussian</span>
 <span class="n">kde2DType</span> <span class="o">=</span> <span class="n">Gaussian</span>
 <span class="n">kdeStep</span> <span class="o">=</span> <span class="mf">0.2</span>
@@ -188,13 +191,13 @@ determined from the input track database.</p>
 <p>For track model evaluations, it is recommended to set
 <code class="docutils literal"><span class="pre">YearsPerSimulation</span></code> to a similar number to the number of years in
 the input track database. For example, in our testing that used data
-from 1981&#8211;2013, we set the value to 30.</p>
+from 1981–2013, we set the value to 30.</p>
 <p><code class="docutils literal"><span class="pre">NumTimeSteps</span></code> controls the maximum lifetime an event can exist
 for. <code class="docutils literal"><span class="pre">TimeStep</span></code> sets the time interval (in hours) for the track
 generator. <code class="docutils literal"><span class="pre">SeasonSeed</span></code> and <code class="docutils literal"><span class="pre">TrackSeed</span></code> are used to fix the random
 number generator on parallel systems to ensure truly random numbers on
 each individual processor.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">TrackGenerator</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">TrackGenerator</span><span class="p">]</span>
 <span class="n">NumSimulations</span> <span class="o">=</span> <span class="mi">500</span>
 <span class="n">YearsPerSimulation</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">NumTimeSteps</span> <span class="o">=</span> <span class="mi">360</span>
@@ -208,30 +211,30 @@ each individual processor.</p>
 <span id="configurewindfield"></span><h3>WindfieldInterface<a class="headerlink" href="#windfieldinterface" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal"><span class="pre">WindfieldInterface</span></code> section controls how the wind fields from
 each track in the simulated tracks are calculated. There are two main
-components to the wind field &#8211; the radial profile and the boundary
+components to the wind field – the radial profile and the boundary
 layer model.</p>
 <p>The <code class="docutils literal"><span class="pre">profileType</span></code> option sets the radial profile used. Valid values are:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">holland</span></code> &#8211; the radial profile of Holland (1980) <a class="footnote-reference" href="#id11" id="id1">[1]</a></li>
-<li><code class="docutils literal"><span class="pre">powell</span></code> &#8211; Similar to the Holland profile, but uses a variable
+<li><code class="docutils literal"><span class="pre">holland</span></code> – the radial profile of Holland (1980) <a class="footnote-reference" href="#id11" id="id1">[1]</a></li>
+<li><code class="docutils literal"><span class="pre">powell</span></code> – Similar to the Holland profile, but uses a variable
 beta parameter that is a function of latitude and size. <a class="footnote-reference" href="#id12" id="id2">[2]</a></li>
-<li><code class="docutils literal"><span class="pre">schloemer</span></code> &#8211; From Schloemer (1954) &#8211; essentially the Holland
+<li><code class="docutils literal"><span class="pre">schloemer</span></code> – From Schloemer (1954) – essentially the Holland
 profile with a beta value of 1 <a class="footnote-reference" href="#id13" id="id3">[3]</a></li>
-<li><code class="docutils literal"><span class="pre">willoughby</span></code> &#8211; From Willoughby and Rahn (2004). Again, the
+<li><code class="docutils literal"><span class="pre">willoughby</span></code> – From Willoughby and Rahn (2004). Again, the
 Holland profile, with beta a function of the maximum wind speed,
 radius to maximum wind and latitude <a class="footnote-reference" href="#id14" id="id4">[4]</a></li>
-<li><code class="docutils literal"><span class="pre">jelesnianski</span></code> &#8211; From Jelesnianski (1966). <a class="footnote-reference" href="#id15" id="id5">[5]</a></li>
-<li><code class="docutils literal"><span class="pre">doubleHolland</span></code> &#8211; A double exponential profile from McConochie
+<li><code class="docutils literal"><span class="pre">jelesnianski</span></code> – From Jelesnianski (1966). <a class="footnote-reference" href="#id15" id="id5">[5]</a></li>
+<li><code class="docutils literal"><span class="pre">doubleHolland</span></code> – A double exponential profile from McConochie
 <em>et al.</em> (2004) <a class="footnote-reference" href="#id16" id="id6">[6]</a></li>
 </ul>
 <p>The <code class="docutils literal"><span class="pre">windFieldType</span></code> value selects the boundary layer model
 used. Three boundary layer models have been implemented:</p>
 <ul class="simple">
-<li><code class="docutils literal"><span class="pre">kepert</span></code> &#8211; the linearised boundary layer model of Kepert (2001)
+<li><code class="docutils literal"><span class="pre">kepert</span></code> – the linearised boundary layer model of Kepert (2001)
 <a class="footnote-reference" href="#id17" id="id7">[7]</a></li>
-<li><code class="docutils literal"><span class="pre">hubbert</span></code> &#8211; a vector addition of forward speed and tangential
+<li><code class="docutils literal"><span class="pre">hubbert</span></code> – a vector addition of forward speed and tangential
 wind speed from Hubbert <em>et al.</em> (1994) <a class="footnote-reference" href="#id18" id="id8">[8]</a></li>
-<li><code class="docutils literal"><span class="pre">mcconochie</span></code> &#8211; a second vector addition model, from McConochie
+<li><code class="docutils literal"><span class="pre">mcconochie</span></code> – a second vector addition model, from McConochie
 <em>et al.</em> (2004) <a class="footnote-reference" href="#id16" id="id9">[6]</a></li>
 </ul>
 <p>The <code class="docutils literal"><span class="pre">beta</span></code> option specifies the β parameter used in the Holland
@@ -249,7 +252,7 @@ incorporated into the fitting procedure.</p>
 fields. Values should be no larger than 0.05 degrees, as the absolute
 peak of the radial profile may not be adequately resolved, leading to
 an underestimation of the maximum wind speeds.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">WindfieldInterface</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">WindfieldInterface</span><span class="p">]</span>
 <span class="n">profileType</span> <span class="o">=</span> <span class="n">holland</span>
 <span class="n">windFieldType</span> <span class="o">=</span> <span class="n">kepert</span>
 <span class="n">beta</span> <span class="o">=</span> <span class="mf">1.3</span>
@@ -273,15 +276,15 @@ required for performing the fitting procedure at a given grid point.</p>
 confidence ranges using a bootstrap resampling method. If <code class="docutils literal"><span class="pre">True</span></code>,
 the module will run the fitting process multiple times and calculate
 upper and lower percentile values of the resulting return period wind
-speeds. The <code class="docutils literal"><span class="pre">PercentileRange</span></code> option sets the range &#8211; for a value
+speeds. The <code class="docutils literal"><span class="pre">PercentileRange</span></code> option sets the range – for a value
 of 90, the module will calculatae the 5th and 95th percentile
 values. <code class="docutils literal"><span class="pre">SampleSize</span></code> sets the number of randomly selected values
 that will be used in each realisation of the extreme value fitting
 procedure for calculating the confidence range.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Hazard</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Hazard</span><span class="p">]</span>
 <span class="n">Years</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">200</span><span class="p">,</span><span class="mi">250</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">1000</span>
 <span class="n">MinimumRecords</span> <span class="o">=</span> <span class="mi">50</span>
-<span class="n">CalculateCI</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">CalculateCI</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">PercentileRange</span> <span class="o">=</span> <span class="mi">90</span>
 <span class="n">SampleSize</span> <span class="o">=</span> <span class="mi">50</span>
 <span class="n">PlotSpeedUnits</span> <span class="o">=</span> <span class="n">mps</span>
@@ -293,8 +296,8 @@ procedure for calculating the confidence range.</p>
 <p>The <code class="docutils literal"><span class="pre">RMW</span></code> section contains a single option: <code class="docutils literal"><span class="pre">GetRMWDistFromInputData</span></code>.
 Set this value to <code class="docutils literal"><span class="pre">True</span></code> if the input track database has reliable data
 on the radius to maximum winds.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">RMW</span><span class="p">]</span>
-<span class="n">GetRMWDistFromInputData</span> <span class="o">=</span> <span class="bp">False</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">RMW</span><span class="p">]</span>
+<span class="n">GetRMWDistFromInputData</span> <span class="o">=</span> <span class="kc">False</span>
 </pre></div>
 </div>
 </div>
@@ -305,7 +308,10 @@ well as the datasets to be automatically downloaded. The <code class="docutils l
 option specifies the path to a netcdf file (supplied) that contains a
 land/sea mask. The <code class="docutils literal"><span class="pre">MSLPFile</span></code> option specifies the path to a netcdf
 file (downloaded) that contains daily long-term mean sea level
-pressure data (e.g. from a NCEP/NCAR reanalysis products).</p>
+pressure data (e.g. from a NCEP/NCAR reanalysis products). The
+<code class="docutils literal"><span class="pre">LocationFile</span></code> option specifies the path to a point shape file that contains
+the longitude and latitude of locations for which to extract hazard information
+at the conclusion of a simulation.</p>
 <p>The <code class="docutils literal"><span class="pre">Datasest</span></code> option is a comma separated list of values indicating
 the data that should be downloaded on first execution. For each value
 in the list, there must be a corresponding section in the
@@ -324,28 +330,29 @@ the <code class="docutils literal"><span class="pre">InputFile</span></code> opt
 <p>The <code class="docutils literal"><span class="pre">CoastlineGates</span></code> option specifies the path to a comma-delimited
 text file that holds the points of a series of coastline gates that
 are used in the <a class="reference internal" href="Evaluate.html#module-Evaluate.landfallRates" title="Evaluate.landfallRates"><code class="xref py py-mod docutils literal"><span class="pre">Evaluate.landfallRates</span></code></a> module.</p>
-<div class="highlight-python"><div class="highlight"><pre>[Input]
-LandMask = input/landmask.nc
-MSLPFile = MSLP/slp.day.ltm.nc
-Datasets = IBTRACS,LTMSLP
-CoastlineGates = input/gates.csv
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Input</span><span class="p">]</span>
+<span class="n">LocationFile</span> <span class="o">=</span> <span class="nb">input</span><span class="o">/</span><span class="n">stationlist</span><span class="o">.</span><span class="n">shp</span>
+<span class="n">LandMask</span> <span class="o">=</span> <span class="nb">input</span><span class="o">/</span><span class="n">landmask</span><span class="o">.</span><span class="n">nc</span>
+<span class="n">MSLPFile</span> <span class="o">=</span> <span class="n">MSLP</span><span class="o">/</span><span class="n">slp</span><span class="o">.</span><span class="n">day</span><span class="o">.</span><span class="n">ltm</span><span class="o">.</span><span class="n">nc</span>
+<span class="n">Datasets</span> <span class="o">=</span> <span class="n">IBTRACS</span><span class="p">,</span><span class="n">LTMSLP</span>
+<span class="n">CoastlineGates</span> <span class="o">=</span> <span class="nb">input</span><span class="o">/</span><span class="n">gates</span><span class="o">.</span><span class="n">csv</span>
 
-[IBTRACS]
-URL = ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
-path = input
-filename = Allstorms.ibtracs_wmo.v03r05.csv
-Columns = tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
-FieldDelimiter = ,
-NumberOfHeadingLines = 3
-PressureUnits = hPa
-LengthUnits = km
-DateFormat = %Y-%m-%d %H:%M:%S
-SpeedUnits = kph
+<span class="p">[</span><span class="n">IBTRACS</span><span class="p">]</span>
+<span class="n">URL</span> <span class="o">=</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">eclipse</span><span class="o">.</span><span class="n">ncdc</span><span class="o">.</span><span class="n">noaa</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">pub</span><span class="o">/</span><span class="n">ibtracs</span><span class="o">/</span><span class="n">v03r05</span><span class="o">/</span><span class="n">wmo</span><span class="o">/</span><span class="n">csv</span><span class="o">/</span><span class="n">Allstorms</span><span class="o">.</span><span class="n">ibtracs_wmo</span><span class="o">.</span><span class="n">v03r05</span><span class="o">.</span><span class="n">csv</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">path</span> <span class="o">=</span> <span class="nb">input</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="n">Allstorms</span><span class="o">.</span><span class="n">ibtracs_wmo</span><span class="o">.</span><span class="n">v03r05</span><span class="o">.</span><span class="n">csv</span>
+<span class="n">Columns</span> <span class="o">=</span> <span class="n">tcserialno</span><span class="p">,</span><span class="n">season</span><span class="p">,</span><span class="n">num</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">date</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">lat</span><span class="p">,</span><span class="n">lon</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">pressure</span>
+<span class="n">FieldDelimiter</span> <span class="o">=</span> <span class="p">,</span>
+<span class="n">NumberOfHeadingLines</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">PressureUnits</span> <span class="o">=</span> <span class="n">hPa</span>
+<span class="n">LengthUnits</span> <span class="o">=</span> <span class="n">km</span>
+<span class="n">DateFormat</span> <span class="o">=</span> <span class="o">%</span><span class="n">Y</span><span class="o">-%</span><span class="n">m</span><span class="o">-%</span><span class="n">d</span> <span class="o">%</span><span class="n">H</span><span class="p">:</span><span class="o">%</span><span class="n">M</span><span class="p">:</span><span class="o">%</span><span class="n">S</span>
+<span class="n">SpeedUnits</span> <span class="o">=</span> <span class="n">kph</span>
 
-[LTMSLP]
-URL = ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.derived/surface/slp.day.1981-2010.ltm.nc
-path = MSLP
-filename = slp.day.ltm.nc
+<span class="p">[</span><span class="n">LTMSLP</span><span class="p">]</span>
+<span class="n">URL</span> <span class="o">=</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">ftp</span><span class="o">.</span><span class="n">cdc</span><span class="o">.</span><span class="n">noaa</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">Datasets</span><span class="o">/</span><span class="n">ncep</span><span class="o">.</span><span class="n">reanalysis</span><span class="o">.</span><span class="n">derived</span><span class="o">/</span><span class="n">surface</span><span class="o">/</span><span class="n">slp</span><span class="o">.</span><span class="n">day</span><span class="o">.</span><span class="mi">1981</span><span class="o">-</span><span class="mf">2010.</span><span class="n">ltm</span><span class="o">.</span><span class="n">nc</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">MSLP</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="n">slp</span><span class="o">.</span><span class="n">day</span><span class="o">.</span><span class="n">ltm</span><span class="o">.</span><span class="n">nc</span>
 </pre></div>
 </div>
 </div>
@@ -355,7 +362,7 @@ filename = slp.day.ltm.nc
 <code class="docutils literal"><span class="pre">Path</span></code> option to the directory where you wish to store the data. Paths can
 be relative or absolute. By default, output is stored in a subdirectory of
 the working directory named <code class="docutils literal"><span class="pre">output</span></code>.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Output</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Output</span><span class="p">]</span>
 <span class="n">Path</span> <span class="o">=</span> <span class="n">output</span>
 </pre></div>
 </div>
@@ -377,11 +384,11 @@ screen). Setting the <code class="docutils literal"><span class="pre">ProgressBa
 simple progress bar on the screen to indicate the status of the model
 execution. This will be turned off if TCRM is executed on a parallel
 system, or if it is run in batch mode.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">Logging</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Logging</span><span class="p">]</span>
 <span class="n">LogFile</span> <span class="o">=</span> <span class="n">main</span><span class="o">.</span><span class="n">log</span>
 <span class="n">LogLevel</span> <span class="o">=</span> <span class="n">INFO</span>
-<span class="n">Verbose</span> <span class="o">=</span> <span class="bp">False</span>
-<span class="n">ProgressBar</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">Verbose</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">ProgressBar</span> <span class="o">=</span> <span class="kc">False</span>
 </pre></div>
 </div>
 </div>
@@ -403,28 +410,28 @@ the dataset).</p>
 database. <code class="docutils literal"><span class="pre">Columns</span></code> is a comma-separated list of the column names in
 the input database. If a column is to be ignored, it should be named
 <code class="docutils literal"><span class="pre">skip</span></code>. The <code class="docutils literal"><span class="pre">FieldDelimiter</span></code> is the delimiter used in the input
-track database (it&#8217;s assumed that the input file is a text format
+track database (it’s assumed that the input file is a text format
 file!). The <code class="docutils literal"><span class="pre">NumberOfHeadingLines</span></code> indicates the number of text
 lines at the top of the file that should be ignored (usually this is
-column headers &#8211; due to the multiple lines used in some track
+column headers – due to the multiple lines used in some track
 databases, TCRM does not attempt to decipher the column names from the
 header. <code class="docutils literal"><span class="pre">PressureUnits</span></code>, <code class="docutils literal"><span class="pre">LengthUnits</span></code> and <code class="docutils literal"><span class="pre">SpeedUnits</span></code> specify
 the units the numerical values of pressure, distance and speed
 (respectively) used in the input track database. The <code class="docutils literal"><span class="pre">DateFormat</span></code>
 option is a string represenation of the date format used in the track
-database. The format should use Python&#8217;s <a class="reference external" href="https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior">datetime</a>
+database. The format should use Python’s <a class="reference external" href="https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior">datetime</a>
 formats.</p>
-<div class="highlight-python"><div class="highlight"><pre>[IBTRACS]
-URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
-path=input
-filename=Allstorms.ibtracs_wmo.v03r05.csv
-Columns=tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
-FieldDelimiter=,
-NumberOfHeadingLines=3
-PressureUnits=hPa
-LengthUnits=km
-DateFormat=%Y-%m-%d %H:%M:%S
-SpeedUnits=kph
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">IBTRACS</span><span class="p">]</span>
+<span class="n">URL</span><span class="o">=</span><span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">eclipse</span><span class="o">.</span><span class="n">ncdc</span><span class="o">.</span><span class="n">noaa</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">pub</span><span class="o">/</span><span class="n">ibtracs</span><span class="o">/</span><span class="n">v03r05</span><span class="o">/</span><span class="n">wmo</span><span class="o">/</span><span class="n">csv</span><span class="o">/</span><span class="n">Allstorms</span><span class="o">.</span><span class="n">ibtracs_wmo</span><span class="o">.</span><span class="n">v03r05</span><span class="o">.</span><span class="n">csv</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">path</span><span class="o">=</span><span class="nb">input</span>
+<span class="n">filename</span><span class="o">=</span><span class="n">Allstorms</span><span class="o">.</span><span class="n">ibtracs_wmo</span><span class="o">.</span><span class="n">v03r05</span><span class="o">.</span><span class="n">csv</span>
+<span class="n">Columns</span><span class="o">=</span><span class="n">tcserialno</span><span class="p">,</span><span class="n">season</span><span class="p">,</span><span class="n">num</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">date</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">lat</span><span class="p">,</span><span class="n">lon</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">pressure</span>
+<span class="n">FieldDelimiter</span><span class="o">=</span><span class="p">,</span>
+<span class="n">NumberOfHeadingLines</span><span class="o">=</span><span class="mi">3</span>
+<span class="n">PressureUnits</span><span class="o">=</span><span class="n">hPa</span>
+<span class="n">LengthUnits</span><span class="o">=</span><span class="n">km</span>
+<span class="n">DateFormat</span><span class="o">=%</span><span class="n">Y</span><span class="o">-%</span><span class="n">m</span><span class="o">-%</span><span class="n">d</span> <span class="o">%</span><span class="n">H</span><span class="p">:</span><span class="o">%</span><span class="n">M</span><span class="p">:</span><span class="o">%</span><span class="n">S</span>
+<span class="n">SpeedUnits</span><span class="o">=</span><span class="n">kph</span>
 </pre></div>
 </div>
 </div>
@@ -443,7 +450,7 @@ Profiles in Hurricanes. <em>Monthly Weather Review</em>, <strong>108</strong></t
 <tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>Powell, M., G. Soukup, S. Cocke, S. Gulati, N. Morisseau-Leroy, S.
 Hamid, N. Dorst, and L. Axe (2005): State of Florida hurricane loss
 projection model: Atmospheric science component. <em>Journal of Wind
-Engineering and Industrial Aerodynamics</em>, <strong>93</strong>, 651&#8211;674</td></tr>
+Engineering and Industrial Aerodynamics</em>, <strong>93</strong>, 651–674</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id13" rules="none">
@@ -460,14 +467,14 @@ patterns over Lake Okeechobee. <em>NOAA Hydrometeorology Report</em> <strong>31<
 <tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td>Willoughby, H. E. and M. E. Rahn (2004): Parametric Representation
 of the Primary Hurricane Vortex. Part I: Observations and
 Evaluation of the Holland (1980) Model. <em>Monthly Weather Review</em>,
-<strong>132</strong>, 3033&#8211;3048</td></tr>
+<strong>132</strong>, 3033–3048</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id15" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id5">[5]</a></td><td>Jelesnianski, C. P. (1966): Numerical Computations of Storm Surges
-without Bottom Stress. <em>Monthly Weather Review</em>, <strong>94</strong>, 379&#8211;394</td></tr>
+without Bottom Stress. <em>Monthly Weather Review</em>, <strong>94</strong>, 379–394</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id16" rules="none">
@@ -475,7 +482,7 @@ without Bottom Stress. <em>Monthly Weather Review</em>, <strong>94</strong>, 379
 <tbody valign="top">
 <tr><td class="label">[6]</td><td><em>(<a class="fn-backref" href="#id6">1</a>, <a class="fn-backref" href="#id9">2</a>)</em> McConochie, J. D., T. A. Hardy, and L. B.  Mason (2004):  Modelling
 tropical cyclone over-water wind and pressure fields. <em>Ocean
-Engineering</em>, <strong>31</strong>, 1757&#8211;1782</td></tr>
+Engineering</em>, <strong>31</strong>, 1757–1782</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id17" rules="none">
@@ -483,7 +490,7 @@ Engineering</em>, <strong>31</strong>, 1757&#8211;1782</td></tr>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id7">[7]</a></td><td>Kepert, J. D. (2001): The Dynamics of Boundary Layer Jets
 within the Tropical Cyclone Core. Part I: Linear Theory.
-<em>J. Atmos. Sci.</em>, <strong>58</strong>, 2469&#8211;2484</td></tr>
+<em>J. Atmos. Sci.</em>, <strong>58</strong>, 2469–2484</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="id18" rules="none">
@@ -491,7 +498,7 @@ within the Tropical Cyclone Core. Part I: Linear Theory.
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id8">[8]</a></td><td>Hubbert, G. D., G. J. Holland, L. M. Leslie and M. J. Manton (1991):
 A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
-<em>Weather and Forecasting</em>, <strong>6</strong>, 86&#8211;97</td></tr>
+<em>Weather and Forecasting</em>, <strong>6</strong>, 86–97</td></tr>
 </tbody>
 </table>
 </div>
@@ -539,21 +546,18 @@ A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/docs/setup.txt"
+      <li><a href="../_sources/docs/setup.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -575,13 +579,13 @@ A Real-Time System for Forecasting Tropical Cyclone Storm Surges.
         <li class="right" >
           <a href="install.html" title="Installation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2015.
-      Last updated on Nov 05, 2015.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
+      Last updated on Jul 14, 2017.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
     </div>
   </body>
 </html>
