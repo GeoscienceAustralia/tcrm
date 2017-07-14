@@ -76,5 +76,4 @@ dependencies:
   - markupsafe==1.0
   - redis==2.10.5
   - werkzeug==0.12.2
-prefix: /home/u53337/miniconda2/envs/tcrm
 
