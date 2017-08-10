@@ -518,10 +518,19 @@ class TrackGenerator(object):
             """
             :return: True if all rmax values are > 5.0 km, False otherwise.
             """
-            return all(track.rMax > 5.)
+
+            if any(track.rMax > 500.):
+                log.warn("Found a track with rMax > 500 km")
+                log.warn("Track id: {0}-{1}".format(*track.trackId))
+            return (all(track.rMax > 5.) and all(track.rMax < 500.))
 
         def validInitSize(track):
             return track.rMax[0] < 100.
+
+        def validInitPressure(track):
+            if track.EnvPressure[0] - track.CentralPressure[0] < 1.0:
+                log.critical("Initial pressure difference too small")
+            return (track.EnvPressure[0] - track.CentralPressure[0] > 1.0)
 
         log.debug('Generating %d tropical cyclone tracks', nTracks)
         genesisYear = int(uniform(1900, 9998))
@@ -669,7 +678,7 @@ class TrackGenerator(object):
             track = Track(data)
             track.trackId = (j, simId)
                         
-            if not (empty(track) or diedEarly(track)) \
+            if not (empty(track) or diedEarly(track)) and validInitPressure(track) \
                and validPressures(track) and validSize(track) and validInitSize(track):
                 if self.innerGridLimit and not insideDomain(track):
                     log.debug("Track exits inner grid limit - rejecting")
