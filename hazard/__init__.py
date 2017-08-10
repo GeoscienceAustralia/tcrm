@@ -201,16 +201,20 @@ class HazardCalculator(object):
     """
 
     def __init__(self, configFile, tilegrid, numSim, minRecords, yrsPerSim,
-                 calcCI=False):
+                 vardesc, calcCI=False):
         """
         Initialise HazardCalculator object.
 
         :param str configFile: path to TCRM configuration file.
         :param tilegrid: :class:`TileGrid` instance
         :param int numSim: number of simulations created.
-        :param int minRecords: minimum number of valid wind speed values required
+        :param int minRecords: minimum number of valid values required
                                to do fitting.
-        :param int yrsPerSim:
+        :param int yrsPerSim: Number of years per simulation. 
+        :param dict vardesc: A :class:`dict` that provides attributes for the 
+                             variable such as short name, long name, units, etc.
+        :param bool calcCI: Calculate confidence intervals for the extreme value
+                            distribution.
         """
         config = ConfigParser()
         config.read(configFile)
@@ -225,6 +229,9 @@ class HazardCalculator(object):
         self.numSim = numSim
         self.minRecords = minRecords
         self.yrsPerSim = yrsPerSim
+        self.var_name = vardesc['var_name']
+        self.long_name = vardesc['long_name']
+        self.units = vardesc['units']
         self.calcCI = calcCI
         if self.calcCI:
             log.debug("Bootstrap confidence intervals will be calculated")
@@ -240,8 +247,12 @@ class HazardCalculator(object):
         self.scale = np.zeros((len(lat), len(lon)), dtype='f')
         self.Rp = np.zeros((len(self.years), len(lat), len(lon)), dtype='f')
 
-        self.RPupper = np.zeros((len(self.years), len(lat), len(lon)), dtype='f')
-        self.RPlower = np.zeros((len(self.years), len(lat), len(lon)), dtype='f')
+        self.RPupper = np.zeros((len(self.years),
+                                 len(lat), len(lon)),
+                                dtype='f')
+        self.RPlower = np.zeros((len(self.years),
+                                 len(lat), len(lon)),
+                                dtype='f')
 
         self.global_atts = {'title': ('TCRM hazard simulation - '
                             'return period wind speeds'),
@@ -264,7 +275,8 @@ class HazardCalculator(object):
         :param tilelimits: `tuple` of tile limits
         """
         #Vr = loadFilesFromPath(self.inputPath, tilelimits)
-        Vr = aggregateWindFields(self.inputPath, self.numSim, tilelimits)
+        Vr = aggregateWindFields(self.inputPath, self.numSim, 
+                                 self.var_name, tilelimits)
         Rp, loc, scale, shp = calculate(Vr, self.years, self.nodata,
                                         self.minRecords, self.yrsPerSim)
 
@@ -428,75 +440,85 @@ class HazardCalculator(object):
         # Create variables:
         variables = {
             0: {
-                'name': 'loc',
+                'name': self.var_name + '_loc',
                 'dims': ('lat', 'lon'),
                 'values': self.loc,
                 'dtype': 'f',
                 'atts': {
-                    'long_name': 'Location parameter for GEV distribution',
-                    'units': 'm/s',
+                    'long_name': 
+                        ('Location parameter for GEV distribution for ',
+                         self.long_name),
+                    'units': self.units,
                     'actual_range': (np.min(self.loc), np.max(self.loc)),
                     'valid_range': (0.0, 200.),
                     'grid_mapping': 'crs'
                 }
             },
             1: {
-                'name': 'scale',
+                'name': self.var_name + '_scale',
                 'dims': ('lat', 'lon'),
                 'values': self.scale,
                 'dtype': 'f',
                 'atts': {
-                    'long_name': 'Scale parameter for GEV distribution',
+                    'long_name':
+                        ('Scale parameter for GEV distribution for ',
+                         self.long_name),
                     'units': '',
                     'grid_mapping': 'crs'
                 }
             },
             2: {
-                'name': 'shp',
+                'name': self.var_name + '_shp',
                 'dims': ('lat', 'lon'),
                 'values': self.shp,
                 'dtype': 'f',
                 'least_significant_digit': 5,
                 'atts': {
-                    'long_name': 'Shape parameter for GEV distribution',
+                    'long_name':
+                        ('Shape parameter for GEV distribution for ',
+                         self.long_name),
                     'units': '',
                     'grid_mapping': 'crs'
                 }
             },
             3: {
-                'name': 'wspd',
+                'name': self.var_name,
                 'dims': ('years', 'lat', 'lon'),
                 'values': self.Rp,
                 'dtype': 'f',
                 'atts': {
-                    'long_name': 'Return period wind speed',
-                    'units': 'm/s',
+                    'long_name': 'Return period ' + self.long_name,
+                    'units': self.units,
                     'actual_range': (np.min(self.Rp), np.max(self.Rp)),
                     'valid_range': (0.0, 200.),
                     'grid_mapping': 'crs'
                 }
             },
             4: {
-                'name': 'wspdupper',
+                'name': self.var_name + '_upper_ci',
                 'dims': ('years', 'lat', 'lon'),
                 'values': self.RPupper,
                 'dtype': 'f',
                 'atts': {
-                    'long_name': 'Upper percentile return period wind speed',
-                    'units': 'm/s',
+                    'long_name':
+                         ('Upper percentile return period ',
+                          self.long_name),
+                    'units': self.units,
                     'percentile': 95,
                     'valid_range': (0.0, 200.),
                     'grid_mapping': 'crs'
                 }
             },
             5: {
-                'name': 'wspdlower',
+                'name': self.var_name + '_lower_ci',
                 'dims': ('years', 'lat', 'lon'),
                 'values': self.RPlower,
                 'dtype': 'f',
                 'atts': {
-                    'long_name': 'Lower percentile return period wind speed',
-                    'units': 'm/s',
+                    'long_name':
+                         ('Lower percentile return period ',
+                          self.long_name),
+                    'units': self.units,
                     'percentile': 5,
                     'valid_range': (0.0, 200.),
                     'grid_mapping': 'crs'
@@ -518,7 +540,7 @@ class HazardCalculator(object):
 
         # Create output file for return-period gust wind speeds and
         # GEV parameters
-        nctools.ncSaveGrid(pjoin(self.outputPath, 'hazard.nc'),
+        nctools.ncSaveGrid(pjoin(self.outputPath, self.var_name + '_hazard.nc'),
                            dimensions, variables,
                            nodata=self.nodata,
                            datatitle='TCRM hazard simulation',
@@ -615,8 +637,9 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
 
                     vsub.sort()
                     if vsub.max( ) > 0.:
-                        w[:, n], loc, scale, shp = evd.estimateEVD(vsub, years, nodata,
-                                                                   minRecords/10, yrsPerSim)
+                        w[:, n], loc, scale, shp =\
+                                evd.estimateEVD(vsub, years, nodata,
+                                                minRecords/10, yrsPerSim)
 
                 for n in range(len(years)):
                     wUpper[n] = percentile(w[n,:], upper)
@@ -627,7 +650,7 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
 
     return RpUpper, RpLower
 
-def aggregateWindFields(inputPath, numSimulations, tilelimits):
+def aggregateWindFields(inputPath, numSimulations, varname, tilelimits):
     """
     Aggregate wind field data into annual maxima for use in fitting
     extreme value distributions.
@@ -652,13 +675,13 @@ def aggregateWindFields(inputPath, numSimulations, tilelimits):
 
         Va = np.zeros((len(fileList), ysize, xsize), dtype='f')
         for n, f in enumerate(fileList):
-            Va[n, :, :] = loadFile(f, tilelimits)
+            Va[n, :, :] = loadFile(f, varname, tilelimits)
 
         Vm[year, :, :] = np.max(Va, axis=0)
 
     return Vm
 
-def loadFilesFromPath(inputPath, tilelimits):
+def loadFilesFromPath(inputPath, varname, tilelimits):
     """
     Load wind field data for each subset into a 3-D array.
 
@@ -680,17 +703,17 @@ def loadFilesFromPath(inputPath, tilelimits):
     Vr = np.empty((len(files), ysize, xsize), dtype='f')
 
     for n, f in enumerate(sorted(files)):
-        Vr[n,:,:] = loadFile(f, tilelimits)
+        Vr[n,:,:] = loadFile(f, varname, tilelimits)
 
     return Vr
 
-def loadFile(filename, limits):
+def loadFile(filename, varname, limits):
     """
     Load a subset of the data from the given file, with the extent
     of the subset specified in the `limits` tuple
 
     :param str filename: str full path to file to load.
-
+    :param str varname: short name of teh variable.
     :param tuple limits: tuple of index limits of a tile.
 
     :returns: 2-D `numpy.ndarray` of wind speed values.
@@ -700,8 +723,8 @@ def loadFile(filename, limits):
     (xmin, xmax, ymin, ymax) = limits
 
     ncobj = nctools.ncLoadFile(filename)
-    ncobj_vmax = nctools.ncGetVar(ncobj, 'vmax')
-    data_subset = ncobj_vmax[ymin:ymax, xmin:xmax]
+    ncvar = nctools.ncGetVar(ncobj, varname)
+    data_subset = ncvar[ymin:ymax, xmin:xmax]
     ncobj.close()
     return data_subset
 
@@ -730,7 +753,7 @@ def getTileLimits(tilegrid, tilenums):
     return tilelimits
 
 
-def run(configFile, callback=None):
+def run(configFile, variableAtts, callback=None):
     """
     Run the hazard calculations.
 
@@ -739,7 +762,10 @@ def run(configFile, callback=None):
     in serial.
 
     :param str configFile: path to configuration file
-
+    :param dict variableAtts: A :class:`dict` that describes the basic 
+                              attributes of the variable for which one 
+                              wants to calculate the  hazard. Keys must 
+                              include 'var_name', 'long_name' and  'units'.
     """
 
     log.info("Loading hazard calculation settings")
@@ -772,6 +798,7 @@ def run(configFile, callback=None):
                           numsimulations,
                           minRecords,
                           yrsPerSim,
+                          variableAtts,
                           calculate_confidence)
 
 

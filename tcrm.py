@@ -403,7 +403,10 @@ def doHazard(configFile):
         pbar.update(float(done)/total)
 
     import hazard
-    hazard.run(configFile)
+    variableAtts = {'var_name':'vmax',
+                    'long_name':'maximum wind speed',
+                    'units':'m/s'}
+    hazard.run(configFile, variableAtts)
 
     log.info('Completed HazardInterface')
     pbar.update(1.0)
@@ -428,8 +431,11 @@ def doCDP(configFile):
     def status(done, total):
         pbar.update(float(done)/total)
 
-    import cdp
-    cdp.run(configFile)
+    import hazard
+    variableAtts = {'var_name':'cdp',
+                    'long_name':'cyclone damage potential',
+                    'units':''}
+    hazard.run(configFile, variableAtts)
 
     log.info('Completed CDPInterface')
     pbar.update(1.0)
@@ -447,8 +453,11 @@ def doR64(configFile):
     def status(done, total):
         pbar.update(float(done)/total)
 
-    import hazard_r64
-    hazard_r64.run(configFile)
+    import hazard
+    variableAtts = {'var_name':'R64',
+                    'long_name':'radius of hurricane force winds',
+                    'units':'nm'}
+    hazard.run(configFile, variableAtts)
 
     log.info('Completed R64Interface')
     pbar.update(1.0)
@@ -466,8 +475,11 @@ def doVm(configFile):
     def status(done, total):
         pbar.update(float(done)/total)
 
-    import hazard_vm
-    hazard_vm.run(configFile)
+    import hazard
+    variableAtts = {'var_name':'vm',
+                    'long_name':'maximum wind speeds',
+                    'units':'m/s'}
+    hazard.run(configFile, variableAtts)
 
     log.info('Completed Vm Interface')
     pbar.update(1.0)
@@ -485,8 +497,11 @@ def doVt(configFile):
     def status(done, total):
         pbar.update(float(done)/total)
 
-    import hazard_vt
-    hazard_vt.run(configFile)
+    import hazard
+    variableAtts = {'var_name':'vt',
+                    'long_name':'translation speed',
+                    'units':'m/s'}
+    hazard.run(configFile, variableAtts)
 
     log.info('Completed Vt Interface')
     pbar.update(1.0)
