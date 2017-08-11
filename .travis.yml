@@ -16,7 +16,6 @@ addons:
     - libgcc1
     - libgfortran3
     - liblapack3gf
-    - libumfpack5.4.0
     - libstdc++6
 install:
 - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
