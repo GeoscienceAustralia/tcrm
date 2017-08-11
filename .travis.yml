@@ -33,6 +33,10 @@ install:
 - pip install pycurl
 - pip -v install -r requirements.txt
 - pip install coveralls
+branches:
+  except:
+  - config
+  - notebooks
 script:
 - python installer/setup.py build_ext -i
 - nosetests -v --with-coverage
