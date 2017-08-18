@@ -5,12 +5,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Utilities package &#8212; Tropical Cyclone Risk Model 2.0. documentation</title>
-    
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -335,7 +332,7 @@ corresponding section in the <code class="docutils literal"><span class="pre">co
 <span id="config-reading-configuration-files"></span><h3><a class="reference internal" href="#module-config" title="config: Provides functions for manipulating configuration files e.g. reading setting from a configuration file."><code class="xref py py-mod docutils literal"><span class="pre">config</span></code></a> – reading configuration files<a class="headerlink" href="#module-config" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="Utilities.config.ConfigParser">
-<code class="descname">ConfigParser</code><span class="sig-paren">(</span><em>defaults=”\n[Actions]\nDataProcess=True\nExecuteStat=True\nExecuteTrackGenerator=True\nExecuteWindfield=True\nExecuteHazard=True\nExecuteEvaluate=True\nPlotData=True\nPlotHazard=True\nCreateDatabase=True\nDownloadData=True\n\n[Region]\ngridSpace={‘x’:1.0</em>, <em>’y’:1.0}\ngridInc={‘x’:1.0</em>, <em>’y’:0.5}\n\n[DataProcess]\nStartSeason=1981\nFilterSeasons=True\nInputFile=Allstorms.ibtracs_wmo.v03r05.csv\nSource=IBTRACS\n\n[StatInterface]\nkdeType=Gaussian\nkde2DType=Gaussian\nkdeStep=0.2\nminSamplesCell=100\n\n[TrackGenerator]\nNumSimulations=500\nNumTimeSteps=360\nTimeStep=1.0\nFormat=csv\nSeasonSeed=1\nTrackSeed=1\n\n[WindfieldInterface]\nprofileType=holland\nwindFieldType=kepert\nbeta=1.3\nbeta1=1.3\nbeta2=1.3\nthetaMax=70.0\nMargin=2\nResolution=0.05\nPlotOutput=False\nDomain=bounded\n\n[Hazard]\nYears=2</em>, <em>5</em>, <em>10</em>, <em>20</em>, <em>25</em>, <em>50</em>, <em>100</em>, <em>200</em>, <em>250</em>, <em>500</em>, <em>1000\nMinimumRecords=50\nCalculateCI=True\nPercentileRange=90\nSampleSize=50\nPlotSpeedUnits=mps\n\n[RMW]\nGetRMWDistFromInputData=False\n\n[Input]\nLocationFile=input/stationlist.shp\nLandMask=input/landmask.nc\nMSLPFile=MSLP/slp.day.ltm.nc\nDatasets=IBTRACS</em>, <em>LTMSLP\n\n[Output]\nPath=output\nFormat=txt\n\n[Logging]\nProgressBar=False\nLogFile=main.log\nLogLevel=INFO\nVerbose=False\nDatestamp=False\n\n[Source]\nFieldDelimiter=</em>, <em>\nNumberOfHeadingLines=0\nSpeedUnits=mps\nPressureUnits=hPa\nLengthUnits=km\n\n[IBTRACS]\nURL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz\npath=input\nfilename=Allstorms.ibtracs_wmo.v03r05.csv\nColumns=tcserialno</em>, <em>season</em>, <em>num</em>, <em>skip</em>, <em>skip</em>, <em>skip</em>, <em>date</em>, <em>skip</em>, <em>lat</em>, <em>lon</em>, <em>skip</em>, <em>pressure\nFieldDelimiter=</em>, <em>\nNumberOfHeadingLines=3\nPressureUnits=hPa\nLengthUnits=km\nDateFormat=%Y-%m-%d %H:%M:%S\nSpeedUnits=kph\n\n[LTMSLP]\nURL=ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.derived/surface/slp.day.1981-2010.ltm.nc\npath=MSLP\nfilename=slp.day.ltm.nc\n\n”</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.config.ConfigParser" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ConfigParser</code><span class="sig-paren">(</span><em>defaults=&quot;\n[Actions]\nDataProcess=True\nExecuteStat=True\nExecuteTrackGenerator=True\nExecuteWindfield=True\nExecuteHazard=True\nExecuteEvaluate=True\nPlotData=True\nPlotHazard=True\nCreateDatabase=True\nDownloadData=True\n\n[Region]\ngridSpace={'x':1.0</em>, <em>'y':1.0}\ngridInc={'x':1.0</em>, <em>'y':0.5}\n\n[DataProcess]\nStartSeason=1981\nFilterSeasons=True\nInputFile=Allstorms.ibtracs_wmo.v03r05.csv\nSource=IBTRACS\n\n[StatInterface]\nkdeType=Gaussian\nkde2DType=Gaussian\nkdeStep=0.2\nminSamplesCell=100\n\n[TrackGenerator]\nNumSimulations=500\nNumTimeSteps=360\nTimeStep=1.0\nFormat=csv\nSeasonSeed=1\nTrackSeed=1\n\n[WindfieldInterface]\nprofileType=holland\nwindFieldType=kepert\nbeta=1.3\nbeta1=1.3\nbeta2=1.3\nthetaMax=70.0\nMargin=2\nResolution=0.05\nPlotOutput=False\nDomain=bounded\n\n[Hazard]\nYears=2</em>, <em>5</em>, <em>10</em>, <em>20</em>, <em>25</em>, <em>50</em>, <em>100</em>, <em>200</em>, <em>250</em>, <em>500</em>, <em>1000\nMinimumRecords=50\nCalculateCI=True\nPercentileRange=90\nSampleSize=50\nPlotSpeedUnits=mps\n\n[RMW]\nGetRMWDistFromInputData=False\n\n[Input]\nLocationFile=input/stationlist.shp\nLandMask=input/landmask.nc\nMSLPFile=MSLP/slp.day.ltm.nc\nDatasets=IBTRACS</em>, <em>LTMSLP\n\n[Output]\nPath=output\nFormat=txt\n\n[Logging]\nProgressBar=False\nLogFile=main.log\nLogLevel=INFO\nVerbose=False\nDatestamp=False\n\n[Source]\nFieldDelimiter=</em>, <em>\nNumberOfHeadingLines=0\nSpeedUnits=mps\nPressureUnits=hPa\nLengthUnits=km\n\n[IBTRACS]\nURL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz\npath=input\nfilename=Allstorms.ibtracs_wmo.v03r05.csv\nColumns=tcserialno</em>, <em>season</em>, <em>num</em>, <em>skip</em>, <em>skip</em>, <em>skip</em>, <em>date</em>, <em>skip</em>, <em>lat</em>, <em>lon</em>, <em>skip</em>, <em>pressure\nFieldDelimiter=</em>, <em>\nNumberOfHeadingLines=3\nPressureUnits=hPa\nLengthUnits=km\nDateFormat=%Y-%m-%d %H:%M:%S\nSpeedUnits=kph\n\n[LTMSLP]\nURL=ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.derived/surface/slp.day.1981-2010.ltm.nc\npath=MSLP\nfilename=slp.day.ltm.nc\n\n&quot;</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.config.ConfigParser" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -428,11 +425,11 @@ defined, and no default value given.</p>
 <span id="utilities-confjson-module"></span><h2>Utilities.confjson module<a class="headerlink" href="#module-Utilities.confjson" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="Utilities.confjson.StrictConfigParser">
-<em class="property">class </em><code class="descname">StrictConfigParser</code><span class="sig-paren">(</span><em>defaults=None</em>, <em>dict_type=&lt;class ‘collections.OrderedDict’&gt;</em>, <em>allow_no_value=False</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.confjson.StrictConfigParser" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">StrictConfigParser</code><span class="sig-paren">(</span><em>defaults=None</em>, <em>dict_type=&lt;class 'collections.OrderedDict'&gt;</em>, <em>allow_no_value=False</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.confjson.StrictConfigParser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">ConfigParser.ConfigParser</span></code></p>
 <dl class="method">
 <dt id="Utilities.confjson.StrictConfigParser.dget">
-<code class="descname">dget</code><span class="sig-paren">(</span><em>section</em>, <em>option</em>, <em>default=None</em>, <em>type=&lt;type ‘str’&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.confjson.StrictConfigParser.dget" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dget</code><span class="sig-paren">(</span><em>section</em>, <em>option</em>, <em>default=None</em>, <em>type=&lt;type 'str'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.confjson.StrictConfigParser.dget" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -449,7 +446,7 @@ defined, and no default value given.</p>
 <span id="convolve-convolve-two-2-d-fields"></span><h3><a class="reference internal" href="#module-convolve" title="convolve: Convolve two 2-d fields to apply a smoother (e.g. directional filtering, gaussian smoother)."><code class="xref py py-mod docutils literal"><span class="pre">convolve</span></code></a> – convolve two 2-d fields<a class="headerlink" href="#module-convolve" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="Utilities.convolve.convolve">
-<code class="descname">convolve</code><span class="sig-paren">(</span><em>im</em>, <em>direction</em>, <em>mtype=’terrain’</em>, <em>res=25.0</em>, <em>height=5.0</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.convolve.convolve" title="Permalink to this definition">¶</a></dt>
+<code class="descname">convolve</code><span class="sig-paren">(</span><em>im</em>, <em>direction</em>, <em>mtype='terrain'</em>, <em>res=25.0</em>, <em>height=5.0</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.convolve.convolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Smooth a 2D array im by convolving with a kernel of size n.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -602,7 +599,7 @@ list.</p>
 
 <dl class="function">
 <dt id="Utilities.files.flConfigFile">
-<code class="descname">flConfigFile</code><span class="sig-paren">(</span><em>extension=’.ini’</em>, <em>prefix=”</em>, <em>level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.files.flConfigFile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">flConfigFile</code><span class="sig-paren">(</span><em>extension='.ini'</em>, <em>prefix=''</em>, <em>level=None</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.files.flConfigFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build a configuration filename (default extension .ini) based on the
 name and path of the function/module calling this function. Can also
 be useful for setting log file names automatically.
@@ -614,7 +611,7 @@ If prefix is passed, this is preprended to the filename.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>extension</strong> (<em>str</em>) – file extension to use (default ‘.ini’). The
 period (‘.’) must be included.</li>
-<li><strong>prefix</strong> (<em>str</em>) – Optional prefix to the filename (default ”).</li>
+<li><strong>prefix</strong> (<em>str</em>) – Optional prefix to the filename (default ‘’).</li>
 <li><strong>level</strong> – Optional level in the stack of the main script
 (default = maximum level in the stack).</li>
 </ul>
@@ -664,7 +661,7 @@ cannot be opened.</li>
 
 <dl class="function">
 <dt id="Utilities.files.flLoadFile">
-<code class="descname">flLoadFile</code><span class="sig-paren">(</span><em>filename</em>, <em>comments=’%’</em>, <em>delimiter=’</em>, <em>’</em>, <em>skiprows=0</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.files.flLoadFile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">flLoadFile</code><span class="sig-paren">(</span><em>filename</em>, <em>comments='%'</em>, <em>delimiter='</em>, <em>'</em>, <em>skiprows=0</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.files.flLoadFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a delimited text file – uses <code class="xref py py-func docutils literal"><span class="pre">numpy.genfromtxt()</span></code></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -699,7 +696,7 @@ is created by calling <code class="docutils literal"><span class="pre">traceback
 
 <dl class="function">
 <dt id="Utilities.files.flModDate">
-<code class="descname">flModDate</code><span class="sig-paren">(</span><em>filename</em>, <em>dateformat=’%Y-%m-%d %H:%M:%S’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.files.flModDate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">flModDate</code><span class="sig-paren">(</span><em>filename</em>, <em>dateformat='%Y-%m-%d %H:%M:%S'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.files.flModDate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the last modified date of the input file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -784,7 +781,7 @@ Calling flModulePath() from “/foo/bar/baz.py” produces the result
 
 <dl class="function">
 <dt id="Utilities.files.flSaveFile">
-<code class="descname">flSaveFile</code><span class="sig-paren">(</span><em>filename</em>, <em>data</em>, <em>header=”</em>, <em>delimiter=’</em>, <em>’</em>, <em>fmt=’%.18e’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.files.flSaveFile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">flSaveFile</code><span class="sig-paren">(</span><em>filename</em>, <em>data</em>, <em>header=''</em>, <em>delimiter='</em>, <em>'</em>, <em>fmt='%.18e'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.files.flSaveFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save data to a file.</p>
 <p>Does some basic checks to ensure the path exists before attempting
 to write the file. Uses <code class="xref py py-class docutils literal"><span class="pre">numpy.savetxt</span></code> to save the data.</p>
@@ -970,7 +967,7 @@ longitude, latitude, data = grdReadFromNetcdf(filename)</p>
 
 <dl class="function">
 <dt id="Utilities.grid.grdSave">
-<code class="descname">grdSave</code><span class="sig-paren">(</span><em>filename</em>, <em>data</em>, <em>lon</em>, <em>lat</em>, <em>delta</em>, <em>delimiter=’ ‘</em>, <em>nodata=-9999</em>, <em>fmt=’%.10e’</em>, <em>coords=’latlon’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.grid.grdSave" title="Permalink to this definition">¶</a></dt>
+<code class="descname">grdSave</code><span class="sig-paren">(</span><em>filename</em>, <em>data</em>, <em>lon</em>, <em>lat</em>, <em>delta</em>, <em>delimiter=' '</em>, <em>nodata=-9999</em>, <em>fmt='%.10e'</em>, <em>coords='latlon'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.grid.grdSave" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save formatted data to an ascii grid format file.
 The files have 6 header lines describing the data, followed by the
 data in a gridded format.</p>
@@ -1354,7 +1351,7 @@ Modify the source to be a dict containing the kwargs to
 track files.</p>
 <dl class="function">
 <dt id="Utilities.loadData.date2ymdh">
-<code class="descname">date2ymdh</code><span class="sig-paren">(</span><em>dates</em>, <em>datefmt=’%Y-%m-%d %H:%M:%S’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.loadData.date2ymdh" title="Permalink to this definition">¶</a></dt>
+<code class="descname">date2ymdh</code><span class="sig-paren">(</span><em>dates</em>, <em>datefmt='%Y-%m-%d %H:%M:%S'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.loadData.date2ymdh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert date strings to arrays for date components.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1378,7 +1375,7 @@ in the input array <cite>dates</cite>.</p>
 
 <dl class="function">
 <dt id="Utilities.loadData.filterPressure">
-<code class="descname">filterPressure</code><span class="sig-paren">(</span><em>pressure</em>, <em>inputPressureUnits=’hPa’</em>, <em>missingValue=2147483647</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.loadData.filterPressure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">filterPressure</code><span class="sig-paren">(</span><em>pressure</em>, <em>inputPressureUnits='hPa'</em>, <em>missingValue=2147483647</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.loadData.filterPressure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter pressure values to remove any non-physical values.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1782,7 +1779,7 @@ a new TC in the input dataset.</li>
 
 <dl class="function">
 <dt id="Utilities.loadData.parseDates">
-<code class="descname">parseDates</code><span class="sig-paren">(</span><em>data</em>, <em>indicator</em>, <em>datefmt=’%Y-%m-%d %H:%M:%S’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.loadData.parseDates" title="Permalink to this definition">¶</a></dt>
+<code class="descname">parseDates</code><span class="sig-paren">(</span><em>data</em>, <em>indicator</em>, <em>datefmt='%Y-%m-%d %H:%M:%S'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.loadData.parseDates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse the date/time information to extract year, month, day, hour and
 minute details for the input dataset.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1878,7 +1875,7 @@ If a list is passed, return a list, else return a single value.</p>
 
 <dl class="function">
 <dt id="Utilities.maputils.dist2GC">
-<code class="descname">dist2GC</code><span class="sig-paren">(</span><em>cLon1</em>, <em>cLat1</em>, <em>cLon2</em>, <em>cLat2</em>, <em>lonArray</em>, <em>latArray</em>, <em>units=’km’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.maputils.dist2GC" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dist2GC</code><span class="sig-paren">(</span><em>cLon1</em>, <em>cLat1</em>, <em>cLon2</em>, <em>cLat2</em>, <em>lonArray</em>, <em>latArray</em>, <em>units='km'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.maputils.dist2GC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the distance between an array of points and the great
 circle joining two (other) points. All input values are in
 degrees. By default returns distance in km, other units specified
@@ -2397,7 +2394,7 @@ Celsius)</p>
 
 <dl class="function">
 <dt id="Utilities.metutils.dewPointToVapPr">
-<code class="descname">dewPointToVapPr</code><span class="sig-paren">(</span><em>t_dp</em>, <em>units_vp=’hPa’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.dewPointToVapPr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">dewPointToVapPr</code><span class="sig-paren">(</span><em>t_dp</em>, <em>units_vp='hPa'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.dewPointToVapPr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate vapour pressure from dew point temperature.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2450,7 +2447,7 @@ dew point temperature and air pressure.</p>
 
 <dl class="function">
 <dt id="Utilities.metutils.elevToAirPr">
-<code class="descname">elevToAirPr</code><span class="sig-paren">(</span><em>elev</em>, <em>units_ap=’hPa’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.elevToAirPr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">elevToAirPr</code><span class="sig-paren">(</span><em>elev</em>, <em>units_ap='hPa'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.elevToAirPr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Approximate air pressure in hectopascals (mb) at a given elevation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2530,7 +2527,7 @@ Celsius).</p>
 
 <dl class="function">
 <dt id="Utilities.metutils.rHToMixRat">
-<code class="descname">rHToMixRat</code><span class="sig-paren">(</span><em>rh</em>, <em>tmp</em>, <em>prs</em>, <em>tmp_units=’C’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.rHToMixRat" title="Permalink to this definition">¶</a></dt>
+<code class="descname">rHToMixRat</code><span class="sig-paren">(</span><em>rh</em>, <em>tmp</em>, <em>prs</em>, <em>tmp_units='C'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.rHToMixRat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate mixing ratio from relative humidity, temperature and pressure.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2556,7 +2553,7 @@ Celsius).</p>
 
 <dl class="function">
 <dt id="Utilities.metutils.satVapPr">
-<code class="descname">satVapPr</code><span class="sig-paren">(</span><em>temp</em>, <em>units_vp=’hPa’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.satVapPr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">satVapPr</code><span class="sig-paren">(</span><em>temp</em>, <em>units_vp='hPa'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.satVapPr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saturation vapour pressure from temperature in degrees celsius.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2589,7 +2586,7 @@ required units.</p>
 
 <dl class="function">
 <dt id="Utilities.metutils.spHumToMixRat">
-<code class="descname">spHumToMixRat</code><span class="sig-paren">(</span><em>q</em>, <em>units=’gkg’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.spHumToMixRat" title="Permalink to this definition">¶</a></dt>
+<code class="descname">spHumToMixRat</code><span class="sig-paren">(</span><em>q</em>, <em>units='gkg'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.spHumToMixRat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate mixing ratio from specific humidity.
 Assumes the input specific humidity variable is in units
 of g/kg.</p>
@@ -2641,7 +2638,7 @@ pressure.</p>
 
 <dl class="function">
 <dt id="Utilities.metutils.vapPrToDewPoint">
-<code class="descname">vapPrToDewPoint</code><span class="sig-paren">(</span><em>vp</em>, <em>units_vp=’hPa’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.vapPrToDewPoint" title="Permalink to this definition">¶</a></dt>
+<code class="descname">vapPrToDewPoint</code><span class="sig-paren">(</span><em>vp</em>, <em>units_vp='hPa'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.vapPrToDewPoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate dew point from vapour pressure (in kPa)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2843,7 +2840,7 @@ and optional elevation.</p>
 
 <dl class="function">
 <dt id="Utilities.metutils.wetBulbToVapPr">
-<code class="descname">wetBulbToVapPr</code><span class="sig-paren">(</span><em>db</em>, <em>wb</em>, <em>elev</em>, <em>units_vp=’hPa’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.wetBulbToVapPr" title="Permalink to this definition">¶</a></dt>
+<code class="descname">wetBulbToVapPr</code><span class="sig-paren">(</span><em>db</em>, <em>wb</em>, <em>elev</em>, <em>units_vp='hPa'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.metutils.wetBulbToVapPr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate vapour pressure from dry bulb and wet bulb temperatures,
 and optional elevation.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -2980,7 +2977,7 @@ with missing values masked.</p>
 
 <dl class="function">
 <dt id="Utilities.nctools.ncGetDims">
-<code class="descname">ncGetDims</code><span class="sig-paren">(</span><em>ncobj</em>, <em>dim</em>, <em>dtype=&lt;type ‘float’&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.nctools.ncGetDims" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ncGetDims</code><span class="sig-paren">(</span><em>ncobj</em>, <em>dim</em>, <em>dtype=&lt;type 'float'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.nctools.ncGetDims" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the value of a dimension from a netCDF file. This function
 assumes the file is written following the CF convention, with the
 values of the dimension stored in a 1-d variable with the same name.</p>
@@ -3004,7 +3001,7 @@ values of the dimension stored in a 1-d variable with the same name.</p>
 
 <dl class="function">
 <dt id="Utilities.nctools.ncGetTimes">
-<code class="descname">ncGetTimes</code><span class="sig-paren">(</span><em>ncobj</em>, <em>name=’time’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.nctools.ncGetTimes" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ncGetTimes</code><span class="sig-paren">(</span><em>ncobj</em>, <em>name='time'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.nctools.ncGetTimes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the time data from a netcdf file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3557,7 +3554,7 @@ keys, and each sub-dictionary containing keys of ‘Type’,
 
 <dl class="function">
 <dt id="Utilities.shptools.shpGetField">
-<code class="descname">shpGetField</code><span class="sig-paren">(</span><em>shape_file</em>, <em>field_name</em>, <em>dtype=&lt;type ‘float’&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.shptools.shpGetField" title="Permalink to this definition">¶</a></dt>
+<code class="descname">shpGetField</code><span class="sig-paren">(</span><em>shape_file</em>, <em>field_name</em>, <em>dtype=&lt;type 'float'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.shptools.shpGetField" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract from the records the value of the field corresponding
 to fieldname.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -3644,7 +3641,7 @@ shapes and records.</p>
 
 <dl class="function">
 <dt id="Utilities.shptools.shpSaveTrackFile">
-<code class="descname">shpSaveTrackFile</code><span class="sig-paren">(</span><em>outputFile</em>, <em>tracks</em>, <em>fmt=’point’</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.shptools.shpSaveTrackFile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">shpSaveTrackFile</code><span class="sig-paren">(</span><em>outputFile</em>, <em>tracks</em>, <em>fmt='point'</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.shptools.shpSaveTrackFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save track data to shapefile. The fields are sorted using the same
 function as in shpCreateFile, so the fields should be in the correct
 order.</p>
@@ -4329,7 +4326,7 @@ have all attributes accessed by the <cite>__getattr__</cite> method.</p>
 
 <dl class="function">
 <dt id="Utilities.track.ncSaveTracks">
-<code class="descname">ncSaveTracks</code><span class="sig-paren">(</span><em>trackfile</em>, <em>tracks</em>, <em>timeunits=’hours since 1900-01-01 00:00’</em>, <em>calendar=’standard’</em>, <em>attributes={}</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.track.ncSaveTracks" title="Permalink to this definition">¶</a></dt>
+<code class="descname">ncSaveTracks</code><span class="sig-paren">(</span><em>trackfile</em>, <em>tracks</em>, <em>timeunits='hours since 1900-01-01 00:00'</em>, <em>calendar='standard'</em>, <em>attributes={}</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.track.ncSaveTracks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a collection of <code class="xref py py-class docutils literal"><span class="pre">Track</span></code> objects to a netCDF file. This
 makes use of netCDF4 compound data types to store the data as a
 structure akin to a <code class="xref py py-class docutils literal"><span class="pre">numpy.recarray</span></code>. Each track in the
@@ -4606,61 +4603,451 @@ command fails.</td>
 </div>
 <div class="section" id="module-Utilities.vorticity">
 <span id="utilities-vorticity-module"></span><h2>Utilities.vorticity module<a class="headerlink" href="#module-Utilities.vorticity" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="module-vorticity">
-<span id="vorticity-calculate-vorticity-of-a-vector-field"></span><h3><a class="reference internal" href="#module-vorticity" title="vorticity: Calculates relative or absolute vorticity of a vector field."><code class="xref py py-mod docutils literal"><span class="pre">vorticity</span></code></a> – calculate vorticity of a vector field<a class="headerlink" href="#module-vorticity" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="Utilities.vorticity.absolute">
-<code class="descname">absolute</code><span class="sig-paren">(</span><em>u</em>, <em>v</em>, <em>lon</em>, <em>lat</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.vorticity.absolute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the absolute vorticity (f + curl(u,v)) of a wind field using
-a basic centred difference scheme. The centred differencing means
-the returned array is reduced in size by 2 elements in each
-dimension.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>u</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – 2-d array of eastward vector component.</li>
-<li><strong>v</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – 2-d array of northward vector component.</li>
-<li><strong>lon</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – 1-d array of longitudes of grid that defines the vector field.</li>
-<li><strong>lat</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – 1-d array of latitudes of grid that defines the vector field.</li>
+<code class="descname">absolute</code><span class="sig-paren">(</span><em>u</em>, <em>v</em>, <em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.vorticity.absolute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="Utilities.vorticity.can_use_sphere">
+<code class="descname">can_use_sphere</code><span class="sig-paren">(</span><em>longitude</em>, <em>latitude</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.vorticity.can_use_sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if can use sphere package.</p>
+<dl class="docutils">
+<dt>Calling Sequence:</dt>
+<dd>Result = can_use_sphere(longitude, latitude)</dd>
+</dl>
+<p>Note that Result is a 3-element tuple, not a scalar.  See the
+description below for details.</p>
+<p>Test if the longitude-latitude domain and Python package configur-
+ation allows use of the NCAR SPHEREPACK 3.0 package.  Specifically 
+the function tests:</p>
+<ol class="arabic simple">
+<li>Can you import sphere?</li>
+<li>Is the longitude vector evenly spaced?</li>
+<li>Does the longitude vector entirely span the globe, but doesn’t
+repeat?</li>
+<li>Is the latitude vector gaussian?  If not, is it evenly spaced 
+and includes the poles?</li>
+</ol>
+<p>If the answer to (1) is no, then there’s no use to go through the 
+other tests and the function return tuple element [0] is 0.  If (2) 
+or (3) is no, return tuple element [0] is 0.  If (4) is both not 
+gaussian and not evenly spaced with the poles, return tuple 
+element [0] is 0.  Otherwise, return tuple element [0] is 1.  Note 
+that (4) uses the latitude checker in the sphere package.</p>
+<p>Method Arguments:
+* longitude:  Vector of longitudes of the domain [deg].  Can be</p>
+<blockquote>
+<div>in any order, and a Numeric array or regular list/tuple.</div></blockquote>
+<ul class="simple">
+<li>latitude:  Vector of latitudes of the domain [deg].  Can be in
+any order, and a Numeric array or regular list/tuple.</li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">2-d <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of absolute vorticity values.</p>
-</td>
-</tr>
-</tbody>
-</table>
+<p>Output Result:
+* A 3-element tuple:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>[0]:  1 if the longitude-latitude domain and Python package </dt>
+<dd>configuration passes tests to allow use of the NCAR 
+SPHEREPACK 3.0 package.  0 if does not pass those tests.</dd>
+<dt>[1]:  String containing messages written to stdout by calls to </dt>
+<dd>module sphere used for checking latitude (e.g. if it is
+gaussian, etc.).  If there are no messages or there were 
+no calls needed to sphere for checking latitude, value is 
+empty string.</dd>
+</dl>
+<p>[2]:  Same as [1] except contains stderr messages.</p>
+</div></blockquote>
+<p>Examples:
+&gt;&gt;&gt; from can_use_sphere import can_use_sphere
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; lon = np.arange(36)*10
+&gt;&gt;&gt; lat = [-90, -60, -30, 0, 30, 60, 90]
+&gt;&gt;&gt; can_use_sphere(lon, lat)[0]
+1
+&gt;&gt;&gt; lat = [-90, -60, -30, 0, 30, 60, 87]
+&gt;&gt;&gt; can_use_sphere(lon, lat)[0]
+0
+&gt;&gt;&gt; can_use_sphere(lon, lat)[1].splitlines()[1]
+‘CANNOT PROCESS THE DATA - Latitude values are incorrect’</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Utilities.vorticity.curl_2d">
+<code class="descname">curl_2d</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>Fx</em>, <em>Fy</em>, <em>missing=1e+20</em>, <em>algorithm='default'</em>, <em>R_sphere=6371220.0</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.vorticity.curl_2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Curl of a vector F on a 2-D “rectangular” grid.</p>
+<p>The 2-D grid F is defined on is rectangular, meaning that while
+the grid spacings do not have to be even, each grid box is
+rectangular and grid boundaries are rectilinear and parallel to
+each other.  If the 2-D grid is on a sphere, we assume that lines
+of constant longitude and latitude form grids that are rectangular
+(though in reality this is not strictly true).</p>
+<p>Since F does not have a z-component, the curl of F is positive
+pointing as a normal out of the plane defined by the basis for 
+x and y.</p>
+<p>Positional Input Arguments:
+* x:  x-coordinate of each F.  1-D Numeric array with number of</p>
+<blockquote>
+<div>elements equal to the number of columns in array F.  Typically 
+x is in km, or on a sphere the longitude in deg.  Floating or
+integer type.</div></blockquote>
+<ul class="simple">
+<li>y:  y-coordinate of each F.  1-D Numeric array with number of 
+elements equal to the number of rows in array F.  Typically 
+y is in km, or on a sphere the latitude in deg.  Floating or
+integer type.</li>
+<li>Fx:  x-component of vector quantity F.  2-D Numeric array of 
+shape (len(y), len(x)).  Floating or integer type.</li>
+<li>Fy:  y-component of vector quantity F.  2-D Numeric array of 
+same shape and size as Fx.  Floating or integer type.</li>
+</ul>
+<p>Keyword Input Arguments:
+* missing:  If Fx and/or Fy has missing values, this is the</p>
+<blockquote>
+<div>missing value value.  Scalar.  Default is 1e+20.</div></blockquote>
+<ul>
+<li><p class="first">algorithm:  Name of the algorithm to use.  String scalar.
+Default is ‘default’.  Possible values include:</p>
+<ul>
+<li><p class="first">‘default’:  Default method.  Algorithm ‘order1_cartesian’ 
+is used.</p>
+</li>
+<li><p class="first">‘default_spherical’:  If ‘spherepack’ can be used, chooses
+that method.  Otherwise ‘order1_spherical’ is used.  Either
+way this option assumes the domain is on a sphere of radius
+equal to keyword R_sphere.</p>
+</li>
+<li><p class="first">‘order1_cartesian’:  First-order finite-differencing (back-
+ward and forward differencing used at the endpoints, and 
+centered differencing used everywhere else).  If abscissa 
+intervals are irregular, differencing will be correspon-
+dingly asymmetric.  Grid is assumed Cartesian.  The curl
+returned is in units of F divided by the units of x and y
+(x and y must be in the same units).</p>
+</li>
+<li><p class="first">‘order1_spherical’:  First-order finite-differencing (back-
+ward and forward differencing used at the endpoints, and 
+centered differencing used everywhere else).  If abscissa 
+intervals are irregular, differencing will be correspon-
+dingly asymmetric.  Grid is assumed spherical and x and y
+are longitude and latitude (in deg).  The curl returned is 
+in units of F divided by units of R_sphere.  Note because
+of singularities in the algorithm near the poles, the
+curl for all points north of 88N or south of 88S latitude 
+are set to missing.</p>
+</li>
+<li><p class="first">‘spherepack’:  The NCAR package SPHEREPACK 3.0 is used for 
+calculating the curl.  The spatial domain is the global 
+sphere; x and y are longitude and latitude (in deg), 
+respectively; x must be evenly spaced and y must be gauss-
+ian or evenly spaced.  The domain must cover the entire 
+sphere and x and y must be longitude and latitude, respec-
+tively, in deg.  There can be no missing values.  The 
+algorithm also assumes that x and y are monotonically in-
+creasing from index 0.  The curl returned is in units of F 
+divided by m.  Thus, if F is velocity in m/s, the curl of 
+F is in units 1/s (and is the vorticity).  Note that in 
+this function’s implementation, the final curl output using 
+algorithm ‘spherepack’ is adjusted for R_sphere not equal 
+to the default mean earth radius, if appropriate, so this 
+algorithm can be used on other planets.</p>
+<p>Note that SPHEREPACK operates on single precision floating
+point (Float32) values.  This function silently converts
+input to Float32 for the computations, as needed (the input 
+parameters are not altered, however).</p>
+</li>
+</ul>
+</li>
+<li><p class="first">R_sphere:  If the grid is the surface of a sphere, this is 
+the radius of the sphere.  This keyword is only used when 
+the algorithm is ‘order1_spherical’ or ‘spherepack’ (either 
+chosen explicitly by the algorithm keyword or automatically 
+when ‘default_spherical’ is used).  Default value is the 
+“mean” radius of the Earth, in meters.  “Mean” is in quotes
+because this value changes depending on what you consider the
+mean; the default in this function is the same Earth radius
+used in module sphere.  Note that if the level is a distance 
+z above the “mean” radius of the earth, R_sphere should be 
+set to the “mean” radius plus z.</p>
+<p>Value can be a scalar or a Numeric or MA array of the same 
+size and shape as Fx.  If keyword is an array, the value of
+R_sphere for each element corresponds to the same location
+as in the Fx and Fy arrays; there should also be no missing 
+values in R_sphere (function doesn’t check for this, however).</p>
+</li>
+</ul>
+<p>Output:
+* Curl of F.  Units depend on algorithm used to calculate curl</p>
+<blockquote>
+<div><p>(see above discussion of keyword algorithm).  Numeric array of 
+same shape as Fx and Fy inputs.</p>
+<p>If there are missing values, those elements in the output that 
+used missing values in the calculation of the curl are set to 
+the value in keyword missing.  If there are missing values in 
+the output due to math errors and keyword missing is set to 
+None, output will fill those missing values with the MA default 
+value of 1e+20.</p>
+</div></blockquote>
+<p>References:
+* Glickman, T. S. (Ed.) (2000):  “Curl,” Glossary of Meteorology,</p>
+<blockquote>
+<div>Boston, MA:  American Meteorological Society, ISBN 1-878220-
+34-9.</div></blockquote>
+<ul>
+<li><p class="first">Haltiner, G. J, and R. T. Williams (1980):  Numerical Prediction
+and Dynamic Meteorology, New York:  John Wiley &amp; Sons, pp. 8-9.</p>
+</li>
+<li><p class="first">Holton, J. R. (1992):  An Introduction to Dynamic Meteorology,
+San Diego, CA:  Academic Press, p. 482.</p>
+</li>
+<li><p class="first">Kauffman, B. G., and W. G. Large (2002):  The CCSM Coupler,
+Version 5.0, User’s Guide, Source Code Reference, and Scientific
+Description.  Boulder, CO:  NCAR.  Value for earth radius is 
+given at URL:
+<a class="reference external" href="http://www.ccsm.ucar.edu/models/ccsm2.0/cpl5/users_guide/node10.html">http://www.ccsm.ucar.edu/models/ccsm2.0/cpl5/users_guide/node10.html</a></p>
+</li>
+<li><p class="first">Overview of the CDAT Interface to the NCAR SPHEREPACK 3.0.  
+SPHEREPACK is by J. C. Adams and P. N. Swarztrauber.  More
+information on SPHEREPACK can be found at:</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.scd.ucar.edu/css/software/spherepack/">http://www.scd.ucar.edu/css/software/spherepack/</a></p>
+</div></blockquote>
+<dl class="docutils">
+<dt>while information on the CDAT implementation used here is at:</dt>
+<dd><p class="first last"><a class="reference external" href="http://esg.llnl.gov/cdat/getting_started/cdat.htm">http://esg.llnl.gov/cdat/getting_started/cdat.htm</a></p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example of a synthetic dataset of winds.  The curl is the vorti-
+city.  Images of the wind field and the vorticity are online at
+<a class="reference external" href="http://www.johnny-lin.com/py_pkgs/gemath/doc/test_curl_2d_add.html">http://www.johnny-lin.com/py_pkgs/gemath/doc/test_curl_2d_add.html</a>.
+Velocity at y greater than 60 and less than -60 are set to 0, to
+prevent spectral algorithms from giving errors at the poles.  Tiny 
+values less than 1e-10 are also set to 0:</p>
+<ol class="loweralpha simple">
+<li>Import statements and create data:</li>
+</ol>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">Numeric</span> <span class="k">as</span> <span class="nn">N</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">curl_2d</span> <span class="k">import</span> <span class="n">curl_2d</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nx</span> <span class="o">=</span> <span class="mi">181</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ny</span> <span class="o">=</span> <span class="mi">91</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">-</span> <span class="mf">180.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ny</span><span class="p">)</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">-</span> <span class="mf">90.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_2d</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span> <span class="n">N</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span> <span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x_2d</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span> <span class="n">N</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">N</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,(</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span><span class="p">)),</span> <span class="n">ny</span><span class="p">),</span> <span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x_2d</span><span class="o">*</span><span class="n">N</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.</span><span class="p">)</span><span class="o">*</span><span class="n">N</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">y_2d</span><span class="o">-</span><span class="mf">90.</span><span class="p">)</span><span class="o">*</span><span class="n">N</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">30.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">x_2d</span><span class="o">-</span><span class="mf">30.</span><span class="p">)</span><span class="o">*</span><span class="n">N</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.</span><span class="p">)</span><span class="o">*</span><span class="n">N</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="n">y_2d</span><span class="o">-</span><span class="mf">90.</span><span class="p">)</span><span class="o">*</span><span class="n">N</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">30.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span><span class="o">.</span><span class="n">putmask</span><span class="p">(</span> <span class="n">u</span><span class="p">,</span> <span class="n">N</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">N</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span><span class="o">.</span><span class="n">putmask</span><span class="p">(</span> <span class="n">v</span><span class="p">,</span> <span class="n">N</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">N</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span><span class="o">.</span><span class="n">putmask</span><span class="p">(</span> <span class="n">u</span><span class="p">,</span> <span class="n">N</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">N</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">y_2d</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">60.</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span><span class="o">.</span><span class="n">putmask</span><span class="p">(</span> <span class="n">v</span><span class="p">,</span> <span class="n">N</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">N</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">y_2d</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">60.</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.</span> <span class="p">)</span>
+</pre></div>
+</div>
+<ol class="loweralpha simple" start="2">
+<li>Use order 1 Cartesian algorithm:  If x and y are in meters,
+and u and v are in m/s, the curl is in 1/s:</li>
+</ol>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">curl</span> <span class="o">=</span> <span class="n">curl_2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;order1_cartesian&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%.7g</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">curl</span><span class="p">[</span><span class="mi">45</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">88</span><span class="p">,</span><span class="mi">92</span><span class="p">)]</span>
+<span class="go">[&#39;-0.007251593&#39;, &#39;-0.003628007&#39;, &#39;0&#39;, &#39;0.003628007&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%.7g</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">curl</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">12</span><span class="p">)]</span>
+<span class="go">[&#39;0&#39;, &#39;0&#39;, &#39;0&#39;, &#39;0&#39;]</span>
+</pre></div>
+</div>
+<ol class="loweralpha simple" start="3">
+<li>Use spectral method from SPHEREPACK (need to first remove the
+repeating dateline point from the domain).  Here we take x and
+y in deg, while u and v are in m/s.  If so the curl is in 1/s.
+These results as much less than for example (b) above since
+the domain is much larger:</li>
+</ol>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">u</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curl</span> <span class="o">=</span> <span class="n">curl_2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;spherepack&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%.7g</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">curl</span><span class="p">[</span><span class="mi">45</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">88</span><span class="p">,</span><span class="mi">92</span><span class="p">)]</span>
+<span class="go">[&#39;-6.436402e-08&#39;, &#39;-3.220152e-08&#39;, &#39;1.33852e-13&#39;, &#39;3.220165e-08&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%.7g</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">curl</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">12</span><span class="p">)]</span>
+<span class="go">[&#39;-2.299736e-20&#39;, &#39;-4.806512e-21&#39;, &#39;-9.283145e-22&#39;, &#39;-1.368445e-20&#39;]</span>
+</pre></div>
+</div>
+<ol class="loweralpha simple" start="4">
+<li>Use order 1 spherical algorithm:  x and y are in deg and u and
+v are in m/s.  The curl is in 1/s.  Note that these results are
+nearly identical to those from SPHEREPACK, except near the poles
+the values are set to missing:</li>
+</ol>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">curl</span> <span class="o">=</span> <span class="n">curl_2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;order1_spherical&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%.7g</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">curl</span><span class="p">[</span><span class="mi">45</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">88</span><span class="p">,</span><span class="mi">92</span><span class="p">)]</span>
+<span class="go">[&#39;-6.517317e-08&#39;, &#39;-3.260645e-08&#39;, &#39;0&#39;, &#39;3.260645e-08&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%.7g</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">curl</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">12</span><span class="p">)]</span>
+<span class="go">[&#39;1e+20&#39;, &#39;1e+20&#39;, &#39;1e+20&#39;, &#39;1e+20&#39;]</span>
+</pre></div>
+</div>
+<ol class="loweralpha simple" start="5">
+<li>Use “default” algorithm, which for this domain chooses the 
+order 1 cartesian algorithm:</li>
+</ol>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">curl</span> <span class="o">=</span> <span class="n">curl_2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%.7g</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">curl</span><span class="p">[</span><span class="mi">45</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">88</span><span class="p">,</span><span class="mi">92</span><span class="p">)]</span>
+<span class="go">[&#39;-0.007251593&#39;, &#39;-0.003628007&#39;, &#39;0&#39;, &#39;0.003628007&#39;]</span>
+</pre></div>
+</div>
+<ol class="loweralpha simple" start="6">
+<li>Use “default_spherical” algorithm with missing data (equal to
+1e+20), which because of the missing data will choose the order
+1 spherical algorithm.  We also do the calculation on Mars, and
+illustrate passing in the radius as a constant as well as an
+array of the same size and shape as u and v:</li>
+</ol>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="p">[</span><span class="mi">30</span><span class="p">:</span><span class="mi">46</span><span class="p">,</span><span class="mi">90</span><span class="p">:</span><span class="mi">114</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e+20</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curl</span> <span class="o">=</span> <span class="n">curl_2d</span><span class="p">(</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;default_spherical&#39;</span>                       <span class="p">,</span> <span class="n">R_sphere</span><span class="o">=</span><span class="mf">3390e+3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%.7g</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">curl</span><span class="p">[</span><span class="mi">45</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">88</span><span class="p">,</span><span class="mi">92</span><span class="p">)]</span>
+<span class="go">[&#39;-1.224875e-07&#39;, &#39;-6.128107e-08&#39;, &#39;1e+20&#39;, &#39;1e+20&#39;]</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">R_mars</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">typecode</span><span class="o">=</span><span class="n">N</span><span class="o">.</span><span class="n">Float</span><span class="p">)</span> <span class="o">+</span> <span class="mf">3390e+3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curl</span> <span class="o">=</span> <span class="n">curl_2d</span><span class="p">(</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;default_spherical&#39;</span>                       <span class="p">,</span> <span class="n">R_sphere</span><span class="o">=</span><span class="n">R_mars</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%.7g</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">curl</span><span class="p">[</span><span class="mi">45</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">88</span><span class="p">,</span><span class="mi">92</span><span class="p">)]</span>
+<span class="go">[&#39;-1.224875e-07&#39;, &#39;-6.128107e-08&#39;, &#39;1e+20&#39;, &#39;1e+20&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="Utilities.vorticity.deriv">
+<code class="descname">deriv</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.vorticity.deriv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the derivative along a single dimension.</p>
+<dl class="docutils">
+<dt>Calling Sequence:</dt>
+<dd>Result = deriv([x_in,] y_in, missing=1e+20, algorithm=’default’)</dd>
+</dl>
+<p>Positional Input Arguments:
+* x_in:  Abscissa values of y_in to take with respect to.  If</p>
+<blockquote>
+<div>not set, the derivative of y_in is take with respect to unit 
+abscissa intervals.  Numeric array of same shape and size as 
+y_in.  Must be monotonic and with no duplicate values.
+Optional.  First positional argument out of two, if present.</div></blockquote>
+<ul class="simple">
+<li>y_in:  Ordinate values, to take the derivative with respect 
+to.  Numeric array vector of rank 1.  Required.  Second posi-
+tional argument, if x_in is present; only positional argument 
+if x_in is absent.</li>
+</ul>
+<p>Keyword Input Arguments:
+* missing:  If y_in and/or x_in has missing values, this is the</p>
+<blockquote>
+<div>missing value value.  Scalar.  Default is 1e+20.</div></blockquote>
+<ul>
+<li><p class="first">algorithm:  Name of the algorithm to use.  String scalar.
+Default is ‘default’.  Possible values include:
++ ‘default’:  Default method (currently set to ‘order1’).
++ ‘order1’:  First-order finite-differencing (backward and</p>
+<blockquote>
+<div><p>forward differencing used at the endpoints, and centered
+differencing used everywhere else).  If abscissa intervals
+are irregular, differencing will be correspondingly asym-
+metric.</p>
+</div></blockquote>
+</li>
+</ul>
+<p>Output Result:
+* Derivative of y_in with respect to x_in (or unit interval</p>
+<blockquote>
+<div>abscissa, if x_in is not given).  Numeric array of same shape 
+and size as y_in.  If there are missing values, those elements 
+in the output are set to the value in <a href="#id1"><span class="problematic" id="id2">|missing|</span></a>.  For instance, 
+if y_in is only one element, a one-element vector is returned 
+as the derivative with the value of <a href="#id3"><span class="problematic" id="id4">|missing|</span></a>.  If there are 
+missing values in the output due to math errors and <a href="#id5"><span class="problematic" id="id6">|missing|</span></a> 
+is set to None, output will fill those missing values with the 
+MA default value of 1e+20.</div></blockquote>
+<p>References:
+* Press, W. H., et al. (1992):  Numerical Recipes in Fortran</p>
+<blockquote>
+<div>77:  The Art of Scientific Computing.  New York, NY:  Cambridge
+University Press, pp. 180-184.</div></blockquote>
+<ul class="simple">
+<li>Wang, Y. (1999):  “Numerical Differentiation,” Introduction to 
+MHD Numerical Simulation in Space, ESS265: Instrumentation, 
+Data Processing and Data Analysis in Space Physics (UCLA).
+URL:  <a class="reference external" href="http://www-ssc.igpp.ucla.edu/personnel/russell/ESS265/">http://www-ssc.igpp.ucla.edu/personnel/russell/ESS265/</a>
+Ch10/ylwang/node21.html.</li>
+</ul>
+<p>Example with one argument, no missing values, using the default
+method:
+&gt;&gt;&gt; from deriv import deriv
+&gt;&gt;&gt; import Numeric as N
+&gt;&gt;&gt; y = N.sin(N.arange(8))
+&gt;&gt;&gt; dydx = deriv(y)
+&gt;&gt;&gt; [‘%.7g’ % dydx[i] for i in range(4)]
+[‘0.841471’, ‘0.4546487’, ‘-0.3501755’, ‘-0.83305’]
+&gt;&gt;&gt; true = N.cos(N.arange(8))  #- Compare with exact solution
+&gt;&gt;&gt; [‘%.7g’ % true[i] for i in range(4)]  
+[‘1’, ‘0.5403023’, ‘-0.4161468’, ‘-0.9899925’]</p>
+<p>Example with two arguments with missing values, using first-
+order differencing:
+&gt;&gt;&gt; x = N.arange(8)/(2.*N.pi)
+&gt;&gt;&gt; y = N.sin(x)
+&gt;&gt;&gt; y[3] = 1e20            #- Set an element to missing value
+&gt;&gt;&gt; dydx = deriv(x, y, missing=1e20, algorithm=’order1’)
+&gt;&gt;&gt; [‘%.7g’ % dydx[i] for i in range(5)]
+[‘0.9957836’, ‘0.9831985’, ‘1e+20’, ‘0.8844179’, ‘1e+20’]
+&gt;&gt;&gt; true = N.cos(x)       #- Compare with exact solution
+&gt;&gt;&gt; [‘%.7g’ % true[i] for i in range(5)]  
+[‘1’, ‘0.9873616’, ‘0.9497657’, ‘0.8881628’, ‘0.8041098’]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Utilities.vorticity.has_close">
+<code class="descname">has_close</code><span class="sig-paren">(</span><em>data</em>, <em>value</em>, <em>rtol=1e-05</em>, <em>atol=1e-08</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.vorticity.has_close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if data has any values “equal” to value.</p>
+<p>Returns 1 if any of the elements of argument data has a value 
+“equal” to argument value; returns 0 otherwise.  If data or value
+is floating point, “equal” means where abs(data-value) &lt;= atol + 
+rtol * abs(value).  This is essentially the same algorithm used 
+in the Numeric function allclose.  If data and value are integer,
+“equal” means strict equality.</p>
+<p>Positional Input Arguments:
+* data:   Data.  Scalar or Numeric array, Python list/tuple of</p>
+<blockquote>
+<div>any size and shape.  Floating or integer type.</div></blockquote>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>value:  Test value.  Scalar or 1 element Numeric array, list,</dt>
+<dd>or tuple.  Floating or integer type.</dd>
+</dl>
+</li>
+</ul>
+<p>Keyword Input Arguments:
+* rtol:   “Relative” tolerance.  Default is 1.e-5.  Used in the</p>
+<blockquote>
+<div>comparison between data and value only if the two are 
+floating point.  Floating or integer type.</div></blockquote>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>atol:   “Absolute” tolerance.  Default is 1.e-8.  Used in the</dt>
+<dd>comparison between data and value only if the two are 
+floating point.  Floating or integer type.</dd>
+</dl>
+</li>
+</ul>
+<p>Examples:
+&gt;&gt;&gt; from has_close import has_close
+&gt;&gt;&gt; data = [20., -32., -1., 2., 5., 29.]
+&gt;&gt;&gt; has_close(data, -1.)
+1
+&gt;&gt;&gt; has_close(data, 10.)
+0</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="Utilities.vorticity.relative">
-<code class="descname">relative</code><span class="sig-paren">(</span><em>u</em>, <em>v</em>, <em>lon</em>, <em>lat</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.vorticity.relative" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the relative vorticity (curl(u,v)) of a wind field using
-a basic centred difference scheme. The centred differencing means
-the returned array is reduced in size by 2 elements in each
-dimension.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>u</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – 2-d array of eastward vector component.</li>
-<li><strong>v</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – 2-d array of northward vector component.</li>
-<li><strong>lon</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – 1-d array of longitudes of grid that defines the vector field.</li>
-<li><strong>lat</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – 1-d array of latitudes of grid that defines the vector field.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">2-d <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of relative vorticity values.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
+<code class="descname">relative</code><span class="sig-paren">(</span><em>u</em>, <em>v</em>, <em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#Utilities.vorticity.relative" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
-</div>
 </div>
 </div>
 
@@ -4796,10 +5183,7 @@ dimension.</p>
 <li><a class="reference internal" href="#module-version"><code class="docutils literal"><span class="pre">version</span></code> – provide details of software version</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-Utilities.vorticity">Utilities.vorticity module</a><ul>
-<li><a class="reference internal" href="#module-vorticity"><code class="docutils literal"><span class="pre">vorticity</span></code> – calculate vorticity of a vector field</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#module-Utilities.vorticity">Utilities.vorticity module</a></li>
 </ul>
 </li>
 </ul>
@@ -4851,8 +5235,8 @@ dimension.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Jul 14, 2017.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Last updated on Aug 18, 2017.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

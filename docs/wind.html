@@ -5,12 +5,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>wind package &#8212; Tropical Cyclone Risk Model 2.0. documentation</title>
-    
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -95,7 +92,7 @@ Planning and Design.</li>
 <p>$Id: vmax.py 810 2012-02-21 07:52:50Z nsummons $</p>
 <dl class="function">
 <dt id="wind.vmax.pDiff">
-<code class="descname">pDiff</code><span class="sig-paren">(</span><em>vMax</em>, <em>pEnv</em>, <em>vMaxType=’holland’</em>, <em>beta=1.3</em>, <em>rho=1.15</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.vmax.pDiff" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pDiff</code><span class="sig-paren">(</span><em>vMax</em>, <em>pEnv</em>, <em>vMaxType='holland'</em>, <em>beta=1.3</em>, <em>rho=1.15</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.vmax.pDiff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inverse functions to calculate central pressure from vMax
 Assumes vMax is given in metres/second.
 Returns pCentre in Pa.</p>
@@ -103,7 +100,7 @@ Returns pCentre in Pa.</p>
 
 <dl class="function">
 <dt id="wind.vmax.vmax">
-<code class="descname">vmax</code><span class="sig-paren">(</span><em>pCentre</em>, <em>pEnv</em>, <em>type=’holland’</em>, <em>beta=1.3</em>, <em>rho=1.15</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.vmax.vmax" title="Permalink to this definition">¶</a></dt>
+<code class="descname">vmax</code><span class="sig-paren">(</span><em>pCentre</em>, <em>pEnv</em>, <em>type='holland'</em>, <em>beta=1.3</em>, <em>rho=1.15</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.vmax.vmax" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the maximum wind speed from the pressure difference.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -192,7 +189,7 @@ Maximum 10m, 1-minute wind speed. Uses <code class="docutils literal"><span clas
 
 <dl class="class">
 <dt id="wind.windmodels.DoubleHollandWindProfile">
-<em class="property">class </em><code class="descname">DoubleHollandWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta1</em>, <em>beta2</em>, <em>rMax2=150.0</em>, <em>windSpeedModel=&lt;class ‘wind.windmodels.HollandWindSpeed’&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">DoubleHollandWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta1</em>, <em>beta2</em>, <em>rMax2=150.0</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.HollandWindSpeed'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.DoubleHollandWindProfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></code></a></p>
 <p>McConochie <em>et al</em>’s double Holland vortex model (based on Cardone <em>et
 al</em>, 1994).  This application is the Coral Sea adaptation of the
@@ -268,7 +265,7 @@ the TC centre.</td>
 
 <dl class="class">
 <dt id="wind.windmodels.HollandWindProfile">
-<em class="property">class </em><code class="descname">HollandWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta</em>, <em>windSpeedModel=&lt;class ‘wind.windmodels.HollandWindSpeed’&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.HollandWindProfile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">HollandWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>beta</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.HollandWindSpeed'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.HollandWindProfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></code></a></p>
 <p>Holland profile. For <cite>r &lt; rMax</cite>, we reset the wind field to a
 cubic profile to avoid the barotropic instability mentioned in
@@ -394,7 +391,7 @@ motion.</li>
 
 <dl class="class">
 <dt id="wind.windmodels.JelesnianskiWindProfile">
-<em class="property">class </em><code class="descname">JelesnianskiWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class ‘wind.windmodels.WilloughbyWindSpeed’&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.JelesnianskiWindProfile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">JelesnianskiWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.WilloughbyWindSpeed'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.JelesnianskiWindProfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></code></a></p>
 <p>Jelesnianski model of the wind profile.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -623,7 +620,7 @@ function and the corresponding vorticity function match.</p>
 
 <dl class="class">
 <dt id="wind.windmodels.RankineWindProfile">
-<em class="property">class </em><code class="descname">RankineWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class ‘wind.windmodels.WilloughbyWindSpeed’&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.RankineWindProfile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">RankineWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.WilloughbyWindSpeed'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.RankineWindProfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.WindProfileModel" title="wind.windmodels.WindProfileModel"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.WindProfileModel</span></code></a></p>
 <p>Rankine vortex profile. Vmax determined by dp using, by default,
 the Willoughby &amp; Rahn method.</p>
@@ -714,7 +711,7 @@ the TC centre.</td>
 
 <dl class="class">
 <dt id="wind.windmodels.WilloughbyWindProfile">
-<em class="property">class </em><code class="descname">WilloughbyWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class ‘wind.windmodels.WilloughbyWindSpeed’&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WilloughbyWindProfile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">WilloughbyWindProfile</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>eP</em>, <em>cP</em>, <em>rMax</em>, <em>windSpeedModel=&lt;class 'wind.windmodels.WilloughbyWindSpeed'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.windmodels.WilloughbyWindProfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#wind.windmodels.HollandWindProfile" title="wind.windmodels.HollandWindProfile"><code class="xref py py-class docutils literal"><span class="pre">wind.windmodels.HollandWindProfile</span></code></a></p>
 <p>The Willoughby &amp; Rahn (2004) relation, which makes β a function
 of Vmax, rMax and latitude. We use Willoughby &amp; Rahn’s (2004)
@@ -981,7 +978,7 @@ calling the <a class="reference internal" href="#wind.run" title="wind.run"><cod
 </div>
 <dl class="class">
 <dt id="wind.WindfieldAroundTrack">
-<em class="property">class </em><code class="descname">WindfieldAroundTrack</code><span class="sig-paren">(</span><em>track</em>, <em>profileType=’powell’</em>, <em>windFieldType=’kepert’</em>, <em>beta=1.3</em>, <em>beta1=1.5</em>, <em>beta2=1.4</em>, <em>thetaMax=70.0</em>, <em>margin=2.0</em>, <em>resolution=0.05</em>, <em>gustFactor=1.35</em>, <em>gridLimit=None</em>, <em>domain=’bounded’</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldAroundTrack" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">WindfieldAroundTrack</code><span class="sig-paren">(</span><em>track</em>, <em>profileType='powell'</em>, <em>windFieldType='kepert'</em>, <em>beta=1.3</em>, <em>beta1=1.5</em>, <em>beta2=1.4</em>, <em>thetaMax=70.0</em>, <em>margin=2.0</em>, <em>resolution=0.05</em>, <em>gustFactor=1.35</em>, <em>gridLimit=None</em>, <em>domain='bounded'</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldAroundTrack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>The windfield around the tropical cyclone track.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1089,7 +1086,7 @@ latitude and the <em>x</em> variable bounds the longitude.</li>
 
 <dl class="class">
 <dt id="wind.WindfieldGenerator">
-<em class="property">class </em><code class="descname">WindfieldGenerator</code><span class="sig-paren">(</span><em>config</em>, <em>margin=2.0</em>, <em>resolution=0.05</em>, <em>profileType=’powell’</em>, <em>windFieldType=’kepert’</em>, <em>beta=1.5</em>, <em>beta1=1.5</em>, <em>beta2=1.4</em>, <em>thetaMax=70.0</em>, <em>gridLimit=None</em>, <em>domain=’bounded’</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">WindfieldGenerator</code><span class="sig-paren">(</span><em>config</em>, <em>margin=2.0</em>, <em>resolution=0.05</em>, <em>profileType='powell'</em>, <em>windFieldType='kepert'</em>, <em>beta=1.5</em>, <em>beta1=1.5</em>, <em>beta2=1.4</em>, <em>thetaMax=70.0</em>, <em>gridLimit=None</em>, <em>domain='bounded'</em><span class="sig-paren">)</span><a class="headerlink" href="#wind.WindfieldGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>The wind field generator.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1386,8 +1383,8 @@ filenames are processed in alphabetical order.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Jul 14, 2017.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.2.
+      Last updated on Aug 18, 2017.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>
