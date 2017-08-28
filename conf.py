@@ -178,21 +178,21 @@ htmlhelp_basename = 'TCRMdoc'
 # -- Options for LaTeX output --------------------------------------------------
 
 latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-'papersize': 'a4paper',
+    # The paper size ('letterpaper' or 'a4paper').
+    'papersize': 'a4paper',
 
-# The font size ('10pt', '11pt' or '12pt').
-'pointsize': '10pt',
+    # The font size ('10pt', '11pt' or '12pt').
+    'pointsize': '10pt',
 
-# Additional stuff for the LaTeX preamble.
-#'preamble': '',
+    # Additional stuff for the LaTeX preamble.
+    #'preamble': '',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'TCRM.tex', u'Tropical Cyclone Risk Model User Guide',
-   u'Geoscience Australia', 'manual'),
+    ('index', 'TCRM.tex', u'Tropical Cyclone Risk Model User Guide',
+     u'Geoscience Australia', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -235,9 +235,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'TCRM', u'Tropical Cyclone Risk Model User Guide',
-   u'Geoscience Australia', 'TCRM', 'One line description of project.',
-   'Miscellaneous'),
+    ('index', 'TCRM', u'Tropical Cyclone Risk Model User Guide',
+     u'Geoscience Australia', 'TCRM', 'One line description of project.',
+     'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
@@ -249,7 +249,7 @@ texinfo_documents = [
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
 
-pngmath_latex =  'E:/Software/MiKTeX/miktex/bin/latex.exe'
+pngmath_latex = 'E:/Software/MiKTeX/miktex/bin/latex.exe'
 pngmath_dvipng = 'E:/Software/MiKTeX/miktex/bin/dvipng.exe'
 
 # -- Options for Epub output ---------------------------------------------------
