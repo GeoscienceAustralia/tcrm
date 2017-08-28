@@ -441,8 +441,8 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
             # Assume no Pypar:
             locations = self.getLocations()
             for eventNum, filename in enumerate(fileList):
-                log.debug("Processing {0} ({1} of {2})".format(filename, 
-                                                               eventNum, 
+                log.debug("Processing {0} ({1} of {2})".format(filename,
+                                                               eventNum,
                                                                len(fileList)))
                 result = self.processEvent(filename, locations, eventNum)
                 eventparams, wsparams = result
@@ -679,7 +679,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                            dist, None, None, "", datetime.now())
 
                 records.append(locRecs)
-            log.debug("Track {0}-{1} has {2} records".format(track.trackId[0], 
+            log.debug("Track {0}-{1} has {2} records".format(track.trackId[0],
                                                              track.trackId[1],
                                                              len(records)))
         return records
