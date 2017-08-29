@@ -483,6 +483,7 @@ class WindfieldGenerator(object):
         for track, result in results:
             log.debug("Saving data for track {0:03d}-{1:05d}"\
                       .format(*track.trackId))
+            # issue 25 flip the lat axes
             gust, bearing, Vx, Vy, P, lon, lat = result
 
             dumpfile = pjoin(windfieldPath,
@@ -492,7 +493,11 @@ class WindfieldGenerator(object):
                              'gust.{0:03d}-{1:05d}.png'.\
                              format(*track.trackId))
             self.saveGustToFile(track.trackfile,
-                                (lat, lon, gust, Vx, Vy, P),
+                                (np.flipud(lat), lon,
+                                 np.flipud(gust),
+                                 np.flipud(Vx),
+                                 np.flipud(Vy),
+                                 np.flipud(P)),
                                 dumpfile)
             #self.plotGustToFile((lat, lon, gust, Vx, Vy, P), plotfile)
 
@@ -543,7 +548,7 @@ class WindfieldGenerator(object):
             0: {
                 'name': 'lat',
                 'values': lat,
-                'dtype': 'f',
+                'dtype': 'float64',
                 'atts': {
                     'long_name': 'Latitude',
                     'standard_name': 'latitude',
@@ -554,7 +559,7 @@ class WindfieldGenerator(object):
             1: {
                 'name': 'lon',
                 'values': lon,
-                'dtype': 'f',
+                'dtype': 'float64',
                 'atts': {
                     'long_name': 'Longitude',
                     'standard_name': 'longitude',
@@ -569,7 +574,7 @@ class WindfieldGenerator(object):
                 'name': 'vmax',
                 'dims': ('lat', 'lon'),
                 'values': speed,
-                'dtype': 'f',
+                'dtype': 'float32',
                 'atts': {
                     'long_name': 'Maximum 0.2-second gust wind speed',
                     'standard_name': 'wind_speed_of_gust',
@@ -585,7 +590,7 @@ class WindfieldGenerator(object):
                 'name': 'ua',
                 'dims': ('lat', 'lon'),
                 'values': Vx,
-                'dtype': 'f',
+                'dtype': 'float32',
                 'atts': {
                     'long_name': 'Eastward component of maximum wind speed',
                     'standard_name': 'eastward_wind',
@@ -599,7 +604,7 @@ class WindfieldGenerator(object):
                 'name': 'va',
                 'dims': ('lat', 'lon'),
                 'values': Vy,
-                'dtype': 'f',
+                'dtype': 'float32',
                 'atts': {
                     'long_name': 'Northward component of maximim wind speed',
                     'standard_name': 'northward_wind',
@@ -613,7 +618,7 @@ class WindfieldGenerator(object):
                 'name': 'slp',
                 'dims': ('lat', 'lon'),
                 'values': P,
-                'dtype': 'f',
+                'dtype': 'float32',
                 'atts': {
                     'long_name': 'Minimum air pressure at sea level',
                     'standard_name': 'air_pressure_at_sea_level',

@@ -608,7 +608,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                 if w < len(trackfiles):
                     pp.send((trackfiles[w], locations),
                             destination=d, tag=work_tag)
-                    log.debug("Processing {0}".format(trackfiles[w]))
+                    log.info("Processing {0}".format(trackfiles[w]))
                     log.debug("Processing track {0:d} of {1:d}".\
                               format(w, len(trackfiles)))
                     w += 1
@@ -619,8 +619,12 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
             terminated = 0
 
             while terminated < p:
-                result, status = pp.receive(pp.any_source, tag=result_tag,
-                                            return_status=True)
+                try:
+                    result, status = pp.receive(pp.any_source, tag=result_tag,
+                                                return_status=True)
+                except: 
+                    log.warn("Problems recieving results on node 0")
+
                 if result:
                     log.debug("Inserting results into tblTracks")
                     self.insertTracks(result)
@@ -628,6 +632,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                 if w < len(trackfiles):
                     pp.send((trackfiles[w], locations),
                             destination=d, tag=work_tag)
+                    log.info("Processing {0}".format(trackfiles[w]))
                     log.debug("Processing track {0:d} of {1:d}".\
                               format(w, len(trackfiles)))
                     w += 1
@@ -638,7 +643,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         elif (pp.size() > 1) and (pp.rank() != 0):
             while True:
                 W = pp.receive(source=0, tag=work_tag)
-                log.debug("Received track on node {0}".format(pp.rank()))
+                log.info("Received track on node {0}".format(pp.rank()))
                 if W is None:
                     break
 
@@ -648,7 +653,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         elif pp.size() == 1 and pp.rank() == 0:
             # No Pypar
             for w, trackfile in enumerate(trackfiles):
-                log.debug("Processing trackfile {0:d} of {1:d}".\
+                log.info("Processing trackfile {0:d} of {1:d}".\
                           format(w, len(trackfiles)))
                 #if len(track.data) == 0:
                 #    continue
@@ -671,7 +676,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         records = []
         for track in tracks:
             if len(track.data) == 0:
-                log.debug("Got an empty track: returning None")
+                log.info("Got an empty track: returning None")
                 continue #return None
             distances = track.minimumDistance(points)
             for (loc, dist) in zip(locations, distances):
@@ -679,9 +684,9 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                            dist, None, None, "", datetime.now())
 
                 records.append(locRecs)
-            log.debug("Track {0}-{1} has {2} records".format(track.trackId[0],
-                                                             track.trackId[1],
-                                                             len(records)))
+            log.info("Track {0}-{1} has {2} records".format(track.trackId[0], 
+                                                            track.trackId[1],
+                                                            len(records)))
         return records
 
     def insertTracks(self, trackRecords):
