@@ -120,7 +120,7 @@ class Track(object):
         yMax = gridLimit['yMax']
 
         return ((xMin <= np.min(self.Longitude)) and
-                (np.max(self.Latitude) <= xMax) and
+                (np.max(self.Longitude) <= xMax) and
                 (yMin <= np.min(self.Latitude)) and
                 (np.max(self.Latitude) <= yMax))
 
