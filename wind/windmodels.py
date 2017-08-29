@@ -768,7 +768,8 @@ class PowellWindProfile(HollandWindProfile):
     """
 
     def __init__(self, lat, lon, eP, cP, rMax):
-        beta = 1.881093 - 0.010917 * np.abs(lat) - 0.005567 * rMax/1000
+        beta = 1.881093 - 0.010917 * np.abs(lat) -\
+               0.005567 * metutils.convert(rMax, "m", "nm")
         if beta < 0.8:
             beta = 0.8
         if beta > 2.2:
