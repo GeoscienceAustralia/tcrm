@@ -264,14 +264,25 @@ class HazardCalculator(object):
         Vr = block maxima
         calculate - GEV: evd.estimateEVD
 
-        :param tilelimits: `tuple` of tile limits
+        :param tilelimits: `tuple` of tile limits       
+
+        Returns:
+        --------
+
+        :param Rp: `numpy.ndarray` of return period wind speed values for each lat/lon
+        :param loc: `numpy.ndarray` of location parameters for each lat/lon
+        :param scale: `numpy.ndarray` of scale parameters for each lat/lon
+        :param shp: `numpy.ndarray` of shape parameters for each lat/lon
+        :param RpUpper: Upper CI return period wind speed values for each lat/lon
+        :param RpLower: Lower CI return period wind speed values for each lat/lon
+
         """
         #Vr = loadFilesFromPath(self.inputPath, tilelimits)
         Vr = aggregateWindFields(self.inputPath, self.numSim, tilelimits)
         Rp, loc, scale, shp = calculate(Vr, self.years, self.nodata,
                                         self.minRecords, self.yrsPerSim)
 
-        if self.calcCI:
+        if self.calcCI: # set in config
             RpUpper, RpLower = calculateCI(Vr, self.years, self.nodata,
                                            self.minRecords, self.yrsPerSim,
                                            self.sample_size, self.prange)
@@ -545,6 +556,9 @@ def calculate(Vr, years, nodata, minRecords, yrsPerSim):
 
     Returns:
     --------
+    
+    GEV fit parameters and return period wind speeds for each grid cell in
+    simulation domain
 
     :param Rp: `numpy.ndarray` of return period wind speed values
     :param loc: `numpy.ndarray` of location parameters in the domain of `Vr`
@@ -553,21 +567,26 @@ def calculate(Vr, years, nodata, minRecords, yrsPerSim):
 
     """
 
-    Vr.sort(axis=0)
-    Rp = np.zeros((len(years),) + Vr.shape[1:], dtype='f')
-    loc = np.zeros(Vr.shape[1:], dtype='f')
-    scale = np.zeros(Vr.shape[1:], dtype='f')
-    shp = np.zeros(Vr.shape[1:], dtype='f')
+    Vr.sort(axis=0) #axis 0 = year
+    Rp = np.zeros((len(years),) + Vr.shape[1:], dtype='f') # Rp = years x lat x lon
+    loc = np.zeros(Vr.shape[1:], dtype='f') # loc = lat x lon
+    scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
+    shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
 
-    for i in xrange(Vr.shape[1]):
-        for j in xrange(Vr.shape[2]):
-            if Vr[:,i,j].max() > 0.0:
+    for i in xrange(Vr.shape[1]): # lat
+        for j in xrange(Vr.shape[2]): # lon
+            if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
                 w, l, sc, sh = evd.estimateEVD(Vr[:,i,j],
                                                years,
                                                nodata,
                                                minRecords,
                                                yrsPerSim)
+                # w = array of return period wind speed values
+                # l = location parameter of fit
+                # sc = scale parameter of fit
+                # sh = shape parameter of fit
 
+                # Put the returned values back into the lat/lon grid
                 Rp[:, i, j] = w
                 loc[i, j] = l
                 scale[i, j] = sc
@@ -596,40 +615,50 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
     :param float prange: percentile range.
 
 
-    :return: `numpy.ndarray` of return period wind speed values
+    Return:
+    -------
+
+    :param RpUpper: Upper CI return period wind speed values for each lat/lon
+    :param RpLower: Lower CI return period wind speed values for each lat/lon
 
     """
 
-    lower = (100 - prange) / 2.
-    upper = 100. - lower
+    lower = (100 - prange) / 2. # 5th percentile default
+    upper = 100. - lower # 95th percentile default
 
-    nrecords = Vr.shape[0]
-    nsamples = nrecords / sample_size
+    nrecords = Vr.shape[0] # number of years (since we have aggregated into 1/yr)
+    nsamples = nrecords / sample_size # number of iterations to perform
+    
+    # RpUpper/RpLower = years x lat x lon
     RpUpper = nodata*np.ones((len(years), Vr.shape[1], Vr.shape[2]), dtype='f')
     RpLower = nodata*np.ones((len(years), Vr.shape[1], Vr.shape[2]), dtype='f')
 
+    # w: years x number of iterations
     w = np.zeros((len(years), nsamples), dtype='f')
     wUpper = np.zeros((len(years)), dtype='f')
     wLower = np.zeros((len(years)), dtype='f')
 
-    for i in xrange(Vr.shape[1]):
-        for j in xrange(Vr.shape[2]):
-            if Vr[:, i, j].max() > 0.0:
-                random.shuffle(Vr[:, i, j])
-                for n in xrange(nsamples):
+    for i in xrange(Vr.shape[1]): # lat
+        for j in xrange(Vr.shape[2]): # lon
+            if Vr[:, i, j].max() > 0.0: # check for valid data
+                random.shuffle(Vr[:, i, j]) # shuffle the years
+                for n in xrange(nsamples): # iterate through fitting of random samples
                     nstart = n*sample_size
                     nend  = (n + 1)*sample_size - 1
-                    vsub = Vr[nstart:nend, i, j]
+                    vsub = Vr[nstart:nend, i, j] # select random 50(default) events
 
                     vsub.sort()
                     if vsub.max( ) > 0.:
+                        # Perform the fitting on a random subset of samples
                         w[:, n], loc, scale, shp = evd.estimateEVD(vsub, years, nodata,
                                                                    minRecords/10, yrsPerSim)
 
+                # Pull out the upper and lower percentiles from the random sample fits
                 for n in range(len(years)):
                     wUpper[n] = percentile(w[n,:], upper)
                     wLower[n] = percentile(w[n,:], lower)
 
+                # Store upper and lower percentiles for each return period, for each grid cell
                 RpUpper[:, i, j] = wUpper
                 RpLower[:, i, j] = wLower
 
