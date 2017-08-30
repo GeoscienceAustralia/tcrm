@@ -260,6 +260,9 @@ class HazardCalculator(object):
         """
         Load input hazard data and then calculate the return period and
         distribution parameters for a given tile.
+        
+        Vr = block maxima
+        calculate - GEV: evd.estimateEVD
 
         :param tilelimits: `tuple` of tile limits
         """
@@ -532,8 +535,13 @@ def calculate(Vr, years, nodata, minRecords, yrsPerSim):
     wind speed values
 
     :param Vr: `numpy.ndarray` of wind speeds (3-D - event, lat, lon)
+               block maxima processed with aggregateWindRecords
     :param years: `numpy.ndarray` of years for which to evaluate
                   return period values
+    :param float nodata: missing data value.
+    :param int minRecords: minimum number of valid wind speed values required
+                           to fit distribution.
+    :param int yrsPerSim: Taken from the config file
 
     Returns:
     --------
