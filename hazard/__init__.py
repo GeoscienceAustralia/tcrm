@@ -36,6 +36,7 @@ from Utilities.config import ConfigParser
 from Utilities.parallel import attemptParallel, disableOnWorkers
 import Utilities.nctools as nctools
 import evd
+import GPD
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -201,7 +202,7 @@ class HazardCalculator(object):
     """
 
     def __init__(self, configFile, tilegrid, numSim, minRecords, yrsPerSim,
-                 calcCI=False):
+                 calcCI=False, evd='GEV'):
         """
         Initialise HazardCalculator object.
 
@@ -211,6 +212,9 @@ class HazardCalculator(object):
         :param int minRecords: minimum number of valid wind speed values required
                                to do fitting.
         :param int yrsPerSim:
+        :param boolean calcCI:
+        :param str extreme_value_distribution: evd to use. Options so far are GEV
+                                               and GPD.
         """
         config = ConfigParser()
         config.read(configFile)
@@ -230,6 +234,7 @@ class HazardCalculator(object):
             log.debug("Bootstrap confidence intervals will be calculated")
             self.sample_size = config.getint('Hazard', 'SampleSize')
             self.prange = config.getint('Hazard', 'PercentileRange')
+        self.evd = evd
 
         self.tilegrid = tilegrid
         lon, lat = self.tilegrid.getDomainExtent()
@@ -259,10 +264,9 @@ class HazardCalculator(object):
     def calculateHazard(self, tilelimits):
         """
         Load input hazard data and then calculate the return period and
-        distribution parameters for a given tile.
-        
-        Vr = block maxima
-        calculate - GEV: evd.estimateEVD
+        distribution parameters for a given tile. The extreme value distribution
+        used in the calculation can be set in the config file. The default
+        distribution is set to GEV.
 
         :param tilelimits: `tuple` of tile limits       
 
@@ -277,16 +281,20 @@ class HazardCalculator(object):
         :param RpLower: Lower CI return period wind speed values for each lat/lon
 
         """
-        #Vr = loadFilesFromPath(self.inputPath, tilelimits)
-        Vr = aggregateWindFields(self.inputPath, self.numSim, tilelimits)
-        Rp, loc, scale, shp = calculate(Vr, self.years, self.nodata,
-                                        self.minRecords, self.yrsPerSim)
+        if self.evd == 'GPD':
+            Vr = loadFilesFromPath(inputPath, tilelimits) 
+            Rp, loc, scale, shp = calculateGPD(Vr, self.years, self.nodata,
+                                               self.minRecords, self.yrsPerSim)
+        else:
+            Vr = aggregateWindFields(self.inputPath, self.numSim, tilelimits)
+            Rp, loc, scale, shp = calculateGEV(Vr, self.years, self.nodata,
+                                               self.minRecords, self.yrsPerSim)
 
         if self.calcCI: # set in config
             RpUpper, RpLower = calculateCI(Vr, self.years, self.nodata,
                                            self.minRecords, self.yrsPerSim,
                                            self.sample_size, self.prange)
-
+ 
             return (tilelimits, Rp, loc, scale, shp, RpUpper, RpLower)
         else:
             return (tilelimits, Rp, loc, scale, shp)
@@ -540,7 +548,7 @@ class HazardCalculator(object):
                            keepfileopen=False)
 
 
-def calculate(Vr, years, nodata, minRecords, yrsPerSim):
+def calculateGEV(Vr, years, nodata, minRecords, yrsPerSim):
     """
     Fit a GEV to the wind speed records for a 2-D extent of
     wind speed values
@@ -594,6 +602,59 @@ def calculate(Vr, years, nodata, minRecords, yrsPerSim):
 
     return Rp, loc, scale, shp
 
+def calculateGPD(Vr, years, nodata, minRecords, yrsPerSim):
+    """
+    Fit a GPD to the wind speed records for a 2-D extent of
+    wind speed values
+
+    :param inputPath: path to individual wind field files.
+    :param tuple tilelimits: tuple of index limits of a tile.
+    :param years: `numpy.ndarray` of years for which to evaluate
+                  return period values
+    :param float nodata: missing data value.
+    :param int minRecords: minimum number of valid wind speed values required
+                           to fit distribution.
+    :param int yrsPerSim: Taken from the config file
+
+    Returns:
+    --------
+    
+    GPD fit parameters and return period wind speeds for each grid cell in
+    simulation domain
+
+    :param Rp: `numpy.ndarray` of return period wind speed values
+    :param loc: `numpy.ndarray` of location parameters in the domain of `Vr`
+    :param scale: `numpy.ndarray` of scale parameters in the domain of `Vr`
+    :param shp: `numpy.ndarray` of shape parameters in the domain of `Vr`
+
+    """
+
+    Vr.sort(axis=0) #axis 0 = year
+    Rp = np.zeros((len(years),) + Vr.shape[1:], dtype='f') # Rp = years x lat x lon
+    loc = np.zeros(Vr.shape[1:], dtype='f') # loc = lat x lon
+    scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
+    shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
+
+    for i in xrange(Vr.shape[1]): # lat
+        for j in xrange(Vr.shape[2]): # lon
+            if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
+                w, l, sc, sh = gpdfit(Vr[:,i,j],
+                                      years,
+                                      nodata,
+                                      minRecords
+                                      )
+                # w = array of return period wind speed values
+                # l = location parameter of fit
+                # sc = scale parameter of fit
+                # sh = shape parameter of fit
+
+                # Put the returned values back into the lat/lon grid
+                Rp[:, i, j] = w
+                loc[i, j] = l
+                scale[i, j] = sc
+                shp[i, j] = sh
+
+    return Rp, loc, scale, shp
 
 def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
                 sample_size=50, prange=90):
@@ -791,6 +852,7 @@ def run(configFile, callback=None):
     yrsPerSim = config.getint('TrackGenerator', 'YearsPerSimulation')
     minRecords = config.getint('Hazard', 'MinimumRecords')
     calculate_confidence = config.getboolean('Hazard', 'CalculateCI')
+    extreme_value_distribution = config.get('Hazard', 'ExtremeValueDistribution')
 
     wf_lon, wf_lat = setDomain(inputPath)
 
@@ -809,7 +871,9 @@ def run(configFile, callback=None):
                           numsimulations,
                           minRecords,
                           yrsPerSim,
-                          calculate_confidence)
+                          calculate_confidence,
+                          extreme_value_distribution
+                          )
 
 
 

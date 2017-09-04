@@ -61,7 +61,7 @@ def gpdfit(data, years, missingValue=-9999, minrecords=50, thresh=99.5):
     Returns:
     --------
 
-    :param w: `numpy.array` of return period wind speed values
+    :param Rp: `numpy.array` of return period wind speed values
     :param mu: location parameter
     :param params[2]: scale parameter
     :param params[0]: shape parameter
@@ -69,19 +69,19 @@ def gpdfit(data, years, missingValue=-9999, minrecords=50, thresh=99.5):
     mu = scoreatpercentile(data, thresh)
 
     loc, scale, shp = [missingValue, missingValue, missingValue]
-    w = missingValue * np.ones(len(years))
+    Rp = missingValue * np.ones(len(years))
 
     if len(data[data > 0]) < minrecords:
-        return w, loc, scale, shp
+        return Rp, loc, scale, shp
 
     rate = float(len(data[data > mu])) / float(len(data))
 
     try:
         shape, loc, scale = genpareto.fit(data[data > mu], floc = mu)
     except:
-        return w, loc, scale, shp
+        return Rp, loc, scale, shp
 
-    w = gpdReturnLevel(years, mu, shape, scale, rate)
+    Rp = gpdReturnLevel(years, mu, shape, scale, rate)
     
-    return w, mu, scale, shape
+    return Rp, mu, scale, shape
 
