@@ -17,7 +17,7 @@ from scipy.ndimage.interpolation import map_coordinates
 
 def interp3d(input_array, coords,
              scale=[360., 180., 365.],
-             offset=[0.,-90.,0.],
+             offset=[0., -90., 0.],
              prefilter=True):
     """
     Wrapper to :func:`scipy.ndimage.interpolation.map_coordinates`, which
@@ -58,7 +58,7 @@ def interp3d(input_array, coords,
         raise ValueError('Coordinates of points must be 3-d')
 
     dims = input_array.shape
-    indices = [d*(c - o) / s for d,c,o,s in
+    indices = [d*(c - o) / s for d, c, o, s in
                zip(dims, coords, offset, scale)]
 
     values = map_coordinates(input_array, indices, mode='wrap',
@@ -96,8 +96,8 @@ def _interp(data, coords, scale=[360., 180.], offset=[0., -90.]):
 
     dims = np.array(data.shape)
 
-    indices = [d*(c - o) / s for d, c, o, s in
-                zip(dims, coords, offset, scale)]
+    indices = [d*(c - o) / s for d, c, o, s in 
+               zip(dims, coords, offset, scale)]
 
     values = map_coordinates(data, indices, mode='wrap')
 

@@ -48,13 +48,11 @@ from netCDF4 import Dataset
 import numpy as np
 
 from Utilities.config import ConfigParser
-from Utilities.files import flGetStat
 from Utilities.maputils import find_index
-from Utilities.track import loadTracksFromFiles, loadTracks
+from Utilities.track import loadTracksFromFiles
 from Utilities.singleton import Singleton
 from Utilities.parallel import attemptParallel, disableOnWorkers
-from Utilities.process import pAlreadyProcessed, pWriteProcessedFile, \
-    pGetProcessedFiles
+from Utilities.process import pAlreadyProcessed, pGetProcessedFiles
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
@@ -419,7 +417,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                 if w < len(fileList):
                     pp.send((fileList[w], locations, w),
                             destination=d, tag=work_tag)
-                    log.debug("Processing file %d of %d" % (w, len(fileList)))
+                    log.debug("Processing file {0} of {1}".format(w, len(fileList)))
                     w += 1
                 else:
                     pp.send(None, destination=d, tag=work_tag)
@@ -622,7 +620,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                 try:
                     result, status = pp.receive(pp.any_source, tag=result_tag,
                                                 return_status=True)
-                except: 
+                except:
                     log.warn("Problems recieving results on node 0")
 
                 if result:
@@ -684,7 +682,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                            dist, None, None, "", datetime.now())
 
                 records.append(locRecs)
-            log.info("Track {0}-{1} has {2} records".format(track.trackId[0], 
+            log.info("Track {0}-{1} has {2} records".format(track.trackId[0],
                                                             track.trackId[1],
                                                             len(records)))
         return records
