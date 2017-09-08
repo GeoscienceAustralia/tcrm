@@ -18,13 +18,14 @@ import numpy
 unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
 sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
 
-from hazard import loadFile
+from hazard import *
 from numpy.testing import assert_raises
 
 class TestloadFile(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
-        self.filename = os.path.join(unittest_dir, 'test_data', 'gust.000-00000.nc')
+        self.filepath = os.path.join(unittest_dir, 'test_data/folder_of_files/')
+        self.filename = self.filepath + 'gust.000-00000.nc'
         self.expectedsubset = numpy.float32(
             [[ 19.33163452,  19.36814117,  19.40473557,  19.44141579, 19.47817612], 
              [ 19.33328438,  19.37013245,  19.40707016,  19.4440937, 19.48120117],
@@ -32,6 +33,10 @@ class TestloadFile(NumpyTestCase.NumpyTestCase):
              [ 19.33638191,  19.37392426,  19.41156006,  19.44928551, 19.48709679],
              [ 19.33782578,  19.37572098,  19.41371346,  19.45179558, 19.48996544]]
             )
+        pfile = open(os.path.join(unittest_dir, 'test_data', 'testDomain.pck'),'r')
+        self.wf_lat = cPickle.load(pfile)
+        self.wf_lon = cPickle.load(pfile)
+        pfile.close()
 
     def testloadFile(self):
         """ test the loadFile function """
@@ -41,6 +46,13 @@ class TestloadFile(NumpyTestCase.NumpyTestCase):
 
         badfilename = self.filename + '1'
         assert_raises(IOError, loadFile, badfilename, limits)
+
+
+    def testsetDomain(self):
+        """ test setDomain """
+        wf_lon, wf_lat = setDomain(self.filepath)
+        self.numpyAssertAlmostEqual(wf_lon, self.wf_lon)
+        self.numpyAssertAlmostEqual(wf_lat, self.wf_lat)
 
 if __name__ == "__main__":
     flStartLog('', 'CRITICAL', False)

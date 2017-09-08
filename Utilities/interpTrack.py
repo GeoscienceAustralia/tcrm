@@ -58,8 +58,8 @@ def main(argv):
 
     """
     gConfigFile = flConfigFile()
-    logFile = flConfigFile(".log")
-    verbose = False
+    #logFile = flConfigFile(".log")
+    #verbose = False
     logger = logging.getLogger()
 
     try:
@@ -69,7 +69,7 @@ def main(argv):
     except getopt.GetoptError:
         ShowSyntax(2)
 
-    for opt,arg in opts:
+    for opt, arg in opts:
         if opt in ("-h", "--help"):
             ShowSyntax()
             sys.exit(2)
@@ -86,25 +86,25 @@ def main(argv):
 
 
     inputFile = cnfGetIniValue(gConfigFile, 'Input', 'File')
-    logger.info("Processing %s"%inputFile)
+    logger.info("Processing {0}".format(inputFile))
     source = cnfGetIniValue(gConfigFile, 'Input', 'Source')
     delta = cnfGetIniValue(gConfigFile, 'Output', 'Delta', 0.1)
 
     nid, newtime, newdates, nLon, nLat, nthetaFm, \
         nvFm, npCentre, npEnv, nrMax = \
                     interpolateTrack(gConfigFile, inputFile, source, delta)
-    header=''
+    #header = ''
     outputFile = cnfGetIniValue(gConfigFile, 'Output', 'File')
-    logger.info("Saving interpolated data to %s"%(outputFile))
+    logger.info("Saving interpolated data to {0}".format(outputFile))
     fh = open(outputFile, 'w')
     for i in xrange(len(newtime)):
         fh.write("%d,%5.1f,%s,%6.2f,%6.2f,%6.2f,%6.2f,%7.2f,%7.2f,%5.1f\n"
-                 % (nid[i], newtime[i], 
+                 % (nid[i], newtime[i],
                     newdates[i].strftime("%Y-%m-%d %H:%M"),
                     nLon[i], nLat[i], nthetaFm[i], nvFm[i], npCentre[i],
                     npEnv[i], nrMax[i]))
     fh.close()
-    logger.info("Completed %s"%(sys.argv[0]))
+    logger.info("Completed {0}".format(sys.argv[0]))
 
 def interpolateTrack(configFile, trackFile, source, delta=0.1,
                      interpolation_type=None):
