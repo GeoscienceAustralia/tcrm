@@ -43,7 +43,7 @@ def gpdReturnLevel(intervals, mu, shape, scale, rate, npyr=365.25):
     rp = mu + (scale / shape) * (np.power(intervals * npyr * rate, shape) - 1.)
     return rp
 
-def gpdfit(data, years, missingValue=-9999, minrecords=50, thresh=99.5):
+def gpdfit(data, years, numsim, missingValue=-9999, minrecords=50, thresh=99.5):
     """
     Fit a Generalised Pareto Distribution to the data. For a quick evaluation,
     we use the 99.5th percentile as a threshold. 
@@ -51,6 +51,7 @@ def gpdfit(data, years, missingValue=-9999, minrecords=50, thresh=99.5):
     :param data: array of data values.
     :type data: :class:`numpy.ndarray`
     :param years: array of years for which to calculate return period values.
+    :param int numSim: number of simulations created.
     :type years: :class:`numpy.ndarray`
     :param float missingValue: value to insert if fit does not converge.
     :param int minRecords: minimum number of valid observations required to
@@ -71,17 +72,26 @@ def gpdfit(data, years, missingValue=-9999, minrecords=50, thresh=99.5):
     loc, scale, shp = [missingValue, missingValue, missingValue]
     Rp = missingValue * np.ones(len(years))
 
+    log.debug("The length of the data currently is {0}".format(len(data)))
+
     if len(data[data > 0]) < minrecords:
         return Rp, loc, scale, shp
 
-    rate = float(len(data[data > mu])) / float(len(data))
+    # Fill each day that a cyclone isn't recorded with zero so we get the correct
+    # rate for the return periods
+    datafilled = np.zeros(int(numsim * 365.25))
+    datafilled[-len(data):] = data
+    log.debug("The length of the filled data is {0}".format(len(datafilled)))
+
+    rate = float(len(datafilled[datafilled > mu])) / float(len(datafilled))
+    log.debug("The calculated rate is: {0}".format(rate))
 
     try:
-        shape, loc, scale = genpareto.fit(data[data > mu], floc = mu)
+        shape, loc, scale = genpareto.fit(datafilled[datafilled > mu], floc = mu)
     except:
         return Rp, loc, scale, shp
 
     Rp = gpdReturnLevel(years, mu, shape, scale, rate)
     
-    return Rp, mu, scale, shape
+    return Rp, loc, scale, shape
 

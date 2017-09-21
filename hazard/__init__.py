@@ -282,10 +282,12 @@ class HazardCalculator(object):
 
         """
         if self.evd == 'GPD':
-            Vr = loadFilesFromPath(inputPath, tilelimits) 
-            Rp, loc, scale, shp = calculateGPD(Vr, self.years, self.nodata,
+            log.info("Using the GPD distribution for the hazard curves")
+            Vr = loadFilesFromPath(self.inputPath, tilelimits) 
+            Rp, loc, scale, shp = calculateGPD(Vr, self.years, self.numSim, self.nodata,
                                                self.minRecords, self.yrsPerSim)
         else:
+            log.info("Using the GEV distribution for the hazard curves")
             Vr = aggregateWindFields(self.inputPath, self.numSim, tilelimits)
             Rp, loc, scale, shp = calculateGEV(Vr, self.years, self.nodata,
                                                self.minRecords, self.yrsPerSim)
@@ -602,7 +604,7 @@ def calculateGEV(Vr, years, nodata, minRecords, yrsPerSim):
 
     return Rp, loc, scale, shp
 
-def calculateGPD(Vr, years, nodata, minRecords, yrsPerSim):
+def calculateGPD(Vr, years, numsim, nodata, minRecords, yrsPerSim):
     """
     Fit a GPD to the wind speed records for a 2-D extent of
     wind speed values
@@ -611,6 +613,7 @@ def calculateGPD(Vr, years, nodata, minRecords, yrsPerSim):
     :param tuple tilelimits: tuple of index limits of a tile.
     :param years: `numpy.ndarray` of years for which to evaluate
                   return period values
+    :param int numSim: number of simulations created.
     :param float nodata: missing data value.
     :param int minRecords: minimum number of valid wind speed values required
                            to fit distribution.
@@ -638,11 +641,13 @@ def calculateGPD(Vr, years, nodata, minRecords, yrsPerSim):
     for i in xrange(Vr.shape[1]): # lat
         for j in xrange(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
-                w, l, sc, sh = gpdfit(Vr[:,i,j],
-                                      years,
-                                      nodata,
-                                      minRecords
-                                      )
+                log.debug("lat: {0}, lon: {1}".format(i, j))
+                w, l, sc, sh = GPD.gpdfit(Vr[:,i,j],
+                                          years,
+                                          numsim,
+                                          nodata,
+                                          minRecords
+                                          )
                 # w = array of return period wind speed values
                 # l = location parameter of fit
                 # sc = scale parameter of fit

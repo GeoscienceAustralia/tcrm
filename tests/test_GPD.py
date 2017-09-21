@@ -52,6 +52,7 @@ class TestGPD(NumpyTestCase.NumpyTestCase):
         self.scale = cPickle.load(pfile)
         self.shape = cPickle.load(pfile)
         self.w = cPickle.load(pfile)
+        self.rate = cPickle.load(pfile)
 
         self.years = numpy.array((2,5,10,20,25,50,100,200,250,500,1000,2000,5000,10000))
 
@@ -60,7 +61,8 @@ class TestGPD(NumpyTestCase.NumpyTestCase):
 
     def test_gpdfit(self):
         """Test gpdfit works with list input"""
-        w, mu, scale, shape = GPD.gpdfit(self.values, self.years)
+        # set numSim = 100
+        w, mu, scale, shape = GPD.gpdfit(self.values, self.years, 100)
         self.numpyAssertAlmostEqual(w, self.w)
         self.numpyAssertAlmostEqual(mu, self.mu)
         self.numpyAssertAlmostEqual(scale, self.scale)
@@ -68,7 +70,7 @@ class TestGPD(NumpyTestCase.NumpyTestCase):
         
     def test_gpdReturnLevel(self):
         """ Test the GDP return level calculations work """
-        w = GPD.gpdReturnLevel(self.years, self.mu, self.shape, self.scale, 0.01)
+        w = GPD.gpdReturnLevel(self.years, self.mu, self.shape, self.scale, self.rate)
         self.numpyAssertAlmostEqual(w, self.w)
 
 
