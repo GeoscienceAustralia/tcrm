@@ -537,17 +537,17 @@ def main(configFile='main.ini'):
 
     pp.barrier()
 
-    if config.getboolean('Actions', 'PlotHazard'):
-        doHazardPlotting(configFile)
-
-    pp.barrier()
-
     if config.getboolean('Actions', 'CreateDatabase'):
         doDatabaseUpdate(configFile)
 
     pp.barrier()
     if config.getboolean('Actions', 'ExecuteEvaluate'):
         doEvaluation(config)
+
+    pp.barrier()
+
+    if config.getboolean('Actions', 'PlotHazard'):
+        doHazardPlotting(configFile)
 
     pp.barrier()
 
