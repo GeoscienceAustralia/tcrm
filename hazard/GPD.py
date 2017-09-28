@@ -64,8 +64,8 @@ def gpdfit(data, years, numsim, missingValue=-9999, minrecords=50, thresh=99.5):
 
     :param Rp: `numpy.array` of return period wind speed values
     :param mu: location parameter
-    :param params[2]: scale parameter
-    :param params[0]: shape parameter
+    :param scale: scale parameter
+    :param shape: shape parameter
     """
     mu = scoreatpercentile(data, thresh)
 
