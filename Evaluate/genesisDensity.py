@@ -240,8 +240,12 @@ class GenesisDensity(object):
                 endYr = max(endYr, max(t.Year))
             numYears = endYr - startYr
             LOG.info("Range of years: %d - %d" % (startYr, endYr))
-            self.hist = self._calculate(tracks)
+            try:
+                self.hist = self._calculate(tracks)
             #self.hist = self._calculate(tracks) / numYears
+            except (ValueError):
+                log.critical("KDE error: The number of observations must be larger than the number of variables")
+                raise
 
     def synthetic(self):
         """Load synthetic data and calculate histogram"""
