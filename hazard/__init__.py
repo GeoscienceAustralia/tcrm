@@ -802,11 +802,20 @@ def loadFile(filename, limits):
 
     (xmin, xmax, ymin, ymax) = limits
 
-    ncobj = nctools.ncLoadFile(filename)
-    ncobj_vmax = nctools.ncGetVar(ncobj, 'vmax')
-    data_subset = ncobj_vmax[ymin:ymax, xmin:xmax]
-    ncobj.close()
-    return data_subset
+    try:
+        ncobj = nctools.ncLoadFile(filename)
+        ncobj_vmax = nctools.ncGetVar(ncobj, 'vmax')
+        data_subset = ncobj_vmax[ymin:ymax, xmin:xmax]
+        ncobj.close()
+
+        if xmax < xmin or ymax < ymin:
+            log.debug("max tile limits are not smaller than min")
+            
+        return data_subset
+
+    except IOError:
+        log.debug('{0} file does not exist'.format(filename))
+        raise
 
 def getTiles(tilegrid):
     """

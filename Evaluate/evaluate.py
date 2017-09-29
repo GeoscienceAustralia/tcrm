@@ -531,7 +531,7 @@ class EvalPressureDistribution(Evaluate):
         return dataMean, dataMin, dataMax, dataMed
 
     def calcMinPressure(self, tracks):
-        minpressure = 1030.
+        # minpressure = 1030.
         minCP = np.zeros(len(tracks))
 
         for t in tracks:
@@ -1507,7 +1507,7 @@ def run(config_file):
     config.read(config_file)
     outputPath = config.get('Output', 'Path')
 
-    gridLimit = config.geteval('Region', 'gridLimit')
+    # gridLimit = config.geteval('Region', 'gridLimit')
 
     args = dict(configFile=config_file,
                 historicTrackFile=config.get('DataProcess', 'InputFile'),
