@@ -535,7 +535,7 @@ class ScatterMapFigure(MapFigure):
         self.addGraticule(axes, mapobj)
         self.addMapScale(mapobj)
 
-class HazardMap(MaskedContourMapFigure):
+class HazardMap(FilledContourMapFigure):
     """
     A map for presenting return level data. Ocean areas are masked, and
     the data is smoothed using a Gaussian kernel.
