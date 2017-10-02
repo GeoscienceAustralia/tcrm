@@ -103,7 +103,7 @@ class Track(object):
 
     def inRegion(self, gridLimit):
         """
-        Check if the tropical cyclone track falls entirely within a region.
+        Check if the tropical cyclone track starts within a region.
 
         :type  gridLimit: :class:`dict`
         :param gridLimit: the region to check.
@@ -119,10 +119,10 @@ class Track(object):
         yMin = gridLimit['yMin']
         yMax = gridLimit['yMax']
 
-        return ((xMin <= np.min(self.Longitude)) and
-                (np.max(self.Longitude) <= xMax) and
-                (yMin <= np.min(self.Latitude)) and
-                (np.max(self.Latitude) <= yMax))
+        return ((xMin <= self.Longitude[0]) and
+                (self.Longitude[0] <= xMax) and
+                (yMin <= self.Latitude[0]) and
+                (self.Latitude[0] <= yMax))
 
     def minimumDistance(self, points):
         """
