@@ -289,7 +289,11 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
     if delta < 0.0:
         raise ValueError("Time step for interpolation must be positive")
 
-    tracks = loadTrackFile(configFile, trackFile, source)
+    if trackFile.endswith("nc"):
+        from Utilities.track import ncReadTrackData
+        tracks = ncReadTrackData(trackFile)
+    else:
+        tracks = loadTrackFile(configFile, trackFile, source)
 
     results = []
 
