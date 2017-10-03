@@ -936,7 +936,7 @@ class HubbertWindField(WindFieldModel):
 
     def field(self, R, lam, vFm, thetaFm, thetaMax=0.):
         V = self.velocity(R)
-        thetaFm = np.pi/2. - thetaFm
+        thetaFm = np.pi/2. - np.pi * thetaFm / 180.
         Km = .70
         inflow = -np.sign(self.f) * 25. * np.ones(np.shape(R))
         core = np.where(R < self.rMax)
@@ -981,7 +981,7 @@ class McConochieWindField(WindFieldModel):
                                motion.
         """
         V = self.velocity(R)
-        thetaFm = np.pi/2. - thetaFm
+        thetaFm = np.pi/2. - np.pi * thetaFm / 180.
         inflow = 25. * np.ones(np.shape(R))
         mid = np.where(R < 1.2 * self.rMax)
         inflow[mid] = 10. + 75. * (R[mid] / self.rMax - 1.)
@@ -1041,7 +1041,7 @@ class KepertWindField(WindFieldModel):
         Z = self.vorticity(R)
         K = 50.  # Diffusivity
         Cd = 0.002  # Constant drag coefficient
-        thetaFm = np.pi/2. - thetaFm
+        thetaFm = np.pi/2. - np.pi * thetaFm / 180.
         Vm = np.abs(V).max()
         if (vFm > 0) and (Vm/vFm < 5.):
             Umod = vFm * (1. - (1. - Vm/vFm)/5.)
