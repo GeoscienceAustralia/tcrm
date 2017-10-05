@@ -35,18 +35,13 @@ Changelog
 New features:
 -------------
 
-* Stores individual events as separate tracks and wind fields;
-* Tracks stored in netCDF4 files, using the heirachical structure and compound variables to improve file management for large simulations;
-* Provides a relational database to allow interrogation of simulations (using an `SQLite <http://www.sqlite.org>`_ database);
-* Updated visualisation of outputs using `Seaborn <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_; 
+* Implemented new extreme value distribution option for the hazard calculations. The EVD options now include GEV (default), and GPD. The option is set within the config file. (Sep 2017)
+* Updated the hazard curve plots to include a scatter of the events alongside the fitted hazard curve. (Sep 2017)
 
 Bug fixes:
 ----------
 
-* Update kernel density estimation methods. Previous version oversmoothed the distribution and used an isotropic bandwidth. Now uses statsmodels `Multivariate KDE method <http://statsmodels.sourceforge.net/stable/generated/statsmodels.nonparametric.kernel_density.KDEMultivariate.html>`_ for 2-dimensional KDE;
-* Numpy 1.10.1 compatibility fix (see commit `0361c7c <https://github.com/GeoscienceAustralia/tcrm/commit/0361c7c1ffcc230d767ba2905a693df53156ed98>`_);
-* Wind speed averaging times are as per `WMO-TD1555 <http://www.wmo.int/pages/prog/www/tcp/documents/WMO_TD_1555_en.pdf>`_ - default output is 0.2 second wind gust;
-
+* ThetaFM conversion fix from v2.0 pulled into this branch
 
 
 Dependencies
