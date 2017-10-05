@@ -122,12 +122,20 @@ def doWindfieldPlotting(configFile):
     import numpy as np
     config = ConfigParser()
     config.read(configFile)
-
     outputPath = config.get('Output', 'Path')
     windfieldPath = pjoin(outputPath, 'windfield')
 
-    # Note the assumption about the file name!
-    outputWindFile = pjoin(windfieldPath, 'gust.001-00001.nc')
+    inputFile = config.get('DataProcess', 'InputFile')
+    if inputFile.endswith(".nc"):
+        # We have a netcdf track file. Work under the assumption it is
+        # drawn directly from TCRM.
+        trackFile = os.path.basename(inputFile)
+        trackId = trackFile.split('.')[1]
+        gustFile = 'gust.{0}.nc'.format(trackId)
+        outputWindFile = pjoin(windfieldPath, gustFile)
+    else:
+        # Note the assumption about the file name!
+        outputWindFile = pjoin(windfieldPath, 'gust.001-00001.nc')
     plotPath = pjoin(outputPath, 'plots', 'maxwind.png')
 
     f = Dataset(outputWindFile, 'r')

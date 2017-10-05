@@ -64,7 +64,7 @@ class TimeSeriesFigure(Figure):
     def plot(self):
 
         axes = self.add_subplot(111)
-        color = axes._get_lines.color_cycle
+        color = axes._get_lines.prop_cycler
         ax1 = axes.twinx()
         ax2 = axes.twinx()
 
@@ -78,11 +78,11 @@ class TimeSeriesFigure(Figure):
         dt, ydata1, yrange1, ylabel1, title1 = self.subfigures[1]
         dt, ydata2, yrange2, ylabel2, title2 = self.subfigures[2]
 
-        p0, = axes.plot(dt, ydata0, color=color.next(),
+        p0, = axes.plot(dt, ydata0, color=color.next()['color'],
                         label=title0, linewidth=2, alpha=0.5)
-        p1, = ax1.plot(dt, ydata1, color=color.next(),
+        p1, = ax1.plot(dt, ydata1, color=color.next()['color'],
                         label=title1, linewidth=2, alpha=0.5)
-        p2, = ax2.plot(dt, ydata2, color=color.next(),
+        p2, = ax2.plot(dt, ydata2, color=color.next()['color'],
                         label=title2, linewidth=2, alpha=0.5)
 
         axes.set_xlabel('Time')
