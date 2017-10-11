@@ -37,6 +37,7 @@ New features:
 
 * Implemented new extreme value distribution option for the hazard calculations. The EVD options now include GEV (default), and GPD. The option is set within the config file. (Sep 2017)
 * Updated the hazard curve plots to include a scatter of the events alongside the fitted hazard curve. (Sep 2017)
+* Updated the map colour palette to use ISO 22324, 2015 (Oct 2017)
 
 Bug fixes:
 ----------
