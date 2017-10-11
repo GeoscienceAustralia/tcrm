@@ -71,6 +71,12 @@ def selectColormap(data_range, percent=0.1):
     defined data range to be used for the plot. Note the diverging color map
     only works when the data range spans zero (and it won't automatically put
     the neutral colour at zero).
+    
+    Red to green colour palette using recommendations from  ISO22324 (2015).
+    Unsaturated colour palette:
+    [(0.486, 0.722, 0.573), (0.447, 0.843, 0.714), (0.875, 0.882, 0.443), 
+    (0.969, 0.906, 0.514), (0.933, 0.729, 0.416), (0.906, 0.522, 0.373), 
+    (0.937, 0.522, 0.616)]
 
     :param data_range: array-like containing either the minimum and maximum
                        levels of the data range, or the array of levels (e.g.
@@ -96,7 +102,9 @@ def selectColormap(data_range, percent=0.1):
         palette = sns.color_palette("RdBu", 7)
         cmap = sns.blend_palette(palette, as_cmap=True)
     else:
-        palette = sns.color_palette("YlOrRd", 7)
+        palette = [(0.000, 0.627, 0.235), (0.412, 0.627, 0.235), (0.663, 0.780, 0.282),
+        (0.957, 0.812, 0.000), (0.925, 0.643, 0.016), (0.835, 0.314, 0.118),
+        (0.780, 0.086, 0.118)]
         cmap = sns.blend_palette(palette, as_cmap=True)
 
     return cmap
