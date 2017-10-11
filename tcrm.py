@@ -22,6 +22,7 @@ import traceback
 import argparse
 import time
 import sys
+import imp
 import os
 
 from os.path import join as pjoin, realpath, isdir, dirname
@@ -40,6 +41,38 @@ matplotlib.use('Agg', warn=False)  # Use matplotlib backend
 if pathLocator.is_frozen():
     os.environ['BASEMAPDATA'] = pjoin(
         pathLocator.getRootDirectory(), 'mpl-data', 'data')
+
+compiledModules = ['KPDF', 'akima', 'Cmap', 'Cstats']
+
+def checkModules(moduleList):
+    """
+    Check that compiled extensions are available
+
+    :param list moduleList: list of modules to check for
+    
+    :return:
+    """
+
+    msg = ("Cannot find '{0}' in the path. "
+           "Make sure to compile the extensions using "
+           "`python installer/setup.py build_ext -i` "
+           "or the `compile.cmd` script")
+    if not isinstance(moduleList, list):
+        raise TypeError
+    for m in moduleList:
+        try:
+            imp.find_module(m)
+            found = True
+        except ImportError:
+            found = False
+        if found:
+            log.debug("{0} was found".format(m))
+        else:
+            log.critical("{0} not found on the path".format(m))
+            log.critical(msg.format(m))
+            return found
+    return found
+            
 
 
 def timer(f):
@@ -626,6 +659,9 @@ def startup():
                             module="matplotlib")
 
     warnings.filterwarnings("ignore", category=RuntimeWarning)
+    rc = checkModules(compiledModules)
+    if not rc:
+        sys.exit(1)
 
     if debug:
         main(configFile)
