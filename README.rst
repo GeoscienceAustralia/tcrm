@@ -27,7 +27,9 @@ Features
 Branch
 ======
 
-Version 2.0 release candidate branch. Development branches should be progressively merged into this branch. 
+Development branch. New features are collected in this branch before
+release to default branch. Contributions of new features should branch
+from this branch, rather than the default branch.
 
 Changelog
 =========
@@ -35,14 +37,18 @@ Changelog
 New features:
 -------------
 
-* Implemented new extreme value distribution option for the hazard calculations. The EVD options now include GEV (default), and GPD. The option is set within the config file. (Sep 2017)
-* Updated the hazard curve plots to include a scatter of the events alongside the fitted hazard curve. (Sep 2017)
-* Updated the map colour palette to use ISO 22324, 2015 (Oct 2017)
+* Implemented new extreme value distribution option for the hazard
+  calculations. The EVD options now include GEV (default), and
+  GPD. The option is set within the config file. (Sep 2017)
+* Updated the hazard curve plots to include a scatter of the events
+  alongside the fitted hazard curve. (Sep 2017)
+* Updated the hazard map colour palette to use ISO 22324, 2015 (Oct
+  2017)
 
 Bug fixes:
 ----------
 
-* ThetaFM conversion fix from v2.0 pulled into this branch
+* ThetaFM conversion fix from v2.0 pulled into this branch (Sep 2017)
 
 
 Dependencies
@@ -59,6 +65,7 @@ TCRM requires:
  * `pandas <http://pandas.pydata.org/>`_; 
  * `Shapely <https://github.com/Toblerity/Shapely>`_; 
  * `seaborn 0.5.1 <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_;
+ * `statsmodels <http://statsmodels.sourceforge.net>`_;
  * and `gcc`.  
 
 For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
@@ -66,18 +73,18 @@ For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is requir
 Status
 ======
 
-.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=v2.0
+.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=develop
     :target: https://travis-ci.org/GeoscienceAustralia/tcrm
     :alt: Build status
 
 
-.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=v2.0
-  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=v2.0
+.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=develop
+  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=develop
   :alt: Test coverage
 
     
-.. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/v2.0/landscape.svg?style=flat
-    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/v2.0
+.. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/develop/landscape.svg?style=flat
+    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/develop
     :alt: Code Health
 
 Screenshot

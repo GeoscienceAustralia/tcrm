@@ -81,6 +81,7 @@ PARSERS = {
     'Hazard_years': parseList,
     'Hazard_samplesize': int,
     'Hazard_percentilerange': int,
+    'Hazard_extremevaluedistribution': str,
     'Input_landmask': str,
     'Input_locationfile': str,
     'Input_mslpgrid': parseList,
@@ -185,6 +186,7 @@ CalculateCI=True
 PercentileRange=90
 SampleSize=50
 PlotSpeedUnits=mps
+ExtremeValueDistribution=GPD
 
 [RMW]
 GetRMWDistFromInputData=False
