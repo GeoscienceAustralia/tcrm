@@ -150,7 +150,7 @@ gridInc={'x':1.0,'y':0.5}
 [DataProcess]
 StartSeason=1981
 FilterSeasons=True
-InputFile=Allstorms.ibtracs_wmo.v03r05.csv
+InputFile=Allstorms.ibtracs_wmo.v03r10.csv
 Source=IBTRACS
 
 [StatInterface]
@@ -216,9 +216,9 @@ PressureUnits=hPa
 LengthUnits=km
 
 [IBTRACS]
-URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
+URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r10/wmo/csv/Allstorms.ibtracs_wmo.v03r10.csv.gz
 path=input
-filename=Allstorms.ibtracs_wmo.v03r05.csv
+filename=Allstorms.ibtracs_wmo.v03r10.csv
 Columns=tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
 FieldDelimiter=,
 NumberOfHeadingLines=3
