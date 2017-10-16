@@ -30,7 +30,7 @@ from Utilities.grid import SampleGrid
 from Utilities.files import flModuleName, flSaveFile, flStartLog
 from Utilities.columns import colReadCSV
 from Utilities import pathLocator
-from DataProcess.CalcTrackDomain import CalcTrackDomain
+from CalcTrackDomain import CalcTrackDomain
 from Utilities.config import ConfigParser
 
 import warnings
