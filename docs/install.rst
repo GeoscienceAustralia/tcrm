@@ -30,13 +30,24 @@ TCRM.
 Setting the environment
 -----------------------
 
-To enable TCRM to run flawlessly, you may need to change some environment settings. The important variable to set is the ``PYTHONPATH`` variable. This should be set to the path where you have extracted the contents of the zip file. In the examples below, change ``/path/to/tcrm`` to the location where you extracted the TCRM files.
+To enable TCRM to run flawlessly, you may need to change some
+environment settings. The important variable to set is the
+``PYTHONPATH`` variable. This should be set to the path where you have
+extracted the contents of the zip file. In the examples below, change
+``/path/to/tcrm`` to the location where you extracted the TCRM files.
 
-A complete discussion on environment variables in Python is given in the `Python documentation <https://docs.python.org/2/using/cmdline.html#environment-variables>`_. 
+A complete discussion on environment variables in Python is given in
+the `Python documentation
+<https://docs.python.org/2/using/cmdline.html#environment-variables>`_.
 
 Windows
 ~~~~~~~
-The Python documentation contains some simple instructions for setting environment variables on Windows systems `here <https://docs.python.org/2/using/windows.html>`_. See `this link <http://www.computerhope.com/issues/ch000549.htm>`_ for setting the variables on different Windows systems.
+
+The Python documentation contains some simple instructions for setting
+environment variables on Windows systems `here
+<https://docs.python.org/2/using/windows.html>`_. See `this link
+<http://www.computerhope.com/issues/ch000549.htm>`_ for setting the
+variables on different Windows systems.
 
 BASH shell
 ~~~~~~~~~~
@@ -120,7 +131,7 @@ From the base directory, execute the build process::
 Ubuntu
 ~~~~~~
 The github branch issue_25 (created from the v2.0 branch) had an environment created by `installing miniconda
-<https://conda.io/docs/install/quick.html#linux-miniconda-install>`_ and executing the following commands.
+<https://conda.io/docs/install/quick.html#linux-miniconda-install>`_ and executing the following commands::
 
         ~/miniconda2/bin/conda create --name tcrm
         ~/miniconda2/bin/source activate tcrm
@@ -136,26 +147,29 @@ The github branch issue_25 (created from the v2.0 branch) had an environment cre
         ~/miniconda2/bin/pip --proxy=http://localhost:3128 install simplejson
 
 
-The following libraries were needed to compile the C extensions, and run the unit tests:
+The following libraries were needed to compile the C extensions, and run the unit tests::
+
     sudo apt install libgl1-mesa-glx
     sudo apt-get install python-numpy-dev
 
-The C extensions were compiled from the trcm directory with:
+The C extensions were compiled from the trcm directory with::
+
         (tcrm) user@server:~/tcrm$ python intaller/setup.py build_ext -i
 
 An error occurred where the include file seems to have changed paths. It may be a one off,
 or it may reoccur in another version of Linux. The error was in KPDF.c and the change was to
-comment out one line and replace it with another.
+comment out one line and replace it with another.::
 
         #include "numpy/arrayobject.h"
         /* #include "arrayobject.h" */
 
 A requiremements file was created in the root directory called ``linux_v20.yml`` and should (it hasn't been tested)
-replace the ``conda install`` commands above. The command to use this file is:
+replace the ``conda install`` commands above. The command to use this file is::
 
         conda env create -f linux_v20.yml
 
-Activating the environment would be
+Activating the environment would be::
+
         source activate linux_v20
 
 
@@ -163,12 +177,20 @@ Windows
 ~~~~~~~
 
 For Windows users, the code includes the ``compile.cmd`` script in the
-main TCRM diretory that will build these extensions in place. By default, TCRM uses the MinGW suite (http://www.mingw.org) for compiling the extensions. Other Windows-based packages can also be used (e.g. Cygwin). See the Python documentation on writing configuration files for the :mod:`distutils` package for more details.
+main TCRM diretory that will build these extensions in place. By
+default, TCRM uses the MinGW suite (http://www.mingw.org) for
+compiling the extensions. Other Windows-based packages can also be
+used (e.g. Cygwin). See the Python documentation on writing
+configuration files for the :mod:`distutils` package for more details.
 
 Notes
 ~~~~~
 
-It is recommended to use a stand-alone Python installation for compiling and running TCRM. Installations linked to other software such as ArcGIS have resulted in compilation errors, as the required :mod:`numpy` libraries are pre-compiled and packaged with such installations. 
+It is recommended to use a stand-alone Python installation for
+compiling and running TCRM. Installations linked to other software
+such as ArcGIS have resulted in compilation errors, as the required
+:mod:`numpy` libraries are pre-compiled and packaged with such
+installations.
 
 .. _testing:
 
