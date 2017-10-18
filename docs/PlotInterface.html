@@ -62,23 +62,14 @@ Arthur.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="PlotInterface.AutoPlotHazard.AutoPlotHazard.getLocations">
-<code class="descname">getLocations</code><span class="sig-paren">(</span><em>minLon</em>, <em>maxLon</em>, <em>minLat</em>, <em>maxLat</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard.getLocations" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getLocations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.AutoPlotHazard.AutoPlotHazard.getLocations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract locations from the localities database</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>minLon</strong> (<em>float</em>) – Minimum longitude of the model domain.</li>
-<li><strong>maxLon</strong> (<em>float</em>) – Maximum longitude of the model domain.</li>
-<li><strong>minLat</strong> (<em>float</em>) – Minimum latitude of the model domain.</li>
-<li><strong>maxLat</strong> (<em>float</em>) – Maximum latitude of the model domain.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Names, countries, latitude and longitude of all locations
-within the model domain.</p>
-</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Names, ID, latitude and longitude of all locations
+within the model domain, plus the locations rec array</td>
 </tr>
 </tbody>
 </table>
@@ -274,6 +265,31 @@ upper/lower confidence range.</p>
 <code class="descname">plot</code><span class="sig-paren">(</span><em>years</em>, <em>wspd</em>, <em>wspdupper</em>, <em>wspdlower</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.HazardCurve.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a hazard curve, including upper and lower conffidence
 range estimates. This uses the <code class="xref py py-meth docutils literal"><span class="pre">SemilogRangeCurve()</span></code>
+method for plotting the curve on a semilog x-axis.
+:param years: Return period years to plot.
+:param wspd: Return period wind speed values.
+:param wspdupper: Upper confidence range wind speed values.
+:param wspdlower: Lower confidence range wind speed values.
+:type years: <cite>numpy.ndarray</cite>
+:type wspd: <cite>numpy.ndarray</cite>
+:type wspdupper: <cite>numpy.ndarray</cite>
+:type wspdlower: <cite>numpy.ndarray</cite>
+:param str xlabel: x-axis label.
+:param str ylabel: y-axis label.
+:param str title: Plot title.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="PlotInterface.curves.HazardScatterCurve">
+<em class="property">class </em><code class="descname">HazardScatterCurve</code><a class="headerlink" href="#PlotInterface.curves.HazardScatterCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.SemilogRangeScatterCurve" title="PlotInterface.curves.SemilogRangeScatterCurve"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.SemilogRangeScatterCurve</span></code></a></p>
+<dl class="method">
+<dt id="PlotInterface.curves.HazardScatterCurve.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>years</em>, <em>events</em>, <em>wspd</em>, <em>wspdupper</em>, <em>wspdlower</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em>, <em>fit</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.HazardScatterCurve.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a hazard curve, including upper and lower conffidence
+range estimates. This uses the <code class="xref py py-meth docutils literal"><span class="pre">SemilogRangeCurve()</span></code>
 method for plotting the curve on a semilog x-axis.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -281,12 +297,14 @@ method for plotting the curve on a semilog x-axis.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>years</strong> (<cite>numpy.ndarray</cite>) – Return period years to plot.</li>
+<li><strong>events</strong> – <cite>numpy.ndarray</cite></li>
 <li><strong>wspd</strong> (<cite>numpy.ndarray</cite>) – Return period wind speed values.</li>
 <li><strong>wspdupper</strong> (<cite>numpy.ndarray</cite>) – Upper confidence range wind speed values.</li>
 <li><strong>wspdlower</strong> (<cite>numpy.ndarray</cite>) – Lower confidence range wind speed values.</li>
 <li><strong>xlabel</strong> (<em>str</em>) – x-axis label.</li>
 <li><strong>ylabel</strong> (<em>str</em>) – y-axis label.</li>
 <li><strong>title</strong> (<em>str</em>) – Plot title.</li>
+<li><strong>fit</strong> (<em>str</em>) – Label for the legend containing the EVD fit type</li>
 </ul>
 </td>
 </tr>
@@ -558,6 +576,87 @@ to the subplot.</li>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="PlotInterface.curves.SemilogRangeScatterCurve">
+<em class="property">class </em><code class="descname">SemilogRangeScatterCurve</code><a class="headerlink" href="#PlotInterface.curves.SemilogRangeScatterCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.curves.SemilogCurve" title="PlotInterface.curves.SemilogCurve"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.curves.SemilogCurve</span></code></a></p>
+<p>A line plot on a semilog-x plot with additional range (e.g. confidence
+interval).</p>
+<dl class="method">
+<dt id="PlotInterface.curves.SemilogRangeScatterCurve.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>xdata</em>, <em>events</em>, <em>ymean</em>, <em>ymax</em>, <em>ymin</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em>, <em>fit</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.SemilogRangeScatterCurve.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new subplot to the list of subplots to be created.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xdata</strong> (<cite>numpy.ndarray</cite>) – x values of the data points.</li>
+<li><strong>ymean</strong> (<cite>numpy.ndarray</cite>) – y values of the data points.</li>
+<li><strong>ymax</strong> (<cite>numpy.ndarray</cite>) – y values of the upper range data points.</li>
+<li><strong>ymin</strong> (<cite>numpy.ndarray</cite>) – y values of the lower range data points.</li>
+<li><strong>xlabel</strong> (<em>str</em>) – Label for the x-axis</li>
+<li><strong>ylabel</strong> (<em>str</em>) – Label for the y-axis</li>
+<li><strong>title</strong> (<em>str</em>) – Plot title</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PlotInterface.curves.SemilogRangeScatterCurve.empReturnPeriod">
+<code class="descname">empReturnPeriod</code><span class="sig-paren">(</span><em>data</em>, <em>npyr=365.25</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.SemilogRangeScatterCurve.empReturnPeriod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the empirically-based recurrence interval (in years) for a set
+of observations.
+It is assumed the data are daily observations. If the observations are not
+daily, there are two options: set the <code class="docutils literal"><span class="pre">npyr</span></code> variable, or backfill the
+<code class="docutils literal"><span class="pre">data</span></code> variable with zero values to match the assumed length of the
+record.
+The highest return period should be (approximately) len(<code class="docutils literal"><span class="pre">data</span></code>)/<code class="docutils literal"><span class="pre">npyr</span></code>.
+:param data: <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> containing the observed values (with</p>
+<blockquote>
+<div>missing values removed).</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>npy</strong> (<em>float</em>) – Number of observations per year (default=365.25)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Recurrence intervals for the observed data.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="PlotInterface.curves.SemilogRangeScatterCurve.subplot">
+<code class="descname">subplot</code><span class="sig-paren">(</span><em>axes</em>, <em>subfigure</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.SemilogRangeScatterCurve.subplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a line and range plot on an <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code>
+instance, with a logarithmic scale on the x-axis. Data and
+labels are contained in a tuple. x-ticks presented as integer
+values. A grid is added with a call to
+<code class="xref py py-meth docutils literal"><span class="pre">SemilogCurve.addGrid()</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>axes</strong> – <code class="xref py py-class docutils literal"><span class="pre">matplotlib.axes</span></code> instance.</li>
+<li><strong>subfigure</strong> (<em>tuple</em>) – Holds the data and labels to be added
+to the subplot.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="PlotInterface.curves.saveDistributionCurve">
 <code class="descname">saveDistributionCurve</code><span class="sig-paren">(</span><em>x</em>, <em>y1</em>, <em>y2</em>, <em>y2max</em>, <em>y2min</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.saveDistributionCurve" title="Permalink to this definition">¶</a></dt>
@@ -576,7 +675,7 @@ plus an upper/lower confidence range.</p>
 <li><strong>xlabel</strong> (<em>str</em>) – Label for the x-axis</li>
 <li><strong>ylabel</strong> (<em>str</em>) – Label for the y-axis</li>
 <li><strong>title</strong> (<em>str</em>) – Plot title</li>
-<li><strong>filename</strong> (<em>str</em>) – Path to save teh figure to.</li>
+<li><strong>filename</strong> (<em>str</em>) – Path to save the figure to</li>
 </ul>
 </td>
 </tr>
@@ -604,7 +703,7 @@ plus an upper/lower confidence range.</p>
 
 <dl class="function">
 <dt id="PlotInterface.curves.saveHazardCurve">
-<code class="descname">saveHazardCurve</code><span class="sig-paren">(</span><em>years</em>, <em>wspd</em>, <em>wspdupper</em>, <em>wspdlower</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.saveHazardCurve" title="Permalink to this definition">¶</a></dt>
+<code class="descname">saveHazardCurve</code><span class="sig-paren">(</span><em>years</em>, <em>events</em>, <em>wspd</em>, <em>wspdupper</em>, <em>wspdlower</em>, <em>xlabel</em>, <em>ylabel</em>, <em>title</em>, <em>filename</em>, <em>fit</em><span class="sig-paren">)</span><a class="headerlink" href="#PlotInterface.curves.saveHazardCurve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a hazard curve, including upper and lower conffidence
 range estimates. This uses the <code class="xref py py-meth docutils literal"><span class="pre">SemilogRangeCurve()</span></code>
 method for plotting the curve on a semilog x-axis.</p>
@@ -614,6 +713,7 @@ method for plotting the curve on a semilog x-axis.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>years</strong> (<cite>numpy.ndarray</cite>) – Return period years to plot.</li>
+<li><strong>events</strong> – <cite>numpy.ndarray</cite></li>
 <li><strong>wspd</strong> (<cite>numpy.ndarray</cite>) – Return period wind speed values.</li>
 <li><strong>wspdupper</strong> (<cite>numpy.ndarray</cite>) – Upper confidence range wind speed values.</li>
 <li><strong>wspdlower</strong> (<cite>numpy.ndarray</cite>) – Lower confidence range wind speed values.</li>
@@ -621,6 +721,7 @@ method for plotting the curve on a semilog x-axis.</p>
 <li><strong>ylabel</strong> (<em>str</em>) – y-axis label.</li>
 <li><strong>title</strong> (<em>str</em>) – Plot title.</li>
 <li><strong>filename</strong> (<em>str</em>) – Path to save teh figure to.</li>
+<li><strong>fit</strong> (<em>str</em>) – Label for the legend containing the EVD fit type</li>
 </ul>
 </td>
 </tr>
@@ -1136,7 +1237,7 @@ map keyword arguments.</li>
 <dl class="class">
 <dt id="PlotInterface.maps.HazardMap">
 <em class="property">class </em><code class="descname">HazardMap</code><a class="headerlink" href="#PlotInterface.maps.HazardMap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.MaskedContourMapFigure" title="PlotInterface.maps.MaskedContourMapFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.MaskedContourMapFigure</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#PlotInterface.maps.FilledContourMapFigure" title="PlotInterface.maps.FilledContourMapFigure"><code class="xref py py-class docutils literal"><span class="pre">PlotInterface.maps.FilledContourMapFigure</span></code></a></p>
 <p>A map for presenting return level data. Ocean areas are masked, and
 the data is smoothed using a Gaussian kernel.</p>
 <dl class="method">
@@ -1505,6 +1606,11 @@ values are scaled</p>
 defined data range to be used for the plot. Note the diverging color map
 only works when the data range spans zero (and it won’t automatically put
 the neutral colour at zero).</p>
+<p>Red to green colour palette using recommendations from  ISO22324 (2015).
+Unsaturated colour palette:
+[(0.486, 0.722, 0.573), (0.447, 0.843, 0.714), (0.875, 0.882, 0.443), 
+(0.969, 0.906, 0.514), (0.933, 0.729, 0.416), (0.906, 0.522, 0.373), 
+(0.937, 0.522, 0.616)]</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1965,7 +2071,7 @@ given, all files in the input path will be processed.</li>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Aug 18, 2017.
+      Last updated on Oct 19, 2017.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>

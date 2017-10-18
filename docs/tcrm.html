@@ -48,6 +48,22 @@
 <div class="section" id="module-tcrm">
 <span id="tcrm-the-main-tcrm-interface"></span><h2><a class="reference internal" href="#module-tcrm" title="tcrm: The main interface to TCRM. Determines which components of the model system to execute, based on the configuration settings specified."><code class="xref py py-mod docutils literal"><span class="pre">tcrm</span></code></a> – the main TCRM interface<a class="headerlink" href="#module-tcrm" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="tcrm.checkModules">
+<code class="descname">checkModules</code><span class="sig-paren">(</span><em>moduleList</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.checkModules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that compiled extensions are available</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>moduleList</strong> (<em>list</em>) – list of modules to check for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="tcrm.doDataDownload">
 <code class="descname">doDataDownload</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDataDownload" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check and download the data files listed in the configuration file.
@@ -330,7 +346,7 @@ to execute the main TCRM functions.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Aug 18, 2017.
+      Last updated on Oct 19, 2017.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>

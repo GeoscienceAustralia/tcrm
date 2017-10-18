@@ -112,6 +112,8 @@
 </li>
         <li><a href="docs/PlotInterface.html#PlotInterface.curves.SemilogRangeCurve.add">(SemilogRangeCurve method)</a>
 </li>
+        <li><a href="docs/PlotInterface.html#PlotInterface.curves.SemilogRangeScatterCurve.add">(SemilogRangeScatterCurve method)</a>
+</li>
         <li><a href="docs/PlotInterface.html#PlotInterface.timeseries.TimeSeriesFigure.add">(TimeSeriesFigure method)</a>
 </li>
       </ul></li>
@@ -238,14 +240,16 @@
 </li>
         <li><a href="docs/Evaluate.html#Evaluate.trackDensity.TrackDensity.calculate">(TrackDensity method)</a>
 </li>
-        <li><a href="docs/hazard.html#hazard.calculate">(in module hazard)</a>
-</li>
       </ul></li>
       <li><a href="docs/hazard.html#hazard.calculateCI">calculateCI() (in module hazard)</a>
 </li>
       <li><a href="docs/wind.html#wind.WindfieldGenerator.calculateExtremesFromTrack">calculateExtremesFromTrack() (WindfieldGenerator method)</a>
 </li>
       <li><a href="docs/wind.html#wind.WindfieldGenerator.calculateExtremesFromTrackfile">calculateExtremesFromTrackfile() (WindfieldGenerator method)</a>
+</li>
+      <li><a href="docs/hazard.html#hazard.calculateGEV">calculateGEV() (in module hazard)</a>
+</li>
+      <li><a href="docs/hazard.html#hazard.calculateGPD">calculateGPD() (in module hazard)</a>
 </li>
       <li><a href="docs/hazard.html#hazard.HazardCalculator.calculateHazard">calculateHazard() (HazardCalculator method)</a>
 </li>
@@ -282,6 +286,8 @@
       <li><a href="docs/StatInterface.html#StatInterface.StatInterface.StatInterface.cdfCellSpeed">cdfCellSpeed() (StatInterface method)</a>
 </li>
       <li><a href="docs/Utilities.html#Utilities.datasets.checkAndDownload">checkAndDownload() (in module Utilities.datasets)</a>
+</li>
+      <li><a href="docs/tcrm.html#tcrm.checkModules">checkModules() (in module tcrm)</a>
 </li>
       <li><a href="docs/Utilities.html#Utilities.Intersections.Crossings.CircleLine">CircleLine() (Crossings method)</a>
 </li>
@@ -444,6 +450,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/Utilities.html#Utilities.metutils.elevToAirPr">elevToAirPr() (in module Utilities.metutils)</a>
+</li>
+      <li><a href="docs/PlotInterface.html#PlotInterface.curves.SemilogRangeScatterCurve.empReturnPeriod">empReturnPeriod() (SemilogRangeScatterCurve method)</a>
 </li>
       <li><a href="docs/wind.html#wind.windmodels.WindSpeedModel.eP">eP (WindSpeedModel attribute)</a>
 </li>
@@ -627,10 +635,10 @@
 </li>
       <li><a href="docs/Utilities.html#Utilities.loadData.getMinPressure">getMinPressure() (in module Utilities.loadData)</a>
 </li>
-      <li><a href="docs/Utilities.html#Utilities.stats.getOccurence">getOccurence() (in module Utilities.stats)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="docs/Utilities.html#Utilities.stats.getOccurence">getOccurence() (in module Utilities.stats)</a>
+</li>
       <li><a href="docs/StatInterface.html#StatInterface.KDEOrigin.getOriginBandwidth">getOriginBandwidth() (in module StatInterface.KDEOrigin)</a>
 </li>
       <li><a href="docs/Utilities.html#Utilities.loadData.getPoci">getPoci() (in module Utilities.loadData)</a>
@@ -660,10 +668,6 @@
       <li><a href="docs/Utilities.html#Utilities.Intersections.Point.getY">getY() (Point method)</a>
 </li>
       <li><a href="docs/Utilities.html#Utilities.version.git">git() (in module Utilities.version)</a>
-</li>
-      <li><a href="docs/hazard.html#hazard.evd.gpdfit">gpdfit() (in module hazard.evd)</a>
-</li>
-      <li><a href="docs/hazard.html#hazard.evd.gpdReturnLevel">gpdReturnLevel() (in module hazard.evd)</a>
 </li>
       <li><a href="docs/Utilities.html#Utilities.grid.grdRead">grdRead() (in module Utilities.grid)</a>
 </li>
@@ -712,6 +716,8 @@
       <li><a href="docs/PlotInterface.html#PlotInterface.curves.HazardCurve">HazardCurve (class in PlotInterface.curves)</a>
 </li>
       <li><a href="docs/PlotInterface.html#PlotInterface.maps.HazardMap">HazardMap (class in PlotInterface.maps)</a>
+</li>
+      <li><a href="docs/PlotInterface.html#PlotInterface.curves.HazardScatterCurve">HazardScatterCurve (class in PlotInterface.curves)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -1150,6 +1156,8 @@
 </li>
         <li><a href="docs/PlotInterface.html#PlotInterface.maps.HazardMap.plot">(HazardMap method)</a>
 </li>
+        <li><a href="docs/PlotInterface.html#PlotInterface.curves.HazardScatterCurve.plot">(HazardScatterCurve method)</a>
+</li>
         <li><a href="docs/Evaluate.html#Evaluate.landfallRates.LandfallRates.plot">(LandfallRates method)</a>
 </li>
         <li><a href="docs/PlotInterface.html#PlotInterface.maps.MapFigure.plot">(MapFigure method)</a>
@@ -1197,10 +1205,10 @@
 </li>
       <li><a href="docs/PlotInterface.html#module-PlotInterface.AutoPlotHazard">PlotInterface.AutoPlotHazard (module)</a>
 </li>
-      <li><a href="docs/PlotInterface.html#module-PlotInterface.curves">PlotInterface.curves (module)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="docs/PlotInterface.html#module-PlotInterface.curves">PlotInterface.curves (module)</a>
+</li>
       <li><a href="docs/PlotInterface.html#module-PlotInterface.figures">PlotInterface.figures (module)</a>
 </li>
       <li><a href="docs/PlotInterface.html#module-PlotInterface.maps">PlotInterface.maps (module)</a>
@@ -1509,6 +1517,8 @@
 </li>
       <li><a href="docs/PlotInterface.html#PlotInterface.curves.SemilogRangeCurve">SemilogRangeCurve (class in PlotInterface.curves)</a>
 </li>
+      <li><a href="docs/PlotInterface.html#PlotInterface.curves.SemilogRangeScatterCurve">SemilogRangeScatterCurve (class in PlotInterface.curves)</a>
+</li>
       <li><a href="docs/hazard.html#hazard.setDomain">setDomain() (in module hazard)</a>
 </li>
       <li><a href="docs/wind.html#wind.WindfieldGenerator.setGridLimit">setGridLimit() (WindfieldGenerator method)</a>
@@ -1689,6 +1699,8 @@
         <li><a href="docs/PlotInterface.html#PlotInterface.curves.SemilogRangeCompareCurve.subplot">(SemilogRangeCompareCurve method)</a>
 </li>
         <li><a href="docs/PlotInterface.html#PlotInterface.curves.SemilogRangeCurve.subplot">(SemilogRangeCurve method)</a>
+</li>
+        <li><a href="docs/PlotInterface.html#PlotInterface.curves.SemilogRangeScatterCurve.subplot">(SemilogRangeScatterCurve method)</a>
 </li>
         <li><a href="docs/PlotInterface.html#PlotInterface.timeseries.TimeSeriesFigure.subplot">(TimeSeriesFigure method)</a>
 </li>
@@ -2429,7 +2441,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Aug 18, 2017.
+      Last updated on Oct 19, 2017.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>

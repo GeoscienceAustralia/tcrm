@@ -70,25 +70,28 @@ provide ARI wind speed estimates.</p>
 </div>
 <div class="section" id="branch">
 <h1>Branch<a class="headerlink" href="#branch" title="Permalink to this headline">¶</a></h1>
-<p>Version 2.0 release candidate branch. Development branches should be progressively merged into this branch.</p>
+<p>Development branch. New features are collected in this branch before
+release to default branch. Contributions of new features should branch
+from this branch, rather than the default branch.</p>
 </div>
 <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="new-features">
 <h2>New features:<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Stores individual events as separate tracks and wind fields;</li>
-<li>Tracks stored in netCDF4 files, using the heirachical structure and compound variables to improve file management for large simulations;</li>
-<li>Provides a relational database to allow interrogation of simulations (using an <a class="reference external" href="http://www.sqlite.org">SQLite</a> database);</li>
-<li>Updated visualisation of outputs using <a class="reference external" href="http://stanford.edu/~mwaskom/software/seaborn/index.html">Seaborn</a>;</li>
+<li>Implemented new extreme value distribution option for the hazard
+calculations. The EVD options now include GEV (default), and
+GPD. The option is set within the config file. (Sep 2017)</li>
+<li>Updated the hazard curve plots to include a scatter of the events
+alongside the fitted hazard curve. (Sep 2017)</li>
+<li>Updated the hazard map colour palette to use ISO 22324, 2015 (Oct
+2017)</li>
 </ul>
 </div>
 <div class="section" id="bug-fixes">
 <h2>Bug fixes:<a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Update kernel density estimation methods. Previous version oversmoothed the distribution and used an isotropic bandwidth. Now uses statsmodels <a class="reference external" href="http://statsmodels.sourceforge.net/stable/generated/statsmodels.nonparametric.kernel_density.KDEMultivariate.html">Multivariate KDE method</a> for 2-dimensional KDE;</li>
-<li>Numpy 1.10.1 compatibility fix (see commit <a class="reference external" href="https://github.com/GeoscienceAustralia/tcrm/commit/0361c7c1ffcc230d767ba2905a693df53156ed98">0361c7c</a>);</li>
-<li>Wind speed averaging times are as per <a class="reference external" href="http://www.wmo.int/pages/prog/www/tcp/documents/WMO_TD_1555_en.pdf">WMO-TD1555</a> - default output is 0.2 second wind gust;</li>
+<li>ThetaFM conversion fix from v2.0 pulled into this branch (Sep 2017)</li>
 </ul>
 </div>
 </div>
@@ -106,6 +109,7 @@ provide ARI wind speed estimates.</p>
 <li><a class="reference external" href="http://pandas.pydata.org/">pandas</a>;</li>
 <li><a class="reference external" href="https://github.com/Toblerity/Shapely">Shapely</a>;</li>
 <li><a class="reference external" href="http://stanford.edu/~mwaskom/software/seaborn/index.html">seaborn 0.5.1</a>;</li>
+<li><a class="reference external" href="http://statsmodels.sourceforge.net">statsmodels</a>;</li>
 <li>and <cite>gcc</cite>.</li>
 </ul>
 </div></blockquote>
@@ -113,9 +117,9 @@ provide ARI wind speed estimates.</p>
 </div>
 <div class="section" id="status">
 <h1>Status<a class="headerlink" href="#status" title="Permalink to this headline">¶</a></h1>
-<a class="reference external image-reference" href="https://travis-ci.org/GeoscienceAustralia/tcrm"><img alt="Build status" src="https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=v2.0" /></a>
-<a class="reference external image-reference" href="https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=v2.0"><img alt="Test coverage" src="https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=v2.0" /></a>
-<a class="reference external image-reference" href="https://landscape.io/github/GeoscienceAustralia/tcrm/v2.0"><img alt="Code Health" src="https://landscape.io/github/GeoscienceAustralia/tcrm/v2.0/landscape.svg?style=flat" /></a>
+<a class="reference external image-reference" href="https://travis-ci.org/GeoscienceAustralia/tcrm"><img alt="Build status" src="https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=develop" /></a>
+<a class="reference external image-reference" href="https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=develop"><img alt="Test coverage" src="https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=develop" /></a>
+<a class="reference external image-reference" href="https://landscape.io/github/GeoscienceAustralia/tcrm/develop"><img alt="Code Health" src="https://landscape.io/github/GeoscienceAustralia/tcrm/develop/landscape.svg?style=flat" /></a>
 </div>
 <div class="section" id="screenshot">
 <h1>Screenshot<a class="headerlink" href="#screenshot" title="Permalink to this headline">¶</a></h1>
@@ -193,7 +197,7 @@ and a DISCLAIMER OF ALL WARRANTIES.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Aug 18, 2017.
+      Last updated on Oct 19, 2017.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>

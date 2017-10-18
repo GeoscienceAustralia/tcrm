@@ -70,8 +70,9 @@ or zero.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>v</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – array of data values.</li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>v</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – array of data values. Values represent max events for each year 
+of simulation at a single grid box</li>
 <li><strong>years</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – array of years for which to calculate return period values.</li>
 <li><strong>missingValue</strong> (<em>float</em>) – value to insert if fit does not converge.</li>
 <li><strong>minRecords</strong> (<em>int</em>) – minimum number of valid observations required to
@@ -81,81 +82,18 @@ of each block in years.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">return period values</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">location, shape and scale parameters of the distribution</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
-</td>
-</tr>
 </tbody>
 </table>
-</dd></dl>
-
-<dl class="function">
-<dt id="hazard.evd.gpdReturnLevel">
-<code class="descname">gpdReturnLevel</code><span class="sig-paren">(</span><em>intervals</em>, <em>mu</em>, <em>xi</em>, <em>sigma</em>, <em>rate</em>, <em>npyr=365.25</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.evd.gpdReturnLevel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate return levels for specified intervals for a distribution with
-the given threshold, scale and shape parameters.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>intervals</strong> – <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> or float of recurrence intervals
-to evaluate return levels for.</li>
-<li><strong>mu</strong> (<em>float</em>) – Threshold parameter (also called location).</li>
-<li><strong>xi</strong> (<em>float</em>) – Shape parameter.</li>
-<li><strong>sigma</strong> (<em>float</em>) – Scale parameter.</li>
-<li><strong>rate</strong> (<em>float</em>) – Rate of exceedances (i.e. number of observations greater
-than <cite>mu</cite>, divided by total number of observations).</li>
-<li><strong>npyr</strong> (<em>float</em>) – Number of observations per year.</li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>w</strong> – <cite>numpy.array</cite> of return period wind speed values</li>
+<li><strong>loc</strong> – location parameter</li>
+<li><strong>scale</strong> – scale parameter</li>
+<li><strong>shp</strong> – shape parameter</li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">return levels for the specified recurrence intervals.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="hazard.evd.gpdfit">
-<code class="descname">gpdfit</code><span class="sig-paren">(</span><em>data</em>, <em>rate</em>, <em>years</em>, <em>missingValue=-9999</em>, <em>minrecords=50</em>, <em>thresh=99.7</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.evd.gpdfit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit a Generalised Pareto Distribution to the data. For a quick evaluation,
-we use the 99.7th percentile as a threshold.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – array of data values.</li>
-<li><strong>years</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – array of years for which to calculate return period values.</li>
-<li><strong>missingValue</strong> (<em>float</em>) – value to insert if fit does not converge.</li>
-<li><strong>minRecords</strong> (<em>int</em>) – minimum number of valid observations required to
-perform fitting.</li>
-<li><strong>thresh</strong> (<em>float</em>) – Threshold for performing the fitting. Default is the
-99.7th percentile</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">return period values</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">location, shape and scale parameters of the distribution,
-determined using MLE (as per <code class="xref py py-meth docutils literal"><span class="pre">scipy.stats.rv_continuous()</span></code>)</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
 </td>
 </tr>
 </tbody>
@@ -184,19 +122,37 @@ calling the :meth: <cite>run</cite> with the location of a <em>configFile</em>:<
 </div>
 <dl class="class">
 <dt id="hazard.HazardCalculator">
-<em class="property">class </em><code class="descname">HazardCalculator</code><span class="sig-paren">(</span><em>configFile</em>, <em>tilegrid</em>, <em>numSim</em>, <em>minRecords</em>, <em>yrsPerSim</em>, <em>calcCI=False</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.HazardCalculator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">HazardCalculator</code><span class="sig-paren">(</span><em>configFile</em>, <em>tilegrid</em>, <em>numSim</em>, <em>minRecords</em>, <em>yrsPerSim</em>, <em>calcCI=False</em>, <em>evd='GEV'</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.HazardCalculator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Calculate return period wind speeds using GEV fitting</p>
 <dl class="method">
 <dt id="hazard.HazardCalculator.calculateHazard">
 <code class="descname">calculateHazard</code><span class="sig-paren">(</span><em>tilelimits</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.HazardCalculator.calculateHazard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load input hazard data and then calculate the return period and
-distribution parameters for a given tile.</p>
+distribution parameters for a given tile. The extreme value distribution
+used in the calculation can be set in the config file. The default
+distribution is set to GEV.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tilelimits</strong> – <cite>tuple</cite> of tile limits</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Rp</strong> – <cite>numpy.ndarray</cite> of return period wind speed values for each lat/lon</li>
+<li><strong>loc</strong> – <cite>numpy.ndarray</cite> of location parameters for each lat/lon</li>
+<li><strong>scale</strong> – <cite>numpy.ndarray</cite> of scale parameters for each lat/lon</li>
+<li><strong>shp</strong> – <cite>numpy.ndarray</cite> of shape parameters for each lat/lon</li>
+<li><strong>RpUpper</strong> – Upper CI return period wind speed values for each lat/lon</li>
+<li><strong>RpLower</strong> – Lower CI return period wind speed values for each lat/lon</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -312,10 +268,11 @@ extreme value distributions.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="hazard.calculate">
-<code class="descname">calculate</code><span class="sig-paren">(</span><em>Vr</em>, <em>years</em>, <em>nodata</em>, <em>minRecords</em>, <em>yrsPerSim</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.calculate" title="Permalink to this definition">¶</a></dt>
+<dt id="hazard.calculateCI">
+<code class="descname">calculateCI</code><span class="sig-paren">(</span><em>Vr</em>, <em>years</em>, <em>nodata</em>, <em>minRecords</em>, <em>yrsPerSim=1</em>, <em>sample_size=50</em>, <em>prange=90</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.calculateCI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit a GEV to the wind speed records for a 2-D extent of
-wind speed values</p>
+wind speed values, providing a confidence range by resampling at
+random from the input values.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -323,12 +280,59 @@ wind speed values</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>Vr</strong> – <cite>numpy.ndarray</cite> of wind speeds (3-D - event, lat, lon)</li>
 <li><strong>years</strong> – <cite>numpy.ndarray</cite> of years for which to evaluate
-return period values</li>
+return period values.</li>
+<li><strong>nodata</strong> (<em>float</em>) – missing data value.</li>
+<li><strong>minRecords</strong> (<em>int</em>) – minimum number of valid wind speed values required
+to fit distribution.</li>
+<li><strong>yrsPerSim</strong> (<em>int</em>) – Values represent block maxima - this value indicates
+the time span of the block (default 1).</li>
+<li><strong>sample_size</strong> (<em>int</em>) – number of records to randomly sample for calculating
+confidence interval of the fit.</li>
+<li><strong>prange</strong> (<em>float</em>) – percentile range.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>RpUpper</strong> – Upper CI return period wind speed values for each lat/lon</li>
+<li><strong>RpLower</strong> – Lower CI return period wind speed values for each lat/lon</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hazard.calculateGEV">
+<code class="descname">calculateGEV</code><span class="sig-paren">(</span><em>Vr</em>, <em>years</em>, <em>nodata</em>, <em>minRecords</em>, <em>yrsPerSim</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.calculateGEV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a GEV to the wind speed records for a 2-D extent of
+wind speed values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Vr</strong> – <cite>numpy.ndarray</cite> of wind speeds (3-D - event, lat, lon)
+block maxima processed with aggregateWindRecords</li>
+<li><strong>years</strong> – <cite>numpy.ndarray</cite> of years for which to evaluate
+return period values</li>
+<li><strong>nodata</strong> (<em>float</em>) – missing data value.</li>
+<li><strong>minRecords</strong> (<em>int</em>) – minimum number of valid wind speed values required
+to fit distribution.</li>
+<li><strong>yrsPerSim</strong> (<em>int</em>) – Taken from the config file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>GEV fit parameters and return period wind speeds for each grid cell in
+simulation domain</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -346,31 +350,41 @@ return period values</li>
 </dd></dl>
 
 <dl class="function">
-<dt id="hazard.calculateCI">
-<code class="descname">calculateCI</code><span class="sig-paren">(</span><em>Vr</em>, <em>years</em>, <em>nodata</em>, <em>minRecords</em>, <em>yrsPerSim=1</em>, <em>sample_size=50</em>, <em>prange=90</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.calculateCI" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit a GEV to the wind speed records for a 2-D extent of
-wind speed values, providing a confidence range by resampling at
-random from the input values.</p>
+<dt id="hazard.calculateGPD">
+<code class="descname">calculateGPD</code><span class="sig-paren">(</span><em>Vr</em>, <em>years</em>, <em>numsim</em>, <em>nodata</em>, <em>minRecords</em>, <em>yrsPerSim</em><span class="sig-paren">)</span><a class="headerlink" href="#hazard.calculateGPD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a GPD to the wind speed records for a 2-D extent of
+wind speed values</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>Vr</strong> – <cite>numpy.ndarray</cite> of wind speeds (3-D - event, lat, lon)</li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inputPath</strong> – path to individual wind field files.</li>
+<li><strong>tilelimits</strong> (<em>tuple</em>) – tuple of index limits of a tile.</li>
 <li><strong>years</strong> – <cite>numpy.ndarray</cite> of years for which to evaluate
-return period values.</li>
+return period values</li>
+<li><strong>numSim</strong> (<em>int</em>) – number of simulations created.</li>
 <li><strong>nodata</strong> (<em>float</em>) – missing data value.</li>
 <li><strong>minRecords</strong> (<em>int</em>) – minimum number of valid wind speed values required
 to fit distribution.</li>
-<li><strong>yrsPerSim</strong> (<em>int</em>) – Values represent block maxima - this value indicates
-the time span of the block (default 1).</li>
-<li><strong>sample_size</strong> (<em>int</em>) – number of records to randomly sample for calculating
-confidence interval of the fit.</li>
-<li><strong>prange</strong> (<em>float</em>) – percentile range.</li>
+<li><strong>yrsPerSim</strong> (<em>int</em>) – Taken from the config file</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><cite>numpy.ndarray</cite> of return period wind speed values</p>
+</tbody>
+</table>
+<p>GPD fit parameters and return period wind speeds for each grid cell in
+simulation domain</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Rp</strong> – <cite>numpy.ndarray</cite> of return period wind speed values</li>
+<li><strong>loc</strong> – <cite>numpy.ndarray</cite> of location parameters in the domain of <cite>Vr</cite></li>
+<li><strong>scale</strong> – <cite>numpy.ndarray</cite> of scale parameters in the domain of <cite>Vr</cite></li>
+<li><strong>shp</strong> – <cite>numpy.ndarray</cite> of shape parameters in the domain of <cite>Vr</cite></li>
+</ul>
 </td>
 </tr>
 </tbody>
@@ -554,7 +568,7 @@ in serial.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Aug 18, 2017.
+      Last updated on Oct 19, 2017.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>

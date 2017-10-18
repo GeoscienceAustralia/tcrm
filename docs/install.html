@@ -139,44 +139,49 @@ module.</p>
 </div>
 <div class="section" id="ubuntu">
 <h3>Ubuntu<a class="headerlink" href="#ubuntu" title="Permalink to this headline">¶</a></h3>
-<p>The github branch issue_25 (created from the v2.0 branch) had an environment created by <a class="reference external" href="https://conda.io/docs/install/quick.html#linux-miniconda-install">installing miniconda</a> and executing the following commands.</p>
-<blockquote>
-<div>~/miniconda2/bin/conda create –name tcrm
-~/miniconda2/bin/source activate tcrm
-~/miniconda2/bin/conda install numpy
-~/miniconda2/bin/conda install scipy
-~/miniconda2/bin/conda install matplotlib
-~/miniconda2/bin/conda install basemap
-~/miniconda2/bin/conda install netcdf4
-~/miniconda2/bin/conda install shapely
-~/miniconda2/bin/conda install Tornado
-~/miniconda2/bin/conda install statsmodel
-~/miniconda2/bin/conda install seaborn
-~/miniconda2/bin/pip –proxy=http://localhost:3128 install simplejson</div></blockquote>
-<dl class="docutils">
-<dt>The following libraries were needed to compile the C extensions, and run the unit tests:</dt>
-<dd>sudo apt install libgl1-mesa-glx
-sudo apt-get install python-numpy-dev</dd>
-<dt>The C extensions were compiled from the trcm directory with:</dt>
-<dd>(tcrm) <a class="reference external" href="mailto:user&#37;&#52;&#48;server">user<span>&#64;</span>server</a>:~/tcrm$ python intaller/setup.py build_ext -i</dd>
-</dl>
+<p>The github branch issue_25 (created from the v2.0 branch) had an environment created by <a class="reference external" href="https://conda.io/docs/install/quick.html#linux-miniconda-install">installing miniconda</a> and executing the following commands:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">tcrm</span>
+<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">source</span> <span class="n">activate</span> <span class="n">tcrm</span>
+<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">numpy</span>
+<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">scipy</span>
+<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">matplotlib</span>
+<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">basemap</span>
+<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">netcdf4</span>
+<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">shapely</span>
+<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">Tornado</span>
+<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">statsmodel</span>
+<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">seaborn</span>
+<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">pip</span> <span class="o">--</span><span class="n">proxy</span><span class="o">=</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">3128</span> <span class="n">install</span> <span class="n">simplejson</span>
+</pre></div>
+</div>
+<p>The following libraries were needed to compile the C extensions, and run the unit tests:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">libgl1</span><span class="o">-</span><span class="n">mesa</span><span class="o">-</span><span class="n">glx</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">numpy</span><span class="o">-</span><span class="n">dev</span>
+</pre></div>
+</div>
+<p>The C extensions were compiled from the trcm directory with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>(tcrm) user@server:~/tcrm$ python intaller/setup.py build_ext -i
+</pre></div>
+</div>
 <p>An error occurred where the include file seems to have changed paths. It may be a one off,
 or it may reoccur in another version of Linux. The error was in KPDF.c and the change was to
-comment out one line and replace it with another.</p>
-<blockquote>
-<div>#include “numpy/arrayobject.h”
-/* #include “arrayobject.h” <a href="#id6"><span class="problematic" id="id7">*</span></a>/</div></blockquote>
+comment out one line and replace it with another.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#include &quot;numpy/arrayobject.h&quot;</span>
+<span class="o">/*</span> <span class="c1">#include &quot;arrayobject.h&quot; */</span>
+</pre></div>
+</div>
 <p>A requiremements file was created in the root directory called <code class="docutils literal"><span class="pre">linux_v20.yml</span></code> and should (it hasn’t been tested)
 replace the <code class="docutils literal"><span class="pre">conda</span> <span class="pre">install</span></code> commands above. The command to use this file is:</p>
-<blockquote>
-<div>conda env create -f linux_v20.yml</div></blockquote>
-<dl class="docutils">
-<dt>Activating the environment would be</dt>
-<dd>source activate linux_v20</dd>
-</dl>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">env</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="n">linux_v20</span><span class="o">.</span><span class="n">yml</span>
+</pre></div>
 </div>
-<div class="section" id="id8">
-<h3>Windows<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>Activating the environment would be:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">activate</span> <span class="n">linux_v20</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h3>Windows<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <p>For Windows users, the code includes the <code class="docutils literal"><span class="pre">compile.cmd</span></code> script in the
 main TCRM diretory that will build these extensions in place. By default, TCRM uses the MinGW suite (<a class="reference external" href="http://www.mingw.org">http://www.mingw.org</a>) for compiling the extensions. Other Windows-based packages can also be used (e.g. Cygwin). See the Python documentation on writing configuration files for the <code class="xref py py-mod docutils literal"><span class="pre">distutils</span></code> package for more details.</p>
 </div>
@@ -248,7 +253,7 @@ Windows system. This test failure will appear as:</p>
 <li><a class="reference internal" href="#compiling-the-extensions">Compiling the extensions</a><ul>
 <li><a class="reference internal" href="#unix">Unix</a></li>
 <li><a class="reference internal" href="#ubuntu">Ubuntu</a></li>
-<li><a class="reference internal" href="#id8">Windows</a></li>
+<li><a class="reference internal" href="#id6">Windows</a></li>
 <li><a class="reference internal" href="#notes">Notes</a></li>
 </ul>
 </li>
@@ -307,7 +312,7 @@ Windows system. This test failure will appear as:</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Aug 18, 2017.
+      Last updated on Oct 19, 2017.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
