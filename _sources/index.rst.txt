@@ -23,6 +23,8 @@ to each event. Finally an extreme value distribution is fitted to the
 aggregated windfields at each grid point in the model domain to
 provide ARI wind speed estimates.
 
+TCRM can be downloaded from our GitHub repository: http://github.com/GeoscienceAustralia/tcrm
+
 Features
 ========
 
@@ -50,7 +52,7 @@ Bleeding edge versions are accessible `here <https://github.com/GeoscienceAustra
 
 Contributions are welcome -- create a `fork
 <https://github.com/GeoscienceAustralia/tcrm/fork>`_ or clone the
-repo.
+repo, but please read the :ref:`Contributing code<contributing>` section first.
 
 Contents
 ========

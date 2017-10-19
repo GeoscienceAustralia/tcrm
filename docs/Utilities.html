@@ -1,55 +1,296 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Utilities package &#8212; Tropical Cyclone Risk Model 2.0. documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '2.0.',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Glossary" href="glossary.html" />
-    <link rel="prev" title="Contributing code" href="contributing.html" /> 
-  </head>
-  <body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="glossary.html" title="Glossary"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="contributing.html" title="Contributing code"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
-      </ul>
-    </div>  
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Utilities package &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="../index.html"/>
+        <link rel="next" title="Glossary" href="glossary.html"/>
+        <link rel="prev" title="Contributing code" href="contributing.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Tropical Cyclone Risk Model
+          
+
+          
+            
+            <img src="../_static/GA_0.gif" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">Setting up the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="execution.html">Running the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluation.html">Model evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sources.html">Using different TC databases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scenarios.html">Scenario simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TCRM</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.Intersections">Utilities.Intersections module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-Intersections"><code class="docutils literal"><span class="pre">Intersections</span></code> – determine line intersections for polygons and lines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.colours">Utilities.colours module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-colours"><code class="docutils literal"><span class="pre">colours</span></code> - add custom colour scales</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.columns">Utilities.columns module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-columns"><code class="docutils literal"><span class="pre">columns</span></code> – load delimited data files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.config">Utilities.config module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-config"><code class="docutils literal"><span class="pre">config</span></code> – reading configuration files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.confjson">Utilities.confjson module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.convolve">Utilities.convolve module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-convolve"><code class="docutils literal"><span class="pre">convolve</span></code> – convolve two 2-d fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.datasets">Utilities.datasets module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#datasets-manage-downloaded-datasets"><code class="docutils literal"><span class="pre">datasets</span></code> – manage downloaded datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.files">Utilities.files module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.grid">Utilities.grid module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#grid-read-write-and-sample-ascii-grid-files"><code class="docutils literal"><span class="pre">grid</span></code> – read, write and sample ascii grid files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.interp3d">Utilities.interp3d module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-interp3d"><code class="docutils literal"><span class="pre">interp3d</span></code> – interpolate to a set of points in 3-dimensional space</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.interpTrack">Utilities.interpTrack module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-interpTrack"><code class="docutils literal"><span class="pre">interpTrack</span></code> – interpolate TC track to a shorter time interval</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.lat_long_UTM_conversion">Utilities.lat_long_UTM_conversion module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-lat_long_UTM_conversion"><code class="docutils literal"><span class="pre">lat_long_UTM_conversion</span></code> – convert between geographic &amp; UTM coordinates</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.lmomentFit">Utilities.lmomentFit module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-lmomentFit"><code class="docutils literal"><span class="pre">lmomentFit</span></code> – fit GEV functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.loadData">Utilities.loadData module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-loadData"><code class="docutils literal"><span class="pre">loadData</span></code> - load TC track data from formatted files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.maputils">Utilities.maputils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-maputils"><code class="docutils literal"><span class="pre">maputils</span></code> – mapping functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.metutils">Utilities.metutils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-metutils"><code class="docutils literal"><span class="pre">metutils</span></code> – perform basic meteorological calculations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.nctools">Utilities.nctools module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-nctools"><code class="docutils literal"><span class="pre">nctools</span></code> – NetCDF utility functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.parallel">Utilities.parallel module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-parallel"><code class="docutils literal"><span class="pre">parallel</span></code> – base parallel processing functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.pathLocator">Utilities.pathLocator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-pathLocator"><code class="docutils literal"><span class="pre">pathLocator</span></code> – determine directory one level above the Utilites folder</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.process">Utilities.process module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-process"><code class="docutils literal"><span class="pre">process</span></code> – control processing of files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.progressbar">Utilities.progressbar module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-progressbar"><code class="docutils literal"><span class="pre">progressbar</span></code> – display progress on STDOUT</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.shptools">Utilities.shptools module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shptools-helper-functions-for-manipulating-shape-files"><code class="docutils literal"><span class="pre">shptools</span></code> - helper functions for manipulating shape files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.smooth">Utilities.smooth module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#smooth-smooth-a-2d-field-using-a-gaussian-filter"><code class="docutils literal"><span class="pre">smooth</span></code> – smooth a 2D field using a Gaussian filter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.stats">Utilities.stats module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-stats"><code class="docutils literal"><span class="pre">stats</span></code> – helper functions for statistical methods</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.tcrandom">Utilities.tcrandom module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tcrandom-extended-version-of-python-s-random-library"><code class="docutils literal"><span class="pre">tcrandom</span></code> – extended version of Python’s <code class="docutils literal"><span class="pre">random</span></code> library</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.template">Utilities.template module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-template"><code class="docutils literal"><span class="pre">template</span></code> – replace strings with another value</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.timeseries">Utilities.timeseries module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#timeseries-extract-timeseries-from-each-timestep-of-a-simulation"><code class="docutils literal"><span class="pre">timeseries</span></code> - Extract timeseries from each timestep of a simulation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.track">Utilities.track module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-tracks"><code class="docutils literal"><span class="pre">track</span></code> - track-related attributes and functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.tracks2shp">Utilities.tracks2shp module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-tracks2shp"><code class="docutils literal"><span class="pre">tracks2shp</span></code> – save a track instance as a shape file</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.tsmultipliers">Utilities.tsmultipliers module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-tsmultipliers"><code class="docutils literal"><span class="pre">tsmultipliers</span></code> – apply site-exposure multipliers to time series output</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.version">Utilities.version module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-version"><code class="docutils literal"><span class="pre">version</span></code> – provide details of software version</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-Utilities.vorticity">Utilities.vorticity module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License information</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Tropical Cyclone Risk Model</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Utilities package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/docs/Utilities.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="utilities-package">
 <h1>Utilities package<a class="headerlink" href="#utilities-package" title="Permalink to this headline">¶</a></h1>
@@ -5052,191 +5293,76 @@ floating point.  Floating or integer type.</dd>
 </div>
 
 
+           </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/GA_0.gif" alt="Logo"/>
-            </a></p>
-  <h3><a href="../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Utilities package</a><ul>
-<li><a class="reference internal" href="#module-Utilities">Module contents</a></li>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-Utilities.Intersections">Utilities.Intersections module</a><ul>
-<li><a class="reference internal" href="#module-Intersections"><code class="docutils literal"><span class="pre">Intersections</span></code> – determine line intersections for polygons and lines</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.colours">Utilities.colours module</a><ul>
-<li><a class="reference internal" href="#module-colours"><code class="docutils literal"><span class="pre">colours</span></code> - add custom colour scales</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.columns">Utilities.columns module</a><ul>
-<li><a class="reference internal" href="#module-columns"><code class="docutils literal"><span class="pre">columns</span></code> – load delimited data files</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.config">Utilities.config module</a><ul>
-<li><a class="reference internal" href="#module-config"><code class="docutils literal"><span class="pre">config</span></code> – reading configuration files</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.confjson">Utilities.confjson module</a></li>
-<li><a class="reference internal" href="#module-Utilities.convolve">Utilities.convolve module</a><ul>
-<li><a class="reference internal" href="#module-convolve"><code class="docutils literal"><span class="pre">convolve</span></code> – convolve two 2-d fields</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.datasets">Utilities.datasets module</a><ul>
-<li><a class="reference internal" href="#datasets-manage-downloaded-datasets"><code class="docutils literal"><span class="pre">datasets</span></code> – manage downloaded datasets</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.files">Utilities.files module</a></li>
-<li><a class="reference internal" href="#module-Utilities.grid">Utilities.grid module</a><ul>
-<li><a class="reference internal" href="#grid-read-write-and-sample-ascii-grid-files"><code class="docutils literal"><span class="pre">grid</span></code> – read, write and sample ascii grid files</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.interp3d">Utilities.interp3d module</a><ul>
-<li><a class="reference internal" href="#module-interp3d"><code class="docutils literal"><span class="pre">interp3d</span></code> – interpolate to a set of points in 3-dimensional space</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.interpTrack">Utilities.interpTrack module</a><ul>
-<li><a class="reference internal" href="#module-interpTrack"><code class="docutils literal"><span class="pre">interpTrack</span></code> – interpolate TC track to a shorter time interval</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.lat_long_UTM_conversion">Utilities.lat_long_UTM_conversion module</a><ul>
-<li><a class="reference internal" href="#module-lat_long_UTM_conversion"><code class="docutils literal"><span class="pre">lat_long_UTM_conversion</span></code> – convert between geographic &amp; UTM coordinates</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.lmomentFit">Utilities.lmomentFit module</a><ul>
-<li><a class="reference internal" href="#module-lmomentFit"><code class="docutils literal"><span class="pre">lmomentFit</span></code> – fit GEV functions</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.loadData">Utilities.loadData module</a><ul>
-<li><a class="reference internal" href="#module-loadData"><code class="docutils literal"><span class="pre">loadData</span></code> - load TC track data from formatted files</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.maputils">Utilities.maputils module</a><ul>
-<li><a class="reference internal" href="#module-maputils"><code class="docutils literal"><span class="pre">maputils</span></code> – mapping functions</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.metutils">Utilities.metutils module</a><ul>
-<li><a class="reference internal" href="#module-metutils"><code class="docutils literal"><span class="pre">metutils</span></code> – perform basic meteorological calculations</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.nctools">Utilities.nctools module</a><ul>
-<li><a class="reference internal" href="#module-nctools"><code class="docutils literal"><span class="pre">nctools</span></code> – NetCDF utility functions</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.parallel">Utilities.parallel module</a><ul>
-<li><a class="reference internal" href="#module-parallel"><code class="docutils literal"><span class="pre">parallel</span></code> – base parallel processing functions</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.pathLocator">Utilities.pathLocator module</a><ul>
-<li><a class="reference internal" href="#module-pathLocator"><code class="docutils literal"><span class="pre">pathLocator</span></code> – determine directory one level above the Utilites folder</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.process">Utilities.process module</a><ul>
-<li><a class="reference internal" href="#module-process"><code class="docutils literal"><span class="pre">process</span></code> – control processing of files</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.progressbar">Utilities.progressbar module</a><ul>
-<li><a class="reference internal" href="#module-progressbar"><code class="docutils literal"><span class="pre">progressbar</span></code> – display progress on STDOUT</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.shptools">Utilities.shptools module</a><ul>
-<li><a class="reference internal" href="#shptools-helper-functions-for-manipulating-shape-files"><code class="docutils literal"><span class="pre">shptools</span></code> - helper functions for manipulating shape files</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.smooth">Utilities.smooth module</a><ul>
-<li><a class="reference internal" href="#smooth-smooth-a-2d-field-using-a-gaussian-filter"><code class="docutils literal"><span class="pre">smooth</span></code> – smooth a 2D field using a Gaussian filter</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.stats">Utilities.stats module</a><ul>
-<li><a class="reference internal" href="#module-stats"><code class="docutils literal"><span class="pre">stats</span></code> – helper functions for statistical methods</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.tcrandom">Utilities.tcrandom module</a><ul>
-<li><a class="reference internal" href="#tcrandom-extended-version-of-python-s-random-library"><code class="docutils literal"><span class="pre">tcrandom</span></code> – extended version of Python’s <code class="docutils literal"><span class="pre">random</span></code> library</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.template">Utilities.template module</a><ul>
-<li><a class="reference internal" href="#module-template"><code class="docutils literal"><span class="pre">template</span></code> – replace strings with another value</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.timeseries">Utilities.timeseries module</a><ul>
-<li><a class="reference internal" href="#timeseries-extract-timeseries-from-each-timestep-of-a-simulation"><code class="docutils literal"><span class="pre">timeseries</span></code> - Extract timeseries from each timestep of a simulation</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.track">Utilities.track module</a><ul>
-<li><a class="reference internal" href="#module-tracks"><code class="docutils literal"><span class="pre">track</span></code> - track-related attributes and functions</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.tracks2shp">Utilities.tracks2shp module</a><ul>
-<li><a class="reference internal" href="#module-tracks2shp"><code class="docutils literal"><span class="pre">tracks2shp</span></code> – save a track instance as a shape file</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.tsmultipliers">Utilities.tsmultipliers module</a><ul>
-<li><a class="reference internal" href="#module-tsmultipliers"><code class="docutils literal"><span class="pre">tsmultipliers</span></code> – apply site-exposure multipliers to time series output</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.version">Utilities.version module</a><ul>
-<li><a class="reference internal" href="#module-version"><code class="docutils literal"><span class="pre">version</span></code> – provide details of software version</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Utilities.vorticity">Utilities.vorticity module</a></li>
-</ul>
-</li>
-</ul>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="glossary.html" class="btn btn-neutral float-right" title="Glossary" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="contributing.html" class="btn btn-neutral" title="Contributing code" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="contributing.html"
-                        title="previous chapter">Contributing code</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="glossary.html"
-                        title="next chapter">Glossary</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/docs/Utilities.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
+      Last updated on Oct 19, 2017.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="glossary.html" title="Glossary"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="contributing.html" title="Contributing code"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TCRM User Guide</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'v2.0.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>

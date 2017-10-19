@@ -30,13 +30,24 @@ TCRM.
 Setting the environment
 -----------------------
 
-To enable TCRM to run flawlessly, you may need to change some environment settings. The important variable to set is the ``PYTHONPATH`` variable. This should be set to the path where you have extracted the contents of the zip file. In the examples below, change ``/path/to/tcrm`` to the location where you extracted the TCRM files.
+To enable TCRM to run flawlessly, you may need to change some
+environment settings. The important variable to set is the
+``PYTHONPATH`` variable. This should be set to the path where you have
+extracted the contents of the zip file. In the examples below, change
+``/path/to/tcrm`` to the location where you extracted the TCRM files.
 
-A complete discussion on environment variables in Python is given in the `Python documentation <https://docs.python.org/2/using/cmdline.html#environment-variables>`_. 
+A complete discussion on environment variables in Python is given in
+the `Python documentation
+<https://docs.python.org/2/using/cmdline.html#environment-variables>`_.
 
 Windows
 ~~~~~~~
-The Python documentation contains some simple instructions for setting environment variables on Windows systems `here <https://docs.python.org/2/using/windows.html>`_. See `this link <http://www.computerhope.com/issues/ch000549.htm>`_ for setting the variables on different Windows systems.
+
+The Python documentation contains some simple instructions for setting
+environment variables on Windows systems `here
+<https://docs.python.org/2/using/windows.html>`_. See `this link
+<http://www.computerhope.com/issues/ch000549.htm>`_ for setting the
+variables on different Windows systems.
 
 BASH shell
 ~~~~~~~~~~
@@ -85,6 +96,10 @@ please see the documentation for each individual library.
 * `netcdf4-python <https://code.google.com/p/netcdf4-python/>`_ -
   version 1.0.8 or later
 * `Shapely <http://toblerity.org/shapely/index.html>`_ - v1.2.15 or later
+* `statsmodels <http://statsmodels.sourceforge.net>`_ 
+* `seaborn <http://seaborn.pydata.org>`_
+* `pandas <http://pandas.pydata.org>`_
+* `gitpython <http://gitpython.readthedocs.org>`_
 * Parallel execution in multi-processor environments (with MPI
   installed) requires `Pypar <http://github.com/daleroberts/pypar>`_
 
@@ -166,12 +181,20 @@ Windows
 ~~~~~~~
 
 For Windows users, the code includes the ``compile.cmd`` script in the
-main TCRM diretory that will build these extensions in place. By default, TCRM uses the MinGW suite (http://www.mingw.org) for compiling the extensions. Other Windows-based packages can also be used (e.g. Cygwin). See the Python documentation on writing configuration files for the :mod:`distutils` package for more details.
+main TCRM diretory that will build these extensions in place. By
+default, TCRM uses the MinGW suite (http://www.mingw.org) for
+compiling the extensions. Other Windows-based packages can also be
+used (e.g. Cygwin). See the Python documentation on writing
+configuration files for the :mod:`distutils` package for more details.
 
 Notes
 ~~~~~
 
-It is recommended to use a stand-alone Python installation for compiling and running TCRM. Installations linked to other software such as ArcGIS have resulted in compilation errors, as the required :mod:`numpy` libraries are pre-compiled and packaged with such installations. 
+It is recommended to use a stand-alone Python installation for
+compiling and running TCRM. Installations linked to other software
+such as ArcGIS have resulted in compilation errors, as the required
+:mod:`numpy` libraries are pre-compiled and packaged with such
+installations.
 
 .. _testing:
 
