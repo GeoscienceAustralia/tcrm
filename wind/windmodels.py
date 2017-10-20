@@ -1041,7 +1041,7 @@ class KepertWindField(WindFieldModel):
         Cd = 0.002  # Constant drag coefficient
         Vm = np.abs(V).max()
         if (vFm > 0) and (Vm/vFm < 5.):
-            Umod = vFm * (1. - (1. - Vm/vFm)/5.)
+            Umod = vFm * (1. - (1. - vFm/Vm)/5.)
         else:
             Umod = vFm
         Vt = Umod * np.ones(V.shape)
@@ -1068,9 +1068,9 @@ class KepertWindField(WindFieldModel):
         u0s = np.sign(self.f) * albe * A0.real
         v0s =                          A0.imag
 
-        Am = -(psi * (1 + 2 * albe + (1 + i) * (1 + albe) * eta) * Umod) / \
+        Am = -(psi * (1 + 2 * albe + (1 + i) * (1 + albe) * eta) * Vt) / \
              (albe * ((2 + 2 * i) * (1 + eta * psi) + 3 * psi + 3* i * eta))
-        AmIII = -(psi * (1 + 2 * albe + (1 + i) * (1 + albe) * eta) * Umod) / \
+        AmIII = -(psi * (1 + 2 * albe + (1 + i) * (1 + albe) * eta) * Vt) / \
                 (albe * ((2 - 2 * i + 3 * (eta + psi) + (2 + 2 * i)*eta * psi)))
         Am[ind] = AmIII[ind]
 
@@ -1078,9 +1078,9 @@ class KepertWindField(WindFieldModel):
         ums =            albe * (Am * np.exp(-i * lam * np.sign(self.f))).real
         vms = np.sign(self.f) * (Am * np.exp(-i * lam * np.sign(self.f))).imag
 
-        Ap = -(eta * (1 - 2 * albe + (1 + i)*(1 - albe) * psi) * Umod) / \
+        Ap = -(eta * (1 - 2 * albe + (1 + i)*(1 - albe) * psi) * Vt) / \
              (albe * ((2 + 2*i)*(1 + eta * psi) + 3*eta + 3*i*psi))
-        ApIII = -(eta * (1 - 2 * albe + (1 - i)*(1 - albe)*psi)*Umod) / \
+        ApIII = -(eta * (1 - 2 * albe + (1 - i)*(1 - albe)*psi)*Vt) / \
                 (albe * (2 + 2 * i + 3 * (eta + psi) + (2 -2 * i)*eta*psi))
         Ap[ind] = ApIII[ind]
 
