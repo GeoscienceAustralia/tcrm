@@ -68,7 +68,7 @@ Contents
    Using different TC databases <docs/sources>
    Scenario simulation <docs/scenarios>
    Contributing to TCRM <docs/contributing>
-   Utilities <docs/Utilities>
+   Module documentation <docs/api>
    Glossary <docs/glossary>
    License information <LICENSE>
 

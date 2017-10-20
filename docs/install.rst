@@ -96,6 +96,10 @@ please see the documentation for each individual library.
 * `netcdf4-python <https://code.google.com/p/netcdf4-python/>`_ -
   version 1.0.8 or later
 * `Shapely <http://toblerity.org/shapely/index.html>`_ - v1.2.15 or later
+* `statsmodels <http://statsmodels.sourceforge.net>`_ 
+* `seaborn <http://seaborn.pydata.org>`_
+* `pandas <http://pandas.pydata.org>`_
+* `gitpython <http://gitpython.readthedocs.org>`_
 * Parallel execution in multi-processor environments (with MPI
   installed) requires `Pypar <http://github.com/daleroberts/pypar>`_
 
