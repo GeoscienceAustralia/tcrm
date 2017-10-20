@@ -259,8 +259,10 @@ class WindfieldAroundTrack(object):
                                 (yMin <= self.track.Latitude) &
                                 (self.track.Latitude <= yMax))[0]
 
-        for i in timesInRegion:
+        nsteps = len(self.track.TimeElapsed)
 
+        for i in timesInRegion:
+            log.debug("Calculating wind field at timestep {0} of {1}".format(i, nsteps))
             # Map the local grid to the regional grid
             jmin, jmax = 0, int((maxLat - minLat + 2. * gridMargin) \
                                 / gridStep) + 1
