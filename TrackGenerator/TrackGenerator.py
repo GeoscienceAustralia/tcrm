@@ -307,6 +307,8 @@ class TrackGenerator(object):
 
         originDistFile = pjoin(processPath, 'originPDF.nc')
         self.originSampler = SamplingOrigin(originDistFile, None, None)
+        log.debug("Track domain: {0}".format(repr(self.gridLimit)))
+        log.debug("Inner gridLimit: {0}".format(repr(self.innerGridLimit)))
 
     def loadInitialConditionDistributions(self):
         """
@@ -506,13 +508,21 @@ class TrackGenerator(object):
                       track.Latitude[k] > self.innerGridLimit['yMin'] and
                       track.Latitude[k] < self.innerGridLimit['yMax']
                       for k in range(len(track.Longitude))]
+            if not any(inside):
+                log.debug("Track is outside inner grid domain")
+                log.debug("Track id: {0}-{1}".format(*track.trackId))
+
             return all(inside)
 
         def validPressures(track):
             """
             :return: True if a valid pressure. False, otherwise.
             """
-            return all(np.round(track.CentralPressure, 2) < np.round(track.EnvPressure, 2))
+            if all(np.round(track.CentralPressure, 2) < np.round(track.EnvPressure, 2)):
+                return True
+            else:
+                log.debug("Invalid pressures in track")
+                return False
 
         def validSize(track):
             """
@@ -520,8 +530,9 @@ class TrackGenerator(object):
             """
 
             if any(track.rMax > 500.):
-                log.warn("Found a track with rMax > 500 km")
-                log.warn("Track id: {0}-{1}".format(*track.trackId))
+                log.debug("Track {0}-{1} has rMax > 500 km".format(*track.trackId))
+            if any(track.rMax < 5.):
+                log.debug("Track {0}-{1} has rMax < 5 km".format(*track.trackId))
             return (all(track.rMax > 5.) and all(track.rMax < 500.))
 
         def validInitSize(track):
@@ -897,7 +908,7 @@ class TrackGenerator(object):
 
         index = np.ones(self.maxTimeSteps, 'f') * cycloneNumber
         dates = np.empty(self.maxTimeSteps, dtype=datetime)
-        age = np.empty(self.maxTimeSteps, 'i')
+        age = np.empty(self.maxTimeSteps, 'f')
         jday = np.empty(self.maxTimeSteps, 'f')
         lon = np.empty(self.maxTimeSteps, 'f')
         lat = np.empty(self.maxTimeSteps, 'f')
