@@ -320,7 +320,7 @@ class HollandWindProfile(WindProfileModel):
         try:
             assert d2Vm < 0.0
         except AssertionError:
-            log.critical("Pressure deficit: %f, RMW: %f" % (dP, rMax))
+            log.critical("Pressure deficit: %f hPa, RMW: %f km" % (dP/100., rMax/1000.))
             raise
 
         return d2Vm
