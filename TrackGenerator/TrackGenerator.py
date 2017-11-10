@@ -307,6 +307,8 @@ class TrackGenerator(object):
 
         originDistFile = pjoin(processPath, 'originPDF.nc')
         self.originSampler = SamplingOrigin(originDistFile, None, None)
+        log.debug("Track domain: {0}".format(repr(self.gridLimit)))
+        log.debug("Inner gridLimit: {0}".format(repr(self.innerGridLimit)))
 
     def loadInitialConditionDistributions(self):
         """
@@ -506,13 +508,21 @@ class TrackGenerator(object):
                       track.Latitude[k] > self.innerGridLimit['yMin'] and
                       track.Latitude[k] < self.innerGridLimit['yMax']
                       for k in range(len(track.Longitude))]
+            if not any(inside):
+                log.debug("Track is outside inner grid domain")
+                log.debug("Track id: {0}-{1}".format(*track.trackId))
+
             return all(inside)
 
         def validPressures(track):
             """
             :return: True if a valid pressure. False, otherwise.
             """
-            return all(np.round(track.CentralPressure, 2) < np.round(track.EnvPressure, 2))
+            if all(np.round(track.CentralPressure, 2) < np.round(track.EnvPressure, 2)):
+                return True
+            else:
+                log.debug("Invalid pressure values in track {0}-{1}".format(*track.trackId))
+                return False
 
         def validSize(track):
             """
@@ -520,8 +530,9 @@ class TrackGenerator(object):
             """
 
             if any(track.rMax > 500.):
-                log.warn("Found a track with rMax > 500 km")
-                log.warn("Track id: {0}-{1}".format(*track.trackId))
+                log.debug("Track {0}-{1} has rMax > 500 km".format(*track.trackId))
+            if any(track.rMax < 5.):
+                log.debug("Track {0}-{1} has rMax < 5 km".format(*track.trackId))
             return (all(track.rMax > 5.) and all(track.rMax < 500.))
 
         def validInitSize(track):
@@ -645,9 +656,10 @@ class TrackGenerator(object):
                                      genesisLon, genesisLat)
 
             log.debug('initBearing: %.2f initSpeed: %.2f' +
-                      ' initEnvPressure: %.2f initPressure: %.2f',
+                      ' initEnvPressure: %.2f initPressure: %.2f' +
+                      ' initRmax: %.2f',
                       genesisBearing, genesisSpeed, initEnvPressure,
-                      genesisPressure)
+                      genesisPressure, genesisRmax)
 
             xMin = self.gridLimit['xMin']
             xMax = self.gridLimit['xMax']
@@ -897,7 +909,7 @@ class TrackGenerator(object):
 
         index = np.ones(self.maxTimeSteps, 'f') * cycloneNumber
         dates = np.empty(self.maxTimeSteps, dtype=datetime)
-        age = np.empty(self.maxTimeSteps, 'i')
+        age = np.empty(self.maxTimeSteps, 'f')
         jday = np.empty(self.maxTimeSteps, 'f')
         lon = np.empty(self.maxTimeSteps, 'f')
         lat = np.empty(self.maxTimeSteps, 'f')
@@ -910,9 +922,9 @@ class TrackGenerator(object):
         dist = np.empty(self.maxTimeSteps, 'f')
 
         # Initialise the track
-        poci_eps = normal(0, 2.5717)
-        lfeps =  nct(7.7669, 10.93564, 0.008575, 0.007056)
-        #lfeps = nct(12.283, 8.559, -0.108, 0.0118)
+        poci_eps = normal(0., 2.5717)
+        lfeps =  normal(0., 0.02745)
+        
         age[0] = 0
         dates[0] = initTime
         jday[0] = int(initTime.strftime("%j")) + initTime.hour/24.
@@ -995,7 +1007,6 @@ class TrackGenerator(object):
             land[i] = onLand
 
             # Do the real work: generate a step of the model
-
             self._stepPressureChange(cellNum, i, onLand)
             self._stepBearing(cellNum, i, onLand)
             self._stepSpeed(cellNum, i, onLand)
@@ -1011,9 +1022,10 @@ class TrackGenerator(object):
                 tol += float(self.dt)
                 deltaP = self.offshorePoci - self.offshorePressure
                 #alpha = -0.001479 + 0.001061 * deltaP + lfeps
-                alpha = 0.0115 + 0.00022 * deltaP + \
-                        0.0015 * self.landfallSpeed + lfeps
-
+                #alpha = 0.0115 + 0.00022 * deltaP + \
+                #        0.0015 * self.landfallSpeed + lfeps
+                alpha = -0.0102 + 0.00105 * deltaP +\
+                        0.000631 * self.landfallSpeed + lfeps
                 pressure[i] = poci[i - 1] - deltaP * np.exp(-alpha * tol)
                 poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
                 log.debug('Central pressure after landfall: %7.2f', pressure[i])
