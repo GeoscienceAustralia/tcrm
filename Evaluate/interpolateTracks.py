@@ -72,10 +72,17 @@ def interpolate(track, delta, interpolation_type=None):
         day_ = track.Datetime
     
     timestep = timedelta(delta/24.)
-
-    time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.0
+    try:
+        time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.0
                       for d in day_], dtype=float)
-
+    except AttributeError:
+        from netCDF4 import netcdftime
+        if isinstance(day_[0], netcdftime._netcdftime.DatetimeJulian):
+            day__ = [d._to_real_datetime() for d in day_]
+            time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.
+                              for d in day__], dtype=float)
+        else:
+            raise
     dt_ = 24.0 * np.diff(time_)
     dt = np.empty(len(track.data), dtype=float)
     dt[1:] = dt_
