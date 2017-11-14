@@ -49,6 +49,7 @@ Bug fixes:
 ----------
 
 * ThetaFM conversion fix from v2.0 pulled into this branch (Sep 2017)
+* Correct low-speed factor for Kepert boundary layer model (Oct 2017)
 
 
 Dependencies
@@ -64,8 +65,9 @@ TCRM requires:
  * `netcdf4-python <https://code.google.com/p/netcdf4-python/>`_; 
  * `pandas <http://pandas.pydata.org/>`_; 
  * `Shapely <https://github.com/Toblerity/Shapely>`_; 
- * `seaborn 0.5.1 <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_;
- * `statsmodels <http://statsmodels.sourceforge.net>`_;
+ * `seaborn 0.6 <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_;
+ * `statsmodels 0.6.1 <http://statsmodels.sourceforge.net>`_;
+ * `GitPython <http://gitpython.readthedocs.io>`_;
  * and `gcc`.  
 
 For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
@@ -97,9 +99,20 @@ Contributing to TCRM
 
 If you would like to take part in TCRM development, take a look at `docs/contributing.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/docs/contributing.rst>`_.
 
-License information
-===================
+License
+=======
 
-See the file `LICENSE.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/LICENSE.rst>`_ 
-for information on the history of this software, terms and conditions for usage,
-and a DISCLAIMER OF ALL WARRANTIES.
+This repository is licensed under the GNU General Public License. See
+the file `LICENSE.rst
+<https://github.com/GeoscienceAustralia/tcrm/blob/master/LICENSE.rst>`_
+for information on the history of this software, terms and conditions
+for usage, and a DISCLAIMER OF ALL WARRANTIES.
+
+Contacts
+========
+
+Craig Arthur
+Geoscience Australia
+craig.arthur@ga.gov.au
+
+
