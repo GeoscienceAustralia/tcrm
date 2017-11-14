@@ -62,7 +62,7 @@ TCRM requires:
  * `scipy <http://www.scipy.org/>`_;
  * `matplotlib 1.4.3 <http://matplotlib.org/>`_; 
  * `Basemap 1.0.8 <http://matplotlib.org/basemap/index.html>`_; 
- * `netcdf4-python <https://code.google.com/p/netcdf4-python/>`_; 
+ * `netcdf4-python >=1.4.1 <https://code.google.com/p/netcdf4-python/>`_; 
  * `pandas <http://pandas.pydata.org/>`_; 
  * `Shapely <https://github.com/Toblerity/Shapely>`_; 
  * `seaborn 0.6 <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_;
