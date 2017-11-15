@@ -31,6 +31,7 @@ install:
 - deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl gdal==1.11.2 pandas'
 - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - export PATH=$HOME/py/bin:$PATH
+- ln -s /lib/libcom_err.so.2.1 /lib/libcom_err.so.3
 - pip install pycurl
 - pip -v install -r requirements.txt
 - pip install coveralls
