@@ -17,6 +17,8 @@ addons:
     - libgfortran3
     - liblapack3gf
     - libstdc++6
+    - gdal-bin
+    - libgdal1-dev
 install:
 - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
   -O miniconda.sh; else wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -26,7 +28,7 @@ install:
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
-- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl'
+- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl gdal==1.11'
 - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - export PATH=$HOME/py/bin:$PATH
 - pip install pycurl
@@ -37,6 +39,7 @@ branches:
   - config
   - notebooks
 script:
+- python /home/travis/py/lib/python2.7/site-packages/pandas/setup.py build_ext --inplace --force
 - python installer/setup.py build_ext -i
 - nosetests -v --with-coverage
 after_success: coveralls
