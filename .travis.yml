@@ -27,7 +27,7 @@ install:
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
-- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl gdal==1.11.2'
+- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl gdal==1.11.2 pandas'
 - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - export PATH=$HOME/py/bin:$PATH
 - pip install pycurl
