@@ -50,6 +50,8 @@ import Utilities.nctools as nctools
 
 from Utilities.track import ncReadTrackData, Track
 
+from ProcessMultipliers import processMultipliers as pM
+
 class WindfieldAroundTrack(object):
     """
     The windfield around the tropical cyclone track.
@@ -264,11 +266,13 @@ class WindfieldAroundTrack(object):
         for i in timesInRegion:
             log.debug("Calculating wind field at timestep {0} of {1}".format(i, nsteps))
             # Map the local grid to the regional grid
+            # Set up max/min over the whole domain
             jmin, jmax = 0, int((maxLat - minLat + 2. * gridMargin) \
                                 / gridStep) + 1
             imin, imax = 0, int((maxLon - minLon + 2. * gridMargin) \
                                 / gridStep) + 1
 
+            # If domain is set in gridLimit in config, use only those limits instead
             if self.domain == 'bounded':
 
                 jmin = int((latCDegree[i] - minLat - gridMargin) / gridStep)
@@ -277,7 +281,6 @@ class WindfieldAroundTrack(object):
                 imax = int((lonCDegree[i] - minLon + gridMargin) / gridStep) + 1
 
             # Calculate the local wind speeds and pressure at time i
-
             Ux, Vy, P = self.localWindField(i)
 
             # Calculate the local wind gust and bearing
@@ -355,7 +358,8 @@ class WindfieldGenerator(object):
     def __init__(self, config, margin=2.0, resolution=0.05,
                  profileType='powell', windFieldType='kepert',
                  beta=1.5, beta1=1.5, beta2=1.4,
-                 thetaMax=70.0, gridLimit=None, domain='bounded'):
+                 thetaMax=70.0, gridLimit=None, domain='bounded',
+                 multipliers=None, windfieldPath=None):
 
         self.config = config
         self.margin = margin
@@ -368,6 +372,8 @@ class WindfieldGenerator(object):
         self.thetaMax = thetaMax
         self.gridLimit = gridLimit
         self.domain = domain
+        self.multipliers = multipliers
+        self.windfieldPath = windfieldPath
 
     def setGridLimit(self, track):
         """
@@ -501,6 +507,9 @@ class WindfieldGenerator(object):
                                  np.flipud(Vy),
                                  np.flipud(P)),
                                 dumpfile)
+                                
+        if self.multipliers is not None:
+            self.calcLocalWindfield(results_mult)
             #self.plotGustToFile((lat, lon, gust, Vx, Vy, P), plotfile)
 
     def plotGustToFile(self, result, filename):
@@ -679,7 +688,28 @@ class WindfieldGenerator(object):
         self.dumpGustsFromTracks(tracks, windfieldPath,
                                  timeStepCallback=timeStepCallback)
 
+    def calcLocalWindfield(self, results):
+        """
+        """
 
+        # Load a multiplier file to determine the projection:
+         # m4_max_file = pjoin(self.multipliers, 'm4_max.img')
+        log.info("Using M4 data from {0}".format(self.multipliers))
+
+        for track, result in results:
+            log.debug("Doing Multiplier for track {0:03d}-{1:05d}"\
+                      .format(*track.trackId))
+            # gust, bearing, Vx, Vy, P, lon, lat = result = N
+            # windfield_path = None
+            gust, bearing, Vx, Vy, P, lon, lat = result
+            # Convert the .nc lat/lon to raster lat/lon
+            delta = lon[1] - lon[0]
+            lon = lon - delta / 2.
+            lat = lat - delta / 2.
+
+            pM.processMult(gust, Vx, Vy, lon, lat,self.windfieldPath,
+                           self.multipliers)
+                                 
 def loadTracksFromFiles(trackfiles):
     """
     Generator that yields :class:`Track` objects from a list of track
@@ -806,7 +836,11 @@ def run(configFile, callback=None):
         def timestepCallback(*args):
             """Dummy timestepCallback function"""
             pass
-
+            
+    multipliers = None
+    if config.has_option('Input','Multipliers'):
+        multipliers = config.get('Input', 'Multipliers')
+            
     thetaMax = math.radians(thetaMax)
 
     # Attempt to start the track generator in parallel
@@ -825,7 +859,9 @@ def run(configFile, callback=None):
                              beta2=beta2,
                              thetaMax=thetaMax,
                              gridLimit=gridLimit,
-                             domain=domain)
+                             domain=domain,
+                             multipliers=multipliers,
+                             windfieldPath=windfieldPath)
 
     msg = 'Dumping gusts to %s' % windfieldPath
     log.info(msg)
