@@ -39,6 +39,7 @@ branches:
   - config
   - notebooks
 script:
+- python /home/travis/py/lib/python2.7/site-packages/pandas/setup.py build_ext --inplace --force
 - python installer/setup.py build_ext -i
 - nosetests -v --with-coverage
 after_success: coveralls
