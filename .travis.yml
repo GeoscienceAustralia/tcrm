@@ -30,6 +30,7 @@ install:
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
+- conda install -c anaconda sqlite
 - conda install gdal=1.11.2
 - conda install libgdal=1.11.2
 - deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl'
