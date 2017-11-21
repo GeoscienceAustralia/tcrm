@@ -29,7 +29,7 @@ install:
 - conda update -q conda
 - conda install gdal=1.11.2
 - conda install libgdal=1.11.2
-- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl osgeo'
+- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl'
 - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - export PATH=$HOME/py/bin:$PATH
 - pip install pycurl
