@@ -7,12 +7,8 @@ env:
     - GDALINST=$HOME/gdalinstall
     - GDALBUILD=$HOME/gdalbuild
   matrix:
-    - GDALVERSION="1.11.5"
-    - GDALVERSION="trunk"
+    - GDALVERSION="1.11.2"
 
-matrix:
-  allow_failures:
-    - env: GDALVERSION="trunk"
 addons:
   apt:
     packages:
@@ -33,6 +29,7 @@ addons:
 before_install:
   - pip install -U pip
   - pip install wheel
+  - . ./travis_gdal_install.sh
   - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
   - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
 install:
