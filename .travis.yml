@@ -25,10 +25,12 @@ install:
   -O miniconda.sh; fi
 - bash miniconda.sh -b -p $HOME/miniconda
 - export PATH="$HOME/miniconda/bin:$PATH"
+- export CPLUS_INCLUDE_PATH="/usr/include/gdal"
+- export C_INCLUDE_PATH="/usr/include/gdal"
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
-- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl gdal pandas'
+- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl GDAL==1.10.0'
 - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - export PATH=$HOME/py/bin:$PATH
 - pip install pycurl
