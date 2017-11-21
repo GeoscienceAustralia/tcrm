@@ -43,9 +43,8 @@ install:
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
-- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl gdal'
+- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl gdal=1.11.2'
 - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
-- GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config pip install --upgrade --force-reinstall -e .[test,plot]
 - export PATH=$HOME/py/bin:$PATH
 - pip install pycurl
 - pip -v install -r requirements.txt
