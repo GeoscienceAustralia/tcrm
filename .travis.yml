@@ -35,7 +35,7 @@ install:
 - pip install pycurl
 - pip -v install -r requirements.txt
 - pip install coveralls
-- pip install GDAL==$(gdal-config --version) --with-sqlite3 --global-option=build_ext --global-option="-I/usr/include/gdal" 
+- pip install GDAL==$(gdal-config --version) --with-sqlite-3.9.2-0 --global-option=build_ext --global-option="-I/usr/include/gdal" 
 branches:
   except:
   - config
