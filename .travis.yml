@@ -8,10 +8,6 @@ env:
     - GDALBUILD=$HOME/gdalbuild
   matrix:
     - GDALVERSION="1.11.5"
-    - GDALVERSION="2.0.3"
-    - GDALVERSION="2.1.4"
-    - GDALVERSION="2.2.1"
-    - GDALVERSION="2.2.2"
     - GDALVERSION="trunk"
 
 matrix:
@@ -37,7 +33,6 @@ addons:
 before_install:
   - pip install -U pip
   - pip install wheel
-  - . ./scripts/travis_gdal_install.sh
   - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
   - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
 install:
@@ -52,7 +47,7 @@ install:
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
-- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl GDAL==1.11'
+- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl gdal'
 - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config pip install --upgrade --force-reinstall -e .[test,plot]
 - export PATH=$HOME/py/bin:$PATH
