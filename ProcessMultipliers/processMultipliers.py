@@ -22,15 +22,25 @@ se, s, sw, w or nw).
 Requires the Python GDAL bindings, Numpy, netCDF4 and the :mod:`files`
 and :mod:`config` modules from TCRM. It assumes :mod:`Utilities` can
 be found in the ``PYTHONPATH`` directory.
+    Make sure the following modules are loaded into the environment prior to running:
+    module load openmpi/1.8.4
+    module load python/2.7.6
+    module load python/2.7.6-matplotlib
+    module load pypar/26Feb15-2.7.6-1.8.4
+    module load geos
+    module load gdal/1.11.1-python
 
 """
 
+from shutil import copyfile, rmtree
+import glob
 import os
+from os.path import join as pjoin, dirname, realpath, isdir, splitext
 import time
 import logging as log
 import argparse
 import traceback
-from functools import wraps
+from functools import wraps, reduce
 
 from Utilities.files import flStartLog
 from Utilities.config import ConfigParser
@@ -39,10 +49,11 @@ from Utilities import pathLocator
 from netCDF4 import Dataset
 
 import numpy as np
-from os.path import join as pjoin, dirname, realpath, isdir, splitext
+import numpy.ma as ma
 
 from osgeo import osr, gdal, gdalconst
-from functools import reduce
+from osgeo.gdal_array import BandReadAsArray, CopyDatasetInfo, BandWriteArray
+from gdal import *
 
 gdal.UseExceptions()
 
@@ -77,6 +88,144 @@ def timer(f):
 
     return wrap
 
+class getMultipliers():
+    '''
+    This script collects wind multipliers for the chosen tiles, converts them to
+    geotiffs, merges them into a single tile for each wind direction, then combines
+    the shielding, terrain and topography for each wind direction.
+    '''
+
+    def __init__(self, configFile):
+
+        config = ConfigParser()
+        config.read(configFile)
+
+        # Check for wind multiplier file path in config file
+        if config.has_option('Input', 'RawMultipliers'):
+            self.WMPath = config.get('Input', 'RawMultipliers')
+            log.info('Using multiplier files from {0}'.format(self.WMPath))
+        else:
+            log.info('Using default multiplier files from /g/data/fj6/multipliers/')
+            self.WMPath = '/g/data/fj6/multipliers/'
+
+    def checkOutputFolders(self, working_dir, type_mapping):
+        '''
+        Looks for the existance of the output folder/s specified in the config file,
+        and if they don't exist, creates them.
+
+        :param str working_dir: path to the output directory
+        :param dict type_mapping: dict of shielding, terrain, topographic
+        '''
+        dir_check = os.path.isdir(working_dir)
+        if dir_check == False:
+            os.makedirs(working_dir)
+            log.info('Creating directories for outputs')
+        else:
+            log.info('Using existing output directories')
+
+        # Assume if one is missing, they are all missing
+        dir_check = os.path.isdir(working_dir + '/shielding')
+        if dir_check is False:
+            for wm in type_mapping:
+                os.makedirs('{0}/{1}'.format(working_dir, wm))
+        else:
+            #Else clean up the folders to make sure we don't mix up old and new
+            log.info('Deleting the contents of the shielding, terrain and topographic '
+                     'folders in {0} to avoid using old files'.format(working_dir))
+            for wm in type_mapping:
+                files = glob.glob('{0}/{1}/*'.format(working_dir, wm))
+                for f in files:
+                    os.remove(f)
+
+    def copyTranslateMultipliers(self, tiles, configFile, type_mapping, working_dir):
+        '''
+        Copy wind multipliers from directory specified in the configuration file, to an
+        output directory.
+        Once the files have been copied, they are translated into Geotiffs
+
+        :param str configFile: Path to configuration file
+        :param str type_mapping: dict containing the three wind multiplier inputs
+        :param str working_dir: path to the output directory
+        '''
+        for tile in tiles:
+            log.info('tile = {0}'.format(tile))
+            for wm in type_mapping:
+                log.debug('type mapping = {0}'.format(wm))
+                var = type_mapping[wm]
+                pathn = self.WMPath + wm + '/'
+                log.debug('Copying files from {0}'.format(pathn))
+                log.debug('Beginning to translate tiles into Geotiff')
+                for file in glob.glob(pathn + tile + '*'):
+                    file_break = file.split('/')
+                    output = file_break[-1]
+                    output_name = wm + '/' + output
+                    copyfile(file, working_dir + output_name)
+                    os.system('gdal_translate -a_srs EPSG:4326 -of GTiff '
+                              'NETCDF:{0}{1}/{2}:{3} {4}{5}.tif'
+                              .format(working_dir, wm, output, var, working_dir,
+                                      output_name[:-3])) # -3 to drop '.nc'
+                    
+                    log.info('%s translated to Geotif', output_name[:-3])
+
+    def mergeWindMultipliers(self, type_mapping, dirns, working_dir):
+        '''
+        Merge the Geotiff tiles together for each wind direction.
+
+        :param str type_mapping: dict containing the three wind multiplier inputs
+        :param str dirns: list of eight ordinal directions for wind
+        :param str working_dir: path to the output directory
+
+        '''
+
+        for wm in type_mapping:
+            pathn = working_dir + wm + '/'
+            for dirn in dirns:
+                common_dir = glob.glob(pathn + '*_' + dirn + '.tif')
+                filelist = " ".join(common_dir)
+                log.info('Merging {0} {1} files'.format(wm, dirn))
+                os.system('gdal_merge.py -of GTiff -ot float32 -n -9999 '
+                          '-a_nodata -9999 -o  {0}{1}_{2}.tif {3}'
+                          .format(pathn, dirn, wm, filelist))
+        log.debug('Finished merging the wind multiplier tiles')
+
+    def combineDirections(self, dirns, working_dir):
+        '''
+        Multiply geotiffs for terrain, topographic and shielding into a single geotiff.
+        Output files are named "m4_" direction.
+
+        :param str dirns: list of eight ordinal directions for wind
+        :param str output_path: path to the output directory
+        '''
+        log.info('Multipliers will be written to {0}'.format(working_dir))
+        for dirn in dirns:
+            log.info('working on %s', dirn)
+            ds1 = gdal.Open('{0}terrain/{1}_terrain.tif'.format(working_dir, dirn))
+            ds2 = gdal.Open('{0}topographic/{1}_topographic.tif'.format(working_dir, dirn))
+            ds3 = gdal.Open('{0}shielding/{1}_shielding.tif'.format(working_dir, dirn))
+            band1 = ds1.GetRasterBand(1)
+            band2 = ds2.GetRasterBand(1)
+            band3 = ds3.GetRasterBand(1)
+            data1 = BandReadAsArray(band1)
+            data2 = BandReadAsArray(band2)
+            data3 = BandReadAsArray(band3)
+            m_data1 = ma.masked_values(data1, -9999)
+            m_data2 = ma.masked_values(data2, -9999)
+            m_data3 = ma.masked_values(data3, -9999)
+            
+            log.debug('Size of data arrays: terrain = {0}, topographic = {1}, shielding = {2}'
+                      .format(m_data1.shape, m_data2.shape, m_data3.shape))
+
+            dataOut = m_data1 * m_data2 * m_data3
+
+            driver = gdal.GetDriverByName("GTiff")
+            log.info('Writing m4_{0}.tiff'.format(dirn))
+            dsOut = driver.Create('{0}m4_{1}.tif'.format(working_dir, dirn), ds1.RasterXSize,
+                                  ds1.RasterYSize, 1, band1.DataType)
+            CopyDatasetInfo(ds1, dsOut)
+            bandOut = dsOut.GetRasterBand(1)
+            bandOut.SetNoDataValue(-9999)
+            BandWriteArray(bandOut, dataOut.data)
+
 def generate_syn_mult_img(tl_x, tl_y, delta, dir_path, shape,
                           indices=syn_indices,
                           every_fill=None):
@@ -105,7 +254,7 @@ def generate_syn_mult_img(tl_x, tl_y, delta, dir_path, shape,
                      delta, -delta,
                      filename=file_path)
 
-def createRaster(array, x, y, dx, dy, epsg=4326, filename=None, nodata=-9999):
+def createRaster(array, x, y, dx, dy, epsg = 4326, filename=None, nodata=-9999):
     """
     Create an in-memory raster for processing. By default, we assume
     the input array is in geographic coordinates, using WGS84 spatial
@@ -244,7 +393,8 @@ def calculateBearing(uu, vv):
 
 @timer
 def reprojectDataset(src_file, match_filename, dst_filename,
-                     resampling_method=gdalconst.GRA_Bilinear, match_projection=None):
+                     resampling_method = gdalconst.GRA_Bilinear, 
+                     match_projection = None):
     """
     Reproject a source dataset to match the projection of another
     dataset and save the projected dataset to a new file.
@@ -267,6 +417,8 @@ def reprojectDataset(src_file, match_filename, dst_filename,
         src = gdal.Open(src_file, gdal.GA_ReadOnly)
     else:
         src = src_file
+    srcBand = src.GetRasterBand(1)
+    srcBand.SetNoDataValue(-9999)
     src_proj = src.GetProjection()
 
     # We want a section of source that matches this:
@@ -274,6 +426,8 @@ def reprojectDataset(src_file, match_filename, dst_filename,
         match_ds = gdal.Open(match_filename, gdal.GA_ReadOnly)
     else:
         match_ds = match_filename
+    matchBand = match_ds.GetRasterBand(1)
+    matchBand.SetNoDataValue(-9999)
 
     if match_projection:
         srs = osr.SpatialReference()
@@ -290,6 +444,8 @@ def reprojectDataset(src_file, match_filename, dst_filename,
     dst = drv.Create(dst_filename, wide, high, 1, gdal.GDT_Float32)
     dst.SetGeoTransform(match_geotrans)
     dst.SetProjection(match_proj)
+    dstBand = dst.GetRasterBand(1)
+    dstBand.SetNoDataValue(-9999)
 
     # Do the work
     gdal.ReprojectImage(src, dst, src_proj, match_proj, resampling_method)
@@ -303,8 +459,7 @@ def reprojectDataset(src_file, match_filename, dst_filename,
     return
 
 @timer
-def processMult(wspd, uu, vv, lon, lat, windfield_path, multiplier_path,
-                m4_max_file='m4_ne.tif'):
+def processMult(wspd, uu, vv, lon, lat, working_dir, m4_max_file = 'm4_ne.tif'):
     """
 
     The lat and lon values are the top left corners of the cells
@@ -316,8 +471,7 @@ def processMult(wspd, uu, vv, lon, lat, windfield_path, multiplier_path,
     :param lon: list of raster longitude values
     :param lat:  list of raster latitude values
     :param m4_max_file: Multiplier file used for reprojection.
-    :param windfield_path: The output directory
-    :param multiplier_path: The multiplier files directory
+    :param working_dir: The working output directory
     :return:
     """
 
@@ -327,29 +481,31 @@ def processMult(wspd, uu, vv, lon, lat, windfield_path, multiplier_path,
 
     delta = lon[1] - lon[0]
 
-
-    # Reproject the wind speed and bearing data:
-    wind_raster_file = pjoin(windfield_path, 'region_wind.tif')
-    wind_raster = createRaster(wspd, lon, lat, delta, -delta,
-                               filename=wind_raster_file)
-    bear_raster = createRaster(bearing, lon, lat, delta, -delta)
-    uu_raster = createRaster(uu, lon, lat, delta, -delta)
-    vv_raster = createRaster(vv, lon, lat, delta, -delta)
+    log.debug('Create rasters from the netcdf gust file variables')
+    wind_raster_file = pjoin(working_dir, 'region_wind.tif')
+    wind_raster = createRaster(np.flipud(wspd), lon, lat, delta, delta,
+                               filename = wind_raster_file)
+    bear_raster = createRaster(np.flipud(bearing), lon, lat, delta, delta)
+    uu_raster = createRaster(np.flipud(uu), lon, lat, delta, delta)
+    vv_raster = createRaster(np.flipud(vv), lon, lat, delta, delta)
 
     log.info("Reprojecting regional wind data")
-    wind_prj_file = pjoin(windfield_path, 'gust_prj.tif')
-    bear_prj_file = pjoin(windfield_path, 'bear_prj.tif')
-    uu_prj_file = pjoin(windfield_path, 'uu_prj.tif')
-    vv_prj_file = pjoin(windfield_path, 'vv_prj.tif')
+    wind_prj_file = pjoin(working_dir, 'gust_prj.tif')
+    bear_prj_file = pjoin(working_dir, 'bear_prj.tif')
+    uu_prj_file = pjoin(working_dir, 'uu_prj.tif')
+    vv_prj_file = pjoin(working_dir, 'vv_prj.tif')
 
-    m4_max_file = pjoin(multiplier_path, m4_max_file)
+    log.info('Reproject the wind speed and bearing data to match '
+             'the input wind multipliers')
+    m4_max_file = pjoin(working_dir, m4_max_file)
+
     reprojectDataset(wind_raster, m4_max_file, wind_prj_file)
     reprojectDataset(bear_raster, m4_max_file, bear_prj_file,
-                                resampling_method=GRA_NearestNeighbour)
+                     resampling_method = GRA_NearestNeighbour)
     reprojectDataset(uu_raster, m4_max_file, uu_prj_file,
-                              resampling_method=GRA_NearestNeighbour)
+                     resampling_method = GRA_NearestNeighbour)
     reprojectDataset(vv_raster, m4_max_file, vv_prj_file,
-                              resampling_method=GRA_NearestNeighbour)
+                     resampling_method = GRA_NearestNeighbour)
 
     wind_prj_ds = gdal.Open(wind_prj_file, gdal.GA_ReadOnly)
     wind_prj = wind_prj_ds.GetRasterBand(1)
@@ -369,7 +525,7 @@ def processMult(wspd, uu, vv, lon, lat, windfield_path, multiplier_path,
     bearing = calculateBearing(uu_data, vv_data)
 
     # The local wind speed array:
-    local = np.zeros(wind_data.shape, dtype='float32')
+    local = np.zeros(wind_data.shape, dtype = 'float32')
 
     indices = {
         0: {'dir': 'n', 'min': 0., 'max': 22.5},
@@ -386,14 +542,14 @@ def processMult(wspd, uu, vv, lon, lat, windfield_path, multiplier_path,
     for i in indices.keys():
         dn = indices[i]['dir']
         log.info("Processing {0}".format(dn))
-        m4_file = pjoin(multiplier_path, 'm4_{0}.tif'.format(dn.lower()))
+        m4_file = pjoin(working_dir, 'm4_{0}.tif'.format(dn.lower()))
         m4 = loadRasterFile(m4_file)
         idx = np.where((bear_data >= indices[i]['min']) &
                        (bear_data < indices[i]['max']))
 
         local[idx] = wind_data[idx] * m4[idx]
     rows, cols = local.shape
-    output_file = pjoin(windfield_path, 'local_wind.tif')
+    output_file = pjoin(working_dir, 'local_wind.tif')
     log.info("Creating output file: {0}".format(output_file))
     # Save the local wind field to a raster file with the SRS of the
     # multipliers
@@ -413,248 +569,122 @@ def processMult(wspd, uu, vv, lon, lat, windfield_path, multiplier_path,
 
     return output_file
 
+class run():
+    
+    def __init__(self):
 
-@timer
-def modified_main(config_file):
-    """
-    Main function to combine the multipliers with the regional wind
-    speed data.
+        """
+        Parse command line arguments and call the :func:`main` function.
 
-    :param str configFile: Path to configuration file.
+        """
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-c', '--config_file',
+                            help='Path to configuration file')
+        parser.add_argument('-v', '--verbose', help='Verbose output',
+                            action='store_true')
+        parser.add_argument('-d', '--debug', help='Allow pdb traces',
+                            action='store_true')
+        args = parser.parse_args()
 
-    """
-    config = ConfigParser()
-    config.read(config_file)
-    input_path = config.get('Input', 'Path')
-    try:
-        gust_file = config.get('Input', 'Gust_file')
-    except:
-        gust_file = 'gust.001-00001.nc'
-    windfield_path = pjoin(input_path, 'windfield')
-    ncfile = pjoin(windfield_path, gust_file)
-    multiplier_path = config.get('Input', 'Multipliers')
-
-    # Load the wind data:
-    log.info("Loading regional wind data from {0}".format(ncfile))
-    ncobj = Dataset(ncfile, 'r')
-
-    lat = ncobj.variables['lat'][:]
-    lon = ncobj.variables['lon'][:]
-
-    delta = lon[1] - lon[0]
-    lon = lon - delta / 2.
-    lat = lat - delta / 2.
-
-    # Wind speed:
-    wspd = ncobj.variables['vmax'][:]
-
-    # Components:
-    uu = ncobj.variables['ua'][:]
-    vv = ncobj.variables['va'][:]
-
-    bearing = calculateBearing(uu, vv)
-
-    gust = wspd
-    Vx = uu
-    Vy = vv
-    P = None
-
-    #  WARNING, THESE COULD BE WRONG!!!
-    # Plus it doesn't do anything,
-    # except hightlight these var's are going in..
-    lon = lon
-    lat = lat
-    # Need to be checked !!!
-
-    # Load a multiplier file to determine the projection:
-
-    log.info("Using M4 data from {0}".format(multiplier_path))
-
-    processMult(gust, Vx, Vy, lon, lat, windfield_path, multiplier_path)
+        self.configFile = args.config_file
+        config = ConfigParser()
+        config.read(self.configFile)
 
 
-@timer
-def main(config_file):
-    """
-    Main function to combine the multipliers with the regional wind
-    speed data.
+        logfile = config.get('Logging', 'LogFile')
+        logdir = dirname(realpath(logfile))
 
-    :param str configFile: Path to configuration file.
+        # If log file directory does not exist, create it
+        if not isdir(logdir):
+            try:
+                os.makedirs(logdir)
+            except OSError:
+                logfile = pjoin(os.getcwd(), 'processMultipliers.log')
 
-    """
+        logLevel = config.get('Logging', 'LogLevel')
+        verbose = config.getboolean('Logging', 'Verbose')
+        datestamp = config.getboolean('Logging', 'Datestamp')
 
-    config = ConfigParser()
-    config.read(config_file)
-    input_path = config.get('Input', 'Path')
-    try:
-        gust_file = config.get('Input', 'Gust_file')
-    except:
-        gust_file = 'gust.001-00001.nc'
-    windfield_path = pjoin(input_path, 'windfield')
-    ncfile = pjoin(windfield_path, gust_file)
-    multiplier_path = config.get('Input', 'Multipliers')
+        if args.verbose:
+            verbose = True
 
-    # Load the wind data:
-    log.info("Loading regional wind data from {0}".format(ncfile))
-    ncobj = Dataset(ncfile, 'r')
+        flStartLog(logfile, logLevel, verbose, datestamp)
+        # Switch off minor warning messages
+        import warnings
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        warnings.filterwarnings("ignore", category=UserWarning, module="pytz")
+        warnings.filterwarnings("ignore", category=UserWarning, module="numpy")
+        warnings.filterwarnings("ignore", category=UserWarning,
+                                module="matplotlib")
 
-    lat = ncobj.variables['lat'][:]
-    lon = ncobj.variables['lon'][:]
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-    delta = lon[1] - lon[0]
-    lon = lon - delta / 2.
-    lat = lat - delta / 2.
+        self.working_dir = config.get('Output', 'Working_dir')
+        self.gust_file = config.get('Input', 'Gust_file')
 
-    # Wind speed:
-    wspd = ncobj.variables['vmax'][:]
+        tiles = config.get('Input', 'Tiles')
+        self.tiles = [item.strip() for item in tiles.split(',')]
+        log.debug('List of tiles to be processed: {0}'.format(self.tiles))
+        log.info('Multipliers will be written out to %s', self.working_dir)
 
-    # Components:
-    uu = ncobj.variables['ua'][:]
-    vv = ncobj.variables['va'][:]
+        # Get the multipliers, and process them if need be
+        self.type_mapping = {'shielding': 'Ms', 'terrain': 'Mz', 'topographic': 'Mt'}
+        self.dirns = ['e', 'n', 'ne', 'nw', 's', 'se', 'sw', 'w']
 
-    bearing = calculateBearing(uu, vv)
+        rootdir = pathLocator.getRootDirectory()
+        os.chdir(rootdir)
 
-    # Load a multiplier file to determine the projection:
-    m4_max_file = pjoin(multiplier_path, 'm4_ne.tif')
-    log.info("Using M4 data from {0}".format(m4_max_file))
-
-    # Reproject the wind speed and bearing data:
-    wind_raster_file = pjoin(windfield_path, 'region_wind.tif')
-    wind_raster = createRaster(wspd, lon, lat, delta, -delta,
-                               filename=wind_raster_file)
-    bear_raster = createRaster(bearing, lon, lat, delta, -delta)
-    uu_raster = createRaster(uu, lon, lat, delta, -delta)
-    vv_raster = createRaster(vv, lon, lat, delta, -delta)
-
-    log.info("Reprojecting regional wind data")
-    wind_prj_file = pjoin(windfield_path, 'gust_prj.tif')
-    bear_prj_file = pjoin(windfield_path, 'bear_prj.tif')
-    uu_prj_file = pjoin(windfield_path, 'uu_prj.tif')
-    vv_prj_file = pjoin(windfield_path, 'vv_prj.tif')
-
-    reprojectDataset(wind_raster, m4_max_file, wind_prj_file)
-    reprojectDataset(bear_raster, m4_max_file, bear_prj_file,
-                                resampling_method=GRA_NearestNeighbour)
-    reprojectDataset(uu_raster, m4_max_file, uu_prj_file,
-                              resampling_method=GRA_NearestNeighbour)
-    reprojectDataset(vv_raster, m4_max_file, vv_prj_file,
-                              resampling_method=GRA_NearestNeighbour)
-
-    wind_prj_ds = gdal.Open(wind_prj_file, gdal.GA_ReadOnly)
-    wind_prj = wind_prj_ds.GetRasterBand(1)
-    bear_prj_ds = gdal.Open(bear_prj_file, gdal.GA_ReadOnly)
-    bear_prj = bear_prj_ds.GetRasterBand(1)
-    uu_prj_ds = gdal.Open(uu_prj_file, gdal.GA_ReadOnly)
-    uu_prj = uu_prj_ds.GetRasterBand(1)
-    vv_prj_ds = gdal.Open(vv_prj_file, gdal.GA_ReadOnly)
-    vv_prj = vv_prj_ds.GetRasterBand(1)
-    wind_proj = wind_prj_ds.GetProjection()
-    wind_geot = wind_prj_ds.GetGeoTransform()
-
-    wind_data = wind_prj.ReadAsArray()
-    bear_data = bear_prj.ReadAsArray()
-    uu_data = uu_prj.ReadAsArray()
-    vv_data = vv_prj.ReadAsArray()
-    bearing = calculateBearing(uu_data, vv_data)
-
-    # The local wind speed array:
-    local = np.zeros(wind_data.shape, dtype='float32')
-
-    indices = {
-        0: {'dir': 'n', 'min': 0., 'max': 22.5},
-        1: {'dir': 'ne', 'min': 22.5, 'max': 67.5},
-        2: {'dir': 'e', 'min': 67.5, 'max': 112.5},
-        3: {'dir': 'se', 'min': 112.5, 'max': 157.5},
-        4: {'dir': 's', 'min': 157.5, 'max': 202.5},
-        5: {'dir': 'sw', 'min': 202.5, 'max': 247.5},
-        6: {'dir': 'w', 'min': 247.5, 'max': 292.5},
-        7: {'dir': 'nw', 'min': 292.5, 'max': 337.5},
-        8: {'dir': 'n', 'min': 337.5, 'max': 360.}
-    }
-    log.info("Processing all directions")
-    for i in indices.keys():
-        dn = indices[i]['dir']
-        log.info("Processing {0}".format(dn))
-        m4_file = pjoin(multiplier_path, 'm4_{0}.tif'.format(dn.lower()))
-        m4 = loadRasterFile(m4_file)
-        idx = np.where((bear_data >= indices[i]['min']) &
-                       (bear_data < indices[i]['max']))
-        local[idx] = wind_data[idx] * m4[idx]
-
-    rows, cols = local.shape
-    output_file = pjoin(windfield_path, 'local_wind.tif')
-    log.info("Creating output file: {0}".format(output_file))
-    # Save the local wind field to a raster file with the SRS of the
-    # multipliers
-    drv = gdal.GetDriverByName("GTiff")
-    dst_ds = drv.Create(output_file, cols, rows, 1,
-                        gdal.GDT_Float32, ['BIGTIFF=NO', 'SPARSE_OK=TRUE'])
-    dst_ds.SetGeoTransform(wind_geot)
-    dst_ds.SetProjection(wind_proj)
-    dst_band = dst_ds.GetRasterBand(1)
-    dst_band.SetNoDataValue(-9999)
-    dst_band.WriteArray(local)
-
-    # dst_band.FlushCache()
-
-    del dst_ds
-    log.info("Completed")
-
-
-def startup():
-    """
-    Parse command line arguments and call the :func:`main` function.
-
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config_file',
-                        help='Path to configuration file')
-    parser.add_argument('-v', '--verbose', help='Verbose output',
-                        action='store_true')
-    parser.add_argument('-d', '--debug', help='Allow pdb traces',
-                        action='store_true')
-    args = parser.parse_args()
-
-    configFile = args.config_file
-    config = ConfigParser()
-    config.read(configFile)
-
-    rootdir = pathLocator.getRootDirectory()
-    os.chdir(rootdir)
-
-    logfile = config.get('Logging', 'LogFile')
-    logdir = dirname(realpath(logfile))
-
-    # If log file directory does not exist, create it
-    if not isdir(logdir):
         try:
-            os.makedirs(logdir)
-        except OSError:
-            logfile = pjoin(os.getcwd(), 'processMultipliers.log')
-
-    logLevel = config.get('Logging', 'LogLevel')
-    verbose = config.getboolean('Logging', 'Verbose')
-    datestamp = config.getboolean('Logging', 'Datestamp')
-    debug = False
-
-    if args.verbose:
-        verbose = True
-
-    if args.debug:
-        debug = True
-
-    flStartLog(logfile, logLevel, verbose, datestamp)
-
-    if debug:
-        main(configFile)
-    else:
-        try:
-            modified_main(configFile)
+            self.main()
+        except ImportError as e:
+            log.critical("Missing module: {0}".format(e.strerror))
         except Exception:  # pylint: disable=W0703
             # Catch any exceptions that occur and log them (nicely):
             tblines = traceback.format_exc().splitlines()
             for line in tblines:
                 log.critical(line.lstrip())
 
+    @timer
+    def main(self):
+        """
+        Main function to combine the multipliers with the regional wind
+        speed data.
+
+        :param str configFile: Path to configuration file.
+
+        """
+        log.debug('Instantiating getMultipliers class')
+        gM = getMultipliers(self.configFile)
+        log.debug('Running checkOutputFolders')
+        gM.checkOutputFolders(self.working_dir, self.type_mapping)
+        log.debug('Running Translate Multipliers')
+        gM.copyTranslateMultipliers(self.tiles, self.configFile,
+                                    self.type_mapping, self.working_dir)
+        log.debug('Running mergeWindMultipliers')
+        gM.mergeWindMultipliers(self.type_mapping, self.dirns, self.working_dir)
+        log.debug('Running combineDirections')
+        gM.combineDirections(self.dirns, self.working_dir)
+
+        # Load the wind data:
+        from netCDF4 import Dataset
+        log.info("Loading regional wind data from {0}".format(self.gust_file))
+        ncobj = Dataset(self.gust_file, 'r')
+
+        lat = ncobj.variables['lat'][:]
+        lon = ncobj.variables['lon'][:]
+
+        delta = lon[1] - lon[0]
+        lon = lon - delta / 2.
+        lat = lat - delta / 2.
+
+        # Wind speed:
+        wspd = ncobj.variables['vmax'][:]
+
+        # Components:
+        uu = ncobj.variables['ua'][:]
+        vv = ncobj.variables['va'][:]
+
+        processMult(wspd, uu, vv, lon, lat, self.working_dir)
+
 if __name__ == "__main__":
-    startup()
+    run()

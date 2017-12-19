@@ -18,28 +18,33 @@ addons:
     - liblapack3gf
     - libstdc++6
     - gdal-bin
-    - libgdal1-dev
 install:
 - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
   -O miniconda.sh; else wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
   -O miniconda.sh; fi
 - bash miniconda.sh -b -p $HOME/miniconda
 - export PATH="$HOME/miniconda/bin:$PATH"
+- export LD_LIBRARY_PATH="/usr/include/gdal"
+- export CPLUS_INCLUDE_PATH="/usr/include/gdal"
+- export C_INCLUDE_PATH="/usr/include/gdal"
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
-- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl gdal==1.11'
+- conda install -c anaconda sqlite
+- conda install gdal=1.11.2
+- conda install libgdal=1.11.2
+- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl'
 - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - export PATH=$HOME/py/bin:$PATH
 - pip install pycurl
 - pip -v install -r requirements.txt
 - pip install coveralls
+- pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal" 
 branches:
   except:
   - config
   - notebooks
 script:
-- python /home/travis/py/lib/python2.7/site-packages/pandas/setup.py build_ext --inplace --force
 - python installer/setup.py build_ext -i
 - nosetests -v --with-coverage
 after_success: coveralls
