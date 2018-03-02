@@ -102,7 +102,7 @@ def selectColormap(data_range, percent=0.1):
         palette = sns.color_palette("RdBu", 7)
         cmap = sns.blend_palette(palette, as_cmap=True)
     else:
-        palette = [(0.000, 0.627, 0.235), (0.412, 0.627, 0.235), (0.663, 0.780, 0.282),
+        palette = [(1, 1, 1), (0.000, 0.627, 0.235), (0.412, 0.627, 0.235), (0.663, 0.780, 0.282),
         (0.957, 0.812, 0.000), (0.925, 0.643, 0.016), (0.835, 0.314, 0.118),
         (0.780, 0.086, 0.118)]
         cmap = sns.blend_palette(palette, as_cmap=True)
