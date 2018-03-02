@@ -5,6 +5,7 @@ from matplotlib.figure import Figure
 from matplotlib.dates import DayLocator, HourLocator, DateFormatter
 from matplotlib.ticker import MultipleLocator
 
+
 class TimeSeriesFigure(Figure):
     """
     Base class for plotting time series data
@@ -64,7 +65,7 @@ class TimeSeriesFigure(Figure):
     def plot(self):
 
         axes = self.add_subplot(111)
-        color = axes._get_lines.color_cycle
+        color = axes._get_lines.prop_cycler
         ax1 = axes.twinx()
         ax2 = axes.twinx()
 
