@@ -159,6 +159,16 @@ class WindProfileModel(object):
         self.f = metutils.coriolis(lat)
         self.vMax_ = None
 
+        if eP < 10000.:
+            self.eP = metutils.convert(eP, 'hPa', 'Pa')
+        else:
+            self.eP = eP
+
+        if cP < 10000.:
+            self.cP = metutils.convert(cP, 'hPa', 'Pa')
+        else:
+            self.cP = cP
+
     @property
     def dP(self):
         """
@@ -1092,8 +1102,8 @@ class KepertWindField(WindFieldModel):
         us =     u0s + ups + ums
         vs = V + v0s + vps + vms
 
-        usf = us + Umod * np.cos(lam - thetaFm)
-        vsf = vs - Umod * np.sin(lam - thetaFm)
+        usf = us + Vt * np.cos(lam - thetaFm)
+        vsf = vs - Vt * np.sin(lam - thetaFm)
         phi = np.arctan2(usf, vsf)
 
         # Surface winds, cartesian coordinates
