@@ -159,6 +159,16 @@ class WindProfileModel(object):
         self.f = metutils.coriolis(lat)
         self.vMax_ = None
 
+        if eP < 10000.:
+            self.eP = metutils.convert(eP, 'hPa', 'Pa')
+        else:
+            self.eP = eP
+
+        if cP < 10000.:
+            self.cP = metutils.convert(cP, 'hPa', 'Pa')
+        else:
+            self.cP = cP
+
     @property
     def dP(self):
         """
@@ -368,8 +378,8 @@ class HollandWindProfile(WindProfileModel):
              * delta * edelta + (R * self.f / 2.) ** 2) - R *
              np.abs(self.f) / 2.)
 
-        icore = np.where(R <= self.rMax)
-        V[icore] = (R[icore] * (R[icore] * (R[icore] * aa + bb) + cc))
+        #icore = np.where(R <= self.rMax)
+        #V[icore] = (R[icore] * (R[icore] * (R[icore] * aa + bb) + cc))
         V = np.sign(self.f) * V
         return V
 
@@ -404,8 +414,8 @@ class HollandWindProfile(WindProfileModel):
         bb = (d2Vm - 6 * aa * self.rMax) / 2
         cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
 
-        icore = np.where(R <= self.rMax)
-        Z[icore] = R[icore] * (R[icore] * 4 * aa + 3 * bb) + 2 * cc
+        #icore = np.where(R <= self.rMax)
+        #Z[icore] = R[icore] * (R[icore] * 4 * aa + 3 * bb) + 2 * cc
         Z = np.sign(self.f) * Z
         return Z
 
