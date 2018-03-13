@@ -63,8 +63,8 @@ class TestInitialPositions(unittest.TestCase):
 
     def test_getInitPos_failure(self):
         """Ensure getInitialPositions fails if insufficient data provided"""
-        self.assertRaises(ValueError, loadData.getInitialPositions,
-                                      self.missingFields)
+        self.assertRaises(KeyError, loadData.getInitialPositions,
+                          self.missingFields)
 
 
 
