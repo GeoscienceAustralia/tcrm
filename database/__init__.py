@@ -746,7 +746,7 @@ def run(configFile):
     db.processTracks()
     pp.barrier()
 
-    db.close()
+    #db.close()
     pp.barrier()
     log.info("Created and populated database")
     log.info("Finished running database creation")
