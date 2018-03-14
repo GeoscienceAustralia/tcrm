@@ -100,7 +100,7 @@ class TestProcessMultipliers(unittest.TestCase):
         # test_xprocessMult_A
         # assert_almost_equal(np.flipud(gust), data)
 
-
+        del result
         os.remove(f_img.name)
 
 
@@ -225,7 +225,8 @@ class TestProcessMultipliers(unittest.TestCase):
         assert_almost_equal(wind_data, speed)
 
         keep = False
-
+        ncobj.close()
+        del m4_max
         if keep:
             print "f_nc.name", f_nc.name
             print "f_img.name", f_img.name
