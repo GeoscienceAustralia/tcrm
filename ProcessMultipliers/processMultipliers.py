@@ -244,11 +244,11 @@ def generate_syn_mult_img(tl_x, tl_y, delta, dir_path, shape,
 
     for value in indices.iteritems():
         if every_fill is None:
-            fill = value['fill']
+            fill = value[1]['fill']
         else:
             fill = every_fill
         multiplier_values.fill(fill)
-        img_name = 'm4_' + value['dir'] + '.tif'
+        img_name = 'm4_' + value[1]['dir'] + '.tif'
         file_path = pjoin(dir_path, img_name)
         createRaster(multiplier_values, tl_x, tl_y,
                      delta, -delta,
