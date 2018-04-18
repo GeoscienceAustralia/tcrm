@@ -137,9 +137,11 @@ import logging as log
 import math
 import time
 import itertools
+from datetime import datetime, timedelta
+from os.path import join as pjoin
+
 import numpy as np
 
-from datetime import datetime, timedelta
 
 import Utilities.stats as stats
 import trackLandfall
@@ -150,7 +152,6 @@ import Utilities.Cstats as Cstats
 import Utilities.maputils as maputils
 import Utilities.metutils as metutils
 import Utilities.tcrandom as random
-from os.path import join as pjoin
 from netCDF4 import Dataset as netcdf_file
 from scipy.ndimage.interpolation import spline_filter
 
@@ -179,8 +180,7 @@ class SamplePressure(object):
     def __init__(self, mslp_file, var='slp'):
         ncobj = nctools.ncLoadFile(mslp_file)
         data = nctools.ncGetData(ncobj, var)
-        slpunits = getattr(ncobj.variables[var],'units')
-
+        slpunits = getattr(ncobj.variables[var], 'units')
         data = metutils.convert(data, slpunits, 'hPa')
         self.data = spline_filter(data)
 
@@ -384,7 +384,8 @@ class TrackGenerator(object):
                                              'all_cell_cdf_init_rmax'))
 
         except IOError:
-            log.warning('RMW distribution file does not exist. Using RMW model instead.')
+            log.warning(('RMW distribution file does not exist. '
+                         'Using RMW model instead.'))
             self.cdfSize = np.array(stats.rMaxDist(self.sizeMean,
                                                    self.sizeStdDev,
                                                    maxrad=120.0)).T
@@ -518,10 +519,12 @@ class TrackGenerator(object):
             """
             :return: True if a valid pressure. False, otherwise.
             """
-            if all(np.round(track.CentralPressure, 2) < np.round(track.EnvPressure, 2)):
+            if all(np.round(track.CentralPressure, 2) <\
+                       np.round(track.EnvPressure, 2)):
                 return True
             else:
-                log.debug("Invalid pressure values in track {0}-{1}".format(*track.trackId))
+                log.debug(("Invalid pressure values in track "
+                           "{0}-{1}".format(*track.trackId)))
                 return False
 
         def validSize(track):
@@ -530,9 +533,11 @@ class TrackGenerator(object):
             """
 
             if any(track.rMax > 500.):
-                log.debug("Track {0}-{1} has rMax > 500 km".format(*track.trackId))
+                log.debug("Track {0}-{1} has rMax > 500 km"\
+                              .format(*track.trackId))
             if any(track.rMax < 5.):
-                log.debug("Track {0}-{1} has rMax < 5 km".format(*track.trackId))
+                log.debug("Track {0}-{1} has rMax < 5 km"\
+                              .format(*track.trackId))
             return (all(track.rMax > 5.) and all(track.rMax < 500.))
 
         def validInitSize(track):
@@ -548,7 +553,6 @@ class TrackGenerator(object):
         results = []
         j = 0
         while j < nTracks:
-        #for j in range(1, nTracks + 1):
 
             if not (initLon and initLat):
                 log.debug('Cyclone origin not given, sampling a' +
@@ -601,16 +605,19 @@ class TrackGenerator(object):
 
             genesisHour = int(uniform(0, 24))
 
-            initTimeStr = "%04d-%03d %d:00" % (genesisYear, genesisDay, genesisHour)
+            initTimeStr = "%04d-%03d %d:00" % (genesisYear,
+                                               genesisDay,
+                                               genesisHour)
             genesisTime = datetime.strptime(initTimeStr, "%Y-%j %H:%M")
 
             # Sample an initial environment pressure if none is
             # provided - dependent on initial day of year:
 
             if not initEnvPressure:
-                initEnvPressure = self.mslp.get_pressure(np.array([[genesisDay],
-                                                          [genesisLat],
-                                                          [genesisLon]]))
+                initEnvPressure = \
+                    self.mslp.get_pressure(np.array([[genesisDay],
+                                                     [genesisLat],
+                                                     [genesisLon]]))
 
             # Sample an initial pressure if none is provided
 
@@ -625,7 +632,7 @@ class TrackGenerator(object):
                                       cdfInitPressure)
             else:
                 genesisPressure = initPressure
-                
+
             # Sample an initial maximum radius if none is provided
 
             if not initRmax:
@@ -643,8 +650,10 @@ class TrackGenerator(object):
                 if genesisRmax > 100.:
                     while genesisRmax > 100.:
                         self.rmwEps = np.random.normal(0, scale=0.335)
-                        genesisRmax = trackSize.rmax(dp, genesisLat, self.rmwEps)
-                
+                        genesisRmax = trackSize.rmax(dp,
+                                                     genesisLat,
+                                                     self.rmwEps)
+
             else:
                 genesisRmax = initRmax
             # Do not generate tracks from this genesis point if we are
@@ -673,7 +682,8 @@ class TrackGenerator(object):
                 continue
 
             if (initEnvPressure - genesisPressure) < 2:
-                log.debug("Track does not start with sufficient pressure deficit")
+                log.debug(("Track does not start with sufficient "
+                           "pressure deficit"))
                 continue
 
             log.debug('** Generating track %i from point (%.2f,%.2f)',
@@ -689,9 +699,11 @@ class TrackGenerator(object):
             data = np.core.records.fromarrays(data, dtype=track_dtype)
             track = Track(data)
             track.trackId = (j, simId)
-                        
-            if not (empty(track) or diedEarly(track)) and validInitPressure(track) \
-               and validPressures(track) and validSize(track) and validInitSize(track):
+
+            if not (empty(track) or diedEarly(track))\
+                    and validInitPressure(track) \
+               and validPressures(track) and validSize(track) \
+               and validInitSize(track):
                 if self.innerGridLimit and not insideDomain(track):
                     log.debug("Track exits inner grid limit - rejecting")
                     continue
@@ -702,30 +714,6 @@ class TrackGenerator(object):
                     j += 1
             else:
                 log.debug("Eliminated invalid track")
-        
-        """
-        # Filter the generated tracks based on certain criteria
-        nbefore = len(results)
-        results = [track for track in results if not empty(track)]
-        log.debug('Removed %i empty tracks.', nbefore - len(results))
-
-        nbefore = len(results)
-        results = [track for track in results if not diedEarly(track)]
-        log.debug('Removed %i tracks that died early.',
-                  nbefore - len(results))
-
-        nbefore = len(results)
-        results = [track for track in results if validPressures(track)]
-        log.debug('Removed %i tracks that had incorrect pressures.',
-                  nbefore - len(results))
-
-        if self.innerGridLimit:
-            nbefore = len(results)
-            results = [track for track in results if insideDomain(track)]
-            log.debug('Removed %i tracks that do not pass inside' +
-                      ' domain.', nbefore - len(results))
-        """
-        # Return the tracks:
 
         return results
 
@@ -923,8 +911,8 @@ class TrackGenerator(object):
 
         # Initialise the track
         poci_eps = normal(0., 2.5717)
-        lfeps =  normal(0., 0.02745)
-        
+        lfeps = normal(0., 0.002745)
+
         age[0] = 0
         dates[0] = initTime
         jday[0] = int(initTime.strftime("%j")) + initTime.hour/24.
@@ -942,7 +930,6 @@ class TrackGenerator(object):
         timestep = timedelta(self.dt/24.)
 
         # Initialise variables that will be used when performing a step
-
         self.offshorePressure = initPressure
         self.offshorePoci = poci[0]
         self.landfallSpeed = initSpeed
@@ -958,16 +945,13 @@ class TrackGenerator(object):
         self.ds = 0.0
 
         # Initialise the landfall time over land (`tol`)
-
         tol = 0.0
 
         # Generate the track
-
         for i in xrange(1, self.maxTimeSteps):
 
             # Get the new latitude and longitude from bearing and
             # distance
-
             lon[i], lat[i] = Cmap.bear2LatLon(bearing[i - 1],
                                               dist[i - 1],
                                               lon[i - 1],
@@ -979,18 +963,15 @@ class TrackGenerator(object):
             jday[i] = np.mod(jday[i], 365)
 
             # Sample the environment pressure
-
-            #penv[i] = self.mslp.sampleGrid(lon[i], lat[i])
             penv = self.mslp.get_pressure(np.array([[jday[i]],
                                                     [lat[i]],
                                                     [lon[i]]]))
-            
+
             # Terminate and return the track if it steps out of the
             # domain
-
             if (lon[i] < self.gridLimit['xMin'] or
-                lon[i] >= self.gridLimit['xMax'] or
-                lat[i] <= self.gridLimit['yMin'] or
+                    lon[i] >= self.gridLimit['xMax'] or
+                    lat[i] <= self.gridLimit['yMin'] or
                     lat[i] > self.gridLimit['yMax']):
 
                 log.debug('TC exited domain at point ' +
@@ -1021,14 +1002,13 @@ class TrackGenerator(object):
             if onLand:
                 tol += float(self.dt)
                 deltaP = self.offshorePoci - self.offshorePressure
-                #alpha = -0.001479 + 0.001061 * deltaP + lfeps
-                #alpha = 0.0115 + 0.00022 * deltaP + \
-                #        0.0015 * self.landfallSpeed + lfeps
-                alpha = -0.0102 + 0.00105 * deltaP +\
-                        0.000631 * self.landfallSpeed + lfeps
+                alpha = 0.0113 + 0.000621 * deltaP +\
+                        0.000858 * self.landfallSpeed + lfeps
                 pressure[i] = poci[i - 1] - deltaP * np.exp(-alpha * tol)
                 poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
-                log.debug('Central pressure after landfall: %7.2f', pressure[i])
+                log.debug('alpha value for landfall decay: {0}'.format(alpha))
+                log.debug(('Central pressure {0} hours after landfall:'
+                           '{1:.2f}'.format(tol, pressure[i])))
             else:
                 pstat = self.pStats.coeffs
                 pressure[i] = pressure[i - 1] + self.dp * self.dt
@@ -1049,6 +1029,7 @@ class TrackGenerator(object):
 
                 poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
                 self.offshorePoci = poci[i]
+
             # If the empirical distribution of tropical cyclone size is
             # loaded then sample and update the maximum radius.
             # Otherwise, keep the maximum radius constant.
@@ -1063,7 +1044,6 @@ class TrackGenerator(object):
             else:
                 dp = poci[i] - pressure[i]
                 rmax[i] = trackSize.rmax(dp, lat[i], self.rmwEps)
-                #rmax[i] = rmax[i - 1]
 
             # Update the distance and the age of the cyclone
 
@@ -1483,16 +1463,17 @@ class TrackGenerator(object):
                     'units': 'hPa'
                 }
             },
-            17: {'name': 'palpha',
-                 'dims': ('lat', 'lon'),
-                 'values': self.pStats.coeffs.alpha.reshape((ny, nx)),
-                 'dtype': 'f',
-                 'atts': {
-                     'long_name': 'Lag-1 autocorrelation of central' +
-                                  ' pressure',
-                     'units': ''
-                 }
-                 },
+            17: {
+                'name': 'palpha',
+                'dims': ('lat', 'lon'),
+                'values': self.pStats.coeffs.alpha.reshape((ny, nx)),
+                'dtype': 'f',
+                'atts': {
+                    'long_name': 'Lag-1 autocorrelation of central' +
+                                 ' pressure',
+                    'units': ''
+                }
+            },
             18: {
                 'name': 'psig',
                 'dims': ('lat', 'lon'),
@@ -1850,10 +1831,10 @@ def run(configFile, callback=None):
 
     maxRvsPerTrack = 8 * (maxTimeSteps + 2)
     jumpAhead = np.hstack([[0],
-                          np.cumsum(nCyclones * maxRvsPerTrack)[:-1]])
+                           np.cumsum(nCyclones * maxRvsPerTrack)[:-1]])
 
     log.info('Generating %i total events for %i simulations',
-              sum(nCyclones), nSimulations)
+             sum(nCyclones), nSimulations)
 
     # Setup the simulation parameters
 
@@ -1900,5 +1881,3 @@ def run(configFile, callback=None):
              ' 100 percent complete')
 
     pp.barrier()
-
-
