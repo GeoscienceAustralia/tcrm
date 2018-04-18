@@ -270,7 +270,14 @@ if __name__ == '__main__':
     pt_output_file = filename + '_pt.shp'
     line_output_file = filename + '_line.shp'
     dissolve_output_file = filename + '_dissolve.shp'
-    tracks = loadTrackFile(config_file, track_file, source, calculateWindSpeed=True)
+
+    if track_file.endswith("nc"):
+        from Utilities.track import ncReadTrackData
+        tracks = ncReadTrackData(track_file)
+    else:
+        tracks = loadTrackFile(config_file, track_file, source,
+                               calculateWindSpeed=True)
+
 
     tracks2point(tracks, pt_output_file)
     tracks2line(tracks, line_output_file)
