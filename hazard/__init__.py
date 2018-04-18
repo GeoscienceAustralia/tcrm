@@ -646,8 +646,8 @@ def calculateGPD(Vr, years, numsim, nodata, minRecords, yrsPerSim):
                                           years,
                                           numsim,
                                           nodata,
-                                          minRecords
-                                          )
+                                          minRecords,
+                                          threshold=99.5)
                 # w = array of return period wind speed values
                 # l = location parameter of fit
                 # sc = scale parameter of fit

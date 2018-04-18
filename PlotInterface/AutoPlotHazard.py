@@ -233,6 +233,9 @@ class AutoPlotHazard(object):
                                                   self.plotUnits.units)
                 placeWspdUpper = metutils.convert(wspdUpper, 'mps',
                                                   self.plotUnits.units)
+            else: 
+                placeWspdUpper = np.zeros(len(placeWspd))
+                placeWspdLower = np.zeros(len(placeWspd))
 
             saveHazardCurve(years, allevents, placeWspd, placeWspdUpper, placeWspdLower,
                             xlabel, ylabel, title, filename, self.fit)

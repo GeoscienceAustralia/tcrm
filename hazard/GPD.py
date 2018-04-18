@@ -43,7 +43,8 @@ def gpdReturnLevel(intervals, mu, shape, scale, rate, npyr=365.25):
     rp = mu + (scale / shape) * (np.power(intervals * npyr * rate, shape) - 1.)
     return rp
 
-def gpdfit(data, years, numsim, missingValue=-9999, minrecords=50, thresh=99.5):
+def gpdfit(data, years, numsim, missingValue=-9999,
+           minrecords=50, threshold=99.5):
     """
     Fit a Generalised Pareto Distribution to the data. For a quick evaluation,
     we use the 99.5th percentile as a threshold. 
@@ -56,8 +57,8 @@ def gpdfit(data, years, numsim, missingValue=-9999, minrecords=50, thresh=99.5):
     :param float missingValue: value to insert if fit does not converge.
     :param int minRecords: minimum number of valid observations required to
                            perform fitting.
-    :param float thresh: Threshold for performing the fitting. Default is the
-                     99.5th percentile
+    :param float threshold: Threshold for performing the fitting. Default is 
+                            the 99.5th percentile
 
     Returns:
     --------
@@ -67,7 +68,7 @@ def gpdfit(data, years, numsim, missingValue=-9999, minrecords=50, thresh=99.5):
     :param scale: scale parameter
     :param shape: shape parameter
     """
-    mu = scoreatpercentile(data, thresh)
+    mu = scoreatpercentile(data, threshold)
 
     loc, scale, shp = [missingValue, missingValue, missingValue]
     Rp = missingValue * np.ones(len(years))
@@ -91,7 +92,9 @@ def gpdfit(data, years, numsim, missingValue=-9999, minrecords=50, thresh=99.5):
     except:
         return Rp, loc, scale, shp
 
-    Rp = gpdReturnLevel(years, mu, shape, scale, rate)
-    
-    return Rp, loc, scale, shape
+    Rpeval = gpdReturnLevel(years, mu, shape, scale, rate)
+    if Rpeval[0] < 0:
+        return Rp, loc, scale, shp
+    else:
+        return Rpeval, loc, scale, shape
 
