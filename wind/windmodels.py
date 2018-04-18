@@ -1041,7 +1041,7 @@ class KepertWindField(WindFieldModel):
         Cd = 0.002  # Constant drag coefficient
         Vm = np.abs(V).max()
         if (vFm > 0) and (Vm/vFm < 5.):
-            Umod = vFm * (1. - (1. - vFm/Vm)/5.)
+            Umod = vFm * np.abs(1. - (vFm/Vm)/vFm)
         else:
             Umod = vFm
         Vt = Umod * np.ones(V.shape)
@@ -1092,8 +1092,8 @@ class KepertWindField(WindFieldModel):
         us =     u0s + ups + ums
         vs = V + v0s + vps + vms
 
-        usf = us + Umod * np.cos(lam - thetaFm)
-        vsf = vs - Umod * np.sin(lam - thetaFm)
+        usf = us + Vt * np.cos(lam - thetaFm)
+        vsf = vs - Vt * np.sin(lam - thetaFm)
         phi = np.arctan2(usf, vsf)
 
         # Surface winds, cartesian coordinates
