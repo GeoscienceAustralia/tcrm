@@ -310,16 +310,18 @@ def getInitialPositions(data):
     """
     try:
         indicator = np.array(data['index'], 'i')
-        LOG.debug("Using index contained in file to "
-                     "determine initial TC positions")
+        LOG.info("Using index contained in file to "
+                 "determine initial TC positions")
         return indicator
-    except (ValueError, KeyError):
+    except ValueError:
+        LOG.error("'index' field cannot be converted to integer")
+    except KeyError:
         pass
 
     try:
         tcSerialNo = data['tcserialno']
-        LOG.debug("Using TC serial number to determine initial "
-                     "TC positions")
+        LOG.info("Using TC serial number to determine initial "
+                 "TC positions")
         indicator = np.ones(len(tcSerialNo), 'i')
         for i in range(1, len(tcSerialNo)):
             if tcSerialNo[i] == tcSerialNo[i - 1]:
@@ -331,29 +333,37 @@ def getInitialPositions(data):
     try:
         num = np.array(data['num'], 'i')
         season = np.array(data['season'], 'i')
-        LOG.debug("Using season and TC number to determine initial "
-                     "TC positions")
+        LOG.info("Using season and TC number to determine initial "
+                 "TC positions")
         indicator = np.ones(num.size, 'i')
         for i in range(1, len(num)):
             if (season[i] == season[i - 1]) and (num[i] == num[i - 1]):
                 indicator[i] = 0
         return indicator
-    except (ValueError, KeyError):
+    except KeyError:
         pass
+    except ValueError:
+        LOG.error("'num' field cannot be converted to an integer")
+
 
     try:
         num = np.array(data['num'], 'i')
-        LOG.debug("Using TC number to determine initial TC positions "
-                     "(no season information)")
+        LOG.info("Using TC number to determine initial TC positions "
+                 "(no season information)")
         indicator = np.ones(num.size, 'i')
         ind_ = np.diff(num)
         ind_[np.where(ind_ != 0)] = 1
         indicator[1:] = ind_
         return indicator
-    except (ValueError, KeyError):
+    except KeyError:
         pass
+    except ValueError:
+        LOG.error("'num' field cannot be converted to an integer")
 
-    raise ValueError('Insufficient input file columns have been specified')
+        
+    raise KeyError(('Insufficient input file columns have been specified'
+                    'Check the input file has enough fields to determine'
+                    'TC starting positions'))
 
 
 def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):

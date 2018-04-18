@@ -159,6 +159,16 @@ class WindProfileModel(object):
         self.f = metutils.coriolis(lat)
         self.vMax_ = None
 
+        if eP < 10000.:
+            self.eP = metutils.convert(eP, 'hPa', 'Pa')
+        else:
+            self.eP = eP
+
+        if cP < 10000.:
+            self.cP = metutils.convert(cP, 'hPa', 'Pa')
+        else:
+            self.cP = cP
+
     @property
     def dP(self):
         """
