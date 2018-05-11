@@ -218,7 +218,8 @@ class DataProcess(object):
         except (ValueError, KeyError):
 
             try:
-                self.logger.info("Filtering input data by season: season > {0}". format(startSeason))
+                self.logger.info(("Filtering input data by season:"
+                                  "season > {0}". format(startSeason)))
                 # Find indicies that satisfy minimum season filter
                 idx = np.where(inputData['season'] >= startSeason)[0]
                 # Filter records:
@@ -837,7 +838,8 @@ if __name__ == "__main__":
         # If no filename is specified and default filename does not exist =>
         # raise error
         if not os.path.exists(configFile):
-            error_msg = "No configuration file specified, please type: python main.py {config filename}.ini"
+            error_msg = ("No configuration file specified, please type: "
+                         "python tcrm.py -c {config filename}.ini")
             raise IOError, error_msg
     # If config file does not exist => raise error
     if not os.path.exists(configFile):

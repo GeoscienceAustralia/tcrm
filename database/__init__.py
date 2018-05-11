@@ -432,13 +432,13 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
 
         elif (pp.size() > 1) and (pp.rank() != 0):
             while True:
-                W = pp.receive(source=0, tag=work_tag)
-                if W is None:
+                work_pack = pp.receive(source=0, tag=work_tag)
+                if work_pack is None:
                     break
 
                 log.info("Processing {0} on node {1}".\
-                         format(W[0], pp.rank()))
-                results = self.processEvent(*W)
+                         format(work_pack[0], pp.rank()))
+                results = self.processEvent(*work_pack)
                 log.debug("Results received on node {0}".format(pp.rank()))
                 pp.send(results, destination=0, tag=result_tag)
 
@@ -647,12 +647,12 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
 
         elif (pp.size() > 1) and (pp.rank() != 0):
             while True:
-                W = pp.receive(source=0, tag=work_tag)
+                work_pack = pp.receive(source=0, tag=work_tag)
                 log.info("Received track on node {0}".format(pp.rank()))
-                if W is None:
+                if work_pack is None:
                     break
 
-                results = self.processTrack(*W)
+                results = self.processTrack(*work_pack)
                 pp.send(results, destination=0, tag=result_tag)
 
         elif pp.size() == 1 and pp.rank() == 0:
