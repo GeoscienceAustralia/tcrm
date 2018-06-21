@@ -315,7 +315,7 @@ class MapFigure(Figure):
         """
         canvas = FigureCanvas(self)
         self.tight_layout()
-        canvas.print_figure(filename, dpi=300)
+        canvas.print_figure(filename, dpi=300, bbox_inches='tight')
 
 
 class FilledContourMapFigure(MapFigure):
