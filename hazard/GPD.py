@@ -52,10 +52,10 @@ def gpdfit(data, years, numsim, missingValue=-9999,
     :param data: array of data values.
     :type data: :class:`numpy.ndarray`
     :param years: array of years for which to calculate return period values.
-    :param int numSim: number of simulations created.
+    :param int numsim: number of simulations created.
     :type years: :class:`numpy.ndarray`
     :param float missingValue: value to insert if fit does not converge.
-    :param int minRecords: minimum number of valid observations required to
+    :param int minrecords: minimum number of valid observations required to
                            perform fitting.
     :param float threshold: Threshold for performing the fitting. Default is 
                             the 99.5th percentile
@@ -63,23 +63,23 @@ def gpdfit(data, years, numsim, missingValue=-9999,
     Returns:
     --------
 
-    :param Rp: `numpy.array` of return period wind speed values
-    :param mu: location parameter
+    :param Rpeval: `numpy.array` of return period wind speed values
+    :param location: location parameter
     :param scale: scale parameter
     :param shape: shape parameter
     """
     mu = scoreatpercentile(data, threshold)
 
-    loc, scale, shp = [missingValue, missingValue, missingValue]
+    loc, scl, shp = [missingValue, missingValue, missingValue]
     Rp = missingValue * np.ones(len(years))
 
     log.debug("The length of the data currently is {0}".format(len(data)))
 
     if len(data[data > 0]) < minrecords:
-        return Rp, loc, scale, shp
+        return Rp, loc, scl, shp
 
-    # Fill each day that a cyclone isn't recorded with zero so we get the correct
-    # rate for the return periods
+    # Fill each day that a cyclone isn't recorded with zero so we get 
+    # the correct rate for the return periods
     datafilled = np.zeros(int(numsim * 365.25))
     datafilled[-len(data):] = data
     log.debug("The length of the filled data is {0}".format(len(datafilled)))
@@ -88,13 +88,14 @@ def gpdfit(data, years, numsim, missingValue=-9999,
     log.debug("The calculated rate is: {0}".format(rate))
 
     try:
-        shape, loc, scale = genpareto.fit(datafilled[datafilled > mu], floc = mu)
+        shape, location, scale = genpareto.fit(datafilled[datafilled > mu],
+                                               floc = mu)
     except:
-        return Rp, loc, scale, shp
+        return Rp, loc, scl, shp
 
     Rpeval = gpdReturnLevel(years, mu, shape, scale, rate)
-    if Rpeval[0] < 0:
-        return Rp, loc, scale, shp
+    if shape > 0: # or Rpeval[0] < 0.0:
+        return Rp, loc, scl, shp
     else:
-        return Rpeval, loc, scale, shape
+        return Rpeval, location, scale, shape
 
