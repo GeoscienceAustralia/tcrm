@@ -458,10 +458,14 @@ class PressureDistribution(object):
         y = self.synMinCP
         lims = (850, 1000)
         fig = QuantileFigure()
+        log.info("Length of quantiles: {0}".format(x.compress(x > 0)))
+        log.info("Length of quantiles: {0}".format(y.compress(y > 0)))
+
         fig.add(x.compress(x > 0), y.compress(y > 0), lims,
                 "Observed pressure (hPa)",
                 "Simulated pressure (hPa)",
                 "Q-Q plot of minimum central pressure")
+        log.info("Number of subfigures: {0}".format(len(fig.subfigures)))
         fig.plot()
         outputFile = pjoin(self.plotPath, 'minPressureQuantiles.png')
         saveFigure(fig, outputFile)

@@ -21,6 +21,7 @@ from matplotlib.figure import Figure
 
 import seaborn as sns
 sns.set(style="ticks")
+import logging as log
 
 class WindProfileFigure(Figure, object):
     """
@@ -199,8 +200,9 @@ class QuantileFigure(Figure):
         c = int(np.ceil(n / r))
         w, h = self.get_size_inches()
         self.set_size_inches(w * c, r * h)
+        log.debug("Number of subfigures: {0}".format(n))
         for i, subfigure in enumerate(self.subfigures):
-            axes = self.add_subplot(r, c, i)
+            axes = self.add_subplot(r, c, i + 1)
             self.subplot(axes, subfigure)
 
 class RegressionFigure(Figure):
