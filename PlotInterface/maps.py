@@ -587,7 +587,7 @@ def saveFigure(figure, filename):
 
     """
     canvas = FigureCanvas(figure)
-    canvas.print_figure(filename, dpi=300)
+    canvas.print_figure(filename, dpi=300, bbox_inches='tight')
 
 def saveHazardMap(data, xgrid, ygrid, title, lvls, cbarlab,
                   map_kwargs, filename):

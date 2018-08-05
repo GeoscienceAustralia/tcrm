@@ -372,7 +372,7 @@ def saveFigure(figure, filename):
     """
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     canvas = FigureCanvas(figure)
-    canvas.print_figure(filename)
+    canvas.print_figure(filename, bbox-inches='tight')
 
 
 def saveWindProfilesFigure(lat, lon, eP, cP, rMax, beta,
