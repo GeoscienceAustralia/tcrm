@@ -46,14 +46,14 @@ from Utilities.files import flStartLog
 from Utilities.config import ConfigParser
 from Utilities import pathLocator
 
-from netCDF4 import Dataset
-
 import numpy as np
 import numpy.ma as ma
 
 from osgeo import osr, gdal, gdalconst
 from osgeo.gdal_array import BandReadAsArray, CopyDatasetInfo, BandWriteArray
 from gdal import *
+
+from netCDF4 import Dataset
 
 gdal.UseExceptions()
 
