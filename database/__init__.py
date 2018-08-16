@@ -37,7 +37,8 @@ import os
 import logging
 import sqlite3
 from sqlite3 import PARSE_DECLTYPES, PARSE_COLNAMES
-
+from functools import wraps
+import time
 from datetime import datetime
 import unicodedata
 import re
@@ -55,6 +56,26 @@ from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities.process import pAlreadyProcessed, pGetProcessedFiles
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
+
+
+def timer(f):
+    """
+    A simple timing decorator for the entire process. 
+
+    """
+
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        t1 = time.time()
+        res = f(*args, **kwargs)
+        tottime = time.time() - t1
+        msg = "%02d:%02d:%02d " % \
+            reduce(lambda ll, b : divmod(ll[0], b) + ll[1:],
+                   [(tottime,), 60, 60])
+        log.debug("Time for {0}: {1}".format(f.func_name, msg) )
+        return res
+
+    return wrap
 
 # pylint: disable=R0914,R0902
 
@@ -839,6 +860,7 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
     locdb.commit()
     locdb.close()
 
+@timer
 def locationRecordsExceeding(hazard_db, locId, windSpeed):
     """
     Select all records where the wind speed at the given location is
@@ -876,6 +898,7 @@ def locationRecordsExceeding(hazard_db, locId, windSpeed):
 
     return results
 
+@timer
 def locationRecords(hazard_db, locId):
     """
     Select all wind speed records for a given location.
@@ -901,6 +924,7 @@ def locationRecords(hazard_db, locId):
 
     return results
 
+@timer
 def locationPassage(hazard_db, locId, distance=50):
     """
     Select all records from tblTracks that pass within a defined
@@ -937,6 +961,7 @@ def locationPassage(hazard_db, locId, distance=50):
                                         'distClosest,wspd,eventFile'))
     return results
 
+@timer
 def locationPassageWindSpeed(hazard_db, locId, speed, distance):
     """
     Select records from _tblWindSpeed_, _tblTracks_ and _tblEvents_ that
@@ -967,6 +992,7 @@ def locationPassageWindSpeed(hazard_db, locId, speed, distance):
 
     return results
 
+@timer
 def locationReturnPeriodEvents(hazard_db, locId, return_period):
     """
     Select all records from tblEvents where the wind speed is
@@ -1001,6 +1027,7 @@ def locationReturnPeriodEvents(hazard_db, locId, return_period):
 
     return results
 
+@timer
 def locationAllReturnLevels(hazard_db, locId):
     """
     Select all return level wind speeds (including upper and lower
@@ -1030,6 +1057,7 @@ def locationAllReturnLevels(hazard_db, locId):
 
     return results
 
+@timer
 def selectEvents(hazard_db):
     """
     Select all events from _tblEvents_.
