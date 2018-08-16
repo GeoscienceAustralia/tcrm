@@ -15,7 +15,7 @@
 """
 import random
 import math
-from scipy.special import nctdtrit
+from scipy.special import nctdtrit, ndtri
 
 #pylint: disable-msg=R0904
 
@@ -78,3 +78,21 @@ class Random(random.Random):
 
         u1 = self.random()
         return mu + sigma * nctdtrit(df, nc, u1)
+
+    def lognormvariate(self, xi, mu=0.0, sigma=1.0):
+        """
+        Random variate from the lognormal distribution.
+        
+        :param float xi: Shape parameter
+        :param float mu: Location parameter
+        :param float sigma: Scale paramter (|sigma| > 0)
+        
+        :returns: A random variate from the lognormal distribution
+        """
+        if xi <= 0.0:
+            raise ValueError("Invalid input parameter: `xi` must be positive")
+        if sigma <= 0.0:
+            raise ValueError("Invalid input parameter: `sigma` must be positive")
+
+        u1 = self.random()
+        return mu + sigma * math.exp(xi * ndtri(u1))

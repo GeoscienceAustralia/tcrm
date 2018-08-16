@@ -58,5 +58,19 @@ class TestRandom(unittest.TestCase):
         self.assertRaises(ValueError, self.prng.nctvariate,
                           1, 0, 1, -1)
 
+    def testLognorm(self):
+        """
+        Testing lognorm variates
+        """
+        self.prng.seed(self.seed)
+        result = self.prng.lognormvariate(1.)
+        assert_almost_equal(result, 0.3308813420)
+
+    def testLognormInvalidParams(self):
+        self.assertRaises(ValueError, self.prng.lognormvariate,
+                          -1., 0., 1.)
+        self.assertRaises(ValueError, self.prng.lognormvariate,
+                          1., 0., -1.)
+
 if __name__ == '__main__':
     unittest.main()

@@ -1664,6 +1664,12 @@ def nct(df, nc, loc=0.0, scale=1.0):
     """
     return PRNG.nctvariate(df, nc, loc, scale)
 
+def lognorm(xi, loc=0., scale=1.0):
+    """
+    Sample from a lognormal distribution.
+    """
+    return PRNG.lognormvariate(xi, loc, scale)
+
 def ppf(q, cdf):
     """
     Percentage point function (aka. inverse CDF, quantile) of
