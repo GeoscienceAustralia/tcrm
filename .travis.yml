@@ -27,7 +27,7 @@ install:
 - export LD_LIBRARY_PATH="/usr/include/gdal"
 - export CPLUS_INCLUDE_PATH="/usr/include/gdal"
 - export C_INCLUDE_PATH="/usr/include/gdal"
-- export LD_PRELOAD="/usr/lib/libgdal.so.1"
+- export LD_PRELOAD="/usr/lib/gdal/libgdal.so.1"
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
