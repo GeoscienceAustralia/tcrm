@@ -911,7 +911,7 @@ class TrackGenerator(object):
 
         # Initialise the track
         poci_eps = normal(0., 2.5717)
-        lfeps = lognormal(0.616904, -0.043727, 0.035734)
+        lfeps = lognorm(0.616904, -0.043727, 0.035734)
 
         age[0] = 0
         dates[0] = initTime
