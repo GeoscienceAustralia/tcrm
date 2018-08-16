@@ -1,6 +1,4 @@
 six>=1.7.3
---allow-external python-dateutil
---allow-unverified python-dateutil
 python-dateutil
 tornado
 pyparsing
