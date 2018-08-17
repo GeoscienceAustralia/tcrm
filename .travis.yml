@@ -64,7 +64,7 @@ branches:
     - notebooks
 script:
   - echo $PATH
-  - ls -l /home/travis/miniconda
+  - ls -l /home/travis/miniconda/
   - python installer/setup.py build_ext -i
   - nosetests -v --with-coverage
 after_success: coveralls
