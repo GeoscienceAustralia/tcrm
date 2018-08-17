@@ -49,8 +49,8 @@ install:
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
 - conda install -c anaconda sqlite
-#- conda install -c conda-forge gdal=1.11.2
-#- conda install -c conda-forge libgdal=1.11.2
+- conda install -c conda-forge gdal=1.11.2
+- conda install -c conda-forge libgdal=1.11.2
 - deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl'
 - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - export PATH=$HOME/py/bin:$PATH
