@@ -65,6 +65,7 @@ branches:
 script:
   - echo $PATH
   - ls -l /home/travis/miniconda/lib
+  - ls -l $GDALINSTALL
   - python installer/setup.py build_ext -i
   - nosetests -v --with-coverage
 after_success: coveralls
