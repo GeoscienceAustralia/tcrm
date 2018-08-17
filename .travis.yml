@@ -42,7 +42,7 @@ install:
 - export PATH="$HOME/miniconda/bin:$PATH"
 - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION
 - export CPLUS_INCLUDE_PATH=$GDALINST/gdal-$GDALVERSION
-- export C_INCLUDE_PATH=$GDALINST/gdal-GDALVERSION
+- export C_INCLUDE_PATH=$GDALINST/gdal-$GDALVERSION
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
