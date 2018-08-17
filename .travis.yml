@@ -8,6 +8,10 @@ env:
     - GDALINST=$HOME/gdalinstall
     - GDALBUILD=$HOME/gdalbuild
     - GDALVERSION="1.11.2"
+
+virtualenv:
+  system_site_packages: true
+
 addons:
   apt:
     packages:
@@ -43,8 +47,8 @@ install:
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
 - conda install -c anaconda sqlite
-- conda install gdal=1.11.2
-- conda install libgdal=1.11.2
+- conda install -c conda-forge gdal=1.11.2
+- conda install -c conda-forge libgdal=1.11.2
 - deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl'
 - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - export PATH=$HOME/py/bin:$PATH
@@ -52,7 +56,7 @@ install:
 - pip -v install -r requirements.txt
 #- "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall -e .[test,plot]"
 - pip install coveralls
-#- pip install gdal==1.11.2 --global-option=build_ext --global-option="-I$GDALINST/gdal-$GDALVERSION/include" #$($GDALINST/gdal-$GDALVERSION/bin/gdal-config --version) --global-option=build_ext #--global-option="-I$GDALINST/gdal-$GDALVERSION/include" 
+- pip install gdal==1.11.2 --global-option=build_ext --global-option="-I$GDALINST/gdal-$GDALVERSION/include" #$($GDALINST/gdal-$GDALVERSION/bin/gdal-config --version) --global-option=build_ext #--global-option="-I$GDALINST/gdal-$GDALVERSION/include" 
 branches:
   except:
   - config
