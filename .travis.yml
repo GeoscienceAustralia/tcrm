@@ -51,7 +51,7 @@ install:
 - pip install pycurl
 - pip -v install -r requirements.txt
 - pip install coveralls
-- pip install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal" 
+- pip install GDAL==$($GDALISNT/gdal-$GDALVERSION/gdal-config --version) --global-option=build_ext #--global-option="-I/usr/include/gdal" 
 branches:
   except:
   - config
