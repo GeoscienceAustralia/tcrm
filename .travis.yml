@@ -57,15 +57,14 @@ install:
 - pip -v install -r requirements.txt
 #- "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall"# -e .[test,plot]"
 - pip install coveralls
-- pip install gdal==1.11.2 --global-option=build_ext --global-option="-I$GDALINST/gdal-$GDALVERSION/include" #$($GDALINST/gdal-$GDALVERSION/bin/gdal-config --version) --global-option=build_ext --global-option="-I$GDALINST/gdal-$GDALVERSION/include" 
+- pip install gdal==1.11.2 --global-option=build_ext --global-option="-I$HOME/miniconda/include" #"-I$GDALINST/gdal-$GDALVERSION/include" #$($GDALINST/gdal-$GDALVERSION/bin/gdal-config --version) --global-option=build_ext --global-option="-I$GDALINST/gdal-$GDALVERSION/include" 
 branches:
   except:
     - config
     - notebooks
 script:
   - echo $PATH
-  - ls -l /home/travis/miniconda/lib
-  - ls -l $GDALINST
+  - ls -l /home/travis/miniconda/include
   - python installer/setup.py build_ext -i
   - nosetests -v --with-coverage
 after_success: coveralls
