@@ -69,20 +69,20 @@ def gpdfit(data, years, numsim, missingValue=-9999,
     :param shape: shape parameter
     """
     recs = data[data > 0]
-    mu = scoreatpercentile(recs, threshold)
+    mu = scoreatpercentile(data, threshold)
 
     loc, scl, shp = [missingValue, missingValue, missingValue]
     Rp = missingValue * np.ones(len(years))
 
-    log.debug("The length of the data currently is {0}".format(len(recs)))
+    log.debug("The length of the data currently is {0}".format(len(data)))
 
-    if len(recs) < minrecords:
+    if len(data) < minrecords:
         return Rp, loc, scl, shp
 
     # Fill each day that a cyclone isn't recorded with zero so we get 
     # the correct rate for the return periods
     datafilled = np.zeros(int(numsim * 365.25))
-    datafilled[-len(recs):] = recs
+    datafilled[-len(data):] = data
     log.debug("The length of the filled data is {0}".format(len(datafilled)))
 
     rate = float(len(datafilled[datafilled > mu])) / float(len(datafilled))
