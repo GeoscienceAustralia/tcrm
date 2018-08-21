@@ -26,13 +26,13 @@ class TestloadFile(NumpyTestCase.NumpyTestCase):
     def setUp(self):
         self.filepath = os.path.join(unittest_dir, 'test_data/folder_of_files/')
         self.filename = self.filepath + 'gust.000-00000.nc'
-        self.expectedsubset = numpy.float32(
+        self.expectedsubset = numpy.ma.core.MaskedArray(
             [[ 19.33163452,  19.36814117,  19.40473557,  19.44141579, 19.47817612], 
              [ 19.33328438,  19.37013245,  19.40707016,  19.4440937, 19.48120117],
              [19.33486748,  19.37206078,  19.40934563,  19.44671822, 19.48417473],
              [ 19.33638191,  19.37392426,  19.41156006,  19.44928551, 19.48709679],
-             [ 19.33782578,  19.37572098,  19.41371346,  19.45179558, 19.48996544]]
-            )
+             [ 19.33782578,  19.37572098,  19.41371346,  19.45179558, 19.48996544]],
+            dtype='float32')
         pfile = open(os.path.join(unittest_dir, 'test_data', 'testDomain.pck'),'r')
         self.wf_lat = cPickle.load(pfile)
         self.wf_lon = cPickle.load(pfile)
