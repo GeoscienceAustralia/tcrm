@@ -24,6 +24,7 @@ of the Royal Statistical Society, 52, 1, 105-124.
 import logging as log
 import numpy as np
 from scipy.stats import genpareto, scoreatpercentile
+from scipy.optimize import curve_fit
 
 try:
     import lmoments as lmom
@@ -114,3 +115,66 @@ def estimateEVD(v, years, missingValue=-9999., minRecords=50, yrspersim=1):
                 w[i] = missingValue
 
     return w, loc, scale, shp
+
+def powerfit(data, years, numsim, missingValue=-9999.,
+             minrecords=50):
+
+    """Fit a modified power law to empirical return period values
+
+    w(t; a, b, c) = a - b * t^c
+    
+    where a > 0, 0 < b < a and c < 0.
+
+    This function calculates the empirical return periods for the
+    given set of wind speed values, then fits the function to the
+    return period wind speeds. In this sense, the returned location,
+    scale and shape parameters do not refer to the parameters of any 
+    given distribution, but rather the coefficients of the fitted 
+    function.
+
+    
+    :param data: :class:`numpy.ndarray` of data values
+    :param years: :class:`numpy.ndarray` of years for which to calculate
+                  return period values.
+    :param int numsim: number of simulations created.
+    :param float missingValue: value to insert if fit does not converge.
+    :param int minrecords: minimum number of valid observations 
+                           required to perform fitting.
+
+    Returns:
+    --------
+
+    :param Rpeval: `numpy.array` of return period wind speed values
+    :param location: location parameter
+    :param scale: scale parameter
+    :param shape: shape parameter
+
+    """
+
+    loc, scale, shp = [missingValue, missingValue, missingValue]
+    w = missingValue * np.ones(len(years)) # Create empty return period array
+    
+    npyr = 365.25
+    nobs = npyr * numsim
+    
+    wspd = np.zeros(int(nobs))
+    wspd[-len(data):] = np.sort(data)
+
+    emprp = 1./ (1. - np.arange(1, nobs + 1, 1)) / (nobs + 1) / npyr
+    idx = np.where(wspd > np.mean(wspd[wspd > 0]))[0]
+
+    def func(x, a, b, c):
+        return a - b * np.power(x, c)
+
+    try:
+        pars, covar = curve_fit(func, emprp[idx], wspd[idx], 
+                                p0=[np.max(data), np.max(data), -0.1],
+                                maxfev=10000)
+    except:
+        return w, loc, scale, shp
+
+    else:
+        w = func(years, *pars)
+        loc, scale, shp = pars
+        return w, loc, scale, shp
+    
