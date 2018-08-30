@@ -36,7 +36,7 @@ TODO::
 import os
 import logging
 import sqlite3
-from sqlite3 import PARSE_DECLTYPES, PARSE_COLNAMES
+from sqlite3 import PARSE_DECLTYPES, PARSE_COLNAMES, IntegrityError
 from functools import wraps
 import time
 from datetime import datetime
