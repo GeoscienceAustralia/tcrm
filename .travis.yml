@@ -44,20 +44,11 @@ install:
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
 - conda config --append channels conda-forge
-#- conda install -c anaconda sqlite
-#- conda install -c conda-forge gdal=1.11.2
-#- conda install -c conda-forge netcdf4 
-#- conda install -c conda-forge statsmodels
-#- conda install -c conda-forge coveralls
+
 - deps='pip numpy scipy matplotlib basemap shapely nose netcdf4 coverage coveralls pycurl pyproj seaborn simplejson sqlite statsmodels libgdal gdal'
 - conda create -q -n tcrm-env --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - source activate tcrm-env
-#- pip install GDAL==1.11.2
-#- export PATH=$HOME/py/bin:$PATH
-#- pip install pycurl
-#- pip -v install -r requirements.txt
-#- "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall"# -e .[test,plot]"
-#- pip install gdal==1.11.2 --global-option=build_ext --global-option="-I$HOME/miniconda/include" #"-I$GDALINST/gdal-$GDALVERSION/include" #$($GDALINST/gdal-$GDALVERSION/bin/gdal-config --version) --global-option=build_ext --global-option="-I$GDALINST/gdal-$GDALVERSION/include" 
+
 branches:
   except:
     - config
