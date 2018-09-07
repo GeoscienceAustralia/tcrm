@@ -29,7 +29,9 @@ addons:
     - libstdc++6
     - libgdal1h
     - gdal-bin
-    - libgdal1-dev
+    - gdal-data
+    - libgdal-dev
+    - libgdal20
     - python-gdal
 
 install:
@@ -43,14 +45,16 @@ install:
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
-- conda install -c anaconda sqlite
-- conda install -c conda-forge gdal=1.11.2
-- conda install -c conda-forge netcdf4 
-- conda install -c conda-forge statsmodels
-- conda install -c conda-forge coveralls
-- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl seaborn simplejson'
+- conda config --append channels conda-forge
+#- conda install -c anaconda sqlite
+#- conda install -c conda-forge gdal=1.11.2
+#- conda install -c conda-forge netcdf4 
+#- conda install -c conda-forge statsmodels
+#- conda install -c conda-forge coveralls
+- deps='pip numpy scipy matplotlib basemap shapely nose netcdf4 coverage coveralls pycurl pyproj seaborn simplejson sqlite statsmodels'
 - conda create -q -n tcrm-env --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - source activate tcrm-env
+- pip install GDAL=1.11.2
 #- export PATH=$HOME/py/bin:$PATH
 #- pip install pycurl
 #- pip -v install -r requirements.txt
