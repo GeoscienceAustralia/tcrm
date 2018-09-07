@@ -193,9 +193,9 @@ class MapFigure(Figure):
         parallels = np.arange(dl*np.floor(ymin / dl),
                               dl*np.ceil(ymax / dl) + dl, dl)
 
-        mapobj.drawparallels(parallels, linewidth=0.25,
+        mapobj.drawparallels(parallels, linewidth=0.25, fontsize='x-small',
                              labels=[1, 0, 0, 1], style="italic")
-        mapobj.drawmeridians(meridians, linewidth=0.25,
+        mapobj.drawmeridians(meridians, linewidth=0.25, fontsize='x-small',
                              labels=[1, 0, 0, 1], style='italic')
         axes.tick_params(axis='both', direction='out', length=4,
                          width=1, color='k')
@@ -439,7 +439,7 @@ class ArrayMapFigure(MapFigure):
         vmax = datarange[1]
         CS = mapobj.pcolormesh(mx, my, data, vmin=vmin,
                                vmax=vmax, cmap=cmap)
-        CB = mapobj.colorbar(CS, location='right', pad='5%',
+        CB = mapobj.colorbar(CS, location='bottom', pad='10%',
                              fig=self, ax=axes)
         CB.set_label(cbarlab)
         axes.set_title(title)
