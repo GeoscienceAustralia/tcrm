@@ -31,19 +31,15 @@ addons:
     - gdal-bin
     - libgdal-dev
     - python-gdal
-before-install:
-- travis_wait . ./travis_gdal_install.sh  
-- export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
-- export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
+
 install:
 - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
   -O miniconda.sh; else wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
   -O miniconda.sh; fi
 - bash miniconda.sh -b -p $HOME/miniconda
 - export PATH="$HOME/miniconda/bin:$PATH"
-- export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION
-- export CPLUS_INCLUDE_PATH=$GDALINST/gdal-$GDALVERSION
-- export C_INCLUDE_PATH=$GDALINST/gdal-$GDALVERSION
+- export CPLUS_INCLUDE_PATH="/usr/include/gdal"
+- export C_INCLUDE_PATH="/usr/include/gdal"
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
