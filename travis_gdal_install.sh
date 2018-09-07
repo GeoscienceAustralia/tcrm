@@ -43,7 +43,7 @@ GDALOPTS="  --with-ogr \
             --without-perl \
             --without-php \
             --without-ruby \
-            --without-python \
+            --with-python \
             --with-static-proj4=/usr/lib"
 
 # Create build dir if not exists
