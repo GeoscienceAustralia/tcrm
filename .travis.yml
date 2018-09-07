@@ -29,7 +29,7 @@ addons:
     - libstdc++6
     - libgdal1h
     - gdal-bin
-    - libgdal-dev
+    - libgdal1-dev
     - python-gdal
 
 install:
@@ -45,14 +45,16 @@ install:
 - conda update -q conda
 - conda install -c anaconda sqlite
 - conda install -c conda-forge gdal=1.11.2
-- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl'
+- conda install -c conda-forge netcdf4 
+- conda install -c conda-forge statsmodels
+- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl seaborn simplejson'
 - conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - export PATH=$HOME/py/bin:$PATH
-- pip install pycurl
-- pip -v install -r requirements.txt
+#- pip install pycurl
+#- pip -v install -r requirements.txt
 #- "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall"# -e .[test,plot]"
 - pip install coveralls
-- pip install gdal==1.11.2 --global-option=build_ext --global-option="-I$HOME/miniconda/include" #"-I$GDALINST/gdal-$GDALVERSION/include" #$($GDALINST/gdal-$GDALVERSION/bin/gdal-config --version) --global-option=build_ext --global-option="-I$GDALINST/gdal-$GDALVERSION/include" 
+#- pip install gdal==1.11.2 --global-option=build_ext --global-option="-I$HOME/miniconda/include" #"-I$GDALINST/gdal-$GDALVERSION/include" #$($GDALINST/gdal-$GDALVERSION/bin/gdal-config --version) --global-option=build_ext --global-option="-I$GDALINST/gdal-$GDALVERSION/include" 
 branches:
   except:
     - config
