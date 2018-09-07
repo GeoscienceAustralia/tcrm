@@ -193,8 +193,8 @@ def ncGetTimes(ncobj, name='time'):
         calendar = times.calendar
     else:
         calendar = 'standard'
-
-    dates = num2date(times[:], units, calendar)
+    #import pdb; pdb.set_trace()
+    dates = num2date(times[:].data, units, calendar)
 
     return np.array(dates, dtype=datetime)
 
