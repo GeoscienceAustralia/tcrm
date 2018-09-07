@@ -55,7 +55,7 @@ branches:
     - notebooks
 script:
   - python installer/setup.py build_ext -i
-  - nosetests -v --with-coverage
+  - nosetests -v --with-coverage --cover-package=.
 after_success: coveralls
 notifications:
   slack:

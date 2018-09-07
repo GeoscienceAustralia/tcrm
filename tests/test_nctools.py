@@ -412,7 +412,6 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
             self.numpyAssertEqual(temp_check, temp[nrec])
         ncobj.close()
 
-    #@unittest.skip("Raises value error in netCDF4 v1.4")
     def test_ncGetTimes(self):
         """Test ncGetTimes returns datetime objects"""
         ncobj = netCDF4.Dataset(self.ncfile)
@@ -420,7 +419,6 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
         ncobj.close()
         self.assertEqual(type(times[0]), datetime)
 
-    #@unittest.skip("Raises value error in netCDF4 v1.4")
     def test_ncGetTimeValues(self):
         """Test ncGetTimes returns correct time values"""
         ncobj = netCDF4.Dataset(self.ncfile)
