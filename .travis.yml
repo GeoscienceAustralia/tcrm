@@ -51,7 +51,7 @@ install:
 - deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl seaborn simplejson'
 - conda create -q -n tcrm-env --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - source activate tcrm-env
-- export PATH=$HOME/py/bin:$PATH
+#- export PATH=$HOME/py/bin:$PATH
 #- pip install pycurl
 #- pip -v install -r requirements.txt
 #- "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall"# -e .[test,plot]"
