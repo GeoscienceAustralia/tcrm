@@ -501,11 +501,11 @@ def processMult(wspd, uu, vv, lon, lat, working_dir, m4_max_file = 'm4_ne.tif'):
 
     reprojectDataset(wind_raster, m4_max_file, wind_prj_file)
     reprojectDataset(bear_raster, m4_max_file, bear_prj_file,
-                     resampling_method = GRA_NearestNeighbour)
+                     resampling_method = gdalconst.GRA_NearestNeighbour)
     reprojectDataset(uu_raster, m4_max_file, uu_prj_file,
-                     resampling_method = GRA_NearestNeighbour)
+                     resampling_method = gdalconst.GRA_NearestNeighbour)
     reprojectDataset(vv_raster, m4_max_file, vv_prj_file,
-                     resampling_method = GRA_NearestNeighbour)
+                     resampling_method = gdalconst.GRA_NearestNeighbour)
 
     wind_prj_ds = gdal.Open(wind_prj_file, gdal.GA_ReadOnly)
     wind_prj = wind_prj_ds.GetRasterBand(1)
@@ -666,7 +666,6 @@ class run():
         gM.combineDirections(self.dirns, self.working_dir)
 
         # Load the wind data:
-        from netCDF4 import Dataset
         log.info("Loading regional wind data from {0}".format(self.gust_file))
         ncobj = Dataset(self.gust_file, 'r')
 
