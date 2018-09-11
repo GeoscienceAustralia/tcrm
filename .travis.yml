@@ -31,39 +31,31 @@ addons:
     - gdal-bin
     - libgdal-dev
     - python-gdal
-before-install:
-- travis_wait . ./travis_gdal_install.sh  
-- export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
-- export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
+
 install:
 - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
   -O miniconda.sh; else wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
   -O miniconda.sh; fi
 - bash miniconda.sh -b -p $HOME/miniconda
 - export PATH="$HOME/miniconda/bin:$PATH"
-- export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION
-- export CPLUS_INCLUDE_PATH=$GDALINST/gdal-$GDALVERSION
-- export C_INCLUDE_PATH=$GDALINST/gdal-$GDALVERSION
+- export CPLUS_INCLUDE_PATH="/usr/include/gdal"
+- export C_INCLUDE_PATH="/usr/include/gdal"
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
-- conda install -c anaconda sqlite
-- conda install -c conda-forge gdal=1.11.2
-- deps='pip numpy scipy matplotlib basemap shapely nose coverage pycurl'
-- conda create -p $HOME/py --yes $deps "python=$TRAVIS_PYTHON_VERSION"
-- export PATH=$HOME/py/bin:$PATH
-- pip install pycurl
-- pip -v install -r requirements.txt
-#- "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall"# -e .[test,plot]"
-- pip install coveralls
-- pip install gdal==1.11.2 --global-option=build_ext --global-option="-I$HOME/miniconda/include" #"-I$GDALINST/gdal-$GDALVERSION/include" #$($GDALINST/gdal-$GDALVERSION/bin/gdal-config --version) --global-option=build_ext --global-option="-I$GDALINST/gdal-$GDALVERSION/include" 
+- conda config --append channels conda-forge
+
+- deps='pip numpy scipy matplotlib basemap shapely nose netcdf4 coverage coveralls pycurl pyproj seaborn simplejson sqlite statsmodels libgdal gdal'
+- conda create -q -n tcrm-env --yes $deps "python=$TRAVIS_PYTHON_VERSION"
+- source activate tcrm-env
+
 branches:
   except:
     - config
     - notebooks
 script:
   - python installer/setup.py build_ext -i
-  - nosetests -v --with-coverage
+  - nosetests -v --with-coverage --cover-package=.
 after_success: coveralls
 notifications:
   slack:

@@ -102,9 +102,14 @@ def selectColormap(data_range, percent=0.1):
         palette = sns.color_palette("RdBu", 7)
         cmap = sns.blend_palette(palette, as_cmap=True)
     else:
-        palette = [(1, 1, 1), (0.000, 0.627, 0.235), (0.412, 0.627, 0.235), (0.663, 0.780, 0.282),
-        (0.957, 0.812, 0.000), (0.925, 0.643, 0.016), (0.835, 0.314, 0.118),
-        (0.780, 0.086, 0.118)]
+        palette = [(1, 1, 1),
+                   (0.000, 0.627, 0.235),
+                   (0.412, 0.627, 0.235), 
+                   (0.663, 0.780, 0.282),
+                   (0.957, 0.812, 0.000),
+                   (0.925, 0.643, 0.016),
+                   (0.835, 0.314, 0.118),
+                   (0.780, 0.086, 0.118)]
         cmap = sns.blend_palette(palette, as_cmap=True)
 
     return cmap
@@ -193,9 +198,9 @@ class MapFigure(Figure):
         parallels = np.arange(dl*np.floor(ymin / dl),
                               dl*np.ceil(ymax / dl) + dl, dl)
 
-        mapobj.drawparallels(parallels, linewidth=0.25,
+        mapobj.drawparallels(parallels, linewidth=0.25, fontsize='x-small',
                              labels=[1, 0, 0, 1], style="italic")
-        mapobj.drawmeridians(meridians, linewidth=0.25,
+        mapobj.drawmeridians(meridians, linewidth=0.25, fontsize='x-small',
                              labels=[1, 0, 0, 1], style='italic')
         axes.tick_params(axis='both', direction='out', length=4,
                          width=1, color='k')
@@ -439,7 +444,7 @@ class ArrayMapFigure(MapFigure):
         vmax = datarange[1]
         CS = mapobj.pcolormesh(mx, my, data, vmin=vmin,
                                vmax=vmax, cmap=cmap)
-        CB = mapobj.colorbar(CS, location='right', pad='5%',
+        CB = mapobj.colorbar(CS, location='bottom', pad='10%',
                              fig=self, ax=axes)
         CB.set_label(cbarlab)
         axes.set_title(title)

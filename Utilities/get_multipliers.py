@@ -22,6 +22,8 @@ from os.path import join as pjoin, realpath, isdir, dirname
 from osgeo import gdal
 from osgeo.gdalnumeric import *
 from osgeo.gdalconst import *
+from osgeo.gdal_array import BandReadAsArray, CopyDatasetInfo, BandWriteArray
+
 import numpy as np
 import numpy.ma as ma
 import logging as log
@@ -228,7 +230,7 @@ def main(configFile):
     type_mapping = {'shielding': 'Ms', 'terrain': 'Mz', 'topographic': 'Mt'}
     dirns = ['e', 'n', 'ne', 'nw', 's', 'se', 'sw', 'w']
 
-    num_tiles = copyTranslateMultipliers(configFile, type_mapping, output_path)
+    copyTranslateMultipliers(configFile, type_mapping, output_path)
     mergeWindMultipliers(type_mapping, dirns, output_path)
     combineDirections(dirns, output_path)
 

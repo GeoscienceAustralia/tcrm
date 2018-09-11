@@ -363,7 +363,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         try:
             self.execute(INSEVENTS, eventparams)
 
-        except IntegrityError as err:
+        except sqlite3.IntegrityError as err:
             log.exception("Problem inserting events into tblEvents: ")
             log.exception("Pre-existing event with the same eventNumber attribute")
             log.exception("Check that you are not overwriting an existing database.")
