@@ -34,6 +34,7 @@ TODO::
 """
 
 import os
+from os.path import join as pjoin
 import logging
 import sqlite3
 from sqlite3 import PARSE_DECLTYPES, PARSE_COLNAMES
@@ -42,7 +43,6 @@ import time
 from datetime import datetime
 import unicodedata
 import re
-from os.path import join as pjoin
 
 from shapely.geometry import Point
 from netCDF4 import Dataset
@@ -58,21 +58,21 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
-def timer(f):
+def timer(func):
     """
-    A simple timing decorator for the entire process. 
+    A simple timing decorator for the entire process.
 
     """
 
-    @wraps(f)
+    @wraps(func)
     def wrap(*args, **kwargs):
         t1 = time.time()
-        res = f(*args, **kwargs)
+        res = func(*args, **kwargs)
         tottime = time.time() - t1
         msg = "%02d:%02d:%02d " % \
-            reduce(lambda ll, b : divmod(ll[0], b) + ll[1:],
+            reduce(lambda ll, b: divmod(ll[0], b) + ll[1:],
                    [(tottime,), 60, 60])
-        log.debug("Time for {0}: {1}".format(f.func_name, msg) )
+        log.debug("Time for {0}: {1}".format(func.func_name, msg))
         return res
 
     return wrap
@@ -608,6 +608,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         else:
             self.commit()
 
+    # pylint: disable=R0912
     def processTracks(self):
         """
         Populate tblTracks with the details of tracks and their proximity to
@@ -620,7 +621,6 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         log.debug("Processing tracks in {0}".format(self.trackPath))
         files = os.listdir(self.trackPath)
         trackfiles = [pjoin(self.trackPath, f) for f in files if f.startswith('tracks')]
-        #tracks = [t for t in loadTracksFromFiles(sorted(trackfiles))]
         log.debug("There are {0} track files".format(len(trackfiles)))
 
 
@@ -673,7 +673,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                 if work_pack is None:
                     break
 
-                results = self.processTrack(*work_pack)
+                results = processTrack(*work_pack)
                 pp.send(results, destination=0, tag=result_tag)
 
         elif pp.size() == 1 and pp.rank() == 0:
@@ -681,39 +681,10 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
             for w, trackfile in enumerate(trackfiles):
                 log.info("Processing trackfile {0:d} of {1:d}".\
                           format(w, len(trackfiles)))
-                #if len(track.data) == 0:
-                #    continue
-                result = self.processTrack(trackfile, locations)
+                result = processTrack(trackfile, locations)
                 if result is not None:
                     self.insertTracks(result)
 
-    def processTrack(self, trackfile, locations):
-        """
-        Process individual track to determine distance to locations, etc.
-
-        Any empty tracks are filtered at an earlier stage. If an empty
-        track is passed, then a None result is returned.
-
-        :param track: :class:`Track` instance.
-        :param locations: list of locations in the simulation domain.
-        """
-        tracks = [t for t in loadTracksFromFiles([trackfile])]
-        points = [Point(loc[2], loc[3]) for loc in locations]
-        records = []
-        for track in tracks:
-            if len(track.data) == 0:
-                log.info("Got an empty track: returning None")
-                continue #return None
-            distances = track.minimumDistance(points)
-            for (loc, dist) in zip(locations, distances):
-                locRecs = (loc[0], "%03d-%05d"%(track.trackId),
-                           dist, None, None, "", datetime.now())
-
-                records.append(locRecs)
-            log.info("Track {0}-{1} has {2} records".format(track.trackId[0],
-                                                            track.trackId[1],
-                                                            len(records)))
-        return records
 
     def insertTracks(self, trackRecords):
         """
@@ -732,6 +703,36 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         else:
             self.commit()
             log.debug("Inserted {0} records into tblTracks".format(len(trackRecords)))
+
+
+def processTrack(trackfile, locations):
+    """
+    Process individual track to determine distance to locations, etc.
+
+    Any empty tracks are filtered at an earlier stage. If an empty
+    track is passed, then a None result is returned.
+
+    :param track: :class:`Track` instance.
+    :param locations: list of locations in the simulation domain.
+    """
+    tracks = [t for t in loadTracksFromFiles([trackfile])]
+    points = [Point(loc[2], loc[3]) for loc in locations]
+    records = []
+    for track in tracks:
+        length = len(track.data)
+        if length == 0:
+            log.info("Got an empty track: returning None")
+            continue #return None
+        distances = track.minimumDistance(points)
+        for (loc, dist) in zip(locations, distances):
+            locRecs = (loc[0], "%03d-%05d"%(track.trackId),
+                       dist, None, None, "", datetime.now())
+
+            records.append(locRecs)
+        log.info("Track {0}-{1} has {2} records".format(track.trackId[0],
+                                                        track.trackId[1],
+                                                        len(records)))
+    return records
 
 def run(configFile):
     """
