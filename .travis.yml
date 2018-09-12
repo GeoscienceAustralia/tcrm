@@ -55,8 +55,6 @@ branches:
     - notebooks
 script:
   - python installer/setup.py build_ext -i
-  - python -c "import netCDF4; print(netCDF4.__version__)"
-  - python -c "import cftime; print(cftime.__version__)"
   - nosetests -v --with-coverage --cover-package=.
 after_success: coveralls
 notifications:
