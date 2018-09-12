@@ -194,7 +194,7 @@ def ncGetTimes(ncobj, name='time'):
     else:
         calendar = 'standard'
 
-    dates = num2date(times[:], units, calendar)
+    dates = num2date(times[:].data, units, calendar)
 
     return np.array(dates, dtype=datetime)
 
