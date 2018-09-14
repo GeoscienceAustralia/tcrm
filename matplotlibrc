@@ -5,8 +5,7 @@ backend: TkAgg
 lines.linewidth   : 0.5
 lines.linestyle   : -
 lines.markersize  : 1
-lines.color       : C0
-
+lines.color	  : k
 #### FONTS
 font.family       : sans-serif
 font.size         : 10.0
