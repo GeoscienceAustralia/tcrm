@@ -24,7 +24,7 @@ matplotlib.use('Agg', warn=False)
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-import Evaluate.interpolateTracks as interpolateTracks
+from . import interpolateTracks as interpolateTracks
 
 from Utilities.config import ConfigParser
 from Utilities.track import ncReadTrackData
