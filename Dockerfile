@@ -74,6 +74,9 @@ RUN pip install statsmodels==0.9.0
 # Additional steps
 # missing an additional dep when running tests
 RUN apt-get install -y python-tk
+# install pypar (for parralelization)
+RUN apt-get install -y mpich
+RUN pip install https://github.com/daleroberts/pypar/archive/master.zip
 # setup.py builds binaries in Utilities, and we need to access this
 ENV PYTHONPATH /home/src/Utilities:$PYTHONPATH
 
