@@ -93,6 +93,8 @@ RUN pip install statsmodels==0.9.0
 
 # missing an additional dep when running tests
 RUN apt-get install -y python-tk
+# setup.py builds binaries in Utilities, and we need to access this
+ENV PYTHONPATH /home/src/Utilities:$PYTHONPATH
 
 # Add the source
 ADD . /home/src
