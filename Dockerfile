@@ -1,5 +1,6 @@
 FROM ubuntu:14.04
 
+# TODO : uninstall build deps and squash using multistage docker builds to make the image lighter
 
 ########################################################################
 # Basic setup
@@ -9,11 +10,10 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update
 
 # Python
-RUN apt-get install -y python python-setuptools python-pip
-# python-dev (needed for pip installs)
+RUN apt-get install -y python python-setuptools python-pip python-dev
 
 ########################################################################
-# Travis apt packages
+# Adaptation of travis apt packages
 ########################################################################
 
 RUN apt-get install -y build-essential
@@ -34,41 +34,26 @@ RUN apt-get install -y libgdal-dev
 RUN apt-get install -y python-gdal
 
 ########################################################################
-# Travis install (pip install instead of conda install, pinned to conda's version)
+# Adaptation of travis install (pip install instead of conda install, pinned to conda's version)
 ########################################################################
 
 # Additional steps for building python libraries
 # for matplotlib
-# RUN apt-get install -y libfreetype6-dev
+RUN apt-get install -y libfreetype6-dev
 # for basemap, as suggested by https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=741242
-# RUN ln -s /usr/lib/libgeos-3.4.2.so /usr/lib/libgeos.so
+RUN ln -s /usr/lib/libgeos-3.4.2.so /usr/lib/libgeos.so
 # for netcdf4
-# RUN pip install --upgrade setuptools
+RUN pip install --upgrade setuptools
 # for sqlite (which is not a python package)
-# RUN apt-get install -y sqlite3 libsqlite3-dev
+RUN apt-get install -y sqlite3 libsqlite3-dev
 
-
-
-# TODO : move to top
-RUN apt-get install -y python-dev
 
 RUN pip install scipy==1.1.0
-# begin matplotlib
-    RUN apt-get install -y libfreetype6-dev
-    RUN pip install matplotlib==2.2.3
-# begendin matplotlib
-# begin basemap
-    # fix geos dep as suggested by https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=741242
-    RUN ln -s /usr/lib/libgeos-3.4.2.so /usr/lib/libgeos.so
-    # pip install from github as basemap is not in pypi
-    RUN pip install https://github.com/matplotlib/basemap/archive/v1.0.7rel.tar.gz
-# end basemap
+RUN pip install matplotlib==2.2.3
+RUN pip install https://github.com/matplotlib/basemap/archive/v1.0.7rel.tar.gz # basemap is not in pip
 RUN pip install shapely==1.6.4
 RUN pip install nose==1.3.7
-# begin netcdf4
-RUN pip install --upgrade setuptools
 RUN pip install netcdf4==1.4.1
-# end netcdf4
 RUN pip install cftime==1.0.0b1
 RUN pip install coverage==4.5.1
 RUN pip install coveralls==1.5.0
@@ -76,21 +61,17 @@ RUN pip install pycurl==7.43.0.2
 RUN pip install pyproj==1.9.5.1
 RUN pip install seaborn==0.9.0
 RUN pip install simplejson==3.16.0
-# begin sqlite (sqlite is not a python package)
-# RUN pip install sqlite==3.24.0
+# sqlite in conda is not a pip package but an apt-get package
 RUN apt-get install -y sqlite3 libsqlite3-dev
-# end sqlite
 RUN pip install statsmodels==0.9.0
-# begin gdal (this was already installed though apt packages)
-# RUN pip install libgdal==2.3.1
-# RUN pip install gdal==2.3.0
-# end gdal
-
+# libgdal was already installed as an apt-get package
+# gdal was already installed as an apt-get package
 
 ########################################################################
-# Travis script
+# Adaptation of travis script
 ########################################################################
 
+# Additional steps
 # missing an additional dep when running tests
 RUN apt-get install -y python-tk
 # setup.py builds binaries in Utilities, and we need to access this
@@ -102,8 +83,3 @@ WORKDIR /home/src
 
 # Build
 RUN python installer/setup.py build_ext -i
-
-# Test (we need --exe as on Docker for windows, all mounted files are executable)
-# RUN nosetests -v --with-coverage --exe
-
-# RUN python tcevent.py -c example/yasi.ini
