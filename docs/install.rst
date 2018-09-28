@@ -11,7 +11,7 @@ unix-based systems, Windows and Mac OS/X systems.
 .. _downloading:
 
 Downloading
------------
+----------
 
 The TCRM code can be downloaded from the `Geoscience Australia GitHub
 page <https://github.com/GeoscienceAustralia/tcrm>`_.
@@ -28,7 +28,7 @@ TCRM.
 .. _environment:
 
 Setting the environment
------------------------
+----------------------
 
 To enable TCRM to run flawlessly, you may need to change some
 environment settings. The important variable to set is the
@@ -71,7 +71,7 @@ CSH/TCSH shell
 .. _dependencies:
 
 Dependencies
-------------
+-----------
 
 TCRM relies on a number of additional libraries that are not part of
 the standard library. There are several ways to obtain the required
@@ -119,7 +119,7 @@ the ``$PATH`` for this to work.
 .. _compilation:
 
 Compiling the extensions
-------------------------
+-----------------------
 
 The model requires a number of C extensions to be compiled before
 execution. These can be built using Python's inbuilt :mod:`distutils`
@@ -199,7 +199,7 @@ installations.
 .. _testing:
 
 Testing the installation
-------------------------
+-----------------------
 
 The model code includes a suite of unit tests that ensure elements of
 the code base will work as expected, even if a user makes
@@ -236,3 +236,71 @@ Windows system. This test failure will appear as::
 
 Such an error will not affect model execution.
 
+
+Using Docker
+------------
+
+As an alternative way to install TCRM, you can use Docker.
+Docker is a very convenient way to run containerized software which
+avoids all the hassle with compilation or dependencies.
+
+Prerequisites
+~~~~~~~~~~~~~
+
+Install `Docker Community Edition
+<https://docs.docker.com/install/#supported-platforms>`_ for your
+system.
+
+Test the installation
+~~~~~~~~~~~~~~~~~~~~~
+
+Run this command ::
+
+    docker run olivierdalang/tcrm nosetests --exe
+
+The first time, this will take some time, as it needs to download the docker image.
+If it works, you should see (after some time), something like ``OK (SKIP=1)``.
+If not, you would see something like ``FAILED (SKIP=1, errors=1)``.
+
+Normal usage
+~~~~~~~~~~~~
+
+To run TCRM though Docker, you need to mount a folders containing your
+inputs and the output folder in the container.
+
+This can be done like this (assuming you have a my_conf.ini file in
+a folder) ::
+
+    docker run -v /path_to/my_data_folder:/home/src/mount -v /path_to/my_output_folder:/home/src/output olivierdalang/tcrm python tcevent.py -v -c mount/my_conf.ini
+
+Replace ``/path_to/my_data_folder`` and ``/path_to/my_output_folder``
+by the folders you want to use on your system, and ``python tcevent.py 
+v -c example/yasi.ini`` by the TCRM command you want to use.
+
+The first time, the docker image will have to be downloaded which will
+take some time.
+
+Developement
+~~~~~~~~~~~~
+
+You can also use Docker when developping TCRM by mounting the source::
+
+    git checkout https://github.com/GeoscienceAustralia/tcrm.git
+    cd tcrm
+    docker run -v ${PWD}:/home/src olivierdalang/tcrm python tcevent.py -c example/yasi.ini
+
+If you wish to make changes to the builds steps or dependencies, you need to rebuild the image locally ::
+
+    docker build -t olivierdalang/tcrm .
+
+Releases
+~~~~~~~~
+
+For users to be able to use the docker image out of the box without having to rebuild it locally,
+the image must be pushed to the docker hub repository like this ::
+
+    docker build -t olivierdalang/tcrm .
+    docker login
+    docker push olivierdalang/tcrm
+
+This can be setup to be done automatically after pushes through docker hub.

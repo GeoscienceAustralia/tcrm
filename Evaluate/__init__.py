@@ -9,11 +9,11 @@
 
 """
 
-from Evaluate.pressureDistribution import PressureDistribution
-from Evaluate.trackDensity import TrackDensity
-from Evaluate.longitudeCrossing import LongitudeCrossing
-from Evaluate.landfallRates import LandfallRates
-from Evaluate.genesisDensity import GenesisDensity
+from .pressureDistribution import PressureDistribution
+from .trackDensity import TrackDensity
+from .longitudeCrossing import LongitudeCrossing
+from .landfallRates import LandfallRates
+from .genesisDensity import GenesisDensity
 
 
 def run(configFile):
