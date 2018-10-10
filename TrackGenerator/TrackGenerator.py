@@ -911,7 +911,7 @@ class TrackGenerator(object):
 
         # Initialise the track
         poci_eps = normal(0., 2.5717)
-        lfeps = lognorm(0.616904, -0.043727, 0.035734)
+        lfeps = lognorm(0.69527, -0.06146, 0.0471)
 
         age[0] = 0
         dates[0] = initTime
@@ -1002,8 +1002,8 @@ class TrackGenerator(object):
             if onLand:
                 tol += float(self.dt)
                 deltaP = self.offshorePoci - self.offshorePressure
-                alpha = 0.01537 + 0.000457 * deltaP +\
-                        0.000662 * self.landfallSpeed + lfeps
+                alpha = 0.03515 + 0.000435 * deltaP +\
+                        0.002865 * self.landfallSpeed + lfeps
                 pressure[i] = poci[i - 1] - deltaP * np.exp(-alpha * tol)
                 poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
                 log.debug('alpha value for landfall decay: {0}'.format(alpha))
