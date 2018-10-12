@@ -35,7 +35,7 @@ from Utilities.files import flProgramVersion
 from Utilities.config import ConfigParser
 from Utilities.parallel import attemptParallel, disableOnWorkers
 import Utilities.nctools as nctools
-import evd
+from evd import EVFUNCS
 import GPD
 
 log = logging.getLogger(__name__)
@@ -281,17 +281,37 @@ class HazardCalculator(object):
         :param RpLower: Lower CI return period wind speed values for each lat/lon
 
         """
+
+        #try:
+        #    evfunc = EVFUNCS['{0}fit'.format(self.evd.lower())]
+        #except KeyError:
+        #    log.exception("{0} distribution not implemented for hazard calculation".format(self.evd))
+        #    raise
+
+        log.info("Using {0} distribution for the hazard curves".format(self.evd))
+        #Vr = loadFilesFromPath(self.inputPath, tilelimits)
+        #Rp, loc, scale, shp = evfunc(Vr, self.years, self.numSim, self.nodata, self.minRecords)
+        
         if self.evd == 'GPD':
             log.info("Using the GPD distribution for the hazard curves")
             Vr = loadFilesFromPath(self.inputPath, tilelimits) 
             Rp, loc, scale, shp = calculateGPD(Vr, self.years, self.numSim, self.nodata,
                                                self.minRecords, self.yrsPerSim)
-        else:
+        elif self.evd == 'GEV':
             log.info("Using the GEV distribution for the hazard curves")
             Vr = aggregateWindFields(self.inputPath, self.numSim, tilelimits)
             Rp, loc, scale, shp = calculateGEV(Vr, self.years, self.nodata,
                                                self.minRecords, self.yrsPerSim)
-
+        elif self.evd == 'power':
+            log.info("Using the power law function for the hazard curves")
+            Vr = loadFilesFromPath(self.inputPath, tilelimits)
+            Rp, loc, scale, shp = calculatePower(Vr, self.years, self.numSim, self.nodata,
+                                                 self.minRecords, self.yrsPerSim)
+        elif self.evd == 'emp':
+            log.info("Using empirical hazard curve")
+            Vr = loadFilesFromPath(self.inputPath, tilelimits)
+            Rp, loc, scale, shp = calculateEMP(Vr, self.years, self.numSim, self.nodata,
+                                               self.minRecords, self.yrsPerSim)
         if self.calcCI: # set in config
             RpUpper, RpLower = calculateCI(Vr, self.years, self.nodata,
                                            self.minRecords, self.yrsPerSim,
@@ -586,11 +606,8 @@ def calculateGEV(Vr, years, nodata, minRecords, yrsPerSim):
     for i in xrange(Vr.shape[1]): # lat
         for j in xrange(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
-                w, l, sc, sh = evd.estimateEVD(Vr[:,i,j],
-                                               years,
-                                               nodata,
-                                               minRecords,
-                                               yrsPerSim)
+                w, l, sc, sh = evd.gevfit(Vr[:,i,j], years, nodata,
+                                          minRecords, yrsPerSim)
                 # w = array of return period wind speed values
                 # l = location parameter of fit
                 # sc = scale parameter of fit
@@ -604,7 +621,117 @@ def calculateGEV(Vr, years, nodata, minRecords, yrsPerSim):
 
     return Rp, loc, scale, shp
 
+def calculateEMP(Vr, years, numsim, nodata, minRecords, yrsPerSim):
+    """
+    Calculate empirical return levels the wind speed records for a 2-D extent of
+    wind speed values
+
+    :param Vr: `numpy.ndarray` of wind speeds (3-D - event, lat, lon)
+               block maxima processed with aggregateWindRecords
+    :param years: `numpy.ndarray` of years for which to evaluate
+                  return period values
+    :param float nodata: missing data value.
+    :param int minRecords: minimum number of valid wind speed values required
+                           to fit distribution.
+    :param int yrsPerSim: Taken from the config file
+
+    Returns:
+    --------
+    
+    GEV fit parameters and return period wind speeds for each grid cell in
+    simulation domain
+
+    :param Rp: `numpy.ndarray` of return period wind speed values
+    :param loc: `numpy.ndarray` of location parameters in the domain of `Vr`
+    :param scale: `numpy.ndarray` of scale parameters in the domain of `Vr`
+    :param shp: `numpy.ndarray` of shape parameters in the domain of `Vr`
+
+    """
+
+    Vr.sort(axis=0) #axis 0 = year
+    Rp = np.zeros((len(years),) + Vr.shape[1:], dtype='f') # Rp = years x lat x lon
+    loc = np.zeros(Vr.shape[1:], dtype='f') # loc = lat x lon
+    scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
+    shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
+
+    for i in xrange(Vr.shape[1]): # lat
+        for j in xrange(Vr.shape[2]): # lon
+            if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
+                w, l, sc, sh = evd.empfit(Vr[:,i,j], years, numsim, nodata,
+                                          minRecords)
+                # w = array of return period wind speed values
+                # l = location parameter of fit
+                # sc = scale parameter of fit
+                # sh = shape parameter of fit
+
+                # Put the returned values back into the lat/lon grid
+                Rp[:, i, j] = w
+                loc[i, j] = l
+                scale[i, j] = sc
+                shp[i, j] = sh
+
+    return Rp, loc, scale, shp
+
+
+
 def calculateGPD(Vr, years, numsim, nodata, minRecords, yrsPerSim):
+    """
+    Fit a GPD to the wind speed records for a 2-D extent of
+    wind speed values
+
+    :param inputPath: path to individual wind field files.
+    :param tuple tilelimits: tuple of index limits of a tile.
+    :param years: `numpy.ndarray` of years for which to evaluate
+                  return period values
+    :param int numsim: number of simulations created.
+    :param float nodata: missing data value.
+    :param int minRecords: minimum number of valid wind speed values required
+                           to fit distribution.
+    :param int yrsPerSim: Taken from the config file
+
+    Returns:
+    --------
+    
+    GPD fit parameters and return period wind speeds for each grid cell in
+    simulation domain
+
+    :param Rp: `numpy.ndarray` of return period wind speed values
+    :param loc: `numpy.ndarray` of location parameters in the domain of `Vr`
+    :param scale: `numpy.ndarray` of scale parameters in the domain of `Vr`
+    :param shp: `numpy.ndarray` of shape parameters in the domain of `Vr`
+
+    """
+
+    Vr.sort(axis=0) #axis 0 = year
+    Rp = np.zeros((len(years),) + Vr.shape[1:], dtype='f') # Rp = years x lat x lon
+    loc = np.zeros(Vr.shape[1:], dtype='f') # loc = lat x lon
+    scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
+    shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
+
+    for i in xrange(Vr.shape[1]): # lat
+        for j in xrange(Vr.shape[2]): # lon
+            if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
+                log.debug("lat: {0}, lon: {1}".format(i, j))
+                w, l, sc, sh = GPD.gpdfit(Vr[:,i,j],
+                                          years,
+                                          numsim,
+                                          nodata,
+                                          minRecords,
+                                          threshold=99.5)
+                # w = array of return period wind speed values
+                # l = location parameter of fit
+                # sc = scale parameter of fit
+                # sh = shape parameter of fit
+
+                # Put the returned values back into the lat/lon grid
+                Rp[:, i, j] = w
+                loc[i, j] = l
+                scale[i, j] = sc
+                shp[i, j] = sh
+
+    return Rp, loc, scale, shp
+
+def calculatePower(Vr, years, numsim, nodata, minRecords, yrsPerSim):
     """
     Fit a GPD to the wind speed records for a 2-D extent of
     wind speed values
@@ -642,12 +769,11 @@ def calculateGPD(Vr, years, numsim, nodata, minRecords, yrsPerSim):
         for j in xrange(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
                 log.debug("lat: {0}, lon: {1}".format(i, j))
-                w, l, sc, sh = GPD.gpdfit(Vr[:,i,j],
-                                          years,
-                                          numsim,
-                                          nodata,
-                                          minRecords,
-                                          threshold=99.5)
+                w, l, sc, sh = evd.powerfit(Vr[:,i,j],
+                                            years,
+                                            numsim,
+                                            nodata,
+                                            minRecords)
                 # w = array of return period wind speed values
                 # l = location parameter of fit
                 # sc = scale parameter of fit
@@ -716,8 +842,8 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
                     vsub.sort()
                     if vsub.max( ) > 0.:
                         # Perform the fitting on a random subset of samples
-                        w[:, n], loc, scale, shp = evd.estimateEVD(vsub, years, nodata,
-                                                                   minRecords/10, yrsPerSim)
+                        w[:, n], loc, scale, shp = evd.gevfit(vsub, years, nodata,
+                                                              minRecords/10, yrsPerSim)
 
                 # Pull out the upper and lower percentiles from the random sample fits
                 for n in range(len(years)):
