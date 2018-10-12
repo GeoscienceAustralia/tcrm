@@ -253,7 +253,7 @@ class POWERDistribution(ExtremeValueDistribution):
             loc, scale, shp = pars
             return w, loc, scale, shp
         
-def gevfit(data, intervals, numsim, nodata=-9999., minrecords=50, ):
+def gevfit(data, intervals, nodata=-9999., minrecords=50, yrspersim=1):
     """
     Calculate extreme value distribution parameters using the Lmoments module.
     Return period values are not calculated if the shape parameter is negative
@@ -324,7 +324,7 @@ def gevfit(data, intervals, numsim, nodata=-9999., minrecords=50, ):
         else:
             # Calculate wind speed for each return period
             w[i] = (np.transpose(loc + (scale / shp) *
-                    (1. - np.power(-1. * np.log(1. - (1. / t)), shp))))
+                    (1. - np.power(-1. * np.log(1. - (yrspersim / t)), shp))))
 
             # Replace any non-finite numbers with the missing value:
             if not np.isfinite(w[i]):
