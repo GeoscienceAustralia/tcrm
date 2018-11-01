@@ -29,13 +29,14 @@ import os
 import io
 import sys
 
+import matplotlib
+matplotlib.use('Agg', warn=False)  # Use matplotlib backend
+
 import database
 import numpy as np
 import matplotlib.pyplot as plt
+plt.ioff()
 from matplotlib.ticker import LogLocator, FormatStrFormatter
-#from ipywidgets import interact, fixed, Dropdown, FloatSlider, interactive, interact_manual
-#import ipywidgets as widgets
-#from IPython.display import display
 
 from Utilities.config import ConfigParser
 
@@ -45,7 +46,7 @@ from distributions import fittedPDF
 import random
 
 import seaborn as sns
-sns.set_context("poster")
+sns.set_context("notebook")
 sns.set_style("whitegrid")
 
 
@@ -54,7 +55,7 @@ sns.set_style("whitegrid")
 
 # In[2]:
 
-configFile = "/g/data/fj6/TCRM/TCHA18/tcrm2.1.ini"
+configFile = "/home/547/cxa547/tcrmconfig/tcrm2.1.ini"
 config = ConfigParser()
 config.read(configFile)
 outputPath = config.get('Output', 'Path')
@@ -85,8 +86,8 @@ def addARIGrid(axes):
     axes.xaxis.set_major_formatter(FormatStrFormatter('%d'))
     axes.xaxis.set_minor_locator(LogLocator(subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9]))
     axes.autoscale(True, axis='x', tight=True)
-    axes.grid(True, which='major', linestyle='-', linewidth=0.5)
-    axes.grid(True, which='minor', linestyle='-', linewidth=0.5)
+    axes.grid(True, which='major', linestyle='-')
+    axes.grid(True, which='minor', linestyle='--', linewidth=0.5)
     
 def addAEPGrid(axes):
     """
@@ -96,8 +97,8 @@ def addAEPGrid(axes):
     axes.yaxis.set_major_locator(LogLocator())
     axes.yaxis.set_minor_locator(LogLocator(subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9]))
     axes.autoscale(True, axis='y', tight=True)
-    axes.grid(True, which='major', linestyle='-', linewidth=0.5)
-    axes.grid(True, which='minor', linestyle='-', linewidth=0.5)
+    axes.grid(True, which='major', linestyle='-')
+    axes.grid(True, which='minor', linestyle='--', linewidth=0.5)
     
     
 def plotConvergenceTest(locName):
@@ -109,7 +110,8 @@ def plotConvergenceTest(locName):
     recs = records['wspd'][records['wspd'] > 0]
     data = np.zeros(int(NumSimulations*365.25))
     data[-len(recs):] = recs
-
+    sortedmax = np.sort(data)
+    emprp = empReturnPeriod(data)
     random.shuffle(data)
     d1 = data[:int(len(data)/2)]
     d2 = data[int(len(data)/2+1):]
@@ -117,12 +119,17 @@ def plotConvergenceTest(locName):
     sortedmax2 = np.sort(d2)
     emprp1 = empReturnPeriod(d1)
     emprp2 = empReturnPeriod(d2)
+    ep = 1./emprp
     ep1 = 1./emprp1
     ep2 = 1./emprp2
+    
     fig, ax1 = plt.subplots(1, 1)
-    ax1.semilogx(emprp2[emprp2> 1], sortedmax2[emprp2 > 1])
-    ax1.semilogx(emprp1[emprp1> 1], sortedmax1[emprp1 > 1],
-                 color='r', label="Empirical ARI")
+    ax1.semilogx(emprp[emprp > 1], sortedmax[emprp > 1], color='k', 
+                 label="Mean ARI")
+    ax1.semilogx(emprp2[emprp2> 1], sortedmax2[emprp2 > 1], color="#006983",
+                 label="Convergence check 1")
+    ax1.semilogx(emprp1[emprp1> 1], sortedmax1[emprp1 > 1], color="#A33F1F",
+                 label="Convergence check 2")
     ax1.set_xscale('log')
 
     xlabel = 'Average recurrence interval (years)'
@@ -134,10 +141,17 @@ def plotConvergenceTest(locName):
     ax1.set_title(title)
     addARIGrid(ax1)
     fig.tight_layout()
-    
+    plt.savefig(os.path.join(plotPath, "{0:05d}_ARI.png".format(locId)), 
+                bbox_inches='tight')
+    plt.close()
     fig2, ax2 = plt.subplots(1, 1)
-    ax2.semilogy(sortedmax1[emprp1 > 1], ep1[emprp1 > 1])
-    ax2.semilogy(sortedmax2[emprp2 > 1], ep2[emprp2 > 1], color='r')
+    ax2.semilogy(sortedmax[emprp > 1], ep[emprp > 1], color="k",
+                 label="Mean exceedance rate")
+
+    ax2.semilogy(sortedmax1[emprp1 > 1], ep1[emprp1 > 1], color="#006983",
+                 label="Convergence check 1")
+    ax2.semilogy(sortedmax2[emprp2 > 1], ep2[emprp2 > 1], color="#A33F1F",
+                 label="Convergence check 2")
     ax2.set_xlabel(ylabel)
     title = "AEP wind speeds at " + locName + \
         ", \n(%5.2f,%5.2f, n=%d)"%(locLon, locLat, len(recs))
@@ -148,6 +162,7 @@ def plotConvergenceTest(locName):
     fig.tight_layout()
     plt.savefig(os.path.join(plotPath, "{0:05d}_AEP.png".format(locId)), 
                 bbox_inches='tight')
+    plt.close()
 
 # Run the next cell, then select a location from the dropdown list and
 # click the `"Run plotConvergenceTest"` button. This will take a
@@ -157,5 +172,5 @@ def plotConvergenceTest(locName):
 
 
 for locName in locNameList:
-    print(locName)
+    #print(locName)
     plotConvergenceTest(locName)
