@@ -437,12 +437,13 @@ class HazardCalculator(object):
 
         dimensions = {
             0: {
-                'name': 'years',
+                'name': 'ari',
                 'values': self.years,
                 'dtype': 'f',
                 'atts': {
-                    'long_name' : 'Return period',
-                    'units' : 'years'
+                    'long_name' : 'Average recurrence interval',
+                    'units' : 'years',
+                    'axis' : 'Z'
                 }
             },
             1: {
@@ -509,11 +510,11 @@ class HazardCalculator(object):
             },
             3: {
                 'name': 'wspd',
-                'dims': ('years', 'lat', 'lon'),
+                'dims': ('ari', 'lat', 'lon'),
                 'values': self.Rp,
                 'dtype': 'f',
                 'atts': {
-                    'long_name': 'Return period wind speed',
+                    'long_name': 'Average recurrence interval wind speed',
                     'units': 'm/s',
                     'actual_range': (np.min(self.Rp), np.max(self.Rp)),
                     'valid_range': (0.0, 200.),
@@ -522,11 +523,11 @@ class HazardCalculator(object):
             },
             4: {
                 'name': 'wspdupper',
-                'dims': ('years', 'lat', 'lon'),
+                'dims': ('ari', 'lat', 'lon'),
                 'values': self.RPupper,
                 'dtype': 'f',
                 'atts': {
-                    'long_name': 'Upper percentile return period wind speed',
+                    'long_name': 'Upper percentile ARI wind speed',
                     'units': 'm/s',
                     'percentile': 95,
                     'valid_range': (0.0, 200.),
@@ -535,11 +536,11 @@ class HazardCalculator(object):
             },
             5: {
                 'name': 'wspdlower',
-                'dims': ('years', 'lat', 'lon'),
+                'dims': ('ari', 'lat', 'lon'),
                 'values': self.RPlower,
                 'dtype': 'f',
                 'atts': {
-                    'long_name': 'Lower percentile return period wind speed',
+                    'long_name': 'Lower percentile ARI wind speed',
                     'units': 'm/s',
                     'percentile': 5,
                     'valid_range': (0.0, 200.),
