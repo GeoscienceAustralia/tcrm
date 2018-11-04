@@ -171,6 +171,69 @@ def plotConvergenceTest(locName):
 # 10,000 years of events.
 
 
-for locName in locNameList:
-    #print(locName)
-    plotConvergenceTest(locName)
+#for locName in locNameList:
+#    #print(locName)
+#    plotConvergenceTest(locName)
+
+
+locList = ['Carnarvon Airport', 'Port Hedland Airport',
+           'Broome Airport', 'Darwin Airport',
+           'Cairns Airport', 'Townsville Amo',
+           'Rockhampton Airport', 'Willis Island']
+
+def plotConvergence(ax, locName):
+    locId = locations['locId'][locations['locName']==locName][0]
+    locLon = locations['locLon'][locations['locId']==locId][0]
+    locLat = locations['locLat'][locations['locId']==locId][0]
+
+    records = database.locationRecords(db, locId)
+    recs = records['wspd'][records['wspd'] > 0]
+    data = np.zeros(int(NumSimulations*365.25))
+    data[-len(recs):] = recs
+    sortedmax = np.sort(data)
+    emprp = empReturnPeriod(data)
+    random.shuffle(data)
+    d1 = data[:int(len(data)/2)]
+    d2 = data[int(len(data)/2+1):]
+    sortedmax1 = np.sort(d1)
+    sortedmax2 = np.sort(d2)
+    emprp1 = empReturnPeriod(d1)
+    emprp2 = empReturnPeriod(d2)
+    ep = 1./emprp
+    ep1 = 1./emprp1
+    ep2 = 1./emprp2
+    ax.semilogx(emprp[emprp > 1], sortedmax[emprp > 1], color='k', 
+                 label="Mean ARI")
+    ax.semilogx(emprp2[emprp2> 1], sortedmax2[emprp2 > 1], color="#006983",
+                 label="Convergence check 1")
+    ax.semilogx(emprp1[emprp1> 1], sortedmax1[emprp1 > 1], color="#A33F1F",
+                 label="Convergence check 2")
+    ax.set_xscale('log')
+
+    xlabel = 'Average recurrence interval (years)'
+    ylabel = 'Wind speed (m/s)'
+    title = "ARI wind speeds at " + locName + \
+        ", \n(%5.2f,%5.2f, n=%d)"%(locLon, locLat, len(recs))
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    addARIGrid(ax)
+
+fig, axes = plt.subplots(4, 2, figsize=(12,16), sharex=True, sharey=True)
+axlist = axes.flatten()
+for i, loc in enumerate(locList):
+    plotConvergence(axlist[i], loc)
+
+axlist[0].legend(loc=2)
+axlist[0].set_ylabel('Wind speed (m/s)')
+axlist[2].set_ylabel('Wind speed (m/s)')
+axlist[4].set_ylabel('Wind speed (m/s)')
+axlist[6].set_ylabel('Wind speed (m/s)')
+
+axlist[6].set_xlabel('Average recurrence interval (years)')
+axlist[7].set_xlabel('Average recurrence interval (years)')
+
+
+fig.tight_layout()
+plt.savefig(os.path.join(plotPath, "ARI_convergence.png"), 
+                bbox_inches='tight')
