@@ -76,8 +76,8 @@ def interpolate(track, delta, interpolation_type=None):
         time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.0
                       for d in day_], dtype=float)
     except AttributeError:
-        from netCDF4 import netcdftime
-        if isinstance(day_[0], netcdftime._netcdftime.DatetimeJulian):
+        import cftime
+        if isinstance(day_[0], cftime.DatetimeJulian):
             day__ = [d._to_real_datetime() for d in day_]
             time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.
                               for d in day__], dtype=float)
