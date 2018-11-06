@@ -205,17 +205,16 @@ def plotConvergence(ax, locName):
     ax.semilogx(emprp[emprp > 1], sortedmax[emprp > 1], color='k', 
                  label="Mean ARI")
     ax.semilogx(emprp2[emprp2> 1], sortedmax2[emprp2 > 1], color="#006983",
-                 label="Convergence check 1")
+                 label="Convergence check 1", ls='--', lw=0.5)
     ax.semilogx(emprp1[emprp1> 1], sortedmax1[emprp1 > 1], color="#A33F1F",
-                 label="Convergence check 2")
+                 label="Convergence check 2", ls='--', lw=0.5)
     ax.set_xscale('log')
 
     xlabel = 'Average recurrence interval (years)'
     ylabel = 'Wind speed (m/s)'
-    title = "ARI wind speeds at " + locName + \
-        ", \n(%5.2f,%5.2f, n=%d)"%(locLon, locLat, len(recs))
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
+    title = "{0} ({1:5.2f}E, {2:5.2f}S, n={3:d})".format(locName, locLon, locLat, len(recs))
+    #ax.set_xlabel(xlabel)
+    #ax.set_ylabel(ylabel)
     ax.set_title(title)
     addARIGrid(ax)
 
