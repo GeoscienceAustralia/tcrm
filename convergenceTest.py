@@ -122,6 +122,7 @@ def plotConvergenceTest(locName):
     ep = 1./emprp
     ep1 = 1./emprp1
     ep2 = 1./emprp2
+    delta = np.abs(emprp1 - emprp2)/emprp
     
     fig, ax1 = plt.subplots(1, 1)
     ax1.semilogx(emprp[emprp > 1], sortedmax[emprp > 1], color='k', 
@@ -135,18 +136,20 @@ def plotConvergenceTest(locName):
     xlabel = 'Average recurrence interval (years)'
     ylabel = 'Wind speed (m/s)'
     title = "ARI wind speeds at " + locName + \
-        ", \n(%5.2f,%5.2f, n=%d)"%(locLon, locLat, len(recs))
+        " \n(%5.2f,%5.2f, n=%d)"%(locLon, locLat, len(recs))
     ax1.set_xlabel(xlabel)
     ax1.set_ylabel(ylabel)
     ax1.set_title(title)
+    ax1.legend(loc=2)
     addARIGrid(ax1)
     fig.tight_layout()
     plt.savefig(os.path.join(plotPath, "{0:05d}_ARI.png".format(locId)), 
                 bbox_inches='tight')
     plt.close()
+
     fig2, ax2 = plt.subplots(1, 1)
     ax2.semilogy(sortedmax[emprp > 1], ep[emprp > 1], color="k",
-                 label="Mean exceedance rate")
+                 label="Mean AEP")
 
     ax2.semilogy(sortedmax1[emprp1 > 1], ep1[emprp1 > 1], color="#006983",
                  label="Convergence check 1")
@@ -154,16 +157,29 @@ def plotConvergenceTest(locName):
                  label="Convergence check 2")
     ax2.set_xlabel(ylabel)
     title = "AEP wind speeds at " + locName + \
-        ", \n(%5.2f,%5.2f, n=%d)"%(locLon, locLat, len(recs))
-    ax2.set_ylabel("Exceedance probability")
+        " \n(%5.2f,%5.2f, n=%d)"%(locLon, locLat, len(recs))
+    ax2.set_ylabel("Exceedance probability (events/year)")
 
     ax2.set_title(title)
+    ax2.legend(loc=1)
     addAEPGrid(ax2)
     fig.tight_layout()
     plt.savefig(os.path.join(plotPath, "{0:05d}_AEP.png".format(locId)), 
                 bbox_inches='tight')
     plt.close()
 
+    fig3, ax3 = plt.subplots(1, 1)
+    ax3.fill_between(emprp[emprp > 1], delta[emprp > 1], color="#006983", alpha=0.5)
+    ax3.set_xlabel(xlabel)
+    ax3.set_ylabel('Fractional difference in ARI wind speed')
+    ax3.set_title("Difference in convergence test ARI wind speeds at " + locName + \
+        " \n(%5.2f,%5.2f, n=%d)"%(locLon, locLat, len(recs)))
+    ax3.set_xscale('log')
+    addARIGrid(ax3)
+    fig.tight_layout()
+    plt.savefig(os.path.join(plotPath, "{0:05d}_ARI_delta.png".format(locId)), 
+                bbox_inches='tight')
+    plt.close()
 # Run the next cell, then select a location from the dropdown list and
 # click the `"Run plotConvergenceTest"` button. This will take a
 # minute or so to run, as it needs to extract all the values from the
@@ -171,15 +187,17 @@ def plotConvergenceTest(locName):
 # 10,000 years of events.
 
 
-#for locName in locNameList:
-#    #print(locName)
-#    plotConvergenceTest(locName)
+
 
 
 locList = ['Carnarvon Airport', 'Port Hedland Airport',
            'Broome Airport', 'Darwin Airport',
            'Cairns Airport', 'Townsville Amo',
            'Rockhampton Airport', 'Willis Island']
+
+for locName in locList:
+    #print(locName)
+    plotConvergenceTest(locName)
 
 def plotConvergence(ax, locName):
     locId = locations['locId'][locations['locName']==locName][0]
@@ -205,9 +223,9 @@ def plotConvergence(ax, locName):
     ax.semilogx(emprp[emprp > 1], sortedmax[emprp > 1], color='k', 
                  label="Mean ARI")
     ax.semilogx(emprp2[emprp2> 1], sortedmax2[emprp2 > 1], color="#006983",
-                 label="Convergence check 1", ls='--', lw=0.5)
+                 label="Convergence check 1", ls='--')
     ax.semilogx(emprp1[emprp1> 1], sortedmax1[emprp1 > 1], color="#A33F1F",
-                 label="Convergence check 2", ls='--', lw=0.5)
+                 label="Convergence check 2", ls='--')
     ax.set_xscale('log')
 
     xlabel = 'Average recurrence interval (years)'
