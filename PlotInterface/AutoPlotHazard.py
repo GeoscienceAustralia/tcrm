@@ -143,7 +143,7 @@ class AutoPlotHazard(object):
             ncobj = nctools.ncLoadFile(inputFile)
             lon = nctools.ncGetDims(ncobj, 'lon')
             lat = nctools.ncGetDims(ncobj, 'lat')
-            years = nctools.ncGetDims(ncobj, 'years')
+            years = nctools.ncGetDims(ncobj, 'ari')
             data = nctools.ncGetData(ncobj, varname)
             mv = getattr(ncobj.variables[varname], '_FillValue')
             ncobj.close()
@@ -189,7 +189,7 @@ class AutoPlotHazard(object):
             ncobj = nctools.ncLoadFile(inputFile)
             lon = nctools.ncGetDims(ncobj, 'lon')
             lat = nctools.ncGetDims(ncobj, 'lat')
-            years = nctools.ncGetDims(ncobj, 'years')
+            years = nctools.ncGetDims(ncobj, 'ari')
         except (IOError, RuntimeError, KeyError):
             log.critical("Cannot load input file: %s"%inputFile)
             raise

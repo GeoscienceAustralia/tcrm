@@ -642,7 +642,7 @@ def demo():
 
     xdata = ncobj.variables['lon'][:]
     ydata = ncobj.variables['lat'][:]
-    tdata = ncobj.variables['years'][:]
+    tdata = ncobj.variables['ari'][:]
     vdata = ncobj.variables['wspd'][:]
     ncobj.close()
     [xgrid, ygrid] = np.meshgrid(xdata, ydata)
