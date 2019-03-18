@@ -80,19 +80,18 @@ Status
 Screenshot
 ==========
 
-.. image:: https://rawgithub.com/GeoscienceAustralia/tcrm/master/docs/screenshot.png
+.. image:: docs/screenshot.png
 
 Contributing to TCRM
 ====================
 
-If you would like to take part in TCRM development, take a look at `docs/contributing.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/docs/contributing.rst>`_.
+If you would like to take part in TCRM development, take a look at the `Contributing guide <docs/contributing.rst>`_.
 
 License
 =======
 
 This repository is licensed under the GNU General Public License. See
-the file `LICENSE.rst
-<https://github.com/GeoscienceAustralia/tcrm/blob/master/LICENSE.rst>`_
+the file `LICENSE.rst <LICENSE.rst>`_
 for information on the history of this software, terms and conditions
 for usage, and a DISCLAIMER OF ALL WARRANTIES.
 
