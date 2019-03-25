@@ -567,7 +567,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         dtHazardFile = datetime.fromtimestamp(int(si.st_mtime))
         lon = ncobj.variables['lon'][:]
         lat = ncobj.variables['lat'][:]
-        years = ncobj.variables['years'][:]
+        years = ncobj.variables['ari'][:]
 
         wspd = ncobj.variables['wspd'][:]
         wspdUpper = ncobj.variables['wspdupper'][:]
