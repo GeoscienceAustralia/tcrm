@@ -114,7 +114,7 @@ def plotConvergenceTest(locName):
     emprp = empReturnPeriod(data)
     random.shuffle(data)
     d1 = data[:int(len(data)/2)]
-    d2 = data[int(len(data)/2+1):]
+    d2 = data[int(len(data)/2):]
     sortedmax1 = np.sort(d1)
     sortedmax2 = np.sort(d2)
     emprp1 = empReturnPeriod(d1)
@@ -122,8 +122,10 @@ def plotConvergenceTest(locName):
     ep = 1./emprp
     ep1 = 1./emprp1
     ep2 = 1./emprp2
-    delta = np.abs(emprp1 - emprp2)/emprp
-    
+    mn = (sortedmax1[emprp1 > 1] + sortedmax2[emprp2 > 1])/2.
+    delta = np.abs(sortedmax1[emprp1 > 1] - sortedmax2[emprp2 > 1])
+    fdelta = delta/mn
+
     fig, ax1 = plt.subplots(1, 1)
     ax1.semilogx(emprp[emprp > 1], sortedmax[emprp > 1], color='k', 
                  label="Mean ARI")
@@ -168,14 +170,22 @@ def plotConvergenceTest(locName):
                 bbox_inches='tight')
     plt.close()
 
-    fig3, ax3 = plt.subplots(1, 1)
-    ax3.fill_between(emprp[emprp > 1], delta[emprp > 1], color="#006983", alpha=0.5)
-    ax3.set_xlabel(xlabel)
-    ax3.set_ylabel('Fractional difference in ARI wind speed')
-    ax3.set_title("Difference in convergence test ARI wind speeds at " + locName + \
-        " \n(%5.2f,%5.2f, n=%d)"%(locLon, locLat, len(recs)))
+    fig3, (ax3, ax4) = plt.subplots(2, 1, sharex=True)
+    ax3.fill_between(emprp[emprp > 1][0:-1:2], fdelta,
+                     color="#006983", alpha=0.5)
+    ax3.set_ylabel('Fractional difference')
+    ax3.set_title("Difference in convergence test ARI wind speeds at " + \
+                  locName + " \n(%5.2f,%5.2f, n=%d)"%(locLon, locLat, len(recs)))
     ax3.set_xscale('log')
     addARIGrid(ax3)
+
+    ax4.fill_between(emprp[emprp > 1][0:-1:2], delta,
+                     color="#006983", alpha=0.5)
+    ax4.set_ylabel("Difference (m/s)")
+    ax4.set_xlabel(xlabel)
+    ax4.set_xscale('log')
+    addARIGrid(ax4)
+
     fig.tight_layout()
     plt.savefig(os.path.join(plotPath, "{0:05d}_ARI_delta.png".format(locId)), 
                 bbox_inches='tight')
