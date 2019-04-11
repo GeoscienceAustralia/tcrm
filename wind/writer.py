@@ -5,6 +5,7 @@ Saving the wind-field time-series to file
 import netCDF4
 import affine
 import numpy as np
+import logging
 
 class WriteFoliationCallback(object):
     """
@@ -31,9 +32,13 @@ class WriteFoliationCallback(object):
     """
     # Uses low-level NetCDF bindings to support windowed progressive writes.
 
-    def __init__(self, filename, gridLimit, resolution, margin=0, maxchunk=256):
+    def __init__(self, filename, gridLimit, resolution, margin=0, maxchunk=256, wraps=None):
+        logging.debug("Preparing to record windfield evolution to {}".format(filename))
+        
+        self.callback = wraps
+        
         def series(start, stop, inc=resolution):
-            return np.linspace(start, stop, int(round((stop - start) / inc)) + 1)
+            return np.linspace(start, stop, int(round((stop-start)/inc)) + 1)
         lat = series(gridLimit['yMin'] - margin, gridLimit['yMax'] + margin)
         lon = series(gridLimit['xMin'] - margin, gridLimit['xMax'] + margin)
 
@@ -58,18 +63,21 @@ class WriteFoliationCallback(object):
         self.lon[:] = lon
 
         # data variables:
-        details = dict(datatype='f4',
-                       dimensions=('time', 'lat', 'lon'),
-                       #fill_value=0, # np.NaN ?
-                       chunksizes=(1, min(len(lat), maxchunk), min(len(lon), maxchunk)),
-                       zlib=True)
-        self.speed = root.createVariable('gust_speed', fill_value=0, **details)
-        self.Ux    = root.createVariable('velocity_east', fill_value=0, **details)
-        self.Uy    = root.createVariable('velocity_north', fill_value=0, **details)
-        self.P     = root.createVariable('pressure', fill_value=np.NaN, **details)
+        etc = dict(datatype='f4',
+                   dimensions=('time', 'lat', 'lon'),
+                   #fill_value=0, # np.NaN ?
+                   chunksizes=(1, min(len(lat), maxchunk), min(len(lon), maxchunk)),
+                   zlib=True)
+        self.speed = root.createVariable('gust_speed', fill_value=0, **etc)
+        self.Ux    = root.createVariable('velocity_east', fill_value=0, **etc)
+        self.Uy    = root.createVariable('velocity_north', fill_value=0, **etc)
+        self.P     = root.createVariable('pressure', fill_value=np.NaN, **etc)
 
     def __call__(self, time, gust, Ux, Uy, P, lon, lat):
         """Save wind field layer for latest time step"""
+        if self.callback:
+            self.callback(time, gust, Ux, Uy, P, lon, lat)
+        
         t = len(self.time) # current time index
 
         if not t: # then initialise

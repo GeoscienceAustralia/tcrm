@@ -423,6 +423,17 @@ class WindfieldGenerator(object):
                                   resolution=self.resolution,
                                   gridLimit=self.gridLimit,
                                   domain=self.domain)
+        
+        if self.config.getboolean('Timeseries', 'Windfields', fallback=False):
+            from . import writer            
+            output = pjoin(self.windfieldPath,                            
+                           'evolution.{0:03d}-{1:05d}.nc'.format(
+                                                               *track.trackId))            
+            callback = writer.WriteFoliationCallback(output, 
+                                                     self.gridLimit, 
+                                                     self.resolution, 
+                                                     self.margin, 
+                                                     wraps=callback)
 
         return track, wt.regionalExtremes(self.gridLimit, callback)
 
