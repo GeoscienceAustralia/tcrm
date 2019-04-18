@@ -34,9 +34,9 @@ class WriteFoliationCallback(object):
 
     def __init__(self, filename, gridLimit, resolution, margin=0, maxchunk=256, wraps=None):
         logging.debug("Preparing to record windfield evolution to {}".format(filename))
-        
+
         self.callback = wraps
-        
+
         def series(start, stop, inc=resolution):
             return np.linspace(start, stop, int(round((stop-start)/inc)) + 1)
         lat = series(gridLimit['yMin'] - margin, gridLimit['yMax'] + margin)
@@ -77,7 +77,7 @@ class WriteFoliationCallback(object):
         """Save wind field layer for latest time step"""
         if self.callback:
             self.callback(time, gust, Ux, Uy, P, lon, lat)
-        
+
         t = len(self.time) # current time index
 
         if not t: # then initialise
