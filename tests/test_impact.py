@@ -9,6 +9,7 @@ import shutil
 import numpy as np
 import xarray
 import pandas
+from distutils.spawn import find_executable as which # py3: shutil.which
 
 # Add parent folder to python path
 unittest_dir = os.path.dirname(os.path.realpath(__file__))
@@ -16,6 +17,7 @@ sys.path.append(os.path.abspath(os.path.join(unittest_dir, '..')))
 
 import impact
 
+@unittest.skipIf(which('hazimp') is None, "requires hazimp to be already installed")
 class test(unittest.TestCase):
     def setUp(self):
         """Build dummy gust.nc and exposure.csv"""
