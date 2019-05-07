@@ -11,8 +11,8 @@
 """
 
 import io
-from ConfigParser import RawConfigParser
-from Utilities.singleton import Singleton
+from configparser import RawConfigParser
+#from ast import literal_eval as eval
 
 def parseBool(txt):
     """
@@ -234,7 +234,7 @@ filename=slp.day.ltm.nc
 
 """
 
-class _ConfigParser(RawConfigParser, Singleton):
+class _ConfigParser(RawConfigParser):
 
     """
     A configuration file parser that extends
@@ -311,8 +311,9 @@ class _ConfigParser(RawConfigParser, Singleton):
             newvalue = value
         RawConfigParser.set(self, section, option, newvalue)
 
-def ConfigParser(defaults=DEFAULTS):
-    return _ConfigParser.getInstance(defaults)
+singleton = _ConfigParser(defaults=DEFAULTS)
+def ConfigParser():
+    return singleton
 
 def cnfGetIniValue(configFile, section, option, default=None):
     """

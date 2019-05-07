@@ -1,54 +1,22 @@
 language: python
 python:
 - '2.7'
-sudo: false
-
-env:
-  global:
-    - GDALINST=$HOME/gdalinstall
-    - GDALBUILD=$HOME/gdalbuild
-    - GDALVERSION="1.11.2"
-
-virtualenv:
-  system_site_packages: true
-
-addons:
-  apt:
-    packages:
-    - build-essential
-    - libgeos-c1
-    - libhdf5-serial-dev
-    - libatlas-base-dev
-    - gfortran
-    - libnetcdf-dev
-    - libblas3gf
-    - libc6
-    - libgcc1
-    - libgfortran3
-    - liblapack3gf
-    - libstdc++6
-    - libgdal1h
-    - gdal-bin
-    - libgdal-dev
-    - python-gdal
-
 install:
-- if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
-  -O miniconda.sh; else wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-  -O miniconda.sh; fi
+- sudo apt-get update
+- if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then 
+    wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+  else 
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  fi
 - bash miniconda.sh -b -p $HOME/miniconda
 - export PATH="$HOME/miniconda/bin:$PATH"
-- export CPLUS_INCLUDE_PATH="/usr/include/gdal"
-- export C_INCLUDE_PATH="/usr/include/gdal"
 - hash -r
 - conda config --set always_yes yes --set changeps1 no
 - conda update -q conda
 - conda config --append channels conda-forge
-
-- deps='pip numpy scipy matplotlib basemap shapely nose netcdf4 cftime coverage coveralls pycurl pyproj seaborn simplejson sqlite statsmodels libgdal gdal'
+- deps='pip numpy scipy matplotlib basemap shapely nose netcdf4 cftime coverage coveralls pycurl pyproj seaborn simplejson sqlite statsmodels libgdal gdal configparser cartopy affine tqdm xarray gxx_linux-64 pthread-stubs'
 - conda create -q -n tcrm-env --yes $deps "python=$TRAVIS_PYTHON_VERSION"
 - source activate tcrm-env
-
 branches:
   except:
     - config

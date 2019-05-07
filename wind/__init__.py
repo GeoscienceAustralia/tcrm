@@ -34,6 +34,7 @@ import itertools
 import math
 import os
 import sys
+import tqdm
 import windmodels
 from os.path import join as pjoin
 from collections import defaultdict
@@ -263,7 +264,7 @@ class WindfieldAroundTrack(object):
 
         nsteps = len(self.track.TimeElapsed)
 
-        for i in timesInRegion:
+        for i in tqdm.tqdm(timesInRegion):
             log.info("Calculating wind field at timestep {0} of {1}".format(i, nsteps))
             # Map the local grid to the regional grid
             # Set up max/min over the whole domain
@@ -423,6 +424,17 @@ class WindfieldGenerator(object):
                                   resolution=self.resolution,
                                   gridLimit=self.gridLimit,
                                   domain=self.domain)
+        
+        if self.config.getboolean('Timeseries', 'Windfields', fallback=False):
+            from . import writer            
+            output = pjoin(self.windfieldPath,                            
+                           'evolution.{0:03d}-{1:05d}.nc'.format(
+                                                               *track.trackId))            
+            callback = writer.WriteFoliationCallback(output, 
+                                                     self.gridLimit, 
+                                                     self.resolution, 
+                                                     self.margin, 
+                                                     wraps=callback)
 
         return track, wt.regionalExtremes(self.gridLimit, callback)
 
@@ -793,7 +805,7 @@ def run(configFile, callback=None):
     """
 
     log.info('Loading wind field calculation settings')
-
+    
     # Get configuration
 
     config = ConfigParser()
@@ -819,23 +831,14 @@ def run(configFile, callback=None):
 
     if config.has_option('WindfieldInterface', 'gridLimit'):
         gridLimit = config.geteval('WindfieldInterface', 'gridLimit')
-
-    if config.has_section('Timeseries'):
-        if config.has_option('Timeseries', 'Extract'):
-            if config.getboolean('Timeseries', 'Extract'):
-                from Utilities.timeseries import Timeseries
-                log.debug("Timeseries data will be extracted")
-                ts = Timeseries(configFile)
-                timestepCallback = ts.extract
-            else:
-                def timestepCallback(*args):
-                    """Dummy timestepCallback function"""
-                    pass
-
+        
+    #if callback:
+    #    raise NotImplementedError 
+    if config.getboolean('Timeseries', 'Extract', fallback=False):
+        from Utilities.timeseries import Timeseries
+        timestepCallback = Timeseries(configFile).extract
     else:
-        def timestepCallback(*args):
-            """Dummy timestepCallback function"""
-            pass
+        timestepCallback = None
             
     multipliers = None
     if config.has_option('Input','Multipliers'):
@@ -863,8 +866,7 @@ def run(configFile, callback=None):
                              multipliers=multipliers,
                              windfieldPath=windfieldPath)
 
-    msg = 'Dumping gusts to %s' % windfieldPath
-    log.info(msg)
+    log.info('Dumping gusts to %s' % windfieldPath)
 
     # Get the trackfile names and count
 
@@ -872,12 +874,7 @@ def run(configFile, callback=None):
     trackfiles = [pjoin(trackPath, f) for f in files if f.startswith('tracks')]
     nfiles = len(trackfiles)
 
-    def progressCallback(i):
-        """Define the callback function"""
-        callback(i, nfiles)
-
-    msg = 'Processing %d track files in %s' % (nfiles, trackPath)
-    log.info(msg)
+    log.info('Processing %d track files in %s' % (nfiles, trackPath))
 
     # Do the work
 

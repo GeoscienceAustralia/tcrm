@@ -203,6 +203,9 @@ def main(configFile):
     import wind
     wind.run(configFile, status)
 
+    import impact
+    impact.run_optional(config)
+
     doWindfieldPlotting(configFile)
     if config.getboolean('Timeseries', 'Extract'):
         doTimeseriesPlotting(configFile)
