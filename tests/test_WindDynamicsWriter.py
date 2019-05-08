@@ -32,5 +32,10 @@ suite = doctest.DocTestSuite(wind.writer)
 def load_tests(loader, std, pat): # invoked by unittest discovery process
     return suite
 
+# nosetests discovery process
+load_tests.__test__ = False
+def test_with_nose():
+    assert suite.run(unittest.TestResult()).wasSuccessful()
+
 if __name__ == '__main__':
     unittest.TextTestRunner().run(suite)
