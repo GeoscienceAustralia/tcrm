@@ -314,6 +314,10 @@ class _ConfigParser(RawConfigParser):
 singleton = _ConfigParser(defaults=DEFAULTS)
 def ConfigParser():
     return singleton
+def reset():
+    """Re-instantiate ConfigParser (only for use in tests)"""
+    global singleton
+    singleton = _ConfigParser(defaults=DEFAULTS)
 
 def cnfGetIniValue(configFile, section, option, default=None):
     """
