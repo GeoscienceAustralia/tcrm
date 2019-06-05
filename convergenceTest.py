@@ -24,7 +24,7 @@
 # (i.e. close to 10,000 years).
 # 
 
-from __future__ import print_function, division
+
 import os
 import io
 import sys

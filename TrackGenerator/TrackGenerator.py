@@ -144,8 +144,8 @@ import numpy as np
 
 
 import Utilities.stats as stats
-import trackLandfall
-import trackSize
+from . import trackLandfall
+from . import trackSize
 import Utilities.nctools as nctools
 import Utilities.Cmap as Cmap
 import Utilities.Cstats as Cstats
@@ -281,7 +281,7 @@ class TrackGenerator(object):
         self.sizeMean = sizeMean
         self.sizeStdDev = sizeStdDev
         self.timeOverflow = dt * maxTimeSteps
-        self.missingValue = sys.maxint  # FIXME: remove
+        self.missingValue = sys.maxsize  # FIXME: remove
         self.progressbar = None  # FIXME: remove
         self.allCDFInitBearing = None
         self.allCDFInitSpeed = None
@@ -948,7 +948,7 @@ class TrackGenerator(object):
         tol = 0.0
 
         # Generate the track
-        for i in xrange(1, self.maxTimeSteps):
+        for i in range(1, self.maxTimeSteps):
 
             # Get the new latitude and longitude from bearing and
             # distance

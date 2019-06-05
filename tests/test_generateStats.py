@@ -25,11 +25,11 @@ Description: Unit test for the windProfile class
 """
 import os, sys
 import unittest
-import cPickle
-import NumpyTestCase
+import pickle
+from . import NumpyTestCase
 import numpy
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 
@@ -43,8 +43,8 @@ class TestGenerateStats(NumpyTestCase.NumpyTestCase):
 
     pkl_file = open(os.path.join(unittest_dir, 'test_data',
                                  'generateStatsTestData.pck'), 'r')
-    lonLat = cPickle.load(pkl_file)
-    parameter = cPickle.load(pkl_file)  # all_speed
+    lonLat = pickle.load(pkl_file)
+    parameter = pickle.load(pkl_file)  # all_speed
     pkl_file.close()
 
     configFile = None
@@ -53,7 +53,7 @@ class TestGenerateStats(NumpyTestCase.NumpyTestCase):
     gridInc = {'x': 1.0, 'y': 0.5}
     minSample = 100
     angular = False
-    missingValue=min(sys.maxint, 2147483648) # The second value corresponds to the maximum integer
+    missingValue=min(sys.maxsize, 2147483648) # The second value corresponds to the maximum integer
                                              # encoded in the pickle file.
 
 

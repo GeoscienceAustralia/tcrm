@@ -35,7 +35,7 @@ import math
 import os
 import sys
 import tqdm
-import windmodels
+from . import windmodels
 from os.path import join as pjoin
 from collections import defaultdict
 
@@ -460,7 +460,7 @@ class WindfieldGenerator(object):
 
         results = (f(track, callback)[1] for track in trackiter)
 
-        gust, bearing, Vx, Vy, P, lon, lat = results.next()
+        gust, bearing, Vx, Vy, P, lon, lat = next(results)
 
         for result in results:
             gust1, bearing1, Vx1, Vy1, P1, lon1, lat1 = result
@@ -493,11 +493,11 @@ class WindfieldGenerator(object):
                                  specified locations.
         """
         if timeStepCallback:
-            results = itertools.imap(self.calculateExtremesFromTrack,
+            results = map(self.calculateExtremesFromTrack,
                                      trackiter,
                                      itertools.repeat(timeStepCallback))
         else:
-            results = itertools.imap(self.calculateExtremesFromTrack,
+            results = map(self.calculateExtremesFromTrack,
                                      trackiter)
 
         for track, result in results:

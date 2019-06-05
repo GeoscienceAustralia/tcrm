@@ -10,8 +10,8 @@ Testing the hazard module __init__ functions
 import os
 import sys
 import unittest
-import cPickle
-import NumpyTestCase
+import pickle
+from . import NumpyTestCase
 import numpy
 
 # Add parent folder to python path
@@ -34,8 +34,8 @@ class TestloadFile(NumpyTestCase.NumpyTestCase):
              [ 19.33782578,  19.37572098,  19.41371346,  19.45179558, 19.48996544]],
             dtype='float32')
         pfile = open(os.path.join(unittest_dir, 'test_data', 'testDomain.pck'),'r')
-        self.wf_lat = cPickle.load(pfile)
-        self.wf_lon = cPickle.load(pfile)
+        self.wf_lat = pickle.load(pfile)
+        self.wf_lon = pickle.load(pfile)
         pfile.close()
 
     def testloadFile(self):

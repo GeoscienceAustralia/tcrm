@@ -33,8 +33,8 @@
 import os
 import sys
 import unittest
-import cPickle
-import NumpyTestCase
+import pickle
+from . import NumpyTestCase
 import numpy
 
 # Add parent folder to python path
@@ -47,9 +47,9 @@ class Testlmoments(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
         pfile = open(os.path.join(unittest_dir, 'test_data', 'testlmom.pck'),'r')
-        self.values = cPickle.load(pfile)
-        self.moments = cPickle.load(pfile)
-        self.params = cPickle.load(pfile)
+        self.values = pickle.load(pfile)
+        self.moments = pickle.load(pfile)
+        self.params = pickle.load(pfile)
 
         pfile.close()
 

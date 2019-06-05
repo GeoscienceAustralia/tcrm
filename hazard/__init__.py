@@ -35,8 +35,8 @@ from Utilities.files import flProgramVersion
 from Utilities.config import ConfigParser
 from Utilities.parallel import attemptParallel, disableOnWorkers
 import Utilities.nctools as nctools
-from evd import EVFUNCS
-import GPD
+from .evd import EVFUNCS
+from . import GPD
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -145,8 +145,8 @@ class TileGrid(object):
         self.y_end = np.zeros(self.num_tiles, 'i')
         k = 0
 
-        for i in xrange(subset_maxcols):
-            for j in xrange(subset_maxrows):
+        for i in range(subset_maxcols):
+            for j in range(subset_maxrows):
                 self.x_start[k] = i * self.xstep + self.imin
                 self.x_end[k] = min((i + 1) * self.xstep + self.imin,
                                     self.xdim + self.imin) - 1
@@ -604,8 +604,8 @@ def calculateGEV(Vr, years, nodata, minRecords, yrsPerSim):
     scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
     shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
 
-    for i in xrange(Vr.shape[1]): # lat
-        for j in xrange(Vr.shape[2]): # lon
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
                 w, l, sc, sh = evd.gevfit(Vr[:,i,j], years, nodata,
                                           minRecords, yrsPerSim)
@@ -655,8 +655,8 @@ def calculateEMP(Vr, years, numsim, nodata, minRecords, yrsPerSim):
     scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
     shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
 
-    for i in xrange(Vr.shape[1]): # lat
-        for j in xrange(Vr.shape[2]): # lon
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
                 w, l, sc, sh = evd.empfit(Vr[:,i,j], years, numsim, nodata,
                                           minRecords)
@@ -709,8 +709,8 @@ def calculateGPD(Vr, years, numsim, nodata, minRecords, yrsPerSim):
     scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
     shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
 
-    for i in xrange(Vr.shape[1]): # lat
-        for j in xrange(Vr.shape[2]): # lon
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
                 log.debug("lat: {0}, lon: {1}".format(i, j))
                 w, l, sc, sh = GPD.gpdfit(Vr[:,i,j],
@@ -766,8 +766,8 @@ def calculatePower(Vr, years, numsim, nodata, minRecords, yrsPerSim):
     scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
     shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
 
-    for i in xrange(Vr.shape[1]): # lat
-        for j in xrange(Vr.shape[2]): # lon
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
                 log.debug("lat: {0}, lon: {1}".format(i, j))
                 w, l, sc, sh = evd.powerfit(Vr[:,i,j],
@@ -831,11 +831,11 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
     wUpper = np.zeros((len(years)), dtype='f')
     wLower = np.zeros((len(years)), dtype='f')
 
-    for i in xrange(Vr.shape[1]): # lat
-        for j in xrange(Vr.shape[2]): # lon
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
             if Vr[:, i, j].max() > 0.0: # check for valid data
                 random.shuffle(Vr[:, i, j]) # shuffle the years
-                for n in xrange(nsamples): # iterate through fitting of random samples
+                for n in range(nsamples): # iterate through fitting of random samples
                     nstart = n*sample_size
                     nend  = (n + 1)*sample_size - 1
                     vsub = Vr[nstart:nend, i, j] # select random 50(default) events
@@ -872,7 +872,7 @@ def aggregateWindFields(inputPath, numSimulations, tilelimits):
     xsize = tilelimits[1] - tilelimits[0]
     Vm = np.zeros((numSimulations, ysize, xsize), dtype='f')
 
-    for year in xrange(numSimulations):
+    for year in range(numSimulations):
         filespec = pjoin(inputPath, "gust.*-%05d.nc"%year)
         fileList = glob(filespec)
         if len(fileList) == 0:
@@ -951,7 +951,7 @@ def getTiles(tilegrid):
     :param tilegrid: :class:`TileGrid` instance
     """
 
-    tilenums = range(tilegrid.num_tiles)
+    tilenums = list(range(tilegrid.num_tiles))
     return getTileLimits(tilegrid, tilenums)
 
 def getTileLimits(tilegrid, tilenums):

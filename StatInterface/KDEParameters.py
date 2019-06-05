@@ -57,7 +57,7 @@ class KDEParameters(object):
 
     def generateKDE(self, parameters, kdeStep, kdeParameters=None,
                     cdfParameters=None, angular=False, periodic=False,
-                    missingValue=sys.maxint):
+                    missingValue=sys.maxsize):
         """
         Generate a PDF and CDF for a given parameter set using the
         method of kernel density estimators. Optionally return the PDF
@@ -231,7 +231,7 @@ if __name__ == "__main__":
         if not os.path.exists(configFile):
             error_msg = ("No configuration file specified, please type: "
                          "python main.py {config filename}.ini")
-            raise IOError, error_msg
+            raise IOError(error_msg)
     # If config file doesn't exist => raise error
     if not os.path.exists(configFile):
         error_msg = "Configuration file '" + configFile +"' not found"

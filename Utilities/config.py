@@ -292,7 +292,7 @@ class _ConfigParser(RawConfigParser):
                 parsed[name] = parse(value)
             except KeyError:
                 parsed[name] = value
-        return parsed.items()
+        return list(parsed.items())
 
     def set(self, section, option, value=None):
         """

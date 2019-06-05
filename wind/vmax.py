@@ -85,7 +85,7 @@ def vmax(pCentre, pEnv, type="holland", beta=1.3, rho=1.15):
         pEnv = metutils.convert(pEnv, "hPa", "Pa")
 
     if pEnv < pCentre:
-        raise ValueError, "Error in vmax - Environmental pressure is less than central pressure. Check values and/or order of input arguments"
+        raise ValueError("Error in vmax - Environmental pressure is less than central pressure. Check values and/or order of input arguments")
 
     dP = pEnv - pCentre
 
@@ -110,7 +110,7 @@ def vmax(pCentre, pEnv, type="holland", beta=1.3, rho=1.15):
         # Maximum 10m, 1-minute wind speed. Uses pEnv as 1010 hPa
         vMax = 3.04*power(1010 - metutils.convert(pCentre,"Pa","hPa"), 0.644)
     else:
-        raise NotImplementedError, "Vmax type " + type + " not implemented"
+        raise NotImplementedError("Vmax type " + type + " not implemented")
     return vMax
 
 def pDiff(vMax, pEnv, vMaxType="holland", beta=1.3, rho=1.15):
@@ -131,8 +131,7 @@ def pDiff(vMax, pEnv, vMaxType="holland", beta=1.3, rho=1.15):
         dP = (vMax/3.04)**(1/0.644)
         dP = metutils.convert(dP, "hPa", "Pa")
     else:
-        raise NotImplementedError, \
-              "Vmax type " + vMaxType + " not implemented"
+        raise NotImplementedError("Vmax type " + vMaxType + " not implemented")
 
     pCentre = pEnv - dP
     return pCentre

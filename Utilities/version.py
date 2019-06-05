@@ -12,11 +12,11 @@
 
 import os
 import subprocess
-from files import flModulePath, flModDate
+from .files import flModulePath, flModDate
 
 # Monkey patch check_output into subprocess for python 2.6.X
 if 'check_output' not in dir(subprocess):
-    import py26compat
+    from . import py26compat
     subprocess.check_output = py26compat.check_output
 
 

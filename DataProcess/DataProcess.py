@@ -30,7 +30,7 @@ from Utilities.grid import SampleGrid
 from Utilities.files import flModuleName, flSaveFile, flStartLog
 from Utilities.columns import colReadCSV
 from Utilities import pathLocator
-from CalcTrackDomain import CalcTrackDomain
+from .CalcTrackDomain import CalcTrackDomain
 from Utilities.config import ConfigParser
 
 import warnings
@@ -135,7 +135,7 @@ class DataProcess(object):
         """
         outIndex = []
         flag = 0
-        for i in xrange(len(index)):
+        for i in range(len(index)):
             if index[i] == 1:
                 # A new track:
                 if (stats.between(lon[i], self.domain['xMin'], self.domain['xMax']) &
@@ -264,15 +264,15 @@ class DataProcess(object):
                    header, ',', fmt='%d')
 
         pressure = np.array(inputData['pressure'], 'd')
-        novalue_index = np.where(pressure == sys.maxint)
+        novalue_index = np.where(pressure == sys.maxsize)
         pressure = metutils.convert(pressure, inputPressureUnits, "hPa")
-        pressure[novalue_index] = sys.maxint
+        pressure[novalue_index] = sys.maxsize
 
         # Convert any non-physical central pressure values to maximum integer
         # This is required because IBTrACS has a mix of missing value codes
         # (i.e. -999, 0, 9999) in the same global dataset.
         pressure = np.where((pressure < 600) | (pressure > 1100),
-                            sys.maxint, pressure)
+                            sys.maxsize, pressure)
 
         if self.progressbar is not None:
             self.progressbar.update(0.25)
@@ -283,9 +283,9 @@ class DataProcess(object):
             self.logger.warning("No max wind speed data")
             vmax = np.empty(indicator.size, 'f')
         else:
-            novalue_index = np.where(vmax == sys.maxint)
+            novalue_index = np.where(vmax == sys.maxsize)
             vmax = metutils.convert(vmax, inputSpeedUnits, "mps")
-            vmax[novalue_index] = sys.maxint
+            vmax[novalue_index] = sys.maxsize
 
         assert lat.size == indicator.size
         assert lon.size == indicator.size
@@ -294,9 +294,9 @@ class DataProcess(object):
 
         try:
             rmax = np.array(inputData['rmax'])
-            novalue_index = np.where(rmax == sys.maxint)
+            novalue_index = np.where(rmax == sys.maxsize)
             rmax = metutils.convert(rmax, inputLengthUnits, "km")
-            rmax[novalue_index] = sys.maxint
+            rmax[novalue_index] = sys.maxsize
 
             self._rmax(rmax, indicator)
             self._rmaxRate(rmax, dt, indicator)
@@ -429,7 +429,7 @@ class DataProcess(object):
         self.logger.info('Extracting bearings')
 
         # extract all bearings
-        np.putmask(bear, indicator, sys.maxint)
+        np.putmask(bear, indicator, sys.maxsize)
 
         # extract initial bearings
         initBearingIndex = np.flatnonzero(initIndex[:-1]) + 1
@@ -478,8 +478,8 @@ class DataProcess(object):
         # Delete speeds less than 0, greated than 200,
         # or where indicator == 1.
         np.putmask(speed, (speed < 0) | (speed > 200) | indicator,
-                   sys.maxint)
-        np.putmask(speed, np.isnan(speed), sys.maxint)
+                   sys.maxsize)
+        np.putmask(speed, np.isnan(speed), sys.maxsize)
 
         initSpeedIndex = np.flatnonzero(initIndex[:-1]) + 1
         initSpeed = speed.take(initSpeedIndex)
@@ -525,7 +525,7 @@ class DataProcess(object):
         self.logger.info('Extracting pressures')
         initPressure = pressure.compress(indicator)
         pressureNoInit = pressure.compress(indicator == 0)
-        pressureNoInit = pressureNoInit.compress(pressureNoInit < sys.maxint)
+        pressureNoInit = pressureNoInit.compress(pressureNoInit < sys.maxsize)
 
         if self.ncflag:
             self.data['pressure'] = pressure
@@ -581,10 +581,10 @@ class DataProcess(object):
         # The highest rate of intensification on record is
         # Typhoon Forrest (Sept 1983) 100 mb in 24 hrs.
 
-        np.putmask(pressureRate, indicator, sys.maxint)
-        np.putmask(pressureRate, pressure >= sys.maxint, sys.maxint)
-        np.putmask(pressureRate, np.isnan(pressureRate), sys.maxint)
-        np.putmask(pressureRate, np.abs(pressureRate) > 10, sys.maxint)
+        np.putmask(pressureRate, indicator, sys.maxsize)
+        np.putmask(pressureRate, pressure >= sys.maxsize, sys.maxsize)
+        np.putmask(pressureRate, np.isnan(pressureRate), sys.maxsize)
+        np.putmask(pressureRate, np.abs(pressureRate) > 10, sys.maxsize)
 
         if self.ncflag:
             self.data['pressureRate'] = pressureRate
@@ -620,13 +620,13 @@ class DataProcess(object):
 
         bearingRate = bearingChange / dt
 
-        np.putmask(bearingRate, indicator, sys.maxint)
-        np.putmask(bearingRate[1:], indicator[:-1], sys.maxint)
-        np.putmask(bearingRate, (bearingRate >= sys.maxint) |
-                   (bearingRate <= -sys.maxint),
-                   sys.maxint)
+        np.putmask(bearingRate, indicator, sys.maxsize)
+        np.putmask(bearingRate[1:], indicator[:-1], sys.maxsize)
+        np.putmask(bearingRate, (bearingRate >= sys.maxsize) |
+                   (bearingRate <= -sys.maxsize),
+                   sys.maxsize)
 
-        np.putmask(bearingRate, np.isnan(bearingRate), sys.maxint)
+        np.putmask(bearingRate, np.isnan(bearingRate), sys.maxsize)
 
         if self.ncflag:
             self.data['bearingRate'] = bearingRate
@@ -664,12 +664,12 @@ class DataProcess(object):
 
         speedRate = speedChange / dt
 
-        np.putmask(speedRate, indicator_, sys.maxint)
-        np.putmask(speedRate[1:], indicator_[:-1], sys.maxint)
-        np.putmask(speedRate, (speedRate >= sys.maxint) |
-                   (speedRate <= -sys.maxint), sys.maxint)
+        np.putmask(speedRate, indicator_, sys.maxsize)
+        np.putmask(speedRate[1:], indicator_[:-1], sys.maxsize)
+        np.putmask(speedRate, (speedRate >= sys.maxsize) |
+                   (speedRate <= -sys.maxsize), sys.maxsize)
 
-        np.putmask(speedRate, np.isnan(speedRate), sys.maxint)
+        np.putmask(speedRate, np.isnan(speedRate), sys.maxsize)
 
         if self.ncflag:
             self.data['speedRate'] = speedRate
@@ -686,7 +686,7 @@ class DataProcess(object):
         Output: None - data is written to file
         """
         self.logger.info('Extracting maximum sustained wind speeds')
-        np.putmask(windSpeed, windSpeed > 200., sys.maxint)
+        np.putmask(windSpeed, windSpeed > 200., sys.maxsize)
         if self.ncflag:
             self.data['windspeed'] = windSpeed
         else:
@@ -707,7 +707,7 @@ class DataProcess(object):
         self.logger.info("Extracting radii to maximum winds")
         initrmax = rmax.compress(indicator)
         rmaxNoInit = rmax.compress(indicator == 0)
-        rmaxNoInit = rmaxNoInit.compress(rmaxNoInit < sys.maxint)
+        rmaxNoInit = rmaxNoInit.compress(rmaxNoInit < sys.maxsize)
         if self.ncflag:
             self.data['rmax'] = rmax
             self.data['init_rmax'] = initrmax
@@ -761,11 +761,11 @@ class DataProcess(object):
         # the rmax is known to be missing.
         self.logger.debug('Outputting data into {0}'
                           .format(pjoin(self.processPath, 'rmax_rate')))
-        np.putmask(rmaxRate, indicator, sys.maxint)
-        np.putmask(rmaxRate, rmax >= sys.maxint, sys.maxint)
-        np.putmask(rmaxRate, (rmaxRate >= sys.maxint) |
-                   (rmaxRate <= -sys.maxint), sys.maxint)
-        np.putmask(rmaxRate, np.isnan(rmaxRate), sys.maxint)
+        np.putmask(rmaxRate, indicator, sys.maxsize)
+        np.putmask(rmaxRate, rmax >= sys.maxsize, sys.maxsize)
+        np.putmask(rmaxRate, (rmaxRate >= sys.maxsize) |
+                   (rmaxRate <= -sys.maxsize), sys.maxsize)
+        np.putmask(rmaxRate, np.isnan(rmaxRate), sys.maxsize)
 
         if self.ncflag:
             self.data['rmaxRate'] = rmaxRate
@@ -840,11 +840,11 @@ if __name__ == "__main__":
         if not os.path.exists(configFile):
             error_msg = ("No configuration file specified, please type: "
                          "python tcrm.py -c {config filename}.ini")
-            raise IOError, error_msg
+            raise IOError(error_msg)
     # If config file does not exist => raise error
     if not os.path.exists(configFile):
         error_msg = "Configuration file '" + configFile + "' not found"
-        raise IOError, error_msg
+        raise IOError(error_msg)
 
     config = ConfigParser()
     config.read(configFile)

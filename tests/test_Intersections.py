@@ -11,7 +11,7 @@ import unittest
 import logging
 
 import numpy
-import NumpyTestCase
+from . import NumpyTestCase
 
 # Add parent folder to python path
 unittest_dir = os.path.dirname(os.path.realpath( __file__ ))

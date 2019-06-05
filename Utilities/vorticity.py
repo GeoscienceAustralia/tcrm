@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.ma as ma
-import sys, cStringIO
+import sys, io
 
 from Utilities.metutils import coriolis
 
@@ -97,17 +97,17 @@ def deriv(*args, **kwargs):
         x_in = args[0]
         y_in = args[1]
     else:
-        raise ValueError, "deriv:  Bad inputs"
+        raise ValueError("deriv:  Bad inputs")
 
 
     #- Establish missing and algorithm from *kwargs:
 
-    if kwargs.has_key('missing') == 1:
+    if ('missing' in kwargs) == 1:
         missing = kwargs['missing']
     else:
         missing = 1e+20
 
-    if kwargs.has_key('algorithm') == 1:
+    if ('algorithm' in kwargs) == 1:
         algorithm = kwargs['algorithm']
     else:
         algorithm = 'default'
@@ -116,9 +116,9 @@ def deriv(*args, **kwargs):
     #- Check positional and keyword inputs for possible errors:
 
     if (len(y_in.shape) != 1) or (len(x_in.shape) != 1):
-        raise ValueError, "deriv:  Inputs not a vector"
+        raise ValueError("deriv:  Inputs not a vector")
     if type(algorithm) != type(''):
-        raise ValueError, "deriv:  algorithm not str"
+        raise ValueError("deriv:  algorithm not str")
 
 
     #- Set algorithm_to_use variable, based on the algorithm keyword.
@@ -180,7 +180,7 @@ def deriv(*args, **kwargs):
     #  * Option 2:  Bad algorithm specified:
 
     else:
-        raise ValueError, "deriv:  bad algorithm"
+        raise ValueError("deriv:  bad algorithm")
 
 
     #- Return derivative as Numeric array:
@@ -237,9 +237,9 @@ def has_close(data, value, rtol=1.e-5, atol=1.e-8):
     elif (dataN.dtype == np.int32) and (valueS.dtype == type(1)):
         closemask = np.where(dataN == valueS, 1, 0)
     else:
-        print(dataN.dtype)
-        print(type(valueS))
-        raise ValueError, "has_close:  Inputs must be float or integer"
+        print((dataN.dtype))
+        print((type(valueS)))
+        raise ValueError("has_close:  Inputs must be float or integer")
 
 
     #- Return true if any elements of data has value:
@@ -352,8 +352,8 @@ def can_use_sphere(longitude, latitude):
 
     temp_out = sys.stdout
     temp_err = sys.stderr
-    sys.stdout = cStringIO.StringIO()
-    sys.stderr = cStringIO.StringIO()
+    sys.stdout = io.StringIO()
+    sys.stderr = io.StringIO()
 
     try:
         try:
@@ -773,12 +773,12 @@ def curl_2d( x, y, Fx, Fy, missing=1e+20 \
 
     elif algorithm == 'spherepack':
         if has_close(Fx, missing) or has_close(Fy, missing):
-            raise ValueError, "curl_2d:  has missing values"
+            raise ValueError("curl_2d:  has missing values")
         else:
             _calculate_curl = _spherepack_curl
 
     else:
-        raise ValueError, "curl_2d:  bad algorithm"
+        raise ValueError("curl_2d:  bad algorithm")
 
 
     #- Calculate curl and return from function:

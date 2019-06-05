@@ -104,7 +104,7 @@ def interpolate(track, delta, interpolation_type=None):
                                        track.Latitude, track.CentralPressure, 
                                        track.EnvPressure)
     # Find the indices of valid pressure observations:
-    validIdx = np.where(track.CentralPressure < sys.maxint)[0]
+    validIdx = np.where(track.CentralPressure < sys.maxsize)[0]
 
     # FIXME: Need to address the issue when the time between obs is less
     # than delta (e.g. only two obs 5 hrs apart, but delta = 6 hrs).
@@ -218,8 +218,8 @@ def interpolate(track, delta, interpolation_type=None):
     nDay = [date.day for date in newdates]
     nHour = [date.hour for date in newdates]
     nMin = [date.minute for date in newdates]
-    np.putmask(npCentre, npCentre > 10e+6, sys.maxint)
-    np.putmask(npCentre, npCentre < 700, sys.maxint)
+    np.putmask(npCentre, npCentre > 10e+6, sys.maxsize)
+    np.putmask(npCentre, npCentre < 700, sys.maxsize)
 
     newindex = np.zeros(len(newtime))
     newindex[0] = 1

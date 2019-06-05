@@ -32,9 +32,9 @@
 import os, sys
 import unittest
 from scipy import array, zeros
-import NumpyTestCase
+from . import NumpyTestCase
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 

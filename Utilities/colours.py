@@ -818,6 +818,6 @@ CMAPDICT = {'rwbcmap':CDICT0,
             'pccspvar':CDICT12,
             'jet':CDICT13}
 
-for k, v in CMAPDICT.iteritems():
+for k, v in CMAPDICT.items():
     cmap = LinearSegmentedColormap(k, v)
     pyplot.register_cmap(cmap=cmap)

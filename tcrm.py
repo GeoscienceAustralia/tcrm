@@ -12,6 +12,7 @@
 """
 # This package needs patching to run on python 2.6
 import logging as log
+from functools import reduce
 
 if 'NullHandler' not in dir(log):
     from Utilities import py26compat
@@ -90,7 +91,7 @@ def timer(f):
           reduce(lambda ll, b : divmod(ll[0], b) + ll[1:],
                         [(tottime,), 60, 60])
 
-        log.info("Time for {0}: {1}".format(f.func_name, msg) )
+        log.info("Time for {0}: {1}".format(f.__name__, msg) )
         return res
 
     return wrap

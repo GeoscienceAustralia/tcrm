@@ -11,8 +11,8 @@
 import os
 import sys
 import unittest
-import cPickle
-import NumpyTestCase
+import pickle
+from . import NumpyTestCase
 import numpy
 
 unittest_dir = os.path.dirname(os.path.realpath( __file__ ))
@@ -44,10 +44,10 @@ class TestInterp3d(NumpyTestCase.NumpyTestCase):
         # Load data
         pfile = open(os.path.join(unittest_dir, 'test_data',
                                   'testinterp3d.pck'), 'r')
-        self.xlon = cPickle.load(pfile)
-        self.ylat = cPickle.load(pfile)
-        self.ztime = cPickle.load(pfile)
-        self.values = cPickle.load(pfile)
+        self.xlon = pickle.load(pfile)
+        self.ylat = pickle.load(pfile)
+        self.ztime = pickle.load(pfile)
+        self.values = pickle.load(pfile)
         pfile.close()
         self.coords = numpy.array([self.ztime, self.ylat, self.xlon])
 

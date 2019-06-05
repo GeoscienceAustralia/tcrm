@@ -14,7 +14,7 @@ class TestSingleton(unittest.TestCase):
 
         a1 = A.getInstance()
         a2 = A.getInstance()
-        self.assertEquals(id(a1), id(a2))
+        self.assertEqual(id(a1), id(a2))
 
     def testInstantiateWithMultiArgConstructor(self):
         """Test constructor with args"""
@@ -30,9 +30,9 @@ class TestSingleton(unittest.TestCase):
 
         b1 = B.getInstance('arg1 value', 'arg2 value')
         b2 = B.getInstance()
-        self.assertEquals(b1.arg1, 'arg1 value')
-        self.assertEquals(b1.arg2, 'arg2 value')
-        self.assertEquals(id(b1), id(b2))
+        self.assertEqual(b1.arg1, 'arg1 value')
+        self.assertEqual(b1.arg2, 'arg2 value')
+        self.assertEqual(id(b1), id(b2))
 
     def testInstantiateWithKeywordArg(self):
         """Test instantiation with keyword args"""
@@ -44,8 +44,8 @@ class TestSingleton(unittest.TestCase):
 
         b1 = B.getInstance('arg1 value')
         b2 = B.getInstance()
-        self.assertEquals(b1.arg1, 'arg1 value')
-        self.assertEquals(id(b1), id(b2))
+        self.assertEqual(b1.arg1, 'arg1 value')
+        self.assertEqual(id(b1), id(b2))
 
     def testTryToInstantiateWithoutNeededArgs(self):
         """Test instantiation without required arguments"""
@@ -68,7 +68,7 @@ class TestSingleton(unittest.TestCase):
                 super(B, self).__init__()
                 self.arg1 = arg1
                 self.arg2 = arg2
-                raise TypeError, 'some type error'
+                raise TypeError('some type error')
 
         self.assertRaises(TypeError, B.getInstance, 1, 2)
 
@@ -174,12 +174,12 @@ class TestSingleton(unittest.TestCase):
                     if fSleepTime > 0:
                         time.sleep(fSleepTime)
                     Test_Singleton.getInstance()
-                except Exception, e:
+                except Exception as e:
                     self._eException = e
 
         fTargetTime = time.time() + 0.1
         lstThreads = []
-        for _ in xrange(100):
+        for _ in range(100):
             t = Test_SingletonThread(fTargetTime)
             t.start()
             lstThreads.append(t)

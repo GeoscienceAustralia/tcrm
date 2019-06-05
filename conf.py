@@ -45,8 +45,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Tropical Cyclone Risk Model'
-copyright = u'Commonwealth of Australia (Geoscience Australia) 2018'
+project = 'Tropical Cyclone Risk Model'
+copyright = 'Commonwealth of Australia (Geoscience Australia) 2018'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -198,8 +198,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'TCRM.tex', u'Tropical Cyclone Risk Model User Guide',
-     u'Geoscience Australia', 'manual'),
+    ('index', 'TCRM.tex', 'Tropical Cyclone Risk Model User Guide',
+     'Geoscience Australia', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -228,8 +228,8 @@ latex_use_parts = True
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'tcrm', u'Tropical Cyclone Risk Model User Guide',
-     [u'Geoscience Australia'], 1)
+    ('index', 'tcrm', 'Tropical Cyclone Risk Model User Guide',
+     ['Geoscience Australia'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -242,8 +242,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'TCRM', u'Tropical Cyclone Risk Model User Guide',
-     u'Geoscience Australia', 'TCRM', 'One line description of project.',
+    ('index', 'TCRM', 'Tropical Cyclone Risk Model User Guide',
+     'Geoscience Australia', 'TCRM', 'One line description of project.',
      'Miscellaneous'),
 ]
 
@@ -262,10 +262,10 @@ pngmath_dvipng = 'E:/Software/MiKTeX/miktex/bin/dvipng.exe'
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'Tropical Cyclone Risk Model User Guide'
-epub_author = u'Geoscience Australia'
-epub_publisher = u'Geoscience Australia'
-epub_copyright = u'Commonwealth of Australia (Geoscience Australia) 2015'
+epub_title = 'Tropical Cyclone Risk Model User Guide'
+epub_author = 'Geoscience Australia'
+epub_publisher = 'Geoscience Australia'
+epub_copyright = 'Commonwealth of Australia (Geoscience Australia) 2015'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.

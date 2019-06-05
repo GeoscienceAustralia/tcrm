@@ -24,7 +24,7 @@ from datetime import datetime
 
 from Utilities.metutils import convert
 
-from timeseries import TimeSeriesFigure, saveFigure
+from .timeseries import TimeSeriesFigure, saveFigure
 
 DATEFORMAT = "%Y-%m-%d %H:%M"
 INPUT_COLS = ('Station', 'Time', 'Longitude', 'Latitude',

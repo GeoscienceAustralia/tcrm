@@ -46,7 +46,7 @@ def errDieWithLog(message=None):
     for frame in stack:
         LOG.critical("Frame %s in %s at line %s", frame.f_code.co_name,
                      frame.f_code.co_filename, frame.f_lineno)
-        for key, value in frame.f_locals.items():
+        for key, value in list(frame.f_locals.items()):
             LOG.critical("%s = %s", key, repr(value))
 
     if message:

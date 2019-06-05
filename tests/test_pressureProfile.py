@@ -26,11 +26,11 @@
  $Id$
 """
 import os, sys
-import cPickle
+import pickle
 import unittest
-import NumpyTestCase
+from . import NumpyTestCase
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 
@@ -43,20 +43,20 @@ from Utilities.files import flStartLog
 class TestPressureProfile(NumpyTestCase.NumpyTestCase):
 
     pkl_file = open(os.path.join(unittest_dir, 'test_data', 'pressureProfileTestData.pck'), 'r')
-    R = cPickle.load(pkl_file)
-    pEnv = cPickle.load(pkl_file)
-    pCentre = cPickle.load(pkl_file)
-    rMax = cPickle.load(pkl_file)
-    cLat = cPickle.load(pkl_file)
-    cLon = cPickle.load(pkl_file)
-    beta = cPickle.load(pkl_file)
-    rMax2 = cPickle.load(pkl_file)
-    beta1 = cPickle.load(pkl_file)
-    beta2 = cPickle.load(pkl_file)
-    test_pHolland = cPickle.load(pkl_file)
-    test_pWilloughby = cPickle.load(pkl_file)
-    test_pdoubleHolland = cPickle.load(pkl_file)
-    test_pPowell = cPickle.load(pkl_file)
+    R = pickle.load(pkl_file)
+    pEnv = pickle.load(pkl_file)
+    pCentre = pickle.load(pkl_file)
+    rMax = pickle.load(pkl_file)
+    cLat = pickle.load(pkl_file)
+    cLon = pickle.load(pkl_file)
+    beta = pickle.load(pkl_file)
+    rMax2 = pickle.load(pkl_file)
+    beta1 = pickle.load(pkl_file)
+    beta2 = pickle.load(pkl_file)
+    test_pHolland = pickle.load(pkl_file)
+    test_pWilloughby = pickle.load(pkl_file)
+    test_pdoubleHolland = pickle.load(pkl_file)
+    test_pPowell = pickle.load(pkl_file)
     pkl_file.close()
 
     prP = pressureProfile.PrsProfile(R, pEnv, pCentre, rMax, cLat, cLon, beta, rMax2, beta1, beta2)

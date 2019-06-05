@@ -103,8 +103,8 @@ class PressureDistribution(object):
                                          'yearspersimulation')
         cellnumber = 0
         self.gridCells = []
-        for k in xrange(len(self.lon_range) - 1):
-            for l in xrange(len(self.lat_range) - 1):
+        for k in range(len(self.lon_range) - 1):
+            for l in range(len(self.lat_range) - 1):
                 ymin = self.lat_range[l]
                 ymax = self.lat_range[l] + gridSpace['y']
                 xmin = self.lon_range[k]
@@ -139,7 +139,7 @@ class PressureDistribution(object):
                                (t.Longitude < cell.xmax)))[0]
                 if len(ii) > 0:
                     vv = t.CentralPressure[ii].\
-                         compress(t.CentralPressure[ii] < sys.maxint)
+                         compress(t.CentralPressure[ii] < sys.maxsize)
                     vcell = np.append(vcell, vv.compress(vv > 0.0))
 
             if len(vcell > 0):

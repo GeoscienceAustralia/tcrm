@@ -18,7 +18,7 @@ import numpy as np
 
 from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
-from ConfigParser import NoOptionError
+from configparser import NoOptionError
 
 from Utilities.config import ConfigParser
 from Utilities.track import ncReadTrackData

@@ -6,7 +6,7 @@ import io
 #from Utilities
 import Utilities.config as config #.config import ConfigParser, cnfGetIniValue, parseBool, parseList, formatList
 from Utilities.config import reset as forgetAllSingletons
-import pathLocate
+from . import pathLocate
 
 unittest_dir = pathLocate.getUnitTestDirectory()
 
@@ -28,12 +28,12 @@ class TestParsers(unittest.TestCase):
 
     def test_parseList(self):
         """Parse comma-separated line into a list"""
-        self.assertEquals(config.parseList(self.inputLine), self.outputList)
-        self.assertEquals(config.parseList(self.singleInputLine), ["A"])
+        self.assertEqual(config.parseList(self.inputLine), self.outputList)
+        self.assertEqual(config.parseList(self.singleInputLine), ["A"])
 
     def test_formatList(self):
         """Test conversion to comma-joined string"""
-        self.assertEquals(config.formatList(self.inputList), self.outputLine)
+        self.assertEqual(config.formatList(self.inputList), self.outputLine)
 
 class TestConfigParser(unittest.TestCase):
 

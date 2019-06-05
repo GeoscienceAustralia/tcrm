@@ -15,12 +15,12 @@ import numpy as np
 
 from os.path import join as pjoin
 
-from ConfigParser import NoOptionError
+from configparser import NoOptionError
 from Utilities.config import ConfigParser
 from Utilities.files import flLoadFile
 from Utilities.maputils import find_index
 from Utilities.dynarray import DynamicRecArray
-from shptools import shpGetVertices
+from .shptools import shpGetVertices
 
 #from config import NoOptionError
 log = logging.getLogger(__name__)
@@ -126,7 +126,7 @@ class Timeseries(object):
 
             vertices = shpGetVertices(stnFile, key_name=key_name)
 
-            for stn in vertices.keys():
+            for stn in list(vertices.keys()):
                 lat = vertices[stn][0][1]
                 lon = vertices[stn][0][0]
                 lon = np.where(lon < 0., lon + 360., lon)

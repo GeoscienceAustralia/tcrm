@@ -28,9 +28,9 @@ import logging as log
 
 import numpy
 
-from lat_long_UTM_conversion import LLtoUTM, UTMtoLL
-import metutils
-import nctools
+from .lat_long_UTM_conversion import LLtoUTM, UTMtoLL
+from . import metutils
+from . import nctools
 
 # pylint: disable=R0913, R0914
 def grdSave(filename, data, lon, lat, delta, delimiter=' ', nodata=-9999,
@@ -183,17 +183,17 @@ def grdRead(filename, delimiter=None):
         metadata["cellsize"] = []
         metadata["NODATA_value"] = []
 
-        for i in xrange(0, 6):
+        for i in range(0, 6):
             line = fh.readline()
             contents = line.split()
             label = contents[0]
             metadata[label] = float(contents[1])
 
         lon0 = metadata["xllcorner"]
-        lon = numpy.array(range(int(metadata["ncols"])), dtype=float)
+        lon = numpy.array(list(range(int(metadata["ncols"]))), dtype=float)
         lon = lon * metadata["cellsize"] + lon0
         lat0 = metadata["yllcorner"]
-        lat = numpy.array(range(int(metadata["nrows"])), dtype=float)
+        lat = numpy.array(list(range(int(metadata["nrows"]))), dtype=float)
         lat = lat * metadata["cellsize"] + lat0
         lat = numpy.flipud(lat)
 
@@ -201,7 +201,7 @@ def grdRead(filename, delimiter=None):
                             int(metadata["ncols"])], 
                            dtype=float)
 
-        for i in xrange(int(metadata["nrows"])):
+        for i in range(int(metadata["nrows"])):
             row = numpy.zeros([int(metadata["ncols"])], dtype=float)
             line = fh.readline()
             for j, val in enumerate(line.split(delimiter)):

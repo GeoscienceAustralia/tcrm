@@ -27,7 +27,7 @@ Note the absence of a '-c' flag (c.f. the normal TCRM command line arguments).
 import os
 import sys
 
-from TrackGenerator import run
+from .TrackGenerator import run
 from Utilities.parallel import attemptParallel
 
 if __name__ == "__main__":

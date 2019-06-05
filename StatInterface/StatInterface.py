@@ -14,13 +14,13 @@
 
 import sys
 import logging as log
-import KDEOrigin
-import KDEParameters
+from . import KDEOrigin
+from . import KDEParameters
 
 from os.path import join as pjoin
 from Utilities.config import cnfGetIniValue, ConfigParser
-from GenerateDistributions import GenerateDistributions
-from generateStats import GenerateStats
+from .GenerateDistributions import GenerateDistributions
+from .generateStats import GenerateStats
 
 
 class StatInterface(object):
@@ -57,7 +57,7 @@ class StatInterface(object):
         self.processPath = pjoin(self.outputPath, 'process')
 
         missingValue = cnfGetIniValue(self.configFile, 'StatInterface',
-                                      'MissingValue', sys.maxint)
+                                      'MissingValue', sys.maxsize)
 
         gridLimitStr = cnfGetIniValue(self.configFile, 'StatInterface',
                                       'gridLimit', '')

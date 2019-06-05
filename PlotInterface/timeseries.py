@@ -25,7 +25,7 @@ class TimeSeriesFigure(Figure):
     def make_patch_spines_invisible(self, axes):
         axes.set_frame_on(True)
         axes.patch.set_visible(False)
-        for sp in axes.spines.itervalues():
+        for sp in axes.spines.values():
             sp.set_visible(False)
 
     def add(self, dt, ydata, yrange, ylabel, title):
@@ -128,11 +128,11 @@ class TimeSeriesFigure(Figure):
         for i in range(len(self.subfigures) - 1):
             ax.append(axes.twinx())
 
-        p = self.subplot(axes, self.subfigures[0], color.next())
+        p = self.subplot(axes, self.subfigures[0], next(color))
         plots.append(p)
         position = 1.0
         for axes, subfig in zip(ax, self.subfigures[1:]):
-            p = self.subplot_twinx(axes, subfig, color.next(), position)
+            p = self.subplot_twinx(axes, subfig, next(color), position)
             plots.append(p)
             position += 0.1
 

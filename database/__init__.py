@@ -54,6 +54,7 @@ from Utilities.track import loadTracksFromFiles
 from Utilities.singleton import Singleton
 from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities.process import pAlreadyProcessed, pGetProcessedFiles
+from functools import reduce
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
@@ -72,7 +73,7 @@ def timer(func):
         msg = "%02d:%02d:%02d " % \
             reduce(lambda ll, b: divmod(ll[0], b) + ll[1:],
                    [(tottime,), 60, 60])
-        log.debug("Time for {0}: {1}".format(func.func_name, msg))
+        log.debug("Time for {0}: {1}".format(func.__name__, msg))
         return res
 
     return wrap
@@ -822,7 +823,7 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
     # Perform a check that locations are in geographic coordinates:
     lons = []
     lats = []
-    for v in vertices.values():
+    for v in list(vertices.values()):
         lon, lat = v[0]
         lons.append(lon)
         lats.append(lat)
@@ -839,7 +840,7 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
         raise ValueError(msg)
 
     # Prepare entries:
-    for v, r in zip(vertices.values(), records):
+    for v, r in zip(list(vertices.values()), records):
         locLon, locLat = v[0]
         locLon = np.mod(locLon, 360.)
         locCode = str(r[0])

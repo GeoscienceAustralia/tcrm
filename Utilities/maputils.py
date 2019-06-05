@@ -16,7 +16,7 @@ import logging
 
 import numpy as np
 import math
-import metutils
+from . import metutils
 
 
 # C weave code disabled for now.  The code speeds up the windfield interface module by ~6% but
@@ -484,7 +484,7 @@ def makeGrid(cLon, cLat, margin=2, resolution=0.01, minLon=None, maxLon=None,
     """
     if (type(cLon)==list or type(cLat)==list or
         type(cLon)==np.ndarray or type(cLat)==np.ndarray):
-        raise TypeError, "Input values must be scalar values"
+        raise TypeError("Input values must be scalar values")
 
     gridSize = int(resolution * 1000)
 
@@ -537,7 +537,7 @@ def makeGridDomain(cLon, cLat, minLon, maxLon, minLat, maxLat,
     """
     if (type(cLon)==list or type(cLat)==list or
         type(cLon)==np.ndarray or type(cLat)==np.ndarray):
-        raise TypeError, "Input values must be scalar values"
+        raise TypeError("Input values must be scalar values")
     gridSize = int(resolution * 1000)
     minLon_ = int(1000 * (minLon)) - int(1000 * margin)
     maxLon_ = int(1000 * (maxLon)) + int(1000 * margin) + 1
@@ -570,7 +570,7 @@ def meshLatLon(cLon, cLat, margin=2, resolution=0.01):
     """
     if (type(cLon)==list or type(cLat)==list or
         type(cLon)==np.ndarray or type(cLat)==np.ndarray):
-        raise TypeError, "Input values must be scalar values"
+        raise TypeError("Input values must be scalar values")
     gridSize = int(1000 * resolution)
 
     minLon = int(1000 * (cLon - margin))
@@ -689,7 +689,7 @@ def find_index(array, value):
 
     """
     if type(value) == np.ndarray or type(value) == list:
-        raise ValueError, "Value cannot be an array"
+        raise ValueError("Value cannot be an array")
 
     if (value > array.max()):
         # Value is above the largest value in the array - return the last index:
@@ -726,7 +726,7 @@ def find_nearest(array, value):
 
     """
     if type(value) == np.ndarray or type(value) == list:
-        raise ValueError, "Value cannot be an array"
+        raise ValueError("Value cannot be an array")
     idx = find_index(array, value)
 
     try:

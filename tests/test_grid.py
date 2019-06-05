@@ -27,11 +27,11 @@
 """
 import os, sys, pdb
 import unittest
-import cPickle
-import NumpyTestCase
+import pickle
+from . import NumpyTestCase
 import numpy
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 
@@ -65,9 +65,9 @@ class TestGrid(NumpyTestCase.NumpyTestCase):
     def test_grdRead(self):
         """Test grid data is read correctly from ascii file"""
         pfile = open(os.path.join(unittest_dir, 'test_data', 'gridReadTestData.pck'),'r')
-        pdata = cPickle.load(pfile)
-        plon = cPickle.load(pfile)
-        plat = cPickle.load(pfile)
+        pdata = pickle.load(pfile)
+        plon = pickle.load(pfile)
+        plat = pickle.load(pfile)
         pfile.close()
         lon, lat, data = grid.grdRead(self.gridfile)
         self.numpyAssertAlmostEqual(pdata, data)

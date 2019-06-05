@@ -83,7 +83,7 @@ def timer(f):
             reduce(lambda ll, b: divmod(ll[0], b) + ll[1:],
                    [(tottime,), 60, 60])
 
-        log.info("Time for {0}: {1}".format(f.func_name, msg))
+        log.info("Time for {0}: {1}".format(f.__name__, msg))
         return res
 
     return wrap
@@ -242,7 +242,7 @@ def generate_syn_mult_img(tl_x, tl_y, delta, dir_path, shape,
 
     multiplier_values = np.zeros(shape)
 
-    for value in indices.iteritems():
+    for value in indices.items():
         if every_fill is None:
             fill = value[1]['fill']
         else:
@@ -539,7 +539,7 @@ def processMult(wspd, uu, vv, lon, lat, working_dir, m4_max_file = 'm4_ne.tif'):
         8: {'dir': 'n', 'min': 337.5, 'max': 360.}
     }
     log.info("Processing all directions")
-    for i in indices.keys():
+    for i in list(indices.keys()):
         dn = indices[i]['dir']
         log.info("Processing {0}".format(dn))
         m4_file = pjoin(working_dir, 'm4_{0}.tif'.format(dn.lower()))

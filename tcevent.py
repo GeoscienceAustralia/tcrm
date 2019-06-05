@@ -19,6 +19,7 @@ the TCRM User Guide for details on running this script.
 """
 
 import logging as log
+from functools import reduce
 if 'NullHandler' not in dir(log):
     from Utilities import py26compat
     log.NullHandler = py26compat.NullHandler
@@ -55,7 +56,7 @@ def timer(f):
           reduce(lambda ll, b : divmod(ll[0], b) + ll[1:],
                         [(tottime,), 60, 60])
 
-        log.info("Time for {0}: {1}".format(f.func_name, msg) )
+        log.info("Time for {0}: {1}".format(f.__name__, msg) )
         return res
 
     return wrap

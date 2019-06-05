@@ -1,13 +1,13 @@
 import os
 import sys
 import unittest
-import cPickle
-import NumpyTestCase
+import pickle
+from . import NumpyTestCase
 
 from wind.windmodels import *
 
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from tests import pathLocate
 
@@ -20,22 +20,22 @@ class TestWindVelocity(NumpyTestCase.NumpyTestCase):
     def setUp(self):
         pkl_file = open(os.path.join(
             unittest_dir, 'test_data', 'windProfileTestData.pck'), 'r')
-        self.R = cPickle.load(pkl_file)
-        self.pEnv = cPickle.load(pkl_file)
-        self.pCentre = cPickle.load(pkl_file)
-        self.rMax = cPickle.load(pkl_file)
-        self.cLat = cPickle.load(pkl_file)
-        self.cLon = cPickle.load(pkl_file)
-        self.beta = cPickle.load(pkl_file)
-        self.rMax2 = cPickle.load(pkl_file)
-        self.beta1 = cPickle.load(pkl_file)
-        self.beta2 = cPickle.load(pkl_file)
-        self.test_wP_rankine = cPickle.load(pkl_file)
-        self.test_wP_jelesnianski = cPickle.load(pkl_file)
-        self.test_wP_holland = cPickle.load(pkl_file)
-        self.test_wP_willoughby = cPickle.load(pkl_file)
-        self.test_wP_powell = cPickle.load(pkl_file)
-        self.test_wP_doubleHolland = cPickle.load(pkl_file)
+        self.R = pickle.load(pkl_file)
+        self.pEnv = pickle.load(pkl_file)
+        self.pCentre = pickle.load(pkl_file)
+        self.rMax = pickle.load(pkl_file)
+        self.cLat = pickle.load(pkl_file)
+        self.cLon = pickle.load(pkl_file)
+        self.beta = pickle.load(pkl_file)
+        self.rMax2 = pickle.load(pkl_file)
+        self.beta1 = pickle.load(pkl_file)
+        self.beta2 = pickle.load(pkl_file)
+        self.test_wP_rankine = pickle.load(pkl_file)
+        self.test_wP_jelesnianski = pickle.load(pkl_file)
+        self.test_wP_holland = pickle.load(pkl_file)
+        self.test_wP_willoughby = pickle.load(pkl_file)
+        self.test_wP_powell = pickle.load(pkl_file)
+        self.test_wP_doubleHolland = pickle.load(pkl_file)
         pkl_file.close()
 
     def testRankine(self):
@@ -83,23 +83,23 @@ class TestWindVorticity(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
         pkl_file = open(os.path.join(unittest_dir, 'test_data', 'vorticityTestData.pck'), 'r')
-        self.R = cPickle.load(pkl_file)
-        self.pEnv = cPickle.load(pkl_file)
-        self.pCentre = cPickle.load(pkl_file)
-        self.rMax = cPickle.load(pkl_file)
-        self.cLat = cPickle.load(pkl_file)
-        self.cLon = cPickle.load(pkl_file)
-        self.beta = cPickle.load(pkl_file)
-        self.rMax2 = cPickle.load(pkl_file)
-        self.beta1 = cPickle.load(pkl_file)
-        self.beta2 = cPickle.load(pkl_file)
-        self.vMax = cPickle.load(pkl_file)
-        self.test_vorticity_rankine = cPickle.load(pkl_file)
-        self.test_vorticity_jelesnianski = cPickle.load(pkl_file)
-        self.test_vorticity_holland = cPickle.load(pkl_file)
-        self.test_vorticity_willoughby = cPickle.load(pkl_file)
-        self.test_vorticity_doubleHolland = cPickle.load(pkl_file)
-        self.test_vorticity_powell = cPickle.load(pkl_file)
+        self.R = pickle.load(pkl_file)
+        self.pEnv = pickle.load(pkl_file)
+        self.pCentre = pickle.load(pkl_file)
+        self.rMax = pickle.load(pkl_file)
+        self.cLat = pickle.load(pkl_file)
+        self.cLon = pickle.load(pkl_file)
+        self.beta = pickle.load(pkl_file)
+        self.rMax2 = pickle.load(pkl_file)
+        self.beta1 = pickle.load(pkl_file)
+        self.beta2 = pickle.load(pkl_file)
+        self.vMax = pickle.load(pkl_file)
+        self.test_vorticity_rankine = pickle.load(pkl_file)
+        self.test_vorticity_jelesnianski = pickle.load(pkl_file)
+        self.test_vorticity_holland = pickle.load(pkl_file)
+        self.test_vorticity_willoughby = pickle.load(pkl_file)
+        self.test_vorticity_doubleHolland = pickle.load(pkl_file)
+        self.test_vorticity_powell = pickle.load(pkl_file)
         pkl_file.close()
 
     def testRankine(self):
@@ -152,21 +152,21 @@ class TestWindField(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
         pkl_file = open(os.path.join(unittest_dir, 'test_data', 'windFieldTestData.pck'), 'r')
-        self.R = cPickle.load(pkl_file)
-        self.lam = cPickle.load(pkl_file)
-        self.rMax = cPickle.load(pkl_file)
-        self.f = cPickle.load(pkl_file)
-        self.V = cPickle.load(pkl_file)
-        self.Z = cPickle.load(pkl_file)
-        self.vFm = cPickle.load(pkl_file)
-        self.thetaFm = cPickle.load(pkl_file)
-        self.thetaMax = cPickle.load(pkl_file)
-        self.test_kepert_Ux = cPickle.load(pkl_file)
-        self.test_kepert_Vy = cPickle.load(pkl_file)
-        self.test_mcconochie_Ux = cPickle.load(pkl_file)
-        self.test_mcconochie_Vy = cPickle.load(pkl_file)
-        self.test_hubbert_Ux = cPickle.load(pkl_file)
-        self.test_hubbert_Vy = cPickle.load(pkl_file)
+        self.R = pickle.load(pkl_file)
+        self.lam = pickle.load(pkl_file)
+        self.rMax = pickle.load(pkl_file)
+        self.f = pickle.load(pkl_file)
+        self.V = pickle.load(pkl_file)
+        self.Z = pickle.load(pkl_file)
+        self.vFm = pickle.load(pkl_file)
+        self.thetaFm = pickle.load(pkl_file)
+        self.thetaMax = pickle.load(pkl_file)
+        self.test_kepert_Ux = pickle.load(pkl_file)
+        self.test_kepert_Vy = pickle.load(pkl_file)
+        self.test_mcconochie_Ux = pickle.load(pkl_file)
+        self.test_mcconochie_Vy = pickle.load(pkl_file)
+        self.test_hubbert_Ux = pickle.load(pkl_file)
+        self.test_hubbert_Vy = pickle.load(pkl_file)
         pkl_file.close()
 
     def test_Kepert(self):

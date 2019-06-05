@@ -138,7 +138,7 @@ class PlotCell:
         Extracts cyclone parameters for a given cell
         """
         if not stats.validCellNum(cellNum, self.gridLimit, self.gridSpace):
-            raise ValueError, 'Invalid input on cellNum: cell number is out of range'
+            raise ValueError('Invalid input on cellNum: cell number is out of range')
         lon = self.lonlat[:,0]
         lat = self.lonlat[:,1]
         wLon, nLat = stats.getCellLonLat(cellNum, self.gridLimit,
@@ -182,7 +182,7 @@ class PlotCell:
         Plot histogram of rate of change of bearing
         """
         pylab.figure()
-        pylab.hist(self.bearingRate, range(-90, 91, 10))
+        pylab.hist(self.bearingRate, list(range(-90, 91, 10)))
         pylab.title('Bearing rate', fontsize=10)
         pylab.ylabel('Counts', fontsize=8)
         pylab.xlim(-90, 90)
@@ -193,7 +193,7 @@ class PlotCell:
         Plot histogram of TC speeds
         """
         pylab.figure()
-        pylab.hist(self.speed, range(0, 101, 5))
+        pylab.hist(self.speed, list(range(0, 101, 5)))
         #pylab.title('Cell Number ' + str(self.cellNum) + '\nTotal Cyclone Occurence ' + str(len(self.indij)) + '\nCyclone Speeds',fontsize=10)
         pylab.ylabel('Counts', fontsize=8)
         pylab.xlim(0, 100)
@@ -205,7 +205,7 @@ class PlotCell:
         Plot histogram of rate of change of speed
         """
         pylab.figure()
-        pylab.hist(self.speedRate, range(-20, 21, 1))
+        pylab.hist(self.speedRate, list(range(-20, 21, 1)))
         #pylab.title('Cell Number ' + str(self.cellNum) + '\nTotal Cyclone Occurence ' + str(len(self.indij)) + '\nSpeed rate',fontsize=10)
         pylab.ylabel('Counts', fontsize=8)
         pylab.xlim(-20, 20)
@@ -217,7 +217,7 @@ class PlotCell:
         Plot histogram of TC central pressure
         """
         pylab.figure()
-        pylab.hist(self.pressure, range(900, 1011, 5))
+        pylab.hist(self.pressure, list(range(900, 1011, 5)))
         pylab.title('Central Pressure (hPa)', fontsize=10)
         pylab.ylabel('Counts', fontsize=8)
         pylab.xlim(900, 1010)
@@ -229,7 +229,7 @@ class PlotCell:
         Plot histogram of pressure rate of change
         """
         pylab.figure()
-        pylab.hist(self.pressureRate, range(-10, 10, 1))
+        pylab.hist(self.pressureRate, list(range(-10, 10, 1)))
         pylab.title('Pressure Rate (hPa/h)', fontsize=10)
         pylab.ylabel('Counts', fontsize=8)
         pylab.xlim(-10, 10)
@@ -245,11 +245,11 @@ if __name__ == "__main__":
         # If no filename is specified and default filename doesn't exist => raise error
         if not os.path.exists(configFile):
             error_msg = "No configuration file specified, please type: python main.py {config filename}.ini"
-            raise IOError, error_msg
+            raise IOError(error_msg)
     # If config file doesn't exist => raise error
     if not os.path.exists(configFile):
         error_msg = "Configuration file '" + configFile +"' not found"
-        raise IOError, error_msg
+        raise IOError(error_msg)
 
     #dataPath = config.cnfGetIniValue(configFile,'Input','Path', os.getcwd())
     dataPath = '/home/carthur/atcram/data/output/australia/run1'

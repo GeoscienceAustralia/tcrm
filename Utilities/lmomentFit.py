@@ -151,7 +151,7 @@ def pelgev(xmom):
         T0 = (t3 + 3.0) * 0.5
 
         convg = False
-        for IT in xrange(1, maxit + 1):
+        for IT in range(1, maxit + 1):
             x2 = 2.0**(-G)
             x3 = 3.0**(-G)
             xx2 = 1.0 - x2
@@ -234,7 +234,7 @@ def samlmu(data, nmom):
     #
 
     if len(data) <= 2:
-        raise ValueError, "Not enough values for L-moment calculation"
+        raise ValueError("Not enough values for L-moment calculation")
     # If nmom == 3, use optimised code
     if nmom == 3:
         return samlmu3(data)
@@ -256,7 +256,7 @@ def samlmu(data, nmom):
         sum1 = 0.0
         sum2 = 0.0
         temp = -dn + 1.0
-        for i in xrange(1, n + 1):
+        for i in range(1, n + 1):
             sum1 = sum1 + data[i - 1]
             sum2 = sum2 + data[i - 1] * temp
             temp = temp + 2.0
@@ -269,7 +269,7 @@ def samlmu(data, nmom):
     # UNBIASED ESTIMATES OF L-MOMENTS -- THE 'DO 30' LOOP
     # RECURSIVELY CALCULATES DISCRETE LEGENDRE POLYNOMIALS, VIA
     # EQ.(9) OF NEUMAN AND SCHONBACH (1974, INT.J.NUM.METH.ENG.)
-    for j in xrange(3, nmom + 1):
+    for j in range(3, nmom + 1):
         temp = 1.0/((j - 1) * (n - j + 1))
         coef[0, j-1] = (j + j - 3) * temp
         coef[1, j-1] = ((j - 2) * (n + j - 2)) * temp
@@ -277,7 +277,7 @@ def samlmu(data, nmom):
     temp = -dn - 1.0
     const = 1.0 / (dn - 1.0)
     nhalf = n/2
-    for i in xrange(1, nhalf + 1):
+    for i in range(1, nhalf + 1):
         temp = temp + 2.0
         xi = data[i - 1]
         xii = data[n - i]
@@ -287,7 +287,7 @@ def samlmu(data, nmom):
         S1 = 1.0
         S = temp * const
         xmom[1] = xmom[1] + S * termn
-        for j in xrange(3, nmom + 1, 2):
+        for j in range(3, nmom + 1, 2):
             S2 = S1
             S1 = S
             S = coef[0, j - 1] * temp * S1 - coef[1, j - 1] * S2
@@ -304,7 +304,7 @@ def samlmu(data, nmom):
         term = data[nhalf]
         s = 1.0
         xmom[0] = xmom[0] + term
-        for j in xrange(3, nmom + 1, 2):
+        for j in range(3, nmom + 1, 2):
             s = -coef[1, j - 1] * s
             xmom[j - 1] = xmom[j - 1] + s * term
 
@@ -314,7 +314,7 @@ def samlmu(data, nmom):
         log.debug(' *** ERROR *** ROUTINE SAMLMU : ALL DATA VALUES EQUAL')
         xmom[:] = 0.0
         return
-    for j in xrange(3, nmom + 1):
+    for j in range(3, nmom + 1):
         xmom[j - 1] = xmom[j - 1] / xmom[1]
     xmom[1] = xmom[1] / dn
     return np.array(xmom)
@@ -331,7 +331,7 @@ def samlmu3(data):
 
     """
     if len(data) <= 2:
-        raise ValueError, "Not enough values for L-moment calculation"
+        raise ValueError("Not enough values for L-moment calculation")
     data = np.array(data)
     n = np.size(data)
     xmom = np.zeros(3)
@@ -340,7 +340,7 @@ def samlmu3(data):
     coef02 = 3 * tempo
     coef12 = (n + 1) * tempo
 
-    temp = range(-n + 1, 0, 2)
+    temp = list(range(-n + 1, 0, 2))
     const = 1.0 / (n - 1.0)
     nhalf = n / 2
     xi = data[0:nhalf]

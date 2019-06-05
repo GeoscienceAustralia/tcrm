@@ -19,7 +19,7 @@ from osgeo.gdalconst import *
 from netCDF4 import Dataset
 
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 
@@ -236,8 +236,8 @@ class TestProcessMultipliers(unittest.TestCase):
         ncobj.close()
         del m4_max
         if keep:
-            print "f_nc.name", f_nc.name
-            print "f_img.name", f_img.name
+            print("f_nc.name", f_nc.name)
+            print("f_img.name", f_img.name)
         else:
             os.remove(f_nc.name)
             os.remove(f_img.name)

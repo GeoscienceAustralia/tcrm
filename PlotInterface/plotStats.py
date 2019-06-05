@@ -39,7 +39,7 @@ def linreg(data):
     probability and standard error of the estimate.
     """
     tData = np.array([data[1:], data[:-1]])
-    i = np.where((tData[0, :] < sys.maxint) & (tData[1, :] < sys.maxint))[0]
+    i = np.where((tData[0, :] < sys.maxsize) & (tData[1, :] < sys.maxsize))[0]
     m, c, r, pr, err = linregress(tData[:, i])
     return m, c, r, pr, err
 
@@ -94,7 +94,7 @@ class PlotData(object):
 
         """
 
-        i = np.where((xdata < sys.maxint) & (ydata < sys.maxint))[0]
+        i = np.where((xdata < sys.maxsize) & (ydata < sys.maxsize))[0]
         xx = transform(xdata[i])
         yy = transform(ydata[i])
         jp = sns.jointplot(xx, yy, kind='reg',
@@ -149,7 +149,7 @@ class PlotData(object):
 
         x_t = xdata[1:]
         x_tm = xdata[:-1]
-        skip = (x_t >= sys.maxint) | (x_tm >= sys.maxint)
+        skip = (x_t >= sys.maxsize) | (x_tm >= sys.maxsize)
         x_t = x_t.compress(skip==False)
         x_tm = x_tm.compress(skip==False)
 
@@ -179,7 +179,7 @@ class PlotData(object):
 
         pbins = np.arange(850., 1020., 5)
         pcarray = np.array(pcarray)
-        pc = np.take(pcarray, np.where(pcarray<sys.maxint))
+        pc = np.take(pcarray, np.where(pcarray<sys.maxsize))
         ax = sns.distplot(pc, bins=pbins, fit=frechet_l,
                           kde_kws={'label':'KDE'},
                           fit_kws={'color':'r',
@@ -199,7 +199,7 @@ class PlotData(object):
         """
         plt.figure(self.figurenum(), figsize=(7, 7))
         plt.subplot(111)
-        ii = np.where((sAllData < sys.maxint) & (bAllData < sys.maxint))
+        ii = np.where((sAllData < sys.maxsize) & (bAllData < sys.maxsize))
         plt.polar((np.pi/2. - np.radians(bAllData[ii])), sAllData[ii],
                      'k.', markersize=2)
         thetalabels = (90 - np.arange(0, 360, 45))
@@ -225,7 +225,7 @@ class PlotData(object):
         """
         #plt.figure(self.figurenum(), figsize=(8, 7))
         #plt.clf()
-        d = data.compress(data < sys.maxint)
+        d = data.compress(data < sys.maxsize)
         m = np.average(d)
         sd = np.std(d)
         nd = (d-m)/sd
@@ -280,7 +280,7 @@ class PlotPressure(PlotData):
 
         pbins = np.arange(850., 1020., 5)
         pcarray = np.array(pcarray)
-        pc = np.take(pcarray, np.where(pcarray<sys.maxint))
+        pc = np.take(pcarray, np.where(pcarray<sys.maxsize))
         ax = sns.distplot(pc, bins=pbins, fit=frechet_l,
                           kde_kws={'label':'KDE'},
                           fit_kws={'color':'r',

@@ -62,7 +62,7 @@ config_file="B:/CHARS/B_Wind/data/derived/tc/events/bsh132016/TCDebbie.ini"
 for f in os.listdir(inputPath):
     inputFile = pjoin(inputPath, f)
     data = np.genfromtxt(inputFile, **bdeck)
-    print inputFile
+    print(inputFile)
     header = 'basin,num,date,lat,lon,vmax,pcentre,poci,rmax,name'
     fmt = '%s,%i,%s,%8.2f,%8.2f,%6.1f,%7.1f,%7.1f,%6.2f,%s'
     outputFile = pjoin(outputPath, f)

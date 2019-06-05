@@ -186,7 +186,7 @@ class SamplingOrigin(object):
 
         # For each random variable
         try:
-            for i in xrange(ns):
+            for i in range(ns):
                 xi = self.cdfX.searchsorted(unifX[i])
                 yj = self.cdfY[xi, :].searchsorted(unifY[i])
                 if (i % (ns/100)) == 0 and i != 0:
@@ -225,14 +225,14 @@ class SamplingOrigin(object):
         cdfY = np.zeros(self.z.shape, 'd').T
         # Py=conditional distribution,  CDFy = CDF of Y
         try:
-            for i in xrange(len(self.x)):
-                for j in xrange(len(self.z[:, i])):
+            for i in range(len(self.x)):
+                for j in range(len(self.z[:, i])):
                     if px[i] == 0:
                         py[i, j] = 0
                     else:
                         py[i, j] = self.z[j, i]/px[i]
                 cdfTemp = stats.cdf(self.y, py[i, :])
-                for j in xrange(len(cdfTemp)):
+                for j in range(len(cdfTemp)):
                     cdfY[i, j] = cdfTemp[j]
         except IndexError:
             LOG.debug("i = %s", str(i))

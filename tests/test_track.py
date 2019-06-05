@@ -8,13 +8,13 @@ import os
 import sys
 from os.path import join as pjoin
 import unittest
-import NumpyTestCase
+from . import NumpyTestCase
 import numpy as np
 from netCDF4 import Dataset, date2num, num2date
 from datetime import datetime, timedelta
 
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 

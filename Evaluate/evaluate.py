@@ -102,25 +102,25 @@ def ShowSyntax(exit_code=0):
     """Documentation function to describe how to use this funtion"""
     if sys.stderr.isatty() and sys.stdin.isatty():
         # Ensure that STDERR can be written to
-        print "{0}: ".format(sys.argv[0])
-        print ""
-        print "Perform an analysis of an historical event set and a series of "
-        print "synthetic event sets."
-        print ""
-        print "For the synthetic event sets, the program calculates mean"
-        print "values for comparison to the historic event set, and"
-        print "also calculates the upper and lower percentiles (default is"
-        print "the 5th and 95th percentiles) of the range of synthetic events"
-        print ""
-        print "Input:"
-        print "Configuration file: {0}, or as specified by the -c switch".\
-            format(flConfigFile())
-        print ""
-        print "Output:"
-        print "A series of images comparing the track density of the"
-        print "historical dataset to that of the synthetic datasets"
-        print "Optional log file - default is {0}".format(flConfigFile('.log'))
-        print ""
+        print("{0}: ".format(sys.argv[0]))
+        print("")
+        print("Perform an analysis of an historical event set and a series of ")
+        print("synthetic event sets.")
+        print("")
+        print("For the synthetic event sets, the program calculates mean")
+        print("values for comparison to the historic event set, and")
+        print("also calculates the upper and lower percentiles (default is")
+        print("the 5th and 95th percentiles) of the range of synthetic events")
+        print("")
+        print("Input:")
+        print("Configuration file: {0}, or as specified by the -c switch".\
+            format(flConfigFile()))
+        print("")
+        print("Output:")
+        print("A series of images comparing the track density of the")
+        print("historical dataset to that of the synthetic datasets")
+        print("Optional log file - default is {0}".format(flConfigFile('.log')))
+        print("")
 
     sys.exit(exit_code)
 
@@ -437,8 +437,8 @@ class Evaluate(object):
         self.y = self.latRange[:-1]
 
         cellnumber = 0
-        for k in xrange(self.nx):
-            for l in xrange(self.ny):
+        for k in range(self.nx):
+            for l in range(self.ny):
                 ymin = self.latRange[l]
                 ymax = self.latRange[l] + self.gridSize
                 xmin = self.lonRange[k]
@@ -597,7 +597,7 @@ class EvalPressureDistribution(Evaluate):
         #        n += 1
         #        synMinCP = []
 
-        for n in xrange(self.synNumSimulations):
+        for n in range(self.synNumSimulations):
             trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv" % (n))
             log.debug("Processing {0}".format(trackFile))
             try:
@@ -632,10 +632,10 @@ class EvalPressureDistribution(Evaluate):
         self.synMinLower = percentile(msynMin, per=self.lower)
 
         self.synMinCPUpper = [percentile(self.synMinCP[:, i], per=self.upper)
-                              for i in xrange(len(self.minCpRange) - 1)]
+                              for i in range(len(self.minCpRange) - 1)]
 
         self.synMinCPLower = [percentile(self.synMinCP[:, i], per=self.lower)
-                              for i in xrange(len(self.minCpRange) - 1)]
+                              for i in range(len(self.minCpRange) - 1)]
 
         self.synMinCPMean = np.mean(self.synMinCP, axis=0)
 
@@ -827,7 +827,7 @@ class EvalTrackDensity(Evaluate):
                  format(self.synNumSimulations, self.synTrackPath))
 
         self.synHist = np.empty(((self.synNumSimulations,) + self.hist2DShape))
-        for n in xrange(self.synNumSimulations):
+        for n in range(self.synNumSimulations):
             trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv" % (n))
             log.debug("Processing {0}".format(trackFile))
             try:
@@ -1127,7 +1127,7 @@ class EvalLongitudeCrossings(Evaluate):
 
         log.debug("Processing {0} synthetic events in {1}".
                   format(self.synNumSimulations, self.synTrackPath))
-        for n in xrange(self.synNumSimulations):
+        for n in range(self.synNumSimulations):
             trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv" % (n))
             log.debug("Processing {0}".format(trackFile))
             try:
@@ -1158,8 +1158,8 @@ class EvalLongitudeCrossings(Evaluate):
             self.lonCrossingSynEWMean = np.mean(self.lonCrossingSynEW, axis=0)
             self.lonCrossingSynWEMean = np.mean(self.lonCrossingSynWE, axis=0)
 
-            for k in xrange(len(self.gateLats) - 1):
-                for l in xrange(len(self.gateLons)):
+            for k in range(len(self.gateLats) - 1):
+                for l in range(len(self.gateLons)):
                     self.lonCrossingSynUpper[k, l] = percentile(
                         self.lonCrossingSyn[:, k, l], per=self.upper)
                     self.lonCrossingSynEWUpper[k, l] = percentile(
@@ -1444,7 +1444,7 @@ class EvalAgeDistribution(Evaluate):
         log.debug("Processing {0} synthetic events in {1}".
                   format(self.synNumSimulations, self.synTrackPath))
 
-        for n in xrange(self.synNumSimulations):
+        for n in range(self.synNumSimulations):
             trackFile = pjoin(self.synTrackPath, "tracks.%04d.csv" % (n))
             log.debug("Processing {0}".format(trackFile))
             try:
@@ -1468,9 +1468,9 @@ class EvalAgeDistribution(Evaluate):
             return False
         else:
             self.synAgeUpper = [percentile(
-                self.synAgeDist[:, i], per=self.upper) for i in xrange(len(self.ageBins) - 1)]
+                self.synAgeDist[:, i], per=self.upper) for i in range(len(self.ageBins) - 1)]
             self.synAgeLower = [percentile(
-                self.synAgeDist[:, i], per=self.lower) for i in xrange(len(self.ageBins) - 1)]
+                self.synAgeDist[:, i], per=self.lower) for i in range(len(self.ageBins) - 1)]
             self.synAgeMean = np.mean(self.synAgeDist, axis=0)
 
             return True

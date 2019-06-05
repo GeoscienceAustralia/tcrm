@@ -8,7 +8,7 @@ class WindProfileFigure(Figure):
 
     def __init__(self, lat, lon, eP, cP, rMax, beta, beta1=1.5, beta2=1.4):
         Figure.__init__(self)
-        self.R = np.array(range(1, 201), 'f')
+        self.R = np.array(list(range(1, 201)), 'f')
         self.lat = lat
         self.lon = lon
         self.rMax = rMax
@@ -71,7 +71,7 @@ def main():
 
     fig.plot()
 
-    print('saving wind profiles figure to %s' % path)
+    print(('saving wind profiles figure to %s' % path))
     canvas.print_figure(path)
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ Note: Many of the defaults (e.g. coastline colours, font sizes for
 
 """
 
-from __future__ import division
+
 
 import numpy as np
 import numpy.ma as ma
