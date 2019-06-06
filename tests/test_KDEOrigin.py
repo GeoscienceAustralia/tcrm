@@ -22,7 +22,6 @@ unittest_dir = pathLocate.getUnitTestDirectory()
 sys.path.append(pathLocate.getRootDirectory())
 from StatInterface import KDEOrigin
 from Utilities.files import flStartLog
-from Utilities.singleton import forgetAllSingletons
 
 class TestKDEOrigin(NumpyTestCase.NumpyTestCase):
 
@@ -34,7 +33,8 @@ class TestKDEOrigin(NumpyTestCase.NumpyTestCase):
         self.kdeOrigin = KDEOrigin.KDEOrigin(None, gridLimit, kdeStep, lonLat)
 
     def tearDown(self):
-        forgetAllSingletons()
+        #forgetAllSingletons()
+        pass
 
     def test_GenerateKDE(self):
         """Testing GenerateKDE for 2D data"""

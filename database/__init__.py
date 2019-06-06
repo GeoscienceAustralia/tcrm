@@ -51,7 +51,6 @@ import numpy as np
 from Utilities.config import ConfigParser
 from Utilities.maputils import find_index
 from Utilities.track import loadTracksFromFiles
-from Utilities.singleton import Singleton
 from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities.process import pAlreadyProcessed, pGetProcessedFiles
 from functools import reduce
@@ -174,19 +173,23 @@ def windfieldAttributes(ncobj):
 
     return (trackfile, trackfiledate, tcrm_vers, minslp, maxwind)
 
+_singletons = {}
 def HazardDatabase(configFile): # pylint: disable=C0103
     """
-    A wrapper function to instantiate :class:`_HazardDatabase`. We actually
-    call :meth:`getInstance` to get a singleton instance of the
-    :class:`_HazardDatabase`. If one exists already, then that instance is
-    returned.
+    A wrapper function to instantiate :class:`_HazardDatabase`.
+    If one exists already, then that instance is returned.
 
     :param str configFile: Path to configuration file
 
     """
-    return _HazardDatabase.getInstance(configFile)
+    global _singletons
+    instance = _singletons.get(configFile)
+    if not instance:
+        instance = _HazardDatabase(configFile)
+        _singletons[configFile] = instance
+    return instance
 
-class _HazardDatabase(sqlite3.Connection, Singleton):
+class _HazardDatabase(sqlite3.Connection):
     """
     Create and update a database of locations, events, hazard, wind
     speed and tracks. Because it subclasses the :class:`Singleton` object,
