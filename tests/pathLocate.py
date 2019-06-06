@@ -32,7 +32,7 @@ def getRootDirectory():
     encoding = sys.getfilesystemencoding()
     if is_frozen():
         return os.path.dirname(str(sys.executable, encoding))
-    return os.path.abspath(os.path.join(os.path.dirname(str(__file__, encoding)), '..'))
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 def getUnitTestDirectory():
     if is_frozen():
