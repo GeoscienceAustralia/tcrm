@@ -356,19 +356,6 @@ class TestJulianDays(unittest.TestCase):
         self.assertRaises(ValueError, loadData.julianDays,
                           *badYearArgs)
 
-class TestLoadingTrackFiles(unittest.TestCase):
-
-    def setUp(self):
-        self.config_file = os.path.join(unittest_dir, 'test_data',
-                                      'test.ini')
-        self.track_file = os.path.join(unittest_dir, 'test_data',
-                                      'test_trackset.csv')
-        self.source = 'TESTSOURCE'
-
-        inputFile = open(os.path.join(unittest_dir, 'test_data',
-                                      'loadTrackFile.pck'))
-        self.trackData = pickle.load(inputFile)
-
 class TestGetPoci(unittest.TestCase):
 
     def setUp(self):
