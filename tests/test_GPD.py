@@ -46,7 +46,7 @@ from Utilities.files import flStartLog
 class TestGPD(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
-        pfile = open(os.path.join(unittest_dir, 'test_data', 'testGPD.pck'),'r')
+        pfile = open(os.path.join(unittest_dir, 'test_data', 'testGPD.pkl'),'r')
         self.values = pickle.load(pfile)
         self.mu = pickle.load(pfile)
         self.scale = pickle.load(pfile)

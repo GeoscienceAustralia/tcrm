@@ -6,7 +6,7 @@ from scipy import stats
 from mpl_toolkits.basemap import Basemap
 import Utilities.KPDF as KPDF
 
-ff = os.path.join('..', 'test_data', 'kde_origin_lonLat.pck')
+ff = os.path.join('..', 'test_data', 'kde_origin_lonLat.pkl')
 lonlat = pickle.load(open(ff))
 
 xmin = 70.0

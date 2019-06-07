@@ -46,13 +46,13 @@ class TestSamplingParameters(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
         self.numberOfSamples = 1000
-        pr = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'sampling_parameters_xacy.pck')))
+        pr = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'sampling_parameters_xacy.pkl')))
         self.sampPar = SamplingParameters.SamplingParameters(pr)
         random.seed(10)
 
     def test_GenerateSamples(self):
         """Testing GenerateSamples"""
-        samples = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'sampling_parameters_samples.pck')))
+        samples = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'sampling_parameters_samples.pkl')))
         samplesp = self.sampPar.generateSamples(self.numberOfSamples)
         self.numpyAssertAlmostEqual(samples, samplesp)
 

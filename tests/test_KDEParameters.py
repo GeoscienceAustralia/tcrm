@@ -43,8 +43,8 @@ from Utilities.files import flStartLog
 class TestKDEParameters(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
-        self.pressure_rate = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_parameters_pressure_rate.pck')))
-        self.resultp = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_parameters_result.pck')))
+        self.pressure_rate = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_parameters_pressure_rate.pkl')))
+        self.resultp = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_parameters_result.pkl')))
         kdeType = 'Epanechnikov'
         self.k = KDEParameters.KDEParameters(kdeType)
 

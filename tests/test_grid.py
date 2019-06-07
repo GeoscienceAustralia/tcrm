@@ -64,7 +64,7 @@ class TestGrid(NumpyTestCase.NumpyTestCase):
 
     def test_grdRead(self):
         """Test grid data is read correctly from ascii file"""
-        pfile = open(os.path.join(unittest_dir, 'test_data', 'gridReadTestData.pck'),'r')
+        pfile = open(os.path.join(unittest_dir, 'test_data', 'gridReadTestData.pkl'),'r')
         pdata = pickle.load(pfile)
         plon = pickle.load(pfile)
         plat = pickle.load(pfile)
@@ -81,7 +81,7 @@ class TestGrid(NumpyTestCase.NumpyTestCase):
 
     def test_SampleGrid(self):
         """Test SampleGrid class using an ascii file as input"""
-        pfile = open(os.path.join(unittest_dir, 'test_data', 'samplegrid.pck'),'r')
+        pfile = open(os.path.join(unittest_dir, 'test_data', 'samplegrid.pkl'),'r')
         pvalue = 1015.018
         pfile.close()
         value = self.gridobj.sampleGrid(self.ilon, self.ilat)

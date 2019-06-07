@@ -27,7 +27,7 @@ class TestInitialPositions(unittest.TestCase):
 
         self.inputData = pickle.load(open(os.path.join(unittest_dir,
                                                         'test_data',
-                                                        'loadDataInput.pck')))
+                                                        'loadDataInput.pkl')))
         #self.indexData = dict(index=self.inputData['index'])
         self.serialData = dict(tcserialno=self.inputData['tcserialno'])
         self.seasonData = dict(season=self.inputData['season'],
@@ -37,14 +37,14 @@ class TestInitialPositions(unittest.TestCase):
 
         self.numData = pickle.load(open(os.path.join(unittest_dir,
                                                       'test_data',
-                                                      'loadDataNumber.pck')))
+                                                      'loadDataNumber.pkl')))
 
         self.testIndex = pickle.load(open(os.path.join(unittest_dir,
                                                         'test_data',
-                                                        'loadDataIndex.pck')))
+                                                        'loadDataIndex.pkl')))
         self.numIndex = pickle.load(open(os.path.join(unittest_dir,
                                                        'test_data',
-                                                       'loadNumIndex.pck')))
+                                                       'loadNumIndex.pkl')))
 
     def test_getInitPos_fromSerialNo(self):
         """Test to ensure the function returns correct values based on serial number"""
@@ -76,7 +76,7 @@ class TestDateParsing(unittest.TestCase):
     def setUp(self):
         """ """
         input_file = open(os.path.join(unittest_dir, 'test_data',
-                                       'parseDates.pck'))
+                                       'parseDates.pkl'))
         self.dateformat = '%Y-%m-%d %H:%M:%S'
         self.inputData = pickle.load(input_file)
         self.indicator = pickle.load(input_file)
@@ -152,7 +152,7 @@ class TestDateConversion(unittest.TestCase):
     def setUp(self):
 
         inputFile = open(os.path.join(unittest_dir, 'test_data',
-                                      'date2ymhd.pck'))
+                                      'date2ymhd.pkl'))
         self.goodInputDates = pickle.load(inputFile)
         self.badInputDates = pickle.load(inputFile)
         self.dateformat = '%Y-%m-%d %H:%M:%S'
@@ -210,7 +210,7 @@ class TestAgeParsing(unittest.TestCase):
 
     def setUp(self):
         inputFile = open(os.path.join(unittest_dir, 'test_data',
-                                                   'parseAge.pck'))
+                                                   'parseAge.pkl'))
 
         self.inputData = pickle.load(inputFile)
         self.indicator = pickle.load(inputFile)
@@ -237,7 +237,7 @@ class TestTimeDeltas(unittest.TestCase):
 
     def setUp(self):
         inputFile = open(os.path.join(unittest_dir, 'test_data',
-                                      'getTimeDelta.pck'))
+                                      'getTimeDelta.pkl'))
         self.inputYear = pickle.load(inputFile)
         self.inputMonth = pickle.load(inputFile)
         self.inputDay = pickle.load(inputFile)
@@ -278,7 +278,7 @@ class TestTime(unittest.TestCase):
 
     def setUp(self):
         inputFile = open(os.path.join(unittest_dir, 'test_data',
-                                      'getTime.pck'))
+                                      'getTime.pkl'))
         self.inputYear = pickle.load(inputFile)
         self.inputMonth = pickle.load(inputFile)
         self.inputDay = pickle.load(inputFile)
@@ -319,7 +319,7 @@ class TestJulianDays(unittest.TestCase):
 
     def setUp(self):
         inputFile = open(os.path.join(unittest_dir, 'test_data',
-                                      'julianDays.pck'))
+                                      'julianDays.pkl'))
         self.inputYear = pickle.load(inputFile)
         self.inputMonth = pickle.load(inputFile)
         self.inputDay = pickle.load(inputFile)
@@ -444,7 +444,7 @@ class TestGetPoci(unittest.TestCase):
 #
 #    def setUp(self):
 #        inputFile = open(os.path.join(unittest_dir, 'test_data',
-#                                      'filterPressure.pck'))
+#                                      'filterPressure.pkl'))
 #        self.inputdata = cPickle.load(inputFile)
 #        self.outputdata = cPickle.load(inputFile)
 #        inputFile.close()
