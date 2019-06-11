@@ -7,7 +7,7 @@ from mpl_toolkits.basemap import Basemap
 import Utilities.KPDF as KPDF
 
 ff = os.path.join('..', 'test_data', 'kde_origin_lonLat.pkl')
-lonlat = pickle.load(open(ff))
+lonlat = pickle.load(open(ff, 'rb'))
 
 xmin = 70.0
 xmax = 180.0

@@ -29,7 +29,7 @@ class TestKDEOrigin(NumpyTestCase.NumpyTestCase):
         kdeType = 'Epanechnikov'
         gridLimit={'xMin':70, 'xMax':180, 'yMin':-36, 'yMax':0}
         kdeStep = 0.1
-        lonLat = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_origin_lonLat.pkl')))
+        lonLat = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_origin_lonLat.pkl'), 'rb'))
         self.kdeOrigin = KDEOrigin.KDEOrigin(None, gridLimit, kdeStep, lonLat)
 
     def tearDown(self):
@@ -38,7 +38,7 @@ class TestKDEOrigin(NumpyTestCase.NumpyTestCase):
 
     def test_GenerateKDE(self):
         """Testing GenerateKDE for 2D data"""
-        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kdeOrigin_xyz.pkl'), 'r')
+        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kdeOrigin_xyz.pkl'), 'rb')
         xp = pickle.load(pkl_file)
         yp = pickle.load(pkl_file)
         zp = pickle.load(pkl_file)

@@ -46,7 +46,7 @@ from Utilities.files import flStartLog
 class Testlmoments(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
-        pfile = open(os.path.join(unittest_dir, 'test_data', 'testlmom.pkl'),'r')
+        pfile = open(os.path.join(unittest_dir, 'test_data', 'testlmom.pkl'),'rb')
         self.values = pickle.load(pfile)
         self.moments = pickle.load(pfile)
         self.params = pickle.load(pfile)

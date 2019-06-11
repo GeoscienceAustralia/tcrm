@@ -46,7 +46,7 @@ class TestSamplingOrigin(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
         self.numberOfSamples = 1000
-        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kdeOrigin_xyz.pkl'), 'r')
+        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kdeOrigin_xyz.pkl'), 'rb')
         xp = pickle.load(pkl_file)
         yp = pickle.load(pkl_file)
         zp = pickle.load(pkl_file)
@@ -55,8 +55,8 @@ class TestSamplingOrigin(NumpyTestCase.NumpyTestCase):
 
     def test_GenerateSamples(self):
         """Testing GenerateSamples"""
-        samplesp = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'sample_origin.pkl')))
-        lonLatp = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'sample_origin_lonLat.pkl')))
+        samplesp = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'sample_origin.pkl'), 'rb'))
+        lonLatp = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'sample_origin_lonLat.pkl'), 'rb'))
         lonLat = self.sampOrg.generateSamples(self.numberOfSamples)
         self.numpyAssertAlmostEqual(lonLatp[:,0], lonLat[:,0])
         self.numpyAssertAlmostEqual(lonLatp[:,1], lonLat[:,1])

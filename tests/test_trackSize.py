@@ -70,7 +70,7 @@ class TestFitRmax(NumpyTestCase.NumpyTestCase):
     the default coefficients for the Rmw model used in `TrackGenerator`
     """
     def setUp(self):
-        pklfile = open(os.path.join(unittest_dir, 'test_data', 'rmw.pkl'), 'r')
+        pklfile = open(os.path.join(unittest_dir, 'test_data', 'rmw.pkl'), 'rb')
         self.dp = pickle.load(pklfile)
         self.lat = pickle.load(pklfile)
         self.rmw = pickle.load(pklfile)
