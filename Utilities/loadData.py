@@ -399,7 +399,7 @@ def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):
             d = datetime.strptime(str(dates[i]), datefmt)
         except ValueError as e:
             LOG.exception("Error in date information for record {0}".format(i))
-            LOG.exception(e.message)
+            LOG.exception(repr(e))
             raise
         else:
             year[i] = d.year
