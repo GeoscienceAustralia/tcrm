@@ -112,7 +112,7 @@ def getCellLonLat(cellNum, gridLimit, gridSpace):
 
     lat = np.arange(gridLimit['yMax'], gridLimit['yMin'], -gridSpace['y'])
     lon = np.arange(gridLimit['xMin'], gridLimit['xMax'], gridSpace['x'])
-    indLat = cellNum / lon.size
+    indLat = cellNum // lon.size
     indLon = cellNum % lon.size
     return lon[indLon], lat[indLat]
 
