@@ -455,7 +455,7 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
         except (ValueError, KeyError):
             if hour.max() >= 100:
                 minute = np.mod(hour, 100)
-                hour = hour / 100
+                hour = hour // 100
             else:
                 LOG.warning("Missing minute data from input data" + \
                                "- setting minutes to 00 for all times")
