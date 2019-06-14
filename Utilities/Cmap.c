@@ -109,8 +109,16 @@ static struct PyMethodDef MethodTable[] =
 		{NULL, NULL, 0, NULL}   /* sentinel */
 };
 
+static struct PyModuleDef CmapModule = {
+	PyModuleDef_HEAD_INIT,
+	"Cmap",	/* name of module */
+	NULL, 	/* documentation */
+	0,	/* no global state */
+	MethodTable
+};
+
 // Module initialisation
-void initCmap(void)
+PyMODINIT_FUNC PyInit_Cmap(void)
 {
-		Py_InitModule("Cmap", MethodTable);
+	return PyModule_Create(&CmapModule);
 }

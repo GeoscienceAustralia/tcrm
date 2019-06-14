@@ -113,13 +113,13 @@ PyObject* getCellNum(PyObject* self, PyObject* args)
 		return NULL;
 	}
 
-	xMin = PyInt_AsLong(PyDict_GetItemString(gridLimit, "xMin"));
-	xMax = PyInt_AsLong(PyDict_GetItemString(gridLimit, "xMax"));
-	yMin = PyInt_AsLong(PyDict_GetItemString(gridLimit, "yMin"));
-	yMax = PyInt_AsLong(PyDict_GetItemString(gridLimit, "yMax"));
+	xMin = PyLong_AsLong(PyDict_GetItemString(gridLimit, "xMin"));
+	xMax = PyLong_AsLong(PyDict_GetItemString(gridLimit, "xMax"));
+	yMin = PyLong_AsLong(PyDict_GetItemString(gridLimit, "yMin"));
+	yMax = PyLong_AsLong(PyDict_GetItemString(gridLimit, "yMax"));
 
-	x = PyInt_AsLong(PyDict_GetItemString(gridSpace, "x"));
-	y = PyInt_AsLong(PyDict_GetItemString(gridSpace, "y"));
+	x = PyLong_AsLong(PyDict_GetItemString(gridSpace, "x"));
+	y = PyLong_AsLong(PyDict_GetItemString(gridSpace, "y"));
 
 
 	//Call underlying routine
@@ -154,13 +154,13 @@ PyObject* getCellLonLat(PyObject* self, PyObject* args)
         PyErr_SetString(PyExc_RuntimeError, "getCellLonLat could not parse input");
             return NULL;
         }
-	xMin = PyInt_AsLong(PyDict_GetItemString(gridLimit, "xMin"));
-	xMax = PyInt_AsLong(PyDict_GetItemString(gridLimit, "xMax"));
-	yMin = PyInt_AsLong(PyDict_GetItemString(gridLimit, "yMin"));
-	yMax = PyInt_AsLong(PyDict_GetItemString(gridLimit, "yMax"));
+	xMin = PyLong_AsLong(PyDict_GetItemString(gridLimit, "xMin"));
+	xMax = PyLong_AsLong(PyDict_GetItemString(gridLimit, "xMax"));
+	yMin = PyLong_AsLong(PyDict_GetItemString(gridLimit, "yMin"));
+	yMax = PyLong_AsLong(PyDict_GetItemString(gridLimit, "yMax"));
 
-	x = PyInt_AsLong(PyDict_GetItemString(gridSpace, "x"));
-	y = PyInt_AsLong(PyDict_GetItemString(gridSpace, "y"));
+	x = PyLong_AsLong(PyDict_GetItemString(gridSpace, "x"));
+	y = PyLong_AsLong(PyDict_GetItemString(gridSpace, "y"));
         if (cellNum < 0)
 	{
         PyErr_SetString(PyExc_ValueError, "Invalid input on cellNum: cell number is out of range");
@@ -180,8 +180,16 @@ static struct PyMethodDef MethodTable[] =
 	{NULL, NULL, 0, NULL}
 };
 
+static struct PyModuleDef CstatsModule = {
+	PyModuleDef_HEAD_INIT,
+	"Cstats",	/* name */
+	NULL,		/* docs */
+	0,		/* no global state */
+	MethodTable
+};
+
 // Module initialisation
-void initCstats(void)
+PyMODINIT_FUNC PyInit_Cstats(void)
 {
-        Py_InitModule("Cstats", MethodTable);
+	return PyModule_Create(&CstatsModule);
 }
