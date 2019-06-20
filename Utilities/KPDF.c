@@ -149,18 +149,6 @@ static PyMethodDef KPDFMethods[]={
   {NULL,NULL} /* Last entry */
 };
 
-void initKPDF( void )
-{
-  PyObject *m, *d;
-
-  /* Initialize the Python Module */
-  m=Py_InitModule("KPDF",KPDFMethods);
-  /* Give access to Numeric Arrays */
-  import_array();
-  /* Intialize the dictionary */
-  d=PyModule_GetDict(m);
-  initKPDFconstants();
-}
 
 /*****
 Initialize some internal constants for all the kernels.
@@ -937,3 +925,17 @@ static PyObject *MPDFGrid2Array( PyArrayObject **numpys , int fastest )
   return (PyObject*)PyArray_Return(retarray);
 }
 
+static struct PyModuleDef KPDFmodule = {
+  PyModuleDef_HEAD_INIT,
+  "KPDF", /* name */
+  NULL, /* docs */
+  -1, /* module may contain global state */
+  KPDFMethods
+};
+
+PyMODINIT_FUNC PyInit_KPDF(void)
+{
+  import_array();
+  initKPDFconstants();
+  return PyModule_Create(&KPDFmodule);
+}
