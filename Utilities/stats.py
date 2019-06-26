@@ -97,10 +97,10 @@ def getCellNum(lon, lat, gridLimit, gridSpace):
             lat <= gridLimit['yMin'] or lat > gridLimit['yMax']):
         raise ValueError('Invalid input on cellNum: cell number is out of range')
 
-    j = abs((abs(lon) - abs(gridLimit['xMin']))) / abs(gridSpace['x'])
-    i = abs((abs(lat) - abs(gridLimit['yMax']))) / abs(gridSpace['y'])
+    j = abs((abs(lon) - abs(gridLimit['xMin']))) // abs(gridSpace['x'])
+    i = abs((abs(lat) - abs(gridLimit['yMax']))) // abs(gridSpace['y'])
 
-    return int(i * abs((gridLimit['xMax'] - gridLimit['xMin']) / gridSpace['x']) + j)
+    return int(i * abs((gridLimit['xMax'] - gridLimit['xMin']) // gridSpace['x']) + j)
 
 
 def getCellLonLat(cellNum, gridLimit, gridSpace):
