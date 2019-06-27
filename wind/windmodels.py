@@ -736,7 +736,7 @@ class DoubleHollandWindProfile(WindProfileModel):
 
         Z = (np.sign(self.f) * np.sqrt(chi * delta * edelta + psi *
              gamma * egamma + (self.f * R / 2) ** 2) / R -
-             np.abs(self.f) + (0 * 1 / 2) * # NOTE: this replicates a bug in the python2 version (unintended integer division)
+             np.abs(self.f) + (1 / 2) *
              (chi * ddelta * edelta * (1 - delta) +
               psi * dgamma * egamma * (1 - gamma) +
               R * self.f ** 2) /
