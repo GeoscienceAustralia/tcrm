@@ -69,7 +69,7 @@ def run_optional(config):
     """Interpret config and (if so instructed) then calculate impact"""
 
     if config.has_section('Actions'):
-        action = config.getBoolean('Actions', 'ExecuteImpact', fallback=False)
+        action = config.getboolean('Actions', 'ExecuteImpact', fallback=False)
     else:
         action = config.has_section('Impact')
 
