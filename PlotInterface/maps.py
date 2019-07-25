@@ -258,7 +258,7 @@ class MapFigure(Figure):
 
         axes.set_extent([x0, x1, y0, y1])
 
-        return mapobj, xgrid, ygrid
+        return axes, xgrid, ygrid
 
     def subplot(self, axes, subfigure):
         """
@@ -367,8 +367,7 @@ class FilledContourMapFigure(MapFigure):
         cmap = selectColormap(lvls)
         CS = mapobj.contourf(mx, my, data, levels=lvls,
                              extend='both', cmap=cmap)
-        CB = mapobj.colorbar(CS, location='right', pad='5%', ticks=lvls[::2],
-                             fig=self, ax=axes, extend='both')
+        CB = self.colorbar(CS, ticks=lvls[::2], ax=axes, extend='both')
         CB.set_label(cbarlab)
         axes.set_title(title)
         self.addGraticule(axes, mapobj)
@@ -403,8 +402,7 @@ class MaskedContourMapFigure(FilledContourMapFigure):
         cmap = selectColormap(lvls)
         CS = mapobj.contourf(mx, my, masked_data, levels=lvls,
                              extend='both', cmap=cmap)
-        CB = mapobj.colorbar(CS, location='right', pad='5%', ticks=lvls[::2],
-                             fig=self, ax=axes, extend='both')
+        CB = self.colorbar(CS, ticks=lvls[::2], ax=axes, extend='both')
         CB.set_label(cbarlab)
         axes.set_title(title)
         self.labelAxes(axes)
@@ -440,8 +438,8 @@ class ArrayMapFigure(MapFigure):
         vmax = datarange[1]
         CS = mapobj.pcolormesh(mx, my, data, vmin=vmin,
                                vmax=vmax, cmap=cmap)
-        CB = mapobj.colorbar(CS, location='bottom', pad='10%',
-                             fig=self, ax=axes)
+        #CB = self.colorbar(CS, location='bottom', pad=0.1,
+        #                     fig=self, ax=axes)
         CB.set_label(cbarlab)
         axes.set_title(title)
         self.addGraticule(axes, mapobj)
