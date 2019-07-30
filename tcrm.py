@@ -43,9 +43,7 @@ if pathLocator.is_frozen():
     os.environ['BASEMAPDATA'] = pjoin(
         pathLocator.getRootDirectory(), 'mpl-data', 'data')
 
-compiledModules = ['KPDF', 'akima', 'Cmap', 'Cstats']
-
-def checkModules(moduleList):
+def checkModules():
     """
     Check that compiled extensions are available
 
@@ -53,28 +51,18 @@ def checkModules(moduleList):
     
     :return:
     """
-
-    msg = ("Cannot find '{0}' in the path. "
-           "Make sure to compile the extensions using "
-           "`python installer/setup.py build_ext -i` "
-           "or the `compile.cmd` script")
-    if not isinstance(moduleList, list):
-        raise TypeError
-    for m in moduleList:
-        try:
-            imp.find_module(m)
-            found = True
-        except ImportError:
-            found = False
-        if found:
-            log.debug("{0} was found".format(m))
-        else:
-            log.critical("{0} not found on the path".format(m))
-            log.critical(msg.format(m))
-            return found
-    return found
-            
-
+    try:
+        import Utilities.KPDF
+        import Utilities.akima
+        import Utilities.Cmap
+        import Utilities.Cstats
+        log.debug("Compiled modules were found.")
+    except ImportError:
+        log.critical("Unable to import compiled modules. "
+                     "Make sure to compile the extensions using "
+                     "`python installer/setup.py build_ext -i` "
+                     "or the `compile.cmd` script")
+        sys.exit(1) # or raise
 
 def timer(f):
     """
@@ -660,9 +648,7 @@ def startup():
                             module="matplotlib")
 
     warnings.filterwarnings("ignore", category=RuntimeWarning)
-    rc = checkModules(compiledModules)
-    if not rc:
-        sys.exit(1)
+    checkModules()
 
     if debug:
         main(configFile)
