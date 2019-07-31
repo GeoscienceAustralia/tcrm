@@ -5,7 +5,7 @@
 """
 from urllib.request import urlopen
 from urllib.error import URLError
-from io import StringIO
+from io import BytesIO
 from Utilities.config import ConfigParser
 from os.path import isfile, splitext, join as pjoin
 
@@ -57,9 +57,9 @@ class DataSet(object):
         try:
             urlfile = urlopen(self.url, timeout=5)
             meta = urlfile.info()
-            data = StringIO()
+            data = BytesIO()
 
-            size = int(meta.getheaders('Content-Length')[0])
+            size = int(meta['Content-Length'])
             done = 0
             while True:
                 buf = urlfile.read(8192)
