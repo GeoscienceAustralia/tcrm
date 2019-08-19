@@ -57,6 +57,13 @@ from functools import reduce
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
+def fromrecords(records, names):
+    """ Convert records to array, even if no data """
+    # May become redundant after https://github.com/numpy/numpy/issues/1862
+    if records:
+        return np.rec.fromrecords(records, names=names)
+    else:
+        return np.array([], [(name, 'O') for name in names.split(',')])
 
 def timer(func):
     """
@@ -306,7 +313,7 @@ class _HazardDatabase(sqlite3.Connection):
         else:
             locations = cur.fetchall()
 
-        locations = np.rec.fromrecords(locations,
+        locations = fromrecords(locations,
                                        names=("locId,locName,locLon,locLat"))
         return locations
 
@@ -898,8 +905,7 @@ def locationRecordsExceeding(hazard_db, locId, windSpeed):
 
     cur = hazard_db.execute(query, (windSpeed, locId,))
     results = cur.fetchall()
-    results = np.rec.fromrecords(results,
-                                 names=('locId,locName,wspd,eventId'))
+    results = fromrecords(results, names=('locId,locName,wspd,eventId'))
 
     return results
 
@@ -923,9 +929,8 @@ def locationRecords(hazard_db, locId):
              "WHERE l.locId = ? ORDER BY w.wspd ASC")
     cur = hazard_db.execute(query, (locId,))
     results = cur.fetchall()
-    results = np.rec.fromrecords(results,
-                                 names=('locId,locName,wspd,'
-                                        'umax,vmax,eventId'))
+    results = fromrecords(results,
+                          names=('locId,locName,wspd,umax,vmax,eventId'))
 
     return results
 
@@ -961,9 +966,9 @@ def locationPassage(hazard_db, locId, distance=50):
              "WHERE t.distClosest < ? and l.locId = ?")
     cur = hazard_db.execute(query, (distance, locId))
     results = cur.fetchall()
-    results = np.rec.fromrecords(results,
-                                 names=('locId,locName,eventId,'
-                                        'distClosest,wspd,eventFile'))
+    results = fromrecords(results,
+                          names=('locId,locName,eventId,'
+                                 'distClosest,wspd,eventFile'))
     return results
 
 @timer
@@ -991,9 +996,9 @@ def locationPassageWindSpeed(hazard_db, locId, speed, distance):
 
     cur = hazard_db.execute(query, (locId, speed, distance))
     results = cur.fetchall()
-    results = np.rec.fromrecords(results,
-                                 names=('locName,wspd,umax,vmax,eventId,'
-                                        'distClosest,maxwind,pmin'))
+    results = fromrecords(results,
+                          names=('locName,wspd,umax,vmax,eventId,'
+                                 'distClosest,maxwind,pmin'))
 
     return results
 
@@ -1056,9 +1061,9 @@ def locationAllReturnLevels(hazard_db, locId):
 
     cur = hazard_db.execute(query, (locId,))
     results = cur.fetchall()
-    results = np.rec.fromrecords(results,
-                                 names=('locId,locName,returnPeriod,'
-                                        'wspd,wspdLower,wspdUpper'))
+    results = fromrecords(results,
+                          names=('locId,locName,returnPeriod,'
+                                 'wspd,wspdLower,wspdUpper'))
 
     return results
 
@@ -1080,5 +1085,5 @@ def selectEvents(hazard_db):
     names = ("eventNum,eventId,eventFile,eventTrackFile,eventMaxWind,"
              "eventMinPressure,dtTrackFile,dtWindfieldFile,tcrmVer,"
              "Comments,dtCreated")
-    results = np.rec.fromrecords(results, names=names)
+    results = fromrecords(results, names=names)
     return results

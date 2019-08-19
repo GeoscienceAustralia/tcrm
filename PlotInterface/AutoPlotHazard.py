@@ -214,7 +214,8 @@ class AutoPlotHazard(object):
 
             recs = database.locationRecords(self.db, pID)
             data = np.zeros(int(10000 * 365.25))
-            data[-len(recs):] = recs['wspd']
+            if len(recs) > 0:
+                data[-len(recs):] = recs['wspd']
 
             allevents = np.sort(data)
             log.debug("allevents length = {0}".format(len(allevents)))
