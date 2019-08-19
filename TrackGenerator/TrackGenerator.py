@@ -1636,7 +1636,7 @@ class TrackGenerator(object):
 # library as it provides the ability to `jumpahead` in the stream (as
 # opposed to `numpy.random`).
 
-PRNG = random.Random()
+PRNG = random.Random(seed=1234, stream=0)
 
 
 def normal(mean=0.0, stddev=1.0):
@@ -1874,9 +1874,9 @@ def run(configFile, callback=None):
             callback(sim.index, N)
 
         if sim.seed:
-            PRNG.seed(sim.seed)
-            PRNG.jumpahead(sim.jumpahead)
-            log.debug('seed %i jumpahead %i', sim.seed, sim.jumpahead)
+            global PRNG #TODO: explicitly-pass rather than mutate global state
+            PRNG = random.Random(seed=sim.seed, stream=sim.index)
+            log.debug('seed %i stream %i', sim.seed, sim.index)
 
         trackFile = pjoin(trackPath, sim.outfile)
         tracks = tg.generateTracks(sim.ntracks, sim.index)
