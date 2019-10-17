@@ -15,15 +15,16 @@ Installing
 
 Clone this branch of the repository to a folder separate from your TCRM installation::
 
-    `git clone git@github.com/GeoscienceAustralia/tcrm.git --branch notebooks --single-branch`
+    git clone git@github.com/GeoscienceAustralia/tcrm.git --branch notebooks --single-branch
 
+Alternatively, download the zip file containing the notebooks from `here <https://github.com/GeoscienceAustralia/tcrm/archive/notebooks.zip>`_ and extract the files.
 
 
 Dependencies
 ------------
 
 Some of these notebooks depend on modules in the TCRM
-repository. Ensure that you have set the environment variables
+repository (`v2.1 <https://github.com/GeoscienceAustralia/tcrm/tree/v2.1>`_ ). Ensure that you have set the environment variables
 correctly (see the `User
 Guide <http://geoscienceaustralia.github.io/tcrm/docs/install.html#setting-the-environment>`_
 for details).
