@@ -128,7 +128,7 @@ class TestWindVorticity(NumpyTestCase.NumpyTestCase):
             self.cLat, self.cLon, self.pEnv, self.pCentre, self.rMax)
         # Hack for testing as vMax needs to be set
         profile.vMax = self.vMax
-        profile.beta = 1.0036 + 0.0173 * profile.vMax - 0.313 * np.log(self.rMax) + 0.0087 * np.abs(self.cLat)
+        profile.beta = 1.0036 + 0.0173 * profile.vMax - 0.0313 * np.log(self.rMax) + 0.0087 * np.abs(self.cLat)
         Z = profile.vorticity(self.R)
         self.numpyAssertAlmostEqual(Z, self.test_vorticity_willoughby)
 
