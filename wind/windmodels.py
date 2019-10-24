@@ -446,7 +446,7 @@ class WilloughbyWindProfile(HollandWindProfile):
                  windSpeedModel=WilloughbyWindSpeed):
         HollandWindProfile.__init__(self, lat, lon, eP, cP, rMax, 1.0,
                                     windSpeedModel)
-        self.beta = (1.0036 + 0.0173 * self.vMax - 0.313 * np.log(rMax/1000.)
+        self.beta = (1.0036 + 0.0173 * self.vMax - 0.0313 * np.log(rMax/1000.)
                      + 0.0087 * np.abs(lat))
         self.speed = HollandWindSpeed(self)
 
