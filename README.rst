@@ -51,13 +51,16 @@ To install the required modules::
     $ source notebooks/bin/activate
     (notebooks)$ cd <path/to>/notebooks
     (notebooks)$ pip install -r requirements.txt
+    
+A conda environment file is also included (`notebooks.yml`). This can be used to build a conda environmnent (for Python3) using the following steps::
 
+    `conda env create -f notebooks.yml`
+    `conda activate notebooks`
+    
+Note you may wish to modify the last line of `notebooks.yml` to install the environment in a location different to the default (currently set to the home directory).
 
+See Anaconda's pages on `managing environments <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_ for more details.
 
-.. WARNING::
-    Some of these notebooks may be transitioned to Python 3.x
-    in the near future. This may make them incompatible with
-    Python 2. We will try to flag this at the top of each
-    notebook as the changes are made. Once a critical mass is
-    reached that have been transitioned, we will flag those
-    that have not been converted.
+Warning
+-------
+Some of these notebooks may be transitioned to Python 3.x in the near future. This may make them incompatible with Python 2. We will try to flag this at the top of each notebook as the changes are made. Once a critical mass is reached that have been transitioned, we will flag those that have not been converted.
