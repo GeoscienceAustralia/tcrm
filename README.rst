@@ -9,23 +9,6 @@ the development of code for TCRM.
     all notebooks prior to committing to the repo. This makes it easier
     to manage the content of the notebooks, but does mean that we can't
     use the notebooks to display content on the GitHub repo.
-   
-Installing
-----------
-
-Clone this branch of the repository to a folder separate from your TCRM installation::
-
-    git clone git@github.com/GeoscienceAustralia/tcrm.git --branch notebooks --single-branch
-
-Alternatively, download the zip file containing the notebooks from `here <https://github.com/GeoscienceAustralia/tcrm/archive/notebooks.zip>`_ and extract the files.
-
-As some of the notebooks rely on modules in the TCRM code, you'll need to download the`TCRM code <https://github.com/GeoscienceAustralia/tcrm>`_ (check the branch, as some of the notebooks are Python3 code) and add the path to the code to the `PYTHONPATH`::
-
-    $ export PYTHONPATH=$PYTHONPATH:<path/to>/tcrm
-    
-where `<path/to>` is the path to the location where you installed TCRM. For example, I generally install TCRM directly into my home directory, so the following command works for me::
-
-    $ export PYTHONPATH=$PYTHONPATH:$HOME/tcrm 
 
 
 
@@ -43,7 +26,7 @@ To install the required modules::
 
     $ virtualenv notebooks
     $ source notebooks/bin/activate
-    (notebooks)$ cd <path/to>/notebooks
+    (notebooks)$ cd <path/to>/notebooks/tcrm
     (notebooks)$ pip install -r requirements.txt
     
 
@@ -54,12 +37,44 @@ A conda environment file is also included (`notebooks.yml`). This can be used to
 
     $ conda env create -f notebooks.yml
     $ conda activate notebooks
+    (notebooks)$ 
     
 Note you may wish to modify the last line of `notebooks.yml` to install the environment in a location different to the default (currently set to the home directory).
 
 See Anaconda's pages on `managing environments <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_ for more details.
 
+Installing
+----------
 
+Clone this branch of the repository to a folder separate from your TCRM installation::
+
+    $ cd $HOME
+    $ mkdir notebooks
+    $ cd notebooks
+    $ git clone git@github.com/GeoscienceAustralia/tcrm.git --branch notebooks --single-branch tcrm
+
+Alternatively, download the zip file containing the notebooks from `here <https://github.com/GeoscienceAustralia/tcrm/archive/notebooks.zip>`_ and extract the files.
+
+As some of the notebooks rely on modules in the TCRM code, you'll need to download the`[TCRM code] <https://github.com/GeoscienceAustralia/tcrm>`_ (check the branch, as some of the notebooks are Python3 code) and add the path to the code to the `PYTHONPATH`::
+
+    $ cd $HOME
+    $ git clone git@github.com/GeoscienceAustralia/tcrm.git --branch py3 --single-branch tcrm
+    $ export PYTHONPATH=$PYTHONPATH:$HOME/tcrm
+    
+where `<path/to>` is the path to the location where you installed TCRM. For example, I generally install TCRM directly into my home directory, so the following command works for me::
+
+    $ export PYTHONPATH=$PYTHONPATH:$HOME/tcrm 
+
+Starting the notebook server
+----------------------------
+
+Starting the Jupyter notebook server:: 
+
+    (notebooks)$ python <path/to>/anaconda3/Scripts/jupyter-notebook-script.py $HOME/notebooks
+    
+The `(notebooks)` before the prompt indicates that you are running in a virtual or conda environment.
+
+See the `Jupyter documentation <https://jupyter-notebook-beginner-guide.readthedocs.io/en/latest/execute.html#>`_ for more details on starting the notebook server.
 
 Warning
 -------
