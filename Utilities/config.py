@@ -244,7 +244,7 @@ class _ConfigParser(RawConfigParser):
     ignoreSubsequent = True
     def __init__(self, defaults=DEFAULTS):
         RawConfigParser.__init__(self)
-        self.readfp(io.BytesIO(defaults))
+        self.read_file(io.StringIO(defaults))
         self.readonce = False
         
     def geteval(self, section, option):
