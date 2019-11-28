@@ -312,3 +312,18 @@ def between(value, minval, maxval, fuzz=2, inclusive=True):
 
     else:
         return minval < value < maxval
+
+def bandwidth(data):
+    """
+    Calculate the bandwidth for a kernel density estimation, using the 
+    method described in a pre-existing C module called KPDF.c.
+    
+    :param data: :class:`numpy.array` of float values
+    
+    :returns: Float value of the "optimum" bandwidth for the kernel 
+              density estimate
+    
+    """
+    
+    h = np.power(4./3., 0.2) * np.std(data)/np.power(len(data), 0.2)
+    return h

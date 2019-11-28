@@ -31,6 +31,7 @@
 """
 import os, sys
 import unittest
+import pickle
 from scipy import array, zeros
 from . import NumpyTestCase
 try:
@@ -167,6 +168,15 @@ class TestStats(NumpyTestCase.NumpyTestCase):
         for minVal, maxVal, step, minRange in knownValues:
             result = statutils.statMinRange(minVal, maxVal, step)
             self.assertEqual(minRange, result)
+            
+    def test_BandWidth(self):
+        """Testing bandwidth function"""
+        self.assertRaises(TypeError, statutils.bandwidth, 'string')
+        self.assertRaises(TypeError, statutils.bandwidth, 0.5)
+        data = pickle.load(open(os.path.join(unittest_dir, 'test_data', 
+                                             'kde_parameters_pressure_rate.pkl'), 'rb'))
+        result = statutils.bandwidth(data)
+        self.assertAlmostEqual(result, 0.11642517538180082, places=7)
 
 if __name__ == "__main__":
     flStartLog('', 'CRITICAL', False)
