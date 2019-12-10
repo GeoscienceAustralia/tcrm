@@ -16,7 +16,8 @@ on [0,2*pi).
 
 import numpy as np
 from scipy.special import i0
-import KPDF
+from statsmodels.nonparametric.bandwidths as smbw
+
 import stats
 
 def circularKDE(parameters, kdeStep=np.pi/16.):
@@ -34,7 +35,7 @@ def circularKDE(parameters, kdeStep=np.pi/16.):
     :returns: :class:`numpy.ndarray` of the grid, the PDF and the CDF.
 
     """
-    bw = KPDF.UPDFOptimumBandwidth(parameters)
+    bw = stats.bandwidth(parameters)
     grid = np.arange(0, 2 * np.pi +kdeStep, kdeStep)
     pdf = np.empty(len(grid), 'float')
     chi = 1./(2 * np.pi * i0(bw))

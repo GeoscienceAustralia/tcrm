@@ -176,7 +176,7 @@ class TestStats(NumpyTestCase.NumpyTestCase):
         data = pickle.load(open(os.path.join(unittest_dir, 'test_data', 
                                              'kde_parameters_pressure_rate.pkl'), 'rb'))
         result = statutils.bandwidth(data)
-        self.assertAlmostEqual(result, 0.11642517538180082, places=7)
+        self.assertAlmostEqual(result, 0.116510487, places=7)
 
 if __name__ == "__main__":
     flStartLog('', 'CRITICAL', False)

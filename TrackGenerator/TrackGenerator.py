@@ -147,8 +147,6 @@ import Utilities.stats as stats
 from . import trackLandfall
 from . import trackSize
 import Utilities.nctools as nctools
-import Utilities.Cmap as Cmap
-import Utilities.Cstats as Cstats
 import Utilities.maputils as maputils
 import Utilities.metutils as metutils
 import Utilities.tcrandom as random
@@ -567,9 +565,9 @@ class TrackGenerator(object):
 
             # Get the initial grid cell
 
-            initCellNum = Cstats.getCellNum(genesisLon, genesisLat,
-                                            self.gridLimit,
-                                            self.gridSpace)
+            initCellNum = stats.getCellNum(genesisLon, genesisLat,
+                                           self.gridLimit,
+                                           self.gridSpace)
 
             log.debug('Cyclones origin: (%6.2f, %6.2f) Cell: %i' +
                       ' Grid: %s', genesisLon, genesisLat, initCellNum,
@@ -952,10 +950,10 @@ class TrackGenerator(object):
 
             # Get the new latitude and longitude from bearing and
             # distance
-            lon[i], lat[i] = Cmap.bear2LatLon(bearing[i - 1],
-                                              dist[i - 1],
-                                              lon[i - 1],
-                                              lat[i - 1])
+            lon[i], lat[i] = maputils.bear2LatLon(bearing[i - 1],
+                                                  dist[i - 1],
+                                                  lon[i - 1],
+                                                  lat[i - 1])
 
             age[i] = age[i - 1] + self.dt
             dates[i] = dates[i - 1] + timestep
@@ -981,8 +979,8 @@ class TrackGenerator(object):
                         speed[:i], bearing[:i], pressure[:i],
                         poci[:i], rmax[:i])
 
-            cellNum = Cstats.getCellNum(lon[i], lat[i],
-                                        self.gridLimit, self.gridSpace)
+            cellNum = stats.getCellNum(lon[i], lat[i],
+                                       self.gridLimit, self.gridSpace)
             onLand = self.landfall.onLand(lon[i], lat[i])
 
             land[i] = onLand

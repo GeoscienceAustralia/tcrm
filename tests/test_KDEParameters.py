@@ -45,7 +45,7 @@ class TestKDEParameters(NumpyTestCase.NumpyTestCase):
     def setUp(self):
         self.pressure_rate = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_parameters_pressure_rate.pkl'), 'rb'))
         self.resultp = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_parameters_result.pkl'), 'rb'))
-        kdeType = 'Epanechnikov'
+        kdeType = 'gau'
         self.k = KDEParameters.KDEParameters(kdeType)
 
     def test_GenerateKDE(self):

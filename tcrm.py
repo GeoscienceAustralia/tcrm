@@ -52,10 +52,7 @@ def checkModules():
     :return:
     """
     try:
-        import Utilities.KPDF
         import Utilities.akima
-        import Utilities.Cmap
-        import Utilities.Cstats
         log.debug("Compiled modules were found.")
     except ImportError:
         log.critical("Unable to import compiled modules. "

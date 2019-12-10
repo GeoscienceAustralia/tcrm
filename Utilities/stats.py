@@ -316,14 +316,23 @@ def between(value, minval, maxval, fuzz=2, inclusive=True):
 def bandwidth(data):
     """
     Calculate the bandwidth for a kernel density estimation, using the 
-    method described in a pre-existing C module called KPDF.c.
+    normal reference method. 
     
-    :param data: :class:`numpy.array` of float values
+    
+    
+    :param data: :class:`numpy.ndarray` of float values
     
     :returns: Float value of the "optimum" bandwidth for the kernel 
               density estimate
     
     """
+    if not isinstance(data, np.ndarray):
+        raise TypeError("Wrong input type to bandwidth()")
+    if len(np.shape(data)) == 1:
+        nobs = len(data)
+        nvars = 1
+    else:
+        nobs, nvars = np.shape(data)
+    X = np.std(data, axis=0)
+    return 1.06 * X * nobs ** (- 1. / (4 + nvars))
     
-    h = np.power(4./3., 0.2) * np.std(data)/np.power(len(data), 0.2)
-    return h

@@ -21,7 +21,7 @@ import Utilities.stats as stats
 
 from Utilities.files import flLoadFile
 
-from scipy.stats import scoreatpercentile as percentile
+from scipy.stats import scoreatpercentile as percentile, circmean, circstd
 from PlotInterface.curves import RangeCurve, saveFigure
 
 def acf(p, nlags=1):
@@ -234,8 +234,8 @@ class GenerateStats:
         p = self.extractParameter(cellNum, onLand)
 
         if self.angular:
-            mu = stats.circmean(np.radians(p))
-            sig = stats.circstd(np.radians(p))
+            mu = circmean(np.radians(p))
+            sig = circstd(np.radians(p))
         else:
             mu = np.mean(p)
             sig = np.std(p)
