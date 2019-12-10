@@ -16,7 +16,7 @@ on [0,2*pi).
 
 import numpy as np
 from scipy.special import i0
-from statsmodels.nonparametric.bandwidths as smbw
+import statsmodels.nonparametric.bandwidths as smbw
 
 import stats
 
