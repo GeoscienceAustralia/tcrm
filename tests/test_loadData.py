@@ -361,7 +361,7 @@ class TestGetPoci(unittest.TestCase):
     def setUp(self):
         np.random.seed(10)
         self.penv = np.arange(1000, 1011, 1)
-        self.pcentre = np.arange(900, 1001, 10)
+        self.pcentre = np.arange(900, 1001, 10, dtype=float)
         self.lat = np.arange(-24, -2, 2)
         self.jdays = np.arange(1, 365, 36)
 
