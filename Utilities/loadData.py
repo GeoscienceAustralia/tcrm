@@ -153,7 +153,7 @@ tcrm = {
 """
 
 def getSpeedBearing(index, lon, lat, deltatime, ieast=1,
-                    missingValue=sys.maxint):
+                    missingValue=sys.maxsize):
     """
     Calculate the speed and bearing of a TC.
 
@@ -171,7 +171,7 @@ def getSpeedBearing(index, lon, lat, deltatime, ieast=1,
                       -1 = positive longiture westwards.
 
     :param missingValue: Replace questionable values with `missingValue`.
-    :type missingValue: int or float, default = `sys.maxint`
+    :type missingValue: int or float, default = `sys.maxsize`
 
 
     :returns: speed and bearing : :class:`numpy.ndarray`
@@ -664,7 +664,7 @@ def getPoci(penv, pcentre, lat, jdays, eps,
             coeffs=[2324.1564738613392, -0.6539853183796136,
                     -1.3984456535888878, 0.00074072928008818927,
                     0.0044469231429346088, -1.4337623534206905],
-            missingValue=sys.maxint):
+            missingValue=sys.maxsize):
     """
     Calculate a modified pressure for the outermost closed isobar, based
     on a model of daily long-term mean SLP values, central pressure,
@@ -718,7 +718,7 @@ def getPoci(penv, pcentre, lat, jdays, eps,
     
 
 def filterPressure(pressure, inputPressureUnits='hPa',
-                   missingValue=sys.maxint):
+                   missingValue=sys.maxsize):
     """
     Filter pressure values to remove any non-physical values.
 
@@ -729,7 +729,7 @@ def filterPressure(pressure, inputPressureUnits='hPa',
     :param missingValue: replace all null values in the input data
                          with this value.
     :type pressure: :class:`numpy.ndarray`
-    :type missingValue: int or float (default ``sys.maxint``)
+    :type missingValue: int or float (default ``sys.maxsize``)
 
     :returns: :class:`numpy.ndarray` with only valid pressure values.
 
@@ -746,13 +746,13 @@ def filterPressure(pressure, inputPressureUnits='hPa',
                         missingValue, pressure)
     return pressure
 
-def getMinPressure(track, missingValue=sys.maxint):
+def getMinPressure(track, missingValue=sys.maxsize):
     """
     Determine the minimum pressure of a :class:`Track` instance
 
     :param track: A :class:`Track` instance
     :param missingValue: Replace missing values with this value
-                         (default ``sys.maxint``).
+                         (default ``sys.maxsize``).
 
     :returns: :class:`Track.trackMinPressure` attribute updated
 
@@ -764,14 +764,14 @@ def getMinPressure(track, missingValue=sys.maxint):
     else:
         track.trackMinPressure = p[p != missingValue].min()
 
-def getMaxWind(track, missingValue=sys.maxint):
+def getMaxWind(track, missingValue=sys.maxsize):
     """
     Determine the maximum wind speed of a :class:`Track` instance
 
     :param track: A :class:`Track` instance
     :param missingValue: replace all null values in the input data
                          with this value.
-    :type missingValue: int or float (default ``sys.maxint``)
+    :type missingValue: int or float (default ``sys.maxsize``)
 
     :returns: :class:`Track.trackMaxWind` attribute updated with calculated
               wind speed updated.
@@ -874,7 +874,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
                               inputPressureUnits, missingValue)
     try:
         windspeed = np.array(inputData['vmax'], 'd')
-        novalue_index = np.where(windspeed == sys.maxint)
+        novalue_index = np.where(windspeed == sys.maxsize)
         windspeed = metutils.convert(windspeed, inputSpeedUnits, "mps")
         windspeed[novalue_index] = missingValue
     except (ValueError, KeyError):
