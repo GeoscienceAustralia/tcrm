@@ -97,7 +97,7 @@ def interpolate(track, delta, interpolation_type=None):
     newdates = num2date(_newtime)
     newdates = np.array([n.replace(tzinfo=None) for n in newdates])
 
-    if not hasattr(track, 'WindSpeed'):
+    if not hasattr(track, 'Speed'):
         idx = np.zeros(len(track.data))
         idx[0] = 1
         track.WindSpeed = maxWindSpeed(idx, np.mean(dt), track.Longitude,
@@ -181,7 +181,7 @@ def interpolate(track, delta, interpolation_type=None):
                                      kind='linear')(newtime[firsttime:lasttime])
 
                 _nwSpd = interp1d(timestep[validIdx],
-                                  track.WindSpeed[validIdx],
+                                  track.Speed[validIdx],
                                   kind='linear')(newtime[firsttime:lasttime])
 
                 npCentre[firsttime:lasttime] = _npCentre
