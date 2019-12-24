@@ -20,9 +20,6 @@ the TCRM User Guide for details on running this script.
 
 import logging as log
 from functools import reduce
-if 'NullHandler' not in dir(log):
-    from Utilities import py26compat
-    log.NullHandler = py26compat.NullHandler
 
 import os
 import time

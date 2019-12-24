@@ -15,11 +15,6 @@ import Utilities.shapefile as shapefile
 import numpy as np
 import logging
 
-if 'NullHandler' not in dir(logging):
-    from Utilities import py26compat
-    logging.NullHandler = py26compat.NullHandler
-
-
 LOG = logging.getLogger(__name__)
 
 # For all observation points/line segments:

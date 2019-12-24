@@ -14,10 +14,6 @@
 import logging as log
 from functools import reduce
 
-if 'NullHandler' not in dir(log):
-    from Utilities import py26compat
-    log.NullHandler = py26compat.NullHandler
-
 import Utilities.datasets as datasets
 import traceback
 import argparse
