@@ -9,7 +9,7 @@ This module contains the core objects for the return period hazard
 calculation.
 
 Hazard calculations can be run in parallel using MPI if the
-:term:`pypar` library is found and TCRM is run using the
+:term:`mpi4py` library is found and TCRM is run using the
 :term:`mpirun` command. For example, to run with 10 processors::
 
     mpirun -n 10 python tcrm.py cairns.ini
@@ -328,34 +328,30 @@ class HazardCalculator(object):
         :param tileiter: generator that yields tuples of tile dimensions.
 
         """
-
+        status = MPI.Status()
         work_tag = 0
         result_tag = 1
-        if (pp.rank() == 0) and (pp.size() > 1):
+        if (comm.rank == 0) and (comm.size > 1):
             w = 0
-            p = pp.size() - 1
-            for d in range(1, pp.size()):
+            p = comm.size - 1
+            for d in range(1, comm.size):
                 if w < len(tiles):
-                    pp.send(tiles[w], destination=d, tag=work_tag)
+                    comm.send(tiles[w], dest=d, tag=work_tag)
                     log.debug("Processing tile %d of %d" % (w, len(tiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=work_tag)
                     p = w
 
-
             terminated = 0
-
             while(terminated < p):
 
-                result, status = pp.receive(pp.any_source, tag=result_tag,
-                                             return_status=True)
+                result = comm.recv(source=MPI.ANY_SOURCE, status=status, tag=MPI.ANY_TAG)
 
                 if self.calcCI:
                     limits, Rp, loc, scale, shp, RPupper, RPlower = result
                 else:
                     limits, Rp, loc, scale, shp = result
-
 
                 # Reset the min/max bounds for the output array:
                 (xmin, xmax, ymin, ymax) = limits
@@ -376,26 +372,29 @@ class HazardCalculator(object):
                 d = status.source
 
                 if w < len(tiles):
-                    pp.send(tiles[w], destination=d, tag=work_tag)
+                    comm.send(tiles[w], dest=d, tag=status.tag)
                     log.debug("Processing tile %d of %d" % (w, len(tiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=status.tag)
                     terminated += 1
 
                 log.debug("Number of terminated threads is %d"%terminated)
                 if progressCallback:
                     progressCallback(w)
 
-        elif (pp.size() > 1) and (pp.rank() != 0):
+        elif (comm.size > 1) and (comm.rank != 0):
+            status = MPI.Status()
+            W = None
             while(True):
-                W = pp.receive(source=0, tag=work_tag)
+                W = comm.recv(source=0, tag=work_tag, status=status)
                 if W is None:
+                    log.debug("No work to be done on this processor: {0}".format(comm.rank))
                     break
                 results = self.calculateHazard(W)
-                pp.send(results, destination=0, tag=result_tag)
+                comm.send(results, dest=0, tag=status.tag)
 
-        elif pp.size() == 1 and pp.rank() == 0:
+        elif comm.size == 1 and comm.rank == 0:
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
             for i, tile in enumerate(tiles):
                 log.debug("Processing tile %d of %d" % (i, len(tiles)))
@@ -997,9 +996,9 @@ def run(configFile, callback=None):
 
     wf_lon, wf_lat = setDomain(inputPath)
 
-    global pp
-    pp = attemptParallel()
-
+    global MPI, comm
+    MPI = attemptParallel()
+    comm = MPI.COMM_WORLD
     log.info("Running hazard calculations")
     TG = TileGrid(gridLimit, wf_lon, wf_lat)
     tiles = getTiles(TG)
@@ -1007,7 +1006,7 @@ def run(configFile, callback=None):
     #def progress(i):
     #    callback(i, len(tiles))
 
-    pp.barrier()
+    comm.barrier()
     hc = HazardCalculator(configFile, TG,
                           numsimulations,
                           minRecords,
@@ -1020,8 +1019,8 @@ def run(configFile, callback=None):
 
 
     hc.dumpHazardFromTiles(tiles)
-
-    pp.barrier()
+    log.debug("Finished hazard calculations")
+    comm.barrier()
 
     hc.saveHazard()
 

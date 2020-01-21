@@ -163,13 +163,13 @@ def doOutputDirectoryCreation(configFile):
     if not isdir(outputPath):
         try:
             os.makedirs(outputPath)
-        except OSError:
+        except (OSError, FileExistsError):
             raise
     for subdir in subdirs:
         if not isdir(realpath(pjoin(outputPath, subdir))):
             try:
                 os.makedirs(realpath(pjoin(outputPath, subdir)))
-            except OSError:
+            except (OSError, FileExistsError):
                 raise
 
 
@@ -515,56 +515,56 @@ def main(configFile='main.ini'):
     config = ConfigParser()
     config.read(configFile)
 
-    pp.barrier()
+    comm.barrier()
 
     if config.getboolean('Actions', 'DownloadData'):
         doDataDownload(configFile)
 
-    pp.barrier()
+    comm.barrier()
 
     if config.getboolean('Actions', 'DataProcess'):
         doDataProcessing(configFile)
 
-    pp.barrier()
+    comm.barrier()
 
     if config.getboolean('Actions', 'ExecuteStat'):
         doStatistics(configFile)
 
-    pp.barrier()
+    comm.barrier()
 
     if config.getboolean('Actions', 'ExecuteTrackGenerator'):
         doTrackGeneration(configFile)
 
-    pp.barrier()
+    comm.barrier()
 
     if config.getboolean('Actions', 'ExecuteWindfield'):
         doWindfieldCalculations(configFile)
 
-    pp.barrier()
+    comm.barrier()
 
     if config.getboolean('Actions', 'ExecuteHazard'):
         doHazard(configFile)
 
-    pp.barrier()
+    comm.barrier()
 
     if config.getboolean('Actions', 'PlotData'):
         doDataPlotting(configFile)
 
-    pp.barrier()
+    comm.barrier()
 
     if config.getboolean('Actions', 'CreateDatabase'):
         doDatabaseUpdate(configFile)
 
-    pp.barrier()
+    comm.barrier()
     if config.getboolean('Actions', 'ExecuteEvaluate'):
         doEvaluation(config)
 
-    pp.barrier()
+    comm.barrier()
 
     if config.getboolean('Actions', 'PlotHazard'):
         doHazardPlotting(configFile)
 
-    pp.barrier()
+    comm.barrier()
 
     log.info('Completed TCRM')
 
@@ -610,20 +610,16 @@ def startup():
     if args.verbose:
         verbose = True
 
-    #if not verbose:
-    #    logLevel = 'ERROR'
-    #    verbose = True
-
     if args.debug:
         debug = True
 
-    global pp
-    pp = attemptParallel()
+    global MPI, comm
+    MPI = attemptParallel()
     import atexit
-    atexit.register(pp.finalize)
-
-    if pp.size() > 1 and pp.rank() > 0:
-        logfile += '-' + str(pp.rank())
+    atexit.register(MPI.Finalize)
+    comm = MPI.COMM_WORLD
+    if comm.size > 1 and comm.rank > 0:
+        logfile += '-' + str(comm.rank)
         verbose = False  # to stop output to console
     else:
         pass

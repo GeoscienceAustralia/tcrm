@@ -418,32 +418,32 @@ class _HazardDatabase(sqlite3.Connection):
                  _tblWindSpeed_.
 
         """
+        status = MPI.Status()
         fileList = os.listdir(self.windfieldPath)
         fileList = [f for f in fileList if
                     os.path.isfile(pjoin(self.windfieldPath, f))]
 
         work_tag = 0
         result_tag = 1
-        if (pp.rank() == 0) and (pp.size() > 1):
+        if (comm.rank == 0) and (comm.size > 1):
             locations = self.getLocations()
             w = 0
-            p = pp.size() - 1
-            for d in range(1, pp.size()):
+            p = comm.size - 1
+            for d in range(1, comm.size):
                 if w < len(fileList):
-                    pp.send((fileList[w], locations, w),
-                            destination=d, tag=work_tag)
+                    comm.send((fileList[w], locations, w),
+                            dest=d, tag=work_tag)
                     log.debug("Processing {0} ({1} of {2})".\
                               format(fileList[w], w, len(fileList)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=work_tag)
                     p = w
 
             terminated = 0
 
             while terminated < p:
-                result, status = pp.receive(pp.any_source, tag=result_tag,
-                                            return_status=True)
+                result = comm.recv(source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, status=status)
                 log.debug("Processing results from node {0}".\
                           format(status.source))
                 eventparams, wsparams = result
@@ -454,27 +454,27 @@ class _HazardDatabase(sqlite3.Connection):
 
                 d = status.source
                 if w < len(fileList):
-                    pp.send((fileList[w], locations, w),
-                            destination=d, tag=work_tag)
+                    comm.send((fileList[w], locations, w),
+                              dest=d, tag=work_tag)
                     log.debug("Processing file {0} of {1}".format(w, len(fileList)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=work_tag)
                     terminated += 1
 
-        elif (pp.size() > 1) and (pp.rank() != 0):
+        elif (comm.size > 1) and (comm.rank != 0):
             while True:
-                work_pack = pp.receive(source=0, tag=work_tag)
+                work_pack = comm.recv(source=0, tag=work_tag, status=status)
                 if work_pack is None:
                     break
 
                 log.info("Processing {0} on node {1}".\
-                         format(work_pack[0], pp.rank()))
+                         format(work_pack[0], comm.rank))
                 results = self.processEvent(*work_pack)
-                log.debug("Results received on node {0}".format(pp.rank()))
-                pp.send(results, destination=0, tag=result_tag)
+                log.debug("Results received on node {0}".format(comm.rank))
+                comm.send(results, dest=0, tag=result_tag)
 
-        elif pp.size() == 1 and pp.rank() == 0:
+        elif comm.size == 1 and comm.rank == 0:
             # Assume no Pypar:
             locations = self.getLocations()
             for eventNum, filename in enumerate(fileList):
@@ -634,31 +634,31 @@ class _HazardDatabase(sqlite3.Connection):
         trackfiles = [pjoin(self.trackPath, f) for f in files if f.startswith('tracks')]
         log.debug("There are {0} track files".format(len(trackfiles)))
 
-
+        status = MPI.Status()
         work_tag = 0
         result_tag = 1
 
-        if (pp.rank() == 0) and (pp.size() > 1):
+        if (comm.rank == 0) and (comm.size > 1):
             w = 0
-            p = pp.size() - 1
-            for d in range(1, pp.size()):
+            p = comm.size - 1
+            for d in range(1, comm.size):
                 if w < len(trackfiles):
-                    pp.send((trackfiles[w], locations),
-                            destination=d, tag=work_tag)
+                    comm.send((trackfiles[w], locations),
+                              dest=d, tag=work_tag)
                     log.info("Processing {0}".format(trackfiles[w]))
                     log.debug("Processing track {0:d} of {1:d}".\
                               format(w, len(trackfiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=work_tag)
                     p = w
 
             terminated = 0
 
             while terminated < p:
                 try:
-                    result, status = pp.receive(pp.any_source, tag=result_tag,
-                                                return_status=True)
+                    result = comm.recv(source=MPI.ANY_SOURCE, tag=result_tag,
+                                               status=status)
                 except:
                     log.warn("Problems recieving results on node 0")
 
@@ -667,27 +667,27 @@ class _HazardDatabase(sqlite3.Connection):
                     self.insertTracks(result)
                 d = status.source
                 if w < len(trackfiles):
-                    pp.send((trackfiles[w], locations),
-                            destination=d, tag=work_tag)
+                    comm.send((trackfiles[w], locations),
+                              dest=d, tag=work_tag)
                     log.info("Processing {0}".format(trackfiles[w]))
                     log.debug("Processing track {0:d} of {1:d}".\
                               format(w, len(trackfiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=work_tag)
                     terminated += 1
 
-        elif (pp.size() > 1) and (pp.rank() != 0):
+        elif (comm.size > 1) and (comm.rank != 0):
             while True:
-                work_pack = pp.receive(source=0, tag=work_tag)
-                log.info("Received track on node {0}".format(pp.rank()))
+                work_pack = comm.recv(source=0, tag=work_tag, status=status)
+                log.info("Received track on node {0}".format(comm.rank))
                 if work_pack is None:
                     break
 
                 results = processTrack(*work_pack)
-                pp.send(results, destination=0, tag=result_tag)
+                comm.send(results, dest=0, tag=result_tag)
 
-        elif pp.size() == 1 and pp.rank() == 0:
+        elif comm.size == 1 and comm.rank == 0:
             # No Pypar
             for w, trackfile in enumerate(trackfiles):
                 log.info("Processing trackfile {0:d} of {1:d}".\
@@ -763,26 +763,26 @@ def run(configFile):
         location_file = config.get('Input', 'LocationFile')
         buildLocationDatabase(location_db, location_file)
 
-    global pp
-    pp = attemptParallel()
-
+    global MPI, comm
+    MPI = attemptParallel()
+    comm = MPI.COMM_WORLD
     db = HazardDatabase(configFile)
 
     db.createDatabase()
     db.setLocations()
 
-    pp.barrier()
+    comm.barrier()
     db.processEvents()
-    pp.barrier()
+    comm.barrier()
 
     db.processHazard()
 
-    pp.barrier()
+    comm.barrier()
     db.processTracks()
-    pp.barrier()
+    comm.barrier()
 
     #db.close()
-    pp.barrier()
+    comm.barrier()
     log.info("Created and populated database")
     log.info("Finished running database creation")
 

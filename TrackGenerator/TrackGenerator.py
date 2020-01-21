@@ -5,7 +5,7 @@
 This module contains the core objects for tropical cyclone track
 generation.
 
-Track generation can be run in parallel using MPI if the :term:`pypar`
+Track generation can be run in parallel using MPI if the :term:`mpi4py`
 library is found and TCRM is run using the :term:`mpirun` command. For
 example, to run with 10 processors::
 
@@ -1688,7 +1688,7 @@ def balanced(iterable):
     before hand. This is only some magical slicing of the iterator,
     i.e., a poor man version of scattering.
     """
-    P, p = pp.size(), pp.rank()
+    P, p = MPI.COMM_WORLD.size, MPI.COMM_WORLD.rank
     return itertools.islice(iterable, p, None, P)
 
 
@@ -1794,10 +1794,11 @@ def run(configFile, callback=None):
         yrsPerSim = 1
 
     # Attempt to start the track generator in parallel
-    global pp
-    pp = attemptParallel()
+    global MPI
+    MPI = attemptParallel()
+    comm = MPI.COMM_WORLD
 
-    if pp.size() > 1 and (not seasonSeed or not trackSeed):
+    if comm.size > 1 and (not seasonSeed or not trackSeed):
         log.critical('TrackSeed and GenesisSeed are needed' +
                      ' for parallel runs!')
         sys.exit(1)
@@ -1810,7 +1811,7 @@ def run(configFile, callback=None):
 
     # Wait for configuration to be loaded by all processors
 
-    pp.barrier()
+    comm.barrier()
 
     # Seed the numpy PRNG. We use this PRNG to sample the number of
     # tropical cyclone tracks to simulate for each season. The inbuilt
@@ -1858,7 +1859,7 @@ def run(configFile, callback=None):
 
     # Hold until all processors are ready
 
-    pp.barrier()
+    comm.barrier()
 
     N = sims[-1].index
 
@@ -1884,4 +1885,4 @@ def run(configFile, callback=None):
     log.info('Simulating tropical cyclone tracks:' +
              ' 100 percent complete')
 
-    pp.barrier()
+    comm.barrier()

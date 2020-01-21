@@ -8,7 +8,6 @@ Make sure the following modules are loaded into the environment prior to running
 module load openmpi/1.8.4
 module load python/2.7.6
 module load python/2.7.6-matplotlib
-module load pypar/26Feb15-2.7.6-1.8.4
 module load geos
 module load gdal/1.11.1-python
 '''

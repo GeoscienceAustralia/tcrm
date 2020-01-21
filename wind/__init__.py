@@ -15,7 +15,7 @@ TCs are contained in a track file, then the output file contains the
 values from all events (for example, an annual maximum wind speed).
 
 Wind field calculations can be run in parallel using MPI if the
-:term:`pypar` library is found and TCRM is run using the
+:term:`mpi4py` library is found and TCRM is run using the
 :term:`mpirun` command. For example, to run with 10 processors::
 
     $ mpirun -n 10 python tcrm.py cairns.ini
@@ -791,7 +791,7 @@ def balanced(iterable):
     only some magical slicing of the iterator, i.e., a poor man version of
     scattering.
     """
-    P, p = pp.size(), pp.rank()
+    P, p = MPI.COMM_WORLD.size, MPI.COMM_WORLD.rank
     return itertools.islice(iterable, p, None, P)
 
 
@@ -847,8 +847,9 @@ def run(configFile, callback=None):
     thetaMax = math.radians(thetaMax)
 
     # Attempt to start the track generator in parallel
-    global pp
-    pp = attemptParallel()
+    global MPI
+    MPI = attemptParallel()
+    comm = MPI.COMM_WORLD
 
     log.info('Running windfield generator')
 
@@ -878,7 +879,7 @@ def run(configFile, callback=None):
 
     # Do the work
 
-    pp.barrier()
+    comm.barrier()
 
     wfg.dumpGustsFromTrackfiles(trackfiles, windfieldPath, timestepCallback)
 
@@ -887,6 +888,6 @@ def run(configFile, callback=None):
     except NameError:
         pass
 
-    pp.barrier()
+    comm.barrier()
 
     log.info('Completed windfield generator')
