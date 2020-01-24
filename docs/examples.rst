@@ -46,7 +46,7 @@ curve for Port Hedland. The hazard data are also stored in netCDF
 
 Running in an MPI environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-For a multiprocessor environment using MPI and Pypar, the example can
+For a multiprocessor environment using mpi4py, the example can
 be run with::
 
     $ mpirun -np 16 python tcrm.py -c example/port_hedland.ini

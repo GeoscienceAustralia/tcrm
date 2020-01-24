@@ -30,7 +30,7 @@ sys.path.insert(0, os.path.abspath('.'))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.pngmath']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.imgmath']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -46,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Tropical Cyclone Risk Model'
-copyright = 'Commonwealth of Australia (Geoscience Australia) 2018'
+copyright = 'Commonwealth of Australia (Geoscience Australia) 2020'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -256,8 +256,8 @@ texinfo_documents = [
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
 
-pngmath_latex = 'E:/Software/MiKTeX/miktex/bin/latex.exe'
-pngmath_dvipng = 'E:/Software/MiKTeX/miktex/bin/dvipng.exe'
+#pngmath_latex = 'E:/Software/MiKTeX/miktex/bin/latex.exe'
+#pngmath_dvipng = 'E:/Software/MiKTeX/miktex/bin/dvipng.exe'
 
 # -- Options for Epub output ---------------------------------------------------
 
@@ -265,7 +265,7 @@ pngmath_dvipng = 'E:/Software/MiKTeX/miktex/bin/dvipng.exe'
 epub_title = 'Tropical Cyclone Risk Model User Guide'
 epub_author = 'Geoscience Australia'
 epub_publisher = 'Geoscience Australia'
-epub_copyright = 'Commonwealth of Australia (Geoscience Australia) 2015'
+epub_copyright = 'Commonwealth of Australia (Geoscience Australia) 2020'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
