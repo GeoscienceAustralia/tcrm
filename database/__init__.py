@@ -45,6 +45,7 @@ import unicodedata
 import re
 
 from shapely.geometry import Point
+logging.getLogger('shapely').setLevel(logging.WARNING)
 from netCDF4 import Dataset
 import numpy as np
 

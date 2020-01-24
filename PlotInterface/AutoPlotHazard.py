@@ -17,6 +17,9 @@ Arthur.
 """
 
 import logging
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
+logging.getLogger('shapely.geos').setLevel(logging.WARNING)
+
 import database
 import numpy as np
 import numpy.ma as ma

@@ -12,6 +12,8 @@
 """
 # This package needs patching to run on python 2.6
 import logging as log
+log.getLogger('matplotlib').setLevel(log.WARNING)
+log.getLogger('shapely').setLevel(log.WARNING)
 from functools import reduce
 
 import Utilities.datasets as datasets

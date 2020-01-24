@@ -19,6 +19,7 @@ the TCRM User Guide for details on running this script.
 """
 
 import logging as log
+log.getLogger('matplotlib').setLevel(log.WARNING)
 from functools import reduce
 
 import os
