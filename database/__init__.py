@@ -432,7 +432,7 @@ class _HazardDatabase(sqlite3.Connection):
             for d in range(1, comm.size):
                 if w < len(fileList):
                     comm.send((fileList[w], locations, w),
-                            dest=d, tag=work_tag)
+                              dest=d, tag=work_tag)
                     log.debug("Processing {0} ({1} of {2})".\
                               format(fileList[w], w, len(fileList)))
                     w += 1
@@ -444,19 +444,19 @@ class _HazardDatabase(sqlite3.Connection):
 
             while terminated < p:
                 result = comm.recv(source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, status=status)
-                log.debug("Processing results from node {0}".\
-                          format(status.source))
+                d = status.source
+
+                log.debug("Processing results from node {0}".format(d))
                 eventparams, wsparams = result
                 self.insertEvents(eventparams)
                 self.insertWindSpeeds(wsparams)
-                log.debug("Done inserting records from node {0}".\
-                          format(status.source))
+                log.debug("Done inserting records from node {0}".format(d))
 
-                d = status.source
                 if w < len(fileList):
                     comm.send((fileList[w], locations, w),
                               dest=d, tag=work_tag)
-                    log.debug("Processing file {0} of {1}".format(w, len(fileList)))
+                    log.debug("Processing file {0} of {1}".\
+                              format(w, len(fileList)))
                     w += 1
                 else:
                     comm.send(None, dest=d, tag=work_tag)
@@ -475,7 +475,7 @@ class _HazardDatabase(sqlite3.Connection):
                 comm.send(results, dest=0, tag=result_tag)
 
         elif comm.size == 1 and comm.rank == 0:
-            # Assume no Pypar:
+            # Assume no mpi4py:
             locations = self.getLocations()
             for eventNum, filename in enumerate(fileList):
                 log.debug("Processing {0} ({1} of {2})".format(filename,
@@ -657,18 +657,19 @@ class _HazardDatabase(sqlite3.Connection):
 
             while terminated < p:
                 try:
-                    result = comm.recv(source=MPI.ANY_SOURCE, tag=result_tag,
-                                               status=status)
+                    result = comm.recv(source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG,
+                                       status=status)
                 except:
                     log.warn("Problems recieving results on node 0")
 
                 if result:
                     log.debug("Inserting results into tblTracks")
                     self.insertTracks(result)
+
                 d = status.source
                 if w < len(trackfiles):
                     comm.send((trackfiles[w], locations),
-                              dest=d, tag=work_tag)
+                              dest=d, tag=status.tag)
                     log.info("Processing {0}".format(trackfiles[w]))
                     log.debug("Processing track {0:d} of {1:d}".\
                               format(w, len(trackfiles)))

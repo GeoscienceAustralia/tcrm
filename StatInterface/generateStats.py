@@ -186,8 +186,8 @@ class GenerateStats:
         for i in range(self.maxCell + 1):
             p = self.extractParameter(i, 0)
             a = p - np.mean(p)
-            hist[:, i - 1], b = np.histogram(p, bins, normed=True)
-            ahist[:, i - 1], b = np.histogram(a, abins, normed=True)
+            hist[:, i - 1], b = np.histogram(p, bins, density=True)
+            ahist[:, i - 1], b = np.histogram(a, abins, density=True)
             alpha[:, i - 1] = acf(p, 10)
             aalpha[:, i - 1] = acf(a, 10)
 
