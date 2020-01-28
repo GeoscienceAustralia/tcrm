@@ -40,8 +40,8 @@ bdeck = {
     "delimiter": ",",
     "names" : ("basin", "num", "date", "lat", "lon",
                "vmax", "pcentre", "poci", "rmax", "name"),
-    "dtype" : ("|S2", "i", "object", "f8", "f8", "f8",
-               "f8", "f8", "f8", "|S10"),
+    "dtype" : ("|U2", "i", "object", "f8", "f8", "f8",
+               "f8", "f8", "f8", "|U10"),
     "usecols" : (0, 1, 2, 6, 7, 8, 9, 17, 19, 27),
     "converters" : {
                 'basin': lambda s: s.strip(),
