@@ -836,7 +836,8 @@ def run(configFile, callback=None):
     #    raise NotImplementedError 
     if config.getboolean('Timeseries', 'Extract', fallback=False):
         from Utilities.timeseries import Timeseries
-        timestepCallback = Timeseries(configFile).extract
+        ts = Timeseries(configFile)
+        timestepCallback = ts.extract
     else:
         timestepCallback = None
             
@@ -882,10 +883,10 @@ def run(configFile, callback=None):
     comm.barrier()
 
     wfg.dumpGustsFromTrackfiles(trackfiles, windfieldPath, timestepCallback)
-
     try:
         ts.shutdown()
     except NameError:
+
         pass
 
     comm.barrier()

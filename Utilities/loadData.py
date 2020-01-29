@@ -100,7 +100,7 @@ class Track(object):
 bdeck = {
     "delimiter": ",",
     "names" : ("basin", "num", "date", "lat", "lon", "vmax", "pressure", "poci", "rmax"),
-    "dtype" : ("|S2", "i", "object", "f8", "f8", "f8", "f8", "f8", "f8"),
+    "dtype" : ("|U2", "i", "object", "f8", "f8", "f8", "f8", "f8", "f8"),
     "usecols" : (0, 1, 2, 6, 7, 8, 9, 17, 19),
     "converters" : {
                 0: lambda s: s.strip(),
@@ -118,7 +118,7 @@ bdeck = {
 ibtracs = {
     "delimiter" : ",",
     "names" : ("tcserialno", "season", "num", "date", "lat", "lon", "pressure"),
-    "dtype" : ("|S13", "i", "i", "object", "f8", "f8", "f8"),
+    "dtype" : ("|U13", "i", "i", "object", "f8", "f8", "f8"),
     "usecols" : (0, 1, 2, 6, 8, 9, 11),
     "converters" : {
                 0: lambda s: s.strip(),

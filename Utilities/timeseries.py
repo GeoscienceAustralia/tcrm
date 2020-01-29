@@ -31,14 +31,14 @@ ISO_FORMAT = "%Y-%m-%d %H:%M"
 OUTPUT_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
                 'Speed', 'UU', 'VV', 'Bearing',
                 'Pressure')
-OUTPUT_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
+OUTPUT_TYPES = ['|U16', '|U16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
 OUTPUT_FMT = ['%s', '%s', '%9.5f', '%9.5f',
               '%6.2f', '%6.2f', '%6.2f', '%6.2f',
               '%7.2f']
 
 MINMAX_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
                 'Speed', 'UU', 'VV', 'Bearing', 'Pressure')
-MINMAX_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
+MINMAX_TYPES = ['|U16', '|U16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
 MINMAX_FMT = ['%s', '%s', '%9.5f', '%9.5f',
               '%6.2f', '%6.2f', '%6.2f', '%6.2f',
               '%7.2f']
@@ -145,7 +145,8 @@ class Timeseries(object):
             stnlat = stndata[:, 2].astype(float)
             for sid, lon, lat in zip(stnid, stnlon, stnlat):
                 self.stations.append(Station(sid, lon, lat))
-
+        log.info("There are {0} stations that will collect timeseries data".format(len(self.stations)))
+        
     def sample(self, lon, lat, spd, uu, vv, prs, gridx, gridy):
         """
         Extract values from 2-dimensional grids at the given lat/lon.
@@ -189,18 +190,20 @@ class Timeseries(object):
         :param gridy: :class:`numpy.ndarray` of grid latitudes.
 
         """
-
+        stns = 0
         for stn in self.stations:
             if stn.insideGrid(gridx, gridy):
+                stns += 1
                 result = self.sample(stn.lon, stn.lat, spd, uu, vv, prs,
                                       gridx, gridy)
                 ss, ux, vy, bb, pp = result
-                stn.data.append((str(stn.id), dt, stn.lon, stn.lat, ss, ux, vy, bb, pp))
+                stn.data.append((str(stn.id), dt, stn.lon, stn.lat, ss,
+                                ux, vy, bb, pp))
 
             else:
                 stn.data.append((str(stn.id), dt, stn.lon, stn.lat, 0.0, 0.0,
                                           0.0, 0.0, prs[0, 0]))
-
+        log.debug("Extracted data for {0} stations".format(stns))
 
     def shutdown(self):
         """
@@ -221,8 +224,11 @@ class Timeseries(object):
 
             if np.any(stn.data.data['Speed'] > 0.0):
                 fname = pjoin(self.outputPath, 'ts.%s.csv' % str(stn.id))
-                np.savetxt(fname, np.array(stn.data.data), fmt=OUTPUT_FMT,
-                           delimiter=',', header=header, comments='')
+                log.debug("Saving time series data to {0}".format(fname))
+                with open(fname, 'wb') as fh:
+                    np.savetxt(fh, np.array(stn.data.data), fmt=OUTPUT_FMT,
+                               delimiter=',', header=header, comments='', encoding='ascii')
+
                 max_step = np.argmax(stn.data.data['Speed'])
                 min_step = np.argmin(stn.data.data['Pressure'])
                 max_data.append(tuple(stn.data.data[max_step]))
