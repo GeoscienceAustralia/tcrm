@@ -1,4 +1,4 @@
-import cPickle
+import pickle
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,8 +6,8 @@ from scipy import stats
 from mpl_toolkits.basemap import Basemap
 import Utilities.KPDF as KPDF
 
-ff = os.path.join('..', 'test_data', 'kde_origin_lonLat.pck')
-lonlat = cPickle.load(open(ff))
+ff = os.path.join('..', 'test_data', 'kde_origin_lonLat.pkl')
+lonlat = pickle.load(open(ff, 'rb'))
 
 xmin = 70.0
 xmax = 180.0
@@ -42,7 +42,7 @@ positions = np.vstack([X.ravel(), Y.ravel()]).T
 
 z = KPDF.MPDFGaussian(xy, positions, bw_kpdf)
 z = np.reshape(z, X.shape)
-print('z max = %f' % z.max())
+print(('z max = %f' % z.max()))
 
 ax = axes[0]
 ax.imshow(np.rot90(z) / z.max(), cmap=plt.cm.PuRd,
@@ -56,7 +56,7 @@ ax.set_title('KPDF')
 
 kde = stats.gaussian_kde(lonlat.T)
 Z = np.reshape(kde(positions.T), X.shape)
-print('Z max = %f' % Z.max())
+print(('Z max = %f' % Z.max()))
 
 ax = axes[1]
 ax.imshow(np.rot90(Z) / Z.max(), cmap=plt.cm.PuRd,

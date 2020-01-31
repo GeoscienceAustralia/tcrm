@@ -244,7 +244,7 @@ class _ConfigParser(RawConfigParser):
     ignoreSubsequent = True
     def __init__(self, defaults=DEFAULTS):
         RawConfigParser.__init__(self)
-        self.read_file(io.StringIO(defaults))
+        self.readfp(io.StringIO(defaults))
         self.readonce = False
         
     def geteval(self, section, option):
@@ -292,7 +292,7 @@ class _ConfigParser(RawConfigParser):
                 parsed[name] = parse(value)
             except KeyError:
                 parsed[name] = value
-        return parsed.items()
+        return list(parsed.items())
 
     def set(self, section, option, value=None):
         """

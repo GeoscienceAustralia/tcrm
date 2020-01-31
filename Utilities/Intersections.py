@@ -63,7 +63,7 @@ def _cnPnPoly(P, V):
     cn = 0    # the crossing number counter
     n = len(V) - 1
     # loop through all edges of the polygon
-    for i in xrange(n):    # edge from V[i] to V[i+1]
+    for i in range(n):    # edge from V[i] to V[i+1]
         if (V[i].y <= P.y and V[i + 1].y > P.y) \
                 or (V[i].y > P.y and V[i + 1].y <= P.y):   # a downward crossing
             # compute the actual edge-ray intersect x-coordinate
@@ -94,7 +94,7 @@ def _wnPnPoly(P, V):
     wn = 0    # the winding number counter
     n = len(V) - 1
     # loop through all edges of the polygon
-    for i in xrange(n):    # edge from V[i] to V[i+1]
+    for i in range(n):    # edge from V[i] to V[i+1]
         if V[i].y <= P.y:          # start y <= P.y
             if V[i + 1].y > P.y:      # an upward crossing
                 if _isLeft(V[i], V[i + 1], P) > 0:  # P left of edge
@@ -230,7 +230,7 @@ class Crossings(object):
         result = Intersection("No Intersection")
         if isinstance(points, list):
             for p in points:
-                for i in xrange(len(p) - 1):
+                for i in range(len(p) - 1):
                     a1 = p[i]
                     a2 = p[i - 1]
                     inter = self.CircleLine(c, r, a1, a2)
@@ -238,7 +238,7 @@ class Crossings(object):
                         result.points.append(inter.points)
                         result.status = "Intersection"
         else:
-            for i in xrange(len(points) - 1):
+            for i in range(len(points) - 1):
                 a1 = points[i]
                 a2 = points[i + 1]
                 inter = self.CircleLine(c, r, a1, a2)
@@ -316,13 +316,13 @@ class Crossings(object):
         result = Intersection("No Intersection")
         if isinstance(points, list):
             for p in points:
-                for i in xrange(len(p) - 1):
+                for i in range(len(p) - 1):
                     b1 = p[i]
                     b2 = p[i + 1]
                     inter = self.LineLine(a1, a2, b1, b2)
                     result.points.append(inter.points)
         else:
-            for i in xrange(len(points) - 1):
+            for i in range(len(points) - 1):
                 b1 = points[i]
                 b2 = points[i + 1]
                 inter = self.LineLine(a1, a2, b1, b2)

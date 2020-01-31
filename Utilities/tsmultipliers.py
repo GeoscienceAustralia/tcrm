@@ -33,13 +33,13 @@ from Utilities import pathLocator
 OUTPUTFMT = ['%s', '%s', '%9.5f', '%9.5f',
               '%6.2f', '%6.2f', '%6.2f', '%6.2f',
               '%7.2f']
-INPUTFMT = ('|S16', '|S16', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
+INPUTFMT = ('|U16', '|U16', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
 INPUTNAMES = ('Station', 'Time', 'Longitude', 'Latitude', 'Speed', 'UU', 'VV',
               'Bearing', 'Pressure')
 
 MINMAX_NAMES = ('Station', 'Time', 'Longitude', 'Latitude',
                 'Speed', 'UU', 'VV', 'Bearing', 'Pressure')
-MINMAX_TYPES = ['|S16', '|S16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
+MINMAX_TYPES = ['|U16', '|U16',  'f8', 'f8',  'f8', 'f8', 'f8', 'f8', 'f8']
 MINMAX_FMT = ['%s', '%s', '%9.5f', '%9.5f',
               '%6.2f', '%6.2f', '%6.2f', '%6.2f',
               '%7.2f']

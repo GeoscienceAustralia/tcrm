@@ -72,7 +72,7 @@ def is_string(v):
     if PYTHON3:
         return isinstance(v, str)
     else:
-        return isinstance(v, basestring)
+        return isinstance(v, str)
 
 class _Array(array.array):
     """Converts python tuples to lits of the appropritate type.
@@ -85,7 +85,7 @@ def signed_area(coords):
     algorithm at http://www.cgafaq.info/wiki/Polygon_Area. A value >= 0
     indicates a counter-clockwise oriented ring.
     """
-    xs, ys = map(list, zip(*coords))
+    xs, ys = list(map(list, list(zip(*coords))))
     xs.append(xs[1])
     ys.append(ys[1])
     return sum(xs[i]*(ys[i+1]-ys[i-1]) for i in range(1, len(coords)))/2.0
@@ -219,17 +219,17 @@ class Reader:
             if is_string(args[0]):
                 self.load(args[0])
                 return
-        if "shp" in kwargs.keys():
+        if "shp" in list(kwargs.keys()):
             if hasattr(kwargs["shp"], "read"):
                 self.shp = kwargs["shp"]
                 if hasattr(self.shp, "seek"):
                     self.shp.seek(0)
-            if "shx" in kwargs.keys():
+            if "shx" in list(kwargs.keys()):
                 if hasattr(kwargs["shx"], "read"):
                     self.shx = kwargs["shx"]
                     if hasattr(self.shx, "seek"):
                         self.shx.seek(0)
-        if "dbf" in kwargs.keys():
+        if "dbf" in list(kwargs.keys()):
             if hasattr(kwargs["dbf"], "read"):
                 self.dbf = kwargs["dbf"]
                 if hasattr(self.dbf, "seek"):
@@ -283,7 +283,7 @@ class Reader:
             if abs(i) > rmax:
                 raise IndexError("Shape or Record index out of range.")
             if i < 0:
-                i = range(self.numRecords)[i]
+                i = list(range(self.numRecords))[i]
         return i
 
     def __shpHeader(self):
@@ -537,7 +537,7 @@ class Reader:
             self.__dbfHeader()
         f = self.__getFileObj(self.dbf)
         f.seek(self.__dbfHeaderLength())
-        for i in xrange(self.numRecords):
+        for i in range(self.numRecords):
             r = self.__record()
             if r:
                 yield r

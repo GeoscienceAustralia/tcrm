@@ -9,11 +9,11 @@
  $Id: TestKDEOrigin.py 563 2007-10-24 02:52:40Z carthur $
 """
 import os, sys, pdb
-import cPickle
+import pickle
 import unittest
-import NumpyTestCase
+from . import NumpyTestCase
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 
@@ -22,7 +22,6 @@ unittest_dir = pathLocate.getUnitTestDirectory()
 sys.path.append(pathLocate.getRootDirectory())
 from StatInterface import KDEOrigin
 from Utilities.files import flStartLog
-from Utilities.singleton import forgetAllSingletons
 
 class TestKDEOrigin(NumpyTestCase.NumpyTestCase):
 
@@ -30,18 +29,19 @@ class TestKDEOrigin(NumpyTestCase.NumpyTestCase):
         kdeType = 'Epanechnikov'
         gridLimit={'xMin':70, 'xMax':180, 'yMin':-36, 'yMax':0}
         kdeStep = 0.1
-        lonLat = cPickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_origin_lonLat.pck')))
+        lonLat = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_origin_lonLat.pkl'), 'rb'))
         self.kdeOrigin = KDEOrigin.KDEOrigin(None, gridLimit, kdeStep, lonLat)
 
     def tearDown(self):
-        forgetAllSingletons()
+        #forgetAllSingletons()
+        pass
 
     def test_GenerateKDE(self):
         """Testing GenerateKDE for 2D data"""
-        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kdeOrigin_xyz.pck'), 'r')
-        xp = cPickle.load(pkl_file)
-        yp = cPickle.load(pkl_file)
-        zp = cPickle.load(pkl_file)
+        pkl_file = open(os.path.join(unittest_dir, 'test_data', 'kdeOrigin_xyz.pkl'), 'rb')
+        xp = pickle.load(pkl_file)
+        yp = pickle.load(pkl_file)
+        zp = pickle.load(pkl_file)
 
         x, y, z = self.kdeOrigin.generateKDE()
         self.numpyAssertAlmostEqual(xp, x)

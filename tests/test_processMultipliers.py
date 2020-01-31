@@ -19,7 +19,7 @@ from osgeo.gdalconst import *
 from netCDF4 import Dataset
 
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 
@@ -170,7 +170,7 @@ class TestProcessMultipliers(unittest.TestCase):
         delta = lon[1] - lon[0]
         lon_mid = lon + delta / 2.
         lat_mid = lat + delta / 2.
-        speed = np.zeros(([lon.shape[0], lat.shape[0]]))
+        speed = np.zeros(([lat.shape[0], lon.shape[0]]))
         speed.fill(42.5)
 
         # doing this just to get values in
@@ -236,8 +236,8 @@ class TestProcessMultipliers(unittest.TestCase):
         ncobj.close()
         del m4_max
         if keep:
-            print "f_nc.name", f_nc.name
-            print "f_img.name", f_img.name
+            print("f_nc.name", f_nc.name)
+            print("f_img.name", f_img.name)
         else:
             os.remove(f_nc.name)
             os.remove(f_img.name)

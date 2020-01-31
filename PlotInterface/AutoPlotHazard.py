@@ -17,11 +17,14 @@ Arthur.
 """
 
 import logging
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
+logging.getLogger('shapely.geos').setLevel(logging.WARNING)
+
 import database
 import numpy as np
 import numpy.ma as ma
 import matplotlib
-matplotlib.use('Agg', warn=False)
+matplotlib.use('Agg')
 
 from os.path import join as pjoin
 
@@ -206,20 +209,20 @@ class AutoPlotHazard(object):
             ylabel = 'Wind speed (%s)'%self.plotUnits.label
             title = "Return period wind speeds at " + name + ", \n(%5.1f,%5.1f)"%(plon, plat)
 
-            name = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore')
             name.replace(' ', '')
             log.debug("Working on {0}".format(name))
             filename = pjoin(plotPath, 'ARI_curve_%s.%s'%(pID, "png"))
             log.debug("Saving hazard curve for %s to %s"%(name, filename))
             wspd = ncobj.variables['wspd'][:, j, i]
-            
+
             recs = database.locationRecords(self.db, pID)
             data = np.zeros(int(10000 * 365.25))
-            data[-len(recs):] = recs['wspd']
-            
+            if len(recs) > 0:
+                data[-len(recs):] = recs['wspd']
+
             allevents = np.sort(data)
             log.debug("allevents length = {0}".format(len(allevents)))
-            
+
             placeWspd = metutils.convert(wspd, 'mps',
                                          self.plotUnits.units)
             if np.all(placeWspd.mask):
@@ -233,7 +236,7 @@ class AutoPlotHazard(object):
                                                   self.plotUnits.units)
                 placeWspdUpper = metutils.convert(wspdUpper, 'mps',
                                                   self.plotUnits.units)
-            else: 
+            else:
                 placeWspdUpper = np.zeros(len(placeWspd))
                 placeWspdLower = np.zeros(len(placeWspd))
 

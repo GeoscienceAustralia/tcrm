@@ -49,7 +49,7 @@ class MSLPGrid:
             filename = os.path.join(tcrm_dir, 'MSLP', 'mslp_monthly_clim.nc')
             if not os.path.isfile(filename):
                 error_msg = "MSLP data file not found"
-                raise IOError, error_msg
+                raise IOError(error_msg)
         selected_months = set(selected_months)
         ncobj = nctools.ncLoadFile(filename)
         mslp_all = nctools.ncGetData(ncobj, 'mslp')

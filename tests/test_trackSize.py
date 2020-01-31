@@ -2,10 +2,10 @@ import os
 import sys
 import unittest
 import numpy as np
-import NumpyTestCase
-import cPickle
+from . import NumpyTestCase
+import pickle
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 
@@ -70,10 +70,10 @@ class TestFitRmax(NumpyTestCase.NumpyTestCase):
     the default coefficients for the Rmw model used in `TrackGenerator`
     """
     def setUp(self):
-        pklfile = open(os.path.join(unittest_dir, 'test_data', 'rmw.pck'), 'r')
-        self.dp = cPickle.load(pklfile)
-        self.lat = cPickle.load(pklfile)
-        self.rmw = cPickle.load(pklfile)
+        pklfile = open(os.path.join(unittest_dir, 'test_data', 'rmw.pkl'), 'rb')
+        self.dp = pickle.load(pklfile)
+        self.lat = pickle.load(pklfile)
+        self.rmw = pickle.load(pklfile)
         self.params = [4.4650608902114888,
                        -0.042494641709203987,
                        0.00033723892839458182,

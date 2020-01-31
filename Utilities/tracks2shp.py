@@ -11,14 +11,9 @@
 """
 
 import Utilities.shapefile as shapefile
-from itertools import izip
+
 import numpy as np
 import logging
-
-if 'NullHandler' not in dir(logging):
-    from Utilities import py26compat
-    logging.NullHandler = py26compat.NullHandler
-
 
 LOG = logging.getLogger(__name__)
 
@@ -145,20 +140,20 @@ def tracks2line(tracks, outputFile, dissolve=False):
                     # into multiple parts:
                     idx = np.argmin(dlon)
                     parts = []
-                    lines = izip(track.Longitude[:idx],
+                    lines = zip(track.Longitude[:idx],
                                  track.Latitude[:idx])
 
                     parts.append(lines)
-                    lines = izip(track.Longitude[idx+1:],
+                    lines = zip(track.Longitude[idx+1:],
                                  track.Latitude[idx+1:])
 
                     parts.append(lines)
                     sf.line(parts)
                 else:
-                    lines = izip(track.Longitude, track.Latitude)
+                    lines = zip(track.Longitude, track.Latitude)
                     sf.line([lines])
             else:
-                lines = izip(track.Longitude, track.Latitude)
+                lines = zip(track.Longitude, track.Latitude)
                 sf.line([lines])
 
 

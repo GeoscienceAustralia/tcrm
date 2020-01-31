@@ -20,7 +20,7 @@ from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
 
 import matplotlib
-matplotlib.use('Agg', warn=False)
+matplotlib.use('Agg')
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
@@ -225,20 +225,20 @@ class LongitudeCrossing(object):
                                len(self.gateLats) - 1,
                                len(self.gateLons)))
 
-        if (pp.rank() == 0) and (pp.size() > 1):
+        if (comm.rank == 0) and (comm.size > 1):
 
             w = 0
             n = 0
-            for d in range(1, pp.size()):
-                pp.send(trackfiles[w], destination=d, tag=work_tag)
+            for d in range(1, comm.size):
+                comm.Send(trackfiles[w], dest=d, tag=work_tag)
                 LOG.debug("Processing track file {0:d} of {1:d}".\
                           format(w + 1, len(trackfiles)))
                 w += 1
 
             terminated = 0
-            while terminated < pp.size() - 1:
-                results, status = pp.receive(pp.any_source, tag=result_tag,
-                                             return_status=True)
+            while terminated < comm.size - 1:
+                results, status = comm.Recv(MPI.ANY_SOURCE, tag=result_tag,
+                                               status=None)
 
                 lonCrossHist[n, :, :], lonCrossEW[n, :, :], \
                     lonCrossWE[n, :, :] = results
@@ -247,29 +247,29 @@ class LongitudeCrossing(object):
                 d = status.source
 
                 if w < len(trackfiles):
-                    pp.send(trackfiles[w], destination=d, tag=work_tag)
+                    comm.Send(trackfiles[w], dest=d, tag=work_tag)
                     LOG.debug("Processing track file {0:d} of {1:d}".\
                               format(w + 1, len(trackfiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.Send(None, dest=d, tag=work_tag)
                     terminated += 1
 
             self.calcStats(lonCrossHist, lonCrossEW, lonCrossWE)
 
-        elif (pp.size() > 1) and (pp.rank() != 0):
+        elif (comm.size > 1) and (comm.rank != 0):
             while True:
-                trackfile = pp.receive(source=0, tag=work_tag)
+                trackfile = comm.Recv(source=0, tag=work_tag)
                 if trackfile is None:
                     break
 
-                LOG.debug("Processing %s", trackfile)
+                LOG.debug("Processing {0}".format(trackfile))
                 tracks = loadTracks(trackfile)
                 lonCross, lonCrossEW, lonCrossWE = self.findCrossings(tracks)
                 results = (lonCross, lonCrossEW, lonCrossWE)
-                pp.send(results, destination=0, tag=result_tag)
+                comm.Send(results, dest=0, tag=result_tag)
 
-        elif (pp.size() == 1) and (pp.rank() == 0):
+        elif (comm.size == 1) and (comm.rank == 0):
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
             for n, trackfile in enumerate(sorted(trackfiles)):
                 tracks = loadTracks(trackfile)
@@ -510,16 +510,16 @@ class LongitudeCrossing(object):
 
     def run(self):
         """Run the longitude crossing evaluation"""
-        global pp
-        pp = attemptParallel()
-
+        global MPI, comm
+        MPI = attemptParallel()
+        comm = MPI.COMM_WORLD
         self.historic()
 
-        pp.barrier()
+        comm.barrier()
 
         self.synthetic()
 
-        pp.barrier()
+        comm.barrier()
 
         self.plotCrossingRates()
         self.save()

@@ -97,14 +97,14 @@ def interpolate(track, delta, interpolation_type=None):
     newdates = num2date(_newtime)
     newdates = np.array([n.replace(tzinfo=None) for n in newdates])
 
-    if not hasattr(track, 'WindSpeed'):
+    if not hasattr(track, 'Speed'):
         idx = np.zeros(len(track.data))
         idx[0] = 1
         track.WindSpeed = maxWindSpeed(idx, np.mean(dt), track.Longitude,
                                        track.Latitude, track.CentralPressure, 
                                        track.EnvPressure)
     # Find the indices of valid pressure observations:
-    validIdx = np.where(track.CentralPressure < sys.maxint)[0]
+    validIdx = np.where(track.CentralPressure < sys.maxsize)[0]
 
     # FIXME: Need to address the issue when the time between obs is less
     # than delta (e.g. only two obs 5 hrs apart, but delta = 6 hrs).
@@ -181,7 +181,7 @@ def interpolate(track, delta, interpolation_type=None):
                                      kind='linear')(newtime[firsttime:lasttime])
 
                 _nwSpd = interp1d(timestep[validIdx],
-                                  track.WindSpeed[validIdx],
+                                  track.Speed[validIdx],
                                   kind='linear')(newtime[firsttime:lasttime])
 
                 npCentre[firsttime:lasttime] = _npCentre
@@ -218,8 +218,8 @@ def interpolate(track, delta, interpolation_type=None):
     nDay = [date.day for date in newdates]
     nHour = [date.hour for date in newdates]
     nMin = [date.minute for date in newdates]
-    np.putmask(npCentre, npCentre > 10e+6, sys.maxint)
-    np.putmask(npCentre, npCentre < 700, sys.maxint)
+    np.putmask(npCentre, npCentre > 10e+6, sys.maxsize)
+    np.putmask(npCentre, npCentre < 700, sys.maxsize)
 
     newindex = np.zeros(len(newtime))
     newindex[0] = 1

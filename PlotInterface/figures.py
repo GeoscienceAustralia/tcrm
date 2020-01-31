@@ -10,7 +10,7 @@
 
 """
 
-from __future__ import division
+
 
 import sys
 import numpy as np
@@ -32,7 +32,7 @@ class WindProfileFigure(Figure, object):
     def __init__(self, lat, lon, eP, cP, rMax, beta, beta1=1.5, beta2=1.4):
 
         Figure.__init__(self)
-        self.R = np.array(range(1, 201), 'f')
+        self.R = np.array(list(range(1, 201)), 'f')
         self.lat = lat
         self.lon = lon
         self.rMax = rMax
@@ -103,7 +103,7 @@ class ScatterHistogramFigure(Figure):
 
         """
 
-        i = np.where((xdata < sys.maxint) & (ydata < sys.maxint))[0]
+        i = np.where((xdata < sys.maxsize) & (ydata < sys.maxsize))[0]
         x = xdata[i]
         y = ydata[i]
 
@@ -138,11 +138,11 @@ class QuantileFigure(Figure):
     def percentilerange(self, data):
         """Calculate a range of percentile values"""
         samples = np.zeros((1000, 100))
-        for n in xrange(1000):
+        for n in range(1000):
             samples[n, :] = np.array([np.random.choice(data)
-                                      for _ in xrange(100)])
+                                      for _ in range(100)])
 
-        dummy = stats.scoreatpercentile(samples, range(1, 101), axis=1)
+        dummy = stats.scoreatpercentile(samples, list(range(1, 101)), axis=1)
         upper = stats.scoreatpercentile(dummy, 95, axis=1)
         lower = stats.scoreatpercentile(dummy, 5, axis=1)
         return upper, lower
@@ -218,7 +218,7 @@ class RegressionFigure(Figure):
         self.subfigures.append((xdata, ydata, xlabel, ylabel, title, transform))
 
     def prepareData(self, xdata, ydata, transform):
-        i = np.where((xdata < sys.maxint) & (ydata < sys.maxint))[0]
+        i = np.where((xdata < sys.maxsize) & (ydata < sys.maxsize))[0]
         xdata, ydata = transform(xdata), transform(ydata)
         return xdata[i], ydata[i]
 
@@ -246,7 +246,7 @@ class RegressionFigure(Figure):
         color = axes._get_lines.color_cycle #pylint:disable=W0212
 
         xdata, ydata = self.prepareData(xdata, ydata, transform)
-        k = color.next()
+        k = next(color)
         scatter_kws = {'color':k,
                        'alpha':0.5}
         sns.regplot(xdata, ydata, ax=axes, scatter_kws=scatter_kws)
@@ -306,7 +306,7 @@ class LineRegressionFigure(RegressionFigure):
 
         xdata, ydata = self.prepareData(xdata, ydata, transform)
 
-        k = color.next()
+        k = next(color)
         scatter_kws = {'color':k,
                        'alpha':0.5}
         sns.regplot(xdata, ydata, ax=axes, scatter_kws=scatter_kws)

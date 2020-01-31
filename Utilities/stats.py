@@ -15,7 +15,7 @@ import logging
 import math
 import numpy as np
 
-from grid import grdRead
+from .grid import grdRead
 
 logger = logging.getLogger()
 
@@ -66,7 +66,7 @@ def cdf2d(x, y, z):
     """
     if np.size(x) < 2 or np.size(y) < 2:
         logger.critical("X or Y grids are not arrays")
-        raise TypeError, "X or Y grids are not arrays"
+        raise TypeError("X or Y grids are not arrays")
     grid_area = np.abs(x[1] - x[0]) * np.abs(y[1] - y[0])
     grid_volume = grid_area * z
 
@@ -74,8 +74,8 @@ def cdf2d(x, y, z):
     cz[:, 0] = (grid_volume[:, 0]).cumsum()
     cz[0, :] = (grid_volume[0, :]).cumsum()
 
-    for i in xrange(1, len(x)):
-        for j in xrange(1, len(y)):
+    for i in range(1, len(x)):
+        for j in range(1, len(y)):
             cz[i, j] = cz[i - 1, j] + cz[i, j - 1] - \
                 cz[i - 1, j - 1] + grid_volume[i, j]
 
@@ -95,12 +95,12 @@ def getCellNum(lon, lat, gridLimit, gridSpace):
 
     if (lon < gridLimit['xMin'] or lon >= gridLimit['xMax'] or
             lat <= gridLimit['yMin'] or lat > gridLimit['yMax']):
-        raise ValueError, 'Invalid input on cellNum: cell number is out of range'
+        raise ValueError('Invalid input on cellNum: cell number is out of range')
 
-    j = abs((abs(lon) - abs(gridLimit['xMin']))) / abs(gridSpace['x'])
-    i = abs((abs(lat) - abs(gridLimit['yMax']))) / abs(gridSpace['y'])
+    j = abs((abs(lon) - abs(gridLimit['xMin']))) // abs(gridSpace['x'])
+    i = abs((abs(lat) - abs(gridLimit['yMax']))) // abs(gridSpace['y'])
 
-    return int(i * abs((gridLimit['xMax'] - gridLimit['xMin']) / gridSpace['x']) + j)
+    return int(i * abs((gridLimit['xMax'] - gridLimit['xMin']) // gridSpace['x']) + j)
 
 
 def getCellLonLat(cellNum, gridLimit, gridSpace):
@@ -108,11 +108,11 @@ def getCellLonLat(cellNum, gridLimit, gridSpace):
     Return the lon/lat of a given cell, based on gridLimit and gridSpace
     """
     if cellNum < 0:
-        raise IndexError, 'Index is negative'
+        raise IndexError('Index is negative')
 
     lat = np.arange(gridLimit['yMax'], gridLimit['yMin'], -gridSpace['y'])
     lon = np.arange(gridLimit['xMin'], gridLimit['xMax'], gridSpace['x'])
-    indLat = cellNum / lon.size
+    indLat = cellNum // lon.size
     indLon = cellNum % lon.size
     return lon[indLon], lat[indLat]
 
@@ -163,9 +163,9 @@ def statMaxRange(minval, maxval, step):
     used for arranging the cells to be evenly spaced
     """
     if maxval < minval:
-        raise ValueError, 'Invalid minval maxval input: minval cannot be greater than maxval'
+        raise ValueError('Invalid minval maxval input: minval cannot be greater than maxval')
     if step <= 0:
-        raise ValueError, 'Invalid step input: step cannot be 0 or negative number'
+        raise ValueError('Invalid step input: step cannot be 0 or negative number')
 
     ran = np.arange(minval, maxval + step, step)
     return ran[-1]
@@ -177,9 +177,9 @@ def statMinRange(minval, maxval, step):
     Used for arranging the cells to be evenly spaced
     """
     if maxval < minval:
-        raise ValueError, 'Invalid minval maxval input: minval cannot be greater than maxval'
+        raise ValueError('Invalid minval maxval input: minval cannot be greater than maxval')
     if step <= 0:
-        raise ValueError, 'Invalid step input: step cannot be 0 or negative number'
+        raise ValueError('Invalid step input: step cannot be 0 or negative number')
     ran = np.arange(maxval, minval - step, -step)
     return ran[-1]
 
@@ -230,14 +230,14 @@ def circstd(samples, high=2 * np.pi, low=0):
     return ((high - low) / 2.0 / np.pi) * np.sqrt(V)
 
 
-def statRemoveNum(a, Num=sys.maxint):
+def statRemoveNum(a, Num=sys.maxsize):
     """
     Remove all elements in an array for which value is Num
     """
     if np.shape(a) == ():
-        raise ValueError, "Input array must be a 1-d array"
-    tmp = a.compress(a <> Num)
-    return tmp.compress(tmp < sys.maxint)
+        raise ValueError("Input array must be a 1-d array")
+    tmp = a.compress(a != Num)
+    return tmp.compress(tmp < sys.maxsize)
 
 
 def statCellFraction(gridLimit, gridSpace, valueFile):
@@ -257,7 +257,7 @@ def statCellFraction(gridLimit, gridSpace, valueFile):
     gLon, gLat, gData = grdRead(valueFile)
     nCells = maxCellNum(gridLimit, gridSpace) + 1
     output = np.zeros(nCells)
-    for cellNum in xrange(nCells):
+    for cellNum in range(nCells):
         cellLon, cellLat = getCellLonLat(cellNum, gridLimit, gridSpace)
         wLon = cellLon
         eLon = cellLon + gridSpace['x']
@@ -303,7 +303,7 @@ def between(value, minval, maxval, fuzz=2, inclusive=True):
     From http://penandpants.com/category/python/numpy/
     """
     # expand bounds
-    for _ in xrange(fuzz):
+    for _ in range(fuzz):
         minval = np.nextafter(minval, minval - 1e6)
         maxval = np.nextafter(maxval, maxval + 1e6)
 
@@ -312,3 +312,27 @@ def between(value, minval, maxval, fuzz=2, inclusive=True):
 
     else:
         return minval < value < maxval
+
+def bandwidth(data):
+    """
+    Calculate the bandwidth for a kernel density estimation, using the 
+    normal reference method. 
+    
+    
+    
+    :param data: :class:`numpy.ndarray` of float values
+    
+    :returns: Float value of the "optimum" bandwidth for the kernel 
+              density estimate
+    
+    """
+    if not isinstance(data, np.ndarray):
+        raise TypeError("Wrong input type to bandwidth()")
+    if len(np.shape(data)) == 1:
+        nobs = len(data)
+        nvars = 1
+    else:
+        nobs, nvars = np.shape(data)
+    X = np.std(data, axis=0)
+    return 1.06 * X * nobs ** (- 1. / (4 + nvars))
+    

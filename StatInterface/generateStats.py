@@ -21,7 +21,7 @@ import Utilities.stats as stats
 
 from Utilities.files import flLoadFile
 
-from scipy.stats import scoreatpercentile as percentile
+from scipy.stats import scoreatpercentile as percentile, circmean, circstd
 from PlotInterface.curves import RangeCurve, saveFigure
 
 def acf(p, nlags=1):
@@ -111,7 +111,7 @@ class GenerateStats:
 
     def __init__(self, parameter, lonLat, gridLimit,
                  gridSpace, gridInc, minSample=100, angular=False,
-                 missingValue=sys.maxint, progressbar=None,
+                 missingValue=sys.maxsize, progressbar=None,
                  prgStartValue=0, prgEndValue=1, calculateLater=False):
 
         self.logger = logging.getLogger()
@@ -183,11 +183,11 @@ class GenerateStats:
         alpha = np.empty((11, self.maxCell))
         aalpha = np.empty((11, self.maxCell))
 
-        for i in xrange(self.maxCell + 1):
+        for i in range(self.maxCell + 1):
             p = self.extractParameter(i, 0)
             a = p - np.mean(p)
-            hist[:, i - 1], b = np.histogram(p, bins, normed=True)
-            ahist[:, i - 1], b = np.histogram(a, abins, normed=True)
+            hist[:, i - 1], b = np.histogram(p, bins, density=True)
+            ahist[:, i - 1], b = np.histogram(a, abins, density=True)
             alpha[:, i - 1] = acf(p, 10)
             aalpha[:, i - 1] = acf(a, 10)
 
@@ -234,8 +234,8 @@ class GenerateStats:
         p = self.extractParameter(cellNum, onLand)
 
         if self.angular:
-            mu = stats.circmean(np.radians(p))
-            sig = stats.circstd(np.radians(p))
+            mu = circmean(np.radians(p))
+            sig = circstd(np.radians(p))
         else:
             mu = np.mean(p)
             sig = np.std(p)
@@ -271,7 +271,7 @@ class GenerateStats:
 
         if not stats.validCellNum(cellNum, self.gridLimit, self.gridSpace):
             self.logger.critical("Invalid input on cellNum: cell number %i is out of range"%cellNum)
-            raise IndexError, 'Invalid input on cellNum: cell number %i is out of range'%cellNum
+            raise IndexError('Invalid input on cellNum: cell number %i is out of range'%cellNum)
         cellLon, cellLat = stats.getCellLonLat(cellNum, self.gridLimit,
                                                self.gridSpace)
         wLon = cellLon
@@ -312,7 +312,7 @@ class GenerateStats:
                               "domain to estimate storm statistics - "
                               "please select a larger domain.")
                     self.logger.critical(errMsg)
-                    raise StopIteration, errMsg
+                    raise StopIteration(errMsg)
 
             if onLand:
                 ij = np.where(((lat >= sLat) & (lat < nLat)) & (lon >= wLon) &
@@ -342,7 +342,7 @@ class GenerateStats:
                 else:
                     errMsg = "Insufficient grid points in selected domain to estimate storm statistics - please select a larger domain."
                     self.logger.critical(errMsg)
-                    raise StopIteration, errMsg
+                    raise StopIteration(errMsg)
             if onLand:
                 ij = np.where(((lat >= sLat) & (lat < nLat)) &
                            (lon >= wLon) & (lon < eLon) & (lsflag>0))
@@ -398,7 +398,7 @@ class GenerateStats:
         self.logger.debug('Loading statistics from %s' % filename)
         from netCDF4 import Dataset
         ncdf = Dataset(filename, 'r')
-        for var in ncdf.variables.keys():
+        for var in list(ncdf.variables.keys()):
             setattr(self.coeffs, var, ncdf.variables[var][:].flatten())
         #TODO: maybe save and check grid settings?
 

@@ -39,7 +39,7 @@ import numpy as np
 from math import exp, sqrt
 import Utilities.metutils as metutils
 import logging
-
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
@@ -241,7 +241,7 @@ class JelesnianskiWindProfile(WindProfileModel):
 
     def __init__(self, lat, lon, eP, cP, rMax,
                  windSpeedModel=WilloughbyWindSpeed):
-        rMax = rMax
+        self.rMax = rMax
         WindProfileModel.__init__(self, lat, lon, eP, cP, rMax,
                                   windSpeedModel)
 
@@ -320,7 +320,7 @@ class HollandWindProfile(WindProfileModel):
         rMax = self.rMax
 
         E = exp(1)
-        
+
         d2Vm = ((beta * dP * (-4 * beta ** 3 * dP / rho -
                 (-2 + beta ** 2) * E * (np.abs(f) * rMax) ** 2)) /
                 (E * rho * sqrt((4 * beta * dP) / (E * rho)
@@ -330,7 +330,7 @@ class HollandWindProfile(WindProfileModel):
         try:
             assert d2Vm < 0.0
         except AssertionError:
-            log.critical("Pressure deficit: %f hPa, RMW: %f km" % (dP/100., rMax/1000.))
+            log.critical("Pressure deficit: {0:.2f} hPa, RMW: {1:%2f} km".format(dP/100., rMax/1000.))
             raise
 
         return d2Vm
@@ -346,7 +346,7 @@ class HollandWindProfile(WindProfileModel):
         rMax = self.rMax
 
         E = exp(1)
-        
+
         dVm = (-np.abs(f)/2 + (E*(f**2)*rMax*np.sqrt((4*beta*dP/rho)/E + \
                                                      (f*rMax)**2))/ \
                   (2*(4*beta*dP/rho + E*(f*rMax)**2)))
@@ -367,7 +367,7 @@ class HollandWindProfile(WindProfileModel):
 
         d2Vm = self.secondDerivative()
         dVm = self.firstDerivative()
-        aa = ((d2Vm / 2. - (dVm - self.vMax /self.rMax) 
+        aa = ((d2Vm / 2. - (dVm - self.vMax /self.rMax)
                / self.rMax) / self.rMax)
         bb = (d2Vm - 6 * aa * self.rMax) / 2.
         cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
@@ -446,7 +446,7 @@ class WilloughbyWindProfile(HollandWindProfile):
                  windSpeedModel=WilloughbyWindSpeed):
         HollandWindProfile.__init__(self, lat, lon, eP, cP, rMax, 1.0,
                                     windSpeedModel)
-        self.beta = (1.0036 + 0.0173 * self.vMax - 0.313 * np.log(rMax/1000.)
+        self.beta = (1.0036 + 0.0173 * self.vMax - 0.0313 * np.log(rMax/1000.)
                      + 0.0087 * np.abs(lat))
         self.speed = HollandWindSpeed(self)
 

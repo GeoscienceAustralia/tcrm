@@ -1,22 +1,21 @@
 language: python
 python:
-- '2.7'
+  - '3.6'
 install:
-- sudo apt-get update
-- if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then 
-    wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
-  else 
-    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-  fi
-- bash miniconda.sh -b -p $HOME/miniconda
-- export PATH="$HOME/miniconda/bin:$PATH"
-- hash -r
-- conda config --set always_yes yes --set changeps1 no
-- conda update -q conda
-- conda config --append channels conda-forge
-- deps='pip numpy scipy matplotlib basemap shapely nose netcdf4 cftime coverage coveralls pycurl pyproj seaborn simplejson sqlite statsmodels libgdal gdal configparser cartopy affine tqdm xarray gxx_linux-64 pthread-stubs'
-- conda create -q -n tcrm-env --yes $deps "python=$TRAVIS_PYTHON_VERSION"
-- source activate tcrm-env
+  - sudo apt-get update
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+  # install in batch mode i.e. no input
+  - bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/conda
+  - export PATH="$HOME/conda/bin:$PATH"
+  # clear bash cache table
+  - hash -r
+  - conda config --set always_yes yes
+  - conda config --set changeps1 no
+  - conda update -q conda
+  - conda config --add channels conda-forge
+  - conda config --set channel_priority strict
+  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION pip numpy scipy matplotlib basemap shapely nose netcdf4 cftime coverage coveralls pycurl pyproj seaborn simplejson sqlite statsmodels libgdal gdal configparser cartopy affine tqdm xarray gxx_linux-64 pthread-stubs imageio
+  - source activate test-env
 branches:
   except:
     - config

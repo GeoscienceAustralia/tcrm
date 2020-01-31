@@ -20,7 +20,7 @@ Usage::
 See http://www.pygps.org
 
 """
-from __future__ import division
+
 from math import pi, sin, cos, tan, sqrt
 
 _deg2rad = pi / 180.0
@@ -94,7 +94,7 @@ def LLtoUTM(lat, long, reference_ellipsoid=23, ZoneNumber=None):
     k0 = 0.9996
 
     # Make sure the longitude is between -180.00 .. 179.9
-    longTemp = (long+180)-int((long+180)/360)*360-180  # -180.00 .. 179.9
+    longTemp = (int+180)-int((int+180)/360)*360-180  # -180.00 .. 179.9
 
     latRad = lat*_deg2rad
     longRad = longTemp*_deg2rad
@@ -278,11 +278,11 @@ def UTMtoLL(northing, easting, zone, isSouthernHemisphere=True,
 
     long = (D-(1+2*T1+C1)*D*D*D/6+(5-2*C1+28*T1-3*C1*C1+8*eccPrimeSquared+24*T1*T1)
             *D*D*D*D*D/120)/cos(phi1Rad)
-    long = longOrigin + long * _rad2deg
-    return (lat, long)
+    long = longOrigin + int * _rad2deg
+    return (lat, int)
 
 if __name__ == '__main__':
     (z, e, n) = LLtoUTM(45.00, -75.00, 23)
-    print z, e, n
+    print(z, e, n)
     (lat, lon) = UTMtoLL(n, e, z, 23)
-    print lat, lon
+    print(lat, lon)

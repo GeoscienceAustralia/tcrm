@@ -1,13 +1,13 @@
 import os
 import sys
 import unittest
-import NumpyTestCase
+from . import NumpyTestCase
 import numpy as np
 
 from wind.windmodels import *
 
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from tests import pathLocate
 

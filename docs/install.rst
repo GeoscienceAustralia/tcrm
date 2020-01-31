@@ -30,7 +30,7 @@ TCRM.
 Setting the environment
 ----------------------
 
-To enable TCRM to run flawlessly, you may need to change some
+To enable TCRM to run correctly, you may need to change some
 environment settings. The important variable to set is the
 ``PYTHONPATH`` variable. This should be set to the path where you have
 extracted the contents of the zip file. In the examples below, change
@@ -101,7 +101,7 @@ please see the documentation for each individual library.
 * `pandas <http://pandas.pydata.org>`_
 * `gitpython <http://gitpython.readthedocs.org>`_
 * Parallel execution in multi-processor environments (with MPI
-  installed) requires `Pypar <http://github.com/daleroberts/pypar>`_
+  installed) requires `mpi4py <https://mpi4py.readthedocs.io/>`_
 
 Using pip
 ~~~~~~~~~
@@ -119,7 +119,7 @@ the ``$PATH`` for this to work.
 .. _compilation:
 
 Compiling the extensions
------------------------
+------------------------
 
 The model requires a number of C extensions to be compiled before
 execution. These can be built using Python's inbuilt :mod:`distutils`

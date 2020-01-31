@@ -26,11 +26,11 @@
  $Id: TestKDEParameters.py 480 2007-05-01 05:03:15Z nhabili $
 """
 import os, sys
-import cPickle
+import pickle
 import unittest
-import NumpyTestCase
+from . import NumpyTestCase
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 
@@ -43,9 +43,9 @@ from Utilities.files import flStartLog
 class TestKDEParameters(NumpyTestCase.NumpyTestCase):
 
     def setUp(self):
-        self.pressure_rate = cPickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_parameters_pressure_rate.pck')))
-        self.resultp = cPickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_parameters_result.pck')))
-        kdeType = 'Epanechnikov'
+        self.pressure_rate = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_parameters_pressure_rate.pkl'), 'rb'))
+        self.resultp = pickle.load(open(os.path.join(unittest_dir, 'test_data', 'kde_parameters_result.pkl'), 'rb'))
+        kdeType = 'gau'
         self.k = KDEParameters.KDEParameters(kdeType)
 
     def test_GenerateKDE(self):

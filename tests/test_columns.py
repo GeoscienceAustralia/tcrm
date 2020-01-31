@@ -3,7 +3,7 @@ import numpy as np
 from numpy.testing import assert_equal
 
 from os.path import join as pjoin
-import pathLocate
+from . import pathLocate
 
 unittest_dir = pathLocate.getUnitTestDirectory()
 

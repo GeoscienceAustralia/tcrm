@@ -13,13 +13,13 @@ Note: Many of the defaults (e.g. coastline colours, font sizes for
 
 """
 
-from __future__ import division
+
 
 import numpy as np
 import numpy.ma as ma
 
 from matplotlib.figure import Figure
-from mpl_toolkits.basemap import Basemap
+import cartopy
 
 from Utilities.smooth import smooth
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -128,7 +128,7 @@ class MapFigure(Figure):
         palette = sns.color_palette("YlOrRd", 7)
         self.cmap = sns.blend_palette(palette, as_cmap=True)
 
-        self.canvas = FigureCanvas
+        #self.canvas = FigureCanvas
 
     def add(self, data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs):
         """
@@ -146,7 +146,7 @@ class MapFigure(Figure):
         :param lvls: `numpy.ndarray` of levels used for plotting contours.
         :param str cbarlabel: Label for the colorbar (if one is to be added).
         :param dict map_kwargs: `dict` of keyword arguments used for setting
-                                up the `Basemap` instance.
+                                up the `GeoAxes` instance.
 
         """
 
@@ -174,14 +174,11 @@ class MapFigure(Figure):
         determined from the maximum span of either longitude or latitude.
 
         :param axes: Current `matplotlib.Axes` instance being worked on.
-        :param mapobj: Current `Basemap` instance to annotate.
+        :param mapobj: Current `GeoAxes` instance to annotate.
 
         """
 
-        xmin = mapobj.llcrnrlon
-        xmax = mapobj.urcrnrlon
-        ymin = mapobj.llcrnrlat
-        ymax = mapobj.urcrnrlat
+        xmin, xmax, ymin, ymax = mapobj.get_extent()
 
         dx = abs(xmin - xmax)
         dy = abs(ymin - ymax)
@@ -193,42 +190,32 @@ class MapFigure(Figure):
         except IndexError:
             dl = 2.
 
-        meridians = np.arange(dl*np.floor(xmin / dl),
-                              dl*np.ceil(xmax / dl) + dl, dl)
-        parallels = np.arange(dl*np.floor(ymin / dl),
-                              dl*np.ceil(ymax / dl) + dl, dl)
+        meridians = np.arange(xmin // dl * dl, xmax + dl, dl)
+        parallels = np.arange(ymin // dl * dl, ymax + dl, dl)
 
-        mapobj.drawparallels(parallels, linewidth=0.25, fontsize='x-small',
-                             labels=[1, 0, 0, 1], style="italic")
-        mapobj.drawmeridians(meridians, linewidth=0.25, fontsize='x-small',
-                             labels=[1, 0, 0, 1], style='italic')
-        axes.tick_params(axis='both', direction='out', length=4,
-                         width=1, color='k')
+        mapobj.gridlines(xlocs=meridians, ylocs=parallels,
+                         draw_labels=True)
 
     def addCoastline(self, mapobj):
         """
         Draw coastlines and a map background to the current
-        `Basemap` instance.
+        `GeoAxes` instance.
 
-        :param mapobj: Current `Basemap` instance to add coastlines to.
+        :param mapobj: Current `GeoAxes` instance to add coastlines to.
 
         """
-
-        mapobj.drawcoastlines(linewidth=.5, color="k")
-        mapobj.drawmapboundary(fill_color="#BEE8FF")
+        mapobj.coastlines(resolution='50m')
 
     def fillContinents(self, mapobj, fillcolor="#FFDAB5"):
         """
         Fill continents with a base color in the current
-        `Basemap` instance.
+        `GeoAxes` instance.
 
-        :param mapobj: Current `Basemap` instance to color fill the
+        :param mapobj: Current `GeoAxes` instance to color fill the
         continents on.
 
         """
-        mapobj.fillcontinents(color=fillcolor,
-                              lake_color="#BEE8FF",
-                              zorder=0)
+        mapobj.add_feature(cartopy.feature.LAND, color=fillcolor)
 
     def addMapScale(self, mapobj):
         """
@@ -240,6 +227,7 @@ class MapFigure(Figure):
         :param mapobj: Current `Basemap` instance to add the scale bar to.
 
         """
+        return # TODO: migrate to cartopy
 
         midlon = (mapobj.lonmax - mapobj.lonmin) / 2.
         midlat = (mapobj.latmax - mapobj.latmin) / 2.
@@ -261,13 +249,16 @@ class MapFigure(Figure):
 
     def createMap(self, axes, xgrid, ygrid, map_kwargs):
         """
-        Create a :class:`basemap` object, and convert the x/y grid
-        to map coordinates
+        Configure the map extent
         """
+        x0 = map_kwargs['llcrnrlon']
+        y0 = map_kwargs['llcrnrlat']
+        x1 = map_kwargs['urcrnrlon']
+        y1 = map_kwargs['urcrnrlat']
 
-        mapobj = Basemap(ax=axes, **map_kwargs)
-        mx, my = mapobj(xgrid, ygrid)
-        return mapobj, mx, my
+        axes.set_extent([x0, x1, y0, y1])
+
+        return axes, xgrid, ygrid
 
     def subplot(self, axes, subfigure):
         """
@@ -308,7 +299,12 @@ class MapFigure(Figure):
         width, height = self.get_size_inches()
         self.set_size_inches(width * cols, rows * height)
         for i, subfigure in enumerate(self.subfigures):
-            axes = self.add_subplot(rows, cols, i+1)
+            if subfigure[-1]['projection'] == 'merc':
+                axes = self.add_subplot(rows, cols, i+1,
+                                        projection=cartopy.crs.PlateCarree())
+            else:
+                raise NotImplementedError(
+                          "Only Mercator projection supported")
             self.subplot(axes, subfigure)
 
     def save(self, filename):
@@ -371,8 +367,7 @@ class FilledContourMapFigure(MapFigure):
         cmap = selectColormap(lvls)
         CS = mapobj.contourf(mx, my, data, levels=lvls,
                              extend='both', cmap=cmap)
-        CB = mapobj.colorbar(CS, location='right', pad='5%', ticks=lvls[::2],
-                             fig=self, ax=axes, extend='both')
+        CB = self.colorbar(CS, ticks=lvls[::2], ax=axes, extend='both')
         CB.set_label(cbarlab)
         axes.set_title(title)
         self.addGraticule(axes, mapobj)
@@ -407,8 +402,7 @@ class MaskedContourMapFigure(FilledContourMapFigure):
         cmap = selectColormap(lvls)
         CS = mapobj.contourf(mx, my, masked_data, levels=lvls,
                              extend='both', cmap=cmap)
-        CB = mapobj.colorbar(CS, location='right', pad='5%', ticks=lvls[::2],
-                             fig=self, ax=axes, extend='both')
+        CB = self.colorbar(CS, ticks=lvls[::2], ax=axes, extend='both')
         CB.set_label(cbarlab)
         axes.set_title(title)
         self.labelAxes(axes)
@@ -444,8 +438,8 @@ class ArrayMapFigure(MapFigure):
         vmax = datarange[1]
         CS = mapobj.pcolormesh(mx, my, data, vmin=vmin,
                                vmax=vmax, cmap=cmap)
-        CB = mapobj.colorbar(CS, location='bottom', pad='10%',
-                             fig=self, ax=axes)
+        #CB = self.colorbar(CS, location='bottom', pad=0.1,
+        #                     fig=self, ax=axes)
         CB.set_label(cbarlab)
         axes.set_title(title)
         self.addGraticule(axes, mapobj)
@@ -475,78 +469,78 @@ class MaskedArrayMapFigure(ArrayMapFigure):
                      datarange, cbarlab, map_kwargs)
         super(MaskedArrayMapFigure, self).subplot(axes, subfigure)
 
-class BarbMapFigure(MapFigure):
-    """
-    Map figure with velocity indicated by wind barbs
-
-    """
-    def add(self, xdata, ydata, xgrid, ygrid, title,
-            lvls, cbarlab, map_kwargs):
-        self.subfigures.append((xdata, ydata, xgrid, ygrid,
-                                title, lvls, cbarlab, map_kwargs))
-
-    def subplot(self, axes, subfigure):
-        """
-        Generate the subplot on the figure.
-
-        :param axes: :class:`matplotlib.axes` instance where the plot will
-                     be added.
-        :param tuple subfigure: A tuple that holds all the required elements
-                                of the plot, including the data, x- and y-grids,
-                                title, contour levels, colorbar label and
-                                map keyword arguments.
-
-        """
-        xdata, ydata, xgrid, ygrid, title, \
-            lvls, cbarlab, map_kwargs = subfigure
-        mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
-
-        mag = np.sqrt(xdata*xdata + ydata*ydata)
-        CS = mapobj.contourf(mx, my, mag, lvls, cmap=self.cmap)
-        CB = mapobj.colorbar(CS, location='right', pad='5%',
-                             fig=self, ax=axes, ticks=lvls[::2])
-        CB.set_label(cbarlab)
-        mapobj.barbs(xgrid, ygrid, xdata, ydata, length=5, linewidth=0.5, 
-                     latlon=True)
-        axes.set_title(title)
-        self.addGraticule(axes, mapobj)
-        self.addCoastline(mapobj)
-
-class ScatterMapFigure(MapFigure):
-    """
-    Scatter plot over a map figure.
-
-    """
-    def add(self, data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs):
-        self.subfigures.append((data, xgrid, ygrid, title, lvls,
-                                cbarlab, map_kwargs))
-
-    def subplot(self, axes, subfigure):
-        """
-        Generate the subplot on the figure.
-
-        :param axes: :class:`matplotlib.axes` instance where the plot will
-                     be added.
-        :param tuple subfigure: A tuple that holds all the required elements
-                                of the plot, including the data, x- and y-grids,
-                                title, contour levels, colorbar label and
-                                map keyword arguments. ``data`` is an n-by-2
-                                :class:`numpy.ndarray` containing the x- and y-
-                                coordinates of the scatter points.
-
-        """
-        data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs = subfigure
-        xp, yp = data
-        mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
-
-        self.addCoastline(mapobj)
-        self.fillContinents(mapobj)
-
-        mxp, myp = mapobj(xp, yp)
-        mapobj.scatter(mxp, myp)
-        axes.set_title(title)
-        self.addGraticule(axes, mapobj)
-        self.addMapScale(mapobj)
+#class BarbMapFigure(MapFigure):
+#    """
+#    Map figure with velocity indicated by wind barbs
+#
+#    """
+#    def add(self, xdata, ydata, xgrid, ygrid, title,
+#            lvls, cbarlab, map_kwargs):
+#        self.subfigures.append((xdata, ydata, xgrid, ygrid,
+#                                title, lvls, cbarlab, map_kwargs))
+#
+#    def subplot(self, axes, subfigure):
+#        """
+#        Generate the subplot on the figure.
+#
+#        :param axes: :class:`matplotlib.axes` instance where the plot will
+#                     be added.
+#        :param tuple subfigure: A tuple that holds all the required elements
+#                                of the plot, including the data, x- and y-grids,
+#                                title, contour levels, colorbar label and
+#                                map keyword arguments.
+#
+#        """
+#        xdata, ydata, xgrid, ygrid, title, \
+#            lvls, cbarlab, map_kwargs = subfigure
+#        mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
+#
+#        mag = np.sqrt(xdata*xdata + ydata*ydata)
+#        CS = mapobj.contourf(mx, my, mag, lvls, cmap=self.cmap)
+#        CB = mapobj.colorbar(CS, location='right', pad='5%',
+#                             fig=self, ax=axes, ticks=lvls[::2])
+#        CB.set_label(cbarlab)
+#        mapobj.barbs(xgrid, ygrid, xdata, ydata, length=5, linewidth=0.5, 
+#                     latlon=True)
+#        axes.set_title(title)
+#        self.addGraticule(axes, mapobj)
+#        self.addCoastline(mapobj)
+#
+#class ScatterMapFigure(MapFigure):
+#    """
+#    Scatter plot over a map figure.
+#
+#    """
+#    def add(self, data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs):
+#        self.subfigures.append((data, xgrid, ygrid, title, lvls,
+#                                cbarlab, map_kwargs))
+#
+#    def subplot(self, axes, subfigure):
+#        """
+#        Generate the subplot on the figure.
+#
+#        :param axes: :class:`matplotlib.axes` instance where the plot will
+#                     be added.
+#        :param tuple subfigure: A tuple that holds all the required elements
+#                                of the plot, including the data, x- and y-grids,
+#                                title, contour levels, colorbar label and
+#                                map keyword arguments. ``data`` is an n-by-2
+#                                :class:`numpy.ndarray` containing the x- and y-
+#                                coordinates of the scatter points.
+#
+#        """
+#        data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs = subfigure
+#        xp, yp = data
+#        mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
+#
+#        self.addCoastline(mapobj)
+#        self.fillContinents(mapobj)
+#
+#        mxp, myp = mapobj(xp, yp)
+#        mapobj.scatter(mxp, myp)
+#        axes.set_title(title)
+#        self.addGraticule(axes, mapobj)
+#        self.addMapScale(mapobj)
 
 class HazardMap(FilledContourMapFigure):
     """
@@ -614,15 +608,15 @@ def saveWindfieldMap(data, xgrid, ygrid, title, lvls,
     fig.plot(data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs)
     fig.save(filename)
 
-def saveArrayMap(data, xgrid, ygrid, title, datarange, cbarlab,
-                 map_kwargs, filename):
-    """
-    Plot and save a map of an array of data values.
-
-    """
-    fig = ArrayMap()
-    fig.plot(data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs)
-    fig.save(filename)
+#def saveArrayMap(data, xgrid, ygrid, title, datarange, cbarlab,
+#                 map_kwargs, filename):
+#    """
+#    Plot and save a map of an array of data values.
+#
+#    """
+#    fig = ArrayMap()
+#    fig.plot(data, xgrid, ygrid, title, datarange, cbarlab, map_kwargs)
+#    fig.save(filename)
 
 def demo():
     """

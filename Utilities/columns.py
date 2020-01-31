@@ -40,7 +40,7 @@ def colReadCSV(configFile, dataFile, source):
     try:
         data = np.genfromtxt(dataFile, dtype=None, delimiter=delimiter,
                              usecols=usecols, names=names, skip_header=numHeadingLines,
-                             autostrip=True)
+                             autostrip=True, encoding=None)
     except IOError:
         log.exception("File not found: {0}".format(dataFile))
         raise IOError("File not found: {0}".format(dataFile))

@@ -69,18 +69,18 @@ def ncFileInfo(filename, group=None, variable=None, dimension=None):
             print(f)
         else:
             if variable is not None:
-                print(f.variables[variable])
+                print((f.variables[variable]))
             if dimension is not None:
-                print(f.dimensions[dimension])
+                print((f.dimensions[dimension]))
     else:
         if variable is None and dimension is None:
-            print(getgrp(f, group))
+            print((getgrp(f, group)))
         else:
             g = getgrp(f, group)
             if variable is not None:
-                print(g.variables[variable])
+                print((g.variables[variable]))
             if dimension is not None:
-                print(g.dimensions[variable])
+                print((g.dimensions[variable]))
     f.close()
 
 
@@ -341,8 +341,8 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
     varkeys = set(['name', 'values', 'dtype', 'dims', 'atts'])
 
     dims = ()
-    for d in dimensions.itervalues():
-        missingkeys = [x for x in dimkeys if x not in d.keys()]
+    for d in dimensions.values():
+        missingkeys = [x for x in dimkeys if x not in list(d.keys())]
         if len(missingkeys) > 0:
             ncobj.close()
             raise KeyError("Dimension dict missing key '{0}'".
@@ -351,8 +351,8 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
         ncCreateDim(ncobj, d['name'], d['values'], d['dtype'], d['atts'])
         dims = dims + (d['name'],)
 
-    for v in variables.itervalues():
-        missingkeys = [x for x in varkeys if x not in v.keys()]
+    for v in variables.values():
+        missingkeys = [x for x in varkeys if x not in list(v.keys())]
         if len(missingkeys) > 0:
             ncobj.close()
             raise KeyError("Variable dict missing key '{0}'".
@@ -363,7 +363,7 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
                 ncobj.close()
                 raise ValueError("Mismatch between shape of "
                                  "variable and dimensions")
-        if v.has_key('least_significant_digit'):
+        if 'least_significant_digit' in v:
             varlsd = v['least_significant_digit']
         else:
             varlsd = lsd

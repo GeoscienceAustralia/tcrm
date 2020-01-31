@@ -63,8 +63,8 @@ class ExtremeValueDistribution(object):
         shp = np.zeros(dims[1:], dtype='f')
 
 
-        for i in xrange(dims[1]):
-            for j in xrange(dims[2]):
+        for i in range(dims[1]):
+            for j in range(dims[2]):
                 if data[:, i, j].max() > 0:
                     w, l, sc, sh = self.fit(data[:, i, j],  *args, **kwargs)
                     Rp[:, i, j] = w

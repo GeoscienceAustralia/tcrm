@@ -94,7 +94,7 @@ class SamplingParameters:
         """
 
         if ns <= 0:
-            raise ValueError, 'invalid input on ns: number of sample cannot be zero or negative'
+            raise ValueError('invalid input on ns: number of sample cannot be zero or negative')
 
         unif_s = scipy.rand(ns)
 
@@ -116,11 +116,11 @@ if __name__ == "__main__":
         # If no filename is specified and default filename doesn't exist => raise error
         if not os.path.exists(configFile):
             error_msg = "No configuration file specified, please type: python main.py {config filename}.ini"
-            raise IOError, error_msg
+            raise IOError(error_msg)
     # If config file doesn't exist => raise error
     if not os.path.exists(configFile):
         error_msg = "Configuration file '" + configFile +"' not found"
-        raise IOError, error_msg
+        raise IOError(error_msg)
 
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(name)-12s: %(levelname)-8s %(message)s',

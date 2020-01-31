@@ -83,6 +83,6 @@ class SimpleProgressBar(ProgressBar):
                           format(self.modname,
                                  self._percentage(prg).strip().rjust(4))
 
-                print >> sys.stderr, ('********* ' + message)
+                print(('********* ' + message), file=sys.stderr)
                 log.info(message)
                 self.lastPercentage += incr

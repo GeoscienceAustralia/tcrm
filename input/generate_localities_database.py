@@ -46,9 +46,9 @@ noDivisionStr = 'No division (select for localities with no division)'
 
 # If no locality database found, then create one
 if os.path.isfile(dBaseName):
-    print "Database already exists"
+    print("Database already exists")
 else:
-    print "Generating database....."
+    print("Generating database.....")
     conn = sqlite3.connect(dBaseName)
 
     c = conn.cursor()
@@ -72,9 +72,9 @@ else:
             else:
                 # Convert lat/lon format
                 if len(lat_str) > 0:
-                    lat_str = u"%.2f" % (float(lat_str)/100)
+                    lat_str = "%.2f" % (float(lat_str)/100)
                 if len(lon_str) > 0:
-                    lon_str = u"%.2f" % (numpy.mod(float(lon_str)/100, 360))
+                    lon_str = "%.2f" % (numpy.mod(float(lon_str)/100, 360))
                 if (z[4] == 'locality') and (z[9] == ''):
                     # For countries like Niue with no divisions
                     z[9] = noDivisionStr
@@ -91,7 +91,7 @@ else:
     for country in countries:
         count = count + 1
         if numpy.mod(count, 5) == 0:
-            print 'Progress:  %(#).1f' % {"#": (float(count) / len(countries)) * 100} + '%'
+            print('Progress:  %(#).1f' % {"#": (float(count) / len(countries)) * 100} + '%')
         c.execute('select placename from localities where parentcountry=? and placetype<>?', (country, 'locality'))
         divisions = [z[0] for z in c.fetchall()]
 

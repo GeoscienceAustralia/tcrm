@@ -33,9 +33,9 @@ from scipy import array, arange, pi
 import numpy
 import numpy.ma as ma
 import unittest
-import NumpyTestCase
+from . import NumpyTestCase
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 

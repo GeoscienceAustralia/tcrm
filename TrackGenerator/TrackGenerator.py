@@ -5,7 +5,7 @@
 This module contains the core objects for tropical cyclone track
 generation.
 
-Track generation can be run in parallel using MPI if the :term:`pypar`
+Track generation can be run in parallel using MPI if the :term:`mpi4py`
 library is found and TCRM is run using the :term:`mpirun` command. For
 example, to run with 10 processors::
 
@@ -144,11 +144,9 @@ import numpy as np
 
 
 import Utilities.stats as stats
-import trackLandfall
-import trackSize
+from . import trackLandfall
+from . import trackSize
 import Utilities.nctools as nctools
-import Utilities.Cmap as Cmap
-import Utilities.Cstats as Cstats
 import Utilities.maputils as maputils
 import Utilities.metutils as metutils
 import Utilities.tcrandom as random
@@ -281,7 +279,7 @@ class TrackGenerator(object):
         self.sizeMean = sizeMean
         self.sizeStdDev = sizeStdDev
         self.timeOverflow = dt * maxTimeSteps
-        self.missingValue = sys.maxint  # FIXME: remove
+        self.missingValue = sys.maxsize  # FIXME: remove
         self.progressbar = None  # FIXME: remove
         self.allCDFInitBearing = None
         self.allCDFInitSpeed = None
@@ -567,9 +565,9 @@ class TrackGenerator(object):
 
             # Get the initial grid cell
 
-            initCellNum = Cstats.getCellNum(genesisLon, genesisLat,
-                                            self.gridLimit,
-                                            self.gridSpace)
+            initCellNum = stats.getCellNum(genesisLon, genesisLat,
+                                           self.gridLimit,
+                                           self.gridSpace)
 
             log.debug('Cyclones origin: (%6.2f, %6.2f) Cell: %i' +
                       ' Grid: %s', genesisLon, genesisLat, initCellNum,
@@ -948,14 +946,14 @@ class TrackGenerator(object):
         tol = 0.0
 
         # Generate the track
-        for i in xrange(1, self.maxTimeSteps):
+        for i in range(1, self.maxTimeSteps):
 
             # Get the new latitude and longitude from bearing and
             # distance
-            lon[i], lat[i] = Cmap.bear2LatLon(bearing[i - 1],
-                                              dist[i - 1],
-                                              lon[i - 1],
-                                              lat[i - 1])
+            lon[i], lat[i] = maputils.bear2LatLon(bearing[i - 1],
+                                                  dist[i - 1],
+                                                  lon[i - 1],
+                                                  lat[i - 1])
 
             age[i] = age[i - 1] + self.dt
             dates[i] = dates[i - 1] + timestep
@@ -981,8 +979,8 @@ class TrackGenerator(object):
                         speed[:i], bearing[:i], pressure[:i],
                         poci[:i], rmax[:i])
 
-            cellNum = Cstats.getCellNum(lon[i], lat[i],
-                                        self.gridLimit, self.gridSpace)
+            cellNum = stats.getCellNum(lon[i], lat[i],
+                                       self.gridLimit, self.gridSpace)
             onLand = self.landfall.onLand(lon[i], lat[i])
 
             land[i] = onLand
@@ -1636,7 +1634,7 @@ class TrackGenerator(object):
 # library as it provides the ability to `jumpahead` in the stream (as
 # opposed to `numpy.random`).
 
-PRNG = random.Random()
+PRNG = random.Random(seed=1234, stream=0)
 
 
 def normal(mean=0.0, stddev=1.0):
@@ -1690,7 +1688,7 @@ def balanced(iterable):
     before hand. This is only some magical slicing of the iterator,
     i.e., a poor man version of scattering.
     """
-    P, p = pp.size(), pp.rank()
+    P, p = MPI.COMM_WORLD.size, MPI.COMM_WORLD.rank
     return itertools.islice(iterable, p, None, P)
 
 
@@ -1796,10 +1794,11 @@ def run(configFile, callback=None):
         yrsPerSim = 1
 
     # Attempt to start the track generator in parallel
-    global pp
-    pp = attemptParallel()
+    global MPI
+    MPI = attemptParallel()
+    comm = MPI.COMM_WORLD
 
-    if pp.size() > 1 and (not seasonSeed or not trackSeed):
+    if comm.size > 1 and (not seasonSeed or not trackSeed):
         log.critical('TrackSeed and GenesisSeed are needed' +
                      ' for parallel runs!')
         sys.exit(1)
@@ -1812,7 +1811,7 @@ def run(configFile, callback=None):
 
     # Wait for configuration to be loaded by all processors
 
-    pp.barrier()
+    comm.barrier()
 
     # Seed the numpy PRNG. We use this PRNG to sample the number of
     # tropical cyclone tracks to simulate for each season. The inbuilt
@@ -1860,7 +1859,7 @@ def run(configFile, callback=None):
 
     # Hold until all processors are ready
 
-    pp.barrier()
+    comm.barrier()
 
     N = sims[-1].index
 
@@ -1874,9 +1873,9 @@ def run(configFile, callback=None):
             callback(sim.index, N)
 
         if sim.seed:
-            PRNG.seed(sim.seed)
-            PRNG.jumpahead(sim.jumpahead)
-            log.debug('seed %i jumpahead %i', sim.seed, sim.jumpahead)
+            global PRNG #TODO: explicitly-pass rather than mutate global state
+            PRNG = random.Random(seed=sim.seed, stream=sim.index)
+            log.debug('seed %i stream %i', sim.seed, sim.index)
 
         trackFile = pjoin(trackPath, sim.outfile)
         tracks = tg.generateTracks(sim.ntracks, sim.index)
@@ -1886,4 +1885,4 @@ def run(configFile, callback=None):
     log.info('Simulating tropical cyclone tracks:' +
              ' 100 percent complete')
 
-    pp.barrier()
+    comm.barrier()

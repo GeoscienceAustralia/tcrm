@@ -24,22 +24,22 @@ from datetime import datetime
 
 from Utilities.metutils import convert
 
-from timeseries import TimeSeriesFigure, saveFigure
+from .timeseries import TimeSeriesFigure, saveFigure
 
 DATEFORMAT = "%Y-%m-%d %H:%M"
 INPUT_COLS = ('Station', 'Time', 'Longitude', 'Latitude',
               'Speed', 'UU', 'VV', 'Bearing',
               'Pressure')
 
-INPUT_FMTS = ('|S16', 'object', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
+INPUT_FMTS = ('|U16', 'object', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
 INPUT_TITLES = ("Station", "Time", "Longitude", "Latitude", "Wind speed",
                 "Eastward wind", "Northward wind", "Wind direction",
                 "Sea level pressure")
 INPUT_UNIT = ('', '%Y-%m-%d %H:%M', 'degrees', 'degrees', 'm/s',
                 'm/s', 'm/s','degrees', 'Pa')
 INPUT_CNVT = {
-    1: lambda s: datetime.strptime(s.strip(), INPUT_UNIT[1]),
-    8: lambda s: convert(float(s.strip() or 0), INPUT_UNIT[8], 'hPa')
+    1: lambda s: datetime.strptime(s.decode().strip(), INPUT_UNIT[1]),
+    8: lambda s: convert(float(s.decode().strip() or 0), INPUT_UNIT[8], 'hPa')
     }
 
 def loadTimeseriesData(datafile):
@@ -109,7 +109,6 @@ def plotTimeseries(inputPath, outputPath, locID=None):
 
 
             fig = TimeSeriesFigure()
-
             fig.add(inputData['Time'], inputData['Pressure'],
                     [900, 1020], 'Pressure (hPa)',
                     'Sea level pressure')

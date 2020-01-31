@@ -2,10 +2,10 @@
 Saving the wind-field time-series to file
 
 """
+import logging
 import netCDF4
 import affine
 import numpy as np
-import logging
 
 class WriteFoliationCallback(object):
     """
@@ -13,7 +13,7 @@ class WriteFoliationCallback(object):
 
 
     >>> import tempfile, datetime, xarray
-    >>> with tempfile.NamedTemporaryFile() as f:
+    >>> with tempfile.NamedTemporaryFile(delete=False) as f:
     ...     res = 0.5
     ...     lat, lon = np.r_[-10:-5+.1:res], np.r_[110:115+.1:res]
     ...     gridLimit = dict(xMin=min(lon), yMin=min(lat), yMax=max(lat), xMax=max(lon))
@@ -33,6 +33,17 @@ class WriteFoliationCallback(object):
     # Uses low-level NetCDF bindings to support windowed progressive writes.
 
     def __init__(self, filename, gridLimit, resolution, margin=0, maxchunk=256, wraps=None):
+        """
+        :param str filename: netCDF file for saving data to
+        :param dict gridLimit: simulation domain extent
+        :param float resolution: grid resolution in decimal degrees
+        :param float margin: spatial extent over which the wind field is
+                             calculated in decimal degrees
+        :param int maxchunk: chunking size (for use in netCDF variable creation)
+        :param func wraps: Optional callback function (e.g. for timeseries extraction)
+
+        """
+        
         logging.debug("Preparing to record windfield evolution to {}".format(filename))
 
         self.callback = wraps
@@ -56,8 +67,8 @@ class WriteFoliationCallback(object):
 
         # coordinate variables:
         self.time = root.createVariable('time', datatype='f8', dimensions=('time',))
-        self.lat  = root.createVariable('lat',  datatype='f4', dimensions=('lat',))
-        self.lon  = root.createVariable('lon',  datatype='f4', dimensions=('lon',))
+        self.lat = root.createVariable('lat', datatype='f4', dimensions=('lat',))
+        self.lon = root.createVariable('lon', datatype='f4', dimensions=('lon',))
 
         self.lat[:] = lat
         self.lon[:] = lon
@@ -69,9 +80,9 @@ class WriteFoliationCallback(object):
                    chunksizes=(1, min(len(lat), maxchunk), min(len(lon), maxchunk)),
                    zlib=True)
         self.speed = root.createVariable('gust_speed', fill_value=0, **etc)
-        self.Ux    = root.createVariable('velocity_east', fill_value=0, **etc)
-        self.Uy    = root.createVariable('velocity_north', fill_value=0, **etc)
-        self.P     = root.createVariable('pressure', fill_value=np.NaN, **etc)
+        self.Ux = root.createVariable('velocity_east', fill_value=0, **etc)
+        self.Uy = root.createVariable('velocity_north', fill_value=0, **etc)
+        self.P = root.createVariable('pressure', fill_value=np.NaN, **etc)
 
     def __call__(self, time, gust, Ux, Uy, P, lon, lat):
         """Save wind field layer for latest time step"""
@@ -86,13 +97,13 @@ class WriteFoliationCallback(object):
         # convert window extent to slice indices
         origin = np.rint(self.affine * (lon[0], lat[0])).astype(int)
         opposite = np.rint(self.affine * (lon[-1], lat[-1])).astype(int)
-        j,i = [slice(a, b+1) for a,b in zip(origin, opposite)]
+        j, i = [slice(a, b+1) for a, b in zip(origin, opposite)]
 
         # append data
         self.time[t] = netCDF4.date2num(time, units=self.time.units)
-        self.speed[t,i,j] = gust
-        self.Ux[t,i,j] = Ux
-        self.Uy[t,i,j] = Uy
-        self.P[t,i,j] = P
+        self.speed[t, i, j] = gust
+        self.Ux[t, i, j] = Ux
+        self.Uy[t, i, j] = Uy
+        self.P[t, i, j] = P
 
         self.ds.sync() # save (flush) layer to file

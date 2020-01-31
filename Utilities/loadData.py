@@ -26,13 +26,13 @@ track files.
 import sys
 import logging
 import numpy as np
-import metutils
-import maputils
-import nctools
-import interp3d
+from . import metutils
+from . import maputils
+from . import nctools
+from . import interp3d
 
 from datetime import datetime, timedelta
-from columns import colReadCSV
+from .columns import colReadCSV
 from Utilities.config import ConfigParser, cnfGetIniValue
 from Utilities.track import Track, trackFields, trackTypes
 
@@ -100,7 +100,7 @@ class Track(object):
 bdeck = {
     "delimiter": ",",
     "names" : ("basin", "num", "date", "lat", "lon", "vmax", "pressure", "poci", "rmax"),
-    "dtype" : ("|S2", "i", "object", "f8", "f8", "f8", "f8", "f8", "f8"),
+    "dtype" : ("|U2", "i", "object", "f8", "f8", "f8", "f8", "f8", "f8"),
     "usecols" : (0, 1, 2, 6, 7, 8, 9, 17, 19),
     "converters" : {
                 0: lambda s: s.strip(),
@@ -118,7 +118,7 @@ bdeck = {
 ibtracs = {
     "delimiter" : ",",
     "names" : ("tcserialno", "season", "num", "date", "lat", "lon", "pressure"),
-    "dtype" : ("|S13", "i", "i", "object", "f8", "f8", "f8"),
+    "dtype" : ("|U13", "i", "i", "object", "f8", "f8", "f8"),
     "usecols" : (0, 1, 2, 6, 8, 9, 11),
     "converters" : {
                 0: lambda s: s.strip(),
@@ -394,12 +394,12 @@ def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):
     minute = np.empty(len(dates), 'i')
     datetimes = np.empty(len(dates), datetime)
 
-    for i in xrange(len(dates)):
+    for i in range(len(dates)):
         try:
             d = datetime.strptime(str(dates[i]), datefmt)
         except ValueError as e:
             LOG.exception("Error in date information for record {0}".format(i))
-            LOG.exception(e.message)
+            LOG.exception(repr(e))
             raise
         else:
             year[i] = d.year
@@ -455,7 +455,7 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
         except (ValueError, KeyError):
             if hour.max() >= 100:
                 minute = np.mod(hour, 100)
-                hour = hour / 100
+                hour = hour // 100
             else:
                 LOG.warning("Missing minute data from input data" + \
                                "- setting minutes to 00 for all times")
@@ -613,10 +613,10 @@ def julianDays(year, month, day, hour, minute):
     jyear = np.copy(year)
     jyear[np.where(jyear < 1900)] = 1904
     day = [datetime(jyear[i], month[i], day[i], hour[i], minute[i],
-                    second[i]) for i in xrange(year.size)]
+                    second[i]) for i in range(year.size)]
 
     jdays = np.array([int(day[i].strftime("%j")) for
-                      i in xrange(year.size)])
+                      i in range(year.size)])
     return jdays
 
 

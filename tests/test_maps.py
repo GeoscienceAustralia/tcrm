@@ -1,7 +1,7 @@
 import unittest
 
 import numpy as np
-import NumpyTestCase
+from . import NumpyTestCase
 from matplotlib.colors import LinearSegmentedColormap
 from PlotInterface import maps
 
@@ -55,7 +55,7 @@ class TestSelectColorMap(unittest.TestCase):
         self.assertEqual(actual.N, expected.N)
         self.assertDictEqual(actual._segmentdata,
                              expected._segmentdata)
-        for k in actual._segmentdata.keys():
+        for k in list(actual._segmentdata.keys()):
             self.assertListEqual(actual._segmentdata[k],
                                  expected._segmentdata[k])
 

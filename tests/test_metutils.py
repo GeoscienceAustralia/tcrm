@@ -29,9 +29,9 @@ TODO: Update to test all functions in :mod:`metutils`
 import os, sys
 import unittest
 from numpy import array, arange, pi
-import NumpyTestCase
+from . import NumpyTestCase
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 

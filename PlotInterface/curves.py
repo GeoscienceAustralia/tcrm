@@ -14,7 +14,7 @@ define the line styles and annotations (font sizes, etc.).
 
 """
 
-from __future__ import division
+
 import logging
 import numpy as np
 

@@ -3,9 +3,9 @@
 =============================================
 
 """
-
-from urllib2 import urlopen, URLError
-from cStringIO import StringIO
+from urllib.request import urlopen
+from urllib.error import URLError
+from io import BytesIO
 from Utilities.config import ConfigParser
 from os.path import isfile, splitext, join as pjoin
 
@@ -57,9 +57,9 @@ class DataSet(object):
         try:
             urlfile = urlopen(self.url, timeout=5)
             meta = urlfile.info()
-            data = StringIO()
+            data = BytesIO()
 
-            size = int(meta.getheaders('Content-Length')[0])
+            size = int(meta['Content-Length'])
             done = 0
             while True:
                 buf = urlfile.read(8192)
@@ -139,5 +139,5 @@ if __name__ == '__main__':
     def status(fn, done, size):
         status = r"%s  %10d  [%3.2f%%]" % (fn, done, done * 100. / size)
         status = status + chr(8)*(len(status)+1)
-        print status,
+        print(status, end=' ')
     checkAndDownload(status)

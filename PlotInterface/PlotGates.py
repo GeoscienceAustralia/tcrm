@@ -50,8 +50,8 @@ lonmin = b*math.floor(min(lon)/b)
 lonmax = b*math.ceil(max(lon)/b)
 latmin = b*math.floor(min(lat)/b)
 latmax = b*math.ceil(max(lat)/b)
-meridian = (range(lonmin, lonmax+b, b))
-parallel = (range(latmin, latmax+b, b))
+meridian = (list(range(lonmin, lonmax+b, b)))
+parallel = (list(range(latmin, latmax+b, b)))
 prj = 'cyl'
 res = 'i'
 map = Basemap(projection=prj,

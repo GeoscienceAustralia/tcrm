@@ -66,7 +66,7 @@ def flProgramVersion(level=None):
         import inspect
         level = len(inspect.stack()) - 1
     f = sys._getframe(level)
-    if f.f_globals.has_key('__version__'):
+    if '__version__' in f.f_globals:
         return f.f_globals['__version__']
     else:
         return ''

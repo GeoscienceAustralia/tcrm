@@ -38,7 +38,7 @@ def replace(infile, outfile, replacements):
     fo = open(outfile, 'w')
     for line in fi:
         newline = line
-        for key, val in replacements.items():
+        for key, val in list(replacements.items()):
             newline = re.sub('{'+key+'}', val, newline)
 
         fo.write(newline)

@@ -12,12 +12,7 @@
 
 import os
 import subprocess
-from files import flModulePath, flModDate
-
-# Monkey patch check_output into subprocess for python 2.6.X
-if 'check_output' not in dir(subprocess):
-    import py26compat
-    subprocess.check_output = py26compat.check_output
+from .files import flModulePath, flModDate
 
 
 UPDATE_MSG = """
@@ -25,7 +20,7 @@ UPDATE_MSG = """
 Your TCRM version is not up-to-date. The last 3 things that
 have been fixed are:
 
-%s
+{0}
 
 To update your version of TCRM, try running:
 
@@ -65,7 +60,7 @@ def status():
         recent = git('log --pretty=format:" - %s (%ad)" --date=relative ' +
                      'origin/master HEAD~3..HEAD')
         if behind != 0:
-            msg = UPDATE_MSG % recent
+            msg = UPDATE_MSG.format(recent)
     except subprocess.CalledProcessError:
         pass
 

@@ -15,7 +15,7 @@ TCs are contained in a track file, then the output file contains the
 values from all events (for example, an annual maximum wind speed).
 
 Wind field calculations can be run in parallel using MPI if the
-:term:`pypar` library is found and TCRM is run using the
+:term:`mpi4py` library is found and TCRM is run using the
 :term:`mpirun` command. For example, to run with 10 processors::
 
     $ mpirun -n 10 python tcrm.py cairns.ini
@@ -35,7 +35,7 @@ import math
 import os
 import sys
 import tqdm
-import windmodels
+from . import windmodels
 from os.path import join as pjoin
 from collections import defaultdict
 
@@ -264,8 +264,8 @@ class WindfieldAroundTrack(object):
 
         nsteps = len(self.track.TimeElapsed)
 
-        for i in tqdm.tqdm(timesInRegion):
-            log.info("Calculating wind field at timestep {0} of {1}".format(i, nsteps))
+        for i in tqdm.tqdm(timesInRegion, disable=None):
+            log.debug("Calculating wind field at timestep {0} of {1}".format(i, nsteps))
             # Map the local grid to the regional grid
             # Set up max/min over the whole domain
             jmin, jmax = 0, int((maxLat - minLat + 2. * gridMargin) \
@@ -460,7 +460,7 @@ class WindfieldGenerator(object):
 
         results = (f(track, callback)[1] for track in trackiter)
 
-        gust, bearing, Vx, Vy, P, lon, lat = results.next()
+        gust, bearing, Vx, Vy, P, lon, lat = next(results)
 
         for result in results:
             gust1, bearing1, Vx1, Vy1, P1, lon1, lat1 = result
@@ -493,11 +493,11 @@ class WindfieldGenerator(object):
                                  specified locations.
         """
         if timeStepCallback:
-            results = itertools.imap(self.calculateExtremesFromTrack,
+            results = map(self.calculateExtremesFromTrack,
                                      trackiter,
                                      itertools.repeat(timeStepCallback))
         else:
-            results = itertools.imap(self.calculateExtremesFromTrack,
+            results = map(self.calculateExtremesFromTrack,
                                      trackiter)
 
         for track, result in results:
@@ -791,7 +791,7 @@ def balanced(iterable):
     only some magical slicing of the iterator, i.e., a poor man version of
     scattering.
     """
-    P, p = pp.size(), pp.rank()
+    P, p = MPI.COMM_WORLD.size, MPI.COMM_WORLD.rank
     return itertools.islice(iterable, p, None, P)
 
 
@@ -836,7 +836,8 @@ def run(configFile, callback=None):
     #    raise NotImplementedError 
     if config.getboolean('Timeseries', 'Extract', fallback=False):
         from Utilities.timeseries import Timeseries
-        timestepCallback = Timeseries(configFile).extract
+        ts = Timeseries(configFile)
+        timestepCallback = ts.extract
     else:
         timestepCallback = None
             
@@ -847,8 +848,9 @@ def run(configFile, callback=None):
     thetaMax = math.radians(thetaMax)
 
     # Attempt to start the track generator in parallel
-    global pp
-    pp = attemptParallel()
+    global MPI
+    MPI = attemptParallel()
+    comm = MPI.COMM_WORLD
 
     log.info('Running windfield generator')
 
@@ -878,15 +880,15 @@ def run(configFile, callback=None):
 
     # Do the work
 
-    pp.barrier()
+    comm.barrier()
 
     wfg.dumpGustsFromTrackfiles(trackfiles, windfieldPath, timestepCallback)
-
     try:
         ts.shutdown()
     except NameError:
+
         pass
 
-    pp.barrier()
+    comm.barrier()
 
     log.info('Completed windfield generator')

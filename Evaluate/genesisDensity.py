@@ -260,46 +260,46 @@ class GenesisDensity(object):
         work_tag = 0
         result_tag = 1
 
-        if (pp.rank() == 0) and (pp.size() > 1):
+        if (comm.rank == 0) and (comm.size > 1):
             w = 0
             n = 0
-            for d in range(1, pp.size()):
-                pp.send(trackfiles[w], destination=d, tag=work_tag)
+            for d in range(1, comm.size):
+                comm.Send(trackfiles[w], dest=d, tag=work_tag)
                 log.debug("Processing track file {0:d} of {1:d}".\
                           format(w, len(trackfiles)))
                 w += 1
 
             terminated = 0
-            while terminated < pp.size() - 1:
-                results, status = pp.receive(pp.any_source, tag=result_tag,
-                                             return_status=True)
+            while terminated < comm.size - 1:
+                results, status = comm.Recv(MPI.ANY_SOURCE, tag=result_tag,
+                                             status=True)
                 self.synHist[n, :, :] = results
                 n += 1
 
                 d = status.source
                 if w < len(trackfiles):
-                    pp.send(trackfiles[w], destination=d, tag=work_tag)
+                    comm.Send(trackfiles[w], dest=d, tag=work_tag)
                     log.debug("Processing track file {0:d} of {1:d}".\
                               format(w, len(trackfiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.Send(None, dest=d, tag=work_tag)
                     terminated += 1
 
             self.calculateMeans()
 
-        elif (pp.size() > 1) and (pp.rank() != 0):
+        elif (comm.size > 1) and (comm.rank != 0):
             while True:
-                trackfile = pp.receive(source=0, tag=work_tag)
+                trackfile = comm.Recv(source=0, tag=work_tag)
                 if trackfile is None:
                     break
 
-                log.debug("Processing %s", trackfile)
+                log.debug("Processing {0}".format(trackfile))
                 tracks = loadTracks(trackfile)
                 results = self._calculate(tracks) #/ self.synNumYears
-                pp.send(results, destination=0, tag=result_tag)
+                comm.Send(results, dest=0, tag=result_tag)
 
-        elif (pp.size() == 1) and (pp.rank() == 0):
+        elif (comm.size == 1) and (comm.rank == 0):
             for n, trackfile in enumerate(trackfiles):
                 log.debug("Processing track file {0:d} of {1:d}".\
                           format(n + 1, len(trackfiles)))
@@ -464,16 +464,16 @@ class GenesisDensity(object):
 
     def run(self):
         """Run the track density evaluation"""
-        global pp
-        pp = attemptParallel()
-
+        global MPI, comm
+        MPI = attemptParallel()
+        comm = MPI.COMM_WORLD
         self.historic()
 
-        pp.barrier()
+        comm.barrier()
 
         self.synthetic()
 
-        pp.barrier()
+        comm.barrier()
 
         self.plotGenesisDensity()
         self.plotGenesisDensityPercentiles()

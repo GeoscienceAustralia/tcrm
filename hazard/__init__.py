@@ -9,7 +9,7 @@ This module contains the core objects for the return period hazard
 calculation.
 
 Hazard calculations can be run in parallel using MPI if the
-:term:`pypar` library is found and TCRM is run using the
+:term:`mpi4py` library is found and TCRM is run using the
 :term:`mpirun` command. For example, to run with 10 processors::
 
     mpirun -n 10 python tcrm.py cairns.ini
@@ -35,8 +35,8 @@ from Utilities.files import flProgramVersion
 from Utilities.config import ConfigParser
 from Utilities.parallel import attemptParallel, disableOnWorkers
 import Utilities.nctools as nctools
-from evd import EVFUNCS
-import GPD
+from .evd import EVFUNCS
+from . import GPD
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -145,8 +145,8 @@ class TileGrid(object):
         self.y_end = np.zeros(self.num_tiles, 'i')
         k = 0
 
-        for i in xrange(subset_maxcols):
-            for j in xrange(subset_maxrows):
+        for i in range(subset_maxcols):
+            for j in range(subset_maxrows):
                 self.x_start[k] = i * self.xstep + self.imin
                 self.x_end[k] = min((i + 1) * self.xstep + self.imin,
                                     self.xdim + self.imin) - 1
@@ -328,34 +328,30 @@ class HazardCalculator(object):
         :param tileiter: generator that yields tuples of tile dimensions.
 
         """
-
+        status = MPI.Status()
         work_tag = 0
         result_tag = 1
-        if (pp.rank() == 0) and (pp.size() > 1):
+        if (comm.rank == 0) and (comm.size > 1):
             w = 0
-            p = pp.size() - 1
-            for d in range(1, pp.size()):
+            p = comm.size - 1
+            for d in range(1, comm.size):
                 if w < len(tiles):
-                    pp.send(tiles[w], destination=d, tag=work_tag)
+                    comm.send(tiles[w], dest=d, tag=work_tag)
                     log.debug("Processing tile %d of %d" % (w, len(tiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=work_tag)
                     p = w
 
-
             terminated = 0
-
             while(terminated < p):
 
-                result, status = pp.receive(pp.any_source, tag=result_tag,
-                                             return_status=True)
+                result = comm.recv(source=MPI.ANY_SOURCE, status=status, tag=MPI.ANY_TAG)
 
                 if self.calcCI:
                     limits, Rp, loc, scale, shp, RPupper, RPlower = result
                 else:
                     limits, Rp, loc, scale, shp = result
-
 
                 # Reset the min/max bounds for the output array:
                 (xmin, xmax, ymin, ymax) = limits
@@ -376,26 +372,29 @@ class HazardCalculator(object):
                 d = status.source
 
                 if w < len(tiles):
-                    pp.send(tiles[w], destination=d, tag=work_tag)
+                    comm.send(tiles[w], dest=d, tag=status.tag)
                     log.debug("Processing tile %d of %d" % (w, len(tiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=status.tag)
                     terminated += 1
 
                 log.debug("Number of terminated threads is %d"%terminated)
                 if progressCallback:
                     progressCallback(w)
 
-        elif (pp.size() > 1) and (pp.rank() != 0):
+        elif (comm.size > 1) and (comm.rank != 0):
+            status = MPI.Status()
+            W = None
             while(True):
-                W = pp.receive(source=0, tag=work_tag)
+                W = comm.recv(source=0, tag=work_tag, status=status)
                 if W is None:
+                    log.debug("No work to be done on this processor: {0}".format(comm.rank))
                     break
                 results = self.calculateHazard(W)
-                pp.send(results, destination=0, tag=result_tag)
+                comm.send(results, dest=0, tag=status.tag)
 
-        elif pp.size() == 1 and pp.rank() == 0:
+        elif comm.size == 1 and comm.rank == 0:
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
             for i, tile in enumerate(tiles):
                 log.debug("Processing tile %d of %d" % (i, len(tiles)))
@@ -604,8 +603,8 @@ def calculateGEV(Vr, years, nodata, minRecords, yrsPerSim):
     scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
     shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
 
-    for i in xrange(Vr.shape[1]): # lat
-        for j in xrange(Vr.shape[2]): # lon
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
                 w, l, sc, sh = evd.gevfit(Vr[:,i,j], years, nodata,
                                           minRecords, yrsPerSim)
@@ -655,8 +654,8 @@ def calculateEMP(Vr, years, numsim, nodata, minRecords, yrsPerSim):
     scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
     shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
 
-    for i in xrange(Vr.shape[1]): # lat
-        for j in xrange(Vr.shape[2]): # lon
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
                 w, l, sc, sh = evd.empfit(Vr[:,i,j], years, numsim, nodata,
                                           minRecords)
@@ -709,8 +708,8 @@ def calculateGPD(Vr, years, numsim, nodata, minRecords, yrsPerSim):
     scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
     shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
 
-    for i in xrange(Vr.shape[1]): # lat
-        for j in xrange(Vr.shape[2]): # lon
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
                 log.debug("lat: {0}, lon: {1}".format(i, j))
                 w, l, sc, sh = GPD.gpdfit(Vr[:,i,j],
@@ -766,8 +765,8 @@ def calculatePower(Vr, years, numsim, nodata, minRecords, yrsPerSim):
     scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
     shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
 
-    for i in xrange(Vr.shape[1]): # lat
-        for j in xrange(Vr.shape[2]): # lon
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
                 log.debug("lat: {0}, lon: {1}".format(i, j))
                 w, l, sc, sh = evd.powerfit(Vr[:,i,j],
@@ -831,11 +830,11 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
     wUpper = np.zeros((len(years)), dtype='f')
     wLower = np.zeros((len(years)), dtype='f')
 
-    for i in xrange(Vr.shape[1]): # lat
-        for j in xrange(Vr.shape[2]): # lon
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
             if Vr[:, i, j].max() > 0.0: # check for valid data
                 random.shuffle(Vr[:, i, j]) # shuffle the years
-                for n in xrange(nsamples): # iterate through fitting of random samples
+                for n in range(nsamples): # iterate through fitting of random samples
                     nstart = n*sample_size
                     nend  = (n + 1)*sample_size - 1
                     vsub = Vr[nstart:nend, i, j] # select random 50(default) events
@@ -872,7 +871,7 @@ def aggregateWindFields(inputPath, numSimulations, tilelimits):
     xsize = tilelimits[1] - tilelimits[0]
     Vm = np.zeros((numSimulations, ysize, xsize), dtype='f')
 
-    for year in xrange(numSimulations):
+    for year in range(numSimulations):
         filespec = pjoin(inputPath, "gust.*-%05d.nc"%year)
         fileList = glob(filespec)
         if len(fileList) == 0:
@@ -951,7 +950,7 @@ def getTiles(tilegrid):
     :param tilegrid: :class:`TileGrid` instance
     """
 
-    tilenums = range(tilegrid.num_tiles)
+    tilenums = list(range(tilegrid.num_tiles))
     return getTileLimits(tilegrid, tilenums)
 
 def getTileLimits(tilegrid, tilenums):
@@ -997,9 +996,9 @@ def run(configFile, callback=None):
 
     wf_lon, wf_lat = setDomain(inputPath)
 
-    global pp
-    pp = attemptParallel()
-
+    global MPI, comm
+    MPI = attemptParallel()
+    comm = MPI.COMM_WORLD
     log.info("Running hazard calculations")
     TG = TileGrid(gridLimit, wf_lon, wf_lat)
     tiles = getTiles(TG)
@@ -1007,7 +1006,7 @@ def run(configFile, callback=None):
     #def progress(i):
     #    callback(i, len(tiles))
 
-    pp.barrier()
+    comm.barrier()
     hc = HazardCalculator(configFile, TG,
                           numsimulations,
                           minRecords,
@@ -1020,8 +1019,8 @@ def run(configFile, callback=None):
 
 
     hc.dumpHazardFromTiles(tiles)
-
-    pp.barrier()
+    log.debug("Finished hazard calculations")
+    comm.barrier()
 
     hc.saveHazard()
 

@@ -1,0 +1,4 @@
+include input/*
+include MSLP/*.nc
+include docs/*.rst
+include tests/test_data/*

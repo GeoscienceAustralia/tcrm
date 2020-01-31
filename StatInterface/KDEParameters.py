@@ -12,6 +12,11 @@ estimation) of given cyclone parameters (speed, pressure, bearing, etc).
 Each of these PDF's is converted to a cumulative density function for
 use in other sections.
 
+.. note:: In changing from the previous KPDF module to statsmodels, the 
+          bandwidth calculation gives substantially different values for
+          univariate data. For test data, the updated functions give a 
+          smaller bandwidth value compared to KPDF.
+
 """
 
 import os
@@ -20,7 +25,10 @@ import logging
 
 import numpy as np
 import Utilities.stats as stats
-import Utilities.KPDF as KPDF
+
+from statsmodels.nonparametric.kde import kernel_switch
+import statsmodels.nonparametric.bandwidths as smbw
+import statsmodels.api as sm
 
 from Utilities.files import flLoadFile, flSaveFile
 from Utilities.config import cnfGetIniValue
@@ -41,23 +49,26 @@ class KDEParameters(object):
 
     """
 
+
     def __init__(self, kdeType):
         """
         Initialize the logger and ensure the requested KDE type exists.
-
+        
+        This uses the `statsmodels.nonparametric.kernel_density` library
+        
         """
         LOG.info("Initialising KDEParameters")
-
-        if hasattr(KPDF, "UPDF%s" %kdeType):
-            LOG.debug("Using %s to generate distribution", kdeType)
+        kernels = kernel_switch.keys()
+        if kdeType in kernels:
+            LOG.debug("Using {0} to generate distribution".format(kdeType))
             self.kdeType = kdeType
         else:
-            LOG.error("Invalid KDE type: %s", kdeType)
-            raise NotImplementedError("Invalid KDE type: %s" % kdeType)
+            LOG.error("Invalid kernel type: {0}".format(kdeType))
+            raise NotImplementedError("Invalid kernel type: {0}".format(kdeType))
 
     def generateKDE(self, parameters, kdeStep, kdeParameters=None,
                     cdfParameters=None, angular=False, periodic=False,
-                    missingValue=sys.maxint):
+                    missingValue=sys.maxsize):
         """
         Generate a PDF and CDF for a given parameter set using the
         method of kernel density estimators. Optionally return the PDF
@@ -135,7 +146,8 @@ class KDEParameters(object):
                          xmin, xmax, kdeStep)
             raise ValueError
 
-        bw = KPDF.UPDFOptimumBandwidth(self.parameters)
+        #bw = KPDF.UPDFOptimumBandwidth(self.parameters)
+        bw = stats.bandwidth(self.parameters)
         self.pdf = self._generatePDF(self.grid, bw, self.parameters)
 
         if periodic:
@@ -180,16 +192,22 @@ class KDEParameters(object):
         ndata = np.concatenate([data - 365, data, data + 365])
 
         if bw is None:
-            bw = KPDF.UPDFOptimumBandwidth(ndata)
+            bw = stats.bandwidth(self.parameters)
 
-        try:
-            kdeMethod = getattr(KPDF, "UPDF%s" % self.kdeType)
-        except AttributeError:
-            LOG.exception(("Invalid input on option: "
-                           "KDE method UPDF%s does not exist"),
-                          self.kdeType)
-            raise
-        pdf = kdeMethod(ndata, ndays, bw)
+        kde = sm.nonparametric.KDEUnivariate(self.parameters)
+        kde.fit(kernel=self.kdeType, bw=bw, fft=False, 
+                gridsize=len(grid), clip=(min(grid), max(grid)), cut=0)
+        #try:
+        #    kdeMethod = getattr(KPDF, "UPDF%s" % self.kdeType)
+        #except AttributeError:
+        #    LOG.exception(("Invalid input on option: "
+        #                   "KDE method UPDF%s does not exist"),
+        #                  self.kdeType)
+        #    raise
+            
+        veceval = np.vectorize(kde.evaluate)
+        pdf = np.nan_to_num(veceval(grid))
+        
         # Actual PDF to return
         apdf = 3.0*pdf[365:730]
         cy = stats.cdf(days, apdf)
@@ -211,15 +229,24 @@ class KDEParameters(object):
             LOG.critical("bw = %d. Bandwidth cannot be negative or zero", bw)
             raise ValueError('bw = %d. Bandwidth cannot be negative or zero'%bw)
 
-        try:
-            kdeMethod = getattr(KPDF, "UPDF%s" %self.kdeType)
-        except AttributeError:
-            LOG.exception(("Invalid input on option: "
-                           "KDE method UPDF%s does not exist"),
-                          self.kdeType)
-            raise
+        kde = sm.nonparametric.KDEUnivariate(dataset)
 
-        return kdeMethod(dataset, grid, bw)
+        kde.fit(kernel=self.kdeType, fft=False, 
+                gridsize=len(grid), clip=(min(grid), max(grid)), cut=0)
+        veceval = np.vectorize(kde.evaluate)
+        pdf = veceval(grid)
+        return np.nan_to_num(pdf)
+        
+        #try:
+        #    
+        #    #kdeMethod = getattr(KPDF, "UPDF%s" %self.kdeType)
+        #except AttributeError:
+        #    LOG.exception(("Invalid input on option: "
+        #                   "KDE method UPDF%s does not exist"),
+        #                  self.kdeType)
+        #    raise
+
+        #return kdeMethod(dataset, grid, bw)
 
 if __name__ == "__main__":
     try:
@@ -231,7 +258,7 @@ if __name__ == "__main__":
         if not os.path.exists(configFile):
             error_msg = ("No configuration file specified, please type: "
                          "python main.py {config filename}.ini")
-            raise IOError, error_msg
+            raise IOError(error_msg)
     # If config file doesn't exist => raise error
     if not os.path.exists(configFile):
         error_msg = "Configuration file '" + configFile +"' not found"
