@@ -170,7 +170,7 @@ class TestProcessMultipliers(unittest.TestCase):
         delta = lon[1] - lon[0]
         lon_mid = lon + delta / 2.
         lat_mid = lat + delta / 2.
-        speed = np.zeros(([lon.shape[0], lat.shape[0]]))
+        speed = np.zeros(([lat.shape[0], lon.shape[0]]))
         speed.fill(42.5)
 
         # doing this just to get values in
