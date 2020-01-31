@@ -24,7 +24,7 @@ import database
 import numpy as np
 import numpy.ma as ma
 import matplotlib
-matplotlib.use('Agg', warn=False)
+matplotlib.use('Agg')
 
 from os.path import join as pjoin
 

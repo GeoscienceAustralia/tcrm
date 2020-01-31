@@ -20,7 +20,7 @@ from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
 
 import matplotlib
-matplotlib.use('Agg', warn=False)
+matplotlib.use('Agg')
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
