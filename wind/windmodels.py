@@ -275,8 +275,9 @@ class JelesnianskiWindProfile(WindProfileModel):
 
         """
         rr = R * 1000.
-        Z = (np.sign(self.f) * 2 * self.vMax * self.rMax / (self.rMax
-             ** 2 + rr ** 2) + np.sign(self.f) * 2 * self.vMax *
+        Z = (np.sign(self.f) * 2 * self.vMax * 
+             self.rMax / (self.rMax ** 2 + rr ** 2) + 
+             np.sign(self.f) * 2 * self.vMax *
              self.rMax * (self.rMax ** 2 - rr ** 2) /
              (self.rMax ** 2 + rr ** 2) ** 2)
         return Z
@@ -330,7 +331,8 @@ class HollandWindProfile(WindProfileModel):
         try:
             assert d2Vm < 0.0
         except AssertionError:
-            log.critical("Pressure deficit: {0:.2f} hPa, RMW: {1:%2f} km".format(dP/100., rMax/1000.))
+            log.critical(("Pressure deficit: {0:.2f} hPa,"
+                          " RMW: {1:%2f} km".format(dP/100., rMax/1000.)))
             raise
 
         return d2Vm
@@ -349,7 +351,7 @@ class HollandWindProfile(WindProfileModel):
 
         dVm = (-np.abs(f)/2 + (E*(f**2)*rMax*np.sqrt((4*beta*dP/rho)/E + \
                                                      (f*rMax)**2))/ \
-                  (2*(4*beta*dP/rho + E*(f*rMax)**2)))
+               (2*(4*beta*dP/rho + E*(f*rMax)**2)))
         return dVm
 
     def velocity(self, R):
@@ -374,9 +376,9 @@ class HollandWindProfile(WindProfileModel):
         delta = (self.rMax / R) ** self.beta
         edelta = np.exp(-delta)
 
-        V = (np.sqrt((self.dP * self.beta / self.rho)
-             * delta * edelta + (R * self.f / 2.) ** 2) - R *
-             np.abs(self.f) / 2.)
+        V = (np.sqrt((self.dP * self.beta / self.rho) *
+                     delta * edelta + (R * self.f / 2.) ** 2) -
+             R * np.abs(self.f) / 2.)
 
         icore = np.where(R <= self.rMax)
         V[icore] = (R[icore] * (R[icore] * (R[icore] * aa + bb) + cc))
@@ -387,7 +389,7 @@ class HollandWindProfile(WindProfileModel):
         """
         Calculate the vorticity associated with the (gradient level)
         vortex. 
-        
+
         :param R: :class:`numpy.ndarray` of distance of grid from
                   the TC centre (metres).
 
@@ -708,9 +710,6 @@ class DoubleHollandWindProfile(WindProfileModel):
 
         """
 
-        rm = self.rMax * 1000.
-        rm2 = self.rMax2 * 1000.
-        rr = R*1000.
         # Scale dp2 if dP is less than 1500 Pa:
         if self.dP < 1500.:
             dp2 = (self.dP / 1500.) * (800. + (self.dP - 800.) / 2000.)
