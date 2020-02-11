@@ -34,7 +34,6 @@ environment settings. The important variable to set is the
 ``PYTHONPATH`` variable. This should be set to the path where you have
 extracted the contents of the zip file. In the examples below, change
 ``/path/to/tcrm`` to the location where you extracted the TCRM files.
-For ``conda`` installation, this may not be necessary.
 
 A complete discussion on environment variables in Python is given in
 the `Python documentation
@@ -122,39 +121,23 @@ the ``$PATH`` for this to work.
 Using Anaconda
 ~~~~~~~~~~~~~~
 
-To install ``tcrm`` in Linux it is preffered to make a new environment (perhaps call tcrm)
+To install ``tcrm``, make a new environment:
 
 .. code-block:: bash
 
-    conda create -n tcrm
+    conda env create -f tcrmenv.yml
 
-After creating the environment user need to move to that environment using the command
+After creating the environment the user needs to move to that environment using the command
 
 .. code-block:: bash
 
      conda activate tcrm
 
-The bash promt will look like::
+The bash promt will look like
+
+.. code-block::
 
     (tcrm) user@server:~/tcrm$
-
-TCRM depends on several libraries that need to be installed.
-
-.. code-block:: bash
-
-    conda install -c conda-forge gdal==3.0.2
-    conda install -c conda-forge xarray statsmodels scipy seaborn shapely
-    conda install -c conda-forge cartopy netcdf4
-    conda install -c conda-forge tqdm imageio
-    conda install -c conda-forge affine
-
-Some libraries are easier to install with `pip
-<https://pip.readthedocs.org/en/latest/>`_.
-
-.. code-block:: bash
-
-    pip install pyyaml
-    pip install gitpython
 
 
 Windows
