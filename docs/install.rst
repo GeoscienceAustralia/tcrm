@@ -3,15 +3,14 @@
 Installation
 ============
 
-Installing TCRM is intended to be a simple process, requiring only a
-small amount of compilation and basic understanding of command line
-operations. TCRM has been installed and (lightly) tested on a range of
-unix-based systems, Windows and Mac OS/X systems.
+Installing TCRM is intended to be a simple process, requiring only basic
+understanding of command line operations. TCRM has been installed and (lightly)
+tested on a range of unix-based systems, Windows and Mac OS/X systems.
 
 .. _downloading:
 
 Downloading
-----------
+-----------
 
 The TCRM code can be downloaded from the `Geoscience Australia GitHub
 page <https://github.com/GeoscienceAustralia/tcrm>`_.
@@ -28,7 +27,7 @@ TCRM.
 .. _environment:
 
 Setting the environment
-----------------------
+-----------------------
 
 To enable TCRM to run correctly, you may need to change some
 environment settings. The important variable to set is the
@@ -39,6 +38,7 @@ extracted the contents of the zip file. In the examples below, change
 A complete discussion on environment variables in Python is given in
 the `Python documentation
 <https://docs.python.org/2/using/cmdline.html#environment-variables>`_.
+
 
 Windows
 ~~~~~~~
@@ -52,7 +52,7 @@ variables on different Windows systems.
 BASH shell
 ~~~~~~~~~~
 
-::
+.. code-block:: bash
 
     export PYTHONPATH=$PYTHONPATH:/path/to/tcrm:/path/to/tcrm/Utilities
 
@@ -60,18 +60,15 @@ BASH shell
 CSH/TCSH shell
 ~~~~~~~~~~~~~~
 
-::
+.. code-block:: tcsh
 
     setenv PYTHONPATH $PYTHONPATH:/path/to/tcrm:/path/to/tcrm/Utilities
-
-
-
 
 
 .. _dependencies:
 
 Dependencies
------------
+------------
 
 TCRM relies on a number of additional libraries that are not part of
 the standard library. There are several ways to obtain the required
@@ -79,7 +76,7 @@ libraries -- using Python's recommended tool `pip
 <https://pip.readthedocs.org/en/latest/>`_, installing a distribution
 such as `Python(x,y) package <http://code.google.com/p/pythonxy/>`_
 (for Windows environments) or `Anaconda
-<https://store.continuum.io/cshop/anaconda/>`_ (cross-platform), or
+<https://www.anaconda.com/distribution/#download-section>`_ (cross-platform), or
 installing the libraries from source or binary installers
 (pre-compiled binary Windows installer versions for all the libraries
 (both 32-bit and 64-bit) can be obtained `here
@@ -88,7 +85,7 @@ installing the libraries from source or binary installers
 For detailed instructions on installation of these dependencies,
 please see the documentation for each individual library.
 
-* `Python <https://www.python.org/>`_ - v2.7 preferred
+* `Python <https://www.python.org/>`_ - v3.5 or later
 * `Numpy <http://www.numpy.org/>`_ - v1.6 or later
 * `Scipy <http://www.scipy.org/>`_ - v0.12 or later
 * `Matplotlib <http://matplotlib.org/>`_ v1.2 or later. 
@@ -108,9 +105,11 @@ Using pip
 
 If you have `pip <https://pip.readthedocs.org/en/latest/>`_ installed,
 the required modules can be installed using the following command,
-executed in the main TCRM directory::
+executed in the main TCRM directory
 
-   pip -v install -r requirements.txt
+.. code-block:: bash
+
+    pip -v install -r requirements.txt
 
 This will automatically build the required libraries (listed in the
 ``requirements.txt`` file) and any dependencies. ``pip`` must be on
@@ -118,63 +117,27 @@ the ``$PATH`` for this to work.
 
 .. _compilation:
 
-Compiling the extensions
-------------------------
 
-The model requires a number of C extensions to be compiled before
-execution. These can be built using Python's inbuilt :mod:`distutils`
-module.
+Using Anaconda
+~~~~~~~~~~~~~~
 
+To install ``tcrm``, make a new environment:
 
-Unix
-~~~~
-From the base directory, execute the build process::
+.. code-block:: bash
 
-    python installer/setup.py build_ext -i
+    conda env create -f tcrmenv.yml
 
-Ubuntu
-~~~~~~
-The github branch issue_25 (created from the v2.0 branch) had an environment created by `installing miniconda
-<https://conda.io/docs/install/quick.html#linux-miniconda-install>`_ and executing the following commands::
+After creating the environment the user needs to move to that environment using the command
 
-        ~/miniconda2/bin/conda create --name tcrm
-        ~/miniconda2/bin/source activate tcrm
-        ~/miniconda2/bin/conda install numpy
-        ~/miniconda2/bin/conda install scipy
-        ~/miniconda2/bin/conda install matplotlib
-        ~/miniconda2/bin/conda install basemap
-        ~/miniconda2/bin/conda install netcdf4
-        ~/miniconda2/bin/conda install shapely
-        ~/miniconda2/bin/conda install Tornado
-        ~/miniconda2/bin/conda install statsmodel
-        ~/miniconda2/bin/conda install seaborn
-        ~/miniconda2/bin/pip --proxy=http://localhost:3128 install simplejson
+.. code-block:: bash
 
+     conda activate tcrm
 
-The following libraries were needed to compile the C extensions, and run the unit tests::
+The bash promt will look like
 
-    sudo apt install libgl1-mesa-glx
-    sudo apt-get install python-numpy-dev
+.. code-block::
 
-The C extensions were compiled from the trcm directory with::
-
-        (tcrm) user@server:~/tcrm$ python intaller/setup.py build_ext -i
-
-An error occurred where the include file seems to have changed paths. It may be a one off,
-or it may reoccur in another version of Linux. The error was in KPDF.c and the change was to
-comment out one line and replace it with another.::
-
-        #include "numpy/arrayobject.h"
-        /* #include "arrayobject.h" */
-
-A requiremements file was created in the root directory called ``linux_v20.yml`` and should (it hasn't been tested)
-replace the ``conda install`` commands above. The command to use this file is::
-
-        conda env create -f linux_v20.yml
-
-Activating the environment would be::
-
-        source activate linux_v20
+    (tcrm) user@server:~/tcrm$
 
 
 Windows
@@ -199,7 +162,7 @@ installations.
 .. _testing:
 
 Testing the installation
------------------------
+------------------------
 
 The model code includes a suite of unit tests that ensure elements of
 the code base will work as expected, even if a user makes
@@ -207,7 +170,9 @@ modificaitons to the code.
 
 The test suite can be run from the main directory. On Windows, run the
 ``run_test_all.cmd`` script from the main TCRM directory. On Unix, use
-the command::
+the command
+
+.. code-block:: bash
 
     python ./tests/run.py
 
@@ -254,7 +219,9 @@ system.
 Test the installation
 ~~~~~~~~~~~~~~~~~~~~~
 
-Run this command ::
+Run this command
+
+.. code-block:: bash
 
     docker run olivierdalang/tcrm nosetests --exe
 
@@ -269,7 +236,9 @@ To run TCRM though Docker, you need to mount a folders containing your
 inputs and the output folder in the container.
 
 This can be done like this (assuming you have a my_conf.ini file in
-a folder) ::
+a folder)
+
+.. code-block:: bash
 
     docker run -v /path_to/my_data_folder:/home/src/mount -v /path_to/my_output_folder:/home/src/output olivierdalang/tcrm python tcevent.py -v -c mount/my_conf.ini
 
@@ -283,13 +252,15 @@ take some time.
 Developement
 ~~~~~~~~~~~~
 
-You can also use Docker when developping TCRM by mounting the source::
+You can also use Docker when developping TCRM by mounting the source
+
+.. code-block:: bash
 
     git checkout https://github.com/GeoscienceAustralia/tcrm.git
     cd tcrm
     docker run -v ${PWD}:/home/src olivierdalang/tcrm python tcevent.py -c example/yasi.ini
 
-If you wish to make changes to the builds steps or dependencies, you need to rebuild the image locally ::
+If you wish to make changes to the builds steps or dependencies, you need to rebuild the image locally
 
     docker build -t olivierdalang/tcrm .
 
@@ -297,7 +268,9 @@ Releases
 ~~~~~~~~
 
 For users to be able to use the docker image out of the box without having to rebuild it locally,
-the image must be pushed to the docker hub repository like this ::
+the image must be pushed to the docker hub repository like this
+
+.. code-block:: bash
 
     docker build -t olivierdalang/tcrm .
     docker login
