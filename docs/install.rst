@@ -262,6 +262,8 @@ You can also use Docker when developping TCRM by mounting the source
 
 If you wish to make changes to the builds steps or dependencies, you need to rebuild the image locally
 
+.. code-block:: bash
+
     docker build -t olivierdalang/tcrm .
 
 Releases
