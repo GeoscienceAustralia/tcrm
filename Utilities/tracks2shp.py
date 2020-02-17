@@ -18,13 +18,11 @@ import logging
 LOG = logging.getLogger(__name__)
 
 # For all observation points/line segments:
-OBSFIELD_NAMES = ('Indicator', 'TCID', 'Year', 'Month',
-                  'Day', 'Hour', 'Minute', 'TElapsed', 'Longitude',
-                  'Latitude', 'Speed', 'Bearing', 'Pcentre',
-                  'MaxWind', 'rMax', 'Penv')
-OBSFIELD_TYPES = ('N',)*16
-OBSFIELD_WIDTH = (1, 6, 4, 2, 2, 2, 2, 6, 7, 7, 6, 6, 7, 6, 6, 7)
-OBSFIELD_PREC =  (0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 1)
+OBSFIELD_NAMES = ('CycloneNumber', 'TimeElapsed', 'Longitude', 'Latitude',
+                  'Speed', 'Bearing', 'CentralPressure', 'EnvPressure', 'rMax')
+OBSFIELD_TYPES = ('N',) * 9
+OBSFIELD_WIDTH = (1, 6, 8, 8, 8, 8, 8, 8, 8)
+OBSFIELD_PREC =  (0, 2, 4, 4, 4, 4, 3, 3, 4)
 
 OBSFIELDS = [[n, t, w, p] for n, t, w, p in zip(OBSFIELD_NAMES,
                                                 OBSFIELD_TYPES,
@@ -32,11 +30,10 @@ OBSFIELDS = [[n, t, w, p] for n, t, w, p in zip(OBSFIELD_NAMES,
                                                 OBSFIELD_PREC)]
 
 # For storing events as a single polyline:
-EVENTFIELD_NAMES = ('TCID', 'Year', 'Month', 'Day', 'Hour', 'Minute', 'Age',
-                    'MinCP', 'MaxWind' )
-EVENTFIELD_TYPES = ('N',)*9
-EVENTFIELD_WIDTH = (6, 4, 2, 2, 2, 2, 6, 7, 7)
-EVENTFIELD_PREC =  (0, 0, 0, 0, 0, 0, 2, 2, 1)
+EVENTFIELD_NAMES = ('CycloneNumber', 'TimeElaspsed', 'Age', 'MinCP')
+EVENTFIELD_TYPES = ('N',) * 4
+EVENTFIELD_WIDTH = (1, 6, 6, 7)
+EVENTFIELD_PREC =  (0, 2, 2, 2)
 
 EVENTFIELDS = [[n, t, w, p] for n, t, w, p in zip(EVENTFIELD_NAMES,
                                                   EVENTFIELD_TYPES,
@@ -158,17 +155,10 @@ def tracks2line(tracks, outputFile, dissolve=False):
 
 
             minPressure = track.trackMinPressure
-            maxWind = track.trackMaxWind
 
             age = track.TimeElapsed.max()
 
-            startYear = track.Year[0]
-            startMonth = track.Month[0]
-            startDay = track.Day[0]
-            startHour = track.Hour[0]
-            startMin = track.Minute[0]
-            record = [track.CycloneNumber[0], startYear, startMonth, startDay,
-                      startHour, startMin, age, minPressure, maxWind]
+            record = [track.CycloneNumber[0], track.TimeElapsed[0], age, minPressure]
             sf.record(*record)
 
         else:
