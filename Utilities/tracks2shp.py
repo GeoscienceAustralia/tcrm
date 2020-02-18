@@ -21,7 +21,7 @@ LOG = logging.getLogger(__name__)
 OBSFIELD_NAMES = ('CycloneNumber', 'TimeElapsed', 'Longitude', 'Latitude',
                   'Speed', 'Bearing', 'CentralPressure', 'EnvPressure', 'rMax')
 OBSFIELD_TYPES = ('N',) * 9
-OBSFIELD_WIDTH = (1, 6, 8, 8, 8, 8, 8, 8, 8)
+OBSFIELD_WIDTH = (2, 6, 8, 8, 8, 8, 8, 8, 8)
 OBSFIELD_PREC =  (0, 2, 4, 4, 4, 4, 3, 3, 4)
 
 OBSFIELDS = [[n, t, w, p] for n, t, w, p in zip(OBSFIELD_NAMES,
@@ -32,7 +32,7 @@ OBSFIELDS = [[n, t, w, p] for n, t, w, p in zip(OBSFIELD_NAMES,
 # For storing events as a single polyline:
 EVENTFIELD_NAMES = ('CycloneNumber', 'TimeElaspsed', 'Age', 'MinCP')
 EVENTFIELD_TYPES = ('N',) * 4
-EVENTFIELD_WIDTH = (1, 6, 6, 7)
+EVENTFIELD_WIDTH = (2, 6, 6, 7)
 EVENTFIELD_PREC =  (0, 2, 2, 2)
 
 EVENTFIELDS = [[n, t, w, p] for n, t, w, p in zip(EVENTFIELD_NAMES,
@@ -256,13 +256,16 @@ if __name__ == '__main__':
     line_output_file = filename + '_line.shp'
     dissolve_output_file = filename + '_dissolve.shp'
 
-    if track_file.endswith("nc"):
+    if track_file.endswith(".nc"):
+
         from Utilities.track import ncReadTrackData
         tracks = ncReadTrackData(track_file)
-    else:
+
+    elif track_file.endswith(".csv"):
         tracks = loadTrackFile(config_file, track_file, source,
                                calculateWindSpeed=True)
-
+    else:
+        raise ValueError("format of {} is not recognizable".format(track_file))
 
     tracks2point(tracks, pt_output_file)
     tracks2line(tracks, line_output_file)
