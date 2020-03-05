@@ -21,10 +21,10 @@ LOG = logging.getLogger(__name__)
 OBSFIELD_NAMES = ('Indicator', 'TCID', 'Year', 'Month',
                   'Day', 'Hour', 'Minute', 'TElapsed', 'Longitude',
                   'Latitude', 'Speed', 'Bearing', 'Pcentre',
-                  'MaxWind', 'rMax', 'Penv')
-OBSFIELD_TYPES = ('N',)*16
-OBSFIELD_WIDTH = (1, 6, 4, 2, 2, 2, 2, 6, 7, 7, 6, 6, 7, 6, 6, 7)
-OBSFIELD_PREC =  (0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 1)
+                  'MaxWind', 'rMax', 'Penv', 'Category')
+OBSFIELD_TYPES = ('N',)*17
+OBSFIELD_WIDTH = (1, 6, 4, 2, 2, 2, 2, 6, 7, 7, 6, 6, 7, 6, 6, 7, 1)
+OBSFIELD_PREC =  (0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 1, 0)
 
 OBSFIELDS = [[n, t, w, p] for n, t, w, p in zip(OBSFIELD_NAMES,
                                                 OBSFIELD_TYPES,
@@ -32,10 +32,11 @@ OBSFIELDS = [[n, t, w, p] for n, t, w, p in zip(OBSFIELD_NAMES,
                                                 OBSFIELD_PREC)]
 
 TCRM_FIELD_NAMES = ('CycloneNumber', 'TimeElapsed', 'Longitude', 'Latitude',
-                    'Speed', 'Bearing', 'CentralPressure', 'EnvPressure', 'rMax')
-TCRM_FIELD_TYPES = ('N',) * 9
-TCRM_FIELD_WIDTH = (2, 6, 9, 9, 8, 8, 8, 8, 8)
-TCRM_FIELD_PREC =  (0, 2, 4, 4, 4, 4, 3, 3, 4)
+                    'Speed', 'Bearing', 'CentralPressure', 'EnvPressure',
+                    'rMax','Category')
+TCRM_FIELD_TYPES = ('N',) * 10
+TCRM_FIELD_WIDTH = (2, 6, 9, 9, 8, 8, 8, 8, 8, 1)
+TCRM_FIELD_PREC =  (0, 2, 4, 4, 4, 4, 3, 3, 4, 0)
 
 TCRM_FIELDS = [[n, t, w, p] for n, t, w, p in zip(TCRM_FIELD_NAMES,
                                                   TCRM_FIELD_TYPES,
@@ -77,6 +78,40 @@ def recdropfields(rec, names):
         newrec[field] = rec[field]
 
     return newrec
+
+
+def add_field(a, descr):
+    """
+    Add a field to the description of a track.
+    """
+    if a.dtype.fields is None:
+        raise ValueError("`A' must be a structured numpy array")
+    b = np.empty(a.shape, dtype=a.dtype.descr + descr)
+    for name in a.dtype.names:
+        b[name] = a[name]
+    return b
+
+
+def add_category(tracks):
+    """
+    Add a category field (for central pressure) to the tracks.
+    """
+    for track in tracks:
+        track.data = add_field(track.data, [('Category', int)])
+
+        for rec in track.data:
+            if rec["CentralPressure"] < 930:
+                rec["Category"] = 5
+            elif rec["CentralPressure"] < 955:
+                rec["Category"] = 4
+            elif rec["CentralPressure"] < 970:
+                rec["Category"] = 3
+            elif rec["CentralPressure"] < 985:
+                rec["Category"] = 2
+            elif rec["CentralPressure"] < 999:
+                rec["Category"] = 1
+            else:
+                rec["Category"] = 0
 
 
 def tracks2point(tracks, outputFile, netcdf_format=False):
@@ -151,6 +186,7 @@ def tracks2line(tracks, outputFile, dissolve=False, netcdf_format=False):
 
     for track in tracks:
         track.data = recdropfields(track.data, ['Datetime'])
+
         if dissolve:
             if len(track.data) > 1:
                 dlon = np.diff(track.Longitude)
@@ -302,6 +338,7 @@ if __name__ == '__main__':
     else:
         raise ValueError("format of {} is not recognizable".format(track_file))
 
+    add_category(tracks)
     tracks2point(tracks, pt_output_file, netcdf_format=netcdf_format)
     tracks2line(tracks, line_output_file, netcdf_format=netcdf_format)
     tracks2line(tracks, dissolve_output_file, dissolve=True, netcdf_format=netcdf_format)
