@@ -101,6 +101,9 @@ class Track(object):
 
         return self.data[key]
 
+    def __repr__(self):
+        return "<Track of dtype [{}]>".format(", ".join(self.data.dtype.names))
+
     def inRegion(self, gridLimit):
         """
         Check if the tropical cyclone track starts within a region.
