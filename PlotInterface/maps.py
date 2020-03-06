@@ -193,8 +193,9 @@ class MapFigure(Figure):
         meridians = np.arange(xmin // dl * dl, xmax + dl, dl)
         parallels = np.arange(ymin // dl * dl, ymax + dl, dl)
 
-        mapobj.gridlines(xlocs=meridians, ylocs=parallels,
-                         draw_labels=True)
+        gl = mapobj.gridlines(xlocs=meridians, ylocs=parallels,
+                              draw_labels=True)
+        gl.xlabels_top = False
 
     def addCoastline(self, mapobj):
         """
@@ -438,8 +439,8 @@ class ArrayMapFigure(MapFigure):
         vmax = datarange[1]
         CS = mapobj.pcolormesh(mx, my, data, vmin=vmin,
                                vmax=vmax, cmap=cmap)
-        #CB = self.colorbar(CS, location='bottom', pad=0.1,
-        #                     fig=self, ax=axes)
+        CB = self.colorbar(CS, orientation='horizontal', pad=0.1,
+                             ax=axes)
         CB.set_label(cbarlab)
         axes.set_title(title)
         self.addGraticule(axes, mapobj)
