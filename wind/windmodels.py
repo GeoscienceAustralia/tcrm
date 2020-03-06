@@ -1050,7 +1050,7 @@ class KepertWindField(WindFieldModel):
         Cd = 0.002  # Constant drag coefficient
         Vm = np.abs(V).max()
         if (vFm > 0) and (Vm/vFm < 5.):
-            Umod = vFm * np.abs(1. - (vFm/Vm)/vFm)
+            Umod = vFm * np.abs(1.25*(1. - (vFm/Vm)))
         else:
             Umod = vFm
         Vt = Umod * np.ones(V.shape)
