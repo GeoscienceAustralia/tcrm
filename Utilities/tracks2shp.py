@@ -31,6 +31,17 @@ OBSFIELDS = [[n, t, w, p] for n, t, w, p in zip(OBSFIELD_NAMES,
                                                 OBSFIELD_WIDTH,
                                                 OBSFIELD_PREC)]
 
+TCRM_FIELD_NAMES = ('CycloneNumber', 'TimeElapsed', 'Longitude', 'Latitude',
+                    'Speed', 'Bearing', 'CentralPressure', 'EnvPressure', 'rMax')
+TCRM_FIELD_TYPES = ('N',) * 9
+TCRM_FIELD_WIDTH = (2, 6, 9, 9, 8, 8, 8, 8, 8)
+TCRM_FIELD_PREC =  (0, 2, 4, 4, 4, 4, 3, 3, 4)
+
+TCRM_FIELDS = [[n, t, w, p] for n, t, w, p in zip(TCRM_FIELD_NAMES,
+                                                  TCRM_FIELD_TYPES,
+                                                  TCRM_FIELD_WIDTH,
+                                                  TCRM_FIELD_PREC)]
+
 # For storing events as a single polyline:
 EVENTFIELD_NAMES = ('TCID', 'Year', 'Month', 'Day', 'Hour', 'Minute', 'Age',
                     'MinCP', 'MaxWind' )
@@ -68,7 +79,7 @@ def recdropfields(rec, names):
     return newrec
 
 
-def tracks2point(tracks, outputFile):
+def tracks2point(tracks, outputFile, netcdf_format=False):
     """
     Writes tracks to a shapefile as a collection of point features.
 
@@ -76,6 +87,7 @@ def tracks2point(tracks, outputFile):
     :param tracks: :class:`Track` features to store in a shape file
 
     :param str outputFile: Path to output file destination
+    :param bool netcdf_format: Whether tracks are in TCRM format
 
     :raises: :mod:`shapefile.ShapefileException` if there is an error
              when attempting to save the file.
@@ -83,7 +95,10 @@ def tracks2point(tracks, outputFile):
     """
     LOG.info("Writing point shape file: {0}".format(outputFile))
     sf = shapefile.Writer(shapefile.POINT)
-    sf.fields = OBSFIELDS
+    if netcdf_format:
+        sf.fields = TCRM_FIELDS
+    else:
+        sf.fields = OBSFIELDS
 
     LOG.debug("Processing {0} tracks".format(len(tracks)))
 
@@ -101,7 +116,7 @@ def tracks2point(tracks, outputFile):
 
     return
 
-def tracks2line(tracks, outputFile, dissolve=False):
+def tracks2line(tracks, outputFile, dissolve=False, netcdf_format=False):
     """
     Writes tracks to a shapefile as a collection of line features
 
@@ -118,12 +133,16 @@ def tracks2line(tracks, outputFile, dissolve=False):
     :type  dissolve: boolean
     :param dissolve: Store track features or track segments.
 
+    :param bool netcdf_format: Whether tracks are in TCRM format
+
     :raises: :mod:`shapefile.ShapefileException` if there is an error
              when attempting to save the file.
     """
     LOG.info("Writing line shape file: {0}".format(outputFile))
     sf = shapefile.Writer(shapefile.POLYLINE)
-    if dissolve:
+    if netcdf_format:
+        sf.fields = TCRM_FIELDS
+    elif dissolve:
         sf.fields = EVENTFIELDS
     else:
         sf.fields = OBSFIELDS
@@ -157,19 +176,22 @@ def tracks2line(tracks, outputFile, dissolve=False):
                 sf.line([lines])
 
 
-            minPressure = track.trackMinPressure
-            maxWind = track.trackMaxWind
+            if netcdf_format:
+                sf.record(*track.data[0])
+            else:
+                minPressure = track.trackMinPressure
+                maxWind = track.trackMaxWind
 
-            age = track.TimeElapsed.max()
+                age = track.TimeElapsed.max()
 
-            startYear = track.Year[0]
-            startMonth = track.Month[0]
-            startDay = track.Day[0]
-            startHour = track.Hour[0]
-            startMin = track.Minute[0]
-            record = [track.CycloneNumber[0], startYear, startMonth, startDay,
-                      startHour, startMin, age, minPressure, maxWind]
-            sf.record(*record)
+                startYear = track.Year[0]
+                startMonth = track.Month[0]
+                startDay = track.Day[0]
+                startHour = track.Hour[0]
+                startMin = track.Minute[0]
+                record = [track.CycloneNumber[0], startYear, startMonth, startDay,
+                          startHour, startMin, age, minPressure, maxWind]
+                sf.record(*record)
 
         else:
             if len(track.data) == 1:
@@ -266,16 +288,22 @@ if __name__ == '__main__':
     line_output_file = filename + '_line.shp'
     dissolve_output_file = filename + '_dissolve.shp'
 
-    if track_file.endswith("nc"):
+    if track_file.endswith(".nc"):
+
         from Utilities.track import ncReadTrackData
         tracks = ncReadTrackData(track_file)
-    else:
+        netcdf_format = True
+
+    elif track_file.endswith(".csv"):
         tracks = loadTrackFile(config_file, track_file, source,
                                calculateWindSpeed=True)
+        netcdf_format = False
 
+    else:
+        raise ValueError("format of {} is not recognizable".format(track_file))
 
-    tracks2point(tracks, pt_output_file)
-    tracks2line(tracks, line_output_file)
-    tracks2line(tracks, dissolve_output_file, dissolve=True)
+    tracks2point(tracks, pt_output_file, netcdf_format=netcdf_format)
+    tracks2line(tracks, line_output_file, netcdf_format=netcdf_format)
+    tracks2line(tracks, dissolve_output_file, dissolve=True, netcdf_format=netcdf_format)
     LOG.info("Completed tracks2shp")
 

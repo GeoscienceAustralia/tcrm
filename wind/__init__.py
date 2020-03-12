@@ -7,7 +7,7 @@ calculations. It provides the radial profile models to define the
 primary vortex of the simulated TC, and bounday layer models that
 define the asymmetry induced by surface friction and forward motion of
 the TC over the earth's surface. The final output from the module is a
-netCDF file containing the maximum surface gust wind speed (a 10-minute 
+netCDF file containing the maximum surface gust wind speed (a 10-minute
 mean wind speed, at 10 metres above ground level), along with the components
 (eastward and westward) that generated the wind gust and the minimum
 mean sea level pressure over the lifetime of the event. If multiple
@@ -28,16 +28,17 @@ calling the :meth:`run` with the location of a *configFile*::
 
 """
 
-import numpy as np
 import logging as log
 import itertools
 import math
 import os
 import sys
-import tqdm
-from . import windmodels
 from os.path import join as pjoin
 from collections import defaultdict
+
+import numpy as np
+import tqdm
+from . import windmodels
 
 from PlotInterface.maps import saveWindfieldMap
 
@@ -48,9 +49,7 @@ from Utilities.maputils import bearing2theta, makeGrid
 from Utilities.parallel import attemptParallel
 
 import Utilities.nctools as nctools
-
 from Utilities.track import ncReadTrackData, Track
-
 from ProcessMultipliers import processMultipliers as pM
 
 class WindfieldAroundTrack(object):
@@ -521,7 +520,7 @@ class WindfieldGenerator(object):
                                 dumpfile)
                                 
         if self.multipliers is not None:
-            self.calcLocalWindfield(results_mult)
+            self.calcLocalWindfield(results)
             #self.plotGustToFile((lat, lon, gust, Vx, Vy, P), plotfile)
 
     def plotGustToFile(self, result, filename):
@@ -702,6 +701,9 @@ class WindfieldGenerator(object):
 
     def calcLocalWindfield(self, results):
         """
+        Calculate a local wind field using the regional windfield data
+
+        :param results: collection of :tuple: track and wind field data 
         """
 
         # Load a multiplier file to determine the projection:
@@ -721,7 +723,7 @@ class WindfieldGenerator(object):
 
             pM.processMult(gust, Vx, Vy, lon, lat,self.windfieldPath,
                            self.multipliers)
-                                 
+
 def loadTracksFromFiles(trackfiles):
     """
     Generator that yields :class:`Track` objects from a list of track
@@ -777,7 +779,7 @@ def loadTracksFromPath(path):
     """
     files = os.listdir(path)
     trackfiles = [pjoin(path, f) for f in files if f.startswith('tracks')]
-    msg = 'Processing %d track files in %s' % (len(trackfiles), path)
+    msg = 'Processing {0} track files in {1}'.format(len(trackfiles), path)
     log.info(msg)
     return loadTracksFromFiles(sorted(trackfiles))
 
@@ -805,7 +807,7 @@ def run(configFile, callback=None):
     """
 
     log.info('Loading wind field calculation settings')
-    
+
     # Get configuration
 
     config = ConfigParser()
@@ -840,11 +842,11 @@ def run(configFile, callback=None):
         timestepCallback = ts.extract
     else:
         timestepCallback = None
-            
+
     multipliers = None
-    if config.has_option('Input','Multipliers'):
+    if config.has_option('Input', 'Multipliers'):
         multipliers = config.get('Input', 'Multipliers')
-            
+
     thetaMax = math.radians(thetaMax)
 
     # Attempt to start the track generator in parallel
@@ -868,7 +870,7 @@ def run(configFile, callback=None):
                              multipliers=multipliers,
                              windfieldPath=windfieldPath)
 
-    log.info('Dumping gusts to %s' % windfieldPath)
+    log.info('Dumping gusts to {0}'.format(windfieldPath))
 
     # Get the trackfile names and count
 
@@ -876,7 +878,7 @@ def run(configFile, callback=None):
     trackfiles = [pjoin(trackPath, f) for f in files if f.startswith('tracks')]
     nfiles = len(trackfiles)
 
-    log.info('Processing %d track files in %s' % (nfiles, trackPath))
+    log.info('Processing {0} track files in {1}'.format(nfiles, trackPath))
 
     # Do the work
 

@@ -171,7 +171,7 @@ def getSpeedBearing(index, lon, lat, deltatime, ieast=1,
                       -1 = positive longiture westwards.
 
     :param missingValue: Replace questionable values with `missingValue`.
-    :type missingValue: int or float, default = `sys.maxint`
+    :type missingValue: int or float, default = `sys.maxsize`
 
 
     :returns: speed and bearing : :class:`numpy.ndarray`
@@ -729,7 +729,7 @@ def filterPressure(pressure, inputPressureUnits='hPa',
     :param missingValue: replace all null values in the input data
                          with this value.
     :type pressure: :class:`numpy.ndarray`
-    :type missingValue: int or float (default ``sys.maxint``)
+    :type missingValue: int or float (default ``sys.maxsize``)
 
     :returns: :class:`numpy.ndarray` with only valid pressure values.
 
@@ -752,7 +752,7 @@ def getMinPressure(track, missingValue=sys.maxsize):
 
     :param track: A :class:`Track` instance
     :param missingValue: Replace missing values with this value
-                         (default ``sys.maxint``).
+                         (default ``sys.maxsize``).
 
     :returns: :class:`Track.trackMinPressure` attribute updated
 
@@ -771,7 +771,7 @@ def getMaxWind(track, missingValue=sys.maxsize):
     :param track: A :class:`Track` instance
     :param missingValue: replace all null values in the input data
                          with this value.
-    :type missingValue: int or float (default ``sys.maxint``)
+    :type missingValue: int or float (default ``sys.maxsize``)
 
     :returns: :class:`Track.trackMaxWind` attribute updated with calculated
               wind speed updated.

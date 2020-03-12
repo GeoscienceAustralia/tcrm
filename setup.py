@@ -21,7 +21,7 @@ setup(
     'numpy',
     'scipy',
     'pandas',
-    'cartopy'
+    'cartopy',
     'affine',
     'matplotlib',
     'basemap',
@@ -34,7 +34,6 @@ setup(
     'seaborn',
     'shapely',
     'simplejson',
-    'sqlite',
     'statsmodels',
     'tqdm',
     'xarray',
