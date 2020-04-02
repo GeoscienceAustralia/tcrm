@@ -173,13 +173,10 @@ def ncGetTimes(ncobj, name='time'):
     :return times: Array of time dimension values as :class:`datetime` objects.
     :rtype: :class:`numpy.ndarray` of :class:`datetime` objects
 
-    NOTE: Caution using `netCDF4.num2date`. This should probably now be replaced
-    with `cftime.num2date`
-
     """
 
     from datetime import datetime
-    from netCDF4 import num2date
+    from cftime import num2date
 
     if hasattr(ncobj, 'Convention'):
         if getattr(ncobj, 'Convention') == "COARDS":
