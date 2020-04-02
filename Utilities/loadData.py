@@ -620,7 +620,7 @@ def julianDays(year, month, day, hour, minute):
     return jdays
 
 
-def ltmPressure(jdays, time, lon, lat, ncfile):
+def ltmPressure(jdays, time, lon, lat, ncfile, ncvar='slp'):
     """
     Extract pressure value from a daily long-term mean SLP dataset at the
     given day of year and lon,lat position
@@ -633,6 +633,7 @@ def ltmPressure(jdays, time, lon, lat, ncfile):
     :param lat: Latitude of TC position.
     :param str ncfile: Path to netCDF file containing daily long-term mean
                        sea level pressure data.
+    :param str ncvar: Name of the netcdf variable that holds the SLP data
 
     :type  jdays: :class:`numpy.ndarray`
     :type  time: :class:`numpy.ndarray`
@@ -647,9 +648,12 @@ def ltmPressure(jdays, time, lon, lat, ncfile):
 
     LOG.debug("Sampling data from MSLP data in {0}".format(ncfile))
     ncobj = nctools.ncLoadFile(ncfile)
-    slpunits = getattr(ncobj.variables['slp'], 'units')
+    if ncvar not in ncobj.variables:
+        raise KeyError(f"{ncfile} does not contain a variable called '{ncvar}'")
+    
+    slpunits = getattr(ncobj.variables[ncvar], 'units')
 
-    data = nctools.ncGetData(ncobj, 'slp')
+    data = nctools.ncGetData(ncobj, ncvar)
     # Get the MSLP by interpolating to the location of the TC:
     penv = interp3d.interp3d(data, coords, scale=[365., 180., 360.],
                              offset=[0., -90., 0.])
@@ -909,8 +913,15 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         except:
             LOG.exception("No input MSLP file specified in configuration")
             raise
+
+        try:
+            ncvar = cnfGetIniValue(configFile, 'Input', 'MSLPVariableName')
+        except:
+            LOG.debug("Using default variable name of 'slp' for sea level pressure data")
+            ncvar = 'slp'
+
         time = getTime(year, month, day, hour, minute)
-        penv = ltmPressure(jdays, time, lon, lat, ncfile)
+        penv = ltmPressure(jdays, time, lon, lat, ncfile, ncvar)
 
     if 'poci' in inputData.dtype.names:
         poci = np.array(inputData['poci'], 'd')
