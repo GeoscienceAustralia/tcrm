@@ -33,12 +33,12 @@ def ncLoadFile(filename):
 
     """
 
-    logger.debug("Opening netCDF file %s for reading"%filename)
+    logger.debug(f"Opening netCDF file {filename} for reading")
 
     try:
         ncobj = Dataset(filename, mode='r')
     except (IOError, RuntimeError):
-        logger.exception("Cannot open %s" % filename)
+        logger.exception(f"Cannot open {filename}")
         raise IOError
 
     return ncobj
@@ -102,7 +102,7 @@ def ncGetDims(ncobj, dim, dtype=float):
     try:
         data = ncobj.variables[dim][:]
     except KeyError:
-        logger.exception( "Dimension %s not in file" % dim )
+        logger.exception(f"Dimension {dim} not in file")
         raise
 
     return np.array(data, copy=True, dtype=dtype)
@@ -130,7 +130,7 @@ def ncGetData(ncobj, var):
     try:
         varobj = ncobj.variables[var]
     except KeyError:
-        logger.exception("File does not contain variable %s"%(var))
+        logger.exception(f"{ncobj.filepath()} does not contain variable {name}")
         raise
 
     # Automatic conversion of masked values and unpacking
@@ -158,7 +158,7 @@ def ncGetVar(ncobj, name):
     try:
         varobj = ncobj.variables[name]
     except KeyError:
-        logger.exception("File does not contain variable %s"%(name))
+        logger.exception(f"{ncobj.filepath()} does not contain variable {name}")
         raise
 
     return varobj
@@ -170,13 +170,13 @@ def ncGetTimes(ncobj, name='time'):
     :param  ncobj: :class:`netCDF4.Dataset` or :class:`netCDF4.Group` instance.
     :param str name: Name of the time variable.
 
-    :return times: Array of time dimension values as :class:`datetime` objects.
+    :return times: Array of time dimension values as true Python :class:`datetime` objects.
     :rtype: :class:`numpy.ndarray` of :class:`datetime` objects
 
     """
 
     from datetime import datetime
-    from netCDF4 import num2date
+    from cftime import num2pydate
 
     if hasattr(ncobj, 'Convention'):
         if getattr(ncobj, 'Convention') == "COARDS":
@@ -185,7 +185,7 @@ def ncGetTimes(ncobj, name='time'):
     elif name in ncobj.dimensions:
         times = ncobj.variables[name]
     else:
-        logger.debug( "Unknown time variable name" )
+        logger.debug( f"Unknown time variable name {name}" )
 
     if hasattr(times, 'units'):
         units = times.units
@@ -194,7 +194,7 @@ def ncGetTimes(ncobj, name='time'):
     else:
         calendar = 'standard'
 
-    dates = num2date(times[:].data, units, calendar)
+    dates = num2pydate(times[:].data, units, calendar)
 
     return np.array(dates, dtype=datetime)
 
@@ -240,7 +240,7 @@ def ncCreateVar(ncobj, name, dimensions, dtype, data=None, atts=None, **kwargs):
     :rtype: :class:`netCDF4.Variable`
 
     """
-    logger.debug("Creating variable %s" % name)
+    logger.debug(f"Creating variable {name}")
 
     var = ncobj.createVariable(name, dtype, dimensions, **kwargs)
 
@@ -334,7 +334,7 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
     try:
         ncobj = Dataset(filename, 'w', format='NETCDF4', clobber=True)
     except IOError:
-        raise IOError("Cannot open {0} for writing".format(filename))
+        raise IOError(f"Cannot open {filename} for writing")
 
     # Dict keys required for dimensions and variables
     dimkeys = set(['name', 'values', 'dtype', 'atts'])
@@ -345,8 +345,7 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
         missingkeys = [x for x in dimkeys if x not in list(d.keys())]
         if len(missingkeys) > 0:
             ncobj.close()
-            raise KeyError("Dimension dict missing key '{0}'".
-                           format(missingkeys))
+            raise KeyError(f"Dimension dict missing key '{missingkeys}'")
 
         ncCreateDim(ncobj, d['name'], d['values'], d['dtype'], d['atts'])
         dims = dims + (d['name'],)
@@ -355,8 +354,7 @@ def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
         missingkeys = [x for x in varkeys if x not in list(v.keys())]
         if len(missingkeys) > 0:
             ncobj.close()
-            raise KeyError("Variable dict missing key '{0}'".
-                           format(missingkeys))
+            raise KeyError(f"Variable dict missing key '{missingkeys}'")
 
         if v['values'] is not None:
             if (len(v['dims']) != v['values'].ndim):

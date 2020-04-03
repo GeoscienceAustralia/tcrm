@@ -85,6 +85,8 @@ PARSERS = {
     'Input_landmask': str,
     'Input_locationfile': str,
     'Input_mslpgrid': parseList,
+    'Input_mslpfile': str,
+    'Input_mslpvariablename': str,
     'Logging_logfile': str,
     'Logging_loglevel': str,
     'Logging_progressbar': parseBool,
@@ -195,6 +197,7 @@ GetRMWDistFromInputData=False
 LocationFile=input/stationlist.shp
 LandMask=input/landmask.nc
 MSLPFile=MSLP/slp.day.ltm.nc
+MSLPVariableName=slp
 Datasets=IBTRACS,LTMSLP
 
 [Output]
