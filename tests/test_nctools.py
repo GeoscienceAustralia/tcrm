@@ -419,6 +419,7 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
         ncobj.close()
         #self.assertEqual(type(times[0]), datetime)
         #  Note: cftype.real_datetime inherits from datetime.datetime
+        print(type(times[0]))
         self.assertTrue(issubclass(type(times[0]), datetime))
 
     def test_ncGetTimeValues(self):
