@@ -1753,6 +1753,7 @@ def run(configFile, callback=None):
     gridInc = config.geteval('Region', 'GridInc')
     gridLimit = config.geteval('Region', 'gridLimit')
     mslpFile = config.get('Input', 'MSLPFile')
+    mslpVar = config.get('Input', 'MSLPVariableName')
     seasonSeed = None
     trackSeed = None
     trackPath = pjoin(outputPath, 'tracks')
@@ -1803,7 +1804,7 @@ def run(configFile, callback=None):
                      ' for parallel runs!')
         sys.exit(1)
 
-    mslp = SamplePressure(mslpFile)
+    mslp = SamplePressure(mslpFile, var=mslpVar)
 
     # Initialise the landfall tracking
 
