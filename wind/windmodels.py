@@ -275,8 +275,8 @@ class JelesnianskiWindProfile(WindProfileModel):
 
         """
         rr = R * 1000.
-        Z = (np.sign(self.f) * 2 * self.vMax * 
-             self.rMax / (self.rMax ** 2 + rr ** 2) + 
+        Z = (np.sign(self.f) * 2 * self.vMax *
+             self.rMax / (self.rMax ** 2 + rr ** 2) +
              np.sign(self.f) * 2 * self.vMax *
              self.rMax * (self.rMax ** 2 - rr ** 2) /
              (self.rMax ** 2 + rr ** 2) ** 2)

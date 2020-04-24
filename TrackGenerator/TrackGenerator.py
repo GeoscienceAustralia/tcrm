@@ -141,29 +141,31 @@ from datetime import datetime, timedelta
 from os.path import join as pjoin
 
 import numpy as np
-
+from netCDF4 import Dataset as netcdf_file
+from scipy.ndimage.interpolation import spline_filter
 
 import Utilities.stats as stats
-from . import trackLandfall
-from . import trackSize
 import Utilities.nctools as nctools
 import Utilities.maputils as maputils
 import Utilities.metutils as metutils
 import Utilities.tcrandom as random
-from netCDF4 import Dataset as netcdf_file
-from scipy.ndimage.interpolation import spline_filter
-
-from StatInterface.generateStats import GenerateStats
-from StatInterface.SamplingOrigin import SamplingOrigin
-from Utilities.files import flLoadFile, flSaveFile
-
-from DataProcess.CalcFrequency import CalcFrequency
-from DataProcess.CalcTrackDomain import CalcTrackDomain
 from Utilities.config import ConfigParser
 from Utilities.interp3d import interp3d
 from Utilities.parallel import attemptParallel
 from Utilities.track import ncSaveTracks, Track, TCRM_COLS, TCRM_FMTS
 from Utilities.loadData import getPoci
+from Utilities.files import flLoadFile, flSaveFile
+
+from StatInterface.generateStats import GenerateStats
+from StatInterface.SamplingOrigin import SamplingOrigin
+
+from DataProcess.CalcFrequency import CalcFrequency
+from DataProcess.CalcTrackDomain import CalcTrackDomain
+
+from wind import windmodels
+
+from . import trackLandfall
+from . import trackSize
 
 class SamplePressure(object):
     """
@@ -262,11 +264,21 @@ class TrackGenerator(object):
                        cyclone size to use when the empirical
                        distribution data cannot be loaded from file.
 
+    :param str profileType: Name of the radial profile to be used in
+                            the wind field calculation
+
+    :param dict profileParams: A `dict` that holds extra parameters
+                               used in the wind profile calculation that are
+                               not attributes of the track itself. This can
+                               include a fixed :beta: value, for example. These
+                               are populated from the configuration file
+
+
     """
 
     def __init__(self, processPath, gridLimit, gridSpace, gridInc, mslp,
                  landfall, innerGridLimit=None, dt=1.0, maxTimeSteps=360,
-                 sizeMean=46.5, sizeStdDev=0.5):
+                 sizeMean=46.5, sizeStdDev=0.5, profileType='holland', profileParams=None):
         self.processPath = processPath
         self.gridLimit = gridLimit
         self.gridSpace = gridSpace
@@ -303,6 +315,9 @@ class TrackGenerator(object):
         self.sChi = None
         self.v = None
 
+        self.profileType = profileType
+        self.profileParams = profileParams
+
         originDistFile = pjoin(processPath, 'originPDF.nc')
         self.originSampler = SamplingOrigin(originDistFile, None, None)
         log.debug("Track domain: {0}".format(repr(self.gridLimit)))
@@ -337,7 +352,7 @@ class TrackGenerator(object):
             # try to load the netcdf version of the file
 
             if os.path.isfile(filename + '.nc'):
-                log.debug('Loading data from %s.nc', filename)
+                log.debug(f'Loading data from {filename}.nc')
                 ncdf = netcdf_file(filename + '.nc', 'r')
                 i = ncdf.variables['cell'][:]
                 x = ncdf.variables['x'][:]
@@ -346,17 +361,14 @@ class TrackGenerator(object):
                 return np.vstack((i, x, y)).T
 
             # otherwise, revert to old csv format
-
-            log.info('Could not load %s.nc, reverting to old format.',
-                     filename)
+            log.info(f'Could not load {filename}.nc, reverting to old format.')
 
             try:
                 return flLoadFile(filename, '%', ',')
             except IOError:
-                log.critical('CDF file %s does not exist!',
-                             filename)
-                log.critical('Run AllDistribution option in main to' +
-                             ' generate those files.')
+                log.critical(f'CDF file {filename} does not exist!')
+                log.critical(('Run AllDistribution option in main to'
+                              ' generate those files.'))
                 raise
 
         # Load the files
@@ -546,20 +558,48 @@ class TrackGenerator(object):
                 log.critical("Initial pressure difference too small")
             return (track.EnvPressure[0] - track.CentralPressure[0] > 1.0)
 
-        log.debug('Generating %d tropical cyclone tracks', nTracks)
+        def validProfile(track):
+            """
+            Check the track has a valid radial profile.
+
+            :params track: `track` object
+            :param str name: valid radial profile name
+            :param dict kwargs: Additional arguments to be passed to the radial profile
+            
+            :return: False if it will result in a discontinuous profile
+                     at rMax, True otherwise
+            """
+            radius = np.arange(0, 200)
+            cls = windmodels.profile(self.profileType)
+            params = windmodels.profileParams(self.profileType)
+            values = [self.profileParams[p] for p in params if p in self.profileParams]
+
+            for i in range(len(track.TimeElapsed)):
+                profile = cls(track.Latitude[i], track.Longitude[i],
+                              track.EnvPressure[i], track.CentralPressure[i],
+                              track.rMax[i], *values)
+                try:
+                    wspd = profile.velocity(radius)
+                except AssertionError:
+                    log.critical("Discontinuous radial profile")
+                    return False
+
+            return True
+
+        log.debug(f'Generating {nTracks} tropical cyclone tracks')
         genesisYear = int(uniform(1900, 9998))
         results = []
         j = 0
         while j < nTracks:
 
             if not (initLon and initLat):
-                log.debug('Cyclone origin not given, sampling a' +
-                          ' random one instead.')
+                log.debug(('Cyclone origin not given, sampling a'
+                           ' random one instead.'))
                 genesisLon, genesisLat = \
                     self.originSampler.ppf(uniform(), uniform())
             else:
-                log.debug('Using prescribed initial position' +
-                          ' ({0:.2f}, {1:.2f})'.format(initLon, initLat))
+                log.debug(('Using prescribed initial position'
+                           f' ({initLon:.2f}, {initLat:.2f})'))
                 genesisLon = initLon
                 genesisLat = initLat
 
@@ -675,8 +715,8 @@ class TrackGenerator(object):
 
             if not ((xMin <= nextLon <= xMax) and
                     (yMin <= nextLat <= yMax)):
-                log.debug('Tracks will exit domain immediately' +
-                          ' for this genesis point.')
+                log.debug(('Tracks will exit domain immediately'
+                           ' for this genesis point.'))
                 continue
 
             if (initEnvPressure - genesisPressure) < 2:
@@ -684,8 +724,7 @@ class TrackGenerator(object):
                            "pressure deficit"))
                 continue
 
-            log.debug('** Generating track %i from point (%.2f,%.2f)',
-                      j, genesisLon, genesisLat)
+            log.debug(f'Generating track {j} from ({genesisLon:.2f},{genesisLat:.2f})')
 
             data = self._singleTrack(j, genesisLon, genesisLat,
                                      genesisSpeed, genesisBearing,
@@ -698,10 +737,13 @@ class TrackGenerator(object):
             track = Track(data)
             track.trackId = (j, simId)
 
+            # Here's where we filter the tracks to eliminate some with odd behaviour
             if not (empty(track) or diedEarly(track))\
-                    and validInitPressure(track) \
-               and validPressures(track) and validSize(track) \
-               and validInitSize(track):
+               and validInitPressure(track) \
+               and validPressures(track) \
+               and validSize(track) \
+               and validInitSize(track) \
+               and validProfile(track):
                 if self.innerGridLimit and not insideDomain(track):
                     log.debug("Track exits inner grid limit - rejecting")
                     continue
@@ -741,6 +783,7 @@ class TrackGenerator(object):
             initEnvPressure=initEnvPressure,
             initRmax=initRmax, initDay=initDay)
 
+        # 2020-04-23: Can this be deprecated?
         if outputFile.endswith("shp"):
             from Utilities.shptools import shpSaveTrackFile
             from Utilities.AsyncRun import AsyncRun
@@ -825,7 +868,7 @@ class TrackGenerator(object):
             except:
                 raise
         else:
-            log.debug('Outputting data into %s', outputFile)
+            log.debug(f'Outputting data into {outputFile}')
 
             header = 'CycloneNumber,TimeElapsed(hr),' + \
                      'Longitude(degree),Latitude(degree),' + \
@@ -1051,8 +1094,8 @@ class TrackGenerator(object):
 
             if self._notValidTrackStep(pressure[i], poci[i], age[i],
                                        lon[0], lat[0], lon[i], lat[i]):
-                log.debug('Track no longer satisfies criteria, ' +
-                          'terminating at time %i.', i)
+                log.debug((f'Track no longer satisfies criteria, '
+                           f'terminating at time {i}.'))
 
                 return (index[:i], dates[:i], age[:i], lon[:i], lat[:i],
                         speed[:i], bearing[:i], pressure[:i], poci[:i],
@@ -1752,6 +1795,14 @@ def run(configFile, callback=None):
     gridSpace = config.geteval('Region', 'GridSpace')
     gridInc = config.geteval('Region', 'GridInc')
     gridLimit = config.geteval('Region', 'gridLimit')
+
+    # An overhead to determine if the radial profile is valid
+    profileType = config.get('WindfieldInterface', 'profileType')
+    beta = config.getfloat('WindfieldInterface', 'beta')
+    beta1 = config.getfloat('WindfieldInterface', 'beta1')
+    beta2 = config.getfloat('WindfieldInterface', 'beta2')
+    params = {'beta': beta, 'beta1':beta1, 'beta2':beta2, 'rMax2':250}
+
     mslpFile = config.get('Input', 'MSLPFile')
     mslpVar = config.get('Input', 'MSLPVariableName')
     seasonSeed = None
@@ -1853,7 +1904,9 @@ def run(configFile, callback=None):
 
     tg = TrackGenerator(processPath, gridLimit, gridSpace, gridInc,
                         mslp, landfall, dt=dt,
-                        maxTimeSteps=maxTimeSteps)
+                        maxTimeSteps=maxTimeSteps,
+                        profileType=profileType,
+                        profileParams=params)
 
     tg.loadInitialConditionDistributions()
     tg.loadCellStatistics()
@@ -1862,28 +1915,26 @@ def run(configFile, callback=None):
 
     comm.barrier()
 
-    N = sims[-1].index
+    nsims = sims[-1].index
 
     # Balance the simulations over the number of processors and do it
 
     for sim in balanced(sims):
-        log.debug('Simulating tropical cyclone tracks:' +
-                  ' %3.0f percent complete' % (sim.index / float(N)
-                                               * 100.))
+        pct = (sim.index / float(nsims)) * 100.
+        log.debug(f'Simulating tropical cyclone tracks: {pct:.0f}% complete')
         if callback is not None:
-            callback(sim.index, N)
+            callback(sim.index, nsims)
 
         if sim.seed:
             global PRNG #TODO: explicitly-pass rather than mutate global state
             PRNG = random.Random(seed=sim.seed, stream=sim.index)
-            log.debug('seed %i stream %i', sim.seed, sim.index)
+            log.debug(f'seed {sim.seed} stream {sim.index}')
 
         trackFile = pjoin(trackPath, sim.outfile)
         tracks = tg.generateTracks(sim.ntracks, sim.index)
-        ncTrackFile = pjoin(trackPath, "tracks.{0:05d}.nc".format(sim.index))
+        ncTrackFile = pjoin(trackPath, f"tracks.{sim.index:05d}.nc")
         ncSaveTracks(ncTrackFile, tracks, calendar='julian')
 
-    log.info('Simulating tropical cyclone tracks:' +
-             ' 100 percent complete')
+    log.info('Simulating tropical cyclone tracks: complete')
 
     comm.barrier()
