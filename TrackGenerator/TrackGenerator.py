@@ -652,10 +652,12 @@ class TrackGenerator(object):
             # provided - dependent on initial day of year:
 
             if not initEnvPressure:
-                initEnvPressure = \
+                genesisEnvPressure = \
                     self.mslp.get_pressure(np.array([[genesisDay],
                                                      [genesisLat],
                                                      [genesisLon]]))
+            else:
+                genesisEnvPressure = initEnvPressure
 
             # Sample an initial pressure if none is provided
 
@@ -664,7 +666,7 @@ class TrackGenerator(object):
                 # initEnvPressure
                 ind = self.allCDFInitPressure[:, 0] == initCellNum
                 cdfInitPressure = self.allCDFInitPressure[ind, 1:3]
-                ix = cdfInitPressure[:, 0].searchsorted(initEnvPressure)
+                ix = cdfInitPressure[:, 0].searchsorted(genesisEnvPressure)
                 upperProb = cdfInitPressure[ix - 1, 1]
                 genesisPressure = ppf(uniform(0.0, upperProb),
                                       cdfInitPressure)
@@ -680,7 +682,7 @@ class TrackGenerator(object):
                     ind = self.allCDFInitSize[:, 0] == initCellNum
                     cdfSize = self.allCDFInitSize[ind, 1:3]
 
-                dp = initEnvPressure - genesisPressure
+                dp = genesisEnvPressure - genesisPressure
                 self.rmwEps = np.random.normal(0, scale=0.335)
                 genesisRmax = trackSize.rmax(dp, genesisLat, self.rmwEps)
 
@@ -705,7 +707,7 @@ class TrackGenerator(object):
             log.debug('initBearing: %.2f initSpeed: %.2f' +
                       ' initEnvPressure: %.2f initPressure: %.2f' +
                       ' initRmax: %.2f',
-                      genesisBearing, genesisSpeed, initEnvPressure,
+                      genesisBearing, genesisSpeed, genesisEnvPressure,
                       genesisPressure, genesisRmax)
 
             xMin = self.gridLimit['xMin']
@@ -719,7 +721,7 @@ class TrackGenerator(object):
                            ' for this genesis point.'))
                 continue
 
-            if (initEnvPressure - genesisPressure) < 2:
+            if (genesisEnvPressure - genesisPressure) < 2:
                 log.debug(("Track does not start with sufficient "
                            "pressure deficit"))
                 continue
@@ -728,7 +730,7 @@ class TrackGenerator(object):
 
             data = self._singleTrack(j, genesisLon, genesisLat,
                                      genesisSpeed, genesisBearing,
-                                     genesisPressure, initEnvPressure,
+                                     genesisPressure, genesisEnvPressure,
                                      genesisRmax, genesisTime)
 
             track_dtype = np.dtype({'names':TCRM_COLS, 'formats':TCRM_FMTS})
