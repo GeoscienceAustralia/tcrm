@@ -130,7 +130,7 @@ def ncGetData(ncobj, var):
     try:
         varobj = ncobj.variables[var]
     except KeyError:
-        logger.exception(f"{ncobj.filepath()} does not contain variable {name}")
+        logger.exception(f"{ncobj.filepath()} does not contain variable {var}")
         raise
 
     # Automatic conversion of masked values and unpacking
