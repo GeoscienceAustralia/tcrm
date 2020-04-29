@@ -12,6 +12,8 @@
 
 import io
 from configparser import RawConfigParser
+import os.path
+
 #from ast import literal_eval as eval
 
 def parseBool(txt):
@@ -273,6 +275,8 @@ class _ConfigParser(RawConfigParser):
             return
         if self.readonce:
             return
+        if not os.path.exists(filename):
+            raise ValueError("config file does not exist: {}".format(filename))
         RawConfigParser.read(self, filename)
         self.readonce = True
 
