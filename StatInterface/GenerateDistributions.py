@@ -154,6 +154,9 @@ class GenerateDistributions(object):
 
         self.pName = parameterName
 
+        assert len(self.pList) == len(self.lonLat), "Parameter data " +
+               "Lon/Lat data are not the same length."
+
         maxCellNum = stats.maxCellNum(self.gridLimit, self.gridSpace)
 
         # Writing CDF dataset for all individual cell number into files
