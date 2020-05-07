@@ -113,7 +113,7 @@ class StatInterface(object):
         log.debug('Reading data from %s',
                   pjoin(self.processPath, 'jdays'))
         pList = pjoin(self.processPath, 'jdays')
-        lonLat = pjoin(self.processPath, 'init_lon_lat')
+        lonLat = pjoin(self.processPath, 'origin_lon_lat')
         kde = KDEParameters.KDEParameters(self.kdeType)
         #kde.generateGenesisDateCDF(jdays, lonLat, bw=14,
         #                           genesisKDE=pjoin(self.processPath,
