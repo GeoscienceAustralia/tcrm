@@ -252,7 +252,7 @@ class getMultipliers():
         log.info('Multipliers will be written to {0}'.format(working_dir))
         for dirn in dirns:
             log.info('working on %s', dirn)
-            os.system('gdal_translate -a_srs EPSG:4326 -of GTiff -co COMPRESS=LZW -projwin '
+            os.system('gdal_translate -a_srs EPSG:4326 -of GTiff -projwin '
                       '{0} {1} {2} {3} -b {4} "{5}" {6}m4_{7}.tif'
                       .format(self.Extent['xMin'], self.Extent['yMin'], self.Extent['xMax'], self.Extent['yMax'],
                               band_index, self.ComputedWMPath, working_dir, dirn))
@@ -473,7 +473,7 @@ def reprojectDataset(src_file, match_filename, dst_filename,
 
     # Output / destination
     drv = gdal.GetDriverByName('GTiff')
-    dst = drv.Create(dst_filename, wide, high, 1, gdal.GDT_Float32, options=['COMPRESS=LZW'])
+    dst = drv.Create(dst_filename, wide, high, 1, gdal.GDT_Float32)
     dst.SetGeoTransform(match_geotrans)
     dst.SetProjection(match_proj)
     dstBand = dst.GetRasterBand(1)
@@ -587,7 +587,7 @@ def processMult(wspd, uu, vv, lon, lat, working_dir, m4_max_file = 'm4_ne.tif'):
     # multipliers
     drv = gdal.GetDriverByName("GTiff")
     dst_ds = drv.Create(output_file, cols, rows, 1,
-                        gdal.GDT_Float32, ['BIGTIFF=NO', 'SPARSE_OK=TRUE', 'COMPRESS=LZW'])
+                        gdal.GDT_Float32, ['BIGTIFF=NO', 'SPARSE_OK=TRUE'])
     dst_ds.SetGeoTransform(wind_geot)
     dst_ds.SetProjection(wind_proj)
     dst_band = dst_ds.GetRasterBand(1)
