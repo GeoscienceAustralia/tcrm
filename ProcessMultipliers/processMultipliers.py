@@ -99,8 +99,19 @@ class getMultipliers():
         config = ConfigParser()
         config.read(configFile)
 
+        # Check for computed wind multiplier file path in config file
+        if config.has_option('Input', 'Multipliers'):
+            self.ComputedWMPath = config.get('Input', 'Multipliers')
+            log.info('Using computed wind multiplier files from {0}'.format(self.ComputedWMPath))
+            # Check for extent of computed wind multiplier in config file
+            if config.has_option('Input', 'Extent'):
+                self.Extent = config.geteval('Input', 'Extent')
+                log.info('Using extent {0}'.format(self.Extent))
+            else:
+                log.error('Missing extent property.')
+                raise Exception("Missing extent property.")
         # Check for wind multiplier file path in config file
-        if config.has_option('Input', 'RawMultipliers'):
+        elif config.has_option('Input', 'RawMultipliers'):
             self.WMPath = config.get('Input', 'RawMultipliers')
             log.info('Using multiplier files from {0}'.format(self.WMPath))
         else:
@@ -163,7 +174,7 @@ class getMultipliers():
                               'NETCDF:{0}{1}/{2}:{3} {4}{5}.tif'
                               .format(working_dir, wm, output, var, working_dir,
                                       output_name[:-3])) # -3 to drop '.nc'
-                    
+
                     log.info('%s translated to Geotif', output_name[:-3])
 
     def mergeWindMultipliers(self, type_mapping, dirns, working_dir):
@@ -210,7 +221,7 @@ class getMultipliers():
             m_data1 = ma.masked_values(data1, -9999)
             m_data2 = ma.masked_values(data2, -9999)
             m_data3 = ma.masked_values(data3, -9999)
-            
+
             log.debug('Size of data arrays: terrain = {0}, topographic = {1}, shielding = {2}'
                       .format(m_data1.shape, m_data2.shape, m_data3.shape))
 
@@ -224,6 +235,28 @@ class getMultipliers():
             bandOut = dsOut.GetRasterBand(1)
             bandOut.SetNoDataValue(-9999)
             BandWriteArray(bandOut, dataOut.data)
+
+    def extractDirections(self, dirns, working_dir):
+        '''
+        Create Geotiffs for wind multiplier (terrain, topographic and shielding combined) into
+        a single Geotiff from 8-band source file by applying specified extent.
+        Output files are named "m4_" direction.
+
+        :param str dirns: list of eight ordinal directions for wind
+        :param str output_path: path to the output directory
+        '''
+
+        log.debug('Read VRT file data')
+        band_index = 1
+
+        log.info('Multipliers will be written to {0}'.format(working_dir))
+        for dirn in dirns:
+            log.info('working on %s', dirn)
+            os.system('gdal_translate -a_srs EPSG:4326 -of GTiff -co COMPRESS=LZW -projwin '
+                      '{0} {1} {2} {3} -b {4} "{5}" {6}m4_{7}.tif'
+                      .format(self.Extent['xMin'], self.Extent['yMin'], self.Extent['xMax'], self.Extent['yMax'],
+                              band_index, self.ComputedWMPath, working_dir, dirn))
+            band_index += 1
 
 def generate_syn_mult_img(tl_x, tl_y, delta, dir_path, shape,
                           indices=syn_indices,
@@ -392,7 +425,7 @@ def calculateBearing(uu, vv):
 
 @timer
 def reprojectDataset(src_file, match_filename, dst_filename,
-                     resampling_method = gdalconst.GRA_Bilinear, 
+                     resampling_method = gdalconst.GRA_Bilinear,
                      match_projection = None):
     """
     Reproject a source dataset to match the projection of another
@@ -440,7 +473,7 @@ def reprojectDataset(src_file, match_filename, dst_filename,
 
     # Output / destination
     drv = gdal.GetDriverByName('GTiff')
-    dst = drv.Create(dst_filename, wide, high, 1, gdal.GDT_Float32)
+    dst = drv.Create(dst_filename, wide, high, 1, gdal.GDT_Float32, options=['COMPRESS=LZW'])
     dst.SetGeoTransform(match_geotrans)
     dst.SetProjection(match_proj)
     dstBand = dst.GetRasterBand(1)
@@ -554,7 +587,7 @@ def processMult(wspd, uu, vv, lon, lat, working_dir, m4_max_file = 'm4_ne.tif'):
     # multipliers
     drv = gdal.GetDriverByName("GTiff")
     dst_ds = drv.Create(output_file, cols, rows, 1,
-                        gdal.GDT_Float32, ['BIGTIFF=NO', 'SPARSE_OK=TRUE'])
+                        gdal.GDT_Float32, ['BIGTIFF=NO', 'SPARSE_OK=TRUE', 'COMPRESS=LZW'])
     dst_ds.SetGeoTransform(wind_geot)
     dst_ds.SetProjection(wind_proj)
     dst_band = dst_ds.GetRasterBand(1)
@@ -569,7 +602,7 @@ def processMult(wspd, uu, vv, lon, lat, working_dir, m4_max_file = 'm4_ne.tif'):
     return output_file
 
 class run():
-    
+
     def __init__(self):
 
         """
@@ -654,15 +687,19 @@ class run():
         """
         log.debug('Instantiating getMultipliers class')
         gM = getMultipliers(self.configFile)
-        log.debug('Running checkOutputFolders')
-        gM.checkOutputFolders(self.working_dir, self.type_mapping)
-        log.debug('Running Translate Multipliers')
-        gM.copyTranslateMultipliers(self.tiles, self.configFile,
-                                    self.type_mapping, self.working_dir)
-        log.debug('Running mergeWindMultipliers')
-        gM.mergeWindMultipliers(self.type_mapping, self.dirns, self.working_dir)
-        log.debug('Running combineDirections')
-        gM.combineDirections(self.dirns, self.working_dir)
+        if gM.ComputedWMPath is None:
+            log.debug('Running checkOutputFolders')
+            gM.checkOutputFolders(self.working_dir, self.type_mapping)
+            log.debug('Running Translate Multipliers')
+            gM.copyTranslateMultipliers(self.tiles, self.configFile,
+                                        self.type_mapping, self.working_dir)
+            log.debug('Running mergeWindMultipliers')
+            gM.mergeWindMultipliers(self.type_mapping, self.dirns, self.working_dir)
+            log.debug('Running combineDirections')
+            gM.combineDirections(self.dirns, self.working_dir)
+        else:
+            log.debug('Running extractDirections')
+            gM.extractDirections(self.dirns, self.working_dir)
 
         # Load the wind data:
         log.info("Loading regional wind data from {0}".format(self.gust_file))
