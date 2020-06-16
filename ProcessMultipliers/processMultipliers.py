@@ -101,15 +101,13 @@ class getMultipliers():
 
         # Check for computed wind multiplier file path in config file
         if config.has_option('Input', 'Multipliers'):
-            self.ComputedWMPath = config.get('Input', 'Multipliers')
-            log.info('Using computed wind multiplier files from {0}'.format(self.ComputedWMPath))
-            # Check for extent of computed wind multiplier in config file
+            self.computed_wm_path = config.get('Input', 'Multipliers')
+            log.info('Using computed wind multiplier files from {0}'.format(self.computed_wm_path))
             if config.has_option('Input', 'Extent'):
-                self.Extent = config.geteval('Input', 'Extent')
-                log.info('Using extent {0}'.format(self.Extent))
+                self.extent = config.geteval('Input', 'Extent')
+                log.info('Provided extent {0}'.format(self.extent))
             else:
-                log.error('Missing extent property.')
-                raise Exception("Missing extent property.")
+                self.extent = dict()
         # Check for wind multiplier file path in config file
         elif config.has_option('Input', 'RawMultipliers'):
             self.WMPath = config.get('Input', 'RawMultipliers')
@@ -236,6 +234,48 @@ class getMultipliers():
             bandOut.SetNoDataValue(-9999)
             BandWriteArray(bandOut, dataOut.data)
 
+    def computeOutputExtentIfInvalid(self, gust_file, computed_wm_path):
+        '''
+        If 'Extent' property is not valid, output image extent is computed from regional wind
+        data (gust file) and wind multiplier image extents.
+
+        :param str gust_file: file path of regional wind data / gust file
+        :param str computed_wm_path: file path of wind multiplier image
+        '''
+        if 'xMin' in self.extent and 'xMax' in self.extent and 'yMin' in self.extent and 'yMax' in self.extent:
+            return
+
+        log.info('Invalid extent. Calculating default extent.')
+        ncobj = Dataset(gust_file, 'r')
+        lat = ncobj.variables['lat'][:]
+        lon = ncobj.variables['lon'][:]
+
+        self.extent['xMin'] = min(lon)
+        self.extent['xMax'] = max(lon)
+        self.extent['yMin'] = min(lat)
+        self.extent['yMax'] = max(lat)
+        log.info('Extent from regional wind data {0}'.format(self.extent))
+        del ncobj
+
+        # Calculate extent of wind multiplier image
+        ds = gdal.Open(computed_wm_path, gdal.GA_ReadOnly)
+        widthWM = ds.RasterXSize
+        heightWM = ds.RasterYSize
+        gt = ds.GetGeoTransform()
+        xMinWM = gt[0]
+        yMinWM = gt[3] + widthWM * gt[4] + heightWM * gt[5]
+        xMaxWM = gt[0] + widthWM * gt[1] + heightWM * gt[2]
+        yMaxWM = gt[3]
+        log.info('Extent from wind multiplier image : {{\'xMin\': {0}, \'xMax\': {1}, \'yMin\': {2}, \'yMax\': {3} }}'.format(xMinWM, xMaxWM, yMinWM, yMaxWM))
+        del ds
+
+        # Take only intersecting extent of provided extent and wind multiplier image extent
+        self.extent['xMin'] = max(self.extent['xMin'], xMinWM)
+        self.extent['xMax'] = min(self.extent['xMax'], xMaxWM)
+        self.extent['yMin'] = max(self.extent['yMin'], yMinWM)
+        self.extent['yMax'] = min(self.extent['yMax'], yMaxWM)
+        log.info('Applying effective extent {0}'.format(self.extent))
+
     def extractDirections(self, dirns, output_path):
         '''
         Create Geotiffs for wind multiplier (terrain, topographic and shielding combined) into
@@ -245,17 +285,14 @@ class getMultipliers():
         :param str dirns: list of eight ordinal directions for wind
         :param str output_path: path to the output directory
         '''
-
-        log.debug('Read VRT file data')
         band_index = 1
-
         log.info('Multipliers will be written to {0}'.format(output_path))
         for dirn in dirns:
             log.info('working on %s', dirn)
             os.system('gdal_translate -a_srs EPSG:4326 -of GTiff -projwin '
                       '{0} {1} {2} {3} -b {4} "{5}" {6}m4_{7}.tif'
-                      .format(self.Extent['xMin'], self.Extent['yMin'], self.Extent['xMax'], self.Extent['yMax'],
-                              band_index, self.ComputedWMPath, output_path, dirn))
+                      .format(self.extent['xMin'], self.extent['yMax'], self.extent['xMax'], self.extent['yMin'],
+                              band_index, self.computed_wm_path, output_path, dirn))
             band_index += 1
 
 def generate_syn_mult_img(tl_x, tl_y, delta, dir_path, shape,
@@ -687,7 +724,7 @@ class run():
         """
         log.debug('Instantiating getMultipliers class')
         gM = getMultipliers(self.configFile)
-        if gM.ComputedWMPath is None:
+        if gM.computed_wm_path is None:
             log.debug('Running checkOutputFolders')
             gM.checkOutputFolders(self.working_dir, self.type_mapping)
             log.debug('Running Translate Multipliers')
@@ -698,6 +735,7 @@ class run():
             log.debug('Running combineDirections')
             gM.combineDirections(self.dirns, self.working_dir)
         else:
+            gM.computeOutputExtentIfInvalid(self.gust_file, gM.computed_wm_path)
             log.debug('Running extractDirections')
             gM.extractDirections(self.dirns, self.working_dir)
 
