@@ -235,13 +235,13 @@ class getMultipliers():
             BandWriteArray(bandOut, dataOut.data)
 
     def computeOutputExtentIfInvalid(self, gust_file, computed_wm_path):
-        '''
+        """
         If 'Extent' property is not valid, output image extent is computed from regional wind
         data (gust file) and wind multiplier image extents.
 
         :param str gust_file: file path of regional wind data / gust file
         :param str computed_wm_path: file path of wind multiplier image
-        '''
+        """
         if 'xMin' in self.extent and 'xMax' in self.extent and 'yMin' in self.extent and 'yMax' in self.extent:
             return
 
@@ -277,14 +277,14 @@ class getMultipliers():
         log.info('Applying effective extent {0}'.format(self.extent))
 
     def extractDirections(self, dirns, output_path):
-        '''
+        """
         Create Geotiffs for wind multiplier (terrain, topographic and shielding combined) into
         a single Geotiff from 8-band source file by applying specified extent.
         Output files are named "m4_" direction.
 
         :param str dirns: list of eight ordinal directions for wind
         :param str output_path: path to the output directory
-        '''
+        """
         band_index = 1
         log.info('Multipliers will be written to {0}'.format(output_path))
         for dirn in dirns:
