@@ -236,7 +236,7 @@ class getMultipliers():
             bandOut.SetNoDataValue(-9999)
             BandWriteArray(bandOut, dataOut.data)
 
-    def extractDirections(self, dirns, working_dir):
+    def extractDirections(self, dirns, output_path):
         '''
         Create Geotiffs for wind multiplier (terrain, topographic and shielding combined) into
         a single Geotiff from 8-band source file by applying specified extent.
@@ -249,13 +249,13 @@ class getMultipliers():
         log.debug('Read VRT file data')
         band_index = 1
 
-        log.info('Multipliers will be written to {0}'.format(working_dir))
+        log.info('Multipliers will be written to {0}'.format(output_path))
         for dirn in dirns:
             log.info('working on %s', dirn)
             os.system('gdal_translate -a_srs EPSG:4326 -of GTiff -projwin '
                       '{0} {1} {2} {3} -b {4} "{5}" {6}m4_{7}.tif'
                       .format(self.Extent['xMin'], self.Extent['yMin'], self.Extent['xMax'], self.Extent['yMax'],
-                              band_index, self.ComputedWMPath, working_dir, dirn))
+                              band_index, self.ComputedWMPath, output_path, dirn))
             band_index += 1
 
 def generate_syn_mult_img(tl_x, tl_y, delta, dir_path, shape,
