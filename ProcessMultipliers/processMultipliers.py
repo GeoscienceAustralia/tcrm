@@ -266,7 +266,9 @@ class getMultipliers():
         yMinWM = gt[3] + widthWM * gt[4] + heightWM * gt[5]
         xMaxWM = gt[0] + widthWM * gt[1] + heightWM * gt[2]
         yMaxWM = gt[3]
-        log.info('Extent from wind multiplier image : {{\'xMin\': {0}, \'xMax\': {1}, \'yMin\': {2}, \'yMax\': {3} }}'.format(xMinWM, xMaxWM, yMinWM, yMaxWM))
+        log.info('Extent from wind multiplier image : '
+                 '{{\'xMin\': {0}, \'xMax\': {1}, \'yMin\': {2}, \'yMax\': {3} }}'
+                 .format(xMinWM, xMaxWM, yMinWM, yMaxWM))
         del ds
 
         # Take only intersecting extent of provided extent and wind multiplier image extent
