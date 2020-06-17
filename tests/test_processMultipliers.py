@@ -250,6 +250,36 @@ class TestProcessMultipliers(unittest.TestCase):
 
         shutil.rmtree(dir_path)
 
+    def test_computeOutputExtentIfInvalid(self):
+        """Test createRaster returns a gdal dataset"""
+
+        # Write a .nc file to test with dummy data. This is the gust file
+        f_nc = tempfile.NamedTemporaryFile(suffix='.nc', prefix='test_processMultipliers', delete=False)
+        gust_file = f_nc.name
+        f_nc.close()
+
+        ncfile = Dataset(gust_file, mode='w', format='NETCDF3_CLASSIC')
+        lat_dim = ncfile.createDimension('lat', 2)
+        lon_dim = ncfile.createDimension('lon', 2)
+        lat = ncfile.createVariable('lat', np.float32, ('lat',))
+        lon = ncfile.createVariable('lon', np.float32, ('lon',))
+        lon[:] = [121, 129]
+        lat[:] = [10, 17]
+        ncfile.close()
+
+        # Test when correct extent provided in config
+        config_extent = dict(xMin=20, xMax=21, yMin=20, yMax=21)
+        pM.extent = pM.computeOutputExtentIfInvalid(config_extent, gust_file, self.reprojectRaster)
+        self.assertEqual(pM.extent, config_extent)
+
+        # Test when extent provided in config
+        config_extent = dict()
+        pM.extent = pM.computeOutputExtentIfInvalid(config_extent, gust_file, self.testRasterFile)
+        self.assertEqual(pM.extent['xMin'], 121)
+        self.assertEqual(pM.extent['xMax'], 129)
+        self.assertEqual(pM.extent['yMin'], 10)
+        self.assertEqual(pM.extent['yMax'], 17)
+
     @unittest.skip("Not working")
     def test_xprocessMult_A(self):
         dir_path = tempfile.mkdtemp(prefix='test_processMult')
