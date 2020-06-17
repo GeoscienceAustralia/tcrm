@@ -234,50 +234,6 @@ class getMultipliers():
             bandOut.SetNoDataValue(-9999)
             BandWriteArray(bandOut, dataOut.data)
 
-    def computeOutputExtentIfInvalid(self, gust_file, computed_wm_path):
-        """
-        If 'Extent' property is not valid, output image extent is computed from regional wind
-        data (gust file) and wind multiplier image extents.
-
-        :param str gust_file: file path of regional wind data / gust file
-        :param str computed_wm_path: file path of wind multiplier image
-        """
-        if 'xMin' in self.extent and 'xMax' in self.extent and 'yMin' in self.extent and 'yMax' in self.extent:
-            return
-
-        log.info('Invalid extent. Calculating default extent.')
-        ncobj = Dataset(gust_file, 'r')
-        lat = ncobj.variables['lat'][:]
-        lon = ncobj.variables['lon'][:]
-
-        self.extent['xMin'] = min(lon)
-        self.extent['xMax'] = max(lon)
-        self.extent['yMin'] = min(lat)
-        self.extent['yMax'] = max(lat)
-        log.info('Extent from regional wind data {0}'.format(self.extent))
-        del ncobj
-
-        # Calculate extent of wind multiplier image
-        ds = gdal.Open(computed_wm_path, gdal.GA_ReadOnly)
-        widthWM = ds.RasterXSize
-        heightWM = ds.RasterYSize
-        gt = ds.GetGeoTransform()
-        xMinWM = gt[0]
-        yMinWM = gt[3] + widthWM * gt[4] + heightWM * gt[5]
-        xMaxWM = gt[0] + widthWM * gt[1] + heightWM * gt[2]
-        yMaxWM = gt[3]
-        log.info('Extent from wind multiplier image : '
-                 '{{\'xMin\': {0}, \'xMax\': {1}, \'yMin\': {2}, \'yMax\': {3} }}'
-                 .format(xMinWM, xMaxWM, yMinWM, yMaxWM))
-        del ds
-
-        # Take only intersecting extent of provided extent and wind multiplier image extent
-        self.extent['xMin'] = max(self.extent['xMin'], xMinWM)
-        self.extent['xMax'] = min(self.extent['xMax'], xMaxWM)
-        self.extent['yMin'] = max(self.extent['yMin'], yMinWM)
-        self.extent['yMax'] = min(self.extent['yMax'], yMaxWM)
-        log.info('Applying effective extent {0}'.format(self.extent))
-
     def extractDirections(self, dirns, output_path):
         """
         Create Geotiffs for wind multiplier (terrain, topographic and shielding combined) into
@@ -296,6 +252,54 @@ class getMultipliers():
                       .format(self.extent['xMin'], self.extent['yMax'], self.extent['xMax'], self.extent['yMin'],
                               band_index, self.computed_wm_path, output_path, dirn))
             band_index += 1
+
+
+def computeOutputExtentIfInvalid(extent, gust_file, computed_wm_path):
+    """
+    Check validity of extent. If extent is not valid, output image extent is computed from
+    regional wind data (gust file) and wind multiplier image extents.
+
+    :param dict extent: extent provided in config file
+    :param str gust_file: file path of regional wind data / gust file
+    :param str computed_wm_path: file path of wind multiplier image
+    """
+    if 'xMin' in extent and 'xMax' in extent and 'yMin' in extent and 'yMax' in extent:
+        return extent
+
+    log.info('Invalid extent. Calculating default extent.')
+    ncobj = Dataset(gust_file, 'r')
+    lat = ncobj.variables['lat'][:]
+    lon = ncobj.variables['lon'][:]
+    xMinGust = min(lon)
+    xMaxGust = max(lon)
+    yMinGust = min(lat)
+    yMaxGust = max(lat)
+    log.info('Extent from regional wind data '
+             '{{\'xMin\': {0}, \'xMax\': {1}, \'yMin\': {2}, \'yMax\': {3} }}'
+             .format(xMinGust, xMaxGust, yMinGust, yMaxGust))
+    del ncobj
+
+    # Calculate extent of wind multiplier image
+    ds = gdal.Open(computed_wm_path, gdal.GA_ReadOnly)
+    widthWM = ds.RasterXSize
+    heightWM = ds.RasterYSize
+    gt = ds.GetGeoTransform()
+    xMinWM = gt[0]
+    yMinWM = gt[3] + widthWM * gt[4] + heightWM * gt[5]
+    xMaxWM = gt[0] + widthWM * gt[1] + heightWM * gt[2]
+    yMaxWM = gt[3]
+    log.info('Extent from wind multiplier image '
+             '{{\'xMin\': {0}, \'xMax\': {1}, \'yMin\': {2}, \'yMax\': {3} }}'
+             .format(xMinWM, xMaxWM, yMinWM, yMaxWM))
+    del ds
+
+    # Take only intersecting extent of provided extent and wind multiplier image extent
+    extent = dict(xMin=max(xMinGust, xMinWM),
+                  xMax=min(xMaxGust, xMaxWM),
+                  yMin=max(yMinGust, yMinWM),
+                  yMax=min(yMaxGust, yMaxWM))
+    log.info('Applying effective extent {0}'.format(extent))
+    return extent
 
 def generate_syn_mult_img(tl_x, tl_y, delta, dir_path, shape,
                           indices=syn_indices,
@@ -737,7 +741,7 @@ class run():
             log.debug('Running combineDirections')
             gM.combineDirections(self.dirns, self.working_dir)
         else:
-            gM.computeOutputExtentIfInvalid(self.gust_file, gM.computed_wm_path)
+            gM.extent = computeOutputExtentIfInvalid(gM.extent, self.gust_file, gM.computed_wm_path)
             log.debug('Running extractDirections')
             gM.extractDirections(self.dirns, self.working_dir)
 
