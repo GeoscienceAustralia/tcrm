@@ -697,9 +697,10 @@ class run():
         self.working_dir = config.get('Output', 'Working_dir')
         self.gust_file = config.get('Input', 'Gust_file')
 
-        tiles = config.get('Input', 'Tiles')
-        self.tiles = [item.strip() for item in tiles.split(',')]
-        log.debug('List of tiles to be processed: {0}'.format(self.tiles))
+        if config.has_option('Input', 'Tiles'):
+            tiles = config.get('Input', 'Tiles')
+            self.tiles = [item.strip() for item in tiles.split(',')]
+            log.debug('List of tiles to be processed: {0}'.format(self.tiles))
         log.info('Multipliers will be written out to %s', self.working_dir)
 
         # Get the multipliers, and process them if need be
