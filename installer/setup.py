@@ -30,6 +30,8 @@ if 'py2exe' in sys.argv:
                      'mpl_toolkits.basemap',
                      'scipy.sparse.csgraph._validation',
                      'scipy.io.matlab.streams',
+                     'boto3',
+                     'botocore',
                      'netCDF4_utils'],
         'excludes': ['_gtkagg',
                      'wx',

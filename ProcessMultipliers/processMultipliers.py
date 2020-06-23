@@ -54,6 +54,10 @@ from gdal import *
 
 from netCDF4 import Dataset
 
+import boto3
+from botocore.exceptions import ClientError
+import tempfile
+
 gdal.UseExceptions()
 
 syn_indices = {
@@ -243,14 +247,24 @@ class getMultipliers():
         :param str dirns: list of eight ordinal directions for wind
         :param str output_path: path to the output directory
         """
-        band_index = 1
+        # Copy source data to local directory limited by extent
+        log.info('Source data limited to extent will be written to {0}m4_source.tif'.format(output_path))
+        translateoptions = gdal.TranslateOptions(format='GTiff',
+                                                 outputType=gdal.GDT_Float32,
+                                                 outputSRS='EPSG:4326',
+                                                 bandList=[1, 2, 3, 4, 5, 6, 7, 8],
+                                                 projWin=[self.extent['xMin'], self.extent['yMax'], self.extent['xMax'], self.extent['yMin']])
+        gdal.Translate('{0}m4_source.tif'.format(output_path), self.computed_wm_path, options=translateoptions)
+
         log.info('Multipliers will be written to {0}'.format(output_path))
+        band_index = 1
         for dirn in dirns:
             log.info('working on %s', dirn)
-            os.system('gdal_translate -a_srs EPSG:4326 -of GTiff -projwin '
-                      '{0} {1} {2} {3} -b {4} "{5}" {6}m4_{7}.tif'
-                      .format(self.extent['xMin'], self.extent['yMax'], self.extent['xMax'], self.extent['yMin'],
-                              band_index, self.computed_wm_path, output_path, dirn))
+            translateoptions = gdal.TranslateOptions(format='GTiff',
+                                                     outputType=gdal.GDT_Float32,
+                                                     outputSRS='EPSG:4326',
+                                                     bandList=[band_index])
+            gdal.Translate('{0}m4_{1}.tif'.format(output_path, dirn), '{0}m4_source.tif'.format(output_path), options=translateoptions)
             band_index += 1
 
 
@@ -695,7 +709,19 @@ class run():
         warnings.filterwarnings("ignore", category=RuntimeWarning)
 
         self.working_dir = config.get('Output', 'Working_dir')
+        self.s3_upload_path = None
+        # If output directory is on S3 create a temporary working directory
+        if self.working_dir.startswith('/vsis3/'):
+            tempdir = tempfile.TemporaryDirectory(prefix='Multipliers-')
+            log.info('Creating temporary working_dir as S3 working_dir specified %s', self.working_dir)
+            self.s3_upload_path = self.working_dir
+            self.working_dir = tempdir.name + os.path.sep
+
+        # Important: opening NETCDF file from /vsis3 is buggy with Dataset() and gdal.open() so source must be downloaded.
+        # Most likely NetCDF4 library don't support correctly although HDF5 claimed to support correctly
         self.gust_file = config.get('Input', 'Gust_file')
+        if self.gust_file.startswith('/vsis3/'):
+            self.gust_file = self.download_from_s3(self.gust_file, self.working_dir)
 
         if config.has_option('Input', 'Tiles'):
             tiles = config.get('Input', 'Tiles')
@@ -731,7 +757,7 @@ class run():
         """
         log.debug('Instantiating getMultipliers class')
         gM = getMultipliers(self.configFile)
-        if gM.computed_wm_path is None:
+        if not hasattr(gM, 'computed_wm_path') or gM.computed_wm_path is None:
             log.debug('Running checkOutputFolders')
             gM.checkOutputFolders(self.working_dir, self.type_mapping)
             log.debug('Running Translate Multipliers')
@@ -764,7 +790,68 @@ class run():
         uu = ncobj.variables['ua'][:]
         vv = ncobj.variables['va'][:]
 
+        del ncobj
+
         processMult(wspd, uu, vv, lon, lat, self.working_dir)
+
+        if hasattr(self, 's3_upload_path') and self.s3_upload_path is not None:
+            self.upload_files_to_s3(self.working_dir, self.s3_upload_path,
+                                    ['local_wind.tif', 'region_wind.tif', 'vv_prj.tif', 'uu_prj.tif', 'bear_prj.tif', 'gust_prj.tif'])
+
+    def upload_files_to_s3(self, local_directory, s3_destination_path, files_to_upload):
+        """
+        Function to upload files from local directory to s3.
+
+        :param str local_directory: Local directory path containing files to upload.
+        :param str s3_destination_path: S3 path of the destination directory.
+        :param str files_to_upload: List of file names to upload.
+        """
+        if not s3_destination_path.endswith('/'):
+            s3_destination_path = s3_destination_path + '/'
+        [bucket_name, bucket_key, file_name] = self.s3_path_segments(s3_destination_path)
+        s3_client = boto3.client('s3')
+        try:
+            for file_name in files_to_upload:
+                local_path = pjoin(local_directory, file_name)
+                log.info("Uploading file to S3 bucket: {0}, key: {1}, local path: {2}".format(bucket_name, bucket_key + file_name, local_path))
+                s3_client.upload_file(local_path, bucket_name, bucket_key + file_name)
+        except ClientError as e:
+            log.exception("S3 write error: {0}".format(file_name))
+            raise e
+
+    def download_from_s3(self, s3_source_path, destination_directory):
+        """
+        Function to download a S3 file into local directory.
+
+        :param str s3_source_path: S3 path of the file.
+        :param str destination_directory: Local directory location to
+        """
+        [bucket_name, bucket_key, file_name] = self.s3_path_segments(s3_source_path)
+        file_path = pjoin(destination_directory, file_name)
+        log.info("Downloading file from S3 bucket: {0}, key: {1}, local path: {2}".format(bucket_name, bucket_key, file_path))
+        try:
+            s3_client = boto3.client('s3')
+            s3_client.download_file(bucket_name, bucket_key, file_path)
+        except ClientError as e:
+            log.exception("S3 read error: {0}".format(file_name))
+            raise e
+        return file_path
+
+    def s3_path_segments(self, s3_path):
+        """
+        Function to extract bucket name, key and filename from path specified using
+        GDAL Virtual File Systems convensions
+
+        :param str s3_path: Path to S3 location starting with /vsis3/.
+        """
+        s3PathSegments = s3_path.split('/')
+        if s3PathSegments[0] != '' or s3PathSegments[1] != 'vsis3':
+            raise ValueError('Invalid path: ', [s3_path, s3PathSegments])
+        file_name = s3PathSegments[-1]
+        bucket_name = s3PathSegments[2]
+        bucket_key = '/'.join(s3PathSegments[3:])
+        return bucket_name, bucket_key, file_name
+
 
 if __name__ == "__main__":
     run()
