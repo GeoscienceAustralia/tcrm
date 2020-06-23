@@ -19,7 +19,8 @@ import numpy as np
 import numpy.ma as ma
 
 from matplotlib.figure import Figure
-import cartopy
+import cartopy.crs as ccrs
+from cartopy.feature import LAND
 
 from Utilities.smooth import smooth
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -216,7 +217,7 @@ class MapFigure(Figure):
         continents on.
 
         """
-        mapobj.add_feature(cartopy.feature.LAND, color=fillcolor)
+        mapobj.add_feature(LAND, color=fillcolor)
 
     def addMapScale(self, mapobj):
         """
@@ -302,7 +303,7 @@ class MapFigure(Figure):
         for i, subfigure in enumerate(self.subfigures):
             if subfigure[-1]['projection'] == 'merc':
                 axes = self.add_subplot(rows, cols, i+1,
-                                        projection=cartopy.crs.PlateCarree())
+                                        projection=ccrs.PlateCarree())
             else:
                 raise NotImplementedError(
                           "Only Mercator projection supported")

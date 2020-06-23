@@ -14,7 +14,7 @@ class TimeSeriesFigure(Figure):
     def __init__(self):
         Figure.__init__(self)
         self.subfigures = []
-        self.subplots_adjust(bottom=0.1, right=0.8)
+        self.subplots_adjust(bottom=0.15, right=0.8)
         self.dayLocator = DayLocator()
         self.hourLocator = HourLocator(interval=3)
         self.dateFormat = DateFormatter('%H:%M \n %Y-%m-%d')
