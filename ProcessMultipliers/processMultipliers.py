@@ -44,6 +44,7 @@ from functools import wraps, reduce
 from Utilities.files import flStartLog
 from Utilities.config import ConfigParser
 from Utilities import pathLocator
+from Utilities.AsyncRun import AsyncRun
 
 import numpy as np
 import numpy.ma as ma
@@ -119,6 +120,21 @@ class getMultipliers():
         else:
             log.info('Using default multiplier files from /g/data/fj6/multipliers/')
             self.WMPath = '/g/data/fj6/multipliers/'
+
+        # Initialise variables to None that will be used later
+        self.temporary_raw_multipliers_directory = None
+        self.temporary_working_directory = None
+        self.s3_upload_path = None
+        self._s3_client = None
+
+    def get_s3_client(self):
+        """
+        Returns service client for S3. It eliminates initialising service client if AWS
+        path is not used.
+        """
+        if self._s3_client is None:
+            self._s3_client = boto3.client('s3')
+        return self._s3_client
 
     def checkOutputFolders(self, working_dir, type_mapping):
         '''
@@ -249,23 +265,172 @@ class getMultipliers():
         """
         # Copy source data to local directory limited by extent
         log.info('Source data limited to extent will be written to {0}m4_source.tif'.format(output_path))
-        translateoptions = gdal.TranslateOptions(format='GTiff',
-                                                 outputType=gdal.GDT_Float32,
-                                                 outputSRS='EPSG:4326',
-                                                 bandList=[1, 2, 3, 4, 5, 6, 7, 8],
-                                                 projWin=[self.extent['xMin'], self.extent['yMax'], self.extent['xMax'], self.extent['yMin']])
-        gdal.Translate('{0}m4_source.tif'.format(output_path), self.computed_wm_path, options=translateoptions)
+        translate_options = gdal.TranslateOptions(format='GTiff',
+                                                  outputType=gdal.GDT_Float32,
+                                                  outputSRS='EPSG:4326',
+                                                  bandList=[1, 2, 3, 4, 5, 6, 7, 8],
+                                                  projWin=[self.extent['xMin'], self.extent['yMax'], self.extent['xMax'], self.extent['yMin']])
+        gdal.Translate('{0}m4_source.tif'.format(output_path), self.computed_wm_path, options=translate_options)
 
         log.info('Multipliers will be written to {0}'.format(output_path))
         band_index = 1
         for dirn in dirns:
             log.info('working on %s', dirn)
-            translateoptions = gdal.TranslateOptions(format='GTiff',
-                                                     outputType=gdal.GDT_Float32,
-                                                     outputSRS='EPSG:4326',
-                                                     bandList=[band_index])
-            gdal.Translate('{0}m4_{1}.tif'.format(output_path, dirn), '{0}m4_source.tif'.format(output_path), options=translateoptions)
+            translate_options = gdal.TranslateOptions(format='GTiff',
+                                                      outputType=gdal.GDT_Float32,
+                                                      outputSRS='EPSG:4326',
+                                                      bandList=[band_index])
+            gdal.Translate('{0}m4_{1}.tif'.format(output_path, dirn), '{0}m4_source.tif'.format(output_path), options=translate_options)
             band_index += 1
+
+    def check_if_wm_source_from_s3(self, type_mapping, tiles, dirns):
+        """
+        Function to check if wind multiplier location (WMPath) is referring to s3 location. If S3,
+        this function downloads relevant input files from 'shielding', 'terrain' and 'topographic'
+        sub-directories in 3 async call, place them in local temporary directory and return
+        that temporary directory path. As opening NETCDF file from /vsis3 is buggy, source
+        .nc files are downloaded and processed.
+
+        :param Dict[str,str] type_mapping: Dict of multipliers to extract sub-directory and suffix
+        :param List[str] tiles: Array of tiles specified in config to get the file name
+        :param List[str] dirns: Array of string representing 8 directions to be used in file name suffix
+        """
+        if not self.WMPath.startswith('/vsis3/'):
+            return
+        if not self.WMPath.endswith('/'):
+            self.WMPath = self.WMPath + '/'
+        # Keep the reference with self otherwise the temporary directory will be deleted.
+        self.temporary_raw_multipliers_directory = tempfile.TemporaryDirectory(prefix='RawMulti-')
+        log.info('Copying to temporary directory %s as RawMultiplier is specified in S3 %s',
+                 self.temporary_raw_multipliers_directory.name, self.WMPath)
+        self.get_s3_client() # Dummy call so that AsyncRun can't create multiple service client
+        async_runs = []
+        for type_name in type_mapping:
+            files_to_download = []
+            os.mkdir(pjoin(self.temporary_raw_multipliers_directory.name, type_name))
+            for timage in tiles:
+                for dir in dirns:
+                    files_to_download.append('{0}_{1}_{2}.nc'.format(timage, type_mapping[type_name].lower(), dir))
+            # Download files from S3 with async call
+            args = {
+                's3_source_directory_path': self.WMPath + type_name + '/',
+                'destination_directory': pjoin(self.temporary_raw_multipliers_directory.name, type_name),
+                'files_to_download': files_to_download
+            }
+            thread = AsyncRun(self.download_files_from_s3, args)
+            thread.start()
+            async_runs.append(thread)
+        # Wait for threads to complete
+        for thread in async_runs:
+            thread.join()
+        log.info('RawMultiplier copy completed to temporary directory %s', self.temporary_raw_multipliers_directory.name)
+        self.WMPath = self.temporary_raw_multipliers_directory.name + os.path.sep
+
+    def check_if_gust_file_from_s3(self, gust_file, working_dir):
+        """
+        Function to check if Gust_file location is referring to s3 location. If S3 location specified
+        .nc file will be downloaded. Cause: opening NETCDF file from /vsis3 is buggy with Dataset()
+        and gdal.open() so source must be downloaded. Most likely NetCDF4 library don't support
+        correctly although HDF5 claimed to support correctly.
+
+        :param str gust_file: Location of Gust_file specified in config
+        :param str working_dir: Working_dir property value provided in config to write output
+        """
+        if gust_file.startswith('/vsis3/'):
+            return self.download_from_s3(gust_file, working_dir)
+        return gust_file
+
+    def check_if_working_dir_in_s3(self, working_dir):
+        """
+        Function to check if output directory is on S3 create a temporary working
+        directory for intermidiate outputs
+
+        :param str working_dir: Working_dir property value provided in config to write output
+        """
+        if working_dir.startswith('/vsis3/'):
+            # Keep the reference with self otherwise the temporary directory will be deleted.
+            self.temporary_working_directory = tempfile.TemporaryDirectory(prefix='Multipliers-')
+            log.info('Creating temporary working_dir %s as S3 working_dir specified %s',
+                     self.temporary_working_directory.name, working_dir)
+            self.s3_upload_path = working_dir
+            return self.temporary_working_directory.name + os.path.sep
+        return working_dir
+
+    def upload_files_to_s3(self, local_directory, s3_destination_directory_path, files_to_upload):
+        """
+        Function to upload files from local directory to s3.
+
+        :param str local_directory: Local directory path containing files to upload.
+        :param str s3_destination_directory_path: S3 path of the destination directory.
+        :param List[str] files_to_upload: List of file names to upload.
+        """
+        if not s3_destination_directory_path.endswith('/'):
+            s3_destination_directory_path = s3_destination_directory_path + '/'
+        [bucket_name, bucket_key, file_name] = self.s3_path_segments_from_vsis3(s3_destination_directory_path)
+        try:
+            s3_client = self.get_s3_client()
+            for file_name in files_to_upload:
+                local_path = pjoin(local_directory, file_name)
+                log.info("Uploading file to S3 bucket: {0}, key: {1}, local path: {2}".format(bucket_name, bucket_key + file_name, local_path))
+                s3_client.upload_file(local_path, bucket_name, bucket_key + file_name)
+        except ClientError as e:
+            log.exception("S3 write error: {0}".format(file_name))
+            raise e
+
+    def download_from_s3(self, s3_source_path, destination_directory):
+        """
+        Function to download a S3 file into local directory.
+
+        :param str s3_source_path: S3 path of the file.
+        :param str destination_directory: Local directory location to
+        """
+        [bucket_name, bucket_key, file_name] = self.s3_path_segments_from_vsis3(s3_source_path)
+        file_path = pjoin(destination_directory, file_name)
+        log.info("Downloading file from S3 bucket: {0}, key: {1}, local path: {2}".format(bucket_name, bucket_key, file_path))
+        try:
+            s3_client = self.get_s3_client()
+            s3_client.download_file(bucket_name, bucket_key, file_path)
+        except ClientError as e:
+            log.exception("S3 read error: {0}".format(file_name))
+            raise e
+        return file_path
+
+    def download_files_from_s3(self, s3_source_directory_path, destination_directory, files_to_download):
+        """
+        Function to download a S3 file into local directory.
+
+        :param str s3_source_directory_path: S3 path of the directory contining files.
+        :param str destination_directory: Local directory location to store the downloaded files
+        :param List[str] files_to_download: List of files to download from S3
+        """
+        if not s3_source_directory_path.endswith('/'):
+            s3_source_directory_path = s3_source_directory_path + '/'
+        [bucket_name, bucket_key, file_name] = self.s3_path_segments_from_vsis3(s3_source_directory_path)
+        try:
+            s3_client = self.get_s3_client()
+            for file_name in files_to_download:
+                file_path = pjoin(destination_directory, file_name)
+                log.info("Downloading file from S3 bucket: {0}, key: {1}, local path: {2}".format(bucket_name, bucket_key + file_name, file_path))
+                s3_client.download_file(bucket_name, bucket_key + file_name, file_path)
+        except ClientError as e:
+            log.exception("S3 read error: {0}".format(file_name))
+            raise e
+        return file_path
+
+    def s3_path_segments_from_vsis3(self, s3_path):
+        """
+        Function to extract bucket name, key and filename from path specified using
+        GDAL Virtual File Systems conventions
+
+        :param str s3_path: Path to S3 location starting with /vsis3/.
+        """
+        s3_path_segments = s3_path.split('/')
+        if s3_path_segments[0] != '' or s3_path_segments[1] != 'vsis3':
+            raise ValueError('Invalid path: ', [s3_path, s3_path_segments])
+        file_name = s3_path_segments[-1]
+        bucket_name = s3_path_segments[2]
+        bucket_key = '/'.join(s3_path_segments[3:])
+        return bucket_name, bucket_key, file_name
 
 
 def computeOutputExtentIfInvalid(extent, gust_file, computed_wm_path):
@@ -679,7 +844,6 @@ class run():
         config = ConfigParser()
         config.read(self.configFile)
 
-
         logfile = config.get('Logging', 'LogFile')
         logdir = dirname(realpath(logfile))
 
@@ -709,19 +873,7 @@ class run():
         warnings.filterwarnings("ignore", category=RuntimeWarning)
 
         self.working_dir = config.get('Output', 'Working_dir')
-        self.s3_upload_path = None
-        # If output directory is on S3 create a temporary working directory
-        if self.working_dir.startswith('/vsis3/'):
-            tempdir = tempfile.TemporaryDirectory(prefix='Multipliers-')
-            log.info('Creating temporary working_dir as S3 working_dir specified %s', self.working_dir)
-            self.s3_upload_path = self.working_dir
-            self.working_dir = tempdir.name + os.path.sep
-
-        # Important: opening NETCDF file from /vsis3 is buggy with Dataset() and gdal.open() so source must be downloaded.
-        # Most likely NetCDF4 library don't support correctly although HDF5 claimed to support correctly
         self.gust_file = config.get('Input', 'Gust_file')
-        if self.gust_file.startswith('/vsis3/'):
-            self.gust_file = self.download_from_s3(self.gust_file, self.working_dir)
 
         if config.has_option('Input', 'Tiles'):
             tiles = config.get('Input', 'Tiles')
@@ -757,7 +909,11 @@ class run():
         """
         log.debug('Instantiating getMultipliers class')
         gM = getMultipliers(self.configFile)
+        self.working_dir = gM.check_if_working_dir_in_s3(self.working_dir)
+        self.gust_file = gM.check_if_gust_file_from_s3(self.gust_file, self.working_dir)
+
         if not hasattr(gM, 'computed_wm_path') or gM.computed_wm_path is None:
+            gM.check_if_wm_source_from_s3(self.type_mapping, self.tiles, self.dirns)
             log.debug('Running checkOutputFolders')
             gM.checkOutputFolders(self.working_dir, self.type_mapping)
             log.debug('Running Translate Multipliers')
@@ -794,64 +950,9 @@ class run():
 
         processMult(wspd, uu, vv, lon, lat, self.working_dir)
 
-        if hasattr(self, 's3_upload_path') and self.s3_upload_path is not None:
-            self.upload_files_to_s3(self.working_dir, self.s3_upload_path,
-                                    ['local_wind.tif', 'region_wind.tif', 'vv_prj.tif', 'uu_prj.tif', 'bear_prj.tif', 'gust_prj.tif'])
-
-    def upload_files_to_s3(self, local_directory, s3_destination_path, files_to_upload):
-        """
-        Function to upload files from local directory to s3.
-
-        :param str local_directory: Local directory path containing files to upload.
-        :param str s3_destination_path: S3 path of the destination directory.
-        :param str files_to_upload: List of file names to upload.
-        """
-        if not s3_destination_path.endswith('/'):
-            s3_destination_path = s3_destination_path + '/'
-        [bucket_name, bucket_key, file_name] = self.s3_path_segments(s3_destination_path)
-        s3_client = boto3.client('s3')
-        try:
-            for file_name in files_to_upload:
-                local_path = pjoin(local_directory, file_name)
-                log.info("Uploading file to S3 bucket: {0}, key: {1}, local path: {2}".format(bucket_name, bucket_key + file_name, local_path))
-                s3_client.upload_file(local_path, bucket_name, bucket_key + file_name)
-        except ClientError as e:
-            log.exception("S3 write error: {0}".format(file_name))
-            raise e
-
-    def download_from_s3(self, s3_source_path, destination_directory):
-        """
-        Function to download a S3 file into local directory.
-
-        :param str s3_source_path: S3 path of the file.
-        :param str destination_directory: Local directory location to
-        """
-        [bucket_name, bucket_key, file_name] = self.s3_path_segments(s3_source_path)
-        file_path = pjoin(destination_directory, file_name)
-        log.info("Downloading file from S3 bucket: {0}, key: {1}, local path: {2}".format(bucket_name, bucket_key, file_path))
-        try:
-            s3_client = boto3.client('s3')
-            s3_client.download_file(bucket_name, bucket_key, file_path)
-        except ClientError as e:
-            log.exception("S3 read error: {0}".format(file_name))
-            raise e
-        return file_path
-
-    def s3_path_segments(self, s3_path):
-        """
-        Function to extract bucket name, key and filename from path specified using
-        GDAL Virtual File Systems convensions
-
-        :param str s3_path: Path to S3 location starting with /vsis3/.
-        """
-        s3PathSegments = s3_path.split('/')
-        if s3PathSegments[0] != '' or s3PathSegments[1] != 'vsis3':
-            raise ValueError('Invalid path: ', [s3_path, s3PathSegments])
-        file_name = s3PathSegments[-1]
-        bucket_name = s3PathSegments[2]
-        bucket_key = '/'.join(s3PathSegments[3:])
-        return bucket_name, bucket_key, file_name
-
+        if gM.s3_upload_path is not None:
+            gM.upload_files_to_s3(self.working_dir, gM.s3_upload_path,
+                                  ['local_wind.tif', 'region_wind.tif', 'vv_prj.tif', 'uu_prj.tif', 'bear_prj.tif', 'gust_prj.tif'])
 
 if __name__ == "__main__":
     run()
