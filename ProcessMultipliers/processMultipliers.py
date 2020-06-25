@@ -104,6 +104,15 @@ class getMultipliers():
         config = ConfigParser()
         config.read(configFile)
 
+        # Initialise variables to None that will be used later
+        self.temporary_raw_multipliers_directory = None
+        self.temporary_working_directory = None
+        self.temporary_working_directory_name = None
+        self.s3_upload_path = None
+        self._s3_client = None
+        self.computed_wm_path = None
+        self.extent_applied = False
+
         # Check for computed wind multiplier file path in config file
         if config.has_option('Input', 'Multipliers'):
             self.computed_wm_path = config.get('Input', 'Multipliers')
@@ -121,11 +130,11 @@ class getMultipliers():
             log.info('Using default multiplier files from /g/data/fj6/multipliers/')
             self.WMPath = '/g/data/fj6/multipliers/'
 
-        # Initialise variables to None that will be used later
-        self.temporary_raw_multipliers_directory = None
-        self.temporary_working_directory = None
-        self.s3_upload_path = None
-        self._s3_client = None
+        if config.has_option('Input', 'ExtentApplied'):
+            self.extent_applied = (config.get('Input', 'ExtentApplied').lower() == 'yes')
+        if config.has_option('Output', 'Temporary_working_dir'):
+            self.temporary_working_directory_name = config.get('Output', 'Temporary_working_dir')
+
 
     def get_s3_client(self):
         """
@@ -150,6 +159,10 @@ class getMultipliers():
             log.info('Creating directories for outputs')
         else:
             log.info('Using existing output directories')
+
+        # For computed_wm_path creating sub-directories is not necessary
+        if self.computed_wm_path is not None:
+            return
 
         # Assume if one is missing, they are all missing
         dir_check = os.path.isdir(working_dir + '/shielding')
@@ -254,34 +267,35 @@ class getMultipliers():
             bandOut.SetNoDataValue(-9999)
             BandWriteArray(bandOut, dataOut.data)
 
-    def extractDirections(self, dirns, output_path):
+    @timer
+    def build_combined_multipliers_for_all_directions(self, output_path):
         """
         Create Geotiffs for wind multiplier (terrain, topographic and shielding combined) into
         a single Geotiff from 8-band source file by applying specified extent.
         Output files are named "m4_" direction.
 
-        :param str dirns: list of eight ordinal directions for wind
         :param str output_path: path to the output directory
+        :returns combined direction file location
         """
+        if self.computed_wm_path.endswith('.tif') and self.extent_applied:
+            # If S3 download
+            if self.computed_wm_path.startswith('/vsis3/'):
+                downloaded_computed_wm_path = self.download_from_s3(self.computed_wm_path,output_path)
+                log.info('Wind multipliers with applied extent is downloded to {0} from {1}'.format(downloaded_computed_wm_path, self.computed_wm_path))
+                return downloaded_computed_wm_path
+            else:
+                log.info('Wind multipliers with applied extent located at {0}'.format(self.computed_wm_path))
+                return self.computed_wm_path
         # Copy source data to local directory limited by extent
-        log.info('Source data limited to extent will be written to {0}m4_source.tif'.format(output_path))
+        combined_direction_file = pjoin(output_path,'m4_source.tif')
+        log.info('Wind multipliers within extent will be written to {0}'.format(combined_direction_file))
         translate_options = gdal.TranslateOptions(format='GTiff',
                                                   outputType=gdal.GDT_Float32,
                                                   outputSRS='EPSG:4326',
                                                   bandList=[1, 2, 3, 4, 5, 6, 7, 8],
                                                   projWin=[self.extent['xMin'], self.extent['yMax'], self.extent['xMax'], self.extent['yMin']])
-        gdal.Translate('{0}m4_source.tif'.format(output_path), self.computed_wm_path, options=translate_options)
-
-        log.info('Multipliers will be written to {0}'.format(output_path))
-        band_index = 1
-        for dirn in dirns:
-            log.info('working on %s', dirn)
-            translate_options = gdal.TranslateOptions(format='GTiff',
-                                                      outputType=gdal.GDT_Float32,
-                                                      outputSRS='EPSG:4326',
-                                                      bandList=[band_index])
-            gdal.Translate('{0}m4_{1}.tif'.format(output_path, dirn), '{0}m4_source.tif'.format(output_path), options=translate_options)
-            band_index += 1
+        gdal.Translate(combined_direction_file, self.computed_wm_path, options=translate_options)
+        return combined_direction_file
 
     def check_if_wm_source_from_s3(self, type_mapping, tiles, dirns):
         """
@@ -349,13 +363,19 @@ class getMultipliers():
         """
         if working_dir.startswith('/vsis3/'):
             # Keep the reference with self otherwise the temporary directory will be deleted.
-            self.temporary_working_directory = tempfile.TemporaryDirectory(prefix='Multipliers-')
-            log.info('Creating temporary working_dir %s as S3 working_dir specified %s',
-                     self.temporary_working_directory.name, working_dir)
+            if self.temporary_working_directory_name is None:
+                self.temporary_working_directory = tempfile.TemporaryDirectory(prefix='Multipliers-')
+                log.info('Creating temporary working_dir %s as S3 working_dir specified %s',
+                         self.temporary_working_directory.name, working_dir)
+                self.temporary_working_directory_name = self.temporary_working_directory.name
             self.s3_upload_path = working_dir
-            return self.temporary_working_directory.name + os.path.sep
+            if self.temporary_working_directory_name.endswith(os.path.sep):
+                return self.temporary_working_directory_name
+            else:
+                return self.temporary_working_directory_name + os.path.sep
         return working_dir
 
+    @timer
     def upload_files_to_s3(self, local_directory, s3_destination_directory_path, files_to_upload):
         """
         Function to upload files from local directory to s3.
@@ -563,7 +583,7 @@ def createRaster(array, x, y, dx, dy, epsg = 4326, filename=None, nodata=-9999):
     return tempRaster
 
 
-def loadRasterFile(raster_file, fill_value=1):
+def loadRasterFile(raster_file, fill_value=1, band_number=1):
     """
     Load a raster file and return the data as a :class:`numpy.ndarray`.
     No prorjection information is returned, just the actual data as an
@@ -571,14 +591,14 @@ def loadRasterFile(raster_file, fill_value=1):
 
     :param str raster_file: Path to the raster file to load.
     :param fill_value: Value to replace `nodata` values with (default=1).
+    :param int band_number: Band number in raster file (default=1).
     :returns: 2-d array of the data values.
     :rtype: :class:`numpy.ndarray`
 
     """
-
-    log.debug("Loading raster data from {0} into array".format(raster_file))
+    log.debug("Loading raster data from {0} band {1} into array".format(raster_file, band_number))
     ds = gdal.Open(raster_file, gdal.GA_ReadOnly)
-    band = ds.GetRasterBand(1)
+    band = ds.GetRasterBand(band_number)
     data = band.ReadAsArray()
 
     nodata = band.GetNoDataValue()
@@ -713,9 +733,8 @@ def reprojectDataset(src_file, match_filename, dst_filename,
     return
 
 @timer
-def processMult(wspd, uu, vv, lon, lat, working_dir, m4_max_file = 'm4_ne.tif'):
+def processMult(wspd, uu, vv, lon, lat, working_dir, m4_max_file = 'm4_ne.tif', combined_mulipliers_file=None):
     """
-
     The lat and lon values are the top left corners of the cells
     The speed arrays are in bottom to top format
 
@@ -724,8 +743,10 @@ def processMult(wspd, uu, vv, lon, lat, working_dir, m4_max_file = 'm4_ne.tif'):
     :param vv: y component of the wind speed
     :param lon: list of raster longitude values
     :param lat:  list of raster latitude values
-    :param m4_max_file: Multiplier file used for reprojection.
     :param working_dir: The working output directory
+    :param m4_max_file: Multiplier file used for reprojection.
+    :param string combined_mulipliers_file: Path of raster file containing wind
+        multiplier data of all 8 directions
     :return:
     """
 
@@ -751,7 +772,10 @@ def processMult(wspd, uu, vv, lon, lat, working_dir, m4_max_file = 'm4_ne.tif'):
 
     log.info('Reproject the wind speed and bearing data to match '
              'the input wind multipliers')
-    m4_max_file = pjoin(working_dir, m4_max_file)
+    if combined_mulipliers_file is not None:
+        m4_max_file = combined_mulipliers_file
+    else:
+        m4_max_file = pjoin(working_dir, m4_max_file)
 
     reprojectDataset(wind_raster, m4_max_file, wind_prj_file)
     reprojectDataset(bear_raster, m4_max_file, bear_prj_file,
@@ -792,12 +816,16 @@ def processMult(wspd, uu, vv, lon, lat, working_dir, m4_max_file = 'm4_ne.tif'):
         7: {'dir': 'nw', 'min': 292.5, 'max': 337.5},
         8: {'dir': 'n', 'min': 337.5, 'max': 360.}
     }
+    band_numbers_for_indices_in_geotiff = [2, 3, 1, 6, 5, 7, 8, 4, 2]
     log.info("Processing all directions")
     for i in list(indices.keys()):
         dn = indices[i]['dir']
         log.info("Processing {0}".format(dn))
-        m4_file = pjoin(working_dir, 'm4_{0}.tif'.format(dn.lower()))
-        m4 = loadRasterFile(m4_file)
+        if combined_mulipliers_file is None:
+            m4_file = pjoin(working_dir, 'm4_{0}.tif'.format(dn.lower()))
+            m4 = loadRasterFile(m4_file)
+        else:
+            m4 = loadRasterFile(combined_mulipliers_file, band_number=band_numbers_for_indices_in_geotiff[i])
         idx = np.where((bear_data >= indices[i]['min']) &
                        (bear_data < indices[i]['max']))
 
@@ -911,11 +939,12 @@ class run():
         gM = getMultipliers(self.configFile)
         self.working_dir = gM.check_if_working_dir_in_s3(self.working_dir)
         self.gust_file = gM.check_if_gust_file_from_s3(self.gust_file, self.working_dir)
+        log.debug('Running checkOutputFolders')
+        gM.checkOutputFolders(self.working_dir, self.type_mapping)
+        combined_mulipliers_file = None
 
-        if not hasattr(gM, 'computed_wm_path') or gM.computed_wm_path is None:
+        if gM.computed_wm_path is None:
             gM.check_if_wm_source_from_s3(self.type_mapping, self.tiles, self.dirns)
-            log.debug('Running checkOutputFolders')
-            gM.checkOutputFolders(self.working_dir, self.type_mapping)
             log.debug('Running Translate Multipliers')
             gM.copyTranslateMultipliers(self.tiles, self.configFile,
                                         self.type_mapping, self.working_dir)
@@ -925,8 +954,8 @@ class run():
             gM.combineDirections(self.dirns, self.working_dir)
         else:
             gM.extent = computeOutputExtentIfInvalid(gM.extent, self.gust_file, gM.computed_wm_path)
-            log.debug('Running extractDirections')
-            gM.extractDirections(self.dirns, self.working_dir)
+            log.debug('Running build_combined_multipliers_for_all_directions')
+            combined_mulipliers_file = gM.build_combined_multipliers_for_all_directions(self.dirns, self.working_dir)
 
         # Load the wind data:
         log.info("Loading regional wind data from {0}".format(self.gust_file))
@@ -948,7 +977,7 @@ class run():
 
         del ncobj
 
-        processMult(wspd, uu, vv, lon, lat, self.working_dir)
+        processMult(wspd, uu, vv, lon, lat, self.working_dir, combined_mulipliers_file=combined_mulipliers_file)
 
         if gM.s3_upload_path is not None:
             gM.upload_files_to_s3(self.working_dir, gM.s3_upload_path,
