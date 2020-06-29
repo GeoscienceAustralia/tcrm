@@ -195,11 +195,18 @@ def q75(x): return x.quantile(0.75)
 # to a directory that only has track files.
 
 def loadLandfallRates(datapath, gates):
+
+    if not os.path.isdir(datapath):
+        LOGGER.error(f"{datapath} is not a valid directory")
+        raise IOError(f"{datapath} is not a valid directory")
     filelist = []
     for (dirpath, dirnames, filenames) in walk(datapath):
         filelist.extend([fn for fn in filenames if fn.endswith('nc')])
         break
     nfiles = len(filelist)
+    if nfiles==0:
+        LOGGER.error(f"There are no valid trackfiles in the input path {datapath}")
+        raise IOError(f"There are no valid trackfiles in the input path {datapath}")
     LOGGER.info(f"There are {nfiles} track files in {datapath}")
 
 
@@ -216,7 +223,7 @@ def loadLandfallRates(datapath, gates):
         gatedflist.append(gatedf)
 
     gatesummary = pd.concat(gatedflist)
-
+    LOGGER.info("Grouping data")
 
 
     gs = gatesummary.groupby('gate').agg({'count':['sum',np.nanmean, np.nanstd, 'min', 'max', q10, q90],
@@ -238,6 +245,8 @@ def loadLandfallRates(datapath, gates):
     return gatedata
 
 def plotLandfallIntensity(df, datapath):
+
+    LOGGER.info("Plotting landfall intensity")
     width=0.4
     fig, ax = plt.subplots(3,1,figsize=(12,16),sharex=True)
     cat12 = np.add(df['cat1_nanmean'], df['cat2_nanmean']).tolist()
@@ -271,6 +280,8 @@ def plotLandfallIntensity(df, datapath):
     plt.savefig(os.path.join(datapath, "landfall_intensity.png"), bbox_inches='tight')
 
 def plotIntensityDistribution(df, datapath):
+
+    LOGGER.info("Plotting landfall intensity distribution")
     width=0.4
     fig, ax = plt.subplots(1,1, figsize=(12,6), sharex=True)
     cat12 = np.add(df['cat1_nanmean'], df['cat2_nanmean']).tolist()
@@ -307,13 +318,13 @@ if __name__ == "__main__":
     console.setFormatter(formatter)
     LOGGER.addHandler(console)
     LOGGER.info(f"Started {sys.argv[0]} (pid {os.getpid()})")
-    gatefile = "C:/WorkSpace/data/tcha/gates.shp"
+    gatefile = "/g/data/w85/QFES_SWHA/hazard/input/gates.shp"
     gates = loadGateFile(gatefile)
-    datapath = "C:/WorkSpace/swhaq/data/tracks/GROUP1-RCP45-2021-2040"
-    plotpath = "C:/WorkSpace/swhaq/data/tracks/GROUP1-RCP45-2021-2040"
+    datapath = "/g/data/w85/QFES_SWHA/hazard/output/GROUP1_RCP45_1981-2010/tracks"
+    plotpath = "/g/data/w85/QFES_SWHA/hazard/output/GROUP1_RCP45_1981-2010/plots"
     gatedata = loadLandfallRates(datapath, gates)
-    plotIntensityDistribution(gatedata, datapath)
-    plotLandfallIntensity(gatedata, datapath)
+    plotIntensityDistribution(gatedata, plotpath)
+    plotLandfallIntensity(gatedata, plotpath)
     gatedata_nogeom = pd.DataFrame(gatedata.drop(columns='geometry'))
     gatedata_nogeom.to_csv(os.path.join(plotpath, "simulated_landfall_rates.csv"), index=False)
     gatedata.to_file(os.path.join(plotpath, "simulated_landfall_rates.shp"))
