@@ -73,6 +73,12 @@ SaveData=True
 DataPath=%(cwd)s/output/process/
 PlotPath=%(cwd)s/output/plots/stats/
 
+[ProcessMultipliers]
+MaxWorkingThreads = 4
+ProcessMultiVersion = 2
+ProcessingSegmentSize = 256 
+WarpMemoryLimit = 500
+
 [Logging]
 LogFile=evaluate.log
 LogLevel=INFO

@@ -58,6 +58,13 @@ from netCDF4 import Dataset
 import boto3
 from botocore.exceptions import ClientError
 import tempfile
+import math
+import threading
+from concurrent import futures
+threadLock_gust = threading.Lock()
+threadLock_bear = threading.Lock()
+threadLock_m4 = threading.Lock()
+threadLock_out = threading.Lock()
 
 gdal.UseExceptions()
 
@@ -112,6 +119,10 @@ class getMultipliers():
         self._s3_client = None
         self.computed_wm_path = None
         self.extent_applied = False
+        self.process_multi_version = "2"
+        self.max_working_threads = 4
+        self.processing_segment_size = 256
+        self.warp_memory_limit = 500
 
         # Check for computed wind multiplier file path in config file
         if config.has_option('Input', 'Multipliers'):
@@ -132,6 +143,19 @@ class getMultipliers():
 
         if config.has_option('Input', 'ExtentApplied'):
             self.extent_applied = (config.get('Input', 'ExtentApplied').lower() == 'yes')
+        if config.has_option('ProcessMultipliers', 'ProcessMultiVersion'):
+            self.process_multi_version = config.get('ProcessMultipliers', 'ProcessMultiVersion')
+            log.info('Using ProcessMultiVersion {0}'.format(self.process_multi_version))
+        if config.has_option('ProcessMultipliers', 'MaxWorkingThreads'):
+            self.max_working_threads = config.getint('ProcessMultipliers', 'MaxWorkingThreads')
+            log.info('Using MaxWorkingThreads {0}'.format(self.max_working_threads))
+        if config.has_option('ProcessMultipliers', 'ProcessingSegmentSize'):
+            self.processing_segment_size = config.getint('ProcessMultipliers', 'ProcessingSegmentSize')
+            log.info('Using ProcessingSegmentSize {0}'.format(self.processing_segment_size))
+        if config.has_option('ProcessMultipliers', 'WarpMemoryLimit'):
+            self.warp_memory_limit = config.getint('ProcessMultipliers', 'WarpMemoryLimit')
+            log.info('Using WarpMemoryLimit {0}'.format(self.warp_memory_limit))
+
         if config.has_option('Output', 'Temporary_working_dir'):
             self.temporary_working_directory_name = config.get('Output', 'Temporary_working_dir')
 
@@ -610,6 +634,32 @@ def loadRasterFile(raster_file, fill_value=1, band_number=1):
     return data
 
 
+def loadAllBandArrayData(band_sources, fill_value=1, segment_info=None):
+    """
+    Load all 8 band data within specified segment and return the data
+    as a :class:`numpy.ndarray`. No prorjection information is
+    returned, just the actual data as an array.
+
+    :param str band_sources: Path to the raster file to load.
+    :param fill_value: Value to replace `nodata` values with (default=1).
+    :param List[int] segment_info: location and size of segment
+    :returns: 2-d array of the data values.
+    :rtype: :class:`numpy.ndarray`
+    """
+    data_array = []
+    with threadLock_m4:
+        for band in band_sources:
+            if segment_info is None:
+                data = band.ReadAsArray()
+            else:
+                data = band.ReadAsArray(segment_info[0], segment_info[1], segment_info[2], segment_info[3])
+            nodata = band.GetNoDataValue()
+            if nodata is not None:
+                np.putmask(data, data == nodata, fill_value)
+            data_array.append(data)
+    return data_array
+
+
 def loadRasterFileBandLonLat(raster_file, fill_value=1):
     """
     Load a raster file and return the data as a :class:`numpy.ndarray`.
@@ -636,7 +686,6 @@ def loadRasterFileBandLonLat(raster_file, fill_value=1):
     miny = gt[3] + width*gt[4] + height*gt[5]
     maxx = gt[0] + width*gt[1] + height*gt[2]
     maxy = gt[3]
-
 
     if nodata is not None:
         np.putmask(data, data == nodata, fill_value)
@@ -667,8 +716,8 @@ def calculateBearing(uu, vv):
 
 @timer
 def reprojectDataset(src_file, match_filename, dst_filename,
-                     resampling_method = gdalconst.GRA_Bilinear,
-                     match_projection = None):
+                     resampling_method=gdalconst.GRA_Bilinear,
+                     match_projection=None, warp_memory_limit=0.0):
     """
     Reproject a source dataset to match the projection of another
     dataset and save the projected dataset to a new file.
@@ -722,7 +771,7 @@ def reprojectDataset(src_file, match_filename, dst_filename,
     dstBand.SetNoDataValue(-9999)
 
     # Do the work
-    gdal.ReprojectImage(src, dst, src_proj, match_proj, resampling_method)
+    gdal.ReprojectImage(src, dst, src_proj, match_proj, resampling_method, WarpMemoryLimit=warp_memory_limit)
 
     del dst  # Flush
     if isinstance(match_filename, str):
@@ -851,10 +900,184 @@ def processMult(wspd, uu, vv, lon, lat, working_dir, m4_max_file = 'm4_ne.tif', 
 
     return output_file
 
+@timer
+def processMultV2(wspd, uu, vv, lon, lat, working_dir, dirns,
+                  max_working_threads, processing_segment_size, warp_memory_limit,
+                  m4_max_file = 'm4_ne.tif', combined_mulipliers_file=None):
+    """
+    The lat and lon values are the top left corners of the cells
+    The speed arrays are in bottom to top format.
+    V2 for processing by image segment instead of loading
+    whole image into memory.
+
+    :param wspd: The gust speed
+    :param uu: x component of the wind speed
+    :param vv: y component of the wind speed
+    :param lon: list of raster longitude values
+    :param lat:  list of raster latitude values
+    :param working_dir: The working output directory
+    :param m4_max_file: Multiplier file used for reprojection.
+    :param string combined_mulipliers_file: Path of raster file containing wind
+        multiplier data of all 8 directions
+    :return string: path of local wind file
+    """
+    # This gives different bearing values
+    # thank the bearings in the result tuple
+    bearing = calculateBearing(uu, vv)
+    delta = lon[1] - lon[0]
+
+    log.debug('Create rasters from the netcdf gust file variables')
+    wind_raster_file = pjoin(working_dir, 'region_wind.tif')
+    wind_raster = createRaster(np.flipud(wspd), lon, lat, delta, delta,
+                               filename = wind_raster_file)
+    bear_raster = createRaster(np.flipud(bearing), lon, lat, delta, delta)
+    uu_raster = createRaster(np.flipud(uu), lon, lat, delta, delta)
+    vv_raster = createRaster(np.flipud(vv), lon, lat, delta, delta)
+
+    log.info("Reprojecting regional wind data")
+    wind_prj_file = pjoin(working_dir, 'gust_prj.tif')
+    bear_prj_file = pjoin(working_dir, 'bear_prj.tif')
+    uu_prj_file = pjoin(working_dir, 'uu_prj.tif')
+    vv_prj_file = pjoin(working_dir, 'vv_prj.tif')
+
+    log.info('Reproject the wind speed and bearing data to match '
+             'the input wind multipliers')
+    if combined_mulipliers_file is not None:
+        m4_max_file = combined_mulipliers_file
+    else:
+        m4_max_file = pjoin(working_dir, m4_max_file)
+
+    future_requests = []
+    with futures.ThreadPoolExecutor(max_workers=max_working_threads) as e:
+        m4_max_file_obj=gdal.Open(m4_max_file, gdal.GA_ReadOnly)
+        thread_wind = e.submit(reprojectDataset, wind_raster, m4_max_file_obj, wind_prj_file,
+                               warp_memory_limit=warp_memory_limit)
+        thread_bear = e.submit(reprojectDataset, bear_raster, m4_max_file_obj, bear_prj_file,
+                               warp_memory_limit=warp_memory_limit,
+                               resampling_method=gdalconst.GRA_NearestNeighbour)
+        futures.wait([thread_bear])
+        thread_bear.result() # Called to obtain exception information if any
+        future_requests.append(e.submit(reprojectDataset, uu_raster, m4_max_file_obj, uu_prj_file,
+                                        warp_memory_limit=warp_memory_limit,
+                                        resampling_method=gdalconst.GRA_NearestNeighbour))
+        futures.wait([thread_wind]) # Writing wind is slow as it has to write region_wind.tif as well
+        thread_wind.result() # Called to obtain exception information if any
+        future_requests.append(e.submit(reprojectDataset, vv_raster, m4_max_file_obj, vv_prj_file,
+                                        warp_memory_limit=warp_memory_limit,
+                                        resampling_method=gdalconst.GRA_NearestNeighbour))
+
+        wind_prj_ds = gdal.Open(wind_prj_file, gdal.GA_ReadOnly)
+        wind_prj = wind_prj_ds.GetRasterBand(1)
+        bear_prj_ds = gdal.Open(bear_prj_file, gdal.GA_ReadOnly)
+        bear_prj = bear_prj_ds.GetRasterBand(1)
+        wind_proj = wind_prj_ds.GetProjection()
+        wind_geot = wind_prj_ds.GetGeoTransform()
+
+        cols = wind_prj.XSize
+        rows = wind_prj.YSize
+
+        output_file = pjoin(working_dir, 'local_wind.tif')
+        log.info("Creating output file: {0}".format(output_file))
+        # Save the local wind field to a raster file with the SRS of the
+        # multipliers
+        drv = gdal.GetDriverByName("GTiff")
+        dst_ds = drv.Create(output_file, cols, rows, 1,
+                            gdal.GDT_Float32, ['SPARSE_OK=TRUE'])
+        dst_ds.SetGeoTransform(wind_geot)
+        dst_ds.SetProjection(wind_proj)
+        dst_band = dst_ds.GetRasterBand(1)
+        dst_band.SetNoDataValue(-9999)
+
+        log.info("Reading bands")
+        source_dir_bands = []
+        m4_ds_arr = []
+        if combined_mulipliers_file is None:
+            for dn in dirns:
+                m4_file = pjoin(working_dir, 'm4_{0}.tif'.format(dn.lower()))
+                m4_ds = gdal.Open(m4_file, gdal.GA_ReadOnly)
+                source_dir_bands.append(m4_ds.GetRasterBand(1))
+                m4_ds_arr.append(m4_ds)
+        else:
+            dn_ix = 0
+            m4_ds = gdal.Open(combined_mulipliers_file, gdal.GA_ReadOnly)
+            for dn in dirns:
+                dn_ix = dn_ix + 1
+                source_dir_bands.append(m4_ds.GetRasterBand(dn_ix))
+
+        total_segments = int(math.ceil(1.0 * cols / processing_segment_size)
+                             * math.ceil(1.0 * rows / processing_segment_size))
+        segment_count = 0
+        segments = []
+        for y_offset in range(0, rows, processing_segment_size):
+            height = rows - y_offset if y_offset + processing_segment_size > rows else processing_segment_size
+            for x_offset in range(0, cols, processing_segment_size):
+                segment_count = segment_count + 1
+                width = cols - x_offset if x_offset + processing_segment_size > cols else processing_segment_size
+                segments.append([x_offset, y_offset, width, height, segment_count, total_segments])
+
+        log.info("Lunching {0} segmented task in {1} worker threads".format(total_segments, max_working_threads))
+        for seg in segments:
+            future_requests.append(e.submit(processMultiplierSegment, seg, source_dir_bands, wind_prj, bear_prj, dst_band))
+        futures.wait(future_requests, return_when='FIRST_EXCEPTION')
+        for task in future_requests:
+            task.result() # Called to obtain exception information if any
+
+    del dst_ds
+    print("")
+    log.info("Completed")
+
+    return output_file
+
+
+def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_band):
+    """
+    Calculates local wind multiplier data by image segments
+    and writes to corresponding segment of output file
+
+    :param segment: image segment specified by [x_offset, y_offset,
+                    width, height, segment_count, total_segments]
+    :param source_dir_band: 8 band array representing wind mulitpliers
+                    data in 8 directions
+    :param wind_prj: band representing gust data
+    :param bear_prj: band representing bear data
+    :param dst_band: band of output file
+    """
+    band_numbers_for_indices_in_geotiff = [2, 3, 1, 6, 5, 7, 8, 4, 2]
+    indices = {
+        0: {'dir': 'n', 'min': 0., 'max': 22.5},
+        1: {'dir': 'ne', 'min': 22.5, 'max': 67.5},
+        2: {'dir': 'e', 'min': 67.5, 'max': 112.5},
+        3: {'dir': 'se', 'min': 112.5, 'max': 157.5},
+        4: {'dir': 's', 'min': 157.5, 'max': 202.5},
+        5: {'dir': 'sw', 'min': 202.5, 'max': 247.5},
+        6: {'dir': 'w', 'min': 247.5, 'max': 292.5},
+        7: {'dir': 'nw', 'min': 292.5, 'max': 337.5},
+        8: {'dir': 'n', 'min': 337.5, 'max': 360.}
+    }
+    [x_offset, y_offset, width, height, segment_id, total_segments] = segment
+    log.debug("Processing segment {0}/{1}: {2} {3} {4} {5}".format(segment_id, total_segments, x_offset, y_offset, width, height))
+    with threadLock_gust:
+        wind_data = wind_prj.ReadAsArray(x_offset, y_offset, width, height)
+    with threadLock_bear:
+        bear_data = bear_prj.ReadAsArray(x_offset, y_offset, width, height)
+    m4_all = loadAllBandArrayData(source_dir_band, segment_info=segment)
+    local = np.zeros([height, width], dtype='float32')
+    for i in list(indices.keys()):
+        m4 = m4_all[band_numbers_for_indices_in_geotiff[i] - 1]
+        idx = np.where((bear_data >= indices[i]['min']) &
+                       (bear_data < indices[i]['max']))
+        local[idx] = wind_data[idx] * m4[idx]
+    with threadLock_out:
+        dst_band.WriteArray(local, x_offset, y_offset)
+        print('\rProgress: {0:.2f}'.format((segment_id * 100) / total_segments), "%", end="")
+    if segment_id % int(math.ceil(total_segments / 20)) == 0:
+        if log.getLogger(__name__).getEffectiveLevel() == log.DEBUG:
+            print("")
+        log.debug('Progress: {0} %'.format(int((segment_id * 100) / total_segments)))
+
 class run():
 
     def __init__(self):
-
         """
         Parse command line arguments and call the :func:`main` function.
 
@@ -955,7 +1178,7 @@ class run():
         else:
             gM.extent = computeOutputExtentIfInvalid(gM.extent, self.gust_file, gM.computed_wm_path)
             log.debug('Running build_combined_multipliers_for_all_directions')
-            combined_mulipliers_file = gM.build_combined_multipliers_for_all_directions(self.dirns, self.working_dir)
+            combined_mulipliers_file = gM.build_combined_multipliers_for_all_directions(self.working_dir)
 
         # Load the wind data:
         log.info("Loading regional wind data from {0}".format(self.gust_file))
@@ -977,7 +1200,14 @@ class run():
 
         del ncobj
 
-        processMult(wspd, uu, vv, lon, lat, self.working_dir, combined_mulipliers_file=combined_mulipliers_file)
+        if gM.process_multi_version == "1":
+            processMult(wspd, uu, vv, lon, lat, self.working_dir,
+                        combined_mulipliers_file=combined_mulipliers_file)
+        else:
+            processMultV2(wspd, uu, vv, lon, lat, self.working_dir, self.dirns,
+                          gM.max_working_threads, gM.processing_segment_size,
+                          gM.warp_memory_limit,
+                          combined_mulipliers_file=combined_mulipliers_file)
 
         if gM.s3_upload_path is not None:
             gM.upload_files_to_s3(self.working_dir, gM.s3_upload_path,
