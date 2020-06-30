@@ -71,7 +71,8 @@ def vmax(pCentre, pEnv, type="holland", beta=1.3, rho=1.15):
              (Atkinson & Holliday) was determined using surface
              wind observations so should be used with caution at
              the gradient level.
-    :raises ValueError: if environmental pressure is lower than central pressure
+    :raises ValueError: if environmental pressure is lower than
+                        central pressure
 
     Note: The pressure should ideally be passed in units of Pa, but the
     function will accept hPa and automatically convert to Pa.
@@ -114,6 +115,7 @@ def vmax(pCentre, pEnv, type="holland", beta=1.3, rho=1.15):
     else:
         raise NotImplementedError("Vmax type " + type + " not implemented")
     return vMax
+
 
 def pDiff(vMax, pEnv, vMaxType="holland", beta=1.3, rho=1.15):
     """
