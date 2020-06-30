@@ -118,6 +118,7 @@ class getMultipliers():
         self.s3_upload_path = None
         self._s3_client = None
         self.computed_wm_path = None
+        # Initialise to default values
         self.extent_applied = False
         self.process_multi_version = "2"
         self.max_working_threads = 4
@@ -305,7 +306,8 @@ class getMultipliers():
             # If S3 download
             if self.computed_wm_path.startswith('/vsis3/'):
                 downloaded_computed_wm_path = self.download_from_s3(self.computed_wm_path,output_path)
-                log.info('Wind multipliers with applied extent is downloded to {0} from {1}'.format(downloaded_computed_wm_path, self.computed_wm_path))
+                log.info('Wind multipliers with applied extent is downloded to {0} from {1}'
+                         .format(downloaded_computed_wm_path, self.computed_wm_path))
                 return downloaded_computed_wm_path
             else:
                 log.info('Wind multipliers with applied extent located at {0}'.format(self.computed_wm_path))
@@ -415,7 +417,8 @@ class getMultipliers():
             s3_client = self.get_s3_client()
             for file_name in files_to_upload:
                 local_path = pjoin(local_directory, file_name)
-                log.info("Uploading file to S3 bucket: {0}, key: {1}, local path: {2}".format(bucket_name, bucket_key + file_name, local_path))
+                log.info("Uploading file to S3 bucket: {0}, key: {1}, local path: {2}"
+                         .format(bucket_name, bucket_key + file_name, local_path))
                 s3_client.upload_file(local_path, bucket_name, bucket_key + file_name)
         except ClientError as e:
             log.exception("S3 write error: {0}".format(file_name))
@@ -430,7 +433,8 @@ class getMultipliers():
         """
         [bucket_name, bucket_key, file_name] = self.s3_path_segments_from_vsis3(s3_source_path)
         file_path = pjoin(destination_directory, file_name)
-        log.info("Downloading file from S3 bucket: {0}, key: {1}, local path: {2}".format(bucket_name, bucket_key, file_path))
+        log.info("Downloading file from S3 bucket: {0}, key: {1}, local path: {2}"
+                 .format(bucket_name, bucket_key, file_path))
         try:
             s3_client = self.get_s3_client()
             s3_client.download_file(bucket_name, bucket_key, file_path)
@@ -454,7 +458,8 @@ class getMultipliers():
             s3_client = self.get_s3_client()
             for file_name in files_to_download:
                 file_path = pjoin(destination_directory, file_name)
-                log.info("Downloading file from S3 bucket: {0}, key: {1}, local path: {2}".format(bucket_name, bucket_key + file_name, file_path))
+                log.info("Downloading file from S3 bucket: {0}, key: {1}, local path: {2}"
+                         .format(bucket_name, bucket_key + file_name, file_path))
                 s3_client.download_file(bucket_name, bucket_key + file_name, file_path)
         except ClientError as e:
             log.exception("S3 read error: {0}".format(file_name))
@@ -640,7 +645,7 @@ def loadAllBandArrayData(band_sources, fill_value=1, segment_info=None):
     as a :class:`numpy.ndarray`. No prorjection information is
     returned, just the actual data as an array.
 
-    :param str band_sources: Path to the raster file to load.
+    :param List[object] band_sources: reference to 8 bands in array
     :param fill_value: Value to replace `nodata` values with (default=1).
     :param List[int] segment_info: location and size of segment
     :returns: 2-d array of the data values.
@@ -1055,7 +1060,8 @@ def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_b
         8: {'dir': 'n', 'min': 337.5, 'max': 360.}
     }
     [x_offset, y_offset, width, height, segment_id, total_segments] = segment
-    log.debug("Processing segment {0}/{1}: {2} {3} {4} {5}".format(segment_id, total_segments, x_offset, y_offset, width, height))
+    log.debug("Processing segment {0}/{1}: {2} {3} {4} {5}"
+              .format(segment_id, total_segments, x_offset, y_offset, width, height))
     with threadLock_gust:
         wind_data = wind_prj.ReadAsArray(x_offset, y_offset, width, height)
     with threadLock_bear:
@@ -1211,7 +1217,8 @@ class run():
 
         if gM.s3_upload_path is not None:
             gM.upload_files_to_s3(self.working_dir, gM.s3_upload_path,
-                                  ['local_wind.tif', 'region_wind.tif', 'vv_prj.tif', 'uu_prj.tif', 'bear_prj.tif', 'gust_prj.tif'])
+                                  ['local_wind.tif', 'region_wind.tif', 'vv_prj.tif',
+                                   'uu_prj.tif', 'bear_prj.tif', 'gust_prj.tif'])
 
 if __name__ == "__main__":
     run()
