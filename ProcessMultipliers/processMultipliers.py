@@ -17,7 +17,30 @@ This version assumes that the site-exposure multipliers are given as a
 combined value (i.e. ``Ms * Mz * Mh``), and the files are ERDAS
 Imagine-format files ('*.img'). Further, the files are assumed to have
 the file name ``m4_<dir>.img``, where <dir> is the direction (n, ne, e,
-se, s, sw, w or nw).
+se, s, sw, w or nw). Alternatively, computed site-exposure multipliers
+can also be provided with all 8 direction data in 'e', 'n', 'ne', 'nw',
+'s', 'se', 'sw' and 'w' sequence bands.
+
+AWS S3 location can also be specified for input and output of this
+module following GDAL Virtual File Systems convention
+(https://gdal.org/user/virtual_file_systems.html#vsis3). The location
+should be specified in /vsis3/bucket/key format. AWS authentication
+should be provided in ~/.aws/credentials property file and AWS region
+should be set in ~/.aws/config property file under 'default' profile.
+Aleternative ways of AWS authentication can also be found in
+https://gdal.org/user/virtual_file_systems.html#vsis3.
+AWS user access keys should be correctly configured in "Identity and
+Access Management (IAM)" => "Users" => "Security credentials" =>
+"Access keys" with correct pemissions to access S3.
+Example of ~/.aws/credentials:
+    [default]
+    aws_access_key_id = <access_key>
+    aws_secret_access_key = <secret_access_key>
+Example of ~/.aws/config:
+    [default]
+    region = ap-southeast-2
+    output = json
+
 
 Requires the Python GDAL bindings, Numpy, netCDF4 and the :mod:`files`
 and :mod:`config` modules from TCRM. It assumes :mod:`Utilities` can
