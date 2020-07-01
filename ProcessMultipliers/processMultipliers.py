@@ -41,7 +41,6 @@ Example of ~/.aws/config:
     region = ap-southeast-2
     output = json
 
-
 Requires the Python GDAL bindings, Numpy, netCDF4 and the :mod:`files`
 and :mod:`config` modules from TCRM. It assumes :mod:`Utilities` can
 be found in the ``PYTHONPATH`` directory.
