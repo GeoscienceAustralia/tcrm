@@ -279,8 +279,13 @@ def plotLandfallIntensity(df, datapath):
     ax[2].set_ylabel("Mean proportion of landfall")
     plt.savefig(os.path.join(datapath, "landfall_intensity.png"), bbox_inches='tight')
 
-def plotIntensityDistribution(df, datapath):
+def plotIntensityDistribution(df, plotpath):
+    """
+    Plot a distribution of intenstity at landfall
 
+    :param df: `DataFrame` containing the gate data
+    :param str plotpath: Path to where the plots will be saved/
+    """
     LOGGER.info("Plotting landfall intensity distribution")
     width=0.4
     fig, ax = plt.subplots(1,1, figsize=(12,6), sharex=True)
@@ -300,7 +305,7 @@ def plotIntensityDistribution(df, datapath):
     ax.set_yticks(np.arange(0,1.1,.2))
     ax.set_xticklabels(gatedata['label'][::2], rotation='vertical')
     ax.set_ylabel("Mean rate of landfall")
-    plt.savefig(os.path.join(datapath, "mean_landfall_rate_intensity.png"), bbox_inches='tight')
+    plt.savefig(os.path.join(plotpath, "mean_landfall_rate_intensity.png"), bbox_inches='tight')
 
 
 if __name__ == "__main__":
@@ -320,8 +325,8 @@ if __name__ == "__main__":
     LOGGER.info(f"Started {sys.argv[0]} (pid {os.getpid()})")
     gatefile = "/g/data/w85/QFES_SWHA/hazard/input/gates.shp"
     gates = loadGateFile(gatefile)
-    datapath = "/g/data/w85/QFES_SWHA/hazard/output/GROUP1_RCP45_1981-2010/tracks"
-    plotpath = "/g/data/w85/QFES_SWHA/hazard/output/GROUP1_RCP45_1981-2010/plots"
+    datapath = "/g/data/w85/QFES_SWHA/hazard/output/GROUP2_RCP45_1981-2010/tracks"
+    plotpath = "/g/data/w85/QFES_SWHA/hazard/output/GROUP2_RCP45_1981-2010/plots"
     gatedata = loadLandfallRates(datapath, gates)
     plotIntensityDistribution(gatedata, plotpath)
     plotLandfallIntensity(gatedata, plotpath)
