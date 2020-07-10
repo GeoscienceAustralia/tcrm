@@ -16,8 +16,9 @@ install:
   - conda update -q conda
   - conda config --add channels conda-forge
   - conda config --set channel_priority strict
-  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION pip numpy scipy matplotlib basemap shapely nose netcdf4 cftime coverage coveralls pycurl pyproj seaborn simplejson sqlite statsmodels libgdal gdal configparser cartopy affine tqdm xarray gxx_linux-64 pthread-stubs imageio boto3 botocore
-  - source activate test-env
+  - conda env create -q -f tcrmenv.yml python=$TRAVIS_PYTHON_VERSION 
+  - source activate tcrm
+
 branches:
   except:
     - config
