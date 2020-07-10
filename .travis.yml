@@ -18,6 +18,10 @@ install:
   - conda config --set channel_priority strict
   - conda env create -q -f tcrmenv.yml python=$TRAVIS_PYTHON_VERSION 
   - source activate tcrm
+<<<<<<< HEAD
+=======
+
+>>>>>>> d3ab8809d2310a9bf4752f7017655cfe743c2510
 branches:
   except:
     - config
