@@ -2,6 +2,7 @@ language: python
 python:
   - '3.6'
   - '3.7'
+  - '3.8'
 install:
   - sudo apt-get update
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -15,7 +16,7 @@ install:
   - conda update -q conda
   - conda config --add channels conda-forge
   - conda config --set channel_priority strict
-  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION pip numpy scipy matplotlib basemap shapely nose netcdf4 cftime coverage coveralls pycurl pyproj seaborn simplejson sqlite statsmodels libgdal gdal configparser cartopy affine tqdm xarray gxx_linux-64 pthread-stubs imageio
+  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION pip numpy scipy matplotlib basemap shapely nose netcdf4 cftime coverage coveralls pycurl pyproj seaborn simplejson sqlite statsmodels libgdal gdal configparser cartopy affine tqdm xarray gxx_linux-64 pthread-stubs imageio boto3 botocore
   - source activate test-env
 branches:
   except:
