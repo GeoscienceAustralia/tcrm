@@ -73,6 +73,22 @@ class TestConvert(NumpyTestCase.NumpyTestCase):
         self.assertAlmostEqual(metutils.convert(1, "deg", "km"), (1/(360/(2*pi*6367))), 3)
         self.assertAlmostEqual(metutils.convert(2, "deg", "km"), (2/(360/(2*pi*6367))), 3)
         self.assertAlmostEqual(metutils.convert(10, "deg", "km"), (10/(360/(2*pi*6367))), 3)
+        
+    def test_km2m(self):
+        """Convert distance in km to distance in m"""
+        self.assertEqual(metutils.convert(0, "km", "m"), 0)
+        self.assertAlmostEqual(metutils.convert(1, "km", "m"), 1000)
+
+    def test_m2km(self):
+        """Convert distance in m to distance in km"""
+        self.assertEqual(metutils.convert(0, "m", "km"), 0)
+        self.assertAlmostEqual(metutils.convert(1000., "m", "km"), 1.)
+        self.assertAlmostEqual(metutils.convert(10000., "m", "km"), 10.)
+
+    def test_m2nm(self):
+        self.assertEqual(metutils.convert(0, "m", "nm"), 0)
+        self.assertAlmostEqual(metutils.convert(1000., "m", "nm"), 0.539957)
+
 
     def test_hPa2Pa(self):
         """Convert pressure from hPa to Pa"""
