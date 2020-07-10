@@ -16,8 +16,8 @@ install:
   - conda update -q conda
   - conda config --add channels conda-forge
   - conda config --set channel_priority strict
-  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION -f tcrmenv.yml 
-  - source activate test-env
+  - conda env create -q -f tcrmenv.yml python=$TRAVIS_PYTHON_VERSION 
+  - source activate tcrm
 branches:
   except:
     - config
