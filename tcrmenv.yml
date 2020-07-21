@@ -30,3 +30,5 @@ dependencies:
   - pthread-stubs
   - imageio
   - mpi4py
+  - boto3
+  - botocore
