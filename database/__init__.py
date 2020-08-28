@@ -663,14 +663,14 @@ class _HazardDatabase(sqlite3.Connection):
                 except:
                     log.warn("Problems recieving results on node 0")
 
+                d = status.source
                 if result:
-                    log.debug("Inserting results into tblTracks")
+                    log.info(f"Inserting results into tblTracks from node {d}")
                     self.insertTracks(result)
 
-                d = status.source
                 if w < len(trackfiles):
                     comm.send((trackfiles[w], locations),
-                              dest=d, tag=status.tag)
+                              dest=d, tag=work_tag)
                     log.info("Processing {0}".format(trackfiles[w]))
                     log.debug("Processing track {0:d} of {1:d}".\
                               format(w, len(trackfiles)))
