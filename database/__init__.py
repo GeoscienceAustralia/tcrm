@@ -133,8 +133,7 @@ INSLOCATIONS = ("INSERT OR REPLACE INTO tblLocations "
 INSEVENTS = "INSERT INTO tblEvents VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 
 # Insert wind speed record:
-INSWINDSPEED = ("INSERT INTO tblWindSpeed (locId, eventId, wspd, "
-                "umax, vmax, pmin, Comments, dtCreated) "
+INSWINDSPEED = ("INSERT INTO tblWindSpeed "
                 "VALUES (?,?,?,?,?,?,?,?)")
 
 # Insert hazard record:
@@ -550,7 +549,7 @@ class _HazardDatabase(sqlite3.Connection):
             locUa = ua[j, i]
             locVa = va[j, i]
             locPr = pmin[j, i]
-            locParams = (locId, eventId, float(locVm), float(locUa),
+            locParams = (int(locId), eventId, float(locVm), float(locUa),
                          float(locVa), float(locPr), " ", datetime.now())
             wsparams.append(locParams)
 
@@ -663,14 +662,14 @@ class _HazardDatabase(sqlite3.Connection):
                 except:
                     log.warn("Problems recieving results on node 0")
 
+                d = status.source
                 if result:
-                    log.debug("Inserting results into tblTracks")
+                    log.info(f"Inserting results into tblTracks from node {d}")
                     self.insertTracks(result)
 
-                d = status.source
                 if w < len(trackfiles):
                     comm.send((trackfiles[w], locations),
-                              dest=d, tag=status.tag)
+                              dest=d, tag=work_tag)
                     log.info("Processing {0}".format(trackfiles[w]))
                     log.debug("Processing track {0:d} of {1:d}".\
                               format(w, len(trackfiles)))

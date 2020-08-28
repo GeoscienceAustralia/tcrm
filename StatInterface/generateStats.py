@@ -467,7 +467,7 @@ class GenerateStats:
                                 'units':'m/s'} },
                      8:{'name':'cell', 'dims':('lat','lon'),
                         'values':np.arange(self.maxCell+1).reshape((ny,nx)),
-                        'dtype':'i',
+                        'dtype':'i8',
                         'atts':{'long_name':'Cell', 'units':''} },
                      9:{'name':'phi', 'dims':('lat','lon'),
                         'values':self.coeffs.phi.reshape((ny,nx)),

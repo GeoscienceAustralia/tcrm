@@ -309,6 +309,7 @@ def plotIntensityDistribution(df, plotpath):
 
 
 if __name__ == "__main__":
+    import argparse
 
     logFormat = "%(asctime)s: %(funcName)s: %(message)s"
     logging.basicConfig(level='INFO', 
@@ -323,10 +324,18 @@ if __name__ == "__main__":
     console.setFormatter(formatter)
     LOGGER.addHandler(console)
     LOGGER.info(f"Started {sys.argv[0]} (pid {os.getpid()})")
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--path")
+    args = parser.parse_args()
+
+    basepath = args.path
+
     gatefile = "/g/data/w85/QFES_SWHA/hazard/input/gates.shp"
     gates = loadGateFile(gatefile)
-    datapath = "/g/data/w85/QFES_SWHA/hazard/output/GROUP2_RCP45_1981-2010/tracks"
-    plotpath = "/g/data/w85/QFES_SWHA/hazard/output/GROUP2_RCP45_1981-2010/plots"
+    
+    datapath = pjoin(basepath, "tracks")
+    plotpath = pjoin(basepath, "plots")
     gatedata = loadLandfallRates(datapath, gates)
     plotIntensityDistribution(gatedata, plotpath)
     plotLandfallIntensity(gatedata, plotpath)
