@@ -390,8 +390,8 @@ class WindfieldGenerator(object):
 
         """
 
-        track_limits = {'xMin': 9999, 'xMax': -
-                        9999, 'yMin': 9999, 'yMax': -9999}
+        track_limits = {'xMin': 9999, 'xMax': -9999,
+                        'yMin': 9999, 'yMax': -9999}
         track_limits['xMin'] = min(track_limits['xMin'], track.Longitude.min())
         track_limits['xMax'] = max(track_limits['xMax'], track.Longitude.max())
         track_limits['yMin'] = min(track_limits['yMin'], track.Latitude.min())
@@ -698,8 +698,7 @@ class WindfieldGenerator(object):
 
         """
 
-        tracks = loadTracksFromFiles(sorted(trackfiles))
-
+        tracks = loadTracksFromFiles(sorted(trackfiles), self.gridLimit, self.margin)
         self.dumpGustsFromTracks(tracks, windfieldPath,
                                  timeStepCallback=timeStepCallback)
 
@@ -712,7 +711,7 @@ class WindfieldGenerator(object):
 
         # Load a multiplier file to determine the projection:
         # m4_max_file = pjoin(self.multipliers, 'm4_max.img')
-        log.info("Using M4 data from {0}".format(self.multipliers))
+        log.info(f"Using M4 data from {self.multipliers}")
 
         for track, result in results:
             log.debug("Doing Multiplier for track {0:03d}-{1:05d}"
@@ -728,8 +727,28 @@ class WindfieldGenerator(object):
             pM.processMult(gust, Vx, Vy, lon, lat, self.windfieldPath,
                            self.multipliers)
 
+def inRegion(t, gridLimit, margin):
+    """
+    :param t: :class:`Track` object
 
-def loadTracksFromFiles(trackfiles):
+    :returns: True if the track enters the simulation grid, False otherwise
+
+    """
+    xMin = gridLimit['xMin'] - margin
+    xMax = gridLimit['xMax'] + margin
+    yMin = gridLimit['yMin'] - margin
+    yMax = gridLimit['yMax'] + margin
+    return ((xMin <= t.Longitude.max()) and
+            (t.Longitude.min() <= xMax) and
+            (yMin <= t.Latitude.max()) and
+            (t.Latitude.min() <= yMax))
+
+def filterTracks(tracks, gridLimit, margin):
+    if not (gridLimit is None):
+        validTracks = [t for t in tracks if inRegion(t, gridLimit, margin)]
+    return validTracks
+
+def loadTracksFromFiles(trackfiles, gridLimit, margin):
     """
     Generator that yields :class:`Track` objects from a list of track
     filenames.
@@ -746,9 +765,9 @@ def loadTracksFromFiles(trackfiles):
                        path to the file.
     """
     for f in balanced(trackfiles):
-        msg = 'Calculating wind fields for tracks in %s' % f
+        msg = f'Calculating wind fields for tracks in {f}'
         log.info(msg)
-        tracks = loadTracks(f)
+        tracks = filterTracks(loadTracks(f), gridLimit, margin)
         for track in tracks:
             yield track
 
@@ -784,7 +803,7 @@ def loadTracksFromPath(path):
     """
     files = os.listdir(path)
     trackfiles = [pjoin(path, f) for f in files if f.startswith('tracks')]
-    msg = 'Processing {0} track files in {1}'.format(len(trackfiles), path)
+    msg = f'Processing {len(trackfiles)} track files in {path}'
     log.info(msg)
     return loadTracksFromFiles(sorted(trackfiles))
 
@@ -873,7 +892,7 @@ def run(configFile, callback=None):
                              multipliers=multipliers,
                              windfieldPath=windfieldPath)
 
-    log.info('Dumping gusts to {0}'.format(windfieldPath))
+    log.info(f'Dumping gusts to {windfieldPath}')
 
     # Get the trackfile names and count
 
