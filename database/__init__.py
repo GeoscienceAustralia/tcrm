@@ -55,6 +55,9 @@ from Utilities.track import loadTracksFromFiles
 from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities.process import pAlreadyProcessed, pGetProcessedFiles
 from functools import reduce
+
+sqlite3.register_adapter(np.int64, lambda val: int(val))
+sqlite3.register_adapter(np.int32, lambda val: int(val))
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
