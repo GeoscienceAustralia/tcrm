@@ -60,11 +60,13 @@ class KDEParameters(object):
         LOG.info("Initialising KDEParameters")
         kernels = kernel_switch.keys()
         if kdeType in kernels:
-            LOG.debug("Using {0} to generate distribution".format(kdeType))
+            LOG.debug(f"Using {kdeType} to generate distribution")
             self.kdeType = kdeType
         else:
-            LOG.error("Invalid kernel type: {0}".format(kdeType))
-            raise NotImplementedError("Invalid kernel type: {0}".format(kdeType))
+            msg = (f"Invalid kernel type: {kdeType} \n"
+                   f"Valid kernels are {repr(kernels)}")
+            LOG.error(msg)
+            raise NotImplementedError(msg)
 
     def generateKDE(self, parameters, kdeStep, kdeParameters=None,
                     cdfParameters=None, angular=False, periodic=False,
