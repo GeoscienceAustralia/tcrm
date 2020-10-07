@@ -580,7 +580,7 @@ def saveFigure(figure, filename):
 
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     canvas = FigureCanvas(figure)
-    canvas.print_figure(filename, bbox_inches='tight')
+    canvas.print_figure(filename, bbox_inches='tight', dpi=300)
 
 def saveHazardCurve(years, events, wspd, wspdupper, wspdlower,
                     xlabel, ylabel, title, filename, fit):

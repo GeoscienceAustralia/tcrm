@@ -86,6 +86,7 @@ class AutoPlotHazard(object):
         self.plotUnits = PlotUnits(config.get('Hazard', 'PlotSpeedUnits'))
         self.ciBounds = config.getboolean('Hazard', 'CalculateCI')
         self.fit = config.get('Hazard', 'ExtremeValueDistribution')
+        self.numsimulations = config.getint("TrackGenerator", "NumSimulations")
 
         self.progressbar = progressbar
 
@@ -217,7 +218,7 @@ class AutoPlotHazard(object):
             wspd = ncobj.variables['wspd'][:, j, i]
 
             recs = database.locationRecords(self.db, pID)
-            data = np.zeros(int(10000 * 365.25))
+            data = np.zeros(int(self.numsimulations * 365.25))
             if len(recs) > 0:
                 data[-len(recs):] = recs['wspd']
 

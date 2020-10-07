@@ -194,8 +194,8 @@ class DataProcess(object):
         startSeason = config.getint('DataProcess', 'StartSeason')
 
         indicator = loadData.getInitialPositions(inputData)
-        lat = np.array(inputData['lat'], 'd')
-        lon = np.mod(np.array(inputData['lon'], 'd'), 360)
+        lat = np.array(inputData['lat'], 'float32')
+        lon = np.mod(np.array(inputData['lon'], 'float32'), 360.)
 
         if restrictToWindfieldDomain:
             # Filter the input arrays to only retain the tracks that

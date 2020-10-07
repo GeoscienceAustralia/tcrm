@@ -44,37 +44,39 @@ Dependencies
 
 TCRM requires:
 
- * `Python 2.7 <https://www.python.org/>`_;
+ * `Python 3.7 <https://www.python.org/>`_;
  * `numpy <http://www.numpy.org/>`_; 
  * `scipy <http://www.scipy.org/>`_;
- * `matplotlib 1.4.3 <http://matplotlib.org/>`_; 
- * `Basemap 1.0.8 <http://matplotlib.org/basemap/index.html>`_; 
- * `netcdf4-python >=1.4.1 <https://code.google.com/p/netcdf4-python/>`_; 
+ * `matplotlib <http://matplotlib.org/>`_; 
+ * `Basemap <http://matplotlib.org/basemap/index.html>`_; 
+ * `netcdf4-python <https://unidata.github.io/netcdf4-python/netCDF4/index.html>`_; 
+ * `cftime <https://unidata.github.io/cftime/>`_;
  * `pandas <http://pandas.pydata.org/>`_; 
- * `Shapely <https://github.com/Toblerity/Shapely>`_; 
- * `seaborn 0.6 <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_;
- * `statsmodels 0.6.1 <http://statsmodels.sourceforge.net>`_;
+ * `Shapely <https://shapely.readthedocs.io/en/latest/manual.html>`_; 
+ * `seaborn <https://seaborn.pydata.org/>`_;
+ * `statsmodels <http://statsmodels.sourceforge.net>`_;
  * `GitPython <http://gitpython.readthedocs.io>`_;
  * `GDAL/OGR <https://pypi.org/project/GDAL/>`_;
+ * `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_;
  * and `gcc`.  
 
-For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
+
 
 Status
 ======
 
-.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=v2.1
+.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=develop
     :target: https://travis-ci.org/GeoscienceAustralia/tcrm
     :alt: Build status
 
 
-.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=v2.1
-  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=v2.1
+.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=develop
+  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=develop
   :alt: Test coverage
 
     
 .. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/develop/landscape.svg?style=flat
-    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/v2.1
+    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/develop
     :alt: Code Health
     
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3741493.svg
@@ -101,8 +103,8 @@ for usage, and a DISCLAIMER OF ALL WARRANTIES.
 Contacts
 ========
 
-Craig Arthur
+Community Safety Branch
 Geoscience Australia
-craig.arthur@ga.gov.au
+hazards@ga.gov.au
 
 

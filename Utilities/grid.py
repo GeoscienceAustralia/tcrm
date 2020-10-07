@@ -256,7 +256,14 @@ class SampleGrid(object):
         :returns: Value of the nearest grid point to the given lon/lat point.
 
         """
-        indi = self.lon.searchsorted(lon)
+        indi = self.lon.searchsorted(numpy.mod(lon, 360.))
         indj = self.lat.searchsorted(lat)
 
-        return self.grid[indj, indi]
+        try:
+            value = self.grid[indj, indi]
+        except IndexError:
+            log.exception(f"Index is out of bounds for point ({lon}, {lat})")
+            log.exception(f"Bounds of grid are ({self.lon.min()} - {self.lon.max()},"
+                          f"{self.lat.min()} - {self.lat.max()}")
+            raise
+        return value

@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "TCRM",
-    version = '3.1.2',
+    version = '3.1.3',
     packages=find_packages(), 
     scripts=['tcrm.py', 'tcevent.py'],
     include_package_data=True,
@@ -50,7 +50,7 @@ setup(
     
     # metadata:
     author = "Craig Arthur",
-    author_email = "craig.arthur@ga.gov.au",
+    author_email = "hazards@ga.gov.au",
     description = "Tropical Cyclone Risk Model",
     keywords = "Tropical cyclone risk hazard",
     url = "https://geoscienceaustralia.github.io/tcrm",
