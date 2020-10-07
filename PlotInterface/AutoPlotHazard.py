@@ -201,6 +201,7 @@ class AutoPlotHazard(object):
         placeNames, placeID, placeLats, placeLons, locations = self.getLocations()
 
         for name, plat, plon, pID in zip(placeNames, placeLats, placeLons, placeID):
+            pID = int(pID)
 
             log.debug("Plotting return period curve for %s"%name)
             i = find_index(lon, plon)

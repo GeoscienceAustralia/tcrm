@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "TCRM",
-    version = '3.1.1',
+    version = '3.1.3',
     packages=find_packages(), 
     scripts=['tcrm.py', 'tcevent.py'],
     include_package_data=True,
