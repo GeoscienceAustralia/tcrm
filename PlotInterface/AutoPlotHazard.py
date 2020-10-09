@@ -112,7 +112,7 @@ class AutoPlotHazard(object):
 
         for i, year in enumerate(years):
             log.debug("Plotting %d-year return period hazard map", year)
-            title = '%d-Year Return Period Cyclonic Wind Hazard' % (year)
+            title = '%d-Year ARI Cyclonic Wind Hazard' % (year)
             imageFilename = '%d_yrRP_hazard_map.png' % (year)
             filename = pjoin(self.plotPath, imageFilename)
             cbarlab = "Wind speed (%s)"%self.plotUnits.units

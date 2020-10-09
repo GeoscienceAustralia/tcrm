@@ -21,7 +21,6 @@ import traceback
 import argparse
 import time
 import sys
-import imp
 import os
 
 from os.path import join as pjoin, realpath, isdir, dirname
