@@ -27,7 +27,7 @@ domain and must be set in any configuration file used.
 .. _configureactions:
 
 Actions
-------- 
+-------
 
 This section defines which components of TCRM will be
 executed. The options are:
@@ -66,14 +66,14 @@ All options are boolean (i.e. ``True`` or ``False``). ::
 Region
 ------
 
-This section defines the model domain and the size of the grid over
-which statistics are calculated. The model domain (``gridLimit``) is
+This section defines the simulation domain and the size of the grid over
+which statistics are calculated. The simulation domain (``gridLimit``) is
 specified as a Python dict with keys of ``xMin``, ``xMax``, ``yMin``
 and ``yMax``. This sets the domain over which the wind fields and
 hazard will be calculated. Stochastic tracks are generated over a
-broader domain. The ``gridSpace`` option controls the size of the grid
-cells, which are used for calculating statistics. At this time, the
-values here must be integer values, but can be different in the ``x``
+broader domain (called the "track domain"). The ``gridSpace`` option controls
+the size of the grid cells, which are used for calculating statistics. At this
+time, the values here must be integer values, but can be different in the ``x``
 (east-west) and ``y`` (north-south) directions. The ``gridInc`` option
 control the incremental increase in grid cell size when insufficient
 observations are located within a grid cell (see the :mod:`StatInterface`
@@ -102,7 +102,7 @@ details below).
 The ``Source`` option is a string value that acts as a pointer to a
 subsequent section in the configuration file, that holds details of
 the input track file structure. The additional section must have the same label
-as set here (the label is case-sensitive)
+as set here (the label is case-sensitive).
 
 The ``StartSeason`` and ``FilterSeason`` options control what years of
 the input track database are used in calibrating the model. In the
@@ -124,12 +124,25 @@ StatInterface
 The ``StatInterface`` section controls the methods used to calculate
 distributions of TC parameters from the input track database.
 
-``kdeType`` and ``kde2DType`` specify the kernel used in the kernel
+``kdeType`` specifies the kernel used in the kernel
 density estimation method for creating probability density functions
 that are used in selecting initial values for the stochastic TC events
 (e.g. longitude, latitude, initial pressure, speed and
 bearing). ``kdeStep`` defines the increment in the generated
 probability density functions and cumulative distribution functions.
+
+Options for ``kdeType`` ::
+    'gau'
+    'epa'
+    'uni'
+    'tri'
+    'biw'
+    'triw'
+    'cos'
+    'cos2'
+
+
+``kde2DType`` is deprecated.
 
 ``minSamplesCell`` sets the minimum number of valid observations in
 each grid cell that are required for calculating the distributions,
@@ -139,8 +152,8 @@ of the grid cell are incrementally increased (in steps as specified by
 the ``gridInc`` values) until sufficient observations are found. ::
 
     [StatInterface]
-    kdeType = Gaussian
-    kde2DType = Gaussian
+    kdeType = gau
+    kde2DType = gau
     kdeStep = 0.2
     minSamplesCell = 100
 
@@ -180,6 +193,9 @@ each individual processor. ::
     TimeStep = 1.0
     SeasonSeed = 1
     TrackSeed = 1
+
+This example will generate 500 realisations of one year of TC activity, with
+hourly timesteps to a maximum of 360 hours. 
 
 
 .. _configurewindfield:
