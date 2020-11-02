@@ -27,7 +27,7 @@ domain and must be set in any configuration file used.
 .. _configureactions:
 
 Actions
-------- 
+-------
 
 This section defines which components of TCRM will be
 executed. The options are:
@@ -66,14 +66,14 @@ All options are boolean (i.e. ``True`` or ``False``). ::
 Region
 ------
 
-This section defines the model domain and the size of the grid over
-which statistics are calculated. The model domain (``gridLimit``) is
+This section defines the simulation domain and the size of the grid over
+which statistics are calculated. The simulation domain (``gridLimit``) is
 specified as a Python dict with keys of ``xMin``, ``xMax``, ``yMin``
 and ``yMax``. This sets the domain over which the wind fields and
 hazard will be calculated. Stochastic tracks are generated over a
-broader domain. The ``gridSpace`` option controls the size of the grid
-cells, which are used for calculating statistics. At this time, the
-values here must be integer values, but can be different in the ``x``
+broader domain (called the "track domain"). The ``gridSpace`` option controls
+the size of the grid cells, which are used for calculating statistics. At this
+time, the values here must be integer values, but can be different in the ``x``
 (east-west) and ``y`` (north-south) directions. The ``gridInc`` option
 control the incremental increase in grid cell size when insufficient
 observations are located within a grid cell (see the :mod:`StatInterface`
@@ -101,7 +101,8 @@ details below).
 
 The ``Source`` option is a string value that acts as a pointer to a
 subsequent section in the configuration file, that holds details of
-the input track file structure.
+the input track file structure. The additional section must have the same label
+as set here (the label is case-sensitive).
 
 The ``StartSeason`` and ``FilterSeason`` options control what years of
 the input track database are used in calibrating the model. In the
@@ -110,7 +111,7 @@ calibration. If ``FilterSeasons = False``, no season filtering is
 performed and the full input track database is used. ::
 
     [DataProcess]
-    InputFile = Allstorms.ibtracs_wmo.v03r05.csv
+    InputFile = ibtracs.since1980.list.v04r00.csv
     StartSeason = 1981
     FilterSeasons = True
     Source = IBTRACS
@@ -123,12 +124,25 @@ StatInterface
 The ``StatInterface`` section controls the methods used to calculate
 distributions of TC parameters from the input track database.
 
-``kdeType`` and ``kde2DType`` specify the kernel used in the kernel
+``kdeType`` specifies the kernel used in the kernel
 density estimation method for creating probability density functions
 that are used in selecting initial values for the stochastic TC events
 (e.g. longitude, latitude, initial pressure, speed and
 bearing). ``kdeStep`` defines the increment in the generated
 probability density functions and cumulative distribution functions.
+
+Options for ``kdeType`` ::
+    'gau'
+    'epa'
+    'uni'
+    'tri'
+    'biw'
+    'triw'
+    'cos'
+    'cos2'
+
+
+``kde2DType`` is deprecated.
 
 ``minSamplesCell`` sets the minimum number of valid observations in
 each grid cell that are required for calculating the distributions,
@@ -138,8 +152,8 @@ of the grid cell are incrementally increased (in steps as specified by
 the ``gridInc`` values) until sufficient observations are found. ::
 
     [StatInterface]
-    kdeType = Gaussian
-    kde2DType = Gaussian
+    kdeType = gau
+    kde2DType = gau
     kdeStep = 0.2
     minSamplesCell = 100
 
@@ -168,9 +182,13 @@ from 1981--2013, we set the value to 30.
 
 ``NumTimeSteps`` controls the maximum lifetime an event can exist
 for. ``TimeStep`` sets the time interval (in hours) for the track
-generator. ``SeasonSeed`` and ``TrackSeed`` are used to fix the random
+generator. 
+
+``SeasonSeed`` and ``TrackSeed`` are used to fix the random
 number generator on parallel systems to ensure truly random numbers on
-each individual processor. ::
+each individual processor. If they are absent, the seed is set using an integer
+representation of the current time, and is recorded in the output metadata (e.g.
+attributes in the netcdf files). ::
 
     [TrackGenerator]
     NumSimulations = 500
@@ -179,6 +197,9 @@ each individual processor. ::
     TimeStep = 1.0
     SeasonSeed = 1
     TrackSeed = 1
+
+This example will generate 500 realisations of one year of TC activity, with
+hourly timesteps to a maximum of 360 hours. 
 
 
 .. _configurewindfield:
@@ -232,7 +253,15 @@ incorporated into the fitting procedure.
 ``Resolution`` is the horizontal resolution (in degrees) of the wind
 fields. Values should be no larger than 0.05 degrees, as the absolute
 peak of the radial profile may not be adequately resolved, leading to
-an underestimation of the maximum wind speeds. ::
+an underestimation of the maximum wind speeds. 
+
+``Domain`` is an alternative to setting ``Margin``. If set to "bounded"
+(default), the wind field domain will be determined by the ``Margin`` option. 
+If set to "full", the wind field domain will be set to match ``Region -
+gridLimit``. 
+
+*If this option is chosen, the execution time will be significantly
+longer. Recommended for single scenarios only*. ::
 
     [WindfieldInterface]
     profileType = holland
@@ -243,18 +272,26 @@ an underestimation of the maximum wind speeds. ::
     thetaMax = 70.0
     Margin = 2
     Resolution = 0.05
+    Domain = bounded
 
 .. _configurehazard:
 
 Hazard
 ------
 
-The ``Hazard`` section controls how the model calculates the return
-period wind speeds, and whether to calculate confidence ranges.
+The ``Hazard`` section controls how the model calculates average recurrence
+(ARI) wind speeds, and whether to calculate confidence ranges.
+
+``ExtremeValueDistribution`` sets the method for calculating ARI wind speeds.
+Options are "emp" (empirical), "power" (power law), "GPD" (Generalised pareto
+distribution) or "GEV" (Generalised Extreme Value distribution). 
 
 The ``Years`` option is a comma separated list of integer values that
 specifies the return periods for which wind speeds will be
-calculated. ``MinimumRecords`` sets the minimum number of values
+calculated. For ``ExtremeValueDistribution = emp``, the years cannot exceed the
+total number of simulated years in the ``TrackGenerator`` options. 
+
+``MinimumRecords`` sets the minimum number of values
 required for performing the fitting procedure at a given grid point.
 
 ``CalculateCI`` sets whether the :mod:`hazard` module will calculate
@@ -265,15 +302,21 @@ speeds. The ``PercentileRange`` option sets the range -- for a value
 of 90, the module will calculatae the 5th and 95th percentile
 values. ``SampleSize`` sets the number of randomly selected values
 that will be used in each realisation of the extreme value fitting
-procedure for calculating the confidence range. ::
+procedure for calculating the confidence range. 
+
+``SmoothPlots`` will apply a gaussian filter to the data before plotting on maps
+to minimise the inference of lines on maps. This may cause the maps to have
+large areas of no data due to the filtering function. ::
 
     [Hazard]
+    ExtremeValueDistribution = emp
     Years = 2,5,10,20,25,50,100,200,250,500,1000
     MinimumRecords = 50
     CalculateCI = True
     PercentileRange = 90
     SampleSize = 50
     PlotSpeedUnits = mps
+    SmoothPlots = True
 
 .. _configurermw:
 
@@ -282,7 +325,11 @@ RMW
 
 The ``RMW`` section contains a single option: ``GetRMWDistFromInputData``. 
 Set this value to ``True`` if the input track database has reliable data 
-on the radius to maximum winds. ::
+on the radius to maximum winds. 
+
+If no suitable data exists (``GetRMWDistFromInputData = False``), TCRM will use
+a regression model to determine RMW from the intensity and latitude of the
+storm. ::
 
     [RMW]
     GetRMWDistFromInputData = False
@@ -332,16 +379,16 @@ are used in the :mod:`Evaluate.landfallRates` module. ::
     CoastlineGates = input/gates.csv
 
     [IBTRACS]
-    URL = ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
+    URL = https://www.ncei.noaa.gov/data/international-best-track-archive-for-climate-stewardship-ibtracs/v04r00/access/csv/ibtracs.since1980.list.v04r00.csv
     path = input
-    filename = Allstorms.ibtracs_wmo.v03r05.csv
+    Filename = ibtracs.since1980.list.v04r00.csv
     Columns = tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
     FieldDelimiter = ,
-    NumberOfHeadingLines = 3
+    NumberOfHeadingLines = 2
     PressureUnits = hPa
     LengthUnits = km
-    DateFormat = %Y-%m-%d %H:%M:%S
     SpeedUnits = kph
+    DateFormat = %Y-%m-%d %H:%M:%S
 
     [LTMSLP]
     URL = ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis.derived/surface/slp.day.1981-2010.ltm.nc
@@ -375,20 +422,28 @@ to the name of the file.
 
 The ``LogLevel`` is one of the :mod:`Logging` `levels
 <https://docs.python.org/2/library/logging.html#logging-levels>`_. Default
-is ``INFO``. The ``Verbose`` option allows users to print all logging
-messages to the standard output. This can be useful when attempting to
+is ``INFO``. 
+
+The ``Verbose`` option allows users to print all logging
+messages to the standard output (default False). This can be useful when attempting to
 identify problems with execution. For parallel execution, this is set
 to ``False`` (to prevent repeated messages being printed to the
-screen). Setting the ``ProgressBar`` option to ``True`` will display a
+screen). 
+
+Setting the ``ProgressBar`` option to ``True`` will display a
 simple progress bar on the screen to indicate the status of the model
-execution. This will be turned off if TCRM is executed on a parallel
-system, or if it is run in batch mode. ::
+execution (default False). This will be turned off if TCRM is executed on a parallel
+system, or if it is run in batch mode. 
+
+If ``Datestamp = True``, a timestamp will be included in the filename for the
+log file (default False). ::
 
     [Logging]
     LogFile = main.log
     LogLevel = INFO
     Verbose = False
     ProgressBar = False
+    Datestamp = False
 
 .. _configuresource:
 
@@ -427,16 +482,16 @@ database. The format should use Python's `datetime
 formats.  ::
 
     [IBTRACS]
-    URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
-    path=input
-    filename=Allstorms.ibtracs_wmo.v03r05.csv
-    Columns=tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
-    FieldDelimiter=,
-    NumberOfHeadingLines=3
-    PressureUnits=hPa
-    LengthUnits=km
-    DateFormat=%Y-%m-%d %H:%M:%S
-    SpeedUnits=kph
+    URL = https://www.ncei.noaa.gov/data/international-best-track-archive-for-climate-stewardship-ibtracs/v04r00/access/csv/ibtracs.since1980.list.v04r00.csv
+    path = input
+    Filename = ibtracs.since1980.list.v04r00.csv
+    Columns = tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
+    FieldDelimiter = ,
+    NumberOfHeadingLines = 2
+    PressureUnits = hPa
+    LengthUnits = km
+    SpeedUnits = kph
+    DateFormat = %Y-%m-%d %H:%M:%S
  
 .. _references:
 

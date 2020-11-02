@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Introduction &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  <title>Introduction &mdash; Tropical Cyclone Risk Model v3.1.3 documentation</title>
   
 
   
@@ -17,42 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="../index.html"/>
-        <link rel="next" title="Installation" href="install.html"/>
-        <link rel="prev" title="The Tropical Cyclone Risk Model" href="../index.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Installation" href="install.html" />
+    <link rel="prev" title="Contents" href="../index.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -61,7 +55,7 @@
 
           
             
-            <img src="../_static/GA_0.gif" class="logo" />
+            <img src="../_static/GA_0.gif" class="logo" alt="Logo"/>
           
           </a>
 
@@ -69,7 +63,7 @@
             
             
               <div class="version">
-                2.0
+                3.1.3
               </div>
             
           
@@ -97,6 +91,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#model-outline">Model outline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#software">Software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
@@ -108,7 +103,6 @@
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Using different TC databases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scenarios.html">Scenario simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TCRM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Utilities.html">Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License information</a></li>
 </ul>
@@ -122,7 +116,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Tropical Cyclone Risk Model</a>
@@ -130,9 +124,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -181,6 +176,20 @@ globally. The observed record is limited, so it is difficult to
 evaluate what the ‘worst possible’ cyclone would look like. Based on
 these historic records, we can statistically ‘extrapolate’ the record
 and use a stochastic model to generate plausible, synthetic TC events.</p>
+<p>The <strong>Tropical Cyclone Risk Model</strong> is a stochastic tropical cyclone
+model developed by
+<a class="reference external" href="http://www.ga.gov.au">Geoscience Australia</a> for
+estimating the wind hazard from tropical cyclones.</p>
+<p>Due to the relatively short record of quality-controlled, consistent
+tropical cyclone observations, it is difficult to estimate average
+recurrence interval wind speeds due to tropical cyclones. To overcome
+the restriction of observed data, TCRM uses an autoregressive model to
+generate thousands of years of events that are statistically similar
+to the historical record. To translate these events to estimated wind
+speeds, TCRM applies a parametric windfield and boundary layer model
+to each event. Finally an extreme value distribution is fitted to the
+aggregated windfields at each grid point in the model domain to
+provide ARI wind speed estimates.</p>
 <p>TCRM was borne out of a desire to explore the epistemic uncertainty
 around parameterisations used in tropical cyclone hazard models. There
 are a wide range of idealised radial profiles and boundary layer
@@ -194,44 +203,49 @@ community).</p>
 <div class="section" id="model-outline">
 <h2>Model outline<a class="headerlink" href="#model-outline" title="Permalink to this headline">¶</a></h2>
 <p>TCRM has 6 main modules to generate hazard information:
-<a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></code></a>, <a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><code class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></code></a>, <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></code></a>,
-<a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal"><span class="pre">wind</span></code></a>, <a class="reference internal" href="hazard.html#module-hazard" title="hazard"><code class="xref py py-mod docutils literal"><span class="pre">hazard</span></code></a> and <code class="xref py py-mod docutils literal"><span class="pre">database</span></code>. Supporting
-<a class="reference internal" href="Utilities.html#module-Utilities" title="Utilities"><code class="xref py py-mod docutils literal"><span class="pre">Utilities</span></code></a> and plotting routines (<a class="reference internal" href="PlotInterface.html#module-PlotInterface" title="PlotInterface"><code class="xref py py-mod docutils literal"><span class="pre">PlotInterface</span></code></a>) are
+<a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal notranslate"><span class="pre">DataProcess</span></code></a>, <a class="reference internal" href="StatInterface.html#module-0" title="StatInterface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">StatInterface</span></code></a>, <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">TrackGenerator</span></code></a>,
+<a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal notranslate"><span class="pre">wind</span></code></a>, <a class="reference internal" href="hazard.html#module-0" title="hazard"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hazard</span></code></a> and <code class="xref py py-mod docutils literal notranslate"><span class="pre">database</span></code>. Supporting
+<a class="reference internal" href="Utilities.html#module-Utilities" title="Utilities"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Utilities</span></code></a> and plotting routines (<a class="reference internal" href="PlotInterface.html#module-PlotInterface" title="PlotInterface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">PlotInterface</span></code></a>) are
 included.</p>
-<p>The <a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></code></a> module reads the input track database and
+<p>The <a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal notranslate"><span class="pre">DataProcess</span></code></a> module reads the input track database and
 extracts parameters from the data, namely intensity and location
 information, speed, bearings and genesis locations. The data are
 stored in text files to allow users to examine the data in another
 analysis tool. There are also a number of plotting routines to display
 some of the basic relationships in the data.</p>
-<p><a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><code class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></code></a> uses the processed files generated by
-<a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></code></a> to evaluate the statistical relations between
+<p><a class="reference internal" href="StatInterface.html#module-0" title="StatInterface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">StatInterface</span></code></a> uses the processed files generated by
+<a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal notranslate"><span class="pre">DataProcess</span></code></a> to evaluate the statistical relations between
 the parameters, including the means, variance and
 autocorrelations on a coarse grid across the model domain. PDFs
 of the initial values of parameters (initial speed, bearing and
 intensity) and genesis probability are also calculated.</p>
-<p><a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></code></a> is the stochastic engine of the model. This
+<p><a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">TrackGenerator</span></code></a> is the stochastic engine of the model. This
 module samples from the distributions of genesis location and
 initial parameter values to start a new TC event, then steps
 forward in time using the autoregressive nature of TC
 behaviour. This allows users to generate thousands of random
 events that share the same statistical properties as the input
 track dataset.</p>
-<p>The <a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal"><span class="pre">wind</span></code></a> module calculates the maximum wind speed around each
-of the synthetic TC events generated by the <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></code></a>. A
+<p>The <a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal notranslate"><span class="pre">wind</span></code></a> module calculates the maximum wind speed around each
+of the synthetic TC events generated by the <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">TrackGenerator</span></code></a>. A
 2-dimensional parametric profile is used to calculate the wind
 field to enable large numbers of events to be processed efficiently,
 but at high spatial resolution (e.g. a grid spacing of around 2
 km). Users can select from a number of radial profiles and combine
 with one of three boundary layer models to incorporate asymmetries
 associated with forward motion of the TC vortex.</p>
-<p><a class="reference internal" href="hazard.html#module-hazard" title="hazard"><code class="xref py py-mod docutils literal"><span class="pre">hazard</span></code></a> uses the wind fields calculated in the <a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal"><span class="pre">wind</span></code></a>
-module to fit a generalised extreme value (GEV) distribution at
-each grid point across the model domain to determine return
-period wind speeds. The fitting routine uses the method of
-L-moments <a class="footnote-reference" href="#id2" id="id1">[1]</a> to determine the location, shape and scale
-parameters of the GEV.</p>
-<p>The <code class="xref py py-mod docutils literal"><span class="pre">database</span></code> module builds a SQLite database that holds
+<p><a class="reference internal" href="hazard.html#module-0" title="hazard"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hazard</span></code></a> uses the wind fields calculated in the <a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal notranslate"><span class="pre">wind</span></code></a>
+module to calculate average recurrence interval (ARI) wind speeds. There are a number
+of approaches that can be used:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#. empirical recurrence intervals</span>
+<span class="c1">#. fitting a generalised pareto distribution (GPD)</span>
+<span class="c1">#. fitting a generalised extreme value distribution (GEV)</span>
+</pre></div>
+</div>
+<p>The first option calculates ARI wind speeds up to the limit of the number of
+simulated years. The second and third options allow for calculating ARI wind
+speeds beyond the limit of the number of simulated years.</p>
+<p>The <code class="xref py py-mod docutils literal notranslate"><span class="pre">database</span></code> module builds a SQLite database that holds
 information about the simulation. The wind speeds associated with all
 events in the simulation catalouge are extracted for locations in the
 model domain, along with recurrence interval wind speeds. Details
@@ -246,26 +260,43 @@ add new components to the model and are encouraged to submit them back
 to the project. Where possible, the code has been modularised to ease
 the process of adding new methods (such as radial profiles or boundary
 layer models).</p>
+<p>TCRM can be downloaded from our GitHub repository: <a class="reference external" href="http://github.com/GeoscienceAustralia/tcrm">http://github.com/GeoscienceAustralia/tcrm</a></p>
+</div>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Multi-platform</strong>: TCRM can run on desktop machines through to
+massively-parallel systems (tested on Windows XP/Vista/7, *NIX);</p></li>
+<li><p><strong>Multiple options for wind field &amp; boundary layer models</strong>: A
+number of radial profiles and simple boundary layer models have
+been included to allow users to test sensitivity to these options.</p></li>
+<li><p><strong>Globally applicable</strong>: Users can set up a domain in any TC basin
+in the globe. The model is not tuned to any one region of the
+globe. Rather, the model is designed to draw sufficient
+information from best-track archives or TC databases;</p></li>
+<li><p><strong>Evaluation metrics</strong>: Offers capability to run objective
+evaluation of track model metrics (e.g. landfall rates);</p></li>
+<li><p><strong>Single scenarios</strong>: Users can run a single TC event (e.g. using
+a b-deck format track file) at high temporal resolution and
+extract time series data at chosen locations;</p></li>
+</ul>
 </div>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<table class="docutils footnote" frame="void" id="id2" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Hosking, J. R. M. (1990): L-moments: Analysis and Estimation of
+<dl class="footnote brackets">
+<dt class="label" id="id1"><span class="brackets">1</span></dt>
+<dd><p>Hosking, J. R. M. (1990): L-moments: Analysis and Estimation of
 Distributions using Linear Combinations of Order
 Statistics. <em>Journal of the Royal Statistical Society</em>, <strong>52</strong>,
-105–124.</td></tr>
-</tbody>
-</table>
+105–124.</p>
+</dd>
+</dl>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -274,7 +305,7 @@ Statistics. <em>Journal of the Royal Statistical Society</em>, <strong>52</stron
         <a href="install.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../index.html" class="btn btn-neutral" title="The Tropical Cyclone Risk Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../index.html" class="btn btn-neutral float-left" title="Contents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -283,12 +314,14 @@ Statistics. <em>Journal of the Royal Statistical Society</em>, <strong>52</stron
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2020
+      <span class="lastupdated">
+        Last updated on Nov 02, 2020.
+      </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -301,36 +334,15 @@ Statistics. <em>Journal of the Royal Statistical Society</em>, <strong>52</stron
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'v2.0.2',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

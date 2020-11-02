@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>tcrm module &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  <title>tcrm module &mdash; Tropical Cyclone Risk Model v3.1.3 documentation</title>
   
 
   
@@ -17,40 +17,34 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="../index.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -59,7 +53,7 @@
 
           
             
-            <img src="../_static/GA_0.gif" class="logo" />
+            <img src="../_static/GA_0.gif" class="logo" alt="Logo"/>
           
           </a>
 
@@ -67,7 +61,7 @@
             
             
               <div class="version">
-                2.0
+                3.1.3
               </div>
             
           
@@ -101,7 +95,6 @@
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Using different TC databases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scenarios.html">Scenario simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TCRM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Utilities.html">Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License information</a></li>
 </ul>
@@ -115,7 +108,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Tropical Cyclone Risk Model</a>
@@ -123,9 +116,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -169,33 +163,31 @@
             
   <div class="section" id="module-tcrm">
 <span id="tcrm-module"></span><h1>tcrm module<a class="headerlink" href="#module-tcrm" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-tcrm">
-<span id="tcrm-the-main-tcrm-interface"></span><h2><a class="reference internal" href="#module-tcrm" title="tcrm: The main interface to TCRM. Determines which components of the model system to execute, based on the configuration settings specified."><code class="xref py py-mod docutils literal"><span class="pre">tcrm</span></code></a> – the main TCRM interface<a class="headerlink" href="#module-tcrm" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
+<div class="section" id="module-0">
+<span id="tcrm-the-main-tcrm-interface"></span><h2><a class="reference internal" href="#module-0" title="tcrm: The main interface to TCRM. Determines which components of the model system to execute, based on the configuration settings specified."><code class="xref py py-mod docutils literal notranslate"><span class="pre">tcrm</span></code></a> – the main TCRM interface<a class="headerlink" href="#module-0" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
 <dt id="tcrm.checkModules">
-<code class="descname">checkModules</code><span class="sig-paren">(</span><em>moduleList</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.checkModules" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">checkModules</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.checkModules" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check that compiled extensions are available</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>moduleList</strong> (<em>list</em>) – list of modules to check for</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>moduleList</strong> (<em>list</em>) – list of modules to check for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.doDataDownload">
-<code class="descname">doDataDownload</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDataDownload" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">doDataDownload</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDataDownload" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check and download the data files listed in the configuration file.
 Datasets are listed in the <cite>Input</cite> section of the configuration
 file, with the option <cite>Datasets</cite>. There must also be a corresponding
 section in the configuration file that inlcudes the url, path where
 the dataset will be stored and the filename that will be stored, e.g.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Input</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Input</span><span class="p">]</span>
 <span class="n">Datasets</span><span class="o">=</span><span class="n">IBTRACS</span>
 
 <span class="p">[</span><span class="n">IBTRACS</span><span class="p">]</span>
@@ -207,71 +199,61 @@ the dataset will be stored and the filename that will be stored, e.g.:</p>
 <p>This will attempt to download the gzipped csv file from the given URL
 and save it to the given filename, in the ‘input’ folder under the current
 directory. Gzipped files are automatically unzipped.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>IOError</strong> – If the data cannot be downloaded.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>IOError</strong> – If the data cannot be downloaded.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.doDataPlotting">
-<code class="descname">doDataPlotting</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDataPlotting" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the pre-processed input data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">doDataPlotting</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDataPlotting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the pre-processed input data. Requires the Data Processing step to have
+been executed first (<code class="docutils literal notranslate"><span class="pre">Actions</span> <span class="pre">--</span> <span class="pre">DataProcess</span> <span class="pre">=</span> <span class="pre">True</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.doDataProcessing">
-<code class="descname">doDataProcessing</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDataProcessing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">doDataProcessing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDataProcessing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse the input data and turn it into the necessary format
-for the model calibration step, using the <a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal"><span class="pre">DataProcess</span></code></a> module.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
-</tr>
-</tbody>
-</table>
+for the model calibration step, using the <a class="reference internal" href="DataProcess.html#module-DataProcess" title="DataProcess: Processes the database of historical TCs into suitably formatted text files."><code class="xref py py-mod docutils literal notranslate"><span class="pre">DataProcess</span></code></a> module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.doDatabaseUpdate">
-<code class="descname">doDatabaseUpdate</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDatabaseUpdate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">doDatabaseUpdate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doDatabaseUpdate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build a database containing info on the events, locations, return
 period wind speeds and tracks.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of the configuration file.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configFile</strong> (<em>str</em>) – Name of the configuration file.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.doEvaluation">
-<code class="descname">doEvaluation</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doEvaluation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do the track model evaluation processing, using <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><code class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></code></a>.</p>
+<code class="sig-name descname">doEvaluation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doEvaluation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do the track model evaluation processing, using <a class="reference internal" href="Evaluate.html#module-0" title="Evaluate: Provide some evaluation methods for testing the track generation model."><code class="xref py py-mod docutils literal notranslate"><span class="pre">Evaluate</span></code></a>.</p>
 <p>To perform this stage, it is recommended to generate an event set
 with several simulated years (e.g. 10, 20, 30 years) in each
 simulation.</p>
 <p>A good setting might be:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Actions</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Actions</span><span class="p">]</span>
 <span class="n">ExecuteTrackGenerator</span><span class="o">=</span><span class="kc">True</span>
 <span class="n">ExecuteEvaluate</span><span class="o">=</span><span class="kc">True</span>
 
@@ -281,137 +263,114 @@ simulation.</p>
 </pre></div>
 </div>
 <p>This will generate 1000 simulations each with 50 years of simulated
-TC activity. <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><code class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></code></a> will then compare pressure distributions,
+TC activity. <a class="reference internal" href="Evaluate.html#module-0" title="Evaluate: Provide some evaluation methods for testing the track generation model."><code class="xref py py-mod docutils literal notranslate"><span class="pre">Evaluate</span></code></a> will then compare pressure distributions,
 track density, landfall rates and longitude crossing rates for the
 input dataset and the full 1000 simulations.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of the configuration file.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configFile</strong> (<em>str</em>) – Name of the configuration file.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.doHazard">
-<code class="descname">doHazard</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doHazard" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">doHazard</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doHazard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do the hazard calculations (extreme value distribution fitting)
-using the <a class="reference internal" href="hazard.html#module-hazard" title="hazard"><code class="xref py py-mod docutils literal"><span class="pre">hazard</span></code></a> module.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
-</tr>
-</tbody>
-</table>
+using the <a class="reference internal" href="hazard.html#module-0" title="hazard"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hazard</span></code></a> module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.doHazardPlotting">
-<code class="descname">doHazardPlotting</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doHazardPlotting" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">doHazardPlotting</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doHazardPlotting" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do the hazard plots (hazard maps and curves for all locations within
 the model domain). Plotting is performed by the
-<a class="reference internal" href="PlotInterface.html#module-PlotInterface.AutoPlotHazard" title="PlotInterface.AutoPlotHazard"><code class="xref py py-mod docutils literal"><span class="pre">PlotInterface.AutoPlotHazard</span></code></a> module.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
-</tr>
-</tbody>
-</table>
+<a class="reference internal" href="PlotInterface.html#module-PlotInterface.AutoPlotHazard" title="PlotInterface.AutoPlotHazard"><code class="xref py py-mod docutils literal notranslate"><span class="pre">PlotInterface.AutoPlotHazard</span></code></a> module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.doOutputDirectoryCreation">
-<code class="descname">doOutputDirectoryCreation</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doOutputDirectoryCreation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">doOutputDirectoryCreation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doOutputDirectoryCreation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create all the necessary output folders.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>OSError</strong> – If the directory tree cannot be created.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>OSError</strong> – If the directory tree cannot be created.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.doStatistics">
-<code class="descname">doStatistics</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doStatistics" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calibrate the model with the <a class="reference internal" href="StatInterface.html#module-StatInterface" title="StatInterface"><code class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></code></a> module.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">doStatistics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doStatistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calibrate the model with the <a class="reference internal" href="StatInterface.html#module-0" title="StatInterface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">StatInterface</span></code></a> module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.doTrackGeneration">
-<code class="descname">doTrackGeneration</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doTrackGeneration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do the tropical cyclone track generation in <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></code></a>.</p>
+<code class="sig-name descname">doTrackGeneration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doTrackGeneration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do the tropical cyclone track generation in <a class="reference internal" href="TrackGenerator.html#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">TrackGenerator</span></code></a>.</p>
 <p>The track generation settings are read from <em>configFile</em>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.doWindfieldCalculations">
-<code class="descname">doWindfieldCalculations</code><span class="sig-paren">(</span><em>configFile</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doWindfieldCalculations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do the wind field calculations, using <a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal"><span class="pre">wind</span></code></a>. The wind
+<code class="sig-name descname">doWindfieldCalculations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.doWindfieldCalculations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do the wind field calculations, using <a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal notranslate"><span class="pre">wind</span></code></a>. The wind
 field settings are read from <em>configFile</em>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configFile</strong> (<em>str</em>) – Name of configuration file.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.main">
-<code class="descname">main</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.main" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">main</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span><span class="o">=</span><span class="default_value">'main.ini'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.main" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main interface of TCRM that allows control and interaction with the
 5 interfaces: DataProcess, StatInterface, TrackGenerator,
 WindfieldInterface and HazardInterface</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – Name of file containing configuration settings
-for running TCRM</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configFile</strong> (<em>str</em>) – Name of file containing configuration settings
+for running TCRM</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.startup">
-<code class="descname">startup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.startup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">startup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.startup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse command line arguments, set up logging and attempt
 to execute the main TCRM functions.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="tcrm.timer">
-<code class="descname">timer</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.timer" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">timer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tcrm.timer" title="Permalink to this definition">¶</a></dt>
 <dd><p>A simple timing decorator for the entire process.</p>
 </dd></dl>
 
@@ -420,9 +379,7 @@ to execute the main TCRM functions.</p>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -431,12 +388,14 @@ to execute the main TCRM functions.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2020
+      <span class="lastupdated">
+        Last updated on Nov 02, 2020.
+      </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -449,36 +408,15 @@ to execute the main TCRM functions.</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'v2.0.2',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  <title>Installation &mdash; Tropical Cyclone Risk Model v3.1.3 documentation</title>
   
 
   
@@ -17,42 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="../index.html"/>
-        <link rel="next" title="Setting up the model" href="setup.html"/>
-        <link rel="prev" title="Introduction" href="intro.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Setting up the model" href="setup.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -61,7 +55,7 @@
 
           
             
-            <img src="../_static/GA_0.gif" class="logo" />
+            <img src="../_static/GA_0.gif" class="logo" alt="Logo"/>
           
           </a>
 
@@ -69,7 +63,7 @@
             
             
               <div class="version">
-                2.0
+                3.1.3
               </div>
             
           
@@ -97,25 +91,34 @@
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#downloading">Downloading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-pip">Using pip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-anaconda">Using Anaconda</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-the-environment">Setting the environment</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#windows">Windows</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#bash-shell">BASH shell</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#csh-tcsh-shell">CSH/TCSH shell</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#using-pip">Using pip</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#compiling-the-extensions">Compiling the extensions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#unix">Unix</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ubuntu">Ubuntu</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id6">Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">Dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id24">Using pip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id26">Using Anaconda</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id27">Windows</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#notes">Notes</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#testing-the-installation">Testing the installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#special-note-for-windows-systems">Special note for Windows systems</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#using-docker">Using Docker</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-the-installation">Test the installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#normal-usage">Normal usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#developement">Developement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#releases">Releases</a></li>
 </ul>
 </li>
 </ul>
@@ -127,7 +130,6 @@
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Using different TC databases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scenarios.html">Scenario simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TCRM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Utilities.html">Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License information</a></li>
 </ul>
@@ -141,7 +143,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Tropical Cyclone Risk Model</a>
@@ -149,9 +151,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -195,10 +198,9 @@
             
   <div class="section" id="installation">
 <span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>Installing TCRM is intended to be a simple process, requiring only a
-small amount of compilation and basic understanding of command line
-operations. TCRM has been installed and (lightly) tested on a range of
-unix-based systems, Windows and Mac OS/X systems.</p>
+<p>Installing TCRM is intended to be a simple process, requiring only basic
+understanding of command line operations. TCRM has been installed and
+tested on a range of unix-based systems, Windows and Mac OS/X systems.</p>
 <div class="section" id="downloading">
 <span id="id2"></span><h2>Downloading<a class="headerlink" href="#downloading" title="Permalink to this headline">¶</a></h2>
 <p>The TCRM code can be downloaded from the <a class="reference external" href="https://github.com/GeoscienceAustralia/tcrm">Geoscience Australia GitHub
@@ -209,13 +211,69 @@ of the latest releases can be downloaded from the <a class="reference external" 
 repository. Submit a pull request to have your changes integrated into
 TCRM.</p>
 </div>
+<div class="section" id="dependencies">
+<span id="id3"></span><h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>TCRM relies on a number of additional libraries that are not part of
+the standard library. There are several ways to obtain the required
+libraries – using Python’s recommended tool <a class="reference external" href="https://pip.readthedocs.org/en/latest/">pip</a>, installing a distribution
+such as <a class="reference external" href="http://code.google.com/p/pythonxy/">Python(x,y) package</a>
+(for Windows environments) or <a class="reference external" href="https://www.anaconda.com/distribution/#download-section">Anaconda</a> (cross-platform), or
+installing the libraries from source or binary installers
+(pre-compiled binary Windows installer versions for all the libraries
+(both 32-bit and 64-bit) can be obtained <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/">here</a>).</p>
+<p>For detailed instructions on installation of these dependencies,
+please see the documentation for each individual library.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.python.org/">Python</a> - v3.5 or later</p></li>
+<li><p><a class="reference external" href="http://www.numpy.org/">Numpy</a> - v1.6 or later</p></li>
+<li><p><a class="reference external" href="http://www.scipy.org/">Scipy</a> - v0.12 or later</p></li>
+<li><p><a class="reference external" href="http://matplotlib.org/">Matplotlib</a> v1.2 or later.</p></li>
+<li><p><a class="reference external" href="http://matplotlib.org/basemap/index.html">Basemap</a></p></li>
+<li><p><a class="reference external" href="https://code.google.com/p/netcdf4-python/">netcdf4-python</a> -
+version 1.0.8 or later</p></li>
+<li><p><a class="reference external" href="http://toblerity.org/shapely/index.html">Shapely</a> - v1.2.15 or later</p></li>
+<li><p><a class="reference external" href="http://statsmodels.sourceforge.net">statsmodels</a></p></li>
+<li><p><a class="reference external" href="http://seaborn.pydata.org">seaborn</a></p></li>
+<li><p><a class="reference external" href="http://pandas.pydata.org">pandas</a></p></li>
+<li><p><a class="reference external" href="http://gitpython.readthedocs.org">gitpython</a></p></li>
+<li><p>Parallel execution in multi-processor environments (with MPI
+installed) requires <a class="reference external" href="https://mpi4py.readthedocs.io/">mpi4py</a></p></li>
+</ul>
+<div class="section" id="using-pip">
+<h3>Using pip<a class="headerlink" href="#using-pip" title="Permalink to this headline">¶</a></h3>
+<p>If you have <a class="reference external" href="https://pip.readthedocs.org/en/latest/">pip</a> installed,
+the required modules can be installed using the following command,
+executed in the main TCRM directory</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip -v install -r requirements.txt
+</pre></div>
+</div>
+<p>This will automatically build the required libraries (listed in the
+<code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file) and any dependencies. <code class="docutils literal notranslate"><span class="pre">pip</span></code> must be on
+the <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> for this to work.</p>
+</div>
+<div class="section" id="using-anaconda">
+<span id="compilation"></span><h3>Using Anaconda<a class="headerlink" href="#using-anaconda" title="Permalink to this headline">¶</a></h3>
+<p>To install <code class="docutils literal notranslate"><span class="pre">tcrm</span></code>, make a new environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda env create -f tcrmenv.yml
+</pre></div>
+</div>
+<p>After creating the environment the user needs to move to that environment using the command</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate tcrm
+</pre></div>
+</div>
+<p>The bash promt will look like</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(tcrm) user@server:~/tcrm$
+</pre></div>
+</div>
+</div>
+</div>
 <div class="section" id="setting-the-environment">
 <span id="environment"></span><h2>Setting the environment<a class="headerlink" href="#setting-the-environment" title="Permalink to this headline">¶</a></h2>
-<p>To enable TCRM to run flawlessly, you may need to change some
+<p>To enable TCRM to run correctly, you may need to change some
 environment settings. The important variable to set is the
-<code class="docutils literal"><span class="pre">PYTHONPATH</span></code> variable. This should be set to the path where you have
+<code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> variable. This should be set to the path where you have
 extracted the contents of the zip file. In the examples below, change
-<code class="docutils literal"><span class="pre">/path/to/tcrm</span></code> to the location where you extracted the TCRM files.</p>
+<code class="docutils literal notranslate"><span class="pre">/path/to/tcrm</span></code> to the location where you extracted the TCRM files.</p>
 <p>A complete discussion on environment variables in Python is given in
 the <a class="reference external" href="https://docs.python.org/2/using/cmdline.html#environment-variables">Python documentation</a>.</p>
 <div class="section" id="windows">
@@ -226,128 +284,87 @@ variables on different Windows systems.</p>
 </div>
 <div class="section" id="bash-shell">
 <h3>BASH shell<a class="headerlink" href="#bash-shell" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default"><div class="highlight"><pre><span></span>export PYTHONPATH=$PYTHONPATH:/path/to/tcrm:/path/to/tcrm/Utilities
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:/path/to/tcrm:/path/to/tcrm/Utilities
 </pre></div>
 </div>
 </div>
 <div class="section" id="csh-tcsh-shell">
 <h3>CSH/TCSH shell<a class="headerlink" href="#csh-tcsh-shell" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default"><div class="highlight"><pre><span></span>setenv PYTHONPATH $PYTHONPATH:/path/to/tcrm:/path/to/tcrm/Utilities
+<div class="highlight-tcsh notranslate"><div class="highlight"><pre><span></span><span class="nb">setenv </span>PYTHONPATH <span class="nv">$PYTHONPATH</span>:/path/to/tcrm:/path/to/tcrm/Utilities
 </pre></div>
 </div>
 </div>
 </div>
-<div class="section" id="dependencies">
-<span id="id3"></span><h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<span id="id7"></span><h2>Dependencies<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <p>TCRM relies on a number of additional libraries that are not part of
 the standard library. There are several ways to obtain the required
 libraries – using Python’s recommended tool <a class="reference external" href="https://pip.readthedocs.org/en/latest/">pip</a>, installing a distribution
 such as <a class="reference external" href="http://code.google.com/p/pythonxy/">Python(x,y) package</a>
-(for Windows environments) or <a class="reference external" href="https://store.continuum.io/cshop/anaconda/">Anaconda</a> (cross-platform), or
+(for Windows environments) or <a class="reference external" href="https://www.anaconda.com/distribution/#download-section">Anaconda</a> (cross-platform), or
 installing the libraries from source or binary installers
 (pre-compiled binary Windows installer versions for all the libraries
 (both 32-bit and 64-bit) can be obtained <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/">here</a>).</p>
 <p>For detailed instructions on installation of these dependencies,
 please see the documentation for each individual library.</p>
 <ul class="simple">
-<li><a class="reference external" href="https://www.python.org/">Python</a> - v2.7 preferred</li>
-<li><a class="reference external" href="http://www.numpy.org/">Numpy</a> - v1.6 or later</li>
-<li><a class="reference external" href="http://www.scipy.org/">Scipy</a> - v0.12 or later</li>
-<li><a class="reference external" href="http://matplotlib.org/">Matplotlib</a> v1.2 or later.</li>
-<li><a class="reference external" href="http://matplotlib.org/basemap/index.html">Basemap</a></li>
-<li><a class="reference external" href="https://code.google.com/p/netcdf4-python/">netcdf4-python</a> -
-version 1.0.8 or later</li>
-<li><a class="reference external" href="http://toblerity.org/shapely/index.html">Shapely</a> - v1.2.15 or later</li>
-<li><a class="reference external" href="http://statsmodels.sourceforge.net">statsmodels</a></li>
-<li><a class="reference external" href="http://seaborn.pydata.org">seaborn</a></li>
-<li><a class="reference external" href="http://pandas.pydata.org">pandas</a></li>
-<li><a class="reference external" href="http://gitpython.readthedocs.org">gitpython</a></li>
-<li>Parallel execution in multi-processor environments (with MPI
-installed) requires <a class="reference external" href="http://github.com/daleroberts/pypar">Pypar</a></li>
+<li><p><a class="reference external" href="https://www.python.org/">Python</a> - v3.5 or later</p></li>
+<li><p><a class="reference external" href="http://www.numpy.org/">Numpy</a> - v1.6 or later</p></li>
+<li><p><a class="reference external" href="http://www.scipy.org/">Scipy</a> - v0.12 or later</p></li>
+<li><p><a class="reference external" href="http://matplotlib.org/">Matplotlib</a> v1.2 or later.</p></li>
+<li><p><a class="reference external" href="http://matplotlib.org/basemap/index.html">Basemap</a></p></li>
+<li><p><a class="reference external" href="https://code.google.com/p/netcdf4-python/">netcdf4-python</a> -
+version 1.0.8 or later</p></li>
+<li><p><a class="reference external" href="http://toblerity.org/shapely/index.html">Shapely</a> - v1.2.15 or later</p></li>
+<li><p><a class="reference external" href="http://statsmodels.sourceforge.net">statsmodels</a></p></li>
+<li><p><a class="reference external" href="http://seaborn.pydata.org">seaborn</a></p></li>
+<li><p><a class="reference external" href="http://pandas.pydata.org">pandas</a></p></li>
+<li><p><a class="reference external" href="http://gitpython.readthedocs.org">gitpython</a></p></li>
+<li><p>Parallel execution in multi-processor environments (with MPI
+installed) requires <a class="reference external" href="https://mpi4py.readthedocs.io/">mpi4py</a></p></li>
 </ul>
-<div class="section" id="using-pip">
-<h3>Using pip<a class="headerlink" href="#using-pip" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id24">
+<h3>Using pip<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
 <p>If you have <a class="reference external" href="https://pip.readthedocs.org/en/latest/">pip</a> installed,
 the required modules can be installed using the following command,
-executed in the main TCRM directory:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="o">-</span><span class="n">v</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+executed in the main TCRM directory</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip -v install -r requirements.txt
 </pre></div>
 </div>
 <p>This will automatically build the required libraries (listed in the
-<code class="docutils literal"><span class="pre">requirements.txt</span></code> file) and any dependencies. <code class="docutils literal"><span class="pre">pip</span></code> must be on
-the <code class="docutils literal"><span class="pre">$PATH</span></code> for this to work.</p>
+<code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file) and any dependencies. <code class="docutils literal notranslate"><span class="pre">pip</span></code> must be on
+the <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> for this to work.</p>
 </div>
+<div class="section" id="id26">
+<h3>Using Anaconda<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h3>
+<p>To install <code class="docutils literal notranslate"><span class="pre">tcrm</span></code>, make a new environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda env create -f tcrmenv.yml
+</pre></div>
 </div>
-<div class="section" id="compiling-the-extensions">
-<span id="compilation"></span><h2>Compiling the extensions<a class="headerlink" href="#compiling-the-extensions" title="Permalink to this headline">¶</a></h2>
-<p>The model requires a number of C extensions to be compiled before
-execution. These can be built using Python’s inbuilt <code class="xref py py-mod docutils literal"><span class="pre">distutils</span></code>
-module.</p>
-<div class="section" id="unix">
-<h3>Unix<a class="headerlink" href="#unix" title="Permalink to this headline">¶</a></h3>
-<p>From the base directory, execute the build process:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">installer</span><span class="o">/</span><span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build_ext</span> <span class="o">-</span><span class="n">i</span>
+<p>After creating the environment the user needs to move to that environment using the command</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate tcrm
+</pre></div>
+</div>
+<p>The bash promt will look like</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(tcrm) user@server:~/tcrm$
 </pre></div>
 </div>
 </div>
-<div class="section" id="ubuntu">
-<h3>Ubuntu<a class="headerlink" href="#ubuntu" title="Permalink to this headline">¶</a></h3>
-<p>The github branch issue_25 (created from the v2.0 branch) had an environment created by <a class="reference external" href="https://conda.io/docs/install/quick.html#linux-miniconda-install">installing miniconda</a> and executing the following commands:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">tcrm</span>
-<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">source</span> <span class="n">activate</span> <span class="n">tcrm</span>
-<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">numpy</span>
-<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">scipy</span>
-<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">matplotlib</span>
-<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">basemap</span>
-<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">netcdf4</span>
-<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">shapely</span>
-<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">Tornado</span>
-<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">statsmodel</span>
-<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">conda</span> <span class="n">install</span> <span class="n">seaborn</span>
-<span class="o">~/</span><span class="n">miniconda2</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">pip</span> <span class="o">--</span><span class="n">proxy</span><span class="o">=</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">3128</span> <span class="n">install</span> <span class="n">simplejson</span>
-</pre></div>
-</div>
-<p>The following libraries were needed to compile the C extensions, and run the unit tests:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">libgl1</span><span class="o">-</span><span class="n">mesa</span><span class="o">-</span><span class="n">glx</span>
-<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">numpy</span><span class="o">-</span><span class="n">dev</span>
-</pre></div>
-</div>
-<p>The C extensions were compiled from the trcm directory with:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>(tcrm) user@server:~/tcrm$ python intaller/setup.py build_ext -i
-</pre></div>
-</div>
-<p>An error occurred where the include file seems to have changed paths. It may be a one off,
-or it may reoccur in another version of Linux. The error was in KPDF.c and the change was to
-comment out one line and replace it with another.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#include &quot;numpy/arrayobject.h&quot;</span>
-<span class="o">/*</span> <span class="c1">#include &quot;arrayobject.h&quot; */</span>
-</pre></div>
-</div>
-<p>A requiremements file was created in the root directory called <code class="docutils literal"><span class="pre">linux_v20.yml</span></code> and should (it hasn’t been tested)
-replace the <code class="docutils literal"><span class="pre">conda</span> <span class="pre">install</span></code> commands above. The command to use this file is:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">env</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="n">linux_v20</span><span class="o">.</span><span class="n">yml</span>
-</pre></div>
-</div>
-<p>Activating the environment would be:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">activate</span> <span class="n">linux_v20</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="id6">
-<h3>Windows<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
-<p>For Windows users, the code includes the <code class="docutils literal"><span class="pre">compile.cmd</span></code> script in the
+<div class="section" id="id27">
+<span id="id28"></span><h3>Windows<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h3>
+<p>For Windows users, the code includes the <code class="docutils literal notranslate"><span class="pre">compile.cmd</span></code> script in the
 main TCRM diretory that will build these extensions in place. By
 default, TCRM uses the MinGW suite (<a class="reference external" href="http://www.mingw.org">http://www.mingw.org</a>) for
 compiling the extensions. Other Windows-based packages can also be
 used (e.g. Cygwin). See the Python documentation on writing
-configuration files for the <code class="xref py py-mod docutils literal"><span class="pre">distutils</span></code> package for more details.</p>
+configuration files for the <code class="xref py py-mod docutils literal notranslate"><span class="pre">distutils</span></code> package for more details.</p>
 </div>
 <div class="section" id="notes">
 <h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
 <p>It is recommended to use a stand-alone Python installation for
 compiling and running TCRM. Installations linked to other software
 such as ArcGIS have resulted in compilation errors, as the required
-<code class="xref py py-mod docutils literal"><span class="pre">numpy</span></code> libraries are pre-compiled and packaged with such
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy</span></code> libraries are pre-compiled and packaged with such
 installations.</p>
 </div>
 </div>
@@ -357,18 +374,18 @@ installations.</p>
 the code base will work as expected, even if a user makes
 modificaitons to the code.</p>
 <p>The test suite can be run from the main directory. On Windows, run the
-<code class="docutils literal"><span class="pre">run_test_all.cmd</span></code> script from the main TCRM directory. On Unix, use
-the command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">./</span><span class="n">tests</span><span class="o">/</span><span class="n">run</span><span class="o">.</span><span class="n">py</span>
+<code class="docutils literal notranslate"><span class="pre">run_test_all.cmd</span></code> script from the main TCRM directory. On Unix, use
+the command</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ./tests/run.py
 </pre></div>
 </div>
 <p>This should report no errors or failures.</p>
 <div class="section" id="special-note-for-windows-systems">
 <h3>Special note for Windows systems<a class="headerlink" href="#special-note-for-windows-systems" title="Permalink to this headline">¶</a></h3>
-<p>On a Windows system, <code class="xref py py-func docutils literal"><span class="pre">tests.test_files.testModulePath()</span></code> may fail
-due to the different path separators (<code class="docutils literal"><span class="pre">/</span></code> versus <code class="docutils literal"><span class="pre">\\</span></code>) used by the
+<p>On a Windows system, <code class="xref py py-func docutils literal notranslate"><span class="pre">tests.test_files.testModulePath()</span></code> may fail
+due to the different path separators (<code class="docutils literal notranslate"><span class="pre">/</span></code> versus <code class="docutils literal notranslate"><span class="pre">\\</span></code>) used by the
 Windows system. This test failure will appear as:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">======================================================================</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">======================================================================</span>
 <span class="n">FAIL</span><span class="p">:</span> <span class="n">testModulePath</span> <span class="p">(</span><span class="n">tests</span><span class="o">.</span><span class="n">test_files</span><span class="o">.</span><span class="n">TestModuleUtilities</span><span class="p">)</span>
 <span class="n">Test</span> <span class="n">flModulePath</span> <span class="n">returns</span> <span class="n">correct</span> <span class="n">path</span><span class="p">,</span> <span class="n">base</span> <span class="o">&amp;</span> <span class="n">extension</span>
 <span class="o">----------------------------------------------------------------------</span>
@@ -386,13 +403,71 @@ Windows system. This test failure will appear as:</p>
 <p>Such an error will not affect model execution.</p>
 </div>
 </div>
+<div class="section" id="using-docker">
+<h2>Using Docker<a class="headerlink" href="#using-docker" title="Permalink to this headline">¶</a></h2>
+<p>As an alternative way to install TCRM, you can use Docker.
+Docker is a very convenient way to run containerized software which
+avoids all the hassle with compilation or dependencies.</p>
+<div class="section" id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h3>
+<p>Install <a class="reference external" href="https://docs.docker.com/install/#supported-platforms">Docker Community Edition</a> for your
+system.</p>
+</div>
+<div class="section" id="test-the-installation">
+<h3>Test the installation<a class="headerlink" href="#test-the-installation" title="Permalink to this headline">¶</a></h3>
+<p>Run this command</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run olivierdalang/tcrm nosetests --exe
+</pre></div>
+</div>
+<p>The first time, this will take some time, as it needs to download the docker image.
+If it works, you should see (after some time), something like <code class="docutils literal notranslate"><span class="pre">OK</span> <span class="pre">(SKIP=1)</span></code>.
+If not, you would see something like <code class="docutils literal notranslate"><span class="pre">FAILED</span> <span class="pre">(SKIP=1,</span> <span class="pre">errors=1)</span></code>.</p>
+</div>
+<div class="section" id="normal-usage">
+<h3>Normal usage<a class="headerlink" href="#normal-usage" title="Permalink to this headline">¶</a></h3>
+<p>To run TCRM though Docker, you need to mount a folders containing your
+inputs and the output folder in the container.</p>
+<p>This can be done like this (assuming you have a my_conf.ini file in
+a folder)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run -v /path_to/my_data_folder:/home/src/mount -v /path_to/my_output_folder:/home/src/output olivierdalang/tcrm python tcevent.py -v -c mount/my_conf.ini
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">/path_to/my_data_folder</span></code> and <code class="docutils literal notranslate"><span class="pre">/path_to/my_output_folder</span></code>
+by the folders you want to use on your system, and <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">tcevent.py</span>
+<span class="pre">v</span> <span class="pre">-c</span> <span class="pre">example/yasi.ini</span></code> by the TCRM command you want to use.</p>
+<p>The first time, the docker image will have to be downloaded which will
+take some time.</p>
+</div>
+<div class="section" id="developement">
+<h3>Developement<a class="headerlink" href="#developement" title="Permalink to this headline">¶</a></h3>
+<p>You can also use Docker when developping TCRM by mounting the source</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git checkout https://github.com/GeoscienceAustralia/tcrm.git
+<span class="nb">cd</span> tcrm
+docker run -v <span class="si">${</span><span class="nv">PWD</span><span class="si">}</span>:/home/src olivierdalang/tcrm python tcevent.py -c example/yasi.ini
+</pre></div>
+</div>
+<p>If you wish to make changes to the builds steps or dependencies, you need to rebuild the image locally</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker build -t olivierdalang/tcrm .
+</pre></div>
+</div>
+</div>
+<div class="section" id="releases">
+<h3>Releases<a class="headerlink" href="#releases" title="Permalink to this headline">¶</a></h3>
+<p>For users to be able to use the docker image out of the box without having to rebuild it locally,
+the image must be pushed to the docker hub repository like this</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker build -t olivierdalang/tcrm .
+docker login
+docker push olivierdalang/tcrm
+</pre></div>
+</div>
+<p>This can be setup to be done automatically after pushes through docker hub.</p>
+</div>
+</div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -401,7 +476,7 @@ Windows system. This test failure will appear as:</p>
         <a href="setup.html" class="btn btn-neutral float-right" title="Setting up the model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="intro.html" class="btn btn-neutral" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="intro.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -410,12 +485,14 @@ Windows system. This test failure will appear as:</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2020
+      <span class="lastupdated">
+        Last updated on Nov 02, 2020.
+      </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -428,36 +505,15 @@ Windows system. This test failure will appear as:</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'v2.0.2',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

@@ -5,10 +5,9 @@
  Running the model
 ===================
 
-The primary way to run TCRM is at the command line (A graphical
-interface is under development). Command line arguments are passed to
-the main ``tcrm.py`` script for defining the path to the configuration
-file, as well as enabling verbose output and/or debugging.
+The primary way to run TCRM is at the command line. Command line arguments 
+are passed to the main ``tcrm.py`` script for defining the path 
+to the configuration file, as well as enabling verbose output and/or debugging.
 
 Command line arguments
 ======================
@@ -31,9 +30,14 @@ option included. For example, to run the example simulation::
 The model will print a simple progress indicator to the console to
 show that the model is working.
 
+For Python3 users, some may have to use the ``python3`` command::
+
+    python3 tcrm.py -c example/port_hedland.ini
+
 If the ``-v`` option is included, then all logging messages will be
 printed to the console. The level of logging detail is set in the
-configuration file.
+configuration file, using Python's inbuilt logging levels ('DEBUG', 'INFO',
+'WARNING', etc.).
 
 Running on a parallel system
 ============================
@@ -42,11 +46,11 @@ As a stochastic model, TCRM can generate massive numbers of synthetic
 events, which implies run times can become very long. If TCRM is
 installed on a multiprocessor system (either a shared memory or
 distributed memory system), then the workload can be shared across the
-workload. TCRM uses the :mod:`pypar` module to enable multi-threaded
-processing. Instructions for installing :mod:`pypar` are given on the
-`Pypar website <http://github.com/daleroberts/pypar>`_.
+workload. TCRM uses the :mod:`mpi4py` module to enable multi-threaded
+processing. Instructions for installing :mod:`mpi4py` are given on the
+`mpi4py website <https://mpi4py.readthedocs.io/>`_.
 
-Pypar is built around the MPI library, and so uses the ``mpirun``
+``mpi4py`` is built around the MPI library, and so uses the ``mpirun``
 command to execute the model across multiple processors. As an example
 the following command will execute across 16 processors::
 

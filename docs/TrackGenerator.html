@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>TrackGenerator package &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  <title>TrackGenerator package &mdash; Tropical Cyclone Risk Model v3.1.3 documentation</title>
   
 
   
@@ -17,40 +17,34 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="../index.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -59,7 +53,7 @@
 
           
             
-            <img src="../_static/GA_0.gif" class="logo" />
+            <img src="../_static/GA_0.gif" class="logo" alt="Logo"/>
           
           </a>
 
@@ -67,7 +61,7 @@
             
             
               <div class="version">
-                2.0
+                3.1.3
               </div>
             
           
@@ -101,7 +95,6 @@
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Using different TC databases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scenarios.html">Scenario simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TCRM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Utilities.html">Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License information</a></li>
 </ul>
@@ -115,7 +108,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Tropical Cyclone Risk Model</a>
@@ -123,9 +116,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -175,23 +169,23 @@
 <div class="section" id="module-TrackGenerator.TrackGenerator">
 <span id="trackgenerator-trackgenerator-module"></span><h2>TrackGenerator.TrackGenerator module<a class="headerlink" href="#module-TrackGenerator.TrackGenerator" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="trackgenerator-tropical-cyclone-track-generation">
-<h3><a class="reference internal" href="#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></code></a> – Tropical cyclone track generation<a class="headerlink" href="#trackgenerator-tropical-cyclone-track-generation" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">TrackGenerator</span></code></a> – Tropical cyclone track generation<a class="headerlink" href="#trackgenerator-tropical-cyclone-track-generation" title="Permalink to this headline">¶</a></h3>
 <p>This module contains the core objects for tropical cyclone track
 generation.</p>
-<p>Track generation can be run in parallel using MPI if the <a class="reference internal" href="glossary.html#term-pypar"><span class="xref std std-term">pypar</span></a>
+<p>Track generation can be run in parallel using MPI if the <span class="xref std std-term">mpi4py</span>
 library is found and TCRM is run using the <a class="reference internal" href="glossary.html#term-mpirun"><span class="xref std std-term">mpirun</span></a> command. For
 example, to run with 10 processors:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ mpirun -n 10 python main.py cairns.ini
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ mpirun -n 10 python main.py cairns.ini
 </pre></div>
 </div>
-<p><a class="reference internal" href="#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-class docutils literal"><span class="pre">TrackGenerator</span></code></a> can be correctly initialised and started by
-calling <a class="reference internal" href="#TrackGenerator.TrackGenerator.run" title="TrackGenerator.TrackGenerator.run"><code class="xref py py-meth docutils literal"><span class="pre">run()</span></code></a> with the location of a configuration file:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">TrackGenerator</span>
+<p><a class="reference internal" href="#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrackGenerator</span></code></a> can be correctly initialised and started by
+calling <a class="reference internal" href="#TrackGenerator.TrackGenerator.run" title="TrackGenerator.TrackGenerator.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code></a> with the location of a configuration file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">TrackGenerator</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">TrackGenerator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;cairns.ini&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Alternatively, it can be run from the command line:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ python TrackGenerator.py cairns.ini
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python TrackGenerator.py cairns.ini
 </pre></div>
 </div>
 <div class="section" id="track-format">
@@ -204,7 +198,7 @@ of multi-year simulations, multiple years are contained in the file).</p>
 <p>Here’s an example that shows the group structure in a track file. The
 track file contains five tracks, each with only two variables - ‘time’
 and ‘track’:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">netCDF4</span> <span class="k">import</span> <span class="n">Dataset</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rootgrp</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="s2">&quot;tracks.00001.nc&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">rootgrp</span><span class="o">.</span><span class="n">groups</span>
 <span class="go">OrderedDict([(u&#39;tracks&#39;, &lt;netCDF4.Group object at 0x04B92E88&gt;)])</span>
@@ -268,9 +262,9 @@ and ‘track’:</p>
 <p>The ‘time’ variable is an unlimited dimension representing the length
 of the track in hours since genesis.</p>
 <p>The ‘track’ variable is a compound variable akin to a
-<code class="xref py py-class docutils literal"><span class="pre">numpy.recarray</span></code>. Here’s an example of the summary of a ‘track’
+<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.recarray</span></code>. Here’s an example of the summary of a ‘track’
 variable (taking the last track from the previous example):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">child</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;track&#39;</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">child</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;track&#39;</span><span class="p">]</span>
 <span class="go">&lt;type &#39;netCDF4.Variable&#39;&gt;</span>
 <span class="go">compound track(time)</span>
 <span class="go">    long_name: Tropical cyclone track data</span>
@@ -297,230 +291,212 @@ variable (taking the last track from the previous example):</p>
 </div>
 <p>A thorough explanation of the netcdf4-python API is given on the
 <a class="reference external" href="http://unidata.github.io/netcdf4-python/">Unidata Github page</a>.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="TrackGenerator.TrackGenerator.SamplePressure">
-<em class="property">class </em><code class="descname">SamplePressure</code><span class="sig-paren">(</span><em>mslp_file</em>, <em>var='slp'</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.SamplePressure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-name descname">SamplePressure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mslp_file</span></em>, <em class="sig-param"><span class="n">var</span><span class="o">=</span><span class="default_value">'slp'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.SamplePressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Provide a method to get a 3-d interpolated mean sea level
 pressure at a given location</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>mslp_file</strong> (<em>str</em>) – path to a 3-d (time, lat, lon) MSLP
-netcdf file.</li>
-<li><strong>var</strong> (<em>str</em>) – Variable name (assumed ‘slp’)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mslp_file</strong> (<em>str</em>) – path to a 3-d (time, lat, lon) MSLP
+netcdf file.</p></li>
+<li><p><strong>var</strong> (<em>str</em>) – Variable name (assumed ‘slp’)</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="TrackGenerator.TrackGenerator.SamplePressure.get_pressure">
-<code class="descname">get_pressure</code><span class="sig-paren">(</span><em>coords</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.SamplePressure.get_pressure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_pressure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coords</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.SamplePressure.get_pressure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Interpolate daily long term mean sea level pressure at
 the given coordinates.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coords</strong> (<em>list</em>) – [day of year, latitude, longitude]</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">long term MSLP</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>coords</strong> (<em>list</em>) – [day of year, latitude, longitude]</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>long term MSLP</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="TrackGenerator.TrackGenerator.Simulation">
-<em class="property">class </em><code class="descname">Simulation</code><span class="sig-paren">(</span><em>index</em>, <em>seed</em>, <em>jumpahead</em>, <em>ntracks</em>, <em>outfile</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.Simulation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-name descname">Simulation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span></em>, <em class="sig-param"><span class="n">seed</span></em>, <em class="sig-param"><span class="n">jumpahead</span></em>, <em class="sig-param"><span class="n">ntracks</span></em>, <em class="sig-param"><span class="n">outfile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.Simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Simulation parameters.</p>
 <p>This is used to set the PRNG state before <cite>ntracks</cite> are simulated.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>index</strong> (<em>int</em>) – the simulation index number.</li>
-<li><strong>seed</strong> (<em>int</em>) – the initial seed used for the PRNG.</li>
-<li><strong>jumpahead</strong> (<em>int</em>) – the amount to jump ahead from the initial seed in
-the PRNG stream.</li>
-<li><strong>ntracks</strong> (<em>int</em>) – the number of tracks to be generated during the
-simulation.</li>
-<li><strong>outfile</strong> (<em>str</em>) – the filename where the tracks will be saved to.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> (<em>int</em>) – the simulation index number.</p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – the initial seed used for the PRNG.</p></li>
+<li><p><strong>jumpahead</strong> (<em>int</em>) – the amount to jump ahead from the initial seed in
+the PRNG stream.</p></li>
+<li><p><strong>ntracks</strong> (<em>int</em>) – the number of tracks to be generated during the
+simulation.</p></li>
+<li><p><strong>outfile</strong> (<em>str</em>) – the filename where the tracks will be saved to.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="TrackGenerator.TrackGenerator.TrackGenerator">
-<em class="property">class </em><code class="descname">TrackGenerator</code><span class="sig-paren">(</span><em>processPath</em>, <em>gridLimit</em>, <em>gridSpace</em>, <em>gridInc</em>, <em>mslp</em>, <em>landfall</em>, <em>innerGridLimit=None</em>, <em>dt=1.0</em>, <em>maxTimeSteps=360</em>, <em>sizeMean=46.5</em>, <em>sizeStdDev=0.5</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.TrackGenerator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-name descname">TrackGenerator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">processPath</span></em>, <em class="sig-param"><span class="n">gridLimit</span></em>, <em class="sig-param"><span class="n">gridSpace</span></em>, <em class="sig-param"><span class="n">gridInc</span></em>, <em class="sig-param"><span class="n">mslp</span></em>, <em class="sig-param"><span class="n">landfall</span></em>, <em class="sig-param"><span class="n">innerGridLimit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dt</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">maxTimeSteps</span><span class="o">=</span><span class="default_value">360</span></em>, <em class="sig-param"><span class="n">sizeMean</span><span class="o">=</span><span class="default_value">46.5</span></em>, <em class="sig-param"><span class="n">sizeStdDev</span><span class="o">=</span><span class="default_value">0.5</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.TrackGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generates tropical cyclone tracks based on the empirical
 probability distributions of speed, bearing, pressure and maximum
 radius.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>processPath</strong> (<em>string</em>) – the location of the empirical probability
-distribution files.</li>
-<li><strong>gridLimit</strong> (<code class="xref py py-class docutils literal"><span class="pre">dict</span></code>) – the domain where the tracks will be generated.
-The <code class="xref py py-class docutils literal"><span class="pre">dict</span></code> should contain the keys
-<code class="xref py py-attr docutils literal"><span class="pre">xMin</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">yMin</span></code> and
-<code class="xref py py-attr docutils literal"><span class="pre">yMax</span></code>. The <em>x</em> variable bounds the
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>processPath</strong> (<em>string</em>) – the location of the empirical probability
+distribution files.</p></li>
+<li><p><strong>gridLimit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – the domain where the tracks will be generated.
+The <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> should contain the keys
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">xMin</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">yMin</span></code> and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">yMax</span></code>. The <em>x</em> variable bounds the
 longitude and the <em>y</em> variable bounds the
-latitude.</li>
-<li><strong>gridSpace</strong> (<code class="xref py py-class docutils literal"><span class="pre">dict</span></code>) – the grid spacing of the domain.
+latitude.</p></li>
+<li><p><strong>gridSpace</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – the grid spacing of the domain.
 This is used to chop the domain into cells. The
-<code class="xref py py-class docutils literal"><span class="pre">dict</span></code> should contain the keys <code class="xref py py-attr docutils literal"><span class="pre">x</span></code>
-and <code class="xref py py-attr docutils literal"><span class="pre">y</span></code>.</li>
-<li><strong>gridInc</strong> (<code class="xref py py-class docutils literal"><span class="pre">dict</span></code>) – the increments for the grid to be used by
-<code class="xref py py-class docutils literal"><span class="pre">StatInterface.GenerateStats</span></code> when
+<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> should contain the keys <code class="xref py py-attr docutils literal notranslate"><span class="pre">x</span></code>
+and <code class="xref py py-attr docutils literal notranslate"><span class="pre">y</span></code>.</p></li>
+<li><p><strong>gridInc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – the increments for the grid to be used by
+<code class="xref py py-class docutils literal notranslate"><span class="pre">StatInterface.GenerateStats</span></code> when
 insufficient observations exist in the cell being
-analysed.</li>
-<li><strong>landfall</strong> (<code class="xref py py-class docutils literal"><span class="pre">LandfallDecay</span></code>) – the object that calculates the decay rate of a
+analysed.</p></li>
+<li><p><strong>landfall</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">LandfallDecay</span></code>) – the object that calculates the decay rate of a
 tropical cyclone after it has made landfall. The
-object should have the methods <code class="xref py py-meth docutils literal"><span class="pre">onLand()</span></code>
-and <code class="xref py py-meth docutils literal"><span class="pre">pChange()</span></code>.</li>
-<li><strong>innerGridLimit</strong> (<code class="xref py py-class docutils literal"><span class="pre">dict</span></code>) – an optional domain limit that can be used to
+object should have the methods <code class="xref py py-meth docutils literal notranslate"><span class="pre">onLand()</span></code>
+and <code class="xref py py-meth docutils literal notranslate"><span class="pre">pChange()</span></code>.</p></li>
+<li><p><strong>innerGridLimit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – an optional domain limit that can be used to
 cull tropical cyclone paths. The
-<code class="xref py py-class docutils literal"><span class="pre">dict</span></code> should contain the keys
-<code class="xref py py-attr docutils literal"><span class="pre">xMin</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">yMin</span></code> and
-<code class="xref py py-attr docutils literal"><span class="pre">yMax</span></code>. The <em>x</em> variable bounds the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> should contain the keys
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">xMin</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">yMin</span></code> and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">yMax</span></code>. The <em>x</em> variable bounds the
 longitude and the <em>y</em> variable bounds the
-latitude.</li>
-<li><strong>dt</strong> (<em>float</em>) – the time step used the the track simulation.</li>
-<li><strong>maxTimeSteps</strong> (<em>int</em>) – the maximum number of tropical cyclone time
-steps that will be simulated.</li>
-<li><strong>sizeMean</strong> (<em>float</em><em> (</em><em>default: 46.5.0</em><em>)</em>) – the fallback average tropical cyclone size to use
+latitude.</p></li>
+<li><p><strong>dt</strong> (<em>float</em>) – the time step used the the track simulation.</p></li>
+<li><p><strong>maxTimeSteps</strong> (<em>int</em>) – the maximum number of tropical cyclone time
+steps that will be simulated.</p></li>
+<li><p><strong>sizeMean</strong> (<em>float</em><em> (</em><em>default: 46.5.0</em><em>)</em>) – the fallback average tropical cyclone size to use
 when the empirical distribution data cannot be
-loaded from file.</li>
-<li><strong>sizeStdDev</strong> (<em>float</em><em> (</em><em>default: 0.5</em><em>)</em>) – the fallback standard deviation of the tropical
+loaded from file.</p></li>
+<li><p><strong>sizeStdDev</strong> (<em>float</em><em> (</em><em>default: 0.5</em><em>)</em>) – the fallback standard deviation of the tropical
 cyclone size to use when the empirical
-distribution data cannot be loaded from file.</li>
+distribution data cannot be loaded from file.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="TrackGenerator.TrackGenerator.TrackGenerator.dumpAllCellCoefficients">
-<code class="descname">dumpAllCellCoefficients</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.TrackGenerator.dumpAllCellCoefficients" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dumpAllCellCoefficients</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.TrackGenerator.dumpAllCellCoefficients" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dump all cell coefficients to a netcdf file to permit further
 analysis.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="TrackGenerator.TrackGenerator.TrackGenerator.generateTracks">
-<code class="descname">generateTracks</code><span class="sig-paren">(</span><em>nTracks</em>, <em>simId</em>, <em>initLon=None</em>, <em>initLat=None</em>, <em>initSpeed=None</em>, <em>initBearing=None</em>, <em>initPressure=None</em>, <em>initEnvPressure=None</em>, <em>initRmax=None</em>, <em>initDay=None</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.TrackGenerator.generateTracks" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generateTracks</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nTracks</span></em>, <em class="sig-param"><span class="n">simId</span></em>, <em class="sig-param"><span class="n">initLon</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initLat</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initSpeed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initBearing</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initPressure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initEnvPressure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initRmax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initDay</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.TrackGenerator.generateTracks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate tropical cyclone tracks from a single genesis point.</p>
 <p>If the initial conditions for speed, pressure, and bearing are
 not provided then they will be drawn randomly from the
 empirical distributions that were calculated from historical
-data (see <a class="reference internal" href="#TrackGenerator.TrackGenerator.TrackGenerator.loadInitialConditionDistributions" title="TrackGenerator.TrackGenerator.TrackGenerator.loadInitialConditionDistributions"><code class="xref py py-meth docutils literal"><span class="pre">loadInitialConditionDistributions()</span></code></a>).</p>
+data (see <a class="reference internal" href="#TrackGenerator.TrackGenerator.TrackGenerator.loadInitialConditionDistributions" title="TrackGenerator.TrackGenerator.TrackGenerator.loadInitialConditionDistributions"><code class="xref py py-meth docutils literal notranslate"><span class="pre">loadInitialConditionDistributions()</span></code></a>).</p>
 <p>If the genesis point (initLon, initLat) is not provided, then
 an origin will be randomly chosen using the empirical genesis
 point distribution calculated by
-<a class="reference internal" href="StatInterface.html#module-StatInterface.SamplingOrigin" title="StatInterface.SamplingOrigin"><code class="xref py py-class docutils literal"><span class="pre">StatInterface.SamplingOrigin</span></code></a>. However, if this random
+<a class="reference internal" href="StatInterface.html#module-StatInterface.SamplingOrigin" title="StatInterface.SamplingOrigin"><code class="xref py py-class docutils literal notranslate"><span class="pre">StatInterface.SamplingOrigin</span></code></a>. However, if this random
 point (or the initial point given) falls outside the domain
-defined by <code class="xref py py-attr docutils literal"><span class="pre">gridLimit</span></code> then no tracks will be generated.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>nTracks</strong> (<em>int</em>) – the number of tracks to generate from the
-genesis point.</li>
-<li><strong>initLon</strong> (<em>float</em>) – the longitude of the genesis point.</li>
-<li><strong>initLat</strong> (<em>float</em>) – the latitude of the genesis point.</li>
-<li><strong>initSpeed</strong> (<em>float</em>) – the initial speed of the tropical cyclone.</li>
-<li><strong>initBearing</strong> (<em>float</em>) – the initial bearing of the tropical
-cyclone.</li>
-<li><strong>initPressure</strong> (<em>float</em>) – the initial pressure of the tropical
-cyclone.</li>
-<li><strong>initEnvPressure</strong> (<em>float</em>) – the initial environment pressure.</li>
-<li><strong>initRmax</strong> (<em>float</em>) – the initial maximum radius of the tropical
-cyclone.</li>
+defined by <code class="xref py py-attr docutils literal notranslate"><span class="pre">gridLimit</span></code> then no tracks will be generated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nTracks</strong> (<em>int</em>) – the number of tracks to generate from the
+genesis point.</p></li>
+<li><p><strong>initLon</strong> (<em>float</em>) – the longitude of the genesis point.</p></li>
+<li><p><strong>initLat</strong> (<em>float</em>) – the latitude of the genesis point.</p></li>
+<li><p><strong>initSpeed</strong> (<em>float</em>) – the initial speed of the tropical cyclone.</p></li>
+<li><p><strong>initBearing</strong> (<em>float</em>) – the initial bearing of the tropical
+cyclone.</p></li>
+<li><p><strong>initPressure</strong> (<em>float</em>) – the initial pressure of the tropical
+cyclone.</p></li>
+<li><p><strong>initEnvPressure</strong> (<em>float</em>) – the initial environment pressure.</p></li>
+<li><p><strong>initRmax</strong> (<em>float</em>) – the initial maximum radius of the tropical
+cyclone.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p>:rtype <code class="xref py py-class docutils literal"><span class="pre">numpy.array</span></code>
+</dd>
+</dl>
+<p>:rtype <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.array</span></code>
 :return: the tracks generated.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="TrackGenerator.TrackGenerator.TrackGenerator.generateTracksToFile">
-<code class="descname">generateTracksToFile</code><span class="sig-paren">(</span><em>outputFile</em>, <em>nTracks</em>, <em>simId</em>, <em>initLon=None</em>, <em>initLat=None</em>, <em>initSpeed=None</em>, <em>initBearing=None</em>, <em>initPressure=None</em>, <em>initEnvPressure=None</em>, <em>initRmax=None</em>, <em>initDay=None</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.TrackGenerator.generateTracksToFile" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generateTracksToFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">outputFile</span></em>, <em class="sig-param"><span class="n">nTracks</span></em>, <em class="sig-param"><span class="n">simId</span></em>, <em class="sig-param"><span class="n">initLon</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initLat</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initSpeed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initBearing</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initPressure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initEnvPressure</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initRmax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">initDay</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.TrackGenerator.generateTracksToFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate tropical cyclone tracks from a single genesis point
 and save the tracks to a file.</p>
-<p>This is a helper function that calls <a class="reference internal" href="#TrackGenerator.TrackGenerator.TrackGenerator.generateTracks" title="TrackGenerator.TrackGenerator.TrackGenerator.generateTracks"><code class="xref py py-meth docutils literal"><span class="pre">generateTracks()</span></code></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>outputFile</strong> (<em>str</em>) – the filename of the file where the tracks
+<p>This is a helper function that calls <a class="reference internal" href="#TrackGenerator.TrackGenerator.TrackGenerator.generateTracks" title="TrackGenerator.TrackGenerator.TrackGenerator.generateTracks"><code class="xref py py-meth docutils literal notranslate"><span class="pre">generateTracks()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>outputFile</strong> (<em>str</em>) – the filename of the file where the tracks
 will be saved. If <cite>outputFile</cite> has the <cite>shp</cite>
 extension then it will be saved to a shp
 file. Otherwise, the tracks will be saved in
-csv format.</td>
-</tr>
-</tbody>
-</table>
+csv format.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="TrackGenerator.TrackGenerator.TrackGenerator.loadCellStatistics">
-<code class="descname">loadCellStatistics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.TrackGenerator.loadCellStatistics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">loadCellStatistics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.TrackGenerator.loadCellStatistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the cell statistics for speed, bearing, pressure, and pressure
 rate of change from netcdf files.</p>
 <p>This method loads the statistics from the files</p>
 <blockquote>
-<div>speed_stats.nc
+<div><p>speed_stats.nc
 pressure_stats.nc
 bearing_stats.nc
-pressure_rate_stats.nc</div></blockquote>
-<p>in the <code class="xref py py-attr docutils literal"><span class="pre">processPath</span></code> directory.</p>
+pressure_rate_stats.nc</p>
+</div></blockquote>
+<p>in the <code class="xref py py-attr docutils literal notranslate"><span class="pre">processPath</span></code> directory.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="TrackGenerator.TrackGenerator.TrackGenerator.loadInitialConditionDistributions">
-<code class="descname">loadInitialConditionDistributions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.TrackGenerator.loadInitialConditionDistributions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">loadInitialConditionDistributions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.TrackGenerator.loadInitialConditionDistributions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the tropical cyclone empirical distribution data for
 initial bearing, initial speed, and initial pressure. The
 method will try to load the files</p>
 <blockquote>
-<div>all_cell_cdf_init_bearing.nc
+<div><p>all_cell_cdf_init_bearing.nc
 all_cell_cdf_init_speed.nc
-all_cell_cdf_init_pressure.nc</div></blockquote>
-<p>from the <code class="xref py py-attr docutils literal"><span class="pre">processPath</span></code> directory. If it can’t find those
+all_cell_cdf_init_pressure.nc</p>
+</div></blockquote>
+<p>from the <code class="xref py py-attr docutils literal notranslate"><span class="pre">processPath</span></code> directory. If it can’t find those
 files then it will fallback to the csv versions of those files.
 Note: the csv file names do <em>not</em> end with <cite>.csv</cite>.</p>
 <p>The empirical distribution data will be used to initialise
 tropical cyclone tracks with random values when
-<code class="xref py py-attr docutils literal"><span class="pre">initBearing</span></code>,  <code class="xref py py-attr docutils literal"><span class="pre">initSpeed</span></code>, and
-<code class="xref py py-attr docutils literal"><span class="pre">initPressure</span></code> are not provided to
-<a class="reference internal" href="#TrackGenerator.TrackGenerator.TrackGenerator.generateTracks" title="TrackGenerator.TrackGenerator.TrackGenerator.generateTracks"><code class="xref py py-meth docutils literal"><span class="pre">generateTracks()</span></code></a>.</p>
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">initBearing</span></code>,  <code class="xref py py-attr docutils literal notranslate"><span class="pre">initSpeed</span></code>, and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">initPressure</span></code> are not provided to
+<a class="reference internal" href="#TrackGenerator.TrackGenerator.TrackGenerator.generateTracks" title="TrackGenerator.TrackGenerator.TrackGenerator.generateTracks"><code class="xref py py-meth docutils literal notranslate"><span class="pre">generateTracks()</span></code></a>.</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="TrackGenerator.TrackGenerator.balanced">
-<code class="descname">balanced</code><span class="sig-paren">(</span><em>iterable</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.balanced" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">balanced</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iterable</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.balanced" title="Permalink to this definition">¶</a></dt>
 <dd><p>Balance an iterator across processors.</p>
 <p>This partitions the work evenly across processors. However, it
 requires the iterator to have been generated on all processors
@@ -528,52 +504,55 @@ before hand. This is only some magical slicing of the iterator,
 i.e., a poor man version of scattering.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="TrackGenerator.TrackGenerator.logistic">
-<code class="descname">logistic</code><span class="sig-paren">(</span><em>loc=0.0</em>, <em>scale=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.logistic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">logistic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">loc</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">scale</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.logistic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample from a logistic distribution.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
+<dt id="TrackGenerator.TrackGenerator.lognorm">
+<code class="sig-name descname">lognorm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xi</span></em>, <em class="sig-param"><span class="n">loc</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">scale</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.lognorm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from a lognormal distribution.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt id="TrackGenerator.TrackGenerator.nct">
-<code class="descname">nct</code><span class="sig-paren">(</span><em>df</em>, <em>nc</em>, <em>loc=0.0</em>, <em>scale=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.nct" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">nct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">nc</span></em>, <em class="sig-param"><span class="n">loc</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">scale</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.nct" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample from a non-central T distribution.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="TrackGenerator.TrackGenerator.normal">
-<code class="descname">normal</code><span class="sig-paren">(</span><em>mean=0.0</em>, <em>stddev=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.normal" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">normal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mean</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">stddev</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.normal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample from a Normal distribution.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="TrackGenerator.TrackGenerator.ppf">
-<code class="descname">ppf</code><span class="sig-paren">(</span><em>q</em>, <em>cdf</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.ppf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ppf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q</span></em>, <em class="sig-param"><span class="n">cdf</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.ppf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Percentage point function (aka. inverse CDF, quantile) of
 an empirical CDF.</p>
 <p>This is used to sample from an empirical distribution.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="TrackGenerator.TrackGenerator.run">
-<code class="descname">run</code><span class="sig-paren">(</span><em>configFile</em>, <em>callback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em>, <em class="sig-param"><span class="n">callback</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the tropical cyclone track generation.</p>
 <p>This will attempt to perform the simulation in parallel but also
 provides a sane fallback mechanism.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configFile</strong> (<em>str</em>) – the filename of the configuration file to load
-the track generation configuration from.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configFile</strong> (<em>str</em>) – the filename of the configuration file to load
+the track generation configuration from.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="TrackGenerator.TrackGenerator.uniform">
-<code class="descname">uniform</code><span class="sig-paren">(</span><em>a=0.0</em>, <em>b=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.uniform" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">uniform</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">b</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.TrackGenerator.uniform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample from a uniform distribution.</p>
 </dd></dl>
 
@@ -583,40 +562,37 @@ the track generation configuration from.</td>
 <div class="section" id="module-TrackGenerator.trackLandfall">
 <span id="trackgenerator-tracklandfall-module"></span><h2>TrackGenerator.trackLandfall module<a class="headerlink" href="#module-TrackGenerator.trackLandfall" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="tracklandfall-calculate-central-pressure-for-over-land-tcs">
-<h3><code class="xref py py-mod docutils literal"><span class="pre">trackLandfall</span></code> – calculate central pressure for over-land TCs<a class="headerlink" href="#tracklandfall-calculate-central-pressure-for-over-land-tcs" title="Permalink to this headline">¶</a></h3>
+<h3><code class="xref py py-mod docutils literal notranslate"><span class="pre">trackLandfall</span></code> – calculate central pressure for over-land TCs<a class="headerlink" href="#tracklandfall-calculate-central-pressure-for-over-land-tcs" title="Permalink to this headline">¶</a></h3>
 <p>Determines the decay rate of a cyclone after it makes landfall.
 Based on the central pressure deficit at landfall and the time over
 land, calculate the revised pressure deficit.</p>
 <p>References:</p>
 <ul class="simple">
-<li>Vickery, P. J. and L. A. Twisdale (1995). Wind-Field and Filling
+<li><p>Vickery, P. J. and L. A. Twisdale (1995). Wind-Field and Filling
 Models for Hurricane Wind-Speed Predictions. Journal of Structural
-Engineering 121(11): 1700-1709.</li>
-<li>Powell, M., G. Soukup, S. Cocke, S. Gulati, N. Morriseau-Leroy,
+Engineering 121(11): 1700-1709.</p></li>
+<li><p>Powell, M., G. Soukup, S. Cocke, S. Gulati, N. Morriseau-Leroy,
 S. Hamid, N. Dorst and L. Axe (2005). State of Florida hurricane
 loss projection model: Atmospheric science component. Journal of
-Wind Engineering and Industrial Aerodynamics, 93(8): 651-674.</li>
+Wind Engineering and Industrial Aerodynamics, 93(8): 651-674.</p></li>
 </ul>
-<dl class="class">
+<dl class="py class">
 <dt id="TrackGenerator.trackLandfall.LandfallDecay">
-<em class="property">class </em><code class="descname">LandfallDecay</code><span class="sig-paren">(</span><em>configFile</em>, <em>dt</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.trackLandfall.LandfallDecay" title="Permalink to this definition">¶</a></dt>
-<dd><p>Description: Calculates the decay rate of a tropical cyclone after
+<em class="property">class </em><code class="sig-name descname">LandfallDecay</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em>, <em class="sig-param"><span class="n">dt</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.trackLandfall.LandfallDecay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Description: Calculates the decay rate of a tropical cyclone after
 it has made landfall.  Based on the work of on the model of Vickery
 &amp; Twisdale (1995) and employed in the Florida Hurricane Loss model
 of Powell et al. (2005). The model is tuned for Florida conditions,
 and so may require some further tuning for the region of interest.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>configFile</strong> (<em>str</em>) – Configuration file</li>
-<li><strong>dt</strong> (<em>float</em>) – time step of the generated cyclone tracks</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>configFile</strong> (<em>str</em>) – Configuration file</p></li>
+<li><p><strong>dt</strong> (<em>float</em>) – time step of the generated cyclone tracks</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p>Members:
 dt - time step of the generated cyclone tracks
 landMask - 2D array of 0/1 indicating ocean/land respectively (any
@@ -627,33 +603,29 @@ or not.
 pChange - If the cyclone centre is over land, then this function
 determines the filling as a function of the time elapsed
 since the storm made landfall.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="TrackGenerator.trackLandfall.LandfallDecay.onLand">
-<code class="descname">onLand</code><span class="sig-paren">(</span><em>cLon</em>, <em>cLat</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.trackLandfall.LandfallDecay.onLand" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">onLand</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cLon</span></em>, <em class="sig-param"><span class="n">cLat</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.trackLandfall.LandfallDecay.onLand" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine if a cyclone centred at (cLon, cLat) is over land or not.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cLon</strong> (<em>float</em>) – TC longitude</li>
-<li><strong>cLat</strong> (<em>float</em>) – TC latitude</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cLon</strong> (<em>float</em>) – TC longitude</p></li>
+<li><p><strong>cLat</strong> (<em>float</em>) – TC latitude</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">boolean</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if TC is over land, False otherwise</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>boolean</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if TC is over land, False otherwise</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="TrackGenerator.trackLandfall.LandfallDecay.pChange">
-<code class="descname">pChange</code><span class="sig-paren">(</span><em>pCentre</em>, <em>pEnv</em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.trackLandfall.LandfallDecay.pChange" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pChange</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pCentre</span></em>, <em class="sig-param"><span class="n">pEnv</span></em><span class="sig-paren">)</span><a class="headerlink" href="#TrackGenerator.trackLandfall.LandfallDecay.pChange" title="Permalink to this definition">¶</a></dt>
 <dd><p>If the cyclone centre is over land, then this function
 determines the filling as a function of the time elapsed since
 the storm made landfall.  a0 and a1 control the filling rate of
@@ -662,24 +634,20 @@ cyclones decay faster). An additional random perturbation is
 applied to induce some additional variability.
 Original (V&amp;T1995 values) for a0=0.006, a1=0.00046,
 eps=random.normal(0.0,0.0025)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pCentre</strong> (<em>float</em>) – TC central pressure (hPa)</li>
-<li><strong>pEnv</strong> (<em>float</em>) – TC environmental pressure (hPa)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pCentre</strong> (<em>float</em>) – TC central pressure (hPa)</p></li>
+<li><p><strong>pEnv</strong> (<em>float</em>) – TC environmental pressure (hPa)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">float</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">revised central pressure</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>revised central pressure</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -689,23 +657,23 @@ eps=random.normal(0.0,0.0025)</p>
 <div class="section" id="module-TrackGenerator">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-TrackGenerator" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id1">
-<h3><a class="reference internal" href="#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal"><span class="pre">TrackGenerator</span></code></a> – Tropical cyclone track generation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<h3><a class="reference internal" href="#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">TrackGenerator</span></code></a> – Tropical cyclone track generation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>This module contains the core objects for tropical cyclone track
 generation.</p>
-<p>Track generation can be run in parallel using MPI if the <a class="reference internal" href="glossary.html#term-pypar"><span class="xref std std-term">pypar</span></a>
+<p>Track generation can be run in parallel using MPI if the <span class="xref std std-term">mpi4py</span>
 library is found and TCRM is run using the <a class="reference internal" href="glossary.html#term-mpirun"><span class="xref std std-term">mpirun</span></a> command. For
 example, to run with 10 processors:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ mpirun -n 10 python main.py cairns.ini
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ mpirun -n 10 python main.py cairns.ini
 </pre></div>
 </div>
-<p><a class="reference internal" href="#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-class docutils literal"><span class="pre">TrackGenerator</span></code></a> can be correctly initialised and started by
-calling <code class="xref py py-meth docutils literal"><span class="pre">run()</span></code> with the location of a configuration file:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">TrackGenerator</span>
+<p><a class="reference internal" href="#module-TrackGenerator" title="TrackGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrackGenerator</span></code></a> can be correctly initialised and started by
+calling <code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code> with the location of a configuration file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">TrackGenerator</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">TrackGenerator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;cairns.ini&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Alternatively, it can be run from the command line:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ python TrackGenerator.py cairns.ini
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python TrackGenerator.py cairns.ini
 </pre></div>
 </div>
 <p>Note the absence of a ‘-c’ flag (c.f. the normal TCRM command line arguments).</p>
@@ -715,9 +683,7 @@ calling <code class="xref py py-meth docutils literal"><span class="pre">run()</
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -726,12 +692,14 @@ calling <code class="xref py py-meth docutils literal"><span class="pre">run()</
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2020
+      <span class="lastupdated">
+        Last updated on Nov 02, 2020.
+      </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -744,36 +712,15 @@ calling <code class="xref py py-meth docutils literal"><span class="pre">run()</
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'v2.0.2',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

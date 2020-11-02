@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Scenario modelling &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  <title>Scenario modelling &mdash; Tropical Cyclone Risk Model v3.1.3 documentation</title>
   
 
   
@@ -17,42 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="../index.html"/>
-        <link rel="next" title="Contributing code" href="contributing.html"/>
-        <link rel="prev" title="Using different TC databases - source formats" href="sources.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contributing code" href="contributing.html" />
+    <link rel="prev" title="Using different TC databases - source formats" href="sources.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -61,7 +55,7 @@
 
           
             
-            <img src="../_static/GA_0.gif" class="logo" />
+            <img src="../_static/GA_0.gif" class="logo" alt="Logo"/>
           
           </a>
 
@@ -69,7 +63,7 @@
             
             
               <div class="version">
-                2.0
+                3.1.3
               </div>
             
           
@@ -111,13 +105,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#command-line-arguments">Command line arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#extract-time-series-data">Extract time series data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#memoryerror"><code class="docutils literal"><span class="pre">MemoryError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memoryerror"><code class="docutils literal notranslate"><span class="pre">MemoryError</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TCRM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Utilities.html">Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License information</a></li>
 </ul>
@@ -131,7 +124,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Tropical Cyclone Risk Model</a>
@@ -139,9 +132,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -187,7 +181,7 @@
 <span id="scenariomodelling"></span><h1>Scenario modelling<a class="headerlink" href="#scenario-modelling" title="Permalink to this headline">¶</a></h1>
 <p>TCRM can also be used to simulate the wind field from an individual
 event. Given the track of a tropical cyclone, users can run the
-<a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal"><span class="pre">wind</span></code></a> module only, and generate the maximum wind swath from a
+<a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal notranslate"><span class="pre">wind</span></code></a> module only, and generate the maximum wind swath from a
 TC. The <cite>tcevent.py</cite> script enables users to efficiently run a
 scenario simulation, including performing temporal interpolation of
 the track positions to generate a realistic representation of the wind
@@ -211,15 +205,15 @@ spatial interpolation methods (e.g. kriging).</p>
 <h3>Track file requirements<a class="headerlink" href="#track-file-requirements" title="Permalink to this headline">¶</a></h3>
 <p>Simulating an individual event requires details of the track of the
 cyclone. As a minimum, a track file must contain the following fields:
-<code class="docutils literal"><span class="pre">index</span></code>, <code class="docutils literal"><span class="pre">indicator</span></code> or <code class="docutils literal"><span class="pre">tcserialno</span></code> (to uniquely identify an
+<code class="docutils literal notranslate"><span class="pre">index</span></code>, <code class="docutils literal notranslate"><span class="pre">indicator</span></code> or <code class="docutils literal notranslate"><span class="pre">tcserialno</span></code> (to uniquely identify an
 event); date/time information (either as a single field, or as
 individual components); latitudel; longitude; central pressure and
 radius to maximum winds.</p>
-<p>The <code class="docutils literal"><span class="pre">index</span></code> field (or the alternatives) is required as the software
+<p>The <code class="docutils literal notranslate"><span class="pre">index</span></code> field (or the alternatives) is required as the software
 uses the same methods to read the source data for both individual
 events and best-track databases that contain many events. The example
-configuration below uses an <code class="docutils literal"><span class="pre">index</span></code> field, with <code class="docutils literal"><span class="pre">1</span></code> in the first
-row and <code class="docutils literal"><span class="pre">0</span></code> in all subsequent rows.</p>
+configuration below uses an <code class="docutils literal notranslate"><span class="pre">index</span></code> field, with <code class="docutils literal notranslate"><span class="pre">1</span></code> in the first
+row and <code class="docutils literal notranslate"><span class="pre">0</span></code> in all subsequent rows.</p>
 <p>The radius to maximum wind is required in individual events, as it
 cannot be artificially generated, as is the case in the generation of
 synthetic events.</p>
@@ -233,7 +227,7 @@ recommended to create a reduced configuration file that contains only
 the required sections and options.</p>
 <p>A basic configuration file for a scenario simulation would look like
 this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">DataProcess</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">DataProcess</span><span class="p">]</span>
 <span class="n">InputFile</span> <span class="o">=</span> <span class="n">scenario</span><span class="o">.</span><span class="n">csv</span>
 <span class="n">Source</span> <span class="o">=</span> <span class="n">NRL</span>
 <span class="n">FilterSeasons</span> <span class="o">=</span> <span class="kc">False</span>
@@ -279,50 +273,42 @@ this:</p>
 <span id="runningscenario"></span><h2>Running the scenario<a class="headerlink" href="#running-the-scenario" title="Permalink to this headline">¶</a></h2>
 <p>The <cite>tcevent.py</cite> script loads the track file, performs the temporal
 interpolation and then passes the interpolated track file to the
-<a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal"><span class="pre">wind</span></code></a> module. Since the <code class="docutils literal"><span class="pre">Region</span></code> section has been removed, the
-<a class="reference internal" href="wind.html#wind.run" title="wind.run"><code class="xref py py-meth docutils literal"><span class="pre">wind.run()</span></code></a> method will set the grid domain to cover the entire
+<a class="reference internal" href="wind.html#module-wind" title="wind"><code class="xref py py-mod docutils literal notranslate"><span class="pre">wind</span></code></a> module. Since the <code class="docutils literal notranslate"><span class="pre">Region</span></code> section has been removed, the
+<a class="reference internal" href="wind.html#wind.run" title="wind.run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wind.run()</span></code></a> method will set the grid domain to cover the entire
 extent of the track.</p>
-<p>Make sure <code class="docutils literal"><span class="pre">python</span></code> is in your system path, then from the base
-directory, call the <code class="docutils literal"><span class="pre">tcevent.py</span></code> script, with the configuration
+<p>Make sure <code class="docutils literal notranslate"><span class="pre">python</span></code> is in your system path, then from the base
+directory, call the <code class="docutils literal notranslate"><span class="pre">tcevent.py</span></code> script, with the configuration
 file option included. For example, to run the example scenario:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">tcevent</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">c</span> <span class="n">example</span><span class="o">/</span><span class="n">scenario</span><span class="o">.</span><span class="n">ini</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">tcevent</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">c</span> <span class="n">example</span><span class="o">/</span><span class="n">scenario</span><span class="o">.</span><span class="n">ini</span>
 </pre></div>
 </div>
-<p>If the <code class="docutils literal"><span class="pre">-v</span></code> option is included, then all logging messages will be
+<p>If the <code class="docutils literal notranslate"><span class="pre">-v</span></code> option is included, then all logging messages will be
 printed to the console. The level of logging detail is set in the
 configuration file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body"><cite>tcevent.py</cite> cannot be executed in parallel.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><p><cite>tcevent.py</cite> cannot be executed in parallel.</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="command-line-arguments">
 <span id="scenariocmdlineargs"></span><h2>Command line arguments<a class="headerlink" href="#command-line-arguments" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">-c <var>file</var></span>, <span class="option">--config <var>file</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Path to a configuration file.</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">-v</span>, <span class="option">--verbose</span></kbd></td>
-<td>If given, logging messages will be printed
-to the console.</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">-d</span>, <span class="option">--debug</span></kbd></td>
-<td>In the case that execution results in an exception,
+<div><dl class="option-list">
+<dt><kbd><span class="option">-c <var>file</var></span>, <span class="option">--config <var>file</var></span></kbd></dt>
+<dd><p>Path to a configuration file.</p>
+</dd>
+<dt><kbd><span class="option">-v</span>, <span class="option">--verbose</span></kbd></dt>
+<dd><p>If given, logging messages will be printed
+to the console.</p>
+</dd>
+<dt><kbd><span class="option">-d</span>, <span class="option">--debug</span></kbd></dt>
+<dd><p>In the case that execution results in an exception,
 allow the Python stack to call into the stack trace
 (through implementation of a custom hook script) and
-start the Python debugger (<code class="xref py py-mod docutils literal"><span class="pre">pdb</span></code>).</td></tr>
-</tbody>
-</table>
+start the Python debugger (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pdb</span></code>).</p>
+</dd>
+</dl>
 </div></blockquote>
 </div>
 <div class="section" id="extract-time-series-data">
@@ -335,12 +321,12 @@ versions to better facilitate this feature). The shape file should
 contain a field with a unique identifier, otherwise station output is
 numbered sequentially through the locations.</p>
 <ul class="simple">
-<li>Locations must be provided in geographic coordinates (longitude,
-latitude coordinates). No reprojection is performed.</li>
-<li>Output is a ‘regional’ wind speed – that is, the wind speed at that
+<li><p>Locations must be provided in geographic coordinates (longitude,
+latitude coordinates). No reprojection is performed.</p></li>
+<li><p>Output is a ‘regional’ wind speed – that is, the wind speed at that
 location, excluding local topographic or landscape effects. These
 effects can be incorporated offline (i.e. outside the TCRM
-framework).</li>
+framework).</p></li>
 </ul>
 <p>The data is stored in a separate csv file for each location, and data
 is plotted on a simple figure for visual inspection.</p>
@@ -351,39 +337,36 @@ is plotted on a simple figure for visual inspection.</p>
 used the best track estimate from the Joint Typhoon Warning Center
 to establish the intensity and radius to maximum winds of the
 typhoon. No attempt is made to fit the radial profile to defined
-wind radii (e.g. radius of 46-, 50- or 34-knots).</span></p>
+wind radii (e.g. radius of 46-, 50- or 34-knots).</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
 <div class="align-center figure" id="id2">
 <img alt="Time series example from Guiuan, Philippines" src="../_images/timeseries_example.png" />
-<p class="caption"><span class="caption-text">Time series data for Super Typhoon <em>Haiyan</em> at Guiuan, Samar, Philippines.</span></p>
+<p class="caption"><span class="caption-text">Time series data for Super Typhoon <em>Haiyan</em> at Guiuan, Samar, Philippines.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Note:</th><td class="field-body">The double labels on the secondary (right-hand) y-axis require
-Matplotlib version 1.3 or later.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Note</dt>
+<dd class="field-odd"><p>The double labels on the secondary (right-hand) y-axis require
+Matplotlib version 1.3 or later.</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
 <p>Some common errors when running a scenario.</p>
 <div class="section" id="memoryerror">
-<h3><code class="docutils literal"><span class="pre">MemoryError</span></code><a class="headerlink" href="#memoryerror" title="Permalink to this headline">¶</a></h3>
-<p>In isolated cases, <code class="docutils literal"><span class="pre">tcevent.py</span></code> may fail and report a message that
-ends with <code class="docutils literal"><span class="pre">MemoryError</span></code>. This arises when the size of arrays in
+<h3><code class="docutils literal notranslate"><span class="pre">MemoryError</span></code><a class="headerlink" href="#memoryerror" title="Permalink to this headline">¶</a></h3>
+<p>In isolated cases, <code class="docutils literal notranslate"><span class="pre">tcevent.py</span></code> may fail and report a message that
+ends with <code class="docutils literal notranslate"><span class="pre">MemoryError</span></code>. This arises when the size of arrays in
 Python exceed 2GB (on 32-bit systems). Conditions that lead to this
 error are not clear. To resolve the problem, it is recommended to
-reduce the domain of the wind field by adding a <code class="docutils literal"><span class="pre">Region</span></code> section to
+reduce the domain of the wind field by adding a <code class="docutils literal notranslate"><span class="pre">Region</span></code> section to
 the configuration file.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Region</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Region</span><span class="p">]</span>
 <span class="n">gridLimit</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;xMin&#39;</span><span class="p">:</span><span class="mf">118.</span><span class="p">,</span> <span class="s1">&#39;xMax&#39;</span><span class="p">:</span><span class="mf">122.</span><span class="p">,</span> <span class="s1">&#39;yMin&#39;</span><span class="p">:</span><span class="o">-</span><span class="mf">23.</span><span class="p">,</span> <span class="s1">&#39;yMax&#39;</span><span class="p">:</span><span class="o">-</span><span class="mf">17.</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>This will restrict calculation of the wind field to the defined
-domain. The <code class="docutils literal"><span class="pre">gridLimit</span></code> value is described in the
+domain. The <code class="docutils literal notranslate"><span class="pre">gridLimit</span></code> value is described in the
 <a class="reference internal" href="setup.html#configureregion"><span class="std std-ref">Region</span></a> section.</p>
 </div>
 </div>
@@ -391,9 +374,7 @@ domain. The <code class="docutils literal"><span class="pre">gridLimit</span></c
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -402,7 +383,7 @@ domain. The <code class="docutils literal"><span class="pre">gridLimit</span></c
         <a href="contributing.html" class="btn btn-neutral float-right" title="Contributing code" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="sources.html" class="btn btn-neutral" title="Using different TC databases - source formats" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="sources.html" class="btn btn-neutral float-left" title="Using different TC databases - source formats" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -411,12 +392,14 @@ domain. The <code class="docutils literal"><span class="pre">gridLimit</span></c
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2020
+      <span class="lastupdated">
+        Last updated on Nov 02, 2020.
+      </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -429,36 +412,15 @@ domain. The <code class="docutils literal"><span class="pre">gridLimit</span></c
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'v2.0.2',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

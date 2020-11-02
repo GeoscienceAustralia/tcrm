@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Examples &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  <title>Examples &mdash; Tropical Cyclone Risk Model v3.1.3 documentation</title>
   
 
   
@@ -17,42 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="../index.html"/>
-        <link rel="next" title="Evaluation" href="evaluation.html"/>
-        <link rel="prev" title="Running the model" href="execution.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Evaluation" href="evaluation.html" />
+    <link rel="prev" title="Running the model" href="execution.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -61,7 +55,7 @@
 
           
             
-            <img src="../_static/GA_0.gif" class="logo" />
+            <img src="../_static/GA_0.gif" class="logo" alt="Logo"/>
           
           </a>
 
@@ -69,7 +63,7 @@
             
             
               <div class="version">
-                2.0
+                3.1.3
               </div>
             
           
@@ -110,7 +104,6 @@
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Using different TC databases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scenarios.html">Scenario simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TCRM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Utilities.html">Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License information</a></li>
 </ul>
@@ -124,7 +117,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Tropical Cyclone Risk Model</a>
@@ -132,9 +125,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -187,13 +181,13 @@ Hedland, Australia (118.6E, 20.3S), which has experienced numerous
 severe tropical cyclones.</p>
 <p>Once the model has been <a class="reference internal" href="install.html#installation"><span class="std std-ref">installed</span></a> and tested,
 the example simulation can be run as follows:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ python tcrm.py -c example/port_hedland.ini
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python tcrm.py -c example/port_hedland.ini
 </pre></div>
 </div>
 <p>The model will automatically create output folders to store the
 results in, as well as a log file that provides details on the
 progress of the model. The simulation will process the input track
-database (IBTrACS v03r05), run the statistical interface, generate
+database (IBTrACS v03r10), run the statistical interface, generate
 1000 simulated years of TC events, the wind swaths associated with
 those simulated years, calculate the hazard (return period wind
 speeds) for the region and plot the output as maps and a return period
@@ -202,20 +196,21 @@ curve for Port Hedland. The hazard data are also stored in netCDF
 <div class="align-center figure" id="id1">
 <img alt="100-year return period wind speed near Port Hedland, Australia." src="../_images/hazard_example.png" />
 <p class="caption"><span class="caption-text">100-year return period wind speed near Port Hedland,
-Australia. Wind speeds represent a 3-second gust wind speed, 10
-metres above ground level in open, flat terrain.</span></p>
+Australia. Wind speeds represent a 0.2-second gust wind speed, 10
+metres above ground level in open, flat terrain.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
 <div class="align-center figure" id="id2">
 <img alt="Example hazard curve for Port Hedland, Australia." src="../_images/hazard_curve.png" />
 <p class="caption"><span class="caption-text">Hazard curve for Port Hedland, Australia, based on 1000 years of
-synthetic tropical cyclone events. The grey shading indicates the
-90th percentile range, based on a bootstrap resampling procedure.</span></p>
+synthetic tropical cyclone events. The red points are the wind speeds for
+individual simulated events, and the blue line is a fitted generalised
+pareto distribution (GPD).</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 <div class="section" id="running-in-an-mpi-environment">
 <h3>Running in an MPI environment<a class="headerlink" href="#running-in-an-mpi-environment" title="Permalink to this headline">¶</a></h3>
-<p>For a multiprocessor environment using MPI and Pypar, the example can
+<p>For a multiprocessor environment using mpi4py, the example can
 be run with:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ mpirun -np 16 python tcrm.py -c example/port_hedland.ini
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ mpirun -np 16 python tcrm.py -c example/port_hedland.ini
 </pre></div>
 </div>
 <p>This will execute TCRM across 16 CPUs (if available).</p>
@@ -237,9 +232,7 @@ for more details.</p>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -248,7 +241,7 @@ for more details.</p>
         <a href="evaluation.html" class="btn btn-neutral float-right" title="Evaluation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="execution.html" class="btn btn-neutral" title="Running the model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="execution.html" class="btn btn-neutral float-left" title="Running the model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -257,12 +250,14 @@ for more details.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2020
+      <span class="lastupdated">
+        Last updated on Nov 02, 2020.
+      </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -275,36 +270,15 @@ for more details.</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'v2.0.2',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

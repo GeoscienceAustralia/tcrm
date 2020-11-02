@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Hazard database &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  <title>Hazard database &mdash; Tropical Cyclone Risk Model v3.1.3 documentation</title>
   
 
   
@@ -17,40 +17,34 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="../index.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -59,7 +53,7 @@
 
           
             
-            <img src="../_static/GA_0.gif" class="logo" />
+            <img src="../_static/GA_0.gif" class="logo" alt="Logo"/>
           
           </a>
 
@@ -67,7 +61,7 @@
             
             
               <div class="version">
-                2.0
+                3.1.3
               </div>
             
           
@@ -101,7 +95,6 @@
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Using different TC databases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scenarios.html">Scenario simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TCRM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Utilities.html">Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License information</a></li>
 </ul>
@@ -115,7 +108,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Tropical Cyclone Risk Model</a>
@@ -123,9 +116,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -172,9 +166,9 @@
 <p>To make it easier to acess hazard data, and to enable users to link an
 event to a return period wind speed, TCRM stores information on the
 individual events, the wind speeds they generate at a set of
-locations, and the return levels calculated in the <a class="reference internal" href="hazard.html#module-hazard" title="hazard"><code class="xref py py-mod docutils literal"><span class="pre">hazard</span></code></a>
+locations, and the return levels calculated in the <a class="reference internal" href="hazard.html#module-0" title="hazard"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hazard</span></code></a>
 module.</p>
-<p>The database is built on the <code class="xref py py-mod docutils literal"><span class="pre">sqlite3</span></code> module that is part of the
+<p>The database is built on the <code class="xref py py-mod docutils literal notranslate"><span class="pre">sqlite3</span></code> module that is part of the
 standard Python library. Extension to a spatial database system has
 been identified as an enhancement for future development.</p>
 <div class="section" id="tables">
@@ -189,46 +183,46 @@ records cannot be modified once inserted into teh database.</p>
 <p>The locations table (<em>tblLocations</em>) stores the details of the
 locations within the model domain. This table has been derived from a
 (global) listing of WMO-identified weather stations.</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="22%" />
-<col width="58%" />
-<col width="20%" />
+<col style="width: 22%" />
+<col style="width: 58%" />
+<col style="width: 20%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field name</th>
-<th class="head">Field description</th>
-<th class="head">Field type</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field name</p></th>
+<th class="head"><p>Field description</p></th>
+<th class="head"><p>Field type</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>locId</td>
-<td>Unique identifier for the
-location.</td>
-<td>Integer</td>
+<tbody>
+<tr class="row-even"><td><p>locId</p></td>
+<td><p>Unique identifier for the
+location.</p></td>
+<td><p>Integer</p></td>
 </tr>
-<tr class="row-odd"><td>locName</td>
-<td>Name of the location.</td>
-<td>Text</td>
+<tr class="row-odd"><td><p>locName</p></td>
+<td><p>Name of the location.</p></td>
+<td><p>Text</p></td>
 </tr>
-<tr class="row-even"><td>locLon</td>
-<td>Longitude of the location, given
-in geographic coordinates.</td>
-<td>Real</td>
+<tr class="row-even"><td><p>locLon</p></td>
+<td><p>Longitude of the location, given
+in geographic coordinates.</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-odd"><td>locLat</td>
-<td>Latitude of the location, given
-in geographic coordinates.</td>
-<td>Real</td>
+<tr class="row-odd"><td><p>locLat</p></td>
+<td><p>Latitude of the location, given
+in geographic coordinates.</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-even"><td>locElev</td>
-<td>Elevation of the location
-(in metres)</td>
-<td>Real</td>
+<tr class="row-even"><td><p>locElev</p></td>
+<td><p>Elevation of the location
+(in metres)</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-odd"><td>locCountry</td>
-<td>Country of the location</td>
-<td>Text</td>
+<tr class="row-odd"><td><p>locCountry</p></td>
+<td><p>Country of the location</p></td>
+<td><p>Text</p></td>
 </tr>
 </tbody>
 </table>
@@ -239,62 +233,62 @@ in geographic coordinates.</td>
 events, such as maximum wind speed and minimum central pressure, as
 well as details on the event identifier and files associated with the
 event.</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="18%" />
-<col width="70%" />
-<col width="12%" />
+<col style="width: 18%" />
+<col style="width: 70%" />
+<col style="width: 12%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field name</th>
-<th class="head">Field description</th>
-<th class="head">Field type</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field name</p></th>
+<th class="head"><p>Field description</p></th>
+<th class="head"><p>Field type</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>eventNumber</td>
-<td>Unique identifying number for the event</td>
-<td>Integer</td>
+<tbody>
+<tr class="row-even"><td><p>eventNumber</p></td>
+<td><p>Unique identifying number for the event</p></td>
+<td><p>Integer</p></td>
 </tr>
-<tr class="row-odd"><td>eventId</td>
-<td>Unique identifier for the event</td>
-<td>Text</td>
+<tr class="row-odd"><td><p>eventId</p></td>
+<td><p>Unique identifier for the event</p></td>
+<td><p>Text</p></td>
 </tr>
-<tr class="row-even"><td>eventFile</td>
-<td>File name where the event data (wind and pressure fields) is stored</td>
-<td>Text</td>
+<tr class="row-even"><td><p>eventFile</p></td>
+<td><p>File name where the event data (wind and pressure fields) is stored</p></td>
+<td><p>Text</p></td>
 </tr>
-<tr class="row-odd"><td>eventTrackFile</td>
-<td>File name where the track data for the event is stored</td>
-<td>Text</td>
+<tr class="row-odd"><td><p>eventTrackFile</p></td>
+<td><p>File name where the track data for the event is stored</p></td>
+<td><p>Text</p></td>
 </tr>
-<tr class="row-even"><td>eventMaxWind</td>
-<td>Maximum sustained wind speed of the event (m/s)</td>
-<td>Real</td>
+<tr class="row-even"><td><p>eventMaxWind</p></td>
+<td><p>Maximum sustained wind speed of the event (m/s)</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-odd"><td>eventMinPressure</td>
-<td>Minimum central pressure of the event (hPa)</td>
-<td>Real</td>
+<tr class="row-odd"><td><p>eventMinPressure</p></td>
+<td><p>Minimum central pressure of the event (hPa)</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-even"><td>dtTrackFile</td>
-<td>Creation date/time of the track file</td>
-<td>Timestamp</td>
+<tr class="row-even"><td><p>dtTrackFile</p></td>
+<td><p>Creation date/time of the track file</p></td>
+<td><p>Timestamp</p></td>
 </tr>
-<tr class="row-odd"><td>dtWindfieldFile</td>
-<td>Creation date/time of the wind field file</td>
-<td>Timestamp</td>
+<tr class="row-odd"><td><p>dtWindfieldFile</p></td>
+<td><p>Creation date/time of the wind field file</p></td>
+<td><p>Timestamp</p></td>
 </tr>
-<tr class="row-even"><td>tcrmVersion</td>
-<td>TCRM version (usually a Git hash representing the commit)</td>
-<td>Text</td>
+<tr class="row-even"><td><p>tcrmVersion</p></td>
+<td><p>TCRM version (usually a Git hash representing the commit)</p></td>
+<td><p>Text</p></td>
 </tr>
-<tr class="row-odd"><td>Comments</td>
-<td>General comments field</td>
-<td>Text</td>
+<tr class="row-odd"><td><p>Comments</p></td>
+<td><p>General comments field</p></td>
+<td><p>Text</p></td>
 </tr>
-<tr class="row-even"><td>dtCreated</td>
-<td>Creation date/time for the record</td>
-<td>Timestamp</td>
+<tr class="row-even"><td><p>dtCreated</p></td>
+<td><p>Creation date/time for the record</p></td>
+<td><p>Timestamp</p></td>
 </tr>
 </tbody>
 </table>
@@ -305,50 +299,50 @@ event.</p>
 location and event, recording the maximum wind speed at the location,
 the component wind speeds (east/west and north/south) and the minimum
 pressure at the location.</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="13%" />
-<col width="74%" />
-<col width="13%" />
+<col style="width: 13%" />
+<col style="width: 74%" />
+<col style="width: 13%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field name</th>
-<th class="head">Field description</th>
-<th class="head">Field type</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field name</p></th>
+<th class="head"><p>Field description</p></th>
+<th class="head"><p>Field type</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>locId</td>
-<td>Unique identifier for location</td>
-<td>Integer</td>
+<tbody>
+<tr class="row-even"><td><p>locId</p></td>
+<td><p>Unique identifier for location</p></td>
+<td><p>Integer</p></td>
 </tr>
-<tr class="row-odd"><td>eventId</td>
-<td>Unique identifier for event</td>
-<td>Text</td>
+<tr class="row-odd"><td><p>eventId</p></td>
+<td><p>Unique identifier for event</p></td>
+<td><p>Text</p></td>
 </tr>
-<tr class="row-even"><td>wspd</td>
-<td>Maximum wind speed from the event at the location (m/s)</td>
-<td>Real</td>
+<tr class="row-even"><td><p>wspd</p></td>
+<td><p>Maximum wind speed from the event at the location (m/s)</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-odd"><td>umax</td>
-<td>Eastward component of the maximum wind speed from the event (m/s)</td>
-<td>Real</td>
+<tr class="row-odd"><td><p>umax</p></td>
+<td><p>Eastward component of the maximum wind speed from the event (m/s)</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-even"><td>vmax</td>
-<td>Northward component of the maximum wind speed from the event (m/s)</td>
-<td>Real</td>
+<tr class="row-even"><td><p>vmax</p></td>
+<td><p>Northward component of the maximum wind speed from the event (m/s)</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-odd"><td>pmin</td>
-<td>Minimum pressure from the event at the location (hPa)</td>
-<td>Real</td>
+<tr class="row-odd"><td><p>pmin</p></td>
+<td><p>Minimum pressure from the event at the location (hPa)</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-even"><td>Comments</td>
-<td>General comments field</td>
-<td>Text</td>
+<tr class="row-even"><td><p>Comments</p></td>
+<td><p>General comments field</p></td>
+<td><p>Text</p></td>
 </tr>
-<tr class="row-odd"><td>dtCreated</td>
-<td>Creation date/time for the record</td>
-<td>Timestamp</td>
+<tr class="row-odd"><td><p>dtCreated</p></td>
+<td><p>Creation date/time for the record</p></td>
+<td><p>Timestamp</p></td>
 </tr>
 </tbody>
 </table>
@@ -359,66 +353,66 @@ pressure at the location.</p>
 at each location, as well as upper/lower estimated confidence
 intervals (if calculated) and the location, scale and shape parameters
 of the fitted GEV distribution.</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="13%" />
-<col width="77%" />
-<col width="11%" />
+<col style="width: 13%" />
+<col style="width: 77%" />
+<col style="width: 11%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field name</th>
-<th class="head">Field description</th>
-<th class="head">Field type</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field name</p></th>
+<th class="head"><p>Field description</p></th>
+<th class="head"><p>Field type</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>locId</td>
-<td>Unique identifier for location</td>
-<td>Integer</td>
+<tbody>
+<tr class="row-even"><td><p>locId</p></td>
+<td><p>Unique identifier for location</p></td>
+<td><p>Integer</p></td>
 </tr>
-<tr class="row-odd"><td>returnPeriod</td>
-<td>Return period (years)</td>
-<td>Real</td>
+<tr class="row-odd"><td><p>returnPeriod</p></td>
+<td><p>Return period (years)</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-even"><td>wspd</td>
-<td>Return period wind speed for the location and given return period (m/s)</td>
-<td>Real</td>
+<tr class="row-even"><td><p>wspd</p></td>
+<td><p>Return period wind speed for the location and given return period (m/s)</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-odd"><td>wspdUpper</td>
-<td>Estimated upper confidence bound of return period wind speed (95th percentile) (m/s)</td>
-<td>Real</td>
+<tr class="row-odd"><td><p>wspdUpper</p></td>
+<td><p>Estimated upper confidence bound of return period wind speed (95th percentile) (m/s)</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-even"><td>wspdLower</td>
-<td>Estimated lower confidence bound of return period wind speed (5th percentile) (m/s)</td>
-<td>Real</td>
+<tr class="row-even"><td><p>wspdLower</p></td>
+<td><p>Estimated lower confidence bound of return period wind speed (5th percentile) (m/s)</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-odd"><td>loc</td>
-<td>Location parameter for the fitted Generalised Extreme Value (GEV) distribution</td>
-<td>Real</td>
+<tr class="row-odd"><td><p>loc</p></td>
+<td><p>Location parameter for the fitted Generalised Extreme Value (GEV) distribution</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-even"><td>scale</td>
-<td>Scale parameter for the fitted GEV distribution</td>
-<td>Real</td>
+<tr class="row-even"><td><p>scale</p></td>
+<td><p>Scale parameter for the fitted GEV distribution</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-odd"><td>shape</td>
-<td>Shape parameter for the fitted GEV distribution</td>
-<td>Real</td>
+<tr class="row-odd"><td><p>shape</p></td>
+<td><p>Shape parameter for the fitted GEV distribution</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-even"><td>tcrmVersion</td>
-<td>TCRM version (usually a Git hash representing the commit)</td>
-<td>Text</td>
+<tr class="row-even"><td><p>tcrmVersion</p></td>
+<td><p>TCRM version (usually a Git hash representing the commit)</p></td>
+<td><p>Text</p></td>
 </tr>
-<tr class="row-odd"><td>dtHazardFile</td>
-<td>Creation date/time for the hazard file</td>
-<td>Timestamp</td>
+<tr class="row-odd"><td><p>dtHazardFile</p></td>
+<td><p>Creation date/time for the hazard file</p></td>
+<td><p>Timestamp</p></td>
 </tr>
-<tr class="row-even"><td>Comments</td>
-<td>General comments field</td>
-<td>Text</td>
+<tr class="row-even"><td><p>Comments</p></td>
+<td><p>General comments field</p></td>
+<td><p>Text</p></td>
 </tr>
-<tr class="row-odd"><td>dtCreated</td>
-<td>Creation date/time for the record</td>
-<td>Timestamp</td>
+<tr class="row-odd"><td><p>dtCreated</p></td>
+<td><p>Creation date/time for the record</p></td>
+<td><p>Timestamp</p></td>
 </tr>
 </tbody>
 </table>
@@ -427,46 +421,46 @@ of the fitted GEV distribution.</p>
 <h3>Tracks table<a class="headerlink" href="#tracks-table" title="Permalink to this headline">¶</a></h3>
 <p>The tracks table (<em>tblTracks</em>) records information on the individual
 tracks and their proximity to each individual location in the domain.</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="14%" />
-<col width="74%" />
-<col width="13%" />
+<col style="width: 14%" />
+<col style="width: 74%" />
+<col style="width: 13%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Field name</th>
-<th class="head">Field description</th>
-<th class="head">Field type</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field name</p></th>
+<th class="head"><p>Field description</p></th>
+<th class="head"><p>Field type</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>locId</td>
-<td>Unique identifier for location</td>
-<td>Integer</td>
+<tbody>
+<tr class="row-even"><td><p>locId</p></td>
+<td><p>Unique identifier for location</p></td>
+<td><p>Integer</p></td>
 </tr>
-<tr class="row-odd"><td>eventId</td>
-<td>Unique identifier for the event</td>
-<td>Text</td>
+<tr class="row-odd"><td><p>eventId</p></td>
+<td><p>Unique identifier for the event</p></td>
+<td><p>Text</p></td>
 </tr>
-<tr class="row-even"><td>distClosest</td>
-<td>Distance of closest approach of the track to the location (km)</td>
-<td>Real</td>
+<tr class="row-even"><td><p>distClosest</p></td>
+<td><p>Distance of closest approach of the track to the location (km)</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-odd"><td>prsClosest</td>
-<td>Central pressure of the event at the point of closest approach (hPa)</td>
-<td>Real</td>
+<tr class="row-odd"><td><p>prsClosest</p></td>
+<td><p>Central pressure of the event at the point of closest approach (hPa)</p></td>
+<td><p>Real</p></td>
 </tr>
-<tr class="row-even"><td>dtClosest</td>
-<td>Date/time of the point of closest approach</td>
-<td>Timestamp</td>
+<tr class="row-even"><td><p>dtClosest</p></td>
+<td><p>Date/time of the point of closest approach</p></td>
+<td><p>Timestamp</p></td>
 </tr>
-<tr class="row-odd"><td>Comments</td>
-<td>General comments field</td>
-<td>Text</td>
+<tr class="row-odd"><td><p>Comments</p></td>
+<td><p>General comments field</p></td>
+<td><p>Text</p></td>
 </tr>
-<tr class="row-even"><td>dtCreated</td>
-<td>Creation date/time for the record</td>
-<td>Timestamp</td>
+<tr class="row-even"><td><p>dtCreated</p></td>
+<td><p>Creation date/time for the record</p></td>
+<td><p>Timestamp</p></td>
 </tr>
 </tbody>
 </table>
@@ -478,11 +472,11 @@ tracks and their proximity to each individual location in the domain.</p>
 provided to indicate approaches users can use to develop their own
 queries that satisfy their needs.</p>
 <p>Queries use SQL syntax, and are passed to the
-<code class="xref py py-class docutils literal"><span class="pre">HazardDatabase.execute</span></code> method to perform the SQL command. Queries
-are assembled using the <code class="xref py py-class docutils literal"><span class="pre">sqlite3</span></code> DB-API parameter substitution
+<code class="xref py py-class docutils literal notranslate"><span class="pre">HazardDatabase.execute</span></code> method to perform the SQL command. Queries
+are assembled using the <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlite3</span></code> DB-API parameter substitution
 (see the <a class="reference external" href="https://docs.python.org/2/library/sqlite3.html">sqlite3</a>
 documentation for more details).</p>
-<p>Results from queries are returned as a <code class="xref py py-class docutils literal"><span class="pre">numpy.recarray</span></code>, with
+<p>Results from queries are returned as a <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.recarray</span></code>, with
 the dtype defined by the corresponding type of the database field (see
 above for field types).</p>
 </div>
@@ -490,9 +484,7 @@ above for field types).</p>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -501,12 +493,14 @@ above for field types).</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2020
+      <span class="lastupdated">
+        Last updated on Nov 02, 2020.
+      </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -519,36 +513,15 @@ above for field types).</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'v2.0.2',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

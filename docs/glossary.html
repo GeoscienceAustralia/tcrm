@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Glossary &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  <title>Glossary &mdash; Tropical Cyclone Risk Model v3.1.3 documentation</title>
   
 
   
@@ -17,42 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="../index.html"/>
-        <link rel="next" title="License information" href="../LICENSE.html"/>
-        <link rel="prev" title="Utilities package" href="Utilities.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="License information" href="../LICENSE.html" />
+    <link rel="prev" title="Contributing code" href="contributing.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -61,7 +55,7 @@
 
           
             
-            <img src="../_static/GA_0.gif" class="logo" />
+            <img src="../_static/GA_0.gif" class="logo" alt="Logo"/>
           
           </a>
 
@@ -69,7 +63,7 @@
             
             
               <div class="version">
-                2.0
+                3.1.3
               </div>
             
           
@@ -103,7 +97,6 @@
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Using different TC databases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scenarios.html">Scenario simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TCRM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Utilities.html">Utilities</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License information</a></li>
 </ul>
@@ -117,7 +110,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Tropical Cyclone Risk Model</a>
@@ -125,9 +118,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -171,46 +165,44 @@
             
   <div class="section" id="glossary">
 <h1>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h1>
-<dl class="glossary docutils">
-<dt id="term-annual-exceedance-probability">Annual Exceedance Probability</dt>
-<dd>The probability of a threshold being exceeded once (or more) in any
-year.</dd>
-<dt id="term-genesis">Genesis</dt>
-<dd>Formation of a tropical cyclone event.</dd>
-<dt id="term-hazard">Hazard</dt>
-<dd>The magnitude of wind speed. TCRM generates a 3-second gust wind
+<dl class="glossary simple">
+<dt id="term-Annual-Exceedance-Probability">Annual Exceedance Probability</dt><dd><p>The probability of a threshold being exceeded once (or more) in any
+year.</p>
+</dd>
+<dt id="term-Genesis">Genesis</dt><dd><p>Formation of a tropical cyclone event.</p>
+</dd>
+<dt id="term-Hazard">Hazard</dt><dd><p>The magnitude of wind speed. TCRM generates a 3-second gust wind
 speed, at 10 metres above ground over open, flat terrain (an
-aerodynamic roughness length of 0.02 m).</dd>
-<dt id="term-kernel-density-estimation">Kernel density estimation</dt>
-<dd>A non-parametric method to estimate the probability density
-function of a random variable.</dd>
-<dt id="term-lysis">Lysis</dt>
-<dd>Termination of a tropical cyclone event. Can be caused by the tropical
+aerodynamic roughness length of 0.02 m).</p>
+</dd>
+<dt id="term-Kernel-density-estimation">Kernel density estimation</dt><dd><p>A non-parametric method to estimate the probability density
+function of a random variable.</p>
+</dd>
+<dt id="term-Lysis">Lysis</dt><dd><p>Termination of a tropical cyclone event. Can be caused by the tropical
 cyclone weakening through stochastic process, landfall decay or exiting
-the defined domain.</dd>
-<dt id="term-mpirun">mpirun</dt>
-<dd>mpirun is a runtime environment for the Message Passing Interface (MPI).
-See <a class="reference external" href="http://www.mcs.anl.gov/research/projects/mpi/">http://www.mcs.anl.gov/research/projects/mpi/</a></dd>
-<dt id="term-pypar">Pypar</dt>
-<dd>PyPar is a python library that provides efficient and scalable
+the defined domain.</p>
+</dd>
+<dt id="term-mpirun">mpirun</dt><dd><p>mpirun is a runtime environment for the Message Passing Interface (MPI).
+See <a class="reference external" href="http://www.mcs.anl.gov/research/projects/mpi/">http://www.mcs.anl.gov/research/projects/mpi/</a></p>
+</dd>
+<dt id="term-Pypar">Pypar</dt><dd><p>PyPar is a python library that provides efficient and scalable
 parallelism using the message passing interface (MPI) to handle
 big data and highly computational problems. See
-<a class="reference external" href="http://github.com/daleroberts/pypar">http://github.com/daleroberts/pypar</a></dd>
-<dt id="term-return-period">Return period</dt>
-<dd>The average time between exceedances of a given threshold. Compare to
-Annual Exceedance Probability.</dd>
-<dt id="term-tropical-cyclone">Tropical cyclone</dt>
-<dd>A tropical cyclone is a rapidly-rotating storm system characterized by
+<a class="reference external" href="http://github.com/daleroberts/pypar">http://github.com/daleroberts/pypar</a></p>
+</dd>
+<dt id="term-Return-period">Return period</dt><dd><p>The average time between exceedances of a given threshold. Compare to
+Annual Exceedance Probability.</p>
+</dd>
+<dt id="term-Tropical-cyclone">Tropical cyclone</dt><dd><p>A tropical cyclone is a rapidly-rotating storm system characterized by
 a low-pressure center, strong winds, and a spiral arrangement of
-thunderstorms that produce heavy rain.</dd>
+thunderstorms that produce heavy rain.</p>
+</dd>
 </dl>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -219,7 +211,7 @@ thunderstorms that produce heavy rain.</dd>
         <a href="../LICENSE.html" class="btn btn-neutral float-right" title="License information" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="Utilities.html" class="btn btn-neutral" title="Utilities package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="contributing.html" class="btn btn-neutral float-left" title="Contributing code" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -228,12 +220,14 @@ thunderstorms that produce heavy rain.</dd>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2020
+      <span class="lastupdated">
+        Last updated on Nov 02, 2020.
+      </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -246,36 +240,15 @@ thunderstorms that produce heavy rain.</dd>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'v2.0.2',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

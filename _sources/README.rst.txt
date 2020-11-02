@@ -24,12 +24,6 @@ Features
 * **Evaluation metrics**: Offers capability to run objective evaluation of track model metrics (e.g. landfall rates);
 * **Single scenarios**: Users can run a single TC event (e.g. using a b-deck format track file) at high temporal resolution and extract time series data at chosen locations;
 
-Branch
-======
-
-Development branch. New features are collected in this branch before
-release to default branch. Contributions of new features should branch
-from this branch, rather than the default branch.
 
 Changelog
 =========
@@ -37,38 +31,36 @@ Changelog
 New features:
 -------------
 
-* Implemented new extreme value distribution option for the hazard
-  calculations. The EVD options now include GEV (default), and
-  GPD. The option is set within the config file. (Sep 2017)
-* Updated the hazard curve plots to include a scatter of the events
-  alongside the fitted hazard curve. (Sep 2017)
-* Updated the hazard map colour palette to use ISO 22324, 2015 (Oct
-  2017)
+* Added empirical ARI calculation
+
 
 Bug fixes:
 ----------
 
-* ThetaFM conversion fix from v2.0 pulled into this branch (Sep 2017)
-
+* Correction in landfall decay model for unit conversions
 
 Dependencies
 ============
 
 TCRM requires:
 
- * `Python 2.7 <https://www.python.org/>`_;
+ * `Python 3.7 <https://www.python.org/>`_;
  * `numpy <http://www.numpy.org/>`_; 
  * `scipy <http://www.scipy.org/>`_;
- * `matplotlib 1.4.3 <http://matplotlib.org/>`_; 
- * `Basemap 1.0.8 <http://matplotlib.org/basemap/index.html>`_; 
- * `netcdf4-python <https://code.google.com/p/netcdf4-python/>`_; 
+ * `matplotlib <http://matplotlib.org/>`_; 
+ * `Basemap <http://matplotlib.org/basemap/index.html>`_; 
+ * `netcdf4-python <https://unidata.github.io/netcdf4-python/netCDF4/index.html>`_; 
+ * `cftime <https://unidata.github.io/cftime/>`_;
  * `pandas <http://pandas.pydata.org/>`_; 
- * `Shapely <https://github.com/Toblerity/Shapely>`_; 
- * `seaborn 0.5.1 <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_;
+ * `Shapely <https://shapely.readthedocs.io/en/latest/manual.html>`_; 
+ * `seaborn <https://seaborn.pydata.org/>`_;
  * `statsmodels <http://statsmodels.sourceforge.net>`_;
+ * `GitPython <http://gitpython.readthedocs.io>`_;
+ * `GDAL/OGR <https://pypi.org/project/GDAL/>`_;
+ * `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_;
  * and `gcc`.  
 
-For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
+
 
 Status
 ======
@@ -86,20 +78,33 @@ Status
 .. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/develop/landscape.svg?style=flat
     :target: https://landscape.io/github/GeoscienceAustralia/tcrm/develop
     :alt: Code Health
+    
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3741493.svg
+   :target: https://doi.org/10.5281/zenodo.3741493
 
 Screenshot
 ==========
 
-.. image:: https://rawgithub.com/GeoscienceAustralia/tcrm/master/docs/screenshot.png
+.. image:: docs/screenshot.png
 
 Contributing to TCRM
 ====================
 
-If you would like to take part in TCRM development, take a look at `docs/contributing.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/docs/contributing.rst>`_.
+If you would like to take part in TCRM development, take a look at the `Contributing guide <docs/contributing.rst>`_.
 
-License information
-===================
+License
+=======
 
-See the file `LICENSE.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/LICENSE.rst>`_ 
-for information on the history of this software, terms and conditions for usage,
-and a DISCLAIMER OF ALL WARRANTIES.
+This repository is licensed under the GNU General Public License. See
+the file `LICENSE.rst <LICENSE.rst>`_
+for information on the history of this software, terms and conditions
+for usage, and a DISCLAIMER OF ALL WARRANTIES.
+
+Contacts
+========
+
+Community Safety Branch
+Geoscience Australia
+hazards@ga.gov.au
+
+

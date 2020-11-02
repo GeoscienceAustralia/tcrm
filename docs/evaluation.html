@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Evaluation &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  <title>Evaluation &mdash; Tropical Cyclone Risk Model v3.1.3 documentation</title>
   
 
   
@@ -17,42 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="../index.html"/>
-        <link rel="next" title="Using different TC databases - source formats" href="sources.html"/>
-        <link rel="prev" title="Examples" href="examples.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using different TC databases - source formats" href="sources.html" />
+    <link rel="prev" title="Examples" href="examples.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -61,7 +55,7 @@
 
           
             
-            <img src="../_static/GA_0.gif" class="logo" />
+            <img src="../_static/GA_0.gif" class="logo" alt="Logo"/>
           
           </a>
 
@@ -69,7 +63,7 @@
             
             
               <div class="version">
-                2.0
+                3.1.3
               </div>
             
           
@@ -107,7 +101,6 @@
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Using different TC databases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scenarios.html">Scenario simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TCRM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Utilities.html">Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License information</a></li>
 </ul>
@@ -121,7 +114,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Tropical Cyclone Risk Model</a>
@@ -129,9 +122,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -176,7 +170,7 @@
   <div class="section" id="evaluation">
 <h1>Evaluation<a class="headerlink" href="#evaluation" title="Permalink to this headline">¶</a></h1>
 <p>TCRM provides functionality to evaluate the performance of the track
-model over the model domain through the <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><code class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></code></a> module. By
+model over the model domain through the <a class="reference internal" href="Evaluate.html#module-0" title="Evaluate: Provide some evaluation methods for testing the track generation model."><code class="xref py py-mod docutils literal notranslate"><span class="pre">Evaluate</span></code></a> module. By
 running a number of simulations, each generating a similar number of
 years of events to the input track database, we can compare the
 synthetic events with the observations. Metrics include track density,
@@ -186,7 +180,7 @@ and longitude crossing rates.</p>
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h2>
 <p>An example configuration for executing an evaluation. Other sections
 of the configuration file should remain unchanged.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Actions</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Actions</span><span class="p">]</span>
 <span class="n">DataProcess</span><span class="o">=</span><span class="kc">True</span>
 <span class="n">ExecuteStat</span><span class="o">=</span><span class="kc">True</span>
 <span class="n">ExecuteTrackGenerator</span><span class="o">=</span><span class="kc">True</span>
@@ -211,17 +205,17 @@ of the configuration file should remain unchanged.</p>
 <span class="n">TrackSeed</span><span class="o">=</span><span class="mi">1</span>
 </pre></div>
 </div>
-<p>Note that the <code class="docutils literal"><span class="pre">YearsPerSimulation</span></code> option is now set to 30, so TCRM
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">YearsPerSimulation</span></code> option is now set to 30, so TCRM
 will generate 500 event sets, each with the equivalent of 30 years of
 TCs. The annual frequency of events is based on a Poisson distribution
 around the mean annual frequency, which is determined from the input
 track database.</p>
 <p>A csv-format file containing a set of gates around the coastline is
-required for <a class="reference internal" href="Evaluate.html#module-Evaluate.landfallRates" title="Evaluate.landfallRates"><code class="xref py py-mod docutils literal"><span class="pre">Evaluate.landfallRates</span></code></a>. Gates are defined as a
+required for <a class="reference internal" href="Evaluate.html#module-Evaluate.landfallRates" title="Evaluate.landfallRates"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Evaluate.landfallRates</span></code></a>. Gates are defined as a
 series of points around the coastline in number, longitude, latitude
 format. Below are the first 15 points in the sample gates provided in
 the code base.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mf">0.00</span><span class="p">,</span> <span class="mf">114.78</span><span class="p">,</span> <span class="o">-</span><span class="mf">34.70</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">0.00</span><span class="p">,</span> <span class="mf">114.78</span><span class="p">,</span> <span class="o">-</span><span class="mf">34.70</span>
 <span class="mf">1.00</span><span class="p">,</span> <span class="mf">115.20</span><span class="p">,</span> <span class="o">-</span><span class="mf">32.95</span>
 <span class="mf">2.00</span><span class="p">,</span> <span class="mf">114.90</span><span class="p">,</span> <span class="o">-</span><span class="mf">31.17</span>
 <span class="mf">3.00</span><span class="p">,</span> <span class="mf">114.49</span><span class="p">,</span> <span class="o">-</span><span class="mf">29.42</span>
@@ -242,7 +236,7 @@ the code base.</p>
 </div>
 <div class="section" id="output">
 <h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="Evaluate.html#module-Evaluate" title="Evaluate: Provide some evaluation methods for testing the track generation model."><code class="xref py py-mod docutils literal"><span class="pre">Evaluate</span></code></a> module generates a set of figures that compare the
+<p>The <a class="reference internal" href="Evaluate.html#module-0" title="Evaluate: Provide some evaluation methods for testing the track generation model."><code class="xref py py-mod docutils literal notranslate"><span class="pre">Evaluate</span></code></a> module generates a set of figures that compare the
 synthetic event set to the input track database. For the synthetic
 events, the module calculates a mean value and upper and lower
 percentiles of the distribution (commonly the 5th and 95th percentile
@@ -255,9 +249,7 @@ import into other graphics packages.</p>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -266,7 +258,7 @@ import into other graphics packages.</p>
         <a href="sources.html" class="btn btn-neutral float-right" title="Using different TC databases - source formats" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="examples.html" class="btn btn-neutral" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="examples.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -275,12 +267,14 @@ import into other graphics packages.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2020
+      <span class="lastupdated">
+        Last updated on Nov 02, 2020.
+      </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -293,36 +287,15 @@ import into other graphics packages.</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'v2.0.2',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Using different TC databases - source formats &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  <title>Using different TC databases - source formats &mdash; Tropical Cyclone Risk Model v3.1.3 documentation</title>
   
 
   
@@ -17,42 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="../index.html"/>
-        <link rel="next" title="Scenario modelling" href="scenarios.html"/>
-        <link rel="prev" title="Evaluation" href="evaluation.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Scenario modelling" href="scenarios.html" />
+    <link rel="prev" title="Evaluation" href="evaluation.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -61,7 +55,7 @@
 
           
             
-            <img src="../_static/GA_0.gif" class="logo" />
+            <img src="../_static/GA_0.gif" class="logo" alt="Logo"/>
           
           </a>
 
@@ -69,7 +63,7 @@
             
             
               <div class="version">
-                2.0
+                3.1.3
               </div>
             
           
@@ -108,7 +102,6 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="scenarios.html">Scenario simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TCRM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Utilities.html">Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License information</a></li>
 </ul>
@@ -122,7 +115,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Tropical Cyclone Risk Model</a>
@@ -130,9 +123,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -189,17 +183,17 @@ version (v03r05 at August 2014) and use this to calibrate the model.</p>
 <p>As a bare minimum, TCRM requires data on the date/time, longitude,
 latitude, central pressure of each cyclone observation. It also
 requires a field that indicates each unique TC event in the
-database. This can be a <code class="docutils literal"><span class="pre">tcserialno</span></code> - a unique string for each
-event; a TC <code class="docutils literal"><span class="pre">num</span></code> which is an integer value for each event in a
-season; or an <code class="docutils literal"><span class="pre">indicator</span></code> field, which is set to <code class="docutils literal"><span class="pre">1</span></code> for the first
-observation of a new TC, and <code class="docutils literal"><span class="pre">0</span></code> otherwise.</p>
+database. This can be a <code class="docutils literal notranslate"><span class="pre">tcserialno</span></code> - a unique string for each
+event; a TC <code class="docutils literal notranslate"><span class="pre">num</span></code> which is an integer value for each event in a
+season; or an <code class="docutils literal notranslate"><span class="pre">indicator</span></code> field, which is set to <code class="docutils literal notranslate"><span class="pre">1</span></code> for the first
+observation of a new TC, and <code class="docutils literal notranslate"><span class="pre">0</span></code> otherwise.</p>
 <p>For individual scenario modelling, an additional field containing the
-radius to maximum winds (<code class="docutils literal"><span class="pre">rmax</span></code>) must be included.</p>
+radius to maximum winds (<code class="docutils literal notranslate"><span class="pre">rmax</span></code>) must be included.</p>
 </div>
 <div class="section" id="database-format">
 <span id="databaseformat"></span><h2>Database format<a class="headerlink" href="#database-format" title="Permalink to this headline">¶</a></h2>
 <p>The first few lines of the IBTrACS database are shown below.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">IBTrACS</span> <span class="n">WMO</span><span class="p">:</span> <span class="n">International</span> <span class="n">Best</span> <span class="n">Tracks</span> <span class="n">Archive</span> <span class="k">for</span> <span class="n">Climate</span> <span class="n">Stewardship</span> <span class="o">--</span> <span class="n">WMO</span> <span class="n">DATA</span> <span class="n">ONLY</span> <span class="o">--</span> <span class="n">Version</span><span class="p">:</span> <span class="n">v03r05</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">IBTrACS</span> <span class="n">WMO</span><span class="p">:</span> <span class="n">International</span> <span class="n">Best</span> <span class="n">Tracks</span> <span class="n">Archive</span> <span class="k">for</span> <span class="n">Climate</span> <span class="n">Stewardship</span> <span class="o">--</span> <span class="n">WMO</span> <span class="n">DATA</span> <span class="n">ONLY</span> <span class="o">--</span> <span class="n">Version</span><span class="p">:</span> <span class="n">v03r05</span>
 <span class="n">Serial_Num</span><span class="p">,</span><span class="n">Season</span><span class="p">,</span><span class="n">Num</span><span class="p">,</span><span class="n">Basin</span><span class="p">,</span><span class="n">Sub_basin</span><span class="p">,</span><span class="n">Name</span><span class="p">,</span><span class="n">ISO_time</span><span class="p">,</span><span class="n">Nature</span><span class="p">,</span><span class="n">Latitude</span><span class="p">,</span><span class="n">Longitude</span><span class="p">,</span><span class="n">Wind</span><span class="p">(</span><span class="n">WMO</span><span class="p">),</span><span class="n">Pres</span><span class="p">(</span><span class="n">WMO</span><span class="p">),</span><span class="n">Center</span><span class="p">,</span><span class="n">Wind</span><span class="p">(</span><span class="n">WMO</span><span class="p">)</span> <span class="n">Percentile</span><span class="p">,</span><span class="n">Pres</span><span class="p">(</span><span class="n">WMO</span><span class="p">)</span> <span class="n">Percentile</span><span class="p">,</span><span class="n">Track_type</span>
 <span class="n">N</span><span class="o">/</span><span class="n">A</span><span class="p">,</span><span class="n">Year</span><span class="p">,</span><span class="c1">#,BB,BB,N/A,YYYY-MM-DD HH:MM:SS,N/A,deg_north,deg_east,kt,mb,N/A,%,%,N/A</span>
 <span class="mi">1848011</span><span class="n">S09080</span><span class="p">,</span><span class="mi">1848</span><span class="p">,</span><span class="mi">02</span><span class="p">,</span> <span class="n">SI</span><span class="p">,</span> <span class="n">MM</span><span class="p">,</span><span class="n">XXXX848003</span><span class="p">,</span><span class="mi">1848</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">11</span> <span class="mi">06</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">,</span> <span class="n">NR</span><span class="p">,</span> <span class="o">-</span><span class="mf">8.60</span><span class="p">,</span>  <span class="mf">79.80</span><span class="p">,</span>  <span class="mf">0.0</span><span class="p">,</span>    <span class="mf">0.0</span><span class="p">,</span><span class="n">reunion</span><span class="p">,</span><span class="o">-</span><span class="mf">100.000</span><span class="p">,</span><span class="o">-</span><span class="mf">100.000</span><span class="p">,</span><span class="n">main</span>
@@ -217,48 +211,48 @@ radius to maximum winds (<code class="docutils literal"><span class="pre">rmax</
 <span id="configuringsource"></span><h2>Setting the configuration options<a class="headerlink" href="#setting-the-configuration-options" title="Permalink to this headline">¶</a></h2>
 <p>The columns arrangement can be determined from looking at the second
 line of the database:
-<code class="docutils literal"><span class="pre">Serial_Num,Season,Num,Basin,Sub_basin,Name,ISO_time,Nature,Latitude,Longitude,Wind(WMO),Pres(WMO),Center,Wind(WMO)</span>
+<code class="docutils literal notranslate"><span class="pre">Serial_Num,Season,Num,Basin,Sub_basin,Name,ISO_time,Nature,Latitude,Longitude,Wind(WMO),Pres(WMO),Center,Wind(WMO)</span>
 <span class="pre">Percentile,Pres(WMO)</span> <span class="pre">Percentile,Track_type</span></code>. The important variables
-required for TCRM are the <code class="docutils literal"><span class="pre">Serial_Num</span></code>, <code class="docutils literal"><span class="pre">ISO_time</span></code>, <code class="docutils literal"><span class="pre">Latitude</span></code>,
-<code class="docutils literal"><span class="pre">Longitude</span></code> and <code class="docutils literal"><span class="pre">Pres(WMO)</span></code> columns. All other variables can be
-ignored. Based on this, the <code class="docutils literal"><span class="pre">Columns</span></code> option can be set as:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Columns</span> <span class="o">=</span> <span class="n">tcserialno</span><span class="p">,</span><span class="n">season</span><span class="p">,</span><span class="n">num</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">date</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">lat</span><span class="p">,</span><span class="n">lon</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">pressure</span>
+required for TCRM are the <code class="docutils literal notranslate"><span class="pre">Serial_Num</span></code>, <code class="docutils literal notranslate"><span class="pre">ISO_time</span></code>, <code class="docutils literal notranslate"><span class="pre">Latitude</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Longitude</span></code> and <code class="docutils literal notranslate"><span class="pre">Pres(WMO)</span></code> columns. All other variables can be
+ignored. Based on this, the <code class="docutils literal notranslate"><span class="pre">Columns</span></code> option can be set as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Columns</span> <span class="o">=</span> <span class="n">tcserialno</span><span class="p">,</span><span class="n">season</span><span class="p">,</span><span class="n">num</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">date</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">lat</span><span class="p">,</span><span class="n">lon</span><span class="p">,</span><span class="n">skip</span><span class="p">,</span><span class="n">pressure</span>
 </pre></div>
 </div>
 <p>Notice that there are only 12 columns specified, but the database
 contains 15 columns. The last three columns are not used, so since
 they are not specified, they are automatically ignored.</p>
-<p>The data are comma-delimited, so the <code class="docutils literal"><span class="pre">FieldDelimiter</span></code> option is set
+<p>The data are comma-delimited, so the <code class="docutils literal notranslate"><span class="pre">FieldDelimiter</span></code> option is set
 to a comma – it does not need to be wrapped in quotes.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">FieldDelimiter</span> <span class="o">=</span> <span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FieldDelimiter</span> <span class="o">=</span> <span class="p">,</span>
 </pre></div>
 </div>
 <p>The first three lines are metadata and information that describe the
 data (version, column names, units). These lines are ignored when the
-<code class="docutils literal"><span class="pre">NumberOfHeadingLines</span></code> option is set to 3.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">NumberOfHeadingLines</span> <span class="o">=</span> <span class="mi">3</span>
+<code class="docutils literal notranslate"><span class="pre">NumberOfHeadingLines</span></code> option is set to 3.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">NumberOfHeadingLines</span> <span class="o">=</span> <span class="mi">3</span>
 </pre></div>
 </div>
 <p>The format of the date field needs to be specified in the
 configuration file. Format specification is controlled by Python’s
-standard <code class="xref py py-mod docutils literal"><span class="pre">datetime</span></code> module.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">DateFormat</span> <span class="o">=</span> <span class="o">%</span><span class="n">Y</span><span class="o">-%</span><span class="n">m</span><span class="o">-%</span><span class="n">d</span> <span class="o">%</span><span class="n">H</span><span class="p">:</span><span class="o">%</span><span class="n">M</span><span class="p">:</span><span class="o">%</span><span class="n">S</span>
+standard <code class="xref py py-mod docutils literal notranslate"><span class="pre">datetime</span></code> module.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DateFormat</span> <span class="o">=</span> <span class="o">%</span><span class="n">Y</span><span class="o">-%</span><span class="n">m</span><span class="o">-%</span><span class="n">d</span> <span class="o">%</span><span class="n">H</span><span class="p">:</span><span class="o">%</span><span class="n">M</span><span class="p">:</span><span class="o">%</span><span class="n">S</span>
 </pre></div>
 </div>
-<p>The remaining three options – <code class="docutils literal"><span class="pre">PressureUnits</span></code>, <code class="docutils literal"><span class="pre">LengthUnits</span></code> and
-<code class="docutils literal"><span class="pre">SpeedUnits</span></code> – set the units of the pressure values, any length
+<p>The remaining three options – <code class="docutils literal notranslate"><span class="pre">PressureUnits</span></code>, <code class="docutils literal notranslate"><span class="pre">LengthUnits</span></code> and
+<code class="docutils literal notranslate"><span class="pre">SpeedUnits</span></code> – set the units of the pressure values, any length
 units and the speed units (of motion of the storms). Notice that the
 third line in the database indicates the wind speed is in units of
-<code class="docutils literal"><span class="pre">kt</span></code> (knots) - this refers to the observed maximum wind speed. The
-<code class="docutils literal"><span class="pre">SpeedUnits</span></code> option controls the units for the forward motion speed
+<code class="docutils literal notranslate"><span class="pre">kt</span></code> (knots) - this refers to the observed maximum wind speed. The
+<code class="docutils literal notranslate"><span class="pre">SpeedUnits</span></code> option controls the units for the forward motion speed
 of storms - a field that is not included in the IBTrACS database.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">PressureUnits</span> <span class="o">=</span> <span class="n">hPa</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PressureUnits</span> <span class="o">=</span> <span class="n">hPa</span>
 <span class="n">LengthUnits</span> <span class="o">=</span> <span class="n">km</span>
 <span class="n">SpeedUnits</span> <span class="o">=</span> <span class="n">kmh</span>
 </pre></div>
 </div>
 <p>The full section for using IBTrACS is shown below.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">IBTRACS</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">IBTRACS</span><span class="p">]</span>
 <span class="p">;</span> <span class="n">Input</span> <span class="n">data</span> <span class="n">file</span> <span class="n">settings</span>
 <span class="n">URL</span> <span class="o">=</span> <span class="n">ftp</span><span class="p">:</span><span class="o">//</span><span class="n">eclipse</span><span class="o">.</span><span class="n">ncdc</span><span class="o">.</span><span class="n">noaa</span><span class="o">.</span><span class="n">gov</span><span class="o">/</span><span class="n">pub</span><span class="o">/</span><span class="n">ibtracs</span><span class="o">/</span><span class="n">v03r05</span><span class="o">/</span><span class="n">wmo</span><span class="o">/</span><span class="n">csv</span><span class="o">/</span><span class="n">Allstorms</span><span class="o">.</span><span class="n">ibtracs_wmo</span><span class="o">.</span><span class="n">v03r05</span><span class="o">.</span><span class="n">csv</span><span class="o">.</span><span class="n">gz</span>
 <span class="n">Path</span> <span class="o">=</span> <span class="nb">input</span>
@@ -277,9 +271,7 @@ of storms - a field that is not included in the IBTrACS database.</p>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -288,7 +280,7 @@ of storms - a field that is not included in the IBTrACS database.</p>
         <a href="scenarios.html" class="btn btn-neutral float-right" title="Scenario modelling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="evaluation.html" class="btn btn-neutral" title="Evaluation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="evaluation.html" class="btn btn-neutral float-left" title="Evaluation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -297,12 +289,14 @@ of storms - a field that is not included in the IBTrACS database.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2020
+      <span class="lastupdated">
+        Last updated on Nov 02, 2020.
+      </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -315,36 +309,15 @@ of storms - a field that is not included in the IBTrACS database.</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'v2.0.2',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

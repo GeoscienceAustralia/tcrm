@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>The Tropical Cyclone Risk Model &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  <title>The Tropical Cyclone Risk Model &mdash; Tropical Cyclone Risk Model v3.1.3 documentation</title>
   
 
   
@@ -17,40 +17,34 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="index.html"/> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -59,7 +53,7 @@
 
           
             
-            <img src="_static/GA_0.gif" class="logo" />
+            <img src="_static/GA_0.gif" class="logo" alt="Logo"/>
           
           </a>
 
@@ -67,7 +61,7 @@
             
             
               <div class="version">
-                2.0
+                3.1.3
               </div>
             
           
@@ -101,7 +95,6 @@
 <li class="toctree-l1"><a class="reference internal" href="docs/sources.html">Using different TC databases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs/scenarios.html">Scenario simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs/contributing.html">Contributing to TCRM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="docs/Utilities.html">Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docs/glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="LICENSE.html">License information</a></li>
 </ul>
@@ -115,7 +108,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">Tropical Cyclone Risk Model</a>
@@ -123,9 +116,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -185,37 +179,25 @@ provide ARI wind speed estimates.</p>
 <div class="section" id="features">
 <h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><strong>Multi-platform</strong>: TCRM can run on desktop machines through to massively-parallel systems (tested on Windows XP/Vista/7, *NIX);</li>
-<li><strong>Multiple options for wind field &amp; boundary layer models</strong>: A number of radial profiles and simple boundary layer models have been included to allow users to test sensitivity to these options.</li>
-<li><strong>Globally applicable</strong>: Users can set up a domain in any TC basin in the globe. The model is not tuned to any one region of the globe. Rather, the model is designed to draw sufficient information from best-track archives;</li>
-<li><strong>Evaluation metrics</strong>: Offers capability to run objective evaluation of track model metrics (e.g. landfall rates);</li>
-<li><strong>Single scenarios</strong>: Users can run a single TC event (e.g. using a b-deck format track file) at high temporal resolution and extract time series data at chosen locations;</li>
+<li><p><strong>Multi-platform</strong>: TCRM can run on desktop machines through to massively-parallel systems (tested on Windows XP/Vista/7, *NIX);</p></li>
+<li><p><strong>Multiple options for wind field &amp; boundary layer models</strong>: A number of radial profiles and simple boundary layer models have been included to allow users to test sensitivity to these options.</p></li>
+<li><p><strong>Globally applicable</strong>: Users can set up a domain in any TC basin in the globe. The model is not tuned to any one region of the globe. Rather, the model is designed to draw sufficient information from best-track archives;</p></li>
+<li><p><strong>Evaluation metrics</strong>: Offers capability to run objective evaluation of track model metrics (e.g. landfall rates);</p></li>
+<li><p><strong>Single scenarios</strong>: Users can run a single TC event (e.g. using a b-deck format track file) at high temporal resolution and extract time series data at chosen locations;</p></li>
 </ul>
-</div>
-<div class="section" id="branch">
-<h1>Branch<a class="headerlink" href="#branch" title="Permalink to this headline">¶</a></h1>
-<p>Development branch. New features are collected in this branch before
-release to default branch. Contributions of new features should branch
-from this branch, rather than the default branch.</p>
 </div>
 <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="new-features">
 <h2>New features:<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Implemented new extreme value distribution option for the hazard
-calculations. The EVD options now include GEV (default), and
-GPD. The option is set within the config file. (Sep 2017)</li>
-<li>Updated the hazard curve plots to include a scatter of the events
-alongside the fitted hazard curve. (Sep 2017)</li>
-<li>Updated the hazard map colour palette to use ISO 22324, 2015 (Oct
-2017)</li>
+<li><p>Added empirical ARI calculation</p></li>
 </ul>
 </div>
 <div class="section" id="bug-fixes">
 <h2>Bug fixes:<a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>ThetaFM conversion fix from v2.0 pulled into this branch (Sep 2017)</li>
+<li><p>Correction in landfall decay model for unit conversions</p></li>
 </ul>
 </div>
 </div>
@@ -224,47 +206,56 @@ alongside the fitted hazard curve. (Sep 2017)</li>
 <p>TCRM requires:</p>
 <blockquote>
 <div><ul class="simple">
-<li><a class="reference external" href="https://www.python.org/">Python 2.7</a>;</li>
-<li><a class="reference external" href="http://www.numpy.org/">numpy</a>;</li>
-<li><a class="reference external" href="http://www.scipy.org/">scipy</a>;</li>
-<li><a class="reference external" href="http://matplotlib.org/">matplotlib 1.4.3</a>;</li>
-<li><a class="reference external" href="http://matplotlib.org/basemap/index.html">Basemap 1.0.8</a>;</li>
-<li><a class="reference external" href="https://code.google.com/p/netcdf4-python/">netcdf4-python</a>;</li>
-<li><a class="reference external" href="http://pandas.pydata.org/">pandas</a>;</li>
-<li><a class="reference external" href="https://github.com/Toblerity/Shapely">Shapely</a>;</li>
-<li><a class="reference external" href="http://stanford.edu/~mwaskom/software/seaborn/index.html">seaborn 0.5.1</a>;</li>
-<li><a class="reference external" href="http://statsmodels.sourceforge.net">statsmodels</a>;</li>
-<li>and <cite>gcc</cite>.</li>
+<li><p><a class="reference external" href="https://www.python.org/">Python 3.7</a>;</p></li>
+<li><p><a class="reference external" href="http://www.numpy.org/">numpy</a>;</p></li>
+<li><p><a class="reference external" href="http://www.scipy.org/">scipy</a>;</p></li>
+<li><p><a class="reference external" href="http://matplotlib.org/">matplotlib</a>;</p></li>
+<li><p><a class="reference external" href="http://matplotlib.org/basemap/index.html">Basemap</a>;</p></li>
+<li><p><a class="reference external" href="https://unidata.github.io/netcdf4-python/netCDF4/index.html">netcdf4-python</a>;</p></li>
+<li><p><a class="reference external" href="https://unidata.github.io/cftime/">cftime</a>;</p></li>
+<li><p><a class="reference external" href="http://pandas.pydata.org/">pandas</a>;</p></li>
+<li><p><a class="reference external" href="https://shapely.readthedocs.io/en/latest/manual.html">Shapely</a>;</p></li>
+<li><p><a class="reference external" href="https://seaborn.pydata.org/">seaborn</a>;</p></li>
+<li><p><a class="reference external" href="http://statsmodels.sourceforge.net">statsmodels</a>;</p></li>
+<li><p><a class="reference external" href="http://gitpython.readthedocs.io">GitPython</a>;</p></li>
+<li><p><a class="reference external" href="https://pypi.org/project/GDAL/">GDAL/OGR</a>;</p></li>
+<li><p><a class="reference external" href="https://mpi4py.readthedocs.io/en/stable/">mpi4py</a>;</p></li>
+<li><p>and <cite>gcc</cite>.</p></li>
 </ul>
 </div></blockquote>
-<p>For parallel execution, <a class="reference external" href="http://github.com/daleroberts/pypar">Pypar</a> is required;</p>
 </div>
 <div class="section" id="status">
 <h1>Status<a class="headerlink" href="#status" title="Permalink to this headline">¶</a></h1>
 <a class="reference external image-reference" href="https://travis-ci.org/GeoscienceAustralia/tcrm"><img alt="Build status" src="https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=develop" /></a>
 <a class="reference external image-reference" href="https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=develop"><img alt="Test coverage" src="https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=develop" /></a>
 <a class="reference external image-reference" href="https://landscape.io/github/GeoscienceAustralia/tcrm/develop"><img alt="Code Health" src="https://landscape.io/github/GeoscienceAustralia/tcrm/develop/landscape.svg?style=flat" /></a>
+<a class="reference external image-reference" href="https://doi.org/10.5281/zenodo.3741493"><img alt="https://zenodo.org/badge/DOI/10.5281/zenodo.3741493.svg" src="https://zenodo.org/badge/DOI/10.5281/zenodo.3741493.svg" /></a>
 </div>
 <div class="section" id="screenshot">
 <h1>Screenshot<a class="headerlink" href="#screenshot" title="Permalink to this headline">¶</a></h1>
-<img alt="https://rawgithub.com/GeoscienceAustralia/tcrm/master/docs/screenshot.png" src="https://rawgithub.com/GeoscienceAustralia/tcrm/master/docs/screenshot.png" />
+<img alt="_images/screenshot.png" src="_images/screenshot.png" />
 </div>
 <div class="section" id="contributing-to-tcrm">
 <h1>Contributing to TCRM<a class="headerlink" href="#contributing-to-tcrm" title="Permalink to this headline">¶</a></h1>
-<p>If you would like to take part in TCRM development, take a look at <a class="reference external" href="https://github.com/GeoscienceAustralia/tcrm/blob/master/docs/contributing.rst">docs/contributing.rst</a>.</p>
+<p>If you would like to take part in TCRM development, take a look at the <a class="reference external" href="docs/contributing.rst">Contributing guide</a>.</p>
 </div>
-<div class="section" id="license-information">
-<h1>License information<a class="headerlink" href="#license-information" title="Permalink to this headline">¶</a></h1>
-<p>See the file <a class="reference external" href="https://github.com/GeoscienceAustralia/tcrm/blob/master/LICENSE.rst">LICENSE.rst</a>
-for information on the history of this software, terms and conditions for usage,
-and a DISCLAIMER OF ALL WARRANTIES.</p>
+<div class="section" id="license">
+<h1>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h1>
+<p>This repository is licensed under the GNU General Public License. See
+the file <a class="reference external" href="LICENSE.rst">LICENSE.rst</a>
+for information on the history of this software, terms and conditions
+for usage, and a DISCLAIMER OF ALL WARRANTIES.</p>
+</div>
+<div class="section" id="contacts">
+<h1>Contacts<a class="headerlink" href="#contacts" title="Permalink to this headline">¶</a></h1>
+<p>Community Safety Branch
+Geoscience Australia
+<a class="reference external" href="mailto:hazards&#37;&#52;&#48;ga&#46;gov&#46;au">hazards<span>&#64;</span>ga<span>&#46;</span>gov<span>&#46;</span>au</a></p>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -273,12 +264,14 @@ and a DISCLAIMER OF ALL WARRANTIES.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2020
+      <span class="lastupdated">
+        Last updated on Nov 02, 2020.
+      </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -291,36 +284,15 @@ and a DISCLAIMER OF ALL WARRANTIES.</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'v2.0.2',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

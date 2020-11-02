@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Running the model &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  <title>Running the model &mdash; Tropical Cyclone Risk Model v3.1.3 documentation</title>
   
 
   
@@ -17,42 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="../index.html"/>
-        <link rel="next" title="Examples" href="examples.html"/>
-        <link rel="prev" title="Setting up the model" href="setup.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Setting up the model" href="setup.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -61,7 +55,7 @@
 
           
             
-            <img src="../_static/GA_0.gif" class="logo" />
+            <img src="../_static/GA_0.gif" class="logo" alt="Logo"/>
           
           </a>
 
@@ -69,7 +63,7 @@
             
             
               <div class="version">
-                2.0
+                3.1.3
               </div>
             
           
@@ -108,7 +102,6 @@
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Using different TC databases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scenarios.html">Scenario simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TCRM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Utilities.html">Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License information</a></li>
 </ul>
@@ -122,7 +115,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Tropical Cyclone Risk Model</a>
@@ -130,9 +123,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -176,46 +170,45 @@
             
   <div class="section" id="running-the-model">
 <h1>Running the model<a class="headerlink" href="#running-the-model" title="Permalink to this headline">¶</a></h1>
-<p>The primary way to run TCRM is at the command line (A graphical
-interface is under development). Command line arguments are passed to
-the main <code class="docutils literal"><span class="pre">tcrm.py</span></code> script for defining the path to the configuration
-file, as well as enabling verbose output and/or debugging.</p>
+<p>The primary way to run TCRM is at the command line. Command line arguments
+are passed to the main <code class="docutils literal notranslate"><span class="pre">tcrm.py</span></code> script for defining the path
+to the configuration file, as well as enabling verbose output and/or debugging.</p>
 <div class="section" id="command-line-arguments">
 <h2>Command line arguments<a class="headerlink" href="#command-line-arguments" title="Permalink to this headline">¶</a></h2>
 <blockquote>
-<div><table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">-c <var>file</var></span>, <span class="option">--config <var>file</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Path to a configuration file</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">-v</span>, <span class="option">--verbose</span></kbd></td>
-<td>If given, then logging messages will be printed to the console</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">-d</span>, <span class="option">--debug</span></kbd></td>
-<td>In the case that execution results in an exception, allow the
+<div><dl class="option-list">
+<dt><kbd><span class="option">-c <var>file</var></span>, <span class="option">--config <var>file</var></span></kbd></dt>
+<dd><p>Path to a configuration file</p>
+</dd>
+<dt><kbd><span class="option">-v</span>, <span class="option">--verbose</span></kbd></dt>
+<dd><p>If given, then logging messages will be printed to the console</p>
+</dd>
+<dt><kbd><span class="option">-d</span>, <span class="option">--debug</span></kbd></dt>
+<dd><p>In the case that execution results in an exception, allow the
 Python stack to call into the stack trace (through
-implementation of a custom hook script).</td></tr>
-</tbody>
-</table>
+implementation of a custom hook script).</p>
+</dd>
+</dl>
 </div></blockquote>
 </div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<p>Make sure <code class="docutils literal"><span class="pre">python</span></code> is in your system path, then from the base
-directory, call the <code class="docutils literal"><span class="pre">tcrm.py</span></code> script, with the configuration file
+<p>Make sure <code class="docutils literal notranslate"><span class="pre">python</span></code> is in your system path, then from the base
+directory, call the <code class="docutils literal notranslate"><span class="pre">tcrm.py</span></code> script, with the configuration file
 option included. For example, to run the example simulation:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">tcrm</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">c</span> <span class="n">example</span><span class="o">/</span><span class="n">port_hedland</span><span class="o">.</span><span class="n">ini</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">tcrm</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">c</span> <span class="n">example</span><span class="o">/</span><span class="n">port_hedland</span><span class="o">.</span><span class="n">ini</span>
 </pre></div>
 </div>
 <p>The model will print a simple progress indicator to the console to
 show that the model is working.</p>
-<p>If the <code class="docutils literal"><span class="pre">-v</span></code> option is included, then all logging messages will be
+<p>For Python3 users, some may have to use the <code class="docutils literal notranslate"><span class="pre">python3</span></code> command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">tcrm</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">c</span> <span class="n">example</span><span class="o">/</span><span class="n">port_hedland</span><span class="o">.</span><span class="n">ini</span>
+</pre></div>
+</div>
+<p>If the <code class="docutils literal notranslate"><span class="pre">-v</span></code> option is included, then all logging messages will be
 printed to the console. The level of logging detail is set in the
-configuration file.</p>
+configuration file, using Python’s inbuilt logging levels (‘DEBUG’, ‘INFO’,
+‘WARNING’, etc.).</p>
 </div>
 <div class="section" id="running-on-a-parallel-system">
 <h2>Running on a parallel system<a class="headerlink" href="#running-on-a-parallel-system" title="Permalink to this headline">¶</a></h2>
@@ -223,28 +216,26 @@ configuration file.</p>
 events, which implies run times can become very long. If TCRM is
 installed on a multiprocessor system (either a shared memory or
 distributed memory system), then the workload can be shared across the
-workload. TCRM uses the <code class="xref py py-mod docutils literal"><span class="pre">pypar</span></code> module to enable multi-threaded
-processing. Instructions for installing <code class="xref py py-mod docutils literal"><span class="pre">pypar</span></code> are given on the
-<a class="reference external" href="http://github.com/daleroberts/pypar">Pypar website</a>.</p>
-<p>Pypar is built around the MPI library, and so uses the <code class="docutils literal"><span class="pre">mpirun</span></code>
+workload. TCRM uses the <code class="xref py py-mod docutils literal notranslate"><span class="pre">mpi4py</span></code> module to enable multi-threaded
+processing. Instructions for installing <code class="xref py py-mod docutils literal notranslate"><span class="pre">mpi4py</span></code> are given on the
+<a class="reference external" href="https://mpi4py.readthedocs.io/">mpi4py website</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">mpi4py</span></code> is built around the MPI library, and so uses the <code class="docutils literal notranslate"><span class="pre">mpirun</span></code>
 command to execute the model across multiple processors. As an example
 the following command will execute across 16 processors:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mpirun</span> <span class="o">-</span><span class="n">np</span> <span class="mi">16</span> <span class="n">python</span> <span class="n">tcrm</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">c</span> <span class="n">example</span><span class="o">/</span><span class="n">port_hedland</span><span class="o">.</span><span class="n">ini</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mpirun</span> <span class="o">-</span><span class="n">np</span> <span class="mi">16</span> <span class="n">python</span> <span class="n">tcrm</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">c</span> <span class="n">example</span><span class="o">/</span><span class="n">port_hedland</span><span class="o">.</span><span class="n">ini</span>
 </pre></div>
 </div>
 <p>Running across multiple processors means that logging messages from
 each individual processor can get mixed up with others. To avoid this,
 a separate log file is created for each thread, and output to the
-console is suppressed (even if the <code class="docutils literal"><span class="pre">-v</span></code> or <code class="docutils literal"><span class="pre">--verbose</span></code> option is
+console is suppressed (even if the <code class="docutils literal notranslate"><span class="pre">-v</span></code> or <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> option is
 given at the command line).</p>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -253,7 +244,7 @@ given at the command line).</p>
         <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="setup.html" class="btn btn-neutral" title="Setting up the model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="setup.html" class="btn btn-neutral float-left" title="Setting up the model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -262,12 +253,14 @@ given at the command line).</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2020
+      <span class="lastupdated">
+        Last updated on Nov 02, 2020.
+      </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -280,36 +273,15 @@ given at the command line).</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'v2.0.2',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>

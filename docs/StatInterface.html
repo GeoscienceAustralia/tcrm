@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>StatInterface package &mdash; Tropical Cyclone Risk Model v2.0.2 documentation</title>
+  <title>StatInterface package &mdash; Tropical Cyclone Risk Model v3.1.3 documentation</title>
   
 
   
@@ -17,40 +17,34 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="Tropical Cyclone Risk Model v2.0.2 documentation" href="../index.html"/> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -59,7 +53,7 @@
 
           
             
-            <img src="../_static/GA_0.gif" class="logo" />
+            <img src="../_static/GA_0.gif" class="logo" alt="Logo"/>
           
           </a>
 
@@ -67,7 +61,7 @@
             
             
               <div class="version">
-                2.0
+                3.1.3
               </div>
             
           
@@ -101,7 +95,6 @@
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Using different TC databases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scenarios.html">Scenario simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TCRM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Utilities.html">Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../LICENSE.html">License information</a></li>
 </ul>
@@ -115,7 +108,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Tropical Cyclone Risk Model</a>
@@ -123,9 +116,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -175,130 +169,121 @@
 <div class="section" id="module-StatInterface.GenerateDistributions">
 <span id="statinterface-generatedistributions-module"></span><h2>StatInterface.GenerateDistributions module<a class="headerlink" href="#module-StatInterface.GenerateDistributions" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-GenerateDistributions">
-<span id="generatedistributions-generate-distributions-of-parameters"></span><h3><a class="reference internal" href="#module-GenerateDistributions" title="GenerateDistributions: Generate CDFs for parameters for each grid cell in the model domain."><code class="xref py py-mod docutils literal"><span class="pre">GenerateDistributions</span></code></a> – generate distributions of parameters<a class="headerlink" href="#module-GenerateDistributions" title="Permalink to this headline">¶</a></h3>
+<span id="generatedistributions-generate-distributions-of-parameters"></span><h3><a class="reference internal" href="#module-GenerateDistributions" title="GenerateDistributions: Generate CDFs for parameters for each grid cell in the model domain."><code class="xref py py-mod docutils literal notranslate"><span class="pre">GenerateDistributions</span></code></a> – generate distributions of parameters<a class="headerlink" href="#module-GenerateDistributions" title="Permalink to this headline">¶</a></h3>
 <p>Generate the cumulative distribution functions (CDF’s) for a given
 parameter for each cell in the lat-lon grid (defined by gridLimit and
 gridSpace). This uses the method of kernel density estimators to
 determine the distributions.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="StatInterface.GenerateDistributions.GenerateDistributions">
-<em class="property">class </em><code class="descname">GenerateDistributions</code><span class="sig-paren">(</span><em>configFile</em>, <em>gridLimit</em>, <em>gridSpace</em>, <em>gridInc</em>, <em>kdeType</em>, <em>minSamplesCell=40</em>, <em>missingValue=2147483647</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.GenerateDistributions.GenerateDistributions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-name descname">GenerateDistributions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em>, <em class="sig-param"><span class="n">gridLimit</span></em>, <em class="sig-param"><span class="n">gridSpace</span></em>, <em class="sig-param"><span class="n">gridInc</span></em>, <em class="sig-param"><span class="n">kdeType</span></em>, <em class="sig-param"><span class="n">minSamplesCell</span><span class="o">=</span><span class="default_value">40</span></em>, <em class="sig-param"><span class="n">missingValue</span><span class="o">=</span><span class="default_value">9223372036854775807</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.GenerateDistributions.GenerateDistributions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generate the cumulative distribution functions (CDF’s)
 for a given parameter for each cell in the lat-lon grid (defined by
 gridLimit and gridSpace).  This uses the method of kernel density
 estimators to determine the distributions. The methods allow for
 extraction of paramter values from the parameter files created in
-<a class="reference internal" href="DataProcess.html#module-DataProcess.DataProcess" title="DataProcess.DataProcess"><code class="xref py py-class docutils literal"><span class="pre">DataProcess.DataProcess</span></code></a>, and calculation (and saving)
+<a class="reference internal" href="DataProcess.html#module-DataProcess.DataProcess" title="DataProcess.DataProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataProcess.DataProcess</span></code></a>, and calculation (and saving)
 distributions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>configFile</strong> (<em>str</em>) – Path to configuration file.</li>
-<li><strong>gridLimit</strong> (<em>dict</em>) – The bounds of the model domain. The
-<code class="xref py py-class docutils literal"><span class="pre">dict</span></code> should contain the keys
-<code class="xref py py-attr docutils literal"><span class="pre">xMin</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">yMin</span></code>
-and <code class="xref py py-attr docutils literal"><span class="pre">yMax</span></code>. The <em>x</em> variable bounds
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>configFile</strong> (<em>str</em>) – Path to configuration file.</p></li>
+<li><p><strong>gridLimit</strong> (<em>dict</em>) – The bounds of the model domain. The
+<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> should contain the keys
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">xMin</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">yMin</span></code>
+and <code class="xref py py-attr docutils literal notranslate"><span class="pre">yMax</span></code>. The <em>x</em> variable bounds
 the longitude and the <em>y</em> variable
-bounds the latitude.</li>
-<li><strong>gridSpace</strong> (<em>dict</em>) – The default grid cell size. The <code class="xref py py-class docutils literal"><span class="pre">dict</span></code>
-should contain keys of <code class="xref py py-attr docutils literal"><span class="pre">x</span></code> and
-<code class="xref py py-attr docutils literal"><span class="pre">y</span></code>. The <em>x</em> variable defines the
+bounds the latitude.</p></li>
+<li><p><strong>gridSpace</strong> (<em>dict</em>) – The default grid cell size. The <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>
+should contain keys of <code class="xref py py-attr docutils literal notranslate"><span class="pre">x</span></code> and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">y</span></code>. The <em>x</em> variable defines the
 longitudinal grid size, and the <em>y</em>
-variable defines the latitudinal size.</li>
-<li><strong>gridInc</strong> (<em>dict</em>) – The increment in grid size, for those cells
+variable defines the latitudinal size.</p></li>
+<li><p><strong>gridInc</strong> (<em>dict</em>) – The increment in grid size, for those cells
 that do not contain sufficient observations
-for generating distributions. The <code class="xref py py-class docutils literal"><span class="pre">dict</span></code>
-should contain the keys <code class="xref py py-attr docutils literal"><span class="pre">x</span></code> and
-<code class="xref py py-attr docutils literal"><span class="pre">y</span></code>. The <em>x</em> variable defines the
+for generating distributions. The <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>
+should contain the keys <code class="xref py py-attr docutils literal notranslate"><span class="pre">x</span></code> and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">y</span></code>. The <em>x</em> variable defines the
 longitudinal grid increment, and the <em>y</em>
-variable defines the latitudinal increment.</li>
-<li><strong>kdeType</strong> (<em>str</em>) – Name of the (univariate) kernel estimator to use
+variable defines the latitudinal increment.</p></li>
+<li><p><strong>kdeType</strong> (<em>str</em>) – Name of the (univariate) kernel estimator to use
 when generating the distribution. Must be one of
-<code class="docutils literal"><span class="pre">Epanechnikov</span></code>, <code class="docutils literal"><span class="pre">Gaussian</span></code>, <code class="docutils literal"><span class="pre">Biweight</span></code> or
-<code class="docutils literal"><span class="pre">Triangular</span></code>.</li>
-<li><strong>minSamplesCell</strong> (<em>int</em>) – Minimum number of valid observations
+<code class="docutils literal notranslate"><span class="pre">Epanechnikov</span></code>, <code class="docutils literal notranslate"><span class="pre">Gaussian</span></code>, <code class="docutils literal notranslate"><span class="pre">Biweight</span></code> or
+<code class="docutils literal notranslate"><span class="pre">Triangular</span></code>.</p></li>
+<li><p><strong>minSamplesCell</strong> (<em>int</em>) – Minimum number of valid observations
 required to generate distributions.
 If insufficient observations are found in
 a grid cell, then it is incrementally
-expanded until <code class="docutils literal"><span class="pre">minSamplesCell</span></code> is
-reached.</li>
-<li><strong>missingValue</strong> – Missing values have this value (default
-<code class="xref py py-attr docutils literal"><span class="pre">sys.maxint</span></code>).</li>
+expanded until <code class="docutils literal notranslate"><span class="pre">minSamplesCell</span></code> is
+reached.</p></li>
+<li><p><strong>missingValue</strong> – Missing values have this value (default
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">sys.maxint</span></code>).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="StatInterface.GenerateDistributions.GenerateDistributions.allDistributions">
-<code class="descname">allDistributions</code><span class="sig-paren">(</span><em>lonLat</em>, <em>parameterList</em>, <em>parameterName=None</em>, <em>kdeStep=0.1</em>, <em>angular=False</em>, <em>periodic=False</em>, <em>plotParam=False</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.GenerateDistributions.GenerateDistributions.allDistributions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">allDistributions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lonLat</span></em>, <em class="sig-param"><span class="n">parameterList</span></em>, <em class="sig-param"><span class="n">parameterName</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kdeStep</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">angular</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">periodic</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">plotParam</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.GenerateDistributions.GenerateDistributions.allDistributions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate a distribution for each individual cell and store in a
 file or return the distribution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lonLat</strong> (str or <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – The longitude/latitude of all observations in
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lonLat</strong> (str or <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – The longitude/latitude of all observations in
 the model domain. If a string is given, then
 it is the path to a file containing the
 longitude/latitude information. If an array
 is given, then it should be a 2-d array
-containing the data values.</li>
-<li><strong>parameterList</strong> (str or <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – Parameter values. If a string is given,
+containing the data values.</p></li>
+<li><p><strong>parameterList</strong> (str or <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – Parameter values. If a string is given,
 then it is the path to a file containing
 the values. If an array is passed, then it
-should hold the parameter values.</li>
-<li><strong>parameterName</strong> (<em>str</em>) – Optional. If given, then the
+should hold the parameter values.</p></li>
+<li><p><strong>parameterName</strong> (<em>str</em>) – Optional. If given, then the
 cell distributions will be saved to a
 file with this name. If absent,
-the distribution values are returned.</li>
-<li><strong>kdeStep</strong> (<em>float</em><em>, </em><em>default=`0.1`</em>) – Increment of the ordinate values at which
-the distributions will be calculated.</li>
-<li><strong>angular</strong> (<em>boolean</em><em>, </em><em>default=``False``</em>) – Does the data represent an angular measure
-(e.g. bearing).</li>
-<li><strong>periodic</strong> (<em>boolean</em><em> or </em><em>float</em><em>, </em><em>default=``False``</em>) – Does the data represent some form of periodic
+the distribution values are returned.</p></li>
+<li><p><strong>kdeStep</strong> (<em>float</em><em>, </em><em>default=`0.1`</em>) – Increment of the ordinate values at which
+the distributions will be calculated.</p></li>
+<li><p><strong>angular</strong> (<em>boolean</em><em>, </em><em>default=``False``</em>) – Does the data represent an angular measure
+(e.g. bearing).</p></li>
+<li><p><strong>periodic</strong> (<em>boolean</em><em> or </em><em>float</em><em>, </em><em>default=``False``</em>) – Does the data represent some form of periodic
 data (e.g. day of year). If given, it should
 be the period of the data (e.g. for annual data,
-<code class="docutils literal"><span class="pre">periodic=365</span></code>).</li>
-<li><strong>plotParam</strong> (<em>boolean</em>) – Plot the parameters. Default is <code class="docutils literal"><span class="pre">False</span></code>.</li>
+<code class="docutils literal notranslate"><span class="pre">periodic=365</span></code>).</p></li>
+<li><p><strong>plotParam</strong> (<em>boolean</em>) – Plot the parameters. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">If no <code class="docutils literal"><span class="pre">parameterName</span></code> is given returns <code class="docutils literal"><span class="pre">None</span></code>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If no <code class="docutils literal notranslate"><span class="pre">parameterName</span></code> is given returns <code class="docutils literal notranslate"><span class="pre">None</span></code>
 (data are saved to file), otherwise
-<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>.</p>
-</td>
-</tr>
-</tbody>
-</table>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.GenerateDistributions.GenerateDistributions.extractParameter">
-<code class="descname">extractParameter</code><span class="sig-paren">(</span><em>cellNum</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.GenerateDistributions.GenerateDistributions.extractParameter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extractParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cellNum</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.GenerateDistributions.GenerateDistributions.extractParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extracts the cyclone parameter data for the given cell.
 If the population of a cell is insufficient for generating a
 PDF, the bounds of the cell are expanded until the population is
 sufficient.</p>
 <p>Null/missing values are removed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cellNum</strong> (<em>int</em>) – The cell number to process.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None. The <code class="xref py py-attr docutils literal"><span class="pre">parameter</span></code> attribute is updated.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><strong>IndexError</strong> – if the cell number is not valid
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cellNum</strong> (<em>int</em>) – The cell number to process.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None. The <code class="xref py py-attr docutils literal notranslate"><span class="pre">parameter</span></code> attribute is updated.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>IndexError</strong> – if the cell number is not valid
 (i.e. if it is outside the possible
-range of cell numbers).</td>
-</tr>
-</tbody>
-</table>
+range of cell numbers).</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -308,121 +293,105 @@ range of cell numbers).</td>
 <div class="section" id="module-StatInterface.KDEOrigin">
 <span id="statinterface-kdeorigin-module"></span><h2>StatInterface.KDEOrigin module<a class="headerlink" href="#module-StatInterface.KDEOrigin" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-KDEOrigin">
-<span id="kdeorigin-kernel-density-estimation-for-genesis-probability"></span><h3><a class="reference internal" href="#module-KDEOrigin" title="KDEOrigin: Kernel density estimation for genesis probability."><code class="xref py py-mod docutils literal"><span class="pre">KDEOrigin</span></code></a> – kernel density estimation for genesis probability<a class="headerlink" href="#module-KDEOrigin" title="Permalink to this headline">¶</a></h3>
+<span id="kdeorigin-kernel-density-estimation-for-genesis-probability"></span><h3><a class="reference internal" href="#module-KDEOrigin" title="KDEOrigin: Kernel density estimation for genesis probability."><code class="xref py py-mod docutils literal notranslate"><span class="pre">KDEOrigin</span></code></a> – kernel density estimation for genesis probability<a class="headerlink" href="#module-KDEOrigin" title="Permalink to this headline">¶</a></h3>
 <p>Calculate a genesis probability distribution, based on the observed
 genesis locations and applying a 2-d kernel density estimation method.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="StatInterface.KDEOrigin.KDEOrigin">
-<em class="property">class </em><code class="descname">KDEOrigin</code><span class="sig-paren">(</span><em>configFile</em>, <em>gridLimit</em>, <em>kdeStep</em>, <em>lonLat=None</em>, <em>progressbar=None</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEOrigin.KDEOrigin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-name descname">KDEOrigin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em>, <em class="sig-param"><span class="n">gridLimit</span></em>, <em class="sig-param"><span class="n">kdeStep</span></em>, <em class="sig-param"><span class="n">lonLat</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">progressbar</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEOrigin.KDEOrigin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Initialise the class for generating the genesis probability distribution.
 Initialisation will load the required data (genesis locations) and
 calculate the optimum bandwidth for the kernel density method.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>configFile</strong> (<em>str</em>) – <p>Path to the configuration file.
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>configFile</strong> (<em>str</em>) – <p>Path to the configuration file.
 :param dict gridLimit: The bounds of the model domain. The</p>
 <blockquote>
-<div><code class="xref py py-class docutils literal"><span class="pre">dict</span></code> should contain the keys
-<code class="xref py py-attr docutils literal"><span class="pre">xMin</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">yMin</span></code>
-and <code class="xref py py-attr docutils literal"><span class="pre">yMax</span></code>. The <em>x</em> variable bounds
+<div><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> should contain the keys
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">xMin</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">yMin</span></code>
+and <code class="xref py py-attr docutils literal notranslate"><span class="pre">yMax</span></code>. The <em>x</em> variable bounds
 the longitude and the <em>y</em> variable
-bounds the latitude.</div></blockquote>
-</li>
-<li><strong>kdeStep</strong> (<em>float</em>) – Increment of the ordinate values at which
+bounds the latitude.</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>kdeStep</strong> (<em>float</em>) – Increment of the ordinate values at which
 the distributions will be calculated.
-Default=`0.1`</li>
-<li><strong>lonLat</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – If given, a 2-d array of the longitude and latitude
+Default=`0.1`</p></li>
+<li><p><strong>lonLat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – If given, a 2-d array of the longitude and latitude
 of genesis locations. If not given, attempt to load
-an <code class="docutils literal"><span class="pre">init_lon_lat</span></code> file from the processed files.</li>
-<li><strong>progressbar</strong> (<a class="reference internal" href="Utilities.html#module-Utilities.progressbar" title="Utilities.progressbar"><code class="xref py py-class docutils literal"><span class="pre">Utilities.progressbar</span></code></a> object.) – A <code class="xref py py-meth docutils literal"><span class="pre">SimpleProgressBar()</span></code> object to print
-progress to STDOUT.</li>
+an <code class="docutils literal notranslate"><span class="pre">init_lon_lat</span></code> file from the processed files.</p></li>
+<li><p><strong>progressbar</strong> (<a class="reference internal" href="Utilities.html#module-Utilities.progressbar" title="Utilities.progressbar"><code class="xref py py-class docutils literal notranslate"><span class="pre">Utilities.progressbar</span></code></a> object.) – A <code class="xref py py-meth docutils literal notranslate"><span class="pre">SimpleProgressBar()</span></code> object to print
+progress to STDOUT.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="StatInterface.KDEOrigin.KDEOrigin.generateCdf">
-<code class="descname">generateCdf</code><span class="sig-paren">(</span><em>save=False</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEOrigin.KDEOrigin.generateCdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generateCdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEOrigin.KDEOrigin.generateCdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the CDFs corresponding to PDFs of cyclone origins,
 then save it on a file path provided by user</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>save</strong> (<em>boolean</em>) – If <code class="docutils literal"><span class="pre">True</span></code>, save the CDF to a netcdf file
-called ‘originCDF.nc’. If <code class="docutils literal"><span class="pre">False</span></code>, return
-the CDF.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>save</strong> (<em>boolean</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, save the CDF to a netcdf file
+called ‘originCDF.nc’. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, return
+the CDF.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.KDEOrigin.KDEOrigin.generateKDE">
-<code class="descname">generateKDE</code><span class="sig-paren">(</span><em>save=False</em>, <em>plot=False</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEOrigin.KDEOrigin.generateKDE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generateKDE</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">plot</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEOrigin.KDEOrigin.generateKDE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the PDF for cyclone origins using kernel density
 estimation technique then save it to a file path provided by
 user.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>bw</strong> (<em>float</em>) – Optional, bandwidth to use for generating the PDF.
-If not specified, use the <code class="xref py py-attr docutils literal"><span class="pre">bw</span></code> attribute.</li>
-<li><strong>save</strong> (<em>boolean</em>) – If <code class="docutils literal"><span class="pre">True</span></code>, save the resulting PDF to a
-netCDF file called ‘originPDF.nc’.</li>
-<li><strong>plot</strong> (<em>boolean</em>) – If <code class="docutils literal"><span class="pre">True</span></code>, plot the resulting PDF.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bw</strong> (<em>float</em>) – Optional, bandwidth to use for generating the PDF.
+If not specified, use the <code class="xref py py-attr docutils literal notranslate"><span class="pre">bw</span></code> attribute.</p></li>
+<li><p><strong>save</strong> (<em>boolean</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, save the resulting PDF to a
+netCDF file called ‘originPDF.nc’.</p></li>
+<li><p><strong>plot</strong> (<em>boolean</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, plot the resulting PDF.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">x</span></code> and <code class="docutils literal"><span class="pre">y</span></code> grid and the PDF values.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> grid and the PDF values.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.KDEOrigin.KDEOrigin.updateProgressBar">
-<code class="descname">updateProgressBar</code><span class="sig-paren">(</span><em>step</em>, <em>stepMax</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEOrigin.KDEOrigin.updateProgressBar" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">updateProgressBar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">step</span></em>, <em class="sig-param"><span class="n">stepMax</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEOrigin.KDEOrigin.updateProgressBar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Callback function to update progress bar from C code</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>n</strong> (<em>int</em>) – Current step.</li>
-<li><strong>nMax</strong> (<em>int</em>) – Maximum step.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<em>int</em>) – Current step.</p></li>
+<li><p><strong>nMax</strong> (<em>int</em>) – Maximum step.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="StatInterface.KDEOrigin.getOriginBandwidth">
-<code class="descname">getOriginBandwidth</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEOrigin.getOriginBandwidth" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">getOriginBandwidth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEOrigin.getOriginBandwidth" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the optimal bandwidth for kernel density estimation
 from data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> – <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of data points for training data</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Bandwidth parameter.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of data points for training data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bandwidth parameter.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -430,102 +399,98 @@ from data.</p>
 <div class="section" id="module-StatInterface.KDEParameters">
 <span id="statinterface-kdeparameters-module"></span><h2>StatInterface.KDEParameters module<a class="headerlink" href="#module-StatInterface.KDEParameters" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-KDEParameters">
-<span id="kdeparameters-generate-kde-of-cyclone-parameters"></span><h3><a class="reference internal" href="#module-KDEParameters" title="KDEParameters: Generate KDEs of TC parameters."><code class="xref py py-mod docutils literal"><span class="pre">KDEParameters</span></code></a> – generate KDE of cyclone parameters<a class="headerlink" href="#module-KDEParameters" title="Permalink to this headline">¶</a></h3>
+<span id="kdeparameters-generate-kde-of-cyclone-parameters"></span><h3><a class="reference internal" href="#module-KDEParameters" title="KDEParameters: Generate KDEs of TC parameters."><code class="xref py py-mod docutils literal notranslate"><span class="pre">KDEParameters</span></code></a> – generate KDE of cyclone parameters<a class="headerlink" href="#module-KDEParameters" title="Permalink to this headline">¶</a></h3>
 <p>Generates the probability density functions (using kernel density
 estimation) of given cyclone parameters (speed, pressure, bearing, etc).
 Each of these PDF’s is converted to a cumulative density function for
 use in other sections.</p>
-<dl class="class">
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In changing from the previous KPDF module to statsmodels, the 
+bandwidth calculation gives substantially different values for
+univariate data. For test data, the updated functions give a 
+smaller bandwidth value compared to KPDF.</p>
+</div>
+<dl class="py class">
 <dt id="StatInterface.KDEParameters.KDEParameters">
-<em class="property">class </em><code class="descname">KDEParameters</code><span class="sig-paren">(</span><em>kdeType</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEParameters.KDEParameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-name descname">KDEParameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kdeType</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEParameters.KDEParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generates the probability density functions (using kernel density
 estimation) of given cyclone parameters (speed, pressure, bearing,
 etc).  Each of these PDF’s is converted to a cumulative density
 function for use in other sections.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kdeType</strong> (<em>str</em>) – Name of the (univariate) kernel estimator to use
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kdeType</strong> (<em>str</em>) – Name of the (univariate) kernel estimator to use
 when generating the distribution. Must be one of
-<code class="docutils literal"><span class="pre">Epanechnikov</span></code>, <code class="docutils literal"><span class="pre">Gaussian</span></code>, <code class="docutils literal"><span class="pre">Biweight</span></code> or
-<code class="docutils literal"><span class="pre">Triangular</span></code>.</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+<code class="docutils literal notranslate"><span class="pre">Epanechnikov</span></code>, <code class="docutils literal notranslate"><span class="pre">Gaussian</span></code>, <code class="docutils literal notranslate"><span class="pre">Biweight</span></code> or
+<code class="docutils literal notranslate"><span class="pre">Triangular</span></code>.</p>
+</dd>
+</dl>
+<dl class="py method">
 <dt id="StatInterface.KDEParameters.KDEParameters.generateGenesisDateCDF">
-<code class="descname">generateGenesisDateCDF</code><span class="sig-paren">(</span><em>genDays</em>, <em>lonLat</em>, <em>bw=None</em>, <em>genesisKDE=None</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEParameters.KDEParameters.generateGenesisDateCDF" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generateGenesisDateCDF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">genDays</span></em>, <em class="sig-param"><span class="n">lonLat</span></em>, <em class="sig-param"><span class="n">bw</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">genesisKDE</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEParameters.KDEParameters.generateGenesisDateCDF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the PDF of genesis day using KDEs.
 Since the data is periodic, we use a simple method to include
 the periodicity in estimating the PDF. We prepend and append
 the data to itself, then use the central third of the PDF and
 multiply by three to obtain the required PDF. Probably not
 quite exact, but it should be sufficient for our purposes.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>genDays</strong> (<em>str</em>) – Name of file containing genesis days
-(as day of year).</li>
-<li><strong>lonLat</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – Array of genesis longitudes and latitudes.</li>
-<li><strong>bw</strong> (<em>float</em>) – Optional. Bandwidth of the KDE to use.</li>
-<li><strong>genesisKDE</strong> (<em>str</em>) – Optional. File name to save resulting CDF to.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>genDays</strong> (<em>str</em>) – Name of file containing genesis days
+(as day of year).</p></li>
+<li><p><strong>lonLat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – Array of genesis longitudes and latitudes.</p></li>
+<li><p><strong>bw</strong> (<em>float</em>) – Optional. Bandwidth of the KDE to use.</p></li>
+<li><p><strong>genesisKDE</strong> (<em>str</em>) – Optional. File name to save resulting CDF to.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> containing the days, the PDF and CDF
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> containing the days, the PDF and CDF
 of the genesis days.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.KDEParameters.KDEParameters.generateKDE">
-<code class="descname">generateKDE</code><span class="sig-paren">(</span><em>parameters</em>, <em>kdeStep</em>, <em>kdeParameters=None</em>, <em>cdfParameters=None</em>, <em>angular=False</em>, <em>periodic=False</em>, <em>missingValue=2147483647</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEParameters.KDEParameters.generateKDE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generateKDE</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameters</span></em>, <em class="sig-param"><span class="n">kdeStep</span></em>, <em class="sig-param"><span class="n">kdeParameters</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cdfParameters</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">angular</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">periodic</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">missingValue</span><span class="o">=</span><span class="default_value">9223372036854775807</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.KDEParameters.KDEParameters.generateKDE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a PDF and CDF for a given parameter set using the
 method of kernel density estimators. Optionally return the PDF
 and CDF as an array, or write both to separate files.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>parameters</strong> – Parameter values. If a string is given,
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> – Parameter values. If a string is given,
 then it is the path to a file containing
 the values. If an array is passed, then it
-should hold the parameter values.</li>
-<li><strong>kdeStep</strong> (<em>float</em><em>, </em><em>default=`0.1`</em>) – Increment of the ordinate values at which
-the distributions will be calculated.</li>
-<li><strong>kdeParameters</strong> (<em>str</em>) – Optional. If given, then the
+should hold the parameter values.</p></li>
+<li><p><strong>kdeStep</strong> (<em>float</em><em>, </em><em>default=`0.1`</em>) – Increment of the ordinate values at which
+the distributions will be calculated.</p></li>
+<li><p><strong>kdeParameters</strong> (<em>str</em>) – Optional. If given, then the
 cell distributions will be saved to a
 file with this name. If absent,
-the distribution values are returned.</li>
-<li><strong>cdfParameters</strong> (<em>str</em>) – Optional. If given, then the
+the distribution values are returned.</p></li>
+<li><p><strong>cdfParameters</strong> (<em>str</em>) – Optional. If given, then the
 cell distributions will be saved to a
 file with this name. If absent,
-the distribution values are returned.</li>
-<li><strong>angular</strong> (<em>boolean</em><em>, </em><em>default=``False``</em>) – Does the data represent an angular measure
-(e.g. bearing).</li>
-<li><strong>periodic</strong> (<em>boolean</em><em> or </em><em>int</em><em>, </em><em>default=``False``</em>) – Does the data represent some form of periodic
+the distribution values are returned.</p></li>
+<li><p><strong>angular</strong> (<em>boolean</em><em>, </em><em>default=``False``</em>) – Does the data represent an angular measure
+(e.g. bearing).</p></li>
+<li><p><strong>periodic</strong> (<em>boolean</em><em> or </em><em>int</em><em>, </em><em>default=``False``</em>) – Does the data represent some form of periodic
 data (e.g. day of year). If given, it should
 be the period of the data (e.g. for annual data,
-<code class="docutils literal"><span class="pre">periodic=365</span></code>).</li>
-<li><strong>missingValue</strong> – Missing values have this value (default
-<code class="xref py py-attr docutils literal"><span class="pre">sys.maxint</span></code>).</li>
+<code class="docutils literal notranslate"><span class="pre">periodic=365</span></code>).</p></li>
+<li><p><strong>missingValue</strong> – Missing values have this value (default
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">sys.maxint</span></code>).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>returns: If <code class="docutils literal"><span class="pre">kdeParameters</span></code> is given, returns <code class="docutils literal"><span class="pre">None</span></code></dt>
-<dd>(data are saved to file), otherwise
-<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of the parameter grid, the PDF and CDF.</dd>
+</dd>
+</dl>
+<dl class="simple">
+<dt>returns: If <code class="docutils literal notranslate"><span class="pre">kdeParameters</span></code> is given, returns <code class="docutils literal notranslate"><span class="pre">None</span></code></dt><dd><p>(data are saved to file), otherwise
+<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of the parameter grid, the PDF and CDF.</p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -536,127 +501,107 @@ be the period of the data (e.g. for annual data,
 <div class="section" id="module-StatInterface.SamplingOrigin">
 <span id="statinterface-samplingorigin-module"></span><h2>StatInterface.SamplingOrigin module<a class="headerlink" href="#module-StatInterface.SamplingOrigin" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-SamplingOrigin">
-<span id="samplingorigin-generate-random-tc-origins"></span><h3><a class="reference internal" href="#module-SamplingOrigin" title="SamplingOrigin: Generate a sample of random TC origins from CDFs derived using kernel density estimation."><code class="xref py py-mod docutils literal"><span class="pre">SamplingOrigin</span></code></a> – Generate random TC origins<a class="headerlink" href="#module-SamplingOrigin" title="Permalink to this headline">¶</a></h3>
+<span id="samplingorigin-generate-random-tc-origins"></span><h3><a class="reference internal" href="#module-SamplingOrigin" title="SamplingOrigin: Generate a sample of random TC origins from CDFs derived using kernel density estimation."><code class="xref py py-mod docutils literal notranslate"><span class="pre">SamplingOrigin</span></code></a> – Generate random TC origins<a class="headerlink" href="#module-SamplingOrigin" title="Permalink to this headline">¶</a></h3>
 <p>Define the class for sampling tropical cyclone origins.</p>
-<dl class="class">
+<dl class="py class">
 <dt id="StatInterface.SamplingOrigin.SamplingOrigin">
-<em class="property">class </em><code class="descname">SamplingOrigin</code><span class="sig-paren">(</span><em>kdeOrigin=None</em>, <em>x=None</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-name descname">SamplingOrigin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kdeOrigin</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">x</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">y</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for generating samples of TC origins.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>kdeOrigin</strong> (str or <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – Name of a file containing TC genesis PDF
-data, or a 2-d array containing the PDF.</li>
-<li><strong>x</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – Longitude coordinates of the grid on which the PDF
-is defined.</li>
-<li><strong>y</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – Latitude coordinates of the grid on which the PDF
-is defined.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kdeOrigin</strong> (str or <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – Name of a file containing TC genesis PDF
+data, or a 2-d array containing the PDF.</p></li>
+<li><p><strong>x</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – Longitude coordinates of the grid on which the PDF
+is defined.</p></li>
+<li><p><strong>y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – Latitude coordinates of the grid on which the PDF
+is defined.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="StatInterface.SamplingOrigin.SamplingOrigin.cdf">
-<code class="descname">cdf</code><span class="sig-paren">(</span><em>xx</em>, <em>yy</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.cdf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">cdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xx</span></em>, <em class="sig-param"><span class="n">yy</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.cdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return CDF value at the given location.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>xx</strong> (<em>float</em>) – x-ccordinate.</li>
-<li><strong>yy</strong> (<em>float</em>) – y-coordinate.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xx</strong> (<em>float</em>) – x-ccordinate.</p></li>
+<li><p><strong>yy</strong> (<em>float</em>) – y-coordinate.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">CDF values for x &amp; y at the given location.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CDF values for x &amp; y at the given location.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.SamplingOrigin.SamplingOrigin.generateOneSample">
-<code class="descname">generateOneSample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.generateOneSample" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generateOneSample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.generateOneSample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a random cyclone origin.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.SamplingOrigin.SamplingOrigin.generateSamples">
-<code class="descname">generateSamples</code><span class="sig-paren">(</span><em>ns</em>, <em>outputFile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.generateSamples" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generateSamples</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ns</span></em>, <em class="sig-param"><span class="n">outputFile</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.generateSamples" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate random samples of cyclone origins.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>ns</strong> (<em>int</em>) – Number of samples to generate.</li>
-<li><strong>outputFile</strong> (<em>str</em>) – If given, save the samples to the file.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ns</strong> (<em>int</em>) – Number of samples to generate.</p></li>
+<li><p><strong>outputFile</strong> (<em>str</em>) – If given, save the samples to the file.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> containing longitude and
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> containing longitude and
 latitude of a random sample of TC origins.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><strong>ValueError</strong> – If <code class="xref py py-attr docutils literal"><span class="pre">ns</span></code> &lt;= 0.</li>
-<li><strong>IndexError</strong> – If an invalid index is returned when generating
-uniform random values.</li>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="xref py py-attr docutils literal notranslate"><span class="pre">ns</span></code> &lt;= 0.</p></li>
+<li><p><strong>IndexError</strong> – If an invalid index is returned when generating
+uniform random values.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.SamplingOrigin.SamplingOrigin.ppf">
-<code class="descname">ppf</code><span class="sig-paren">(</span><em>q1</em>, <em>q2</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.ppf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ppf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q1</span></em>, <em class="sig-param"><span class="n">q2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.ppf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Percent point function on 2-d grid (inverse of CDF).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>q1</strong> (<em>float</em>) – Quantile for the x-coordinate.</li>
-<li><strong>q2</strong> (<em>float</em>) – Quantile for the y-coordinate.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q1</strong> (<em>float</em>) – Quantile for the x-coordinate.</p></li>
+<li><p><strong>q2</strong> (<em>float</em>) – Quantile for the y-coordinate.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Longitude &amp; latitude of the given quantile values.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Longitude &amp; latitude of the given quantile values.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.SamplingOrigin.SamplingOrigin.setKDEOrigins">
-<code class="descname">setKDEOrigins</code><span class="sig-paren">(</span><em>kdeOriginX=None</em>, <em>kdeOriginY=None</em>, <em>kdeOriginZ=None</em>, <em>outputPath=None</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.setKDEOrigins" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setKDEOrigins</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kdeOriginX</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kdeOriginY</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">kdeOriginZ</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">outputPath</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingOrigin.SamplingOrigin.setKDEOrigins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set kernel density estimation origin parameters.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>kdeOriginX</strong> (str or <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – x coordinates of kde result generated
-from <a class="reference internal" href="#module-KDEOrigin" title="KDEOrigin: Kernel density estimation for genesis probability."><code class="xref py py-class docutils literal"><span class="pre">KDEOrigin</span></code></a></li>
-<li><strong>kdeOriginY</strong> (str or <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – y coordinates of kde result generated
-from <a class="reference internal" href="#module-KDEOrigin" title="KDEOrigin: Kernel density estimation for genesis probability."><code class="xref py py-class docutils literal"><span class="pre">KDEOrigin</span></code></a></li>
-<li><strong>kdeOriginZ</strong> (str or <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – z coordinates of kde result generated
-from <a class="reference internal" href="#module-KDEOrigin" title="KDEOrigin: Kernel density estimation for genesis probability."><code class="xref py py-class docutils literal"><span class="pre">KDEOrigin</span></code></a></li>
-<li><strong>outputPath</strong> (<em>str</em>) – Path to output folder to load PDF file.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kdeOriginX</strong> (str or <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – x coordinates of kde result generated
+from <a class="reference internal" href="#module-KDEOrigin" title="KDEOrigin: Kernel density estimation for genesis probability."><code class="xref py py-class docutils literal notranslate"><span class="pre">KDEOrigin</span></code></a></p></li>
+<li><p><strong>kdeOriginY</strong> (str or <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – y coordinates of kde result generated
+from <a class="reference internal" href="#module-KDEOrigin" title="KDEOrigin: Kernel density estimation for genesis probability."><code class="xref py py-class docutils literal notranslate"><span class="pre">KDEOrigin</span></code></a></p></li>
+<li><p><strong>kdeOriginZ</strong> (str or <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – z coordinates of kde result generated
+from <a class="reference internal" href="#module-KDEOrigin" title="KDEOrigin: Kernel density estimation for genesis probability."><code class="xref py py-class docutils literal notranslate"><span class="pre">KDEOrigin</span></code></a></p></li>
+<li><p><strong>outputPath</strong> (<em>str</em>) – Path to output folder to load PDF file.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -666,69 +611,61 @@ from <a class="reference internal" href="#module-KDEOrigin" title="KDEOrigin: Ke
 <div class="section" id="module-StatInterface.SamplingParameters">
 <span id="statinterface-samplingparameters-module"></span><h2>StatInterface.SamplingParameters module<a class="headerlink" href="#module-StatInterface.SamplingParameters" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-SamplingParamters">
-<span id="samplingparameters-sample-tc-parameters-from-distributions"></span><h3><code class="xref py py-mod docutils literal"><span class="pre">SamplingParameters</span></code> – Sample TC parameters from distributions<a class="headerlink" href="#module-SamplingParamters" title="Permalink to this headline">¶</a></h3>
+<span id="samplingparameters-sample-tc-parameters-from-distributions"></span><h3><code class="xref py py-mod docutils literal notranslate"><span class="pre">SamplingParameters</span></code> – Sample TC parameters from distributions<a class="headerlink" href="#module-SamplingParamters" title="Permalink to this headline">¶</a></h3>
 <p>Defines the class for sampling cyclone parameters. Can generate either
 a single sample, or an array of samples (for multiple cyclones).</p>
-<dl class="class">
+<dl class="py class">
 <dt id="StatInterface.SamplingParameters.SamplingParameters">
-<em class="property">class </em><code class="descname">SamplingParameters</code><span class="sig-paren">(</span><em>cdfParameters=None</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingParameters.SamplingParameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Provides methods to sample one or many values from a CDF of
+<em class="property">class </em><code class="sig-name descname">SamplingParameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cdfParameters</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingParameters.SamplingParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Provides methods to sample one or many values from a CDF of
 parameter values.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cdfParameters</strong> – Name of a file containing the CDF of
-a parameter, or the actual CDF values.</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cdfParameters</strong> – Name of a file containing the CDF of
+a parameter, or the actual CDF values.</p>
+</dd>
+</dl>
+<dl class="py method">
 <dt id="StatInterface.SamplingParameters.SamplingParameters.generateOneSample">
-<code class="descname">generateOneSample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingParameters.SamplingParameters.generateOneSample" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generateOneSample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingParameters.SamplingParameters.generateOneSample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a single random sample of cyclone parameters.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.SamplingParameters.SamplingParameters.generateSamples">
-<code class="descname">generateSamples</code><span class="sig-paren">(</span><em>ns</em>, <em>sample_parameter_path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingParameters.SamplingParameters.generateSamples" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generateSamples</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ns</span></em>, <em class="sig-param"><span class="n">sample_parameter_path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingParameters.SamplingParameters.generateSamples" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate random samples of cyclone initial parameters.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>ns</strong> (<em>int</em>) – Number of samples to generate.</li>
-<li><strong>sample_parameter_path</strong> (<em>str</em>) – Path to a file to save the
-sampled parameter values to.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ns</strong> (<em>int</em>) – Number of samples to generate.</p></li>
+<li><p><strong>sample_parameter_path</strong> (<em>str</em>) – Path to a file to save the
+sampled parameter values to.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The sample values.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError</strong> – If ns &lt;= 0.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The sample values.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If ns &lt;= 0.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.SamplingParameters.SamplingParameters.setParameters">
-<code class="descname">setParameters</code><span class="sig-paren">(</span><em>cdfParameters</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingParameters.SamplingParameters.setParameters" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setParameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cdfParameters</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.SamplingParameters.SamplingParameters.setParameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set parameters.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cdfParameters</strong> – Name of a file containing the CDF of
-a parameter, or the actual CDF values.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>IOError</strong> – If the CDF files do not exist.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cdfParameters</strong> – Name of a file containing the CDF of
+a parameter, or the actual CDF values.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>IOError</strong> – If the CDF files do not exist.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -738,83 +675,79 @@ a parameter, or the actual CDF values.</td>
 <div class="section" id="module-StatInterface.StatInterface">
 <span id="statinterface-statinterface-module"></span><h2>StatInterface.StatInterface module<a class="headerlink" href="#module-StatInterface.StatInterface" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-StatInterface">
-<span id="statinterface-statistical-analysis-of-input-datasets"></span><h3><a class="reference internal" href="#module-StatInterface" title="StatInterface"><code class="xref py py-mod docutils literal"><span class="pre">StatInterface</span></code></a> – statistical analysis of input datasets<a class="headerlink" href="#module-StatInterface" title="Permalink to this headline">¶</a></h3>
-<dl class="class">
+<span id="statinterface-statistical-analysis-of-input-datasets"></span><h3><a class="reference internal" href="#module-0" title="StatInterface"><code class="xref py py-mod docutils literal notranslate"><span class="pre">StatInterface</span></code></a> – statistical analysis of input datasets<a class="headerlink" href="#module-StatInterface" title="Permalink to this headline">¶</a></h3>
+<dl class="py class">
 <dt id="StatInterface.StatInterface.StatInterface">
-<em class="property">class </em><code class="descname">StatInterface</code><span class="sig-paren">(</span><em>configFile</em>, <em>autoCalc_gridLimit=None</em>, <em>progressbar=None</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-name descname">StatInterface</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">configFile</span></em>, <em class="sig-param"><span class="n">autoCalc_gridLimit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">progressbar</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Main interface to the statistical analysis module of TCRM. This
 module generates cumulative distribution functions and probability
 density functions of the various parameters, largely using kernel
 density estimation methods.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>configFile</strong> (<em>str</em>) – Path to configuration file.</li>
-<li><strong>autoCalc_gridLimit</strong> – function to calculate the extent of a domain.</li>
-<li><strong>progressBar</strong> – a <code class="xref py py-meth docutils literal"><span class="pre">SimpleProgressBar()</span></code> object to print
-progress to STDOUT.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>configFile</strong> (<em>str</em>) – Path to configuration file.</p></li>
+<li><p><strong>autoCalc_gridLimit</strong> – function to calculate the extent of a domain.</p></li>
+<li><p><strong>progressBar</strong> – a <code class="xref py py-meth docutils literal notranslate"><span class="pre">SimpleProgressBar()</span></code> object to print
+progress to STDOUT.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="StatInterface.StatInterface.StatInterface.calcCellStatistics">
-<code class="descname">calcCellStatistics</code><span class="sig-paren">(</span><em>minSample=100</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.calcCellStatistics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calcCellStatistics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">minSample</span><span class="o">=</span><span class="default_value">100</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.calcCellStatistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the cell statistics for speed, bearing, pressure, and
 pressure rate of change for all the grid cells in the domain.</p>
 <p>The statistics calculated are mean, variance, and
 autocorrelation.</p>
 <p>The cell statistics are calculated on a grid defined by
-<code class="xref py py-attr docutils literal"><span class="pre">gridLimit</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">gridSpace</span></code> and <code class="xref py py-attr docutils literal"><span class="pre">gridInc</span></code> using
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">gridLimit</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">gridSpace</span></code> and <code class="xref py py-attr docutils literal notranslate"><span class="pre">gridInc</span></code> using
 an instance of
-<a class="reference internal" href="#StatInterface.generateStats.GenerateStats" title="StatInterface.generateStats.GenerateStats"><code class="xref py py-class docutils literal"><span class="pre">StatInterface.generateStats.GenerateStats</span></code></a>.</p>
-<p>An optional <code class="xref py py-attr docutils literal"><span class="pre">minSample</span></code> (default=100) can be given which
+<a class="reference internal" href="#StatInterface.generateStats.GenerateStats" title="StatInterface.generateStats.GenerateStats"><code class="xref py py-class docutils literal notranslate"><span class="pre">StatInterface.generateStats.GenerateStats</span></code></a>.</p>
+<p>An optional <code class="xref py py-attr docutils literal notranslate"><span class="pre">minSample</span></code> (default=100) can be given which
 sets the minimum number of observations in a given cell to
 calculate the statistics.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.StatInterface.StatInterface.cdfCellBearing">
-<code class="descname">cdfCellBearing</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.cdfCellBearing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">cdfCellBearing</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.cdfCellBearing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate CDFs relating to the bearing of cyclones for each
 grid cell in the model domain.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.StatInterface.StatInterface.cdfCellPressure">
-<code class="descname">cdfCellPressure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.cdfCellPressure" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">cdfCellPressure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.cdfCellPressure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate CDFs relating to the pressures of cyclones
 in each grid cell in the model domain.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.StatInterface.StatInterface.cdfCellSize">
-<code class="descname">cdfCellSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.cdfCellSize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">cdfCellSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.cdfCellSize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate CDFs relating to the size (radius of maximum wind)
 of cyclones in each grid cell in the model domain.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.StatInterface.StatInterface.cdfCellSpeed">
-<code class="descname">cdfCellSpeed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.cdfCellSpeed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">cdfCellSpeed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.cdfCellSpeed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate CDFs relating to the speed of motion of cyclones for each
 grid cell in the model domain.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.StatInterface.StatInterface.kdeGenesisDate">
-<code class="descname">kdeGenesisDate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.kdeGenesisDate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">kdeGenesisDate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.kdeGenesisDate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate CDFs relating to the genesis day-of-year of cyclones
 for each grid cell in teh model domain.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.StatInterface.StatInterface.kdeOrigin">
-<code class="descname">kdeOrigin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.kdeOrigin" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">kdeOrigin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.StatInterface.StatInterface.kdeOrigin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate 2D PDFs relating to the origin of cyclones.</p>
 </dd></dl>
 
@@ -822,209 +755,159 @@ for each grid cell in teh model domain.</p>
 
 </div>
 </div>
-<div class="section" id="module-StatInterface.circularKDE">
-<span id="statinterface-circularkde-module"></span><h2>StatInterface.circularKDE module<a class="headerlink" href="#module-StatInterface.circularKDE" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="module-circularKDE">
-<span id="circularkde-probability-distributions-for-circular-data"></span><h3><a class="reference internal" href="#module-circularKDE" title="circularKDE: Probability distributions for circular data."><code class="xref py py-mod docutils literal"><span class="pre">circularKDE</span></code></a> – probability distributions for circular data<a class="headerlink" href="#module-circularKDE" title="Permalink to this headline">¶</a></h3>
-<p>Create a probability distribution function for radial-type
-data, e.g. bearings. Returns the grid on which the PDF is defined, the
-PDF itself and the corresponding CDF. By default, the grid is specified
-on [0,2*pi).</p>
-<dl class="function">
-<dt id="StatInterface.circularKDE.circularKDE">
-<code class="descname">circularKDE</code><span class="sig-paren">(</span><em>parameters</em>, <em>kdeStep=0.19634954084936207</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.circularKDE.circularKDE" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a probability distribution function for radial-type data,
-e.g. bearings. Returns the grid on which the PDF is defined, the
-PDF itself and the corresponding CDF.</p>
-<p>By default, the grid is specified on [0, 2*pi)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>parameters</strong> – <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of parameter values.</li>
-<li><strong>kdeStep</strong> (<em>float</em>) – Increment of the ordinate at which the
-distribution will be estimated.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> of the grid, the PDF and the CDF.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</div>
+<div class="section" id="statinterface-circularkde-module">
+<h2>StatInterface.circularKDE module<a class="headerlink" href="#statinterface-circularkde-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-StatInterface.generateStats">
 <span id="statinterface-generatestats-module"></span><h2>StatInterface.generateStats module<a class="headerlink" href="#module-StatInterface.generateStats" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-generateStats">
-<span id="generatestats-calculation-of-statistical-values"></span><h3><a class="reference internal" href="#module-generateStats" title="generateStats: Calculates the mean, variance and autocorrelation statistics for all grid cells in the domain, for a given parameter."><code class="xref py py-mod docutils literal"><span class="pre">generateStats</span></code></a> – calculation of statistical values<a class="headerlink" href="#module-generateStats" title="Permalink to this headline">¶</a></h3>
-<dl class="class">
+<span id="generatestats-calculation-of-statistical-values"></span><h3><a class="reference internal" href="#module-generateStats" title="generateStats: Calculates the mean, variance and autocorrelation statistics for all grid cells in the domain, for a given parameter."><code class="xref py py-mod docutils literal notranslate"><span class="pre">generateStats</span></code></a> – calculation of statistical values<a class="headerlink" href="#module-generateStats" title="Permalink to this headline">¶</a></h3>
+<dl class="py class">
 <dt id="StatInterface.generateStats.GenerateStats">
-<em class="property">class </em><code class="descname">GenerateStats</code><span class="sig-paren">(</span><em>parameter</em>, <em>lonLat</em>, <em>gridLimit</em>, <em>gridSpace</em>, <em>gridInc</em>, <em>minSample=100</em>, <em>angular=False</em>, <em>missingValue=2147483647</em>, <em>progressbar=None</em>, <em>prgStartValue=0</em>, <em>prgEndValue=1</em>, <em>calculateLater=False</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate the main statistical distributions across the grid domain.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>parameter</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> or str) – contains the data on which the statistical
+<em class="property">class </em><code class="sig-name descname">GenerateStats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameter</span></em>, <em class="sig-param"><span class="n">lonLat</span></em>, <em class="sig-param"><span class="n">gridLimit</span></em>, <em class="sig-param"><span class="n">gridSpace</span></em>, <em class="sig-param"><span class="n">gridInc</span></em>, <em class="sig-param"><span class="n">minSample</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">angular</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">missingValue</span><span class="o">=</span><span class="default_value">9223372036854775807</span></em>, <em class="sig-param"><span class="n">progressbar</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">prgStartValue</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">prgEndValue</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">calculateLater</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate the main statistical distributions across the grid domain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameter</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> or str) – contains the data on which the statistical
 values will be based. If <cite>str</cite>, then
 represents the name of a file that contains
-the data</li>
-<li><strong>lonLat</strong> (<code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code> or str) – Contains the longitude and latitude of each
-of the observations in the <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>
-parameter</li>
-<li><strong>gridLimit</strong> (<em>dict</em>) – dictionary containing limits of regional grid
-Contains keys ‘xMin’, ‘xMax’, ‘yMin’, ‘yMax’</li>
-<li><strong>gridLimit</strong> – The bounds of the model domain. The
-<code class="xref py py-class docutils literal"><span class="pre">dict</span></code> should contain the keys
-<code class="xref py py-attr docutils literal"><span class="pre">xMin</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal"><span class="pre">yMin</span></code>
-and <code class="xref py py-attr docutils literal"><span class="pre">yMax</span></code>. The <em>x</em> variable bounds
+the data</p></li>
+<li><p><strong>lonLat</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> or str) – Contains the longitude and latitude of each
+of the observations in the <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>
+parameter</p></li>
+<li><p><strong>gridLimit</strong> (<em>dict</em>) – dictionary containing limits of regional grid
+Contains keys ‘xMin’, ‘xMax’, ‘yMin’, ‘yMax’</p></li>
+<li><p><strong>gridLimit</strong> – The bounds of the model domain. The
+<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> should contain the keys
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">xMin</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">xMax</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">yMin</span></code>
+and <code class="xref py py-attr docutils literal notranslate"><span class="pre">yMax</span></code>. The <em>x</em> variable bounds
 the longitude and the <em>y</em> variable
-bounds the latitude.</li>
-<li><strong>gridSpace</strong> (<em>dict</em>) – The default grid cell size. The <code class="xref py py-class docutils literal"><span class="pre">dict</span></code>
-should contain keys of <code class="xref py py-attr docutils literal"><span class="pre">x</span></code> and
-<code class="xref py py-attr docutils literal"><span class="pre">y</span></code>. The <em>x</em> variable defines the
+bounds the latitude.</p></li>
+<li><p><strong>gridSpace</strong> (<em>dict</em>) – The default grid cell size. The <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>
+should contain keys of <code class="xref py py-attr docutils literal notranslate"><span class="pre">x</span></code> and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">y</span></code>. The <em>x</em> variable defines the
 longitudinal grid size, and the <em>y</em>
-variable defines the latitudinal size.</li>
-<li><strong>gridInc</strong> (<em>dict</em>) – The increment in grid size, for those cells
+variable defines the latitudinal size.</p></li>
+<li><p><strong>gridInc</strong> (<em>dict</em>) – The increment in grid size, for those cells
 that do not contain sufficient observations
-for generating distributions. The <code class="xref py py-class docutils literal"><span class="pre">dict</span></code>
-should contain the keys <code class="xref py py-attr docutils literal"><span class="pre">x</span></code> and
-<code class="xref py py-attr docutils literal"><span class="pre">y</span></code>. The <em>x</em> variable defines the
+for generating distributions. The <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>
+should contain the keys <code class="xref py py-attr docutils literal notranslate"><span class="pre">x</span></code> and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">y</span></code>. The <em>x</em> variable defines the
 longitudinal grid increment, and the <em>y</em>
-variable defines the latitudinal increment.</li>
-<li><strong>minSample</strong> (<em>int</em>) – Minimum number of valid observations
+variable defines the latitudinal increment.</p></li>
+<li><p><strong>minSample</strong> (<em>int</em>) – Minimum number of valid observations
 required to generate distributions. If
 insufficient observations are found in a
 grid cell, then it is incrementally expanded
-until <code class="docutils literal"><span class="pre">minSample</span></code> is reached.</li>
-<li><strong>angular</strong> (<em>boolean</em>) – If <code class="docutils literal"><span class="pre">True</span></code> the data represents an angular
-variable (e.g. bearings). Default is <code class="docutils literal"><span class="pre">False</span></code>.</li>
+until <code class="docutils literal notranslate"><span class="pre">minSample</span></code> is reached.</p></li>
+<li><p><strong>angular</strong> (<em>boolean</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> the data represents an angular
+variable (e.g. bearings). Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="StatInterface.generateStats.GenerateStats.calculate">
-<code class="descname">calculate</code><span class="sig-paren">(</span><em>cellNum</em>, <em>onLand</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.calculate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calculate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cellNum</span></em>, <em class="sig-param"><span class="n">onLand</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.calculate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the required statistics (mean, variance,
 autocorrelation and regularized anomaly coefficient) for the
 given cell.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cellNum</strong> (<em>int</em>) – The cell number to process.</li>
-<li><strong>onLand</strong> (<em>boolean</em>) – If <code class="docutils literal"><span class="pre">True</span></code>, then the cell is (mostly
-or entirely) over land. If <code class="docutils literal"><span class="pre">False</span></code>,
-the cell is over water.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cellNum</strong> (<em>int</em>) – The cell number to process.</p></li>
+<li><p><strong>onLand</strong> (<em>boolean</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, then the cell is (mostly
+or entirely) over land. If <code class="docutils literal notranslate"><span class="pre">False</span></code>,
+the cell is over water.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">mean, standard deviation, autocorrelation, residual
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>mean, standard deviation, autocorrelation, residual
 correlation and the minimum parameter value.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.generateStats.GenerateStats.calculateStatistics">
-<code class="descname">calculateStatistics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.calculateStatistics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calculateStatistics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.calculateStatistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cycle through the cells and calculate the statistics
 for the variable.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.generateStats.GenerateStats.extractParameter">
-<code class="descname">extractParameter</code><span class="sig-paren">(</span><em>cellNum</em>, <em>onLand</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.extractParameter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extractParameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cellNum</span></em>, <em class="sig-param"><span class="n">onLand</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.extractParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extracts the cyclone parameter data for the given cell.
 If the population of a cell is insufficient for generating a
 PDF, the bounds of the cell are expanded until the population is
 sufficient.</p>
 <p>Null/missing values are removed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cellNum</strong> (<em>int</em>) – The cell number to process.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None. The <code class="xref py py-attr docutils literal"><span class="pre">parameter</span></code> attribute is updated.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><strong>IndexError</strong> – if the cell number is not valid
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cellNum</strong> (<em>int</em>) – The cell number to process.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None. The <code class="xref py py-attr docutils literal notranslate"><span class="pre">parameter</span></code> attribute is updated.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>IndexError</strong> – if the cell number is not valid
 (i.e. if it is outside the possible
-range of cell numbers).</td>
-</tr>
-</tbody>
-</table>
+range of cell numbers).</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.generateStats.GenerateStats.load">
-<code class="descname">load</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.load" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load pre-calculated statistics from a netcdf file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – Path to the netcdf-format file containing
-the statistics.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Path to the netcdf-format file containing
+the statistics.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.generateStats.GenerateStats.plotStatistics">
-<code class="descname">plotStatistics</code><span class="sig-paren">(</span><em>output_file</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.plotStatistics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plotStatistics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">output_file</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.plotStatistics" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="StatInterface.generateStats.GenerateStats.save">
-<code class="descname">save</code><span class="sig-paren">(</span><em>filename</em>, <em>description=''</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.save" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">description</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.GenerateStats.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save parameters to a netcdf file for later access.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) – Path to the netcdf file to be created.</li>
-<li><strong>description</strong> (<em>str</em>) – Name of the parameter.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Path to the netcdf file to be created.</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – Name of the parameter.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="StatInterface.generateStats.acf">
-<code class="descname">acf</code><span class="sig-paren">(</span><em>p</em>, <em>nlags=1</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.acf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">acf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">nlags</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.acf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Autocorrelation coefficient</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>p</strong> (1-d <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code>) – array of values to calculate autocorrelation coefficient</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>p</strong> (1-d <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – array of values to calculate autocorrelation coefficient</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="StatInterface.generateStats.parameters">
-<em class="property">class </em><code class="descname">parameters</code><span class="sig-paren">(</span><em>numCells</em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Description: Create an object that holds <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray`s</span>
+<em class="property">class </em><code class="sig-name descname">parameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">numCells</span></em><span class="sig-paren">)</span><a class="headerlink" href="#StatInterface.generateStats.parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Description: Create an object that holds <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray`s</span>
 <span class="pre">of</span> <span class="pre">the</span> <span class="pre">statistical</span> <span class="pre">properties</span> <span class="pre">of</span> <span class="pre">each</span> <span class="pre">grid</span> <span class="pre">cell.</span> <span class="pre">There</span> <span class="pre">are</span>
 <span class="pre">:class:`numpy.ndarray</span></code> for both land and sea cells.</p>
 <p>mu/lmu : array of mean values of parameter for each grid cell
@@ -1036,16 +919,14 @@ phi/lphi : array of normalisation values for random variations</p>
 
 </div>
 </div>
-<div class="section" id="module-StatInterface">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-StatInterface" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-0">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-0" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -1054,12 +935,14 @@ phi/lphi : array of normalisation values for random variations</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2017.
-      Last updated on Oct 19, 2017.
+        &copy; Copyright Commonwealth of Australia (Geoscience Australia) 2020
+      <span class="lastupdated">
+        Last updated on Nov 02, 2020.
+      </span>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1072,36 +955,15 @@ phi/lphi : array of normalisation values for random variations</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'v2.0.2',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
+
+  
+  
+    
    
 
 </body>
