@@ -21,7 +21,6 @@ import numpy.ma as ma
 from matplotlib.figure import Figure
 import cartopy
 
-from Utilities.smooth import smooth
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import seaborn as sns
 
@@ -551,16 +550,13 @@ class MaskedArrayMapFigure(ArrayMapFigure):
 
 class HazardMap(FilledContourMapFigure):
     """
-    A map for presenting return level data. Ocean areas are masked, and
-    the data is smoothed using a Gaussian kernel.
+    A map for presenting return level data. 
 
     """
     def plot(self, data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs):
-        # Smooth the data to reduce 'lines-on-a-map' inferences:
-        dx = np.mean(np.diff(xgrid))
-        dmask = data.mask
-        #data = smooth(data, int(1/dx))
-        data = ma.array(data, mask=dmask)
+        #dx = np.mean(np.diff(xgrid))
+        #dmask = data.mask
+        #data = ma.array(data, mask=dmask)
         self.add(data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs)
         self.cmap = sns.light_palette("orange", as_cmap=True)
         super(HazardMap, self).plot()

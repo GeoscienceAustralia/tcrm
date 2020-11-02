@@ -84,6 +84,7 @@ PARSERS = {
     'Hazard_samplesize': int,
     'Hazard_percentilerange': int,
     'Hazard_extremevaluedistribution': str,
+    'Hazard_SmoothPlots': parseBool,
     'Input_landmask': str,
     'Input_locationfile': str,
     'Input_mslpgrid': parseList,
@@ -191,6 +192,7 @@ PercentileRange=90
 SampleSize=50
 PlotSpeedUnits=mps
 ExtremeValueDistribution=GPD
+SmoothPlots=True
 
 [RMW]
 GetRMWDistFromInputData=False
