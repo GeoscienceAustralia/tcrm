@@ -117,6 +117,10 @@ PARSERS = {
     'TCRM_numberofheadinglines': int,
     'TCRM_pressureunits': str,
     'TCRM_speedunits': str,
+    'Timeseries_Extract': parseBool,
+    'Timeseries_LocationFile': str,
+    'Timeseries_StationID': str,
+    'Timeseries_Windfields': parseBool,
     'TrackGenerator_numsimulations': int,
     'TrackGenerator_seasonseed': int,
     'TrackGenerator_trackseed': int,
@@ -207,6 +211,12 @@ Datasets=IBTRACS,LTMSLP
 [Output]
 Path=output
 Format=txt
+
+[Timeseries]
+Extract=False
+StationID=WMO
+LocationFile=./input/stationlist.shp
+Windfields=False
 
 [Logging]
 ProgressBar=False
