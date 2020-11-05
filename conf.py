@@ -53,7 +53,7 @@ copyright = 'Commonwealth of Australia (Geoscience Australia) 2020'
 # built documents.
 #
 # The short X.Y version.
-version = '2.1'
+version = '3.1.3'
 # The full version, including alpha/beta/rc tags.
 release = latest_tag.name
 

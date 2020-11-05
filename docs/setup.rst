@@ -182,9 +182,13 @@ from 1981--2013, we set the value to 30.
 
 ``NumTimeSteps`` controls the maximum lifetime an event can exist
 for. ``TimeStep`` sets the time interval (in hours) for the track
-generator. ``SeasonSeed`` and ``TrackSeed`` are used to fix the random
+generator. 
+
+``SeasonSeed`` and ``TrackSeed`` are used to fix the random
 number generator on parallel systems to ensure truly random numbers on
-each individual processor. ::
+each individual processor. If they are absent, the seed is set using an integer
+representation of the current time, and is recorded in the output metadata (e.g.
+attributes in the netcdf files). ::
 
     [TrackGenerator]
     NumSimulations = 500
@@ -478,16 +482,16 @@ database. The format should use Python's `datetime
 formats.  ::
 
     [IBTRACS]
-    URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
-    path=input
-    filename=Allstorms.ibtracs_wmo.v03r05.csv
-    Columns=tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
-    FieldDelimiter=,
-    NumberOfHeadingLines=3
-    PressureUnits=hPa
-    LengthUnits=km
-    DateFormat=%Y-%m-%d %H:%M:%S
-    SpeedUnits=kph
+    URL = https://www.ncei.noaa.gov/data/international-best-track-archive-for-climate-stewardship-ibtracs/v04r00/access/csv/ibtracs.since1980.list.v04r00.csv
+    path = input
+    Filename = ibtracs.since1980.list.v04r00.csv
+    Columns = tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
+    FieldDelimiter = ,
+    NumberOfHeadingLines = 2
+    PressureUnits = hPa
+    LengthUnits = km
+    SpeedUnits = kph
+    DateFormat = %Y-%m-%d %H:%M:%S
  
 .. _references:
 

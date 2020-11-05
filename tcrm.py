@@ -261,7 +261,8 @@ def doDataProcessing(configFile):
 @disableOnWorkers
 def doDataPlotting(configFile):
     """
-    Plot the pre-processed input data.
+    Plot the pre-processed input data. Requires the Data Processing step to have
+    been executed first (``Actions -- DataProcess = True``)
 
     :param str configFile: Name of configuration file.
 
