@@ -36,7 +36,6 @@ from Utilities.files import flStartLog
 from Utilities.version import version
 from Utilities.progressbar import SimpleProgressBar as ProgressBar
 from Evaluate import interpolateTracks
-from PlotInterface.maps import saveWindfieldMap
 
 __version__ = version()
 
@@ -119,6 +118,8 @@ def doWindfieldPlotting(configFile):
     """
     from netCDF4 import Dataset
     import numpy as np
+    from PlotInterface.maps import saveWindfieldMap
+
     config = ConfigParser()
     config.read(configFile)
     outputPath = config.get('Output', 'Path')
@@ -205,7 +206,9 @@ def main(configFile):
     import impact
     impact.run_optional(config)
 
-    doWindfieldPlotting(configFile)
+    if config.getboolean('WindfieldInterface', 'PlotOutput'):
+        doWindfieldPlotting(configFile)
+
     if config.getboolean('Timeseries', 'Extract'):
         doTimeseriesPlotting(configFile)
 

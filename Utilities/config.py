@@ -137,7 +137,8 @@ PARSERS = {
     'WindfieldInterface_thetamax': float,
     'WindfieldInterface_trackfile': str,
     'WindfieldInterface_trackpath': str,
-    'WindfieldInterface_windfieldtype': str}
+    'WindfieldInterface_windfieldtype': str,
+    'WindfieldInterface_plotoutput': parseBool}
 
 DEFAULTS = """
 [Actions]
