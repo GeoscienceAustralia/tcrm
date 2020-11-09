@@ -31,6 +31,7 @@ from os.path import join as pjoin
 from Utilities.config import ConfigParser
 
 from Utilities.maputils import find_index
+from Utilities.smooth import smooth
 import Utilities.nctools as nctools
 from Utilities import pathLocator
 from Utilities import metutils
@@ -87,6 +88,7 @@ class AutoPlotHazard(object):
         self.ciBounds = config.getboolean('Hazard', 'CalculateCI')
         self.fit = config.get('Hazard', 'ExtremeValueDistribution')
         self.numsimulations = config.getint("TrackGenerator", "NumSimulations")
+        self.smooth = config.getboolean("Hazard", "SmoothPlots")
 
         self.progressbar = progressbar
 
@@ -112,12 +114,18 @@ class AutoPlotHazard(object):
 
         for i, year in enumerate(years):
             log.debug("Plotting %d-year return period hazard map", year)
-            title = '%d-Year Return Period Cyclonic Wind Hazard' % (year)
+            title = '%d-Year ARI Cyclonic Wind Hazard' % (year)
             imageFilename = '%d_yrRP_hazard_map.png' % (year)
             filename = pjoin(self.plotPath, imageFilename)
             cbarlab = "Wind speed (%s)"%self.plotUnits.units
             levels = self.plotUnits.levels
-            saveHazardMap(inputData[i, :, :], xgrid, ygrid, title, levels,
+            if self.smooth:
+                dx = np.mean(np.diff(xgrid))
+                data = smooth(inputData[i, :, :], int(1/dx))
+            else:
+                data = inputData[i, :, :]
+
+            saveHazardMap(data, xgrid, ygrid, title, levels,
                           cbarlab, map_kwargs, filename)
 
             self.progressbar.update((i + 1) / float(len(years)), 0.0, 0.9)

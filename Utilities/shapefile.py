@@ -892,7 +892,10 @@ class Writer:
                     value = str(value)[0].upper()
                 else:
                     value = str(value)[:size].ljust(size)
-                assert len(value) == size
+                try:
+                    assert len(value) == size
+                except AssertionError:
+                    raise AssertionError("Length of value exceeds the size allocated for the field")
                 value = b(value)
                 f.write(value)
 

@@ -35,7 +35,7 @@ TCRM_FIELD_NAMES = ('CycloneNumber', 'TimeElapsed', 'Longitude', 'Latitude',
                     'Speed', 'Bearing', 'CentralPressure', 'EnvPressure',
                     'rMax','Category')
 TCRM_FIELD_TYPES = ('N',) * 10
-TCRM_FIELD_WIDTH = (2, 6, 9, 9, 8, 8, 8, 8, 8, 1)
+TCRM_FIELD_WIDTH = (6, 7, 9, 9, 8, 8, 8, 8, 8, 1)
 TCRM_FIELD_PREC =  (0, 2, 4, 4, 4, 4, 3, 3, 4, 0)
 
 TCRM_FIELDS = [[n, t, w, p] for n, t, w, p in zip(TCRM_FIELD_NAMES,

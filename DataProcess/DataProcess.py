@@ -170,19 +170,21 @@ class DataProcess(object):
 
         if config.has_option('DataProcess', 'InputFile'):
             inputFile = config.get('DataProcess', 'InputFile')
+            self.logger.info(f"Input file from DataProcess: {inputFile}")
 
         if config.has_option('DataProcess', 'Source'):
             source = config.get('DataProcess', 'Source')
-            self.logger.info('Loading %s dataset', source)
-            fn = config.get(source, 'filename')
-            path = config.get(source, 'path')
+            self.logger.info(f"Loading {source} dataset")
+            fn = config.get(source, 'Filename')
+            path = config.get(source, 'Path')
             inputFile = pjoin(path, fn)
+            self.logger.info(f"Input file set to {inputFile}")
 
         # If input file has no path information, default to tcrm input folder
         if len(os.path.dirname(inputFile)) == 0:
             inputFile = pjoin(self.tcrm_input_dir, inputFile)
 
-        self.logger.info("Processing {0}".format(inputFile))
+        self.logger.info(f"Processing {inputFile}")
 
         self.source = config.get('DataProcess', 'Source')
 
@@ -218,8 +220,8 @@ class DataProcess(object):
         except (ValueError, KeyError):
 
             try:
-                self.logger.info(("Filtering input data by season:"
-                                  "season > {0}". format(startSeason)))
+                self.logger.info(("Filtering input data by season: "
+                                  f"season >= {startSeason}"))
                 # Find indicies that satisfy minimum season filter
                 idx = np.where(inputData['season'] >= startSeason)[0]
                 # Filter records:
@@ -263,7 +265,7 @@ class DataProcess(object):
         flSaveFile(self.origin_year, np.transpose(origin_seasonOrYear),
                    header, ',', fmt='%d')
 
-        pressure = np.array(inputData['pressure'], 'd')
+        pressure = np.array(inputData['pressure'], 'float32')
         novalue_index = np.where(pressure == sys.maxsize)
         pressure = metutils.convert(pressure, inputPressureUnits, "hPa")
         pressure[novalue_index] = sys.maxsize
@@ -278,7 +280,7 @@ class DataProcess(object):
             self.progressbar.update(0.25)
 
         try:
-            vmax = np.array(inputData['vmax'], 'd')
+            vmax = np.array(inputData['vmax'], 'float32')
         except (ValueError, KeyError):
             self.logger.warning("No max wind speed data")
             vmax = np.empty(indicator.size, 'f')

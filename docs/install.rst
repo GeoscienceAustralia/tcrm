@@ -4,7 +4,7 @@ Installation
 ============
 
 Installing TCRM is intended to be a simple process, requiring only basic
-understanding of command line operations. TCRM has been installed and (lightly)
+understanding of command line operations. TCRM has been installed and 
 tested on a range of unix-based systems, Windows and Mac OS/X systems.
 
 .. _downloading:
@@ -23,6 +23,81 @@ Those wanting to contribute to development can `fork
 <https://github.com/GeoscienceAustralia/tcrm/fork>`_ the
 repository. Submit a pull request to have your changes integrated into
 TCRM.
+
+.. _dependencies:
+
+Dependencies
+------------
+
+TCRM relies on a number of additional libraries that are not part of
+the standard library. There are several ways to obtain the required
+libraries -- using Python's recommended tool `pip
+<https://pip.readthedocs.org/en/latest/>`_, installing a distribution
+such as `Python(x,y) package <http://code.google.com/p/pythonxy/>`_
+(for Windows environments) or `Anaconda
+<https://www.anaconda.com/distribution/#download-section>`_ (cross-platform), or
+installing the libraries from source or binary installers
+(pre-compiled binary Windows installer versions for all the libraries
+(both 32-bit and 64-bit) can be obtained `here
+<http://www.lfd.uci.edu/~gohlke/pythonlibs/>`_).
+
+For detailed instructions on installation of these dependencies,
+please see the documentation for each individual library.
+
+* `Python <https://www.python.org/>`_ - v3.5 or later
+* `Numpy <http://www.numpy.org/>`_ - v1.6 or later
+* `Scipy <http://www.scipy.org/>`_ - v0.12 or later
+* `Matplotlib <http://matplotlib.org/>`_ v1.2 or later. 
+* `Basemap <http://matplotlib.org/basemap/index.html>`_
+* `netcdf4-python <https://code.google.com/p/netcdf4-python/>`_ -
+  version 1.0.8 or later
+* `Shapely <http://toblerity.org/shapely/index.html>`_ - v1.2.15 or later
+* `statsmodels <http://statsmodels.sourceforge.net>`_ 
+* `seaborn <http://seaborn.pydata.org>`_
+* `pandas <http://pandas.pydata.org>`_
+* `gitpython <http://gitpython.readthedocs.org>`_
+* Parallel execution in multi-processor environments (with MPI
+  installed) requires `mpi4py <https://mpi4py.readthedocs.io/>`_
+
+Using pip
+~~~~~~~~~
+
+If you have `pip <https://pip.readthedocs.org/en/latest/>`_ installed,
+the required modules can be installed using the following command,
+executed in the main TCRM directory
+
+.. code-block:: bash
+
+    pip -v install -r requirements.txt
+
+This will automatically build the required libraries (listed in the
+``requirements.txt`` file) and any dependencies. ``pip`` must be on
+the ``$PATH`` for this to work.
+
+.. _compilation:
+
+
+Using Anaconda
+~~~~~~~~~~~~~~
+
+To install ``tcrm``, make a new environment:
+
+.. code-block:: bash
+
+    conda env create -f tcrmenv.yml
+
+After creating the environment the user needs to move to that environment using the command
+
+.. code-block:: bash
+
+     conda activate tcrm
+
+The bash promt will look like
+
+.. code-block::
+
+    (tcrm) user@server:~/tcrm$
+
 
 .. _environment:
 
@@ -115,8 +190,6 @@ This will automatically build the required libraries (listed in the
 ``requirements.txt`` file) and any dependencies. ``pip`` must be on
 the ``$PATH`` for this to work.
 
-.. _compilation:
-
 
 Using Anaconda
 ~~~~~~~~~~~~~~
@@ -139,6 +212,8 @@ The bash promt will look like
 
     (tcrm) user@server:~/tcrm$
 
+
+.. _compilation:
 
 Windows
 ~~~~~~~

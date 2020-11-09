@@ -84,6 +84,7 @@ PARSERS = {
     'Hazard_samplesize': int,
     'Hazard_percentilerange': int,
     'Hazard_extremevaluedistribution': str,
+    'Hazard_SmoothPlots': parseBool,
     'Input_landmask': str,
     'Input_locationfile': str,
     'Input_mslpgrid': parseList,
@@ -116,6 +117,10 @@ PARSERS = {
     'TCRM_numberofheadinglines': int,
     'TCRM_pressureunits': str,
     'TCRM_speedunits': str,
+    'Timeseries_Extract': parseBool,
+    'Timeseries_LocationFile': str,
+    'Timeseries_StationID': str,
+    'Timeseries_Windfields': parseBool,
     'TrackGenerator_numsimulations': int,
     'TrackGenerator_seasonseed': int,
     'TrackGenerator_trackseed': int,
@@ -191,6 +196,7 @@ PercentileRange=90
 SampleSize=50
 PlotSpeedUnits=mps
 ExtremeValueDistribution=GPD
+SmoothPlots=True
 
 [RMW]
 GetRMWDistFromInputData=False
@@ -205,6 +211,12 @@ Datasets=IBTRACS,LTMSLP
 [Output]
 Path=output
 Format=txt
+
+[Timeseries]
+Extract=False
+StationID=WMO
+LocationFile=./input/stationlist.shp
+Windfields=False
 
 [Logging]
 ProgressBar=False
