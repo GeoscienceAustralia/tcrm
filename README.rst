@@ -79,8 +79,8 @@ Status
     :target: https://landscape.io/github/GeoscienceAustralia/tcrm/develop
     :alt: Code Health
     
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3741493.svg
-   :target: https://doi.org/10.5281/zenodo.3741493
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4070660.svg
+   :target: https://doi.org/10.5281/zenodo.4070660
 
 Screenshot
 ==========

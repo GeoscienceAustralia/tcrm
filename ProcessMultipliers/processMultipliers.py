@@ -73,7 +73,6 @@ import numpy.ma as ma
 
 from osgeo import osr, gdal, gdalconst
 from osgeo.gdal_array import BandReadAsArray, CopyDatasetInfo, BandWriteArray
-from gdal import *
 
 from netCDF4 import Dataset
 
