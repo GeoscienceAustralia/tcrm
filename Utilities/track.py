@@ -199,6 +199,24 @@ def ncReadTrackData(trackfile):
         raise IOError("Cannot open {0}".format(trackfile))
 
     g = ncobj.groups
+    if not bool(g):
+        # We have a track file that stores data in separate variables
+        log.debug(f"Reading data from a single track file")
+        dt = ncobj.variables['Datetime']
+        units = ncobj.getncattr('time_units')
+        calendar = ncobj.getncattr('calendar')
+        dtt = num2date(dt[:], units, calendar)
+        newtd = np.zeros(len(dtt), dtype=track_dtype)
+        for f in ncobj.variables.keys():
+            if f != 'Datetime' and f in track_dtype.names:
+                newtd[f] = ncobj.variables[f][:]
+        newtd['Datetime'] = dtt
+        track = Track(newtd)
+        track.trackfile = trackfile
+        track.trackId = eval(ncobj.trackId)
+
+        return [track]
+
     tracks = []
     if 'tracks' in g:
         tgroup = g['tracks'].groups
