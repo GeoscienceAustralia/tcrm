@@ -196,8 +196,8 @@ class MapFigure(Figure):
                               draw_labels=True)
         gl.xformatter = LONGITUDE_FORMATTER
         gl.yformatter = LATITUDE_FORMATTER
-        gl.xlabels_top = False
-        gl.ylabels_right = False
+        gl.top_labels = False
+        gl.right_labels = False
 
     def addCoastline(self, mapobj):
         """

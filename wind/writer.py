@@ -111,7 +111,7 @@ class WriteFoliationCallback(object):
         t = len(self.time)
 
         if not t:
-            self.time.units = "days since " + time.strftime()
+            self.time.units = "days since " + time.strftime("%Y-%m-%d %H:%M")
 
         # convert window extent to slice indices
         origin = np.rint(self.affine * (lon[0], lat[0])).astype(int)
