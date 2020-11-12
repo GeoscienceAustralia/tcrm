@@ -38,7 +38,7 @@ class Yasi_Example(unittest.TestCase):
         self.addCleanup(Utilities.config.reset)
 
         self.tmpdir = tempfile.TemporaryDirectory()
-        self.addCleanup(self.tmpdir.cleanup)
+        #self.addCleanup(self.tmpdir.cleanup)
 
         self.configFile = os.path.join(
                             Utilities.pathLocator.getRootDirectory(),
@@ -48,6 +48,7 @@ class Yasi_Example(unittest.TestCase):
         config = Utilities.config.ConfigParser()
         config.read(self.configFile)
         config['Output']['Path'] = self.tmpdir.name
+        config['WindfieldInterface']['PlotOutput'] = 'True'
 
     @decimate(100)
     def test_scenario(self):
@@ -71,5 +72,8 @@ class Yasi_Example(unittest.TestCase):
             self.assertGreater(white.sum() / pixels, 0.2) # substantial space
             self.assertGreater(color.sum() / pixels, 0.05) # significant color
 
+        from time import sleep
+        sleep(1)
+        
 if __name__ == '__main__':
     unittest.main()
