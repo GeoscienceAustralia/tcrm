@@ -8,11 +8,11 @@ os:
   - windows
 
 before_install:
-  - source ./preinstall_nix_win.sh
+  - source ./preinstall.sh
 
 install:
   - sudo apt-get update
-  - source postinstall.sh
+  - source ./postinstall.sh
 
 branches:
   except:
