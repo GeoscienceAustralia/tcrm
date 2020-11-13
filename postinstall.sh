@@ -23,7 +23,7 @@ fi;
 source $MINICONDA_PATH/etc/profile.d/conda.sh;
 hash -r;
 echo $TRAVIS_OS_NAME
-echo $CONDA_PYTHON
+echo $PYTHON_VERSION
 python --version
 conda config --set always_yes yes --set changeps1 no;
 conda update -q conda;
@@ -33,6 +33,6 @@ conda config --set channel_priority strict;
 conda info -a
 
 echo "Create TCRM environment"
-conda env create -q -f tcrmenv.yml python=$TRAVIS_PYTHON_VERSION;
+conda env create -q -f tcrmenv.yml python=$PYTHON_VERSION;
 conda activate tcrm
 conda list

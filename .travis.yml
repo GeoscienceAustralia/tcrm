@@ -1,8 +1,10 @@
-language: python
-python:
-  - '3.6'
-  - '3.7'
-  - '3.8'
+language: shell
+
+env:
+  - PYTHON_VERSION=3.6
+  - PYTHON_VERSION=3.7
+  - PYTHON_VERSION=3.8
+
 os: 
   - linux
   - windows
@@ -18,9 +20,11 @@ branches:
   except:
     - config
     - notebooks
+
 script:
   - python installer/setup.py build_ext -i
   - nosetests -v --with-coverage --cover-package=.
+
 after_success: coveralls
 notifications:
   slack:
