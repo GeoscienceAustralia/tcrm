@@ -35,4 +35,5 @@ conda info -a
 echo "Create TCRM environment"
 conda env create -q -f tcrmenv.yml python=$PYTHON_VERSION;
 conda activate tcrm
+python --version
 conda list
