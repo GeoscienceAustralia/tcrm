@@ -25,6 +25,13 @@ hash -r;
 echo $TRAVIS_OS_NAME
 echo $PYTHON_VERSION
 python --version
+
+if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+    echo "Removing mpi4py from environment for windows build"
+    echo "Package not available in conda channels"
+    sed -i '/mpi4py/d' ./tcrmenv.yml
+fi
+
 conda config --set always_yes yes --set changeps1 no;
 conda update -q conda;
 conda config --add channels conda-forge;
