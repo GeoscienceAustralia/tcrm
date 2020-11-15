@@ -13,7 +13,6 @@ before_install:
   - source ./preinstall.sh
 
 install:
-  - sudo apt-get update
   - source ./postinstall.sh
 
 branches:
