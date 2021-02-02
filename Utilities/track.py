@@ -101,9 +101,12 @@ class Track(object):
 
         return self.data[key]
 
+    def __repr__(self):
+        return "<Track of dtype [{}]>".format(", ".join(self.data.dtype.names))
+
     def inRegion(self, gridLimit):
         """
-        Check if the tropical cyclone track falls entirely within a region.
+        Check if the tropical cyclone track starts within a region.
 
         :type  gridLimit: :class:`dict`
         :param gridLimit: the region to check.
@@ -119,10 +122,10 @@ class Track(object):
         yMin = gridLimit['yMin']
         yMax = gridLimit['yMax']
 
-        return ((xMin <= np.min(self.Longitude)) and
-                (np.max(self.Latitude) <= xMax) and
-                (yMin <= np.min(self.Latitude)) and
-                (np.max(self.Latitude) <= yMax))
+        return ((xMin <= self.Longitude[0]) and
+                (self.Longitude[0] <= xMax) and
+                (yMin <= self.Latitude[0]) and
+                (self.Latitude[0] <= yMax))
 
     def minimumDistance(self, points):
         """
@@ -197,8 +200,26 @@ def ncReadTrackData(trackfile):
         raise IOError("Cannot open {0}".format(trackfile))
 
     g = ncobj.groups
+    if not bool(g):
+        # We have a track file that stores data in separate variables
+        log.debug(f"Reading data from a single track file")
+        dt = ncobj.variables['Datetime']
+        units = ncobj.getncattr('time_units')
+        calendar = ncobj.getncattr('calendar')
+        dtt = num2date(dt[:], units, calendar)
+        newtd = np.zeros(len(dtt), dtype=track_dtype)
+        for f in ncobj.variables.keys():
+            if f != 'Datetime' and f in track_dtype.names:
+                newtd[f] = ncobj.variables[f][:]
+        newtd['Datetime'] = dtt
+        track = Track(newtd)
+        track.trackfile = trackfile
+        track.trackId = eval(ncobj.trackId)
+
+        return [track]
+
     tracks = []
-    if g.has_key('tracks'):
+    if 'tracks' in g:
         tgroup = g['tracks'].groups
         ntracks = len(tgroup)
         for i, (t, data) in enumerate(tgroup.items()):
@@ -304,7 +325,7 @@ def ncSaveTracks(trackfile, tracks,
         tvar.lon_units = 'degrees east'
         tvar.lat_units = 'degrees north'
         tvar.pressure_units = 'hPa'
-        tvar.speed_units = 'm/s'
+        tvar.speed_units = 'km/h'
         tvar.length_units = 'km'
         tvar.trackId = repr(t.trackId)
 

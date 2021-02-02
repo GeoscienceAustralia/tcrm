@@ -5,7 +5,7 @@
 This module contains the core objects for tropical cyclone track
 generation.
 
-Track generation can be run in parallel using MPI if the :term:`pypar`
+Track generation can be run in parallel using MPI if the :term:`mpi4py`
 library is found and TCRM is run using the :term:`mpirun` command. For
 example, to run with 10 processors::
 
@@ -27,15 +27,15 @@ Note the absence of a '-c' flag (c.f. the normal TCRM command line arguments).
 import os
 import sys
 
-from TrackGenerator import run
+from .TrackGenerator import run
 from Utilities.parallel import attemptParallel
 
 if __name__ == "__main__":
 
-    global pp
-    pp = attemptParallel()
+    global MPI
+    MPI = attemptParallel()
     import atexit
-    atexit.register(pp.finalize)
+    atexit.register(MPI.Finalize)
     try:
         configFile = sys.argv[1]
     except IndexError:
@@ -52,4 +52,4 @@ if __name__ == "__main__":
         raise IOError(errorMsg)
 
     run(configFile)
-    pp.finalize()
+    MPI.Finalize()

@@ -92,7 +92,7 @@ def fitRmax(rmw, dp, lat):
     params = list(results.params)
 
     r = results.resid
-    rf = stats.norm.fit(r, shape=np.mean(r), scale=np.std(r))
+    rf = stats.norm.fit(r, loc=np.mean(r), scale=np.std(r))
 
     params.append(rf[1])
     return params

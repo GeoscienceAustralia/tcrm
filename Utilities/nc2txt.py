@@ -38,17 +38,17 @@ def usage():
     """
     Short description of the program and how to run it
     """
-    print "nc2txt.py:"
-    print __version__
-    print "Usage:"
-    print "nc2txt.py -f <filename> -v <variable> [-r <record dimension>]"
-    print "Options:"
-    print "-f, --filename <input filename> - convert this file to an ascii grd format"
-    print "-v, --variable <variable name> - convert this variable"
-    print "-m, --missingvalue <missing value> - missing value as set in the input ncfile"
-    print "-r, --record <record dimension name> - if the variable has more"
-    print "      than 2 dimensions, this specifies the name of the third"
-    print "      dimension"
+    print("nc2txt.py:")
+    print(__version__)
+    print("Usage:")
+    print("nc2txt.py -f <filename> -v <variable> [-r <record dimension>]")
+    print("Options:")
+    print("-f, --filename <input filename> - convert this file to an ascii grd format")
+    print("-v, --variable <variable name> - convert this variable")
+    print("-m, --missingvalue <missing value> - missing value as set in the input ncfile")
+    print("-r, --record <record dimension name> - if the variable has more")
+    print("      than 2 dimensions, this specifies the name of the third")
+    print("      dimension")
 
 def process(argv):
     recdim = None
@@ -94,12 +94,12 @@ def process(argv):
         for i, v in enumerate(recval):
             outputfile = "%s.%s.%s"%(os.path.splitext(filename)[0],
                                      repr(recval[i]), 'txt')
-            print "Saving data to %s"%outputfile
+            print("Saving data to %s"%outputfile)
             grid.grdSave(outputfile, np.flipud(data[i]), lon, lat,
                          delta, delimiter=' ', nodata=mv, fmt='%6.2f')
     else:
         outputfile = "%s.%s"%(os.path.splitext(filename)[0], 'txt')
-        print "Saving data to %s"%outputfile
+        print("Saving data to %s"%outputfile)
         grid.grdSave(outputfile, np.flipud(data), lon, lat,
                      delta, delimiter=' ', nodata=mv, fmt='%6.2f')
 

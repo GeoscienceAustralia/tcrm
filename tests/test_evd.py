@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 
 from numpy.testing import assert_almost_equal
-from hazard.evd import estimateEVD
+from hazard.evd import gevfit, empfit
 
 
 class TestEvd(unittest.TestCase):
@@ -24,28 +24,53 @@ class TestEvd(unittest.TestCase):
 
     def testEVD(self):
         """Testing extreme value distribution"""
-        w, loc, scale, shp = estimateEVD(self.v,
-                                         self.years,
-                                         missingValue=-9999,
-                                         minRecords=3,
-                                         yrspersim=10)
+        w, loc, scale, shp = gevfit(self.v,
+                                    self.years,
+                                    nodata=-9999,
+                                    minrecords=3,
+                                    yrspersim=10)
 
         assert_almost_equal(w, self.w0, decimal=5)
         assert_almost_equal(loc, self.loc0, decimal=5)
         assert_almost_equal(scale, self.scale0, decimal=5)
         assert_almost_equal(shp, self.shp0, decimal=5)
 
-        w2, loc2, scale2, shp2 = estimateEVD(self.v,
-                                             self.years,
-                                             missingValue=-9999,
-                                             minRecords=50,
-                                             yrspersim=10)
+        w2, loc2, scale2, shp2 = gevfit(self.v,
+                                        self.years,
+                                        nodata=-9999,
+                                        minrecords=50,
+                                        yrspersim=10)
 
         assert_almost_equal(w2, np.ones(6) * self.missingValue, decimal=5)
         assert_almost_equal(loc2, self.missingValue, decimal=5)
         assert_almost_equal(scale2, self.missingValue, decimal=5)
         assert_almost_equal(shp2, self.missingValue, decimal=5)
 
+class TestEmpiricalFit(unittest.TestCase):
+
+    def setUp(self):
+        self.v = np.array([ 24.01518592,  20.71014074,  21.72734664,  23.55090159,
+                            22.55483303,  24.49634915,  24.21779962,  29.13960142,
+                            24.01517175,  29.22021474,  22.40286699,  21.95521168,
+                            25.37122473,  21.72289402,  22.99731093,  25.80831913,
+                            20.68754605,  24.0068121 ,  40.67975816,  24.31328418])
+
+        self.w = np.array([ 24.01515916,  25.80802   ,  29.22018164,  40.67662114])
+        self.nodata = -9999.
+
+    def testEmpFit(self):
+        """Test calculating empirical return levels"""
+        years = np.array([2, 5, 10, 20])
+        w, loc, scale, shp = empfit(self.v, years, 20)
+        assert_almost_equal(w, self.w)
+        assert_almost_equal(loc, self.nodata)
+        assert_almost_equal(shp, self.nodata)
+        assert_almost_equal(scale, self.nodata)
+
+
 if __name__ == "__main__":
     suite = unittest.makeSuite(TestEvd, 'test')
-    unittest.TextTestRunner().run(suite)
+    unittest.TextTestRunner(verbosity=2).run(suite)
+
+    suite = unittest.makeSuite(TestEmpiricalFit, 'test')
+    unittest.TextTestRunner(verbosity=2).run(suite)

@@ -31,8 +31,8 @@ from Utilities import pathLocator
 
 from PlotInterface.maps import FilledContourMapFigure, saveFigure, levels
 
-LOG = logging.getLogger(__name__)
-LOG.addHandler(logging.NullHandler())
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
 
 def loadTracks(trackfile):
     """
@@ -73,7 +73,7 @@ def loadTracksFromPath(path):
     files = os.listdir(path)
     trackfiles = [pjoin(path, f) for f in files if f.startswith('tracks')]
     msg = 'Processing %d track files in %s' % (len(trackfiles), path)
-    LOG.info(msg)
+    log.info(msg)
     return loadTracksFromFiles(sorted(trackfiles))
 
 class GenesisDensity(object):
@@ -166,7 +166,7 @@ class GenesisDensity(object):
 
         :param tracks: Collection of :class:`Track` objects.
         """
-        LOG.debug("Calculating PDF for set of {0:d} tracks".format(len(tracks)))
+        log.debug("Calculating PDF for set of {0:d} tracks".format(len(tracks)))
 
         hist = ma.zeros((len(self.lon_range) - 1,
                          len(self.lat_range) - 1))
@@ -216,7 +216,7 @@ class GenesisDensity(object):
     @disableOnWorkers
     def historic(self):
         """Load historic data and calculate histogram"""
-        LOG.info("Processing historic track records")
+        log.info("Processing historic track records")
         config = ConfigParser()
         config.read(self.configFile)
         inputFile = config.get('DataProcess', 'InputFile')
@@ -229,7 +229,7 @@ class GenesisDensity(object):
             tracks = loadTrackFile(self.configFile, inputFile, source)
 
         except (TypeError, IOError, ValueError):
-            LOG.critical("Cannot load historical track file: {0}".\
+            log.critical("Cannot load historical track file: {0}".\
                          format(inputFile))
             raise
         else:
@@ -239,9 +239,13 @@ class GenesisDensity(object):
                 startYr = min(startYr, min(t.Year))
                 endYr = max(endYr, max(t.Year))
             numYears = endYr - startYr
-            LOG.info("Range of years: %d - %d" % (startYr, endYr))
-            self.hist = self._calculate(tracks)
+            log.info("Range of years: %d - %d" % (startYr, endYr))
+            try:
+                self.hist = self._calculate(tracks)
             #self.hist = self._calculate(tracks) / numYears
+            except (ValueError):
+                log.critical("KDE error: The number of observations must be larger than the number of variables")
+                raise
 
     def synthetic(self):
         """Load synthetic data and calculate histogram"""
@@ -256,48 +260,48 @@ class GenesisDensity(object):
         work_tag = 0
         result_tag = 1
 
-        if (pp.rank() == 0) and (pp.size() > 1):
+        if (comm.rank == 0) and (comm.size > 1):
             w = 0
             n = 0
-            for d in range(1, pp.size()):
-                pp.send(trackfiles[w], destination=d, tag=work_tag)
-                LOG.debug("Processing track file {0:d} of {1:d}".\
+            for d in range(1, comm.size):
+                comm.Send(trackfiles[w], dest=d, tag=work_tag)
+                log.debug("Processing track file {0:d} of {1:d}".\
                           format(w, len(trackfiles)))
                 w += 1
 
             terminated = 0
-            while terminated < pp.size() - 1:
-                results, status = pp.receive(pp.any_source, tag=result_tag,
-                                             return_status=True)
+            while terminated < comm.size - 1:
+                results, status = comm.Recv(MPI.ANY_SOURCE, tag=result_tag,
+                                             status=True)
                 self.synHist[n, :, :] = results
                 n += 1
 
                 d = status.source
                 if w < len(trackfiles):
-                    pp.send(trackfiles[w], destination=d, tag=work_tag)
-                    LOG.debug("Processing track file {0:d} of {1:d}".\
+                    comm.Send(trackfiles[w], dest=d, tag=work_tag)
+                    log.debug("Processing track file {0:d} of {1:d}".\
                               format(w, len(trackfiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.Send(None, dest=d, tag=work_tag)
                     terminated += 1
 
             self.calculateMeans()
 
-        elif (pp.size() > 1) and (pp.rank() != 0):
+        elif (comm.size > 1) and (comm.rank != 0):
             while True:
-                trackfile = pp.receive(source=0, tag=work_tag)
+                trackfile = comm.Recv(source=0, tag=work_tag)
                 if trackfile is None:
                     break
 
-                LOG.debug("Processing %s", trackfile)
+                log.debug("Processing {0}".format(trackfile))
                 tracks = loadTracks(trackfile)
                 results = self._calculate(tracks) #/ self.synNumYears
-                pp.send(results, destination=0, tag=result_tag)
+                comm.Send(results, dest=0, tag=result_tag)
 
-        elif (pp.size() == 1) and (pp.rank() == 0):
+        elif (comm.size == 1) and (comm.rank == 0):
             for n, trackfile in enumerate(trackfiles):
-                LOG.debug("Processing track file {0:d} of {1:d}".\
+                log.debug("Processing track file {0:d} of {1:d}".\
                           format(n + 1, len(trackfiles)))
                 tracks = loadTracks(trackfile)
                 self.synHist[n, :, :] = self._calculate(tracks) #/ self.synNumYears
@@ -310,12 +314,12 @@ class GenesisDensity(object):
 
         # Simple sanity check (should also include the synthetic data):
         if not hasattr(self, 'hist'):
-            LOG.critical("No historical data available!")
-            LOG.critical(("Check that data has been processed "
+            log.critical("No historical data available!")
+            log.critical(("Check that data has been processed "
                           "before trying to save data"))
             return
 
-        LOG.info('Saving genesis density data to {0}'.format(dataFile))
+        log.info('Saving genesis density data to {0}'.format(dataFile))
         dimensions = {
             0: {
                 'name': 'lat',
@@ -460,16 +464,16 @@ class GenesisDensity(object):
 
     def run(self):
         """Run the track density evaluation"""
-        global pp
-        pp = attemptParallel()
-
+        global MPI, comm
+        MPI = attemptParallel()
+        comm = MPI.COMM_WORLD
         self.historic()
 
-        pp.barrier()
+        comm.barrier()
 
         self.synthetic()
 
-        pp.barrier()
+        comm.barrier()
 
         self.plotGenesisDensity()
         self.plotGenesisDensityPercentiles()

@@ -1,23 +1,52 @@
 # TCRM Plotting Configuration
 backend: TkAgg
-lines.linewidth: 0.5
-lines.markersize: 1
-font.size: 12.0
-text.color: black
-text.antialiased: True
-axes.titlesize: large
-axes.labelsize: small
-axes.labelcolor: black
-axes.color_cycle: k, b, g, r, c, m, y
+
+#### LINES
+lines.linewidth   : 0.5
+lines.linestyle   : -
+lines.markersize  : 1
+lines.color	  : k
+#### FONTS
+font.family       : sans-serif
+font.size         : 10.0
+font.style        : normal
+
+
+#### TEXT
+text.color        : black
+text.antialiased  : True
+
+#### AXES
+axes.titlesize    : large
+axes.labelsize    : small
+axes.labelcolor   : black
+axes.prop_cycle   : cycler('color', ['1f77b4', 'ff7f0e', '2ca02c', 'd62728', '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf'])
+
+#### LEGEND
 legend.fancybox: True
 legend.frameon: True
-xtick.direction: out
-ytick.direction: out
-xtick.labelsize: x-small
-ytick.labelsize: x-small
+
+#### TICKS
+xtick.direction   : out
+ytick.direction   : out
+xtick.labelsize   : x-small
+ytick.labelsize   : x-small
+
+#### CONTOURS
 contour.negative_linestyle: dashed
-figure.dpi: 300
-figure.figsize: 16, 12
+
+#### GRIDS
+grid.color        : 808080
+grid.linestyle    : --
+grid.linewidth    : 0.5
+grid.alpha        : 0.75
+
+#### FIGURES
+figure.dpi        : 300
+figure.figsize    : 12, 8
 figure.subplot.left: 0.0675
 figure.subplot.right: 0.9125
-image.cmap: Blues
+
+#### IMAGES
+image.aspect      : equal
+image.cmap        : viridis

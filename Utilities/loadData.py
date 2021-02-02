@@ -26,13 +26,13 @@ track files.
 import sys
 import logging
 import numpy as np
-import metutils
-import maputils
-import nctools
-import interp3d
+from . import metutils
+from . import maputils
+from . import nctools
+from . import interp3d
 
 from datetime import datetime, timedelta
-from columns import colReadCSV
+from .columns import colReadCSV
 from Utilities.config import ConfigParser, cnfGetIniValue
 from Utilities.track import Track, trackFields, trackTypes
 
@@ -100,7 +100,7 @@ class Track(object):
 bdeck = {
     "delimiter": ",",
     "names" : ("basin", "num", "date", "lat", "lon", "vmax", "pressure", "poci", "rmax"),
-    "dtype" : ("|S2", "i", "object", "f8", "f8", "f8", "f8", "f8", "f8"),
+    "dtype" : ("|U2", "i", "object", "f8", "f8", "f8", "f8", "f8", "f8"),
     "usecols" : (0, 1, 2, 6, 7, 8, 9, 17, 19),
     "converters" : {
                 0: lambda s: s.strip(),
@@ -118,7 +118,7 @@ bdeck = {
 ibtracs = {
     "delimiter" : ",",
     "names" : ("tcserialno", "season", "num", "date", "lat", "lon", "pressure"),
-    "dtype" : ("|S13", "i", "i", "object", "f8", "f8", "f8"),
+    "dtype" : ("|U13", "i", "i", "object", "f8", "f8", "f8"),
     "usecols" : (0, 1, 2, 6, 8, 9, 11),
     "converters" : {
                 0: lambda s: s.strip(),
@@ -153,7 +153,7 @@ tcrm = {
 """
 
 def getSpeedBearing(index, lon, lat, deltatime, ieast=1,
-                    missingValue=sys.maxint):
+                    missingValue=sys.maxsize):
     """
     Calculate the speed and bearing of a TC.
 
@@ -171,7 +171,7 @@ def getSpeedBearing(index, lon, lat, deltatime, ieast=1,
                       -1 = positive longiture westwards.
 
     :param missingValue: Replace questionable values with `missingValue`.
-    :type missingValue: int or float, default = `sys.maxint`
+    :type missingValue: int or float, default = `sys.maxsize`
 
 
     :returns: speed and bearing : :class:`numpy.ndarray`
@@ -310,16 +310,18 @@ def getInitialPositions(data):
     """
     try:
         indicator = np.array(data['index'], 'i')
-        LOG.debug("Using index contained in file to "
-                     "determine initial TC positions")
+        LOG.info("Using index contained in file to "
+                 "determine initial TC positions")
         return indicator
-    except (ValueError, KeyError):
+    except ValueError:
+        LOG.error("'index' field cannot be converted to integer")
+    except KeyError:
         pass
 
     try:
         tcSerialNo = data['tcserialno']
-        LOG.debug("Using TC serial number to determine initial "
-                     "TC positions")
+        LOG.info("Using TC serial number to determine initial "
+                 "TC positions")
         indicator = np.ones(len(tcSerialNo), 'i')
         for i in range(1, len(tcSerialNo)):
             if tcSerialNo[i] == tcSerialNo[i - 1]:
@@ -331,29 +333,37 @@ def getInitialPositions(data):
     try:
         num = np.array(data['num'], 'i')
         season = np.array(data['season'], 'i')
-        LOG.debug("Using season and TC number to determine initial "
-                     "TC positions")
+        LOG.info("Using season and TC number to determine initial "
+                 "TC positions")
         indicator = np.ones(num.size, 'i')
         for i in range(1, len(num)):
             if (season[i] == season[i - 1]) and (num[i] == num[i - 1]):
                 indicator[i] = 0
         return indicator
-    except (ValueError, KeyError):
+    except KeyError:
         pass
+    except ValueError:
+        LOG.error("'num' field cannot be converted to an integer")
+
 
     try:
         num = np.array(data['num'], 'i')
-        LOG.debug("Using TC number to determine initial TC positions "
-                     "(no season information)")
+        LOG.info("Using TC number to determine initial TC positions "
+                 "(no season information)")
         indicator = np.ones(num.size, 'i')
         ind_ = np.diff(num)
         ind_[np.where(ind_ != 0)] = 1
         indicator[1:] = ind_
         return indicator
-    except (ValueError, KeyError):
+    except KeyError:
         pass
+    except ValueError:
+        LOG.error("'num' field cannot be converted to an integer")
 
-    raise ValueError('Insufficient input file columns have been specified')
+        
+    raise KeyError(('Insufficient input file columns have been specified'
+                    'Check the input file has enough fields to determine'
+                    'TC starting positions'))
 
 
 def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):
@@ -384,12 +394,12 @@ def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):
     minute = np.empty(len(dates), 'i')
     datetimes = np.empty(len(dates), datetime)
 
-    for i in xrange(len(dates)):
+    for i in range(len(dates)):
         try:
             d = datetime.strptime(str(dates[i]), datefmt)
         except ValueError as e:
             LOG.exception("Error in date information for record {0}".format(i))
-            LOG.exception(e.message)
+            LOG.exception(repr(e))
             raise
         else:
             year[i] = d.year
@@ -445,7 +455,7 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
         except (ValueError, KeyError):
             if hour.max() >= 100:
                 minute = np.mod(hour, 100)
-                hour = hour / 100
+                hour = hour // 100
             else:
                 LOG.warning("Missing minute data from input data" + \
                                "- setting minutes to 00 for all times")
@@ -603,14 +613,14 @@ def julianDays(year, month, day, hour, minute):
     jyear = np.copy(year)
     jyear[np.where(jyear < 1900)] = 1904
     day = [datetime(jyear[i], month[i], day[i], hour[i], minute[i],
-                    second[i]) for i in xrange(year.size)]
+                    second[i]) for i in range(year.size)]
 
     jdays = np.array([int(day[i].strftime("%j")) for
-                      i in xrange(year.size)])
+                      i in range(year.size)])
     return jdays
 
 
-def ltmPressure(jdays, time, lon, lat, ncfile):
+def ltmPressure(jdays, time, lon, lat, ncfile, ncvar='slp'):
     """
     Extract pressure value from a daily long-term mean SLP dataset at the
     given day of year and lon,lat position
@@ -623,6 +633,7 @@ def ltmPressure(jdays, time, lon, lat, ncfile):
     :param lat: Latitude of TC position.
     :param str ncfile: Path to netCDF file containing daily long-term mean
                        sea level pressure data.
+    :param str ncvar: Name of the netcdf variable that holds the SLP data
 
     :type  jdays: :class:`numpy.ndarray`
     :type  time: :class:`numpy.ndarray`
@@ -637,9 +648,12 @@ def ltmPressure(jdays, time, lon, lat, ncfile):
 
     LOG.debug("Sampling data from MSLP data in {0}".format(ncfile))
     ncobj = nctools.ncLoadFile(ncfile)
-    slpunits = getattr(ncobj.variables['slp'], 'units')
+    if ncvar not in ncobj.variables:
+        raise KeyError(f"{ncfile} does not contain a variable called '{ncvar}'")
+    
+    slpunits = getattr(ncobj.variables[ncvar], 'units')
 
-    data = nctools.ncGetData(ncobj, 'slp')
+    data = nctools.ncGetData(ncobj, ncvar)
     # Get the MSLP by interpolating to the location of the TC:
     penv = interp3d.interp3d(data, coords, scale=[365., 180., 360.],
                              offset=[0., -90., 0.])
@@ -654,7 +668,7 @@ def getPoci(penv, pcentre, lat, jdays, eps,
             coeffs=[2324.1564738613392, -0.6539853183796136,
                     -1.3984456535888878, 0.00074072928008818927,
                     0.0044469231429346088, -1.4337623534206905],
-            missingValue=sys.maxint):
+            missingValue=sys.maxsize):
     """
     Calculate a modified pressure for the outermost closed isobar, based
     on a model of daily long-term mean SLP values, central pressure,
@@ -708,7 +722,7 @@ def getPoci(penv, pcentre, lat, jdays, eps,
     
 
 def filterPressure(pressure, inputPressureUnits='hPa',
-                   missingValue=sys.maxint):
+                   missingValue=sys.maxsize):
     """
     Filter pressure values to remove any non-physical values.
 
@@ -719,7 +733,7 @@ def filterPressure(pressure, inputPressureUnits='hPa',
     :param missingValue: replace all null values in the input data
                          with this value.
     :type pressure: :class:`numpy.ndarray`
-    :type missingValue: int or float (default ``sys.maxint``)
+    :type missingValue: int or float (default ``sys.maxsize``)
 
     :returns: :class:`numpy.ndarray` with only valid pressure values.
 
@@ -736,13 +750,13 @@ def filterPressure(pressure, inputPressureUnits='hPa',
                         missingValue, pressure)
     return pressure
 
-def getMinPressure(track, missingValue=sys.maxint):
+def getMinPressure(track, missingValue=sys.maxsize):
     """
     Determine the minimum pressure of a :class:`Track` instance
 
     :param track: A :class:`Track` instance
     :param missingValue: Replace missing values with this value
-                         (default ``sys.maxint``).
+                         (default ``sys.maxsize``).
 
     :returns: :class:`Track.trackMinPressure` attribute updated
 
@@ -754,14 +768,14 @@ def getMinPressure(track, missingValue=sys.maxint):
     else:
         track.trackMinPressure = p[p != missingValue].min()
 
-def getMaxWind(track, missingValue=sys.maxint):
+def getMaxWind(track, missingValue=sys.maxsize):
     """
     Determine the maximum wind speed of a :class:`Track` instance
 
     :param track: A :class:`Track` instance
     :param missingValue: replace all null values in the input data
                          with this value.
-    :type missingValue: int or float (default ``sys.maxint``)
+    :type missingValue: int or float (default ``sys.maxsize``)
 
     :returns: :class:`Track.trackMaxWind` attribute updated with calculated
               wind speed updated.
@@ -864,7 +878,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
                               inputPressureUnits, missingValue)
     try:
         windspeed = np.array(inputData['vmax'], 'd')
-        novalue_index = np.where(windspeed == sys.maxint)
+        novalue_index = np.where(windspeed == sys.maxsize)
         windspeed = metutils.convert(windspeed, inputSpeedUnits, "mps")
         windspeed[novalue_index] = missingValue
     except (ValueError, KeyError):
@@ -920,8 +934,15 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         except:
             LOG.exception("No input MSLP file specified in configuration")
             raise
+
+        try:
+            ncvar = cnfGetIniValue(configFile, 'Input', 'MSLPVariableName')
+        except:
+            LOG.debug("Using default variable name of 'slp' for sea level pressure data")
+            ncvar = 'slp'
+
         time = getTime(year, month, day, hour, minute)
-        penv = ltmPressure(jdays, time, lon, lat, ncfile)
+        penv = ltmPressure(jdays, time, lon, lat, ncfile, ncvar)
 
     if 'poci' in inputData.dtype.names:
         poci = np.array(inputData['poci'], 'd')

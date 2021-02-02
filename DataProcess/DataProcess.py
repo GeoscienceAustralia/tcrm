@@ -30,7 +30,7 @@ from Utilities.grid import SampleGrid
 from Utilities.files import flModuleName, flSaveFile, flStartLog
 from Utilities.columns import colReadCSV
 from Utilities import pathLocator
-from CalcTrackDomain import CalcTrackDomain
+from .CalcTrackDomain import CalcTrackDomain
 from Utilities.config import ConfigParser
 
 import warnings
@@ -133,7 +133,7 @@ class DataProcess(object):
         """
         outIndex = []
         flag = 0
-        for i in xrange(len(index)):
+        for i in range(len(index)):
             if index[i] == 1:
                 # A new track:
                 if (stats.between(lon[i],
@@ -168,23 +168,25 @@ class DataProcess(object):
         config = ConfigParser()
         config.read(self.configFile)
 
-        self.logger.info("Running %s" % flModuleName())
+        self.logger.info("Running {0}".format(flModuleName()))
 
         if config.has_option('DataProcess', 'InputFile'):
             inputFile = config.get('DataProcess', 'InputFile')
+            self.logger.info(f"Input file from DataProcess: {inputFile}")
 
         if config.has_option('DataProcess', 'Source'):
             source = config.get('DataProcess', 'Source')
-            self.logger.info('Loading %s dataset', source)
-            fn = config.get(source, 'filename')
-            path = config.get(source, 'path')
+            self.logger.info(f"Loading {source} dataset")
+            fn = config.get(source, 'Filename')
+            path = config.get(source, 'Path')
             inputFile = pjoin(path, fn)
+            self.logger.info(f"Input file set to {inputFile}")
 
         # If input file has no path information, default to tcrm input folder
         if len(os.path.dirname(inputFile)) == 0:
             inputFile = pjoin(self.tcrm_input_dir, inputFile)
 
-        self.logger.info("Processing %s" % inputFile)
+        self.logger.info(f"Processing {inputFile}")
 
         self.source = config.get('DataProcess', 'Source')
 
@@ -196,8 +198,8 @@ class DataProcess(object):
         startSeason = config.getint('DataProcess', 'StartSeason')
 
         indicator = loadData.getInitialPositions(inputData)
-        lat = np.array(inputData['lat'], 'd')
-        lon = np.mod(np.array(inputData['lon'], 'd'), 360)
+        lat = np.array(inputData['lat'], 'float32')
+        lon = np.mod(np.array(inputData['lon'], 'float32'), 360.)
 
         if restrictToWindfieldDomain:
             # Filter the input arrays to only retain the tracks that
@@ -220,7 +222,8 @@ class DataProcess(object):
         except (ValueError, KeyError):
 
             try:
-                self.logger.info("Filtering input data by season: season > %d"%startSeason)
+                self.logger.info(("Filtering input data by season: "
+                                  f"season >= {startSeason}"))
                 # Find indicies that satisfy minimum season filter
                 idx = np.where(inputData['season'] >= startSeason)[0]
                 # Filter records:
@@ -264,29 +267,29 @@ class DataProcess(object):
         flSaveFile(self.origin_year, np.transpose(origin_seasonOrYear),
                    header, ',', fmt='%d')
 
-        pressure = np.array(inputData['pressure'], 'd')
-        novalue_index = np.where(pressure == sys.maxint)
+        pressure = np.array(inputData['pressure'], 'float32')
+        novalue_index = np.where(pressure == sys.maxsize)
         pressure = metutils.convert(pressure, inputPressureUnits, "hPa")
-        pressure[novalue_index] = sys.maxint
+        pressure[novalue_index] = sys.maxsize
 
         # Convert any non-physical central pressure values to maximum integer
         # This is required because IBTrACS has a mix of missing value codes
         # (i.e. -999, 0, 9999) in the same global dataset.
         pressure = np.where((pressure < 600) | (pressure > 1100),
-                            sys.maxint, pressure)
+                            sys.maxsize, pressure)
 
         if self.progressbar is not None:
             self.progressbar.update(0.25)
 
         try:
-            vmax = np.array(inputData['vmax'], 'd')
+            vmax = np.array(inputData['vmax'], 'float32')
         except (ValueError, KeyError):
             self.logger.warning("No max wind speed data")
             vmax = np.empty(indicator.size, 'f')
         else:
-            novalue_index = np.where(vmax == sys.maxint)
+            novalue_index = np.where(vmax == sys.maxsize)
             vmax = metutils.convert(vmax, inputSpeedUnits, "mps")
-            vmax[novalue_index] = sys.maxint
+            vmax[novalue_index] = sys.maxsize
 
         assert lat.size == indicator.size
         assert lon.size == indicator.size
@@ -295,9 +298,9 @@ class DataProcess(object):
 
         try:
             rmax = np.array(inputData['rmax'])
-            novalue_index = np.where(rmax == sys.maxint)
+            novalue_index = np.where(rmax == sys.maxsize)
             rmax = metutils.convert(rmax, inputLengthUnits, "km")
-            rmax[novalue_index] = sys.maxint
+            rmax[novalue_index] = sys.maxsize
 
             self._rmax(rmax, indicator)
             self._rmaxRate(rmax, dt, indicator)
@@ -371,7 +374,7 @@ class DataProcess(object):
         except (ValueError, KeyError):
             pass
 
-        self.logger.info("Completed %s" % flModuleName())
+        self.logger.info("Completed {0}".format(flModuleName()))
         if self.progressbar is not None:
             self.progressbar.update(0.5)
 
@@ -412,9 +415,9 @@ class DataProcess(object):
         all_lon_lat = pjoin(self.processPath, 'all_lon_lat')
 
         # Output the lon & lat of cyclone origins
-        self.logger.debug('Outputting data into %s' % init_lon_lat)
-        self.logger.debug('Outputting data into %s' % origin_lon_lat)
-        self.logger.debug('Outputting data into %s' % all_lon_lat)
+        self.logger.debug('Outputting data into {0}' .format(init_lon_lat))
+        self.logger.debug('Outputting data into {0}'.format(origin_lon_lat))
+        self.logger.debug('Outputting data into {0}'.format(all_lon_lat))
 
         header = 'Longitude, Latitude, LSFlag'
         if self.ncflag:
@@ -434,7 +437,7 @@ class DataProcess(object):
 
             # Output all cyclone positions:
             cyclone_tracks = pjoin(self.processPath, 'cyclone_tracks')
-            self.logger.debug('Outputting data into %s' % cyclone_tracks)
+            self.logger.debug('Outputting data into {0}'.format(cyclone_tracks))
             header = 'Cyclone Origin,Longitude,Latitude, LSflag'
             flSaveFile(cyclone_tracks,
                        np.transpose([indicator, lon, lat, lsflag]),
@@ -456,7 +459,7 @@ class DataProcess(object):
         self.logger.info('Extracting bearings')
 
         # extract all bearings
-        np.putmask(bear, indicator, sys.maxint)
+        np.putmask(bear, indicator, sys.maxsize)
 
         # extract initial bearings
         initBearingIndex = np.flatnonzero(initIndex[:-1]) + 1
@@ -473,16 +476,16 @@ class DataProcess(object):
             self.data['bearing_no_init'] = bearingNoInit
         else:
             all_bearing = pjoin(self.processPath, 'all_bearing')
-            self.logger.debug('Outputting data into %s' % all_bearing)
+            self.logger.debug('Outputting data into {0}'.format(all_bearing))
             header = 'all cyclone bearing in degrees'
             flSaveFile(all_bearing, bear, header, fmt='%6.2f')
 
             init_bearing = pjoin(self.processPath, 'init_bearing')
-            self.logger.debug('Outputting data into %s' % init_bearing)
+            self.logger.debug('Outputting data into {0}'.format(init_bearing))
             header = 'initial cyclone bearing in degrees'
             flSaveFile(init_bearing, initBearing, header, fmt='%6.2f')
             bearing_no_init = pjoin(self.processPath, 'bearing_no_init')
-            self.logger.debug('Outputting data into %s' % bearing_no_init)
+            self.logger.debug('Outputting data into {0}'.format(bearing_no_init))
             header = 'cyclone bearings without initial ones in degrees'
             flSaveFile(bearing_no_init, bearingNoInit, header, fmt='%6.2f')
 
@@ -490,8 +493,8 @@ class DataProcess(object):
         """
         Extract speeds for all obs, initial obs and TC origins
         Input: dist - array of distances between consecutive TC
-                      observations
-               dt - array of times between consecutive TC observations
+                      observations (km)
+               dt - array of times between consecutive TC observations (hours)
                indicator - array of ones/zeros representing initial TC
                            observations (including TCs with a single
                            observation)
@@ -505,8 +508,8 @@ class DataProcess(object):
         # Delete speeds less than 0, greated than 200,
         # or where indicator == 1.
         np.putmask(speed, (speed < 0) | (speed > 200) | indicator,
-                   sys.maxint)
-        np.putmask(speed, np.isnan(speed), sys.maxint)
+                   sys.maxsize)
+        np.putmask(speed, np.isnan(speed), sys.maxsize)
 
         initSpeedIndex = np.flatnonzero(initIndex[:-1]) + 1
         initSpeed = speed.take(initSpeedIndex)
@@ -523,18 +526,18 @@ class DataProcess(object):
             all_speed = pjoin(self.processPath, 'all_speed')
             speed_no_init = pjoin(self.processPath, 'speed_no_init')
             # Extract all speeds
-            self.logger.debug('Outputting data into %s' % all_speed)
-            header = 'all cyclone speed in m/s'
+            self.logger.debug('Outputting data into {0}'.format(all_speed))
+            header = 'all cyclone speed in km/h'
             flSaveFile(all_speed, speed, header, fmt='%6.2f')
 
             # Extract initial speeds
-            self.logger.debug('Outputting data into %s' % init_speed)
-            header = 'initial cyclone speed in m/s'
+            self.logger.debug('Outputting data into {0}'.format(init_speed))
+            header = 'initial cyclone speed in km/h'
             flSaveFile(init_speed, initSpeed, header, fmt='%f')
 
             # Extract speeds, excluding initial speeds
-            self.logger.debug('Outputting data into %s' % speed_no_init)
-            header = 'cyclone speed without initial ones in m/s'
+            self.logger.debug('Outputting data into {0}'.format(speed_no_init))
+            header = 'cyclone speed without initial ones in km/h'
             flSaveFile(speed_no_init, speedNoInit, header, fmt='%6.2f')
 
     def _pressure(self, pressure, indicator):
@@ -552,7 +555,7 @@ class DataProcess(object):
         self.logger.info('Extracting pressures')
         initPressure = pressure.compress(indicator)
         pressureNoInit = pressure.compress(indicator == 0)
-        pressureNoInit = pressureNoInit.compress(pressureNoInit < sys.maxint)
+        pressureNoInit = pressureNoInit.compress(pressureNoInit < sys.maxsize)
 
         if self.ncflag:
             self.data['pressure'] = pressure
@@ -563,17 +566,17 @@ class DataProcess(object):
             all_pressure = pjoin(self.processPath, 'all_pressure')
             pressure_no_init = pjoin(self.processPath, 'pressure_no_init')
             # Extract all pressure
-            self.logger.debug('Outputting data into %s' % all_pressure)
+            self.logger.debug('Outputting data into {0}'.format(all_pressure))
             header = 'all cyclone pressure in hPa'
             flSaveFile(all_pressure, pressure, header, fmt='%7.2f')
 
             # Extract initial pressures
-            self.logger.debug('Outputting data into %s' % init_pressure)
+            self.logger.debug('Outputting data into {0}'.format(init_pressure))
             header = 'initial cyclone pressure in hPa'
             flSaveFile(init_pressure, initPressure, header, fmt='%7.2f')
 
             # Extract pressures, excluding initial times
-            self.logger.debug('Outputting data into %s' % pressure_no_init)
+            self.logger.debug('Outputting data into {0}'.format(pressure_no_init))
             header = 'cyclone pressure without initial ones in hPa'
             flSaveFile(pressure_no_init, pressureNoInit, header, fmt='%7.2f')
 
@@ -611,16 +614,16 @@ class DataProcess(object):
         # The highest rate of intensification on record is
         # Typhoon Forrest (Sept 1983) 100 mb in 24 hrs.
 
-        np.putmask(pressureRate, indicator, sys.maxint)
-        np.putmask(pressureRate, pressure >= sys.maxint, sys.maxint)
-        np.putmask(pressureRate, np.isnan(pressureRate), sys.maxint)
-        np.putmask(pressureRate, np.abs(pressureRate) > 10, sys.maxint)
+        np.putmask(pressureRate, indicator, sys.maxsize)
+        np.putmask(pressureRate, pressure >= sys.maxsize, sys.maxsize)
+        np.putmask(pressureRate, np.isnan(pressureRate), sys.maxsize)
+        np.putmask(pressureRate, np.abs(pressureRate) > 10, sys.maxsize)
 
         if self.ncflag:
             self.data['pressureRate'] = pressureRate
         else:
             pressure_rate = pjoin(self.processPath, 'pressure_rate')
-            self.logger.debug('Outputting data into %s' % pressure_rate)
+            self.logger.debug('Outputting data into {0}'.format(pressure_rate))
             header = 'All pressure change rates (hPa/hr)'
             flSaveFile(pressure_rate, pressureRate, header, fmt='%6.2f')
 
@@ -653,19 +656,19 @@ class DataProcess(object):
 
         bearingRate = bearingChange / dt
 
-        np.putmask(bearingRate, indicator, sys.maxint)
-        np.putmask(bearingRate[1:], indicator[:-1], sys.maxint)
-        np.putmask(bearingRate, (bearingRate >= sys.maxint) |
-                   (bearingRate <= -sys.maxint),
-                   sys.maxint)
+        np.putmask(bearingRate, indicator, sys.maxsize)
+        np.putmask(bearingRate[1:], indicator[:-1], sys.maxsize)
+        np.putmask(bearingRate, (bearingRate >= sys.maxsize) |
+                   (bearingRate <= -sys.maxsize),
+                   sys.maxsize)
 
-        np.putmask(bearingRate, np.isnan(bearingRate), sys.maxint)
+        np.putmask(bearingRate, np.isnan(bearingRate), sys.maxsize)
 
         if self.ncflag:
             self.data['bearingRate'] = bearingRate
         else:
             bearing_rate = pjoin(self.processPath, 'bearing_rate')
-            self.logger.debug('Outputting data into %s' % bearing_rate)
+            self.logger.debug('Outputting data into {0}'.format(bearing_rate))
             header = 'All bearing change rates (degrees/hr)'
             flSaveFile(bearing_rate, bearingRate, header, fmt='%6.2f')
 
@@ -700,18 +703,18 @@ class DataProcess(object):
 
         speedRate = speedChange / dt
 
-        np.putmask(speedRate, indicator_, sys.maxint)
-        np.putmask(speedRate[1:], indicator_[:-1], sys.maxint)
-        np.putmask(speedRate, (speedRate >= sys.maxint) |
-                   (speedRate <= -sys.maxint), sys.maxint)
+        np.putmask(speedRate, indicator_, sys.maxsize)
+        np.putmask(speedRate[1:], indicator_[:-1], sys.maxsize)
+        np.putmask(speedRate, (speedRate >= sys.maxsize) |
+                   (speedRate <= -sys.maxsize), sys.maxsize)
 
-        np.putmask(speedRate, np.isnan(speedRate), sys.maxint)
+        np.putmask(speedRate, np.isnan(speedRate), sys.maxsize)
 
         if self.ncflag:
             self.data['speedRate'] = speedRate
         else:
             speed_rate = pjoin(self.processPath, 'speed_rate')
-            self.logger.debug('Outputting data into %s' % speed_rate)
+            self.logger.debug('Outputting data into {0}'.format(speed_rate))
             header = 'All speed change rates (km/hr/hr)'
             flSaveFile(speed_rate, speedRate, header, fmt='%6.2f')
 
@@ -726,10 +729,7 @@ class DataProcess(object):
         
         """
         self.logger.info('Extracting maximum sustained wind speeds')
-	initVmax   = vmax.compress(indicator)
-        vmaxNoInit = vmax.compress(indicator == 0)
-        vmaxNoInit = vmaxNoInit.compress(vmaxNoInit < sys.maxint)
-
+        np.putmask(windSpeed, windSpeed > 200., sys.maxsize)
         if self.ncflag:
             self.data['vmax'] = vmax
 	    self.data['init_vmax'] = initVmax
@@ -816,7 +816,7 @@ class DataProcess(object):
         self.logger.info("Extracting radii to maximum winds")
         initrmax = rmax.compress(indicator)
         rmaxNoInit = rmax.compress(indicator == 0)
-        rmaxNoInit = rmaxNoInit.compress(rmaxNoInit < sys.maxint)
+        rmaxNoInit = rmaxNoInit.compress(rmaxNoInit < sys.maxsize)
         if self.ncflag:
             self.data['rmax'] = rmax
             self.data['init_rmax'] = initrmax
@@ -826,17 +826,17 @@ class DataProcess(object):
             all_rmax = pjoin(self.processPath, 'all_rmax')
             rmax_no_init = pjoin(self.processPath, 'rmax_no_init')
             # extract all rmax
-            self.logger.debug('Outputting data into %s' % all_rmax)
+            self.logger.debug('Outputting data into {0}'.format(all_rmax))
             header = 'rMax (km)'
             flSaveFile(all_rmax, rmax, header, fmt='%6.2f')
 
             # extract initial rmax
-            self.logger.debug('Outputting data into %s' % init_rmax)
+            self.logger.debug('Outputting data into {0}'.format(init_rmax))
             header = 'initial rmax (km)'
             flSaveFile(init_rmax, initrmax, header, fmt='%6.2f')
 
             # extract rmax no init
-            self.logger.debug('Outputting data into %s' % rmax_no_init)
+            self.logger.debug('Outputting data into {0}'.format(rmax_no_init))
             header = 'rmax excluding initial ones (km)'
             flSaveFile(rmax_no_init, rmaxNoInit, header, fmt='%6.2f')
 
@@ -871,14 +871,13 @@ class DataProcess(object):
 
         # Mask rates corresponding to initial times and times when
         # the rmax is known to be missing.
-        self.logger.debug('Outputting data into {0}'.format(
-                          pjoin(self.processPath, 'rmax_rate')))
-        np.putmask(rmaxRate, indicator, sys.maxint)
-        np.putmask(rmaxRate, rmax >= sys.maxint, sys.maxint)
-        np.putmask(rmaxRate, (rmaxRate >= sys.maxint) |
-                   (rmaxRate <= -sys.maxint), sys.maxint)
-        np.putmask(rmaxRate, np.isnan(rmaxRate), sys.maxint)
-        np.putmask(rmaxRate, np.abs(rmaxRate) > 100, sys.maxint)
+        self.logger.debug('Outputting data into {0}'
+                          .format(pjoin(self.processPath, 'rmax_rate')))
+        np.putmask(rmaxRate, indicator, sys.maxsize)
+        np.putmask(rmaxRate, rmax >= sys.maxsize, sys.maxsize)
+        np.putmask(rmaxRate, (rmaxRate >= sys.maxsize) |
+                   (rmaxRate <= -sys.maxsize), sys.maxsize)
+        np.putmask(rmaxRate, np.isnan(rmaxRate), sys.maxsize)
 
         if self.ncflag:
             self.data['rmaxRate'] = rmaxRate
@@ -1086,10 +1085,8 @@ class DataProcess(object):
             flSaveFile(frequency, np.transpose([bins[:-1], n]),
                        header, fmt='%6.2f')
 
-            self.logger.info("Mean annual frequency: {0:5.1f}".\
-                             format(np.mean(n)))
-            self.logger.info("Standard deviation: {0:5.1f}".\
-                             format(np.std(n)))
+            self.logger.info("Mean annual frequency: {0}".format(np.mean(n)))
+            self.logger.info("Standard deviation: {0}".format(np.std(n)))
 
     def _juliandays(self, jdays, indicator, years):
         """
@@ -1132,13 +1129,13 @@ if __name__ == "__main__":
         # If no filename is specified and default filename does not exist =>
         # raise error
         if not os.path.exists(configFile):
-            error_msg = ("No configuration file specified, "
-                         "please type: python tcrm.py -c {config filename}.ini")
-            raise IOError, error_msg
+            error_msg = ("No configuration file specified, please type: "
+                         "python tcrm.py -c {config filename}.ini")
+            raise IOError(error_msg)
     # If config file does not exist => raise error
     if not os.path.exists(configFile):
-        error_msg = "Configuration file {0} not found".format(configFile)
-        raise IOError, error_msg
+        error_msg = "Configuration file '" + configFile + "' not found"
+        raise IOError(error_msg)
 
     config = ConfigParser()
     config.read(configFile)

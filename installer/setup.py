@@ -9,7 +9,7 @@ To build C extensions in-place:
 import matplotlib
 import numpy
 import sys
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 from distutils.sysconfig import get_python_lib
 from os.path import join as pjoin
 from glob import glob
@@ -30,6 +30,8 @@ if 'py2exe' in sys.argv:
                      'mpl_toolkits.basemap',
                      'scipy.sparse.csgraph._validation',
                      'scipy.io.matlab.streams',
+                     'boto3',
+                     'botocore',
                      'netCDF4_utils'],
         'excludes': ['_gtkagg',
                      'wx',
@@ -48,21 +50,6 @@ if 'py2exe' in sys.argv:
     }
 
 exts = [
-    Extension('Utilities.Cmap',
-              sources=[pjoin('Utilities', 'Cmap.c')],
-              include_dirs=[pjoin(numpy.get_include(), 'numpy')],
-              extra_compile_args=['-std=gnu99']),
-
-    Extension('Utilities.Cstats',
-              sources=[pjoin('Utilities', 'Cstats.c')],
-              include_dirs=[pjoin(numpy.get_include(), 'numpy')],
-              extra_compile_args=['-std=gnu99']),
-
-    Extension('Utilities.KPDF',
-              sources=[pjoin('Utilities', 'KPDF.c')],
-              include_dirs=[pjoin(numpy.get_include(), 'numpy')],
-              extra_compile_args=['-std=gnu99']),
-
     Extension('Utilities._akima',
               sources=[pjoin('Utilities', 'akima.c')],
               include_dirs=[pjoin(numpy.get_include(), 'numpy')],
@@ -70,8 +57,7 @@ exts = [
 ]
 
 basemapData = pjoin('mpl_toolkits', 'basemap', 'data')
-data = matplotlib.get_py2exe_datafiles() + \
-       [(basemapData, glob(pjoin(get_python_lib(), basemapData, '*')))] + \
+data = [(basemapData, glob(pjoin(get_python_lib(), basemapData, '*')))] + \
        [('input', glob(pjoin('input', '*')))] + \
        [('MSLP', glob(pjoin('MSLP', '*.nc')))] + \
        [('.', [pjoin('.', 'matplotlibrc')])]

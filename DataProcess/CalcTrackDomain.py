@@ -137,10 +137,9 @@ class CalcTrackDomain(object):
         # Load tracks from file
         cyclone_tracks = flLoadFile(pjoin(self.outputPath, 'process',
                                           'cyclone_tracks'),
-                                          '%', ',')
+                                    '%', ',')
         tg_domain = self.calc(cyclone_tracks[:, 0],
                               cyclone_tracks[:, 1],
                               cyclone_tracks[:, 2])
 
         return tg_domain
-

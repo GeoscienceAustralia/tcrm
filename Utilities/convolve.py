@@ -30,7 +30,7 @@ def getKernel(d, mtype, res=25., height=5.):
     """
 
     if dir not in ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']:
-        raise ValueError, "No valid direction provided"
+        raise ValueError("No valid direction provided")
 
     if mtype == "terrain":
         # We assume that the boundary layer develops over a 1 km distance:

@@ -1,12 +1,6 @@
-six>=1.7.3
---allow-external python-dateutil
---allow-unverified python-dateutil
-python-dateutil
-tornado
-pyparsing
 netCDF4>=1.0.8
-pytz==2014.4
-seaborn==0.5.1
+seaborn>=0.8.1
 simplejson==3.6.0
-Shapely>=1.2.15
 statsmodels>=0.5.0
+boto3
+botocore

@@ -11,8 +11,10 @@
 """
 
 import io
-from ConfigParser import RawConfigParser
-from Utilities.singleton import Singleton
+from configparser import RawConfigParser
+import os.path
+
+#from ast import literal_eval as eval
 
 def parseBool(txt):
     """
@@ -81,9 +83,13 @@ PARSERS = {
     'Hazard_years': parseList,
     'Hazard_samplesize': int,
     'Hazard_percentilerange': int,
+    'Hazard_extremevaluedistribution': str,
+    'Hazard_SmoothPlots': parseBool,
     'Input_landmask': str,
     'Input_locationfile': str,
     'Input_mslpgrid': parseList,
+    'Input_mslpfile': str,
+    'Input_mslpvariablename': str,
     'Logging_logfile': str,
     'Logging_loglevel': str,
     'Logging_progressbar': parseBool,
@@ -111,6 +117,10 @@ PARSERS = {
     'TCRM_numberofheadinglines': int,
     'TCRM_pressureunits': str,
     'TCRM_speedunits': str,
+    'Timeseries_Extract': parseBool,
+    'Timeseries_LocationFile': str,
+    'Timeseries_StationID': str,
+    'Timeseries_Windfields': parseBool,
     'TrackGenerator_numsimulations': int,
     'TrackGenerator_seasonseed': int,
     'TrackGenerator_trackseed': int,
@@ -127,7 +137,8 @@ PARSERS = {
     'WindfieldInterface_thetamax': float,
     'WindfieldInterface_trackfile': str,
     'WindfieldInterface_trackpath': str,
-    'WindfieldInterface_windfieldtype': str}
+    'WindfieldInterface_windfieldtype': str,
+    'WindfieldInterface_plotoutput': parseBool}
 
 DEFAULTS = """
 [Actions]
@@ -149,7 +160,7 @@ gridInc={'x':1.0,'y':0.5}
 [DataProcess]
 StartSeason=1981
 FilterSeasons=True
-InputFile=Allstorms.ibtracs_wmo.v03r05.csv
+InputFile=Allstorms.ibtracs_wmo.v03r10.csv
 Source=IBTRACS
 
 [StatInterface]
@@ -185,6 +196,8 @@ CalculateCI=True
 PercentileRange=90
 SampleSize=50
 PlotSpeedUnits=mps
+ExtremeValueDistribution=GPD
+SmoothPlots=True
 
 [RMW]
 GetRMWDistFromInputData=False
@@ -193,11 +206,18 @@ GetRMWDistFromInputData=False
 LocationFile=input/stationlist.shp
 LandMask=input/landmask.nc
 MSLPFile=MSLP/slp.day.ltm.nc
+MSLPVariableName=slp
 Datasets=IBTRACS,LTMSLP
 
 [Output]
 Path=output
 Format=txt
+
+[Timeseries]
+Extract=False
+StationID=WMO
+LocationFile=./input/stationlist.shp
+Windfields=False
 
 [Logging]
 ProgressBar=False
@@ -214,9 +234,9 @@ PressureUnits=hPa
 LengthUnits=km
 
 [IBTRACS]
-URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r05/wmo/csv/Allstorms.ibtracs_wmo.v03r05.csv.gz
+URL=ftp://eclipse.ncdc.noaa.gov/pub/ibtracs/v03r10/wmo/csv/Allstorms.ibtracs_wmo.v03r10.csv.gz
 path=input
-filename=Allstorms.ibtracs_wmo.v03r05.csv
+filename=Allstorms.ibtracs_wmo.v03r10.csv
 Columns=tcserialno,season,num,skip,skip,skip,date,skip,lat,lon,skip,pressure
 FieldDelimiter=,
 NumberOfHeadingLines=3
@@ -232,7 +252,7 @@ filename=slp.day.ltm.nc
 
 """
 
-class _ConfigParser(RawConfigParser, Singleton):
+class _ConfigParser(RawConfigParser):
 
     """
     A configuration file parser that extends
@@ -242,7 +262,7 @@ class _ConfigParser(RawConfigParser, Singleton):
     ignoreSubsequent = True
     def __init__(self, defaults=DEFAULTS):
         RawConfigParser.__init__(self)
-        self.readfp(io.BytesIO(defaults))
+        self.readfp(io.StringIO(defaults))
         self.readonce = False
         
     def geteval(self, section, option):
@@ -268,6 +288,8 @@ class _ConfigParser(RawConfigParser, Singleton):
             return
         if self.readonce:
             return
+        if not os.path.exists(filename):
+            raise ValueError("config file does not exist: {}".format(filename))
         RawConfigParser.read(self, filename)
         self.readonce = True
 
@@ -290,7 +312,7 @@ class _ConfigParser(RawConfigParser, Singleton):
                 parsed[name] = parse(value)
             except KeyError:
                 parsed[name] = value
-        return parsed.items()
+        return list(parsed.items())
 
     def set(self, section, option, value=None):
         """
@@ -309,8 +331,13 @@ class _ConfigParser(RawConfigParser, Singleton):
             newvalue = value
         RawConfigParser.set(self, section, option, newvalue)
 
-def ConfigParser(defaults=DEFAULTS):
-    return _ConfigParser.getInstance(defaults)
+singleton = _ConfigParser(defaults=DEFAULTS)
+def ConfigParser():
+    return singleton
+def reset():
+    """Re-instantiate ConfigParser (only for use in tests)"""
+    global singleton
+    singleton = _ConfigParser(defaults=DEFAULTS)
 
 def cnfGetIniValue(configFile, section, option, default=None):
     """

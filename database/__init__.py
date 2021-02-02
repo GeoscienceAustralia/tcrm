@@ -34,29 +34,59 @@ TODO::
 """
 
 import os
+from os.path import join as pjoin
 import logging
 import sqlite3
-from sqlite3 import PARSE_DECLTYPES, PARSE_COLNAMES
-
+from sqlite3 import PARSE_DECLTYPES, PARSE_COLNAMES, IntegrityError
+from functools import wraps
+import time
 from datetime import datetime
 import unicodedata
 import re
-from os.path import join as pjoin
 
 from shapely.geometry import Point
+logging.getLogger('shapely').setLevel(logging.WARNING)
 from netCDF4 import Dataset
 import numpy as np
 
 from Utilities.config import ConfigParser
-from Utilities.files import flGetStat
 from Utilities.maputils import find_index
-from Utilities.track import loadTracksFromFiles, loadTracks
-from Utilities.singleton import Singleton
+from Utilities.track import loadTracksFromFiles
 from Utilities.parallel import attemptParallel, disableOnWorkers
-from Utilities.process import pAlreadyProcessed, pWriteProcessedFile, \
-    pGetProcessedFiles
+from Utilities.process import pAlreadyProcessed, pGetProcessedFiles
+from functools import reduce
+
+sqlite3.register_adapter(np.int64, lambda val: int(val))
+sqlite3.register_adapter(np.int32, lambda val: int(val))
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
+
+def fromrecords(records, names):
+    """ Convert records to array, even if no data """
+    # May become redundant after https://github.com/numpy/numpy/issues/1862
+    if records:
+        return np.rec.fromrecords(records, names=names)
+    else:
+        return np.array([], [(name, 'O') for name in names.split(',')])
+
+def timer(func):
+    """
+    A simple timing decorator for the entire process.
+
+    """
+
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        t1 = time.time()
+        res = func(*args, **kwargs)
+        tottime = time.time() - t1
+        msg = "%02d:%02d:%02d " % \
+            reduce(lambda ll, b: divmod(ll[0], b) + ll[1:],
+                   [(tottime,), 60, 60])
+        log.debug("Time for {0}: {1}".format(func.__name__, msg))
+        return res
+
+    return wrap
 
 # pylint: disable=R0914,R0902
 
@@ -106,8 +136,7 @@ INSLOCATIONS = ("INSERT OR REPLACE INTO tblLocations "
 INSEVENTS = "INSERT INTO tblEvents VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 
 # Insert wind speed record:
-INSWINDSPEED = ("INSERT INTO tblWindSpeed (locId, eventId, wspd, "
-                "umax, vmax, pmin, Comments, dtCreated) "
+INSWINDSPEED = ("INSERT INTO tblWindSpeed "
                 "VALUES (?,?,?,?,?,?,?,?)")
 
 # Insert hazard record:
@@ -154,19 +183,23 @@ def windfieldAttributes(ncobj):
 
     return (trackfile, trackfiledate, tcrm_vers, minslp, maxwind)
 
+_singletons = {}
 def HazardDatabase(configFile): # pylint: disable=C0103
     """
-    A wrapper function to instantiate :class:`_HazardDatabase`. We actually
-    call :meth:`getInstance` to get a singleton instance of the
-    :class:`_HazardDatabase`. If one exists already, then that instance is
-    returned.
+    A wrapper function to instantiate :class:`_HazardDatabase`.
+    If one exists already, then that instance is returned.
 
     :param str configFile: Path to configuration file
 
     """
-    return _HazardDatabase.getInstance(configFile)
+    global _singletons
+    instance = _singletons.get(configFile)
+    if not instance:
+        instance = _HazardDatabase(configFile)
+        _singletons[configFile] = instance
+    return instance
 
-class _HazardDatabase(sqlite3.Connection, Singleton):
+class _HazardDatabase(sqlite3.Connection):
     """
     Create and update a database of locations, events, hazard, wind
     speed and tracks. Because it subclasses the :class:`Singleton` object,
@@ -283,7 +316,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         else:
             locations = cur.fetchall()
 
-        locations = np.rec.fromrecords(locations,
+        locations = fromrecords(locations,
                                        names=("locId,locName,locLon,locLat"))
         return locations
 
@@ -343,6 +376,13 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         log.debug("Inserting records into tblEvents")
         try:
             self.execute(INSEVENTS, eventparams)
+
+        except sqlite3.IntegrityError as err:
+            log.exception("Problem inserting events into tblEvents: ")
+            log.exception("Pre-existing event with the same eventNumber attribute")
+            log.exception("Check that you are not overwriting an existing database.")
+            log.exception("{0}".format(err.args[0]))
+
         except sqlite3.Error as err:
             log.exception("Cannot insert records into tblEvents: {0}".\
                           format(err.args[0]))
@@ -381,68 +421,68 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
                  _tblWindSpeed_.
 
         """
+        status = MPI.Status()
         fileList = os.listdir(self.windfieldPath)
         fileList = [f for f in fileList if
                     os.path.isfile(pjoin(self.windfieldPath, f))]
 
         work_tag = 0
         result_tag = 1
-        if (pp.rank() == 0) and (pp.size() > 1):
+        if (comm.rank == 0) and (comm.size > 1):
             locations = self.getLocations()
             w = 0
-            p = pp.size() - 1
-            for d in range(1, pp.size()):
+            p = comm.size - 1
+            for d in range(1, comm.size):
                 if w < len(fileList):
-                    pp.send((fileList[w], locations, w),
-                            destination=d, tag=work_tag)
+                    comm.send((fileList[w], locations, w),
+                              dest=d, tag=work_tag)
                     log.debug("Processing {0} ({1} of {2})".\
                               format(fileList[w], w, len(fileList)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=work_tag)
                     p = w
 
             terminated = 0
 
             while terminated < p:
-                result, status = pp.receive(pp.any_source, tag=result_tag,
-                                            return_status=True)
-                log.debug("Processing results from node {0}".\
-                          format(status.source))
+                result = comm.recv(source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, status=status)
+                d = status.source
+
+                log.debug("Processing results from node {0}".format(d))
                 eventparams, wsparams = result
                 self.insertEvents(eventparams)
                 self.insertWindSpeeds(wsparams)
-                log.debug("Done inserting records from node {0}".\
-                          format(status.source))
+                log.debug("Done inserting records from node {0}".format(d))
 
-                d = status.source
                 if w < len(fileList):
-                    pp.send((fileList[w], locations, w),
-                            destination=d, tag=work_tag)
-                    log.debug("Processing file %d of %d" % (w, len(fileList)))
+                    comm.send((fileList[w], locations, w),
+                              dest=d, tag=work_tag)
+                    log.debug("Processing file {0} of {1}".\
+                              format(w, len(fileList)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=work_tag)
                     terminated += 1
 
-        elif (pp.size() > 1) and (pp.rank() != 0):
+        elif (comm.size > 1) and (comm.rank != 0):
             while True:
-                W = pp.receive(source=0, tag=work_tag)
-                if W is None:
+                work_pack = comm.recv(source=0, tag=work_tag, status=status)
+                if work_pack is None:
                     break
 
                 log.info("Processing {0} on node {1}".\
-                         format(W[0], pp.rank()))
-                results = self.processEvent(*W)
-                log.debug("Results received on node {0}".format(pp.rank()))
-                pp.send(results, destination=0, tag=result_tag)
+                         format(work_pack[0], comm.rank))
+                results = self.processEvent(*work_pack)
+                log.debug("Results received on node {0}".format(comm.rank))
+                comm.send(results, dest=0, tag=result_tag)
 
-        elif pp.size() == 1 and pp.rank() == 0:
-            # Assume no Pypar:
+        elif comm.size == 1 and comm.rank == 0:
+            # Assume no mpi4py:
             locations = self.getLocations()
             for eventNum, filename in enumerate(fileList):
-                log.debug("Processing {0} ({1} of {2})".format(filename, 
-                                                               eventNum, 
+                log.debug("Processing {0} ({1} of {2})".format(filename,
+                                                               eventNum,
                                                                len(fileList)))
                 result = self.processEvent(filename, locations, eventNum)
                 eventparams, wsparams = result
@@ -512,7 +552,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
             locUa = ua[j, i]
             locVa = va[j, i]
             locPr = pmin[j, i]
-            locParams = (locId, eventId, float(locVm), float(locUa),
+            locParams = (int(locId), eventId, float(locVm), float(locUa),
                          float(locVa), float(locPr), " ", datetime.now())
             wsparams.append(locParams)
 
@@ -541,7 +581,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         dtHazardFile = datetime.fromtimestamp(int(si.st_mtime))
         lon = ncobj.variables['lon'][:]
         lat = ncobj.variables['lat'][:]
-        years = ncobj.variables['years'][:]
+        years = ncobj.variables['ari'][:]
 
         wspd = ncobj.variables['wspd'][:]
         wspdUpper = ncobj.variables['wspdupper'][:]
@@ -582,6 +622,7 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         else:
             self.commit()
 
+    # pylint: disable=R0912
     def processTracks(self):
         """
         Populate tblTracks with the details of tracks and their proximity to
@@ -594,95 +635,71 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
         log.debug("Processing tracks in {0}".format(self.trackPath))
         files = os.listdir(self.trackPath)
         trackfiles = [pjoin(self.trackPath, f) for f in files if f.startswith('tracks')]
-        #tracks = [t for t in loadTracksFromFiles(sorted(trackfiles))]
         log.debug("There are {0} track files".format(len(trackfiles)))
 
-
+        status = MPI.Status()
         work_tag = 0
         result_tag = 1
 
-        if (pp.rank() == 0) and (pp.size() > 1):
+        if (comm.rank == 0) and (comm.size > 1):
             w = 0
-            p = pp.size() - 1
-            for d in range(1, pp.size()):
+            p = comm.size - 1
+            for d in range(1, comm.size):
                 if w < len(trackfiles):
-                    pp.send((trackfiles[w], locations),
-                            destination=d, tag=work_tag)
-                    log.debug("Processing {0}".format(trackfiles[w]))
+                    comm.send((trackfiles[w], locations),
+                              dest=d, tag=work_tag)
+                    log.info("Processing {0}".format(trackfiles[w]))
                     log.debug("Processing track {0:d} of {1:d}".\
                               format(w, len(trackfiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=work_tag)
                     p = w
 
             terminated = 0
 
             while terminated < p:
-                result, status = pp.receive(pp.any_source, tag=result_tag,
-                                            return_status=True)
-                if result:
-                    log.debug("Inserting results into tblTracks")
-                    self.insertTracks(result)
+                try:
+                    result = comm.recv(source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG,
+                                       status=status)
+                except:
+                    log.warn("Problems recieving results on node 0")
+
                 d = status.source
+                if result:
+                    log.info(f"Inserting results into tblTracks from node {d}")
+                    self.insertTracks(result)
+
                 if w < len(trackfiles):
-                    pp.send((trackfiles[w], locations),
-                            destination=d, tag=work_tag)
+                    comm.send((trackfiles[w], locations),
+                              dest=d, tag=work_tag)
+                    log.info("Processing {0}".format(trackfiles[w]))
                     log.debug("Processing track {0:d} of {1:d}".\
                               format(w, len(trackfiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=work_tag)
                     terminated += 1
 
-        elif (pp.size() > 1) and (pp.rank() != 0):
+        elif (comm.size > 1) and (comm.rank != 0):
             while True:
-                W = pp.receive(source=0, tag=work_tag)
-                log.debug("Received track on node {0}".format(pp.rank()))
-                if W is None:
+                work_pack = comm.recv(source=0, tag=work_tag, status=status)
+                log.info("Received track on node {0}".format(comm.rank))
+                if work_pack is None:
                     break
 
-                results = self.processTrack(*W)
-                pp.send(results, destination=0, tag=result_tag)
+                results = processTrack(*work_pack)
+                comm.send(results, dest=0, tag=result_tag)
 
-        elif pp.size() == 1 and pp.rank() == 0:
+        elif comm.size == 1 and comm.rank == 0:
             # No Pypar
             for w, trackfile in enumerate(trackfiles):
-                log.debug("Processing trackfile {0:d} of {1:d}".\
+                log.info("Processing trackfile {0:d} of {1:d}".\
                           format(w, len(trackfiles)))
-                #if len(track.data) == 0:
-                #    continue
-                result = self.processTrack(trackfile, locations)
+                result = processTrack(trackfile, locations)
                 if result is not None:
                     self.insertTracks(result)
 
-    def processTrack(self, trackfile, locations):
-        """
-        Process individual track to determine distance to locations, etc.
-
-        Any empty tracks are filtered at an earlier stage. If an empty
-        track is passed, then a None result is returned.
-
-        :param track: :class:`Track` instance.
-        :param locations: list of locations in the simulation domain.
-        """
-        tracks = [t for t in loadTracksFromFiles([trackfile])]
-        points = [Point(loc[2], loc[3]) for loc in locations]
-        records = []
-        for track in tracks:
-            if len(track.data) == 0:
-                log.debug("Got an empty track: returning None")
-                continue #return None
-            distances = track.minimumDistance(points)
-            for (loc, dist) in zip(locations, distances):
-                locRecs = (loc[0], "%03d-%05d"%(track.trackId),
-                           dist, None, None, "", datetime.now())
-
-                records.append(locRecs)
-            log.debug("Track {0}-{1} has {2} records".format(track.trackId[0], 
-                                                             track.trackId[1],
-                                                             len(records)))
-        return records
 
     def insertTracks(self, trackRecords):
         """
@@ -702,6 +719,36 @@ class _HazardDatabase(sqlite3.Connection, Singleton):
             self.commit()
             log.debug("Inserted {0} records into tblTracks".format(len(trackRecords)))
 
+
+def processTrack(trackfile, locations):
+    """
+    Process individual track to determine distance to locations, etc.
+
+    Any empty tracks are filtered at an earlier stage. If an empty
+    track is passed, then a None result is returned.
+
+    :param track: :class:`Track` instance.
+    :param locations: list of locations in the simulation domain.
+    """
+    tracks = [t for t in loadTracksFromFiles([trackfile])]
+    points = [Point(loc[2], loc[3]) for loc in locations]
+    records = []
+    for track in tracks:
+        length = len(track.data)
+        if length == 0:
+            log.info("Got an empty track: returning None")
+            continue #return None
+        distances = track.minimumDistance(points)
+        for (loc, dist) in zip(locations, distances):
+            locRecs = (loc[0], "%03d-%05d"%(track.trackId),
+                       dist, None, None, "", datetime.now())
+
+            records.append(locRecs)
+        log.info("Track {0}-{1} has {2} records".format(track.trackId[0],
+                                                        track.trackId[1],
+                                                        len(records)))
+    return records
+
 def run(configFile):
     """
     Run database update
@@ -720,26 +767,26 @@ def run(configFile):
         location_file = config.get('Input', 'LocationFile')
         buildLocationDatabase(location_db, location_file)
 
-    global pp
-    pp = attemptParallel()
-
+    global MPI, comm
+    MPI = attemptParallel()
+    comm = MPI.COMM_WORLD
     db = HazardDatabase(configFile)
 
     db.createDatabase()
     db.setLocations()
 
-    pp.barrier()
+    comm.barrier()
     db.processEvents()
-    pp.barrier()
+    comm.barrier()
 
     db.processHazard()
 
-    pp.barrier()
+    comm.barrier()
     db.processTracks()
-    pp.barrier()
+    comm.barrier()
 
-    db.close()
-    pp.barrier()
+    #db.close()
+    comm.barrier()
     log.info("Created and populated database")
     log.info("Finished running database creation")
 
@@ -790,7 +837,7 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
     # Perform a check that locations are in geographic coordinates:
     lons = []
     lats = []
-    for v in vertices.values():
+    for v in list(vertices.values()):
         lon, lat = v[0]
         lons.append(lon)
         lats.append(lat)
@@ -807,7 +854,7 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
         raise ValueError(msg)
 
     # Prepare entries:
-    for v, r in zip(vertices.values(), records):
+    for v, r in zip(list(vertices.values()), records):
         locLon, locLat = v[0]
         locLon = np.mod(locLon, 360.)
         locCode = str(r[0])
@@ -829,6 +876,7 @@ def buildLocationDatabase(location_db, location_file, location_type='AWS'):
     locdb.commit()
     locdb.close()
 
+@timer
 def locationRecordsExceeding(hazard_db, locId, windSpeed):
     """
     Select all records where the wind speed at the given location is
@@ -861,11 +909,11 @@ def locationRecordsExceeding(hazard_db, locId, windSpeed):
 
     cur = hazard_db.execute(query, (windSpeed, locId,))
     results = cur.fetchall()
-    results = np.rec.fromrecords(results,
-                                 names=('locId,locName,wspd,eventId'))
+    results = fromrecords(results, names=('locId,locName,wspd,eventId'))
 
     return results
 
+@timer
 def locationRecords(hazard_db, locId):
     """
     Select all wind speed records for a given location.
@@ -885,12 +933,12 @@ def locationRecords(hazard_db, locId):
              "WHERE l.locId = ? ORDER BY w.wspd ASC")
     cur = hazard_db.execute(query, (locId,))
     results = cur.fetchall()
-    results = np.rec.fromrecords(results,
-                                 names=('locId,locName,wspd,'
-                                        'umax,vmax,eventId'))
+    results = fromrecords(results,
+                          names=('locId,locName,wspd,umax,vmax,eventId'))
 
     return results
 
+@timer
 def locationPassage(hazard_db, locId, distance=50):
     """
     Select all records from tblTracks that pass within a defined
@@ -922,11 +970,12 @@ def locationPassage(hazard_db, locId, distance=50):
              "WHERE t.distClosest < ? and l.locId = ?")
     cur = hazard_db.execute(query, (distance, locId))
     results = cur.fetchall()
-    results = np.rec.fromrecords(results,
-                                 names=('locId,locName,eventId,'
-                                        'distClosest,wspd,eventFile'))
+    results = fromrecords(results,
+                          names=('locId,locName,eventId,'
+                                 'distClosest,wspd,eventFile'))
     return results
 
+@timer
 def locationPassageWindSpeed(hazard_db, locId, speed, distance):
     """
     Select records from _tblWindSpeed_, _tblTracks_ and _tblEvents_ that
@@ -951,12 +1000,13 @@ def locationPassageWindSpeed(hazard_db, locId, speed, distance):
 
     cur = hazard_db.execute(query, (locId, speed, distance))
     results = cur.fetchall()
-    results = np.rec.fromrecords(results,
-                                 names=('locName,wspd,umax,vmax,eventId,'
-                                        'distClosest,maxwind,pmin'))
+    results = fromrecords(results,
+                          names=('locName,wspd,umax,vmax,eventId,'
+                                 'distClosest,maxwind,pmin'))
 
     return results
 
+@timer
 def locationReturnPeriodEvents(hazard_db, locId, return_period):
     """
     Select all records from tblEvents where the wind speed is
@@ -991,6 +1041,7 @@ def locationReturnPeriodEvents(hazard_db, locId, return_period):
 
     return results
 
+@timer
 def locationAllReturnLevels(hazard_db, locId):
     """
     Select all return level wind speeds (including upper and lower
@@ -1014,12 +1065,13 @@ def locationAllReturnLevels(hazard_db, locId):
 
     cur = hazard_db.execute(query, (locId,))
     results = cur.fetchall()
-    results = np.rec.fromrecords(results,
-                                 names=('locId,locName,returnPeriod,'
-                                        'wspd,wspdLower,wspdUpper'))
+    results = fromrecords(results,
+                          names=('locId,locName,returnPeriod,'
+                                 'wspd,wspdLower,wspdUpper'))
 
     return results
 
+@timer
 def selectEvents(hazard_db):
     """
     Select all events from _tblEvents_.
@@ -1037,5 +1089,5 @@ def selectEvents(hazard_db):
     names = ("eventNum,eventId,eventFile,eventTrackFile,eventMaxWind,"
              "eventMinPressure,dtTrackFile,dtWindfieldFile,tcrmVer,"
              "Comments,dtCreated")
-    results = np.rec.fromrecords(results, names=names)
+    results = fromrecords(results, names=names)
     return results

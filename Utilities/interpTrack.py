@@ -34,20 +34,20 @@ def ShowSyntax(exit_code=0):
     :param int exit_code: Exit code.
 
     """
-    print sys.argv[0]
-    print "Interpolate the observed points of a tropical cyclone temporally"
-    print "for use in modelling a scenario event in TCRM"
-    print "Example usage:"
-    print "{0} -c <config file> -l <log file> -v".format(sys.argv[0])
-    print ""
-    print "Options:"
-    print "-h, --help:   prints this help message"
-    print "-c, --config: configuration path (default value is {0})".format(flConfigFile())
-    print "-l --logfile: path to log file to record actions (default value is {0})".format(flConfigFile(".log"))
-    print "-v --verbose: True|False - print all logging messages to the screen"
-    print ""
-    print "Created by Craig Arthur, 2007-10-25 9:51:AM"
-    print __version__
+    print(sys.argv[0])
+    print("Interpolate the observed points of a tropical cyclone temporally")
+    print("for use in modelling a scenario event in TCRM")
+    print("Example usage:")
+    print("{0} -c <config file> -l <log file> -v".format(sys.argv[0]))
+    print("")
+    print("Options:")
+    print("-h, --help:   prints this help message")
+    print("-c, --config: configuration path (default value is {0})".format(flConfigFile()))
+    print("-l --logfile: path to log file to record actions (default value is {0})".format(flConfigFile(".log")))
+    print("-v --verbose: True|False - print all logging messages to the screen")
+    print("")
+    print("Created by Craig Arthur, 2007-10-25 9:51:AM")
+    print(__version__)
     sys.exit(exit_code)
 
 def main(argv):
@@ -58,8 +58,8 @@ def main(argv):
 
     """
     gConfigFile = flConfigFile()
-    logFile = flConfigFile(".log")
-    verbose = False
+    #logFile = flConfigFile(".log")
+    #verbose = False
     logger = logging.getLogger()
 
     try:
@@ -69,7 +69,7 @@ def main(argv):
     except getopt.GetoptError:
         ShowSyntax(2)
 
-    for opt,arg in opts:
+    for opt, arg in opts:
         if opt in ("-h", "--help"):
             ShowSyntax()
             sys.exit(2)
@@ -86,25 +86,25 @@ def main(argv):
 
 
     inputFile = cnfGetIniValue(gConfigFile, 'Input', 'File')
-    logger.info("Processing %s"%inputFile)
+    logger.info("Processing {0}".format(inputFile))
     source = cnfGetIniValue(gConfigFile, 'Input', 'Source')
     delta = cnfGetIniValue(gConfigFile, 'Output', 'Delta', 0.1)
 
     nid, newtime, newdates, nLon, nLat, nthetaFm, \
         nvFm, npCentre, npEnv, nrMax = \
                     interpolateTrack(gConfigFile, inputFile, source, delta)
-    header=''
+    #header = ''
     outputFile = cnfGetIniValue(gConfigFile, 'Output', 'File')
-    logger.info("Saving interpolated data to %s"%(outputFile))
+    logger.info("Saving interpolated data to {0}".format(outputFile))
     fh = open(outputFile, 'w')
-    for i in xrange(len(newtime)):
+    for i in range(len(newtime)):
         fh.write("%d,%5.1f,%s,%6.2f,%6.2f,%6.2f,%6.2f,%7.2f,%7.2f,%5.1f\n"
-                 % (nid[i], newtime[i], 
+                 % (nid[i], newtime[i],
                     newdates[i].strftime("%Y-%m-%d %H:%M"),
                     nLon[i], nLat[i], nthetaFm[i], nvFm[i], npCentre[i],
                     npEnv[i], nrMax[i]))
     fh.close()
-    logger.info("Completed %s"%(sys.argv[0]))
+    logger.info("Completed {0}".format(sys.argv[0]))
 
 def interpolateTrack(configFile, trackFile, source, delta=0.1,
                      interpolation_type=None):
@@ -137,7 +137,7 @@ def interpolateTrack(configFile, trackFile, source, delta=0.1,
 
     # Time between observations:
     day_ = [datetime.datetime(year[i], month[i], day[i], hour[i], minute[i])
-            for i in xrange(year.size)]
+            for i in range(year.size)]
     time_ = date2num(day_)
     dt_ = 24.0*numpy.diff(time_)
     dt = numpy.empty(hour.size, 'f')
@@ -166,7 +166,7 @@ def interpolateTrack(configFile, trackFile, source, delta=0.1,
         if interpolation_type == 'akima':
             # Use the Akima interpolation method:
             try:
-                import _akima
+                from . import _akima
             except ImportError:
                 logger.exception(("Akima interpolation module unavailable - "
                                   "default to scipy.interpolate"))

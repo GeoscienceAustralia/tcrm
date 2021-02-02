@@ -14,13 +14,13 @@
 
 import sys
 import logging as log
-import KDEOrigin
-import KDEParameters
+from . import KDEOrigin
+from . import KDEParameters
 
 from os.path import join as pjoin
 from Utilities.config import cnfGetIniValue, ConfigParser
-from GenerateDistributions import GenerateDistributions
-from generateStats import GenerateStats
+from .GenerateDistributions import GenerateDistributions
+from .generateStats import GenerateStats
 
 
 class StatInterface(object):
@@ -57,7 +57,7 @@ class StatInterface(object):
         self.processPath = pjoin(self.outputPath, 'process')
 
         missingValue = cnfGetIniValue(self.configFile, 'StatInterface',
-                                      'MissingValue', sys.maxint)
+                                      'MissingValue', sys.maxsize)
 
         gridLimitStr = cnfGetIniValue(self.configFile, 'StatInterface',
                                       'gridLimit', '')
@@ -113,7 +113,7 @@ class StatInterface(object):
         log.debug('Reading data from {0}'.\
                   format(pjoin(self.processPath, 'jdays')))
         pList = pjoin(self.processPath, 'jdays')
-        lonLat = pjoin(self.processPath, 'init_lon_lat')
+        lonLat = pjoin(self.processPath, 'origin_lon_lat')
         kde = KDEParameters.KDEParameters(self.kdeType)
         #kde.generateGenesisDateCDF(jdays, lonLat, bw=14,
         #                           genesisKDE=pjoin(self.processPath,

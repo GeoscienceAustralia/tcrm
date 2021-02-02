@@ -144,7 +144,7 @@ def saveTrackMap(tracks, xgrid, ygrid, title, map_kwargs, filename):
                   domain.
     :param str title: Title string for the plot.
     :param dict map_kwargs: Keyword args that will define the
-                            :class:`Basemap` instance.
+                            :class:`GeoAxes` instance.
     :param str filename: Path to the file to save the image.
 
     """

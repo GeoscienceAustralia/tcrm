@@ -19,7 +19,7 @@ from Utilities.config import ConfigParser
 
 logger = logging.getLogger(__name__)
 
-class CalcFrequency:
+class CalcFrequency(object):
     """
     Calculate the annual mean frequency of TC events
     based on input dataset. The frequency is calculated
@@ -70,11 +70,11 @@ class CalcFrequency:
         logger.info("Calculating annual frequency of TC events")
         origin_year = np.array(flLoadFile(pjoin(self.outputPath,
                                                 'process', 'origin_year'),
-                                                '%', ','), dtype='int')
+                                          '%', ','), dtype='int')
 
         origin_lon_lat = flLoadFile(pjoin(self.outputPath,
                                           'process', 'origin_lon_lat'),
-                                          '%', ',')
+                                    '%', ',')
         origin_lon = origin_lon_lat[:, 0]
         origin_lat = origin_lon_lat[:, 1]
         min_year = origin_year.min()
@@ -95,7 +95,7 @@ class CalcFrequency:
 
         fname = pjoin(self.outputPath, 'process', 'region_frequency')
         data = np.array([np.arange(min_year, max_year + 1),
-                      freq_count[min_year:max_year + 1]])
+                         freq_count[min_year:max_year + 1]])
         header = "Year,count"
         np.savetxt(fname, data.T, fmt="%d", delimiter=",", header=header)
 

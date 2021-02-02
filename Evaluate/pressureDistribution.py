@@ -21,7 +21,7 @@ from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
 
 import matplotlib
-matplotlib.use('Agg', warn=False)
+matplotlib.use('Agg')
 import seaborn as sns
 
 from Utilities.config import ConfigParser
@@ -35,7 +35,7 @@ from PlotInterface.maps import ArrayMapFigure
 from PlotInterface.curves import saveDistributionCurve
 from PlotInterface.figures import QuantileFigure, saveFigure
 
-pp = None
+MPI = None
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
@@ -103,8 +103,8 @@ class PressureDistribution(object):
                                          'yearspersimulation')
         cellnumber = 0
         self.gridCells = []
-        for k in xrange(len(self.lon_range) - 1):
-            for l in xrange(len(self.lat_range) - 1):
+        for k in range(len(self.lon_range) - 1):
+            for l in range(len(self.lat_range) - 1):
                 ymin = self.lat_range[l]
                 ymax = self.lat_range[l] + gridSpace['y']
                 xmin = self.lon_range[k]
@@ -139,7 +139,7 @@ class PressureDistribution(object):
                                (t.Longitude < cell.xmax)))[0]
                 if len(ii) > 0:
                     vv = t.CentralPressure[ii].\
-                         compress(t.CentralPressure[ii] < sys.maxint)
+                         compress(t.CentralPressure[ii] < sys.maxsize)
                     vcell = np.append(vcell, vv.compress(vv > 0.0))
 
             if len(vcell > 0):
@@ -255,20 +255,20 @@ class PressureDistribution(object):
         bins = np.arange(850., 1020., 5.)
         synMinCPDist = np.empty((len(trackfiles), len(bins) - 1))
         self.synMinCP = np.array([])
-        if (pp.rank() == 0) and (pp.size() > 1):
+        if (comm.rank == 0) and (comm.size > 1):
 
             w = 0
             n = 0
-            for d in range(1, pp.size()):
-                pp.send(trackfiles[w], destination=d, tag=work_tag)
+            for d in range(1, comm.size):
+                comm.Send(trackfiles[w], dest=d, tag=work_tag)
                 log.debug("Processing track file {0:d} of {1:d}".
                           format(w + 1, len(trackfiles)))
                 w += 1
 
             terminated = 0
-            while terminated < pp.size() - 1:
-                results, status = pp.receive(pp.any_source, tag=result_tag,
-                                             return_status=True)
+            while terminated < comm.size - 1:
+                results, status = comm.Recv(MPI.ANY_SOURCE, tag=result_tag,
+                                            status=None)
 
                 sMean, sMin, sMax, sMed, sMinCPDist, sMinCP = results
                 synMean[n, :, :] = sMean
@@ -282,30 +282,30 @@ class PressureDistribution(object):
                 d = status.source
 
                 if w < len(trackfiles):
-                    pp.send(trackfiles[w], destination=d, tag=work_tag)
+                    comn.Send(trackfiles[w], dest=d, tag=work_tag)
                     log.debug("Processing track file {0:d} of {1:d}".
                               format(w + 1, len(trackfiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.Send(None, dest=d, tag=work_tag)
                     terminated += 1
 
             self.calculateMeans(synMean, synMin, synMed, synMax, synMinCPDist)
 
-        elif (pp.size() > 1) and (pp.rank() != 0):
+        elif (comm.size > 1) and (comm.rank != 0):
             while True:
-                trackfile = pp.receive(source=0, tag=work_tag)
+                trackfile = comm.Recv(source=0, tag=work_tag)
                 if trackfile is None:
                     break
 
-                log.debug("Processing %s", trackfile)
+                log.debug("Processing {0}".format(trackfile))
                 tracks = loadTracks(trackfile)
                 sMean, sMin, sMax, sMed = self.calculate(tracks)
                 sMinCPDist, sMinCP = self.calcMinPressure(tracks)
                 results = (sMean, sMin, sMax, sMed, sMinCPDist, sMinCP)
-                pp.send(results, destination=0, tag=result_tag)
+                comm.Send(results, dest=0, tag=result_tag)
 
-        elif pp.size() == 1 and pp.rank() == 0:
+        elif comm.size == 1 and comm.rank == 0:
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
             for n, trackfile in enumerate(sorted(trackfiles)):
                 tracks = loadTracks(trackfile)
@@ -458,10 +458,14 @@ class PressureDistribution(object):
         y = self.synMinCP
         lims = (850, 1000)
         fig = QuantileFigure()
+        log.info("Length of quantiles: {0}".format(x.compress(x > 0)))
+        log.info("Length of quantiles: {0}".format(y.compress(y > 0)))
+
         fig.add(x.compress(x > 0), y.compress(y > 0), lims,
                 "Observed pressure (hPa)",
                 "Simulated pressure (hPa)",
                 "Q-Q plot of minimum central pressure")
+        log.info("Number of subfigures: {0}".format(len(fig.subfigures)))
         fig.plot()
         outputFile = pjoin(self.plotPath, 'minPressureQuantiles.png')
         saveFigure(fig, outputFile)
@@ -558,16 +562,16 @@ class PressureDistribution(object):
 
     def run(self):
         """Run the pressure distribution evaluation"""
-        global pp
-        pp = attemptParallel()
-
+        global MPI, comm
+        MPI = attemptParallel()
+        comm = MPI.COMM_WORLD
         self.historic()
 
-        pp.barrier()
+        comm.barrier()
 
         self.synthetic()
 
-        pp.barrier()
+        comm.barrier()
 
         self.plotPressureMean()
         self.plotPressureMin()

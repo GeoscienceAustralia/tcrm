@@ -19,9 +19,8 @@ the TCRM User Guide for details on running this script.
 """
 
 import logging as log
-if 'NullHandler' not in dir(log):
-    from Utilities import py26compat
-    log.NullHandler = py26compat.NullHandler
+log.getLogger('matplotlib').setLevel(log.WARNING)
+from functools import reduce
 
 import os
 import time
@@ -37,7 +36,6 @@ from Utilities.files import flStartLog
 from Utilities.version import version
 from Utilities.progressbar import SimpleProgressBar as ProgressBar
 from Evaluate import interpolateTracks
-from PlotInterface.maps import saveWindfieldMap
 
 __version__ = version()
 
@@ -55,7 +53,7 @@ def timer(f):
           reduce(lambda ll, b : divmod(ll[0], b) + ll[1:],
                         [(tottime,), 60, 60])
 
-        log.info("Time for {0}: {1}".format(f.func_name, msg) )
+        log.info("Time for {0}: {1}".format(f.__name__, msg) )
         return res
 
     return wrap
@@ -120,14 +118,24 @@ def doWindfieldPlotting(configFile):
     """
     from netCDF4 import Dataset
     import numpy as np
+    from PlotInterface.maps import saveWindfieldMap
+
     config = ConfigParser()
     config.read(configFile)
-
     outputPath = config.get('Output', 'Path')
     windfieldPath = pjoin(outputPath, 'windfield')
 
-    # Note the assumption about the file name!
-    outputWindFile = pjoin(windfieldPath, 'gust.001-00001.nc')
+    inputFile = config.get('DataProcess', 'InputFile')
+    if inputFile.endswith(".nc"):
+        # We have a netcdf track file. Work under the assumption it is
+        # drawn directly from TCRM.
+        trackFile = os.path.basename(inputFile)
+        trackId = trackFile.split('.')[1]
+        gustFile = 'gust.{0}.nc'.format(trackId)
+        outputWindFile = pjoin(windfieldPath, gustFile)
+    else:
+        # Note the assumption about the file name!
+        outputWindFile = pjoin(windfieldPath, 'gust.001-00001.nc')
     plotPath = pjoin(outputPath, 'plots', 'maxwind.png')
 
     f = Dataset(outputWindFile, 'r')
@@ -195,7 +203,12 @@ def main(configFile):
     import wind
     wind.run(configFile, status)
 
-    doWindfieldPlotting(configFile)
+    import impact
+    impact.run_optional(config)
+
+    if config.getboolean('WindfieldInterface', 'PlotOutput'):
+        doWindfieldPlotting(configFile)
+
     if config.getboolean('Timeseries', 'Extract'):
         doTimeseriesPlotting(configFile)
 
@@ -259,10 +272,7 @@ def startup():
         try:
             main(configFile)
         except ImportError as e:
-            log.critical("Missing module: {0}".format(e.strerror))
-            tblines = traceback.format_exc().splitlines()
-            for line in tblines:
-                log.critical(line.lstrip())
+            log.critical("Missing module: {0}".format(e))
         except Exception:  # pylint: disable=W0703
             # Catch any exceptions that occur and log them (nicely):
             tblines = traceback.format_exc().splitlines()

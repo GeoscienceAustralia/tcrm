@@ -9,7 +9,7 @@ This module contains the core objects for the return period hazard
 calculation.
 
 Hazard calculations can be run in parallel using MPI if the
-:term:`pypar` library is found and TCRM is run using the
+:term:`mpi4py` library is found and TCRM is run using the
 :term:`mpirun` command. For example, to run with 10 processors::
 
     mpirun -n 10 python tcrm.py cairns.ini
@@ -35,7 +35,8 @@ from Utilities.files import flProgramVersion
 from Utilities.config import ConfigParser
 from Utilities.parallel import attemptParallel, disableOnWorkers
 import Utilities.nctools as nctools
-import evd
+from .evd import EVFUNCS
+from . import GPD
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -144,8 +145,8 @@ class TileGrid(object):
         self.y_end = np.zeros(self.num_tiles, 'i')
         k = 0
 
-        for i in xrange(subset_maxcols):
-            for j in xrange(subset_maxrows):
+        for i in range(subset_maxcols):
+            for j in range(subset_maxrows):
                 self.x_start[k] = i * self.xstep + self.imin
                 self.x_end[k] = min((i + 1) * self.xstep + self.imin,
                                     self.xdim + self.imin) - 1
@@ -201,7 +202,7 @@ class HazardCalculator(object):
     """
 
     def __init__(self, configFile, tilegrid, numSim, minRecords, yrsPerSim,
-                 vardesc, calcCI=False):
+                 vardesc, calcCI=False, evd='GEV'):
         """
         Initialise HazardCalculator object.
 
@@ -215,6 +216,8 @@ class HazardCalculator(object):
                              variable such as short name, long name, units, etc.
         :param bool calcCI: Calculate confidence intervals for the extreme value
                             distribution.
+        :param str extreme_value_distribution: evd to use. Options so far are GEV
+                                               and GPD.
         """
         config = ConfigParser()
         config.read(configFile)
@@ -237,6 +240,7 @@ class HazardCalculator(object):
             log.debug("Bootstrap confidence intervals will be calculated")
             self.sample_size = config.getint('Hazard', 'SampleSize')
             self.prange = config.getint('Hazard', 'PercentileRange')
+        self.evd = evd
 
         self.tilegrid = tilegrid
         lon, lat = self.tilegrid.getDomainExtent()
@@ -270,21 +274,65 @@ class HazardCalculator(object):
     def calculateHazard(self, tilelimits):
         """
         Load input hazard data and then calculate the return period and
-        distribution parameters for a given tile.
+        distribution parameters for a given tile. The extreme value distribution
+        used in the calculation can be set in the config file. The default
+        distribution is set to GEV.
 
-        :param tilelimits: `tuple` of tile limits
+        :param tilelimits: `tuple` of tile limits       
+
+        Returns:
+        --------
+
+        :param Rp: `numpy.ndarray` of return period wind speed values for each lat/lon
+        :param loc: `numpy.ndarray` of location parameters for each lat/lon
+        :param scale: `numpy.ndarray` of scale parameters for each lat/lon
+        :param shp: `numpy.ndarray` of shape parameters for each lat/lon
+        :param RpUpper: Upper CI return period wind speed values for each lat/lon
+        :param RpLower: Lower CI return period wind speed values for each lat/lon
+
         """
-        #Vr = loadFilesFromPath(self.inputPath, tilelimits)
-        Vr = aggregateWindFields(self.inputPath, self.numSim, 
-                                 self.var_name, tilelimits)
-        Rp, loc, scale, shp = calculate(Vr, self.years, self.nodata,
-                                        self.minRecords, self.yrsPerSim)
 
-        if self.calcCI:
+        #try:
+        #    evfunc = EVFUNCS['{0}fit'.format(self.evd.lower())]
+        #except KeyError:
+        #    log.exception("{0} distribution not implemented for hazard calculation".format(self.evd))
+        #    raise
+
+        log.info("Using {0} distribution for the hazard curves".format(self.evd))
+        #Vr = loadFilesFromPath(self.inputPath, tilelimits)
+        #Rp, loc, scale, shp = evfunc(Vr, self.years, self.numSim, self.nodata,
+        #self.minRecords)
+        if self.evd not in ["GPD", "GEV", "power", "emp"]:
+            msg = (f"Invalid extreme value distribution function: {self.evd} \n"
+                   "Set 'Hazard--ExtremeValueDistribution' to one of the following: \n"
+                   "GPD, GEV, power or emp")
+            raise ValueError (msg)
+
+        if self.evd == 'GPD':
+            log.info("Using the GPD distribution for the hazard curves")
+            Vr = loadFilesFromPath(self.inputPath, tilelimits) 
+            Rp, loc, scale, shp = calculateGPD(Vr, self.years, self.numSim, self.nodata,
+                                               self.minRecords, self.yrsPerSim)
+        elif self.evd == 'GEV':
+            log.info("Using the GEV distribution for the hazard curves")
+            Vr = aggregateWindFields(self.inputPath, self.numSim, tilelimits)
+            Rp, loc, scale, shp = calculateGEV(Vr, self.years, self.nodata,
+                                               self.minRecords, self.yrsPerSim)
+        elif self.evd == 'power':
+            log.info("Using the power law function for the hazard curves")
+            Vr = loadFilesFromPath(self.inputPath, tilelimits)
+            Rp, loc, scale, shp = calculatePower(Vr, self.years, self.numSim, self.nodata,
+                                                 self.minRecords, self.yrsPerSim)
+        elif self.evd == 'emp':
+            log.info("Using empirical hazard curve")
+            Vr = loadFilesFromPath(self.inputPath, tilelimits)
+            Rp, loc, scale, shp = calculateEMP(Vr, self.years, self.numSim, self.nodata,
+                                               self.minRecords, self.yrsPerSim)
+        if self.calcCI: # set in config
             RpUpper, RpLower = calculateCI(Vr, self.years, self.nodata,
                                            self.minRecords, self.yrsPerSim,
                                            self.sample_size, self.prange)
-
+ 
             return (tilelimits, Rp, loc, scale, shp, RpUpper, RpLower)
         else:
             return (tilelimits, Rp, loc, scale, shp)
@@ -296,34 +344,30 @@ class HazardCalculator(object):
         :param tileiter: generator that yields tuples of tile dimensions.
 
         """
-
+        status = MPI.Status()
         work_tag = 0
         result_tag = 1
-        if (pp.rank() == 0) and (pp.size() > 1):
+        if (comm.rank == 0) and (comm.size > 1):
             w = 0
-            p = pp.size() - 1
-            for d in range(1, pp.size()):
+            p = comm.size - 1
+            for d in range(1, comm.size):
                 if w < len(tiles):
-                    pp.send(tiles[w], destination=d, tag=work_tag)
+                    comm.send(tiles[w], dest=d, tag=work_tag)
                     log.debug("Processing tile %d of %d" % (w, len(tiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=work_tag)
                     p = w
 
-
             terminated = 0
-
             while(terminated < p):
 
-                result, status = pp.receive(pp.any_source, tag=result_tag,
-                                             return_status=True)
+                result = comm.recv(source=MPI.ANY_SOURCE, status=status, tag=MPI.ANY_TAG)
 
                 if self.calcCI:
                     limits, Rp, loc, scale, shp, RPupper, RPlower = result
                 else:
                     limits, Rp, loc, scale, shp = result
-
 
                 # Reset the min/max bounds for the output array:
                 (xmin, xmax, ymin, ymax) = limits
@@ -344,26 +388,29 @@ class HazardCalculator(object):
                 d = status.source
 
                 if w < len(tiles):
-                    pp.send(tiles[w], destination=d, tag=work_tag)
+                    comm.send(tiles[w], dest=d, tag=status.tag)
                     log.debug("Processing tile %d of %d" % (w, len(tiles)))
                     w += 1
                 else:
-                    pp.send(None, destination=d, tag=work_tag)
+                    comm.send(None, dest=d, tag=status.tag)
                     terminated += 1
 
                 log.debug("Number of terminated threads is %d"%terminated)
                 if progressCallback:
                     progressCallback(w)
 
-        elif (pp.size() > 1) and (pp.rank() != 0):
+        elif (comm.size > 1) and (comm.rank != 0):
+            status = MPI.Status()
+            W = None
             while(True):
-                W = pp.receive(source=0, tag=work_tag)
+                W = comm.recv(source=0, tag=work_tag, status=status)
                 if W is None:
+                    log.debug("No work to be done on this processor: {0}".format(comm.rank))
                     break
                 results = self.calculateHazard(W)
-                pp.send(results, destination=0, tag=result_tag)
+                comm.send(results, dest=0, tag=status.tag)
 
-        elif pp.size() == 1 and pp.rank() == 0:
+        elif comm.size == 1 and comm.rank == 0:
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
             for i, tile in enumerate(tiles):
                 log.debug("Processing tile %d of %d" % (i, len(tiles)))
@@ -405,12 +452,13 @@ class HazardCalculator(object):
 
         dimensions = {
             0: {
-                'name': 'years',
+                'name': 'ari',
                 'values': self.years,
                 'dtype': 'f',
                 'atts': {
-                    'long_name' : 'Return period',
-                    'units' : 'years'
+                    'long_name' : 'Average recurrence interval',
+                    'units' : 'years',
+                    'axis' : 'Z'
                 }
             },
             1: {
@@ -501,8 +549,7 @@ class HazardCalculator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name':
-                         ('Upper percentile return period ',
-                          self.long_name),
+                         (f'Upper percentile ARI {self.long_name}'),
                     'units': self.units,
                     'percentile': 95,
                     'valid_range': (0.0, 200.),
@@ -516,8 +563,7 @@ class HazardCalculator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name':
-                         ('Lower percentile return period ',
-                          self.long_name),
+                         (f'Lower percentile ARI {self.long_name}'),
                     'units': self.units,
                     'percentile': 5,
                     'valid_range': (0.0, 200.),
@@ -548,17 +594,25 @@ class HazardCalculator(object):
                            keepfileopen=False)
 
 
-def calculate(Vr, years, nodata, minRecords, yrsPerSim):
+def calculateGEV(Vr, years, nodata, minRecords, yrsPerSim):
     """
     Fit a GEV to the wind speed records for a 2-D extent of
     wind speed values
 
     :param Vr: `numpy.ndarray` of wind speeds (3-D - event, lat, lon)
+               block maxima processed with aggregateWindRecords
     :param years: `numpy.ndarray` of years for which to evaluate
                   return period values
+    :param float nodata: missing data value.
+    :param int minRecords: minimum number of valid wind speed values required
+                           to fit distribution.
+    :param int yrsPerSim: Taken from the config file
 
     Returns:
     --------
+    
+    GEV fit parameters and return period wind speeds for each grid cell in
+    simulation domain
 
     :param Rp: `numpy.ndarray` of return period wind speed values
     :param loc: `numpy.ndarray` of location parameters in the domain of `Vr`
@@ -567,21 +621,23 @@ def calculate(Vr, years, nodata, minRecords, yrsPerSim):
 
     """
 
-    Vr.sort(axis=0)
-    Rp = np.zeros((len(years),) + Vr.shape[1:], dtype='f')
-    loc = np.zeros(Vr.shape[1:], dtype='f')
-    scale = np.zeros(Vr.shape[1:], dtype='f')
-    shp = np.zeros(Vr.shape[1:], dtype='f')
+    Vr.sort(axis=0) #axis 0 = year
+    Rp = np.zeros((len(years),) + Vr.shape[1:], dtype='f') # Rp = years x lat x lon
+    loc = np.zeros(Vr.shape[1:], dtype='f') # loc = lat x lon
+    scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
+    shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
 
-    for i in xrange(Vr.shape[1]):
-        for j in xrange(Vr.shape[2]):
-            if Vr[:,i,j].max() > 0.0:
-                w, l, sc, sh = evd.estimateEVD(Vr[:,i,j],
-                                               years,
-                                               nodata,
-                                               minRecords,
-                                               yrsPerSim)
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
+            if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
+                w, l, sc, sh = evd.gevfit(Vr[:,i,j], years, nodata,
+                                          minRecords, yrsPerSim)
+                # w = array of return period wind speed values
+                # l = location parameter of fit
+                # sc = scale parameter of fit
+                # sh = shape parameter of fit
 
+                # Put the returned values back into the lat/lon grid
                 Rp[:, i, j] = w
                 loc[i, j] = l
                 scale[i, j] = sc
@@ -589,6 +645,171 @@ def calculate(Vr, years, nodata, minRecords, yrsPerSim):
 
     return Rp, loc, scale, shp
 
+def calculateEMP(Vr, years, numsim, nodata, minRecords, yrsPerSim):
+    """
+    Calculate empirical return levels the wind speed records for a 2-D extent of
+    wind speed values
+
+    :param Vr: `numpy.ndarray` of wind speeds (3-D - event, lat, lon)
+               block maxima processed with aggregateWindRecords
+    :param years: `numpy.ndarray` of years for which to evaluate
+                  return period values
+    :param float nodata: missing data value.
+    :param int minRecords: minimum number of valid wind speed values required
+                           to fit distribution.
+    :param int yrsPerSim: Taken from the config file
+
+    Returns:
+    --------
+    
+    GEV fit parameters and return period wind speeds for each grid cell in
+    simulation domain
+
+    :param Rp: `numpy.ndarray` of return period wind speed values
+    :param loc: `numpy.ndarray` of location parameters in the domain of `Vr`
+    :param scale: `numpy.ndarray` of scale parameters in the domain of `Vr`
+    :param shp: `numpy.ndarray` of shape parameters in the domain of `Vr`
+
+    """
+
+    Vr.sort(axis=0) #axis 0 = year
+    Rp = np.zeros((len(years),) + Vr.shape[1:], dtype='f') # Rp = years x lat x lon
+    loc = np.zeros(Vr.shape[1:], dtype='f') # loc = lat x lon
+    scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
+    shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
+
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
+            if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
+                w, l, sc, sh = evd.empfit(Vr[:,i,j], years, numsim, nodata,
+                                          minRecords)
+                # w = array of return period wind speed values
+                # l = location parameter of fit
+                # sc = scale parameter of fit
+                # sh = shape parameter of fit
+
+                # Put the returned values back into the lat/lon grid
+                Rp[:, i, j] = w
+                loc[i, j] = l
+                scale[i, j] = sc
+                shp[i, j] = sh
+
+    return Rp, loc, scale, shp
+
+
+
+def calculateGPD(Vr, years, numsim, nodata, minRecords, yrsPerSim):
+    """
+    Fit a GPD to the wind speed records for a 2-D extent of
+    wind speed values
+
+    :param inputPath: path to individual wind field files.
+    :param tuple tilelimits: tuple of index limits of a tile.
+    :param years: `numpy.ndarray` of years for which to evaluate
+                  return period values
+    :param int numsim: number of simulations created.
+    :param float nodata: missing data value.
+    :param int minRecords: minimum number of valid wind speed values required
+                           to fit distribution.
+    :param int yrsPerSim: Taken from the config file
+
+    Returns:
+    --------
+    
+    GPD fit parameters and return period wind speeds for each grid cell in
+    simulation domain
+
+    :param Rp: `numpy.ndarray` of return period wind speed values
+    :param loc: `numpy.ndarray` of location parameters in the domain of `Vr`
+    :param scale: `numpy.ndarray` of scale parameters in the domain of `Vr`
+    :param shp: `numpy.ndarray` of shape parameters in the domain of `Vr`
+
+    """
+
+    Vr.sort(axis=0) #axis 0 = year
+    Rp = np.zeros((len(years),) + Vr.shape[1:], dtype='f') # Rp = years x lat x lon
+    loc = np.zeros(Vr.shape[1:], dtype='f') # loc = lat x lon
+    scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
+    shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
+
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
+            if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
+                log.debug("lat: {0}, lon: {1}".format(i, j))
+                w, l, sc, sh = GPD.gpdfit(Vr[:,i,j],
+                                          years,
+                                          numsim,
+                                          nodata,
+                                          minRecords,
+                                          threshold=99.5)
+                # w = array of return period wind speed values
+                # l = location parameter of fit
+                # sc = scale parameter of fit
+                # sh = shape parameter of fit
+
+                # Put the returned values back into the lat/lon grid
+                Rp[:, i, j] = w
+                loc[i, j] = l
+                scale[i, j] = sc
+                shp[i, j] = sh
+
+    return Rp, loc, scale, shp
+
+def calculatePower(Vr, years, numsim, nodata, minRecords, yrsPerSim):
+    """
+    Fit a GPD to the wind speed records for a 2-D extent of
+    wind speed values
+
+    :param inputPath: path to individual wind field files.
+    :param tuple tilelimits: tuple of index limits of a tile.
+    :param years: `numpy.ndarray` of years for which to evaluate
+                  return period values
+    :param int numSim: number of simulations created.
+    :param float nodata: missing data value.
+    :param int minRecords: minimum number of valid wind speed values required
+                           to fit distribution.
+    :param int yrsPerSim: Taken from the config file
+
+    Returns:
+    --------
+    
+    GPD fit parameters and return period wind speeds for each grid cell in
+    simulation domain
+
+    :param Rp: `numpy.ndarray` of return period wind speed values
+    :param loc: `numpy.ndarray` of location parameters in the domain of `Vr`
+    :param scale: `numpy.ndarray` of scale parameters in the domain of `Vr`
+    :param shp: `numpy.ndarray` of shape parameters in the domain of `Vr`
+
+    """
+
+    Vr.sort(axis=0) #axis 0 = year
+    Rp = np.zeros((len(years),) + Vr.shape[1:], dtype='f') # Rp = years x lat x lon
+    loc = np.zeros(Vr.shape[1:], dtype='f') # loc = lat x lon
+    scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
+    shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
+
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
+            if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
+                log.debug("lat: {0}, lon: {1}".format(i, j))
+                w, l, sc, sh = evd.powerfit(Vr[:,i,j],
+                                            years,
+                                            numsim,
+                                            nodata,
+                                            minRecords)
+                # w = array of return period wind speed values
+                # l = location parameter of fit
+                # sc = scale parameter of fit
+                # sh = shape parameter of fit
+
+                # Put the returned values back into the lat/lon grid
+                Rp[:, i, j] = w
+                loc[i, j] = l
+                scale[i, j] = sc
+                shp[i, j] = sh
+
+    return Rp, loc, scale, shp
 
 def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
                 sample_size=50, prange=90):
@@ -610,41 +831,50 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
     :param float prange: percentile range.
 
 
-    :return: `numpy.ndarray` of return period wind speed values
+    Return:
+    -------
+
+    :param RpUpper: Upper CI return period wind speed values for each lat/lon
+    :param RpLower: Lower CI return period wind speed values for each lat/lon
 
     """
 
-    lower = (100 - prange) / 2.
-    upper = 100. - lower
+    lower = (100 - prange) / 2. # 5th percentile default
+    upper = 100. - lower # 95th percentile default
 
-    nrecords = Vr.shape[0]
-    nsamples = nrecords / sample_size
+    nrecords = Vr.shape[0] # number of years (since we have aggregated into 1/yr)
+    nsamples = nrecords / sample_size # number of iterations to perform
+    
+    # RpUpper/RpLower = years x lat x lon
     RpUpper = nodata*np.ones((len(years), Vr.shape[1], Vr.shape[2]), dtype='f')
     RpLower = nodata*np.ones((len(years), Vr.shape[1], Vr.shape[2]), dtype='f')
 
+    # w: years x number of iterations
     w = np.zeros((len(years), nsamples), dtype='f')
     wUpper = np.zeros((len(years)), dtype='f')
     wLower = np.zeros((len(years)), dtype='f')
 
-    for i in xrange(Vr.shape[1]):
-        for j in xrange(Vr.shape[2]):
-            if Vr[:, i, j].max() > 0.0:
-                random.shuffle(Vr[:, i, j])
-                for n in xrange(nsamples):
+    for i in range(Vr.shape[1]): # lat
+        for j in range(Vr.shape[2]): # lon
+            if Vr[:, i, j].max() > 0.0: # check for valid data
+                random.shuffle(Vr[:, i, j]) # shuffle the years
+                for n in range(nsamples): # iterate through fitting of random samples
                     nstart = n*sample_size
                     nend  = (n + 1)*sample_size - 1
-                    vsub = Vr[nstart:nend, i, j]
+                    vsub = Vr[nstart:nend, i, j] # select random 50(default) events
 
                     vsub.sort()
                     if vsub.max( ) > 0.:
-                        w[:, n], loc, scale, shp =\
-                                evd.estimateEVD(vsub, years, nodata,
-                                                minRecords/10, yrsPerSim)
+                        # Perform the fitting on a random subset of samples
+                        w[:, n], loc, scale, shp = evd.gevfit(vsub, years, nodata,
+                                                              minRecords/10, yrsPerSim)
 
+                # Pull out the upper and lower percentiles from the random sample fits
                 for n in range(len(years)):
                     wUpper[n] = percentile(w[n,:], upper)
                     wLower[n] = percentile(w[n,:], lower)
 
+                # Store upper and lower percentiles for each return period, for each grid cell
                 RpUpper[:, i, j] = wUpper
                 RpLower[:, i, j] = wLower
 
@@ -665,7 +895,7 @@ def aggregateWindFields(inputPath, numSimulations, varname, tilelimits):
     xsize = tilelimits[1] - tilelimits[0]
     Vm = np.zeros((numSimulations, ysize, xsize), dtype='f')
 
-    for year in xrange(numSimulations):
+    for year in range(numSimulations):
         filespec = pjoin(inputPath, "gust.*-%05d.nc"%year)
         fileList = glob(filespec)
         if len(fileList) == 0:
@@ -722,11 +952,20 @@ def loadFile(filename, varname, limits):
 
     (xmin, xmax, ymin, ymax) = limits
 
-    ncobj = nctools.ncLoadFile(filename)
-    ncvar = nctools.ncGetVar(ncobj, varname)
-    data_subset = ncvar[ymin:ymax, xmin:xmax]
-    ncobj.close()
-    return data_subset
+    try:
+        ncobj = nctools.ncLoadFile(filename)
+        ncobj_vmax = nctools.ncGetVar(ncobj, varname)
+        data_subset = ncobj_vmax[ymin:ymax, xmin:xmax]
+        ncobj.close()
+
+        if xmax < xmin or ymax < ymin:
+            log.debug("max tile limits are not smaller than min")
+            
+        return data_subset
+
+    except IOError:
+        log.debug('{0} file does not exist'.format(filename))
+        raise
 
 def getTiles(tilegrid):
     """
@@ -735,7 +974,7 @@ def getTiles(tilegrid):
     :param tilegrid: :class:`TileGrid` instance
     """
 
-    tilenums = range(tilegrid.num_tiles)
+    tilenums = list(range(tilegrid.num_tiles))
     return getTileLimits(tilegrid, tilenums)
 
 def getTileLimits(tilegrid, tilenums):
@@ -780,12 +1019,13 @@ def run(configFile, variableAtts, callback=None):
     yrsPerSim = config.getint('TrackGenerator', 'YearsPerSimulation')
     minRecords = config.getint('Hazard', 'MinimumRecords')
     calculate_confidence = config.getboolean('Hazard', 'CalculateCI')
+    extreme_value_distribution = config.get('Hazard', 'ExtremeValueDistribution')
 
     wf_lon, wf_lat = setDomain(inputPath)
 
-    global pp
-    pp = attemptParallel()
-
+    global MPI, comm
+    MPI = attemptParallel()
+    comm = MPI.COMM_WORLD
     log.info("Running hazard calculations")
     TG = TileGrid(gridLimit, wf_lon, wf_lat)
     tiles = getTiles(TG)
@@ -793,20 +1033,18 @@ def run(configFile, variableAtts, callback=None):
     #def progress(i):
     #    callback(i, len(tiles))
 
-    pp.barrier()
+    comm.barrier()
     hc = HazardCalculator(configFile, TG,
                           numsimulations,
                           minRecords,
                           yrsPerSim,
                           variableAtts,
-                          calculate_confidence)
-
-
-
+                          calculate_confidence,
+                          extreme_value_distribution)
 
     hc.dumpHazardFromTiles(tiles)
-
-    pp.barrier()
+    log.debug("Finished hazard calculations")
+    comm.barrier()
 
     hc.saveHazard()
 

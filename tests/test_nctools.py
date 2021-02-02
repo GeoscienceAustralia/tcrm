@@ -12,13 +12,13 @@ import os
 import sys
 from os.path import join as pjoin
 import unittest
-import NumpyTestCase
+from . import NumpyTestCase
 import numpy as np
 import netCDF4
 from datetime import datetime, timedelta
 
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 
@@ -417,7 +417,10 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
         ncobj = netCDF4.Dataset(self.ncfile)
         times = nctools.ncGetTimes(ncobj)
         ncobj.close()
-        self.assertEqual(type(times[0]), datetime)
+        #self.assertEqual(type(times[0]), datetime)
+        #  Note: cftype.real_datetime inherits from datetime.datetime
+        print(type(times[0]))
+        self.assertTrue(issubclass(type(times[0]), datetime))
 
     def test_ncGetTimeValues(self):
         """Test ncGetTimes returns correct time values"""

@@ -22,7 +22,7 @@ import logging as log
 from os.path import join as pjoin
 
 import Utilities.stats as stats
-import KDEParameters
+from . import KDEParameters
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile, flSaveFile, flStartLog
 
@@ -74,7 +74,7 @@ class GenerateDistributions(object):
     """
 
     def __init__(self, configFile, gridLimit, gridSpace, gridInc, kdeType,
-                 minSamplesCell=40, missingValue=sys.maxint):
+                 minSamplesCell=40, missingValue=sys.maxsize):
         """
         Initialise required fields
         """
@@ -152,14 +152,21 @@ class GenerateDistributions(object):
 
         self.pName = parameterName
 
+        if len(self.pList) != len(self.lonLat):
+            errmsg = ("Parameter data and "
+                      "Lon/Lat data are not the same length "
+                      "for {}.".format(parameterName))
+            self.logger.critical(errmsg)
+            raise IndexError(errmsg)
+
         maxCellNum = stats.maxCellNum(self.gridLimit, self.gridSpace)
 
         # Writing CDF dataset for all individual cell number into files
         log.debug(("Writing CDF dataset for all individual "
                            "cells into files"))
 
-        for cellNum in xrange(0, maxCellNum + 1):
-            log.debug("Processing cell number %i", cellNum)
+        for cellNum in range(0, maxCellNum + 1):
+            self.logger.debug("Processing cell number %i", cellNum)
 
             # Generate cyclone parameter data for the cell number
             self.extractParameter(cellNum)
@@ -239,9 +246,9 @@ class GenerateDistributions(object):
                             range of cell numbers).
         """
         if not stats.validCellNum(cellNum, self.gridLimit, self.gridSpace):
-            log.critical(("Invalid input on cellNum: "
-                          "cell number %i is out of range")%cellNum)
-            raise IndexError, ('Invalid input on cellNum: '
+            self.logger.critical(("Invalid input on cellNum: "
+                                  "cell number %i is out of range")%cellNum)
+            raise IndexError('Invalid input on cellNum: '
                                'cell number is out of range')
         lon = self.lonLat[:, 0]
         lat = self.lonLat[:, 1]
@@ -274,8 +281,8 @@ class GenerateDistributions(object):
                           "estimate storm statistics - please select a larger "
                           "domain. Samples = %i / %i")%(np.size(self.parameter),
                                                         self.minSamplesCell)
-                log.critical(errMsg)
-                raise StopIteration, errMsg
+                self.logger.critical(errMsg)
+                raise StopIteration(errMsg)
             indij = np.where(((lat >= sLat) & (lat < nLat)) &
                              ((lon >= wLon) & (lon < eLon)))
             parameter_ = self.pList[indij]
@@ -299,8 +306,8 @@ class GenerateDistributions(object):
                 errMsg = ("Insufficient grid points in selected domain "
                           "to estimate storm statistics - "
                           "please select a larger domain.")
-                log.critical(errMsg)
-                raise StopIteration, errMsg
+                self.logger.critical(errMsg)
+                raise StopIteration(errMsg)
             indij = np.where(((lat >= sLat) & (lat < nLat)) &
                              ((lon >= wLon) & (lon < eLon)))
             parameter_ = self.pList[indij]
@@ -366,11 +373,11 @@ if __name__ == "__main__":
         if not os.path.exists(configFile):
             error_msg = ("No configuration file specified. "
                          "please type: python main.py {config filename}.ini")
-            raise IOError, error_msg
+            raise IOError(error_msg)
     # If config file doesn't exist => raise error
     if not os.path.exists(configFile):
         error_msg = "Configuration file '" + configFile +"' not found"
-        raise IOError, error_msg
+        raise IOError(error_msg)
 
     flStartLog(cnfGetIniValue(configFile, 'Logging',
                               'LogFile', __file__.rstrip('.py') + '.log'),
@@ -386,7 +393,7 @@ if __name__ == "__main__":
     minSamples = cnfGetIniValue(configFile, 'StatInterface',
                                 'minSamplesCell', 100)
     mv = cnfGetIniValue(configFile, 'StatInterface',
-                        'MissingValue', sys.maxint)
+                        'MissingValue', sys.maxsize)
     gDist = GenerateDistributions(configFile, gridLim, gridSp,
                                   gridinc, kdetype,
                                   minSamples, mv)

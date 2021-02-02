@@ -35,68 +35,80 @@ Changelog
 New features:
 -------------
 
-* Stores individual events as separate tracks and wind fields;
-* Tracks stored in netCDF4 files, using the heirachical structure and compound variables to improve file management for large simulations;
-* Provides a relational database to allow interrogation of simulations (using an `SQLite <http://www.sqlite.org>`_ database);
-* Updated visualisation of outputs using `Seaborn <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_; 
+* Added empirical ARI calculation
+
 
 Bug fixes:
 ----------
 
-* Update kernel density estimation methods. Previous version oversmoothed the distribution and used an isotropic bandwidth. Now uses statsmodels `Multivariate KDE method <http://statsmodels.sourceforge.net/stable/generated/statsmodels.nonparametric.kernel_density.KDEMultivariate.html>`_ for 2-dimensional KDE;
-* Numpy 1.10.1 compatibility fix (see commit `0361c7c <https://github.com/GeoscienceAustralia/tcrm/commit/0361c7c1ffcc230d767ba2905a693df53156ed98>`_);
-* Wind speed averaging times are as per `WMO-TD1555 <http://www.wmo.int/pages/prog/www/tcp/documents/WMO_TD_1555_en.pdf>`_ - default output is 0.2 second wind gust;
-
-
+* Correction in landfall decay model for unit conversions
 
 Dependencies
 ============
 
 TCRM requires:
 
- * `Python 2.7 <https://www.python.org/>`_;
+ * `Python 3.7 <https://www.python.org/>`_;
  * `numpy <http://www.numpy.org/>`_; 
  * `scipy <http://www.scipy.org/>`_;
- * `matplotlib 1.4.3 <http://matplotlib.org/>`_; 
- * `Basemap 1.0.8 <http://matplotlib.org/basemap/index.html>`_; 
- * `netcdf4-python <https://code.google.com/p/netcdf4-python/>`_; 
+ * `matplotlib <http://matplotlib.org/>`_; 
+ * `Basemap <http://matplotlib.org/basemap/index.html>`_; 
+ * `netcdf4-python <https://unidata.github.io/netcdf4-python/netCDF4/index.html>`_; 
+ * `cftime <https://unidata.github.io/cftime/>`_;
  * `pandas <http://pandas.pydata.org/>`_; 
- * `Shapely <https://github.com/Toblerity/Shapely>`_; 
- * `seaborn 0.5.1 <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_;
+ * `Shapely <https://shapely.readthedocs.io/en/latest/manual.html>`_; 
+ * `seaborn <https://seaborn.pydata.org/>`_;
+ * `statsmodels <http://statsmodels.sourceforge.net>`_;
+ * `GitPython <http://gitpython.readthedocs.io>`_;
+ * `GDAL/OGR <https://pypi.org/project/GDAL/>`_;
+ * `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_;
  * and `gcc`.  
 
-For parallel execution, `Pypar <http://github.com/daleroberts/pypar>`_ is required;
+
 
 Status
 ======
 
-.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=v2.0
+.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=develop
     :target: https://travis-ci.org/GeoscienceAustralia/tcrm
     :alt: Build status
 
 
-.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=v2.0
-  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=v2.0
+.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=develop
+  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=develop
   :alt: Test coverage
 
     
-.. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/v2.0/landscape.svg?style=flat
-    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/v2.0
+.. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/develop/landscape.svg?style=flat
+    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/develop
     :alt: Code Health
+    
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4070660.svg
+   :target: https://doi.org/10.5281/zenodo.4070660
 
 Screenshot
 ==========
 
-.. image:: https://rawgithub.com/GeoscienceAustralia/tcrm/master/docs/screenshot.png
+.. image:: docs/screenshot.png
 
 Contributing to TCRM
 ====================
 
-If you would like to take part in TCRM development, take a look at `docs/contributing.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/docs/contributing.rst>`_.
+If you would like to take part in TCRM development, take a look at the `Contributing guide <docs/contributing.rst>`_.
 
-License information
-===================
+License
+=======
 
-See the file `LICENSE.rst <https://github.com/GeoscienceAustralia/tcrm/blob/master/LICENSE.rst>`_ 
-for information on the history of this software, terms and conditions for usage,
-and a DISCLAIMER OF ALL WARRANTIES.
+This repository is licensed under the GNU General Public License. See
+the file `LICENSE.rst <LICENSE.rst>`_
+for information on the history of this software, terms and conditions
+for usage, and a DISCLAIMER OF ALL WARRANTIES.
+
+Contacts
+========
+
+Community Safety Branch
+Geoscience Australia
+hazards@ga.gov.au
+
+

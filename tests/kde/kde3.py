@@ -53,10 +53,10 @@ bw_scott = n ** (-1.0 / (d + 4))
 bw_silverman = (n * (d + 2) / 4.) ** (-1. / (d + 4))
 
 scale = np.array([[x_flat.ptp(), y_flat.ptp()]])
-print('scale: %s' % scale)
+print(('scale: %s' % scale))
 
-print('bandwidth kpdf=%f scott=%f silverman=%f' %
-      (bw_kpdf, bw_scott, bw_silverman))
+print(('bandwidth kpdf=%f scott=%f silverman=%f' %
+      (bw_kpdf, bw_scott, bw_silverman)))
 
 fig, axes = plt.subplots(nrows=4, ncols=2, figsize=(8, 11))
 axes = axes.flat
@@ -66,7 +66,7 @@ p = p / p.max()
 plot(axes[0], p, 'True density')
 
 kde = stats.kde.gaussian_kde(rvs.T)
-print(kde.covariance)
+print((kde.covariance))
 z = kde(grid.T)
 z = z.reshape(x.shape) / z.max()
 plot(axes[1], z, 'Scipy ($\ell_2$ norm: %.3f)' % np.linalg.norm((p - z).flat))
@@ -95,14 +95,14 @@ plot(axes[5], w, 'KPDF bw:scott/2 ($\ell_2$ norm: %.3f)' % np.linalg.norm((
     p - w).flat))
 
 dens = smkde.KDEMultivariate(rvs, 'cc', bw='cv_ml')
-print "SM bandwidth (cv_ml): " + repr(dens.bw)
+print("SM bandwidth (cv_ml): " + repr(dens.bw))
 w = dens.pdf(grid)
 w = w.reshape(x.shape) / w.max()
 plot(axes[6], w, 'SM bw:CVML ($\ell_2$ norm: %.3f)' % np.linalg.norm((p -
      w).flat))
 
 dens = smkde.KDEMultivariate(rvs, 'cc', bw='cv_ls')
-print "SM bandwidth (cv_ls): " + repr(dens.bw)
+print("SM bandwidth (cv_ls): " + repr(dens.bw))
 w = dens.pdf(grid)
 w = w.reshape(x.shape) / w.max()
 plot(axes[7], w, 'SM bw:CVLS ($\ell_2$ norm: %.3f)' % np.linalg.norm((p -

@@ -72,10 +72,17 @@ def interpolate(track, delta, interpolation_type=None):
         day_ = track.Datetime
     
     timestep = timedelta(delta/24.)
-
-    time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.0
+    try:
+        time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.0
                       for d in day_], dtype=float)
-
+    except AttributeError:
+        import cftime
+        if isinstance(day_[0], cftime.DatetimeJulian):
+            day__ = [d._to_real_datetime() for d in day_]
+            time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.
+                              for d in day__], dtype=float)
+        else:
+            raise
     dt_ = 24.0 * np.diff(time_)
     dt = np.empty(len(track.data), dtype=float)
     dt[1:] = dt_
@@ -90,14 +97,14 @@ def interpolate(track, delta, interpolation_type=None):
     newdates = num2date(_newtime)
     newdates = np.array([n.replace(tzinfo=None) for n in newdates])
 
-    if not hasattr(track, 'WindSpeed'):
+    if not hasattr(track, 'Speed'):
         idx = np.zeros(len(track.data))
         idx[0] = 1
         track.WindSpeed = maxWindSpeed(idx, np.mean(dt), track.Longitude,
                                        track.Latitude, track.CentralPressure, 
                                        track.EnvPressure)
     # Find the indices of valid pressure observations:
-    validIdx = np.where(track.CentralPressure < sys.maxint)[0]
+    validIdx = np.where(track.CentralPressure < sys.maxsize)[0]
 
     # FIXME: Need to address the issue when the time between obs is less
     # than delta (e.g. only two obs 5 hrs apart, but delta = 6 hrs).
@@ -174,7 +181,7 @@ def interpolate(track, delta, interpolation_type=None):
                                      kind='linear')(newtime[firsttime:lasttime])
 
                 _nwSpd = interp1d(timestep[validIdx],
-                                  track.WindSpeed[validIdx],
+                                  track.Speed[validIdx],
                                   kind='linear')(newtime[firsttime:lasttime])
 
                 npCentre[firsttime:lasttime] = _npCentre
@@ -211,8 +218,8 @@ def interpolate(track, delta, interpolation_type=None):
     nDay = [date.day for date in newdates]
     nHour = [date.hour for date in newdates]
     nMin = [date.minute for date in newdates]
-    np.putmask(npCentre, npCentre > 10e+6, sys.maxint)
-    np.putmask(npCentre, npCentre < 700, sys.maxint)
+    np.putmask(npCentre, npCentre > 10e+6, sys.maxsize)
+    np.putmask(npCentre, npCentre < 700, sys.maxsize)
 
     newindex = np.zeros(len(newtime))
     newindex[0] = 1
@@ -289,7 +296,11 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
     if delta < 0.0:
         raise ValueError("Time step for interpolation must be positive")
 
-    tracks = loadTrackFile(configFile, trackFile, source)
+    if trackFile.endswith("nc"):
+        from Utilities.track import ncReadTrackData
+        tracks = ncReadTrackData(trackFile)
+    else:
+        tracks = loadTrackFile(configFile, trackFile, source)
 
     results = []
 

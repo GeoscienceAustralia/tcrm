@@ -2,8 +2,10 @@ import matplotlib as mpl
 mpl.rcParams['legend.fancybox'] = True
 
 from matplotlib.figure import Figure
-from matplotlib.dates import DayLocator, HourLocator, DateFormatter
+from matplotlib.dates import DayLocator, HourLocator, DateFormatter, date2num
 from matplotlib.ticker import MultipleLocator
+
+
 
 class TimeSeriesFigure(Figure):
     """
@@ -23,7 +25,7 @@ class TimeSeriesFigure(Figure):
     def make_patch_spines_invisible(self, axes):
         axes.set_frame_on(True)
         axes.patch.set_visible(False)
-        for sp in axes.spines.itervalues():
+        for sp in axes.spines.values():
             sp.set_visible(False)
 
     def add(self, dt, ydata, yrange, ylabel, title):
@@ -32,6 +34,8 @@ class TimeSeriesFigure(Figure):
     def subplot(self, axes, subfigure, color):
 
         dt, ydata, yrange, ylabel, title = subfigure
+        dt = date2num(dt)
+
         ymin, ymax = yrange
 
         axes.set_ylim(ymin, ymax)
@@ -52,6 +56,8 @@ class TimeSeriesFigure(Figure):
         axes.spines['right'].set_visible(True)
 
         dt, ydata, yrange, ylabel, title = subfigure
+        dt = date2num(dt)
+
         ymin, ymax = yrange
 
         p = axes.plot(dt, ydata, '-', color=color, label=ylabel, linewidth=2)
@@ -64,7 +70,8 @@ class TimeSeriesFigure(Figure):
     def plot(self):
 
         axes = self.add_subplot(111)
-        color = axes._get_lines.color_cycle #pylint:disable=W0212
+        pc = mpl.rcParams['axes.prop_cycle']
+        color = iter(pc.by_key()['color'])
         ax1 = axes.twinx()
         ax2 = axes.twinx()
 
@@ -77,12 +84,13 @@ class TimeSeriesFigure(Figure):
         dt, ydata0, yrange0, ylabel0, title0 = self.subfigures[0]
         dt, ydata1, yrange1, ylabel1, title1 = self.subfigures[1]
         dt, ydata2, yrange2, ylabel2, title2 = self.subfigures[2]
+        dt = date2num(dt)
 
-        p0, = axes.plot(dt, ydata0, color=color.next(),
+        p0, = axes.plot(dt, ydata0, color=next(color),
                         label=title0, linewidth=2, alpha=0.5)
-        p1, = ax1.plot(dt, ydata1, color=color.next(),
+        p1, = ax1.plot(dt, ydata1, color=next(color),
                         label=title1, linewidth=2, alpha=0.5)
-        p2, = ax2.plot(dt, ydata2, color=color.next(),
+        p2, = ax2.plot(dt, ydata2, color=next(color),
                         label=title2, linewidth=2, alpha=0.5)
 
         axes.set_xlabel('Time')
@@ -120,11 +128,11 @@ class TimeSeriesFigure(Figure):
         for i in range(len(self.subfigures) - 1):
             ax.append(axes.twinx())
 
-        p = self.subplot(axes, self.subfigures[0], color.next())
+        p = self.subplot(axes, self.subfigures[0], next(color))
         plots.append(p)
         position = 1.0
         for axes, subfig in zip(ax, self.subfigures[1:]):
-            p = self.subplot_twinx(axes, subfig, color.next(), position)
+            p = self.subplot_twinx(axes, subfig, next(color), position)
             plots.append(p)
             position += 0.1
 

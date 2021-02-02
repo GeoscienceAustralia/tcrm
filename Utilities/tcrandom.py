@@ -13,21 +13,42 @@
 .. |gamma|  unicode:: U+003B3 .. GREEK SMALL LETTER GAMMA
 
 """
-import random
 import math
-from scipy.special import nctdtrit
+from scipy.special import nctdtrit, ndtri
+
+try:
+    from numpy.random import Generator, Philox
+except ImportError: # prior to numpy 1.18
+    try:
+        from randomgen import Generator, Philox
+    except ImportError: # prior to randomgen 1.17
+        from randomgen import RandomGenerator as Generator, Philox
 
 #pylint: disable-msg=R0904
 
-class Random(random.Random):
+class Random:
     """
-    An extension of the standard :mod:`random` library to
-    allow sampling from additional distributions.
+    Pseudorandom number generator.
 
+    Expect each simulation to instantiate this class with the same
+    seed integer, and with a unique stream integer (drawn from e.g. an
+    enumeration of all the simulations)
     """
-
-    def __init__(self, value=None):
-        random.Random.__init__(self, value)
+    # numpy 1.18 recommends Philox for independent pseudorandom streams
+    def __init__(self, seed, stream):
+        self.PRNG = Generator(Philox(key=seed + stream))
+    def normalvariate(self, loc=0, scale=1, shape=None):
+        return self.PRNG.normal(loc, scale, shape)
+    def uniform(self, low=0, high=1, shape=None):
+        return self.PRNG.uniform(low, high, shape)
+    def random(self): # TODO: refactor elsewhere to call .uniform() directly
+        return self.uniform()
+#    TODO: migrate to use library implementations,
+#          rather than custom implementations:
+#    def logisticvariate(self, loc, sigma):
+#        return self.PRNG.logistic(loc, sigma)
+#    def lognormvariate:
+#        return self.PRNG.lognormal(mean, sigma)
 
     def logisticvariate(self, mu, sigma):
         """
@@ -39,7 +60,6 @@ class Random(random.Random):
         :returns: A random variate from the logistic distribution.
 
         """
-
         u1 = self.random()
         if sigma <= 0.0:
             raise ValueError("Invalid input parameter: `sigma` must be positive")
@@ -73,19 +93,18 @@ class Random(random.Random):
 
     def nctvariate(self, df, nc, mu=0.0, sigma=1.0):
         """
-        Random variate from the non-central T distribution.
+        Random variate from the lognormal distribution.
 
-        :param float df: degrees of freedom for the distribution.
-        :param float nc: non-centrality parameter.
-        :param float mu: Location parameter.
-        :param float sigma: Scale parameter.
+        :param float xi: Shape parameter
+        :param float mu: Location parameter
+        :param float sigma: Scale paramter (|sigma| > 0)
 
-        :returns: A random variate from the non-central T distribution.
+        :returns: A random variate from the lognormal distribution
         """
-        if df <= 0.0:
-            raise ValueError("Invalid input parameter: `df` must be positive")
+        if xi <= 0.0:
+            raise ValueError("Invalid input parameter: `xi` must be positive")
         if sigma <= 0.0:
             raise ValueError("Invalid input parameter: `sigma` must be positive")
 
         u1 = self.random()
-        return mu + sigma * nctdtrit(df, nc, u1)
+        return mu + sigma * math.exp(xi * ndtri(u1))

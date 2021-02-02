@@ -18,35 +18,36 @@ the example simulation can be run as follows::
 The model will automatically create output folders to store the
 results in, as well as a log file that provides details on the
 progress of the model. The simulation will process the input track
-database (IBTrACS v03r05), run the statistical interface, generate
+database (IBTrACS v03r10), run the statistical interface, generate
 1000 simulated years of TC events, the wind swaths associated with
 those simulated years, calculate the hazard (return period wind
 speeds) for the region and plot the output as maps and a return period
 curve for Port Hedland. The hazard data are also stored in netCDF
 (version 4) files.
 
-.. figure:: hazard_example.png
+.. figure:: /docs/images/hazard_example.png
      :align: center
      :alt: 100-year return period wind speed near Port Hedland,
            Australia.
      :figclass: align-center
 
      100-year return period wind speed near Port Hedland,
-     Australia. Wind speeds represent a 3-second gust wind speed, 10
+     Australia. Wind speeds represent a 0.2-second gust wind speed, 10
      metres above ground level in open, flat terrain.
 
-.. figure:: hazard_curve.png
+.. figure:: /docs/images/hazard_curve.png
     :align: center
     :alt: Example hazard curve for Port Hedland, Australia.
     :figclass: align-center
     
     Hazard curve for Port Hedland, Australia, based on 1000 years of
-    synthetic tropical cyclone events. The grey shading indicates the
-    90th percentile range, based on a bootstrap resampling procedure.
+    synthetic tropical cyclone events. The red points are the wind speeds for
+    individual simulated events, and the blue line is a fitted generalised
+    pareto distribution (GPD).
 
 Running in an MPI environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-For a multiprocessor environment using MPI and Pypar, the example can
+For a multiprocessor environment using mpi4py, the example can
 be run with::
 
     $ mpirun -np 16 python tcrm.py -c example/port_hedland.ini
@@ -61,13 +62,10 @@ Scenario simulation
 -------------------
 
 An example scenario is also included with the code to demonstrate an
-individual event simulation. This uses Tropical Cyclone *Tracy*, which
-impacted Darwin, Australia in 1974. The example simulation uses the
-best track data captured in the IBTrACS dataset, with the radius to
-maximum winds sourced from JTWC. TC *Tracy* struck Darwin early on
-Christmas Morning (1974), and resulted in 68 deaths and the largest
-peacetime evacuation of a city in Australia's history. A more detailed
-simulation of TC Tracy using TCRM is given in Schofield *et al.*
-(2009).
+individual event simulation. This uses Tropical Cyclone *Yas*, which
+impacted the north Quensland coast in February 2011 as a severe
+category 4 cyclone. The example simulation uses best-track data from
+the Bureau of Meteorology. See the :ref:`scenariomodelling` section
+for more details.
 
 

@@ -25,11 +25,11 @@ Description: Unit test for the windProfile class
 """
 import os, sys
 import unittest
-import cPickle
-import NumpyTestCase
+import pickle
+from . import NumpyTestCase
 import numpy
 try:
-    import pathLocate
+    from . import pathLocate
 except:
     from unittests import pathLocate
 
@@ -42,9 +42,9 @@ from Utilities.files import flStartLog
 class TestGenerateStats(NumpyTestCase.NumpyTestCase):
 
     pkl_file = open(os.path.join(unittest_dir, 'test_data',
-                                 'generateStatsTestData.pck'), 'r')
-    lonLat = cPickle.load(pkl_file)
-    parameter = cPickle.load(pkl_file)  # all_speed
+                                 'generateStatsTestData.pkl'), 'rb')
+    lonLat = pickle.load(pkl_file)
+    parameter = pickle.load(pkl_file)  # all_speed
     pkl_file.close()
 
     configFile = None
@@ -53,7 +53,7 @@ class TestGenerateStats(NumpyTestCase.NumpyTestCase):
     gridInc = {'x': 1.0, 'y': 0.5}
     minSample = 100
     angular = False
-    missingValue=min(sys.maxint, 2147483648) # The second value corresponds to the maximum integer
+    missingValue=min(sys.maxsize, 2147483648) # The second value corresponds to the maximum integer
                                              # encoded in the pickle file.
 
 
@@ -75,13 +75,13 @@ class TestGenerateStats(NumpyTestCase.NumpyTestCase):
         self.numpyAssertAlmostEqual(coeffs_sig_sample, coeffs_sig_test)
 
         coeffs_alpha_sample = wP.coeffs.alpha[0:10]
-        coeffs_alpha_test = numpy.array([0.8338471, 0.83574986, 0.87892804, 0.85010785, 0.85010785,
-                                         0.85786992, 0.8830241, 0.86208779, 0.87815064, 0.88345714])
+        coeffs_alpha_test = numpy.array([0.51818004, 0.55450803, 0.66634809, 0.61266186, 0.61266186,
+                                         0.63192755, 0.70984709, 0.64836016, 0.69168147, 0.70101634])
         self.numpyAssertAlmostEqual(coeffs_alpha_sample, coeffs_alpha_test)
 
         coeffs_phi_sample = wP.coeffs.phi[0:10]
-        coeffs_phi_test = numpy.array([0.55199548, 0.54911034, 0.4769544, 0.52660862, 0.52660862,
-                                       0.51386691, 0.46932765, 0.50675895, 0.47838421, 0.46851199])
+        coeffs_phi_test = numpy.array([0.85527156, 0.83217838, 0.74564081, 0.79034514, 0.79034514,
+                                       0.77502747, 0.70435581, 0.76133376, 0.7222027 , 0.71314521])
         self.numpyAssertAlmostEqual(coeffs_phi_sample, coeffs_phi_test)
 
         coeffs_min_sample = wP.coeffs.min[0:20]

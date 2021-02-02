@@ -1,0 +1,34 @@
+name: tcrm
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - pip
+  - numpy
+  - scipy
+  - matplotlib
+  - basemap
+  - shapely
+  - nose
+  - netcdf4
+  - cftime
+  - coverage
+  - coveralls
+  - pycurl
+  - pyproj
+  - seaborn
+  - simplejson
+  - sqlite
+  - statsmodels
+  - libgdal
+  - gdal
+  - configparser
+  - cartopy
+  - affine
+  - tqdm
+  - xarray
+  - pthread-stubs
+  - imageio
+  - mpi4py
+  - boto3
+  - botocore

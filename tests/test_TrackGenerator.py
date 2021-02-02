@@ -7,7 +7,7 @@ from numpy.testing import *
 class TestTrackGenerator(unittest.TestCase):
 
     def testGeneratePath(self):
-        assert_almost_equal(range(10), range(10))
+        assert_almost_equal(list(range(10)), list(range(10)))
         pass
 
 if __name__ == "__main__":

@@ -424,6 +424,8 @@ def convert(value, inunits, outunits):
           "rad":0.0001570783}
     deg = {"km":111.1251, "m":111125.1, "mi":69.0499358, "nm":60.0,
            "rad":math.pi/180.}
+    m = {"km":0.001, "mi":0.000621371, "deg":0.00000899886, "nm":0.000539957,
+         "rad":0.0000001570783}
     mi = {"km":1.60934, "m":1609.34, "deg":0.014482}
     nm = {"km":1.852, "m":1852., "deg":0.01666, "rad":math.pi/10800.}
     rad = {"nm":10800./math.pi, "km":6366.248653, "deg":180./math.pi}
@@ -446,6 +448,7 @@ def convert(value, inunits, outunits):
                "F":F,
                "K":K,
                "km":km,
+               "m":m,
                "deg":deg,
                "mi":mi,
                "nm":nm,
