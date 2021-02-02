@@ -465,8 +465,8 @@ class DataProcess(object):
         """
         Extract speeds for all obs, initial obs and TC origins
         Input: dist - array of distances between consecutive TC
-                      observations
-               dt - array of times between consecutive TC observations
+                      observations (km)
+               dt - array of times between consecutive TC observations (hours)
                indicator - array of ones/zeros representing initial TC
                            observations (including TCs with a single
                            observation)
@@ -499,17 +499,17 @@ class DataProcess(object):
             speed_no_init = pjoin(self.processPath, 'speed_no_init')
             # Extract all speeds
             self.logger.debug('Outputting data into {0}'.format(all_speed))
-            header = 'all cyclone speed in m/s'
+            header = 'all cyclone speed in km/h'
             flSaveFile(all_speed, speed, header, fmt='%6.2f')
 
             # Extract initial speeds
             self.logger.debug('Outputting data into {0}'.format(init_speed))
-            header = 'initial cyclone speed in m/s'
+            header = 'initial cyclone speed in km/h'
             flSaveFile(init_speed, initSpeed, header, fmt='%f')
 
             # Extract speeds, excluding initial speeds
             self.logger.debug('Outputting data into {0}'.format(speed_no_init))
-            header = 'cyclone speed without initial ones in m/s'
+            header = 'cyclone speed without initial ones in km/h'
             flSaveFile(speed_no_init, speedNoInit, header, fmt='%6.2f')
 
     def _pressure(self, pressure, indicator):

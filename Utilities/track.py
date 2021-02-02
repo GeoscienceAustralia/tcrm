@@ -324,7 +324,7 @@ def ncSaveTracks(trackfile, tracks,
         tvar.lon_units = 'degrees east'
         tvar.lat_units = 'degrees north'
         tvar.pressure_units = 'hPa'
-        tvar.speed_units = 'm/s'
+        tvar.speed_units = 'km/h'
         tvar.length_units = 'km'
         tvar.trackId = repr(t.trackId)
 

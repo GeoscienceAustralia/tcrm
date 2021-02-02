@@ -1293,7 +1293,7 @@ class TrackGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Mean forward speed',
-                    'units': 'm/s'
+                    'units': 'km/h'
                 }
             },
             1: {
@@ -1314,7 +1314,7 @@ class TrackGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Standard deviation forward speed',
-                    'units': 'm/s'
+                    'units': 'km/h'
                 }
             },
             3: {
@@ -1324,7 +1324,7 @@ class TrackGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Minimum forward speed',
-                    'units': 'm/s'
+                    'units': 'km/h'
                 }
             },
             4: {
@@ -1334,7 +1334,7 @@ class TrackGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Mean forward speed (over land)',
-                    'units': 'm/s'
+                    'units': 'km/h'
                 }
             },
             5: {
@@ -1356,7 +1356,7 @@ class TrackGenerator(object):
                 'atts': {
                     'long_name': 'Standard deviation of forward' +
                                  ' speed (over land)',
-                    'units': 'm/s'
+                    'units': 'km/h'
                 }
             },
             7: {
@@ -1366,7 +1366,7 @@ class TrackGenerator(object):
                 'dtype': 'f',
                 'atts': {
                     'long_name': 'Minimum forward speed (over land)',
-                    'units': 'm/s'
+                    'units': 'km/h'
                 }
             },
             8: {
