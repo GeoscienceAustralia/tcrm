@@ -119,7 +119,7 @@ def createGrid(xmin, xmax, ymin, ymax, wide, length):
 
 
 datapath = "C:/WorkSpace/data/tcha/tracks"
-
+datapath = "/scratch/w85/swhaq/hazard/output/QLD/HISTORICAL_1981-2010/tracks"
 filelist = [f for f in os.listdir(datapath) if f.endswith('nc')]
 nfiles = len(filelist)
 log.info(f"There are {nfiles} track files")
@@ -144,7 +144,7 @@ for sim, f in enumerate(filelist):
     if r==0:
         log.info(f"{q*10}% complete")
     griddf = grid.copy()
-    tracks = readTracks(pjoin(datapath,"tracks",f))
+    tracks = readTracks(pjoin(datapath,f))
     dfjoin = gpd.sjoin(griddf, tracks)
     df2 = dfjoin.groupby('gridid')['CycloneNumber'].nunique()
     dfcount = griddf.merge(df2, how='left', left_on='gridid', right_index=True)
