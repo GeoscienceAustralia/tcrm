@@ -114,7 +114,7 @@ def interpolate(track, delta, interpolation_type=None):
         nLon = interp1d(timestep, track.Longitude, kind='linear')(newtime)
         nLat = interp1d(timestep, track.Latitude, kind='linear')(newtime)
 
-        if len(validIdx) == 2:
+        if len(validIdx) >= 2:
             npCentre = interp1d(timestep,
                                 track.CentralPressure,
                                 kind='linear')(newtime)
