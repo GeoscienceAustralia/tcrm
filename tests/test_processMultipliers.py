@@ -21,7 +21,7 @@ from netCDF4 import Dataset
 try:
     from . import pathLocate
 except:
-    from unittests import pathLocate
+    from tests import pathLocate
 
 # Add parent folder to python path
 unittest_dir = pathLocate.getUnitTestDirectory()
@@ -250,8 +250,8 @@ class TestProcessMultipliers(unittest.TestCase):
 
         shutil.rmtree(dir_path)
 
-    def test_computeOutputExtentIfInvalid(self):
-        """Test createRaster returns a gdal dataset"""
+    def test_resetOutputExtentIfInvalid(self):
+        """Test computation of output extent"""
 
         # Write a .nc file to test with dummy data. This is the gust file
         f_nc = tempfile.NamedTemporaryFile(suffix='.nc', prefix='test_processMultipliers', delete=False)
@@ -335,6 +335,7 @@ class TestProcessMultipliers(unittest.TestCase):
 
 if __name__ == "__main__":
     # Suite = unittest.makeSuite(TestProcessMultipliers, 'test_x')
+    unittest.TestLoader.sortTestMethodsUsing = None
     Suite = unittest.makeSuite(TestProcessMultipliers, 'test')
     Runner = unittest.TextTestRunner()
     Runner.run(Suite)
