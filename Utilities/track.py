@@ -25,6 +25,7 @@ from Utilities.metutils import convert
 from Utilities.maputils import bearing2theta
 
 from netCDF4 import Dataset, date2num, num2date
+from cftime import num2pydate
 
 try:
     from exceptions import WindowsError
@@ -206,11 +207,13 @@ def ncReadTrackData(trackfile):
         units = ncobj.getncattr('time_units')
         calendar = ncobj.getncattr('calendar')
         dtt = num2date(dt[:], units, calendar)
+        # Convert to true python datetimes
+        dtconversion = [datetime.strptime(d.strftime(), "%Y-%m-%d %H:%M:%S") for d in dtt]
         newtd = np.zeros(len(dtt), dtype=track_dtype)
         for f in ncobj.variables.keys():
             if f != 'Datetime' and f in track_dtype.names:
                 newtd[f] = ncobj.variables[f][:]
-        newtd['Datetime'] = dtt
+        newtd['Datetime'] = dtconversion
         track = Track(newtd)
         track.trackfile = trackfile
         track.trackId = eval(ncobj.trackId)
@@ -237,7 +240,8 @@ def ncReadTrackData(trackfile):
             for f in track_data.dtype.names:
                 if f != 'Datetime' and f in track_dtype.names:
                     newtd[f] = track_data[f]
-            newtd['Datetime'] = dt
+            dtconversion = [datetime.strptime(d.strftime(), "%Y-%m-%d %H:%M:%S") for d in dt]
+            newtd['Datetime'] = dtconversion
 
             track = Track(newtd)
             track.trackfile = trackfile
