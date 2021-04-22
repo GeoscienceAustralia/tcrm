@@ -65,8 +65,8 @@ TCRM requires:
 Status
 ======
 
-.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=develop
-    :target: https://travis-ci.org/GeoscienceAustralia/tcrm
+.. image:: https://github.com/GeoscienceAustralia/tcrm/actions/workflows/tcrm-tests.yml/badge.svg?branch=develop
+    :target: https://github.com/GeoscienceAustralia/tcrm/actions/workflows/tcrm-tests.yml
     :alt: Build status
 
 
