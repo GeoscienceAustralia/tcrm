@@ -710,7 +710,7 @@ def getPoci(penv, pcentre, lat, jdays, eps,
         nvidx = np.where(pcentre == missingValue)
         poci_model[nvidx] = np.nan
 
-        nvidx = np.where(penv <= pcentre)
+        nvidx = np.where(penv < pcentre)
         poci_model[nvidx] = np.nan
 
     elif penv < pcentre:
