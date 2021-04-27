@@ -290,8 +290,14 @@ class HazardCalculator(object):
 
         log.info("Using {0} distribution for the hazard curves".format(self.evd))
         #Vr = loadFilesFromPath(self.inputPath, tilelimits)
-        #Rp, loc, scale, shp = evfunc(Vr, self.years, self.numSim, self.nodata, self.minRecords)
-        
+        #Rp, loc, scale, shp = evfunc(Vr, self.years, self.numSim, self.nodata,
+        #self.minRecords)
+        if self.evd not in ["GPD", "GEV", "power", "emp"]:
+            msg = (f"Invalid extreme value distribution function: {self.evd} \n"
+                   "Set 'Hazard--ExtremeValueDistribution' to one of the following: \n"
+                   "GPD, GEV, power or emp")
+            raise ValueError (msg)
+
         if self.evd == 'GPD':
             log.info("Using the GPD distribution for the hazard curves")
             Vr = loadFilesFromPath(self.inputPath, tilelimits) 

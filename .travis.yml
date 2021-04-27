@@ -1,29 +1,29 @@
-language: python
-python:
-  - '3.6'
-  - '3.7'
+language: shell
+
+env:
+  - PYTHON_VERSION=3.6
+  - PYTHON_VERSION=3.7
+  - PYTHON_VERSION=3.8
+
+os: 
+  - linux
+  - windows
+
+before_install:
+  - source ./preinstall.sh
+
 install:
-  - sudo apt-get update
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-  # install in batch mode i.e. no input
-  - bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/conda
-  - export PATH="$HOME/conda/bin:$PATH"
-  # clear bash cache table
-  - hash -r
-  - conda config --set always_yes yes
-  - conda config --set changeps1 no
-  - conda update -q conda
-  - conda config --add channels conda-forge
-  - conda config --set channel_priority strict
-  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION pip numpy scipy matplotlib basemap shapely nose netcdf4 cftime coverage coveralls pycurl pyproj seaborn simplejson sqlite statsmodels libgdal gdal configparser cartopy affine tqdm xarray gxx_linux-64 pthread-stubs imageio
-  - source activate test-env
+  - source ./postinstall.sh
+
 branches:
   except:
     - config
     - notebooks
+
 script:
   - python installer/setup.py build_ext -i
   - nosetests -v --with-coverage --cover-package=.
+
 after_success: coveralls
 notifications:
   slack:

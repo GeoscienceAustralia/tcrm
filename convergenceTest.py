@@ -30,7 +30,7 @@ import io
 import sys
 
 import matplotlib
-matplotlib.use('Agg', warn=False)  # Use matplotlib backend
+#matplotlib.use('Agg', warn=False)  # Use matplotlib backend
 
 import database
 import numpy as np
@@ -46,7 +46,8 @@ from distributions import fittedPDF
 import random
 
 import seaborn as sns
-sns.set_context("notebook")
+sns.set_context("paper")
+figsize=(6.5, 4.5)
 sns.set_style("whitegrid")
 
 
@@ -81,7 +82,6 @@ def addARIGrid(axes):
     Add a logarithmic graticule to the subplot axes.
     :param axes: :class:`axes` instance.
     """
-
     axes.xaxis.set_major_locator(LogLocator())
     axes.xaxis.set_major_formatter(FormatStrFormatter('%d'))
     axes.xaxis.set_minor_locator(LogLocator(subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9]))
@@ -100,39 +100,42 @@ def addAEPGrid(axes):
     axes.grid(True, which='major', linestyle='-')
     axes.grid(True, which='minor', linestyle='--', linewidth=0.5)
     
-    
+def calculateARI(data, years):
+    emprp = empReturnPeriod(np.sort(data))
+    return np.sort(data)[-years:], emprp[-years:]
+
+def bootstrap(data, n=1000, q=[5, 95], years=10000):
+    d = np.empty((years, n))
+    r = np.empty((years, n))
+    for i in range(n):
+        subset = np.random.choice(data, int(len(data/2)))
+        d[:, i], r[:, i] = calculateARI(subset, years=10000)
+    return np.percentile(d, q, axis=1), np.percentile(r, q, axis=1)
+
 def plotConvergenceTest(locName):
     locId = locations['locId'][locations['locName']==locName][0]
     locLon = locations['locLon'][locations['locId']==locId][0]
     locLat = locations['locLat'][locations['locId']==locId][0]
 
-    records = database.locationRecords(db, locId)
+    records = database.locationRecords(db, str(locId))
     recs = records['wspd'][records['wspd'] > 0]
     data = np.zeros(int(NumSimulations*365.25))
     data[-len(recs):] = recs
     sortedmax = np.sort(data)
     emprp = empReturnPeriod(data)
-    random.shuffle(data)
-    d1 = data[:int(len(data)/2)]
-    d2 = data[int(len(data)/2):]
-    sortedmax1 = np.sort(d1)
-    sortedmax2 = np.sort(d2)
-    emprp1 = empReturnPeriod(d1)
-    emprp2 = empReturnPeriod(d2)
+    dd, rr = bootstrap(data, n=100)
+
     ep = 1./emprp
-    ep1 = 1./emprp1
-    ep2 = 1./emprp2
-    mn = (sortedmax1[emprp1 > 1] + sortedmax2[emprp2 > 1])/2.
-    delta = np.abs(sortedmax1[emprp1 > 1] - sortedmax2[emprp2 > 1])
+    ep1 = 1./rr[0,:]
+    ep2 = 1./rr[1,:]
+    mn = dd.mean(axis=0)
+    delta = np.abs(np.diff(dd, axis=0))
     fdelta = delta/mn
 
-    fig, ax1 = plt.subplots(1, 1)
-    ax1.semilogx(emprp[emprp > 1], sortedmax[emprp > 1], color='k', 
-                 label="Mean ARI")
-    ax1.semilogx(emprp2[emprp2> 1], sortedmax2[emprp2 > 1], color="#006983",
-                 label="Convergence check 1")
-    ax1.semilogx(emprp1[emprp1> 1], sortedmax1[emprp1 > 1], color="#A33F1F",
-                 label="Convergence check 2")
+    fig, ax1 = plt.subplots(1, 1, figsize=figsize)
+    
+    ax1.fill_between(rr[0,:], dd[1,:], dd[0,:], alpha=0.5, label="95th percentile")
+    ax1.plot(emprp[-10000:], data[-10000:], color='k', label="Mean ARI")
     ax1.set_xscale('log')
 
     xlabel = 'Average recurrence interval (years)'
@@ -149,14 +152,9 @@ def plotConvergenceTest(locName):
                 bbox_inches='tight')
     plt.close()
 
-    fig2, ax2 = plt.subplots(1, 1)
-    ax2.semilogy(sortedmax[emprp > 1], ep[emprp > 1], color="k",
-                 label="Mean AEP")
-
-    ax2.semilogy(sortedmax1[emprp1 > 1], ep1[emprp1 > 1], color="#006983",
-                 label="Convergence check 1")
-    ax2.semilogy(sortedmax2[emprp2 > 1], ep2[emprp2 > 1], color="#A33F1F",
-                 label="Convergence check 2")
+    fig2, ax2 = plt.subplots(1, 1, figsize=figsize)
+    ax2.semilogy(sortedmax[-10000:], ep[-10000:], color="k", label="Mean AEP")
+    ax2.fill_betweenx(1./rr[0,:], dd[0,:], dd[1,:], alpha=0.5, label="95th percentile")
     ax2.set_xlabel(ylabel)
     title = "AEP wind speeds at " + locName + \
         " \n(%5.2f,%5.2f, n=%d)"%(locLon, locLat, len(recs))
@@ -169,7 +167,7 @@ def plotConvergenceTest(locName):
     plt.savefig(os.path.join(plotPath, "{0:05d}_AEP.png".format(locId)), 
                 bbox_inches='tight')
     plt.close()
-
+"""
     fig3, (ax3, ax4) = plt.subplots(2, 1, sharex=True)
     ax3.fill_between(emprp[emprp > 1][0:-1:2], fdelta,
                      color="#006983", alpha=0.5)
@@ -190,6 +188,7 @@ def plotConvergenceTest(locName):
     plt.savefig(os.path.join(plotPath, "{0:05d}_ARI_delta.png".format(locId)), 
                 bbox_inches='tight')
     plt.close()
+"""
 # Run the next cell, then select a location from the dropdown list and
 # click the `"Run plotConvergenceTest"` button. This will take a
 # minute or so to run, as it needs to extract all the values from the
@@ -205,48 +204,34 @@ locList = ['Carnarvon Airport', 'Port Hedland Airport',
            'Cairns Airport', 'Townsville Amo',
            'Rockhampton Airport', 'Willis Island']
 
-for locName in locList:
-    #print(locName)
-    plotConvergenceTest(locName)
+#for locName in locList:
+#    print(locName)
+#   plotConvergenceTest(locName)
 
 def plotConvergence(ax, locName):
     locId = locations['locId'][locations['locName']==locName][0]
     locLon = locations['locLon'][locations['locId']==locId][0]
     locLat = locations['locLat'][locations['locId']==locId][0]
 
-    records = database.locationRecords(db, locId)
+    records = database.locationRecords(db, str(locId))
     recs = records['wspd'][records['wspd'] > 0]
     data = np.zeros(int(NumSimulations*365.25))
     data[-len(recs):] = recs
     sortedmax = np.sort(data)
     emprp = empReturnPeriod(data)
-    random.shuffle(data)
-    d1 = data[:int(len(data)/2)]
-    d2 = data[int(len(data)/2+1):]
-    sortedmax1 = np.sort(d1)
-    sortedmax2 = np.sort(d2)
-    emprp1 = empReturnPeriod(d1)
-    emprp2 = empReturnPeriod(d2)
-    ep = 1./emprp
-    ep1 = 1./emprp1
-    ep2 = 1./emprp2
-    ax.semilogx(emprp[emprp > 1], sortedmax[emprp > 1], color='k', 
-                 label="Mean ARI")
-    ax.semilogx(emprp2[emprp2> 1], sortedmax2[emprp2 > 1], color="#006983",
-                 label="Convergence check 1", ls='--')
-    ax.semilogx(emprp1[emprp1> 1], sortedmax1[emprp1 > 1], color="#A33F1F",
-                 label="Convergence check 2", ls='--')
+    dd, rr = bootstrap(data, n=100)
+    ax.plot(emprp[-10000:], data[-10000:], color='k', label="Mean ARI")
+    ax.fill_between(rr[0,:], dd[1,:], dd[0,:], alpha=0.5, label="95th percentile")
     ax.set_xscale('log')
+    #xlabel = 'Average recurrence interval (years)'
+    #ylabel = 'Wind speed (m/s)'
+    title = "{0} (n={1:d})".format(locName, len(recs))
 
-    xlabel = 'Average recurrence interval (years)'
-    ylabel = 'Wind speed (m/s)'
-    title = "{0} ({1:5.2f}E, {2:5.2f}S, n={3:d})".format(locName, locLon, locLat, len(recs))
-    #ax.set_xlabel(xlabel)
-    #ax.set_ylabel(ylabel)
     ax.set_title(title)
     addARIGrid(ax)
 
-fig, axes = plt.subplots(4, 2, figsize=(12,16), sharex=True, sharey=True)
+
+fig, axes = plt.subplots(4, 2, figsize=(6,8), sharex=True, sharey=True)
 axlist = axes.flatten()
 for i, loc in enumerate(locList):
     plotConvergence(axlist[i], loc)
@@ -259,7 +244,6 @@ axlist[6].set_ylabel('Wind speed (m/s)')
 
 axlist[6].set_xlabel('Average recurrence interval (years)')
 axlist[7].set_xlabel('Average recurrence interval (years)')
-
 
 fig.tight_layout()
 plt.savefig(os.path.join(plotPath, "ARI_convergence.png"), 

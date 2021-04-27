@@ -6,10 +6,10 @@
     :synopsis: provide methods to plot curves (hazard curves,
                distributions, logarithmic axes, etc).
 
-.. moduleauthor: Craig Arthur <craig.arthur@ga.gov.au>
+.. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
 The routines here make use of the themes from
-`seaborn <http://stanford.edu/~mwaskom/software/seaborn/index.html>`_ to
+`seaborn <https://seaborn.pydata.org/api.html>`_ to
 define the line styles and annotations (font sizes, etc.).
 
 """
@@ -580,7 +580,7 @@ def saveFigure(figure, filename):
 
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     canvas = FigureCanvas(figure)
-    canvas.print_figure(filename, bbox_inches='tight')
+    canvas.print_figure(filename, bbox_inches='tight', dpi=300)
 
 def saveHazardCurve(years, events, wspd, wspdupper, wspdlower,
                     xlabel, ylabel, title, filename, fit):

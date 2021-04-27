@@ -31,6 +31,7 @@ from os.path import join as pjoin
 from Utilities.config import ConfigParser
 
 from Utilities.maputils import find_index
+from Utilities.smooth import smooth
 import Utilities.nctools as nctools
 from Utilities import pathLocator
 from Utilities import metutils
@@ -86,6 +87,8 @@ class AutoPlotHazard(object):
         self.plotUnits = PlotUnits(config.get('Hazard', 'PlotSpeedUnits'))
         self.ciBounds = config.getboolean('Hazard', 'CalculateCI')
         self.fit = config.get('Hazard', 'ExtremeValueDistribution')
+        self.numsimulations = config.getint("TrackGenerator", "NumSimulations")
+        self.smooth = config.getboolean("Hazard", "SmoothPlots")
 
         self.progressbar = progressbar
 
@@ -111,12 +114,18 @@ class AutoPlotHazard(object):
 
         for i, year in enumerate(years):
             log.debug("Plotting %d-year return period hazard map", year)
-            title = '%d-Year Return Period Cyclonic Wind Hazard' % (year)
+            title = '%d-Year ARI Cyclonic Wind Hazard' % (year)
             imageFilename = '%d_yrRP_hazard_map.png' % (year)
             filename = pjoin(self.plotPath, imageFilename)
             cbarlab = "Wind speed (%s)"%self.plotUnits.units
             levels = self.plotUnits.levels
-            saveHazardMap(inputData[i, :, :], xgrid, ygrid, title, levels,
+            if self.smooth:
+                dx = np.mean(np.diff(xgrid))
+                data = smooth(inputData[i, :, :], int(1/dx))
+            else:
+                data = inputData[i, :, :]
+
+            saveHazardMap(data, xgrid, ygrid, title, levels,
                           cbarlab, map_kwargs, filename)
 
             self.progressbar.update((i + 1) / float(len(years)), 0.0, 0.9)
@@ -200,6 +209,7 @@ class AutoPlotHazard(object):
         placeNames, placeID, placeLats, placeLons, locations = self.getLocations()
 
         for name, plat, plon, pID in zip(placeNames, placeLats, placeLons, placeID):
+            pID = int(pID)
 
             log.debug("Plotting return period curve for %s"%name)
             i = find_index(lon, plon)
@@ -216,7 +226,7 @@ class AutoPlotHazard(object):
             wspd = ncobj.variables['wspd'][:, j, i]
 
             recs = database.locationRecords(self.db, pID)
-            data = np.zeros(int(10000 * 365.25))
+            data = np.zeros(int(self.numsimulations * 365.25))
             if len(recs) > 0:
                 data[-len(recs):] = recs['wspd']
 

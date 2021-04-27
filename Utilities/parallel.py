@@ -31,6 +31,9 @@ class DummyStatus(object):
         self.tag = -1
         self.error = 0
 
+    def __call__(self):
+        pass
+
 class DummyCommWorld(object):
     """
     A dummy COMM_WORLD class that provides the bare

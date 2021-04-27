@@ -170,19 +170,21 @@ class DataProcess(object):
 
         if config.has_option('DataProcess', 'InputFile'):
             inputFile = config.get('DataProcess', 'InputFile')
+            self.logger.info(f"Input file from DataProcess: {inputFile}")
 
         if config.has_option('DataProcess', 'Source'):
             source = config.get('DataProcess', 'Source')
-            self.logger.info('Loading %s dataset', source)
-            fn = config.get(source, 'filename')
-            path = config.get(source, 'path')
+            self.logger.info(f"Loading {source} dataset")
+            fn = config.get(source, 'Filename')
+            path = config.get(source, 'Path')
             inputFile = pjoin(path, fn)
+            self.logger.info(f"Input file set to {inputFile}")
 
         # If input file has no path information, default to tcrm input folder
         if len(os.path.dirname(inputFile)) == 0:
             inputFile = pjoin(self.tcrm_input_dir, inputFile)
 
-        self.logger.info("Processing {0}".format(inputFile))
+        self.logger.info(f"Processing {inputFile}")
 
         self.source = config.get('DataProcess', 'Source')
 
@@ -194,8 +196,8 @@ class DataProcess(object):
         startSeason = config.getint('DataProcess', 'StartSeason')
 
         indicator = loadData.getInitialPositions(inputData)
-        lat = np.array(inputData['lat'], 'd')
-        lon = np.mod(np.array(inputData['lon'], 'd'), 360)
+        lat = np.array(inputData['lat'], 'float32')
+        lon = np.mod(np.array(inputData['lon'], 'float32'), 360.)
 
         if restrictToWindfieldDomain:
             # Filter the input arrays to only retain the tracks that
@@ -218,8 +220,8 @@ class DataProcess(object):
         except (ValueError, KeyError):
 
             try:
-                self.logger.info(("Filtering input data by season:"
-                                  "season > {0}". format(startSeason)))
+                self.logger.info(("Filtering input data by season: "
+                                  f"season >= {startSeason}"))
                 # Find indicies that satisfy minimum season filter
                 idx = np.where(inputData['season'] >= startSeason)[0]
                 # Filter records:
@@ -263,7 +265,7 @@ class DataProcess(object):
         flSaveFile(self.origin_year, np.transpose(origin_seasonOrYear),
                    header, ',', fmt='%d')
 
-        pressure = np.array(inputData['pressure'], 'd')
+        pressure = np.array(inputData['pressure'], 'float32')
         novalue_index = np.where(pressure == sys.maxsize)
         pressure = metutils.convert(pressure, inputPressureUnits, "hPa")
         pressure[novalue_index] = sys.maxsize
@@ -278,7 +280,7 @@ class DataProcess(object):
             self.progressbar.update(0.25)
 
         try:
-            vmax = np.array(inputData['vmax'], 'd')
+            vmax = np.array(inputData['vmax'], 'float32')
         except (ValueError, KeyError):
             self.logger.warning("No max wind speed data")
             vmax = np.empty(indicator.size, 'f')
@@ -463,8 +465,8 @@ class DataProcess(object):
         """
         Extract speeds for all obs, initial obs and TC origins
         Input: dist - array of distances between consecutive TC
-                      observations
-               dt - array of times between consecutive TC observations
+                      observations (km)
+               dt - array of times between consecutive TC observations (hours)
                indicator - array of ones/zeros representing initial TC
                            observations (including TCs with a single
                            observation)
@@ -497,17 +499,17 @@ class DataProcess(object):
             speed_no_init = pjoin(self.processPath, 'speed_no_init')
             # Extract all speeds
             self.logger.debug('Outputting data into {0}'.format(all_speed))
-            header = 'all cyclone speed in m/s'
+            header = 'all cyclone speed in km/h'
             flSaveFile(all_speed, speed, header, fmt='%6.2f')
 
             # Extract initial speeds
             self.logger.debug('Outputting data into {0}'.format(init_speed))
-            header = 'initial cyclone speed in m/s'
+            header = 'initial cyclone speed in km/h'
             flSaveFile(init_speed, initSpeed, header, fmt='%f')
 
             # Extract speeds, excluding initial speeds
             self.logger.debug('Outputting data into {0}'.format(speed_no_init))
-            header = 'cyclone speed without initial ones in m/s'
+            header = 'cyclone speed without initial ones in km/h'
             flSaveFile(speed_no_init, speedNoInit, header, fmt='%6.2f')
 
     def _pressure(self, pressure, indicator):

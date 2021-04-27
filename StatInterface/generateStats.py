@@ -32,10 +32,11 @@ def acf(p, nlags=1):
     :type p: 1-d :class:`numpy.ndarray`
 
     """
-    ar = np.correlate(p, p, 'full')
-    n = len(p)
-    # Grab only the lag-one autocorrelation coeff.
-    ar = ar[n-1:(n+nlags)]/ar.max()
+    ar = np.array([1]+[np.corrcoef(p[:-i], p[i:])[0,1] for i in range(1, nlags + 1)])
+    #ar = np.correlate(p, p, 'full')
+    #n = len(p)
+    ## Grab only the lag-one autocorrelation coeff.
+    #ar = ar[n-1:(n+nlags)]/ar.max()
     return ar
 
 
@@ -467,7 +468,7 @@ class GenerateStats:
                                 'units':'m/s'} },
                      8:{'name':'cell', 'dims':('lat','lon'),
                         'values':np.arange(self.maxCell+1).reshape((ny,nx)),
-                        'dtype':'i',
+                        'dtype':'i8',
                         'atts':{'long_name':'Cell', 'units':''} },
                      9:{'name':'phi', 'dims':('lat','lon'),
                         'values':self.coeffs.phi.reshape((ny,nx)),

@@ -118,7 +118,7 @@ Make sure ``python`` is in your system path, then from the base
 directory, call the ``tcevent.py`` script, with the configuration 
 file option included. For example, to run the example scenario::
 
-    python tcevent.py -c example/scenario.ini
+    python tcevent.py -c example/yasi.ini
 
 If the ``-v`` option is included, then all logging messages will be
 printed to the console. The level of logging detail is set in the
@@ -181,8 +181,21 @@ is plotted on a simple figure for visual inspection.
 
     Time series data for Super Typhoon *Haiyan* at Guiuan, Samar, Philippines. 
 
-:Note: The double labels on the secondary (right-hand) y-axis require
-       Matplotlib version 1.3 or later.
+
+Saving wind fields at all time steps
+------------------------------------
+
+When running a scenario, it is possible to save the wind field at each time step
+in the output netcdf file. 
+
+Add the following to the configuration file::
+
+    [Timeseries]
+    Windfields = True
+
+The wind field data will be stored in a separate file (named
+`evolution.000-00000.nc`).
+
 
 Troubleshooting
 ---------------

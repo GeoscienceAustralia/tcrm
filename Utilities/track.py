@@ -25,6 +25,7 @@ from Utilities.metutils import convert
 from Utilities.maputils import bearing2theta
 
 from netCDF4 import Dataset, date2num, num2date
+from cftime import num2pydate
 
 try:
     from exceptions import WindowsError
@@ -199,6 +200,26 @@ def ncReadTrackData(trackfile):
         raise IOError("Cannot open {0}".format(trackfile))
 
     g = ncobj.groups
+    if not bool(g):
+        # We have a track file that stores data in separate variables
+        log.debug(f"Reading data from a single track file")
+        dt = ncobj.variables['Datetime']
+        units = ncobj.getncattr('time_units')
+        calendar = ncobj.getncattr('calendar')
+        dtt = num2date(dt[:], units, calendar)
+        # Convert to true python datetimes
+        dtconversion = [datetime.strptime(d.strftime(), "%Y-%m-%d %H:%M:%S") for d in dtt]
+        newtd = np.zeros(len(dtt), dtype=track_dtype)
+        for f in ncobj.variables.keys():
+            if f != 'Datetime' and f in track_dtype.names:
+                newtd[f] = ncobj.variables[f][:]
+        newtd['Datetime'] = dtconversion
+        track = Track(newtd)
+        track.trackfile = trackfile
+        track.trackId = eval(ncobj.trackId)
+
+        return [track]
+
     tracks = []
     if 'tracks' in g:
         tgroup = g['tracks'].groups
@@ -219,7 +240,8 @@ def ncReadTrackData(trackfile):
             for f in track_data.dtype.names:
                 if f != 'Datetime' and f in track_dtype.names:
                     newtd[f] = track_data[f]
-            newtd['Datetime'] = dt
+            dtconversion = [datetime.strptime(d.strftime(), "%Y-%m-%d %H:%M:%S") for d in dt]
+            newtd['Datetime'] = dtconversion
 
             track = Track(newtd)
             track.trackfile = trackfile
@@ -306,7 +328,7 @@ def ncSaveTracks(trackfile, tracks,
         tvar.lon_units = 'degrees east'
         tvar.lat_units = 'degrees north'
         tvar.pressure_units = 'hPa'
-        tvar.speed_units = 'm/s'
+        tvar.speed_units = 'km/h'
         tvar.length_units = 'km'
         tvar.trackId = repr(t.trackId)
 
