@@ -24,6 +24,5 @@ jobs:
         conda install pylint
     - name: Analysing the code with pylint
       run: | 
-        which pylint
-        pylint `find . -name "*.py" | xargs`
+        find . -type f -name "*.py" -print0 | xargs -0 pylint --rcfile=pylintrc
  
