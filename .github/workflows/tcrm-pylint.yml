@@ -23,6 +23,7 @@ jobs:
       run: |
         conda install pylint
     - name: Analysing the code with pylint
-      run: which pylint
-      run: pylint `find . -name "*.py" | xargs`
+      run: | 
+        which pylint
+        pylint `find . -name "*.py" | xargs`
  
