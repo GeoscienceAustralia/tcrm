@@ -38,28 +38,33 @@ from os.path import join as pjoin
 import logging
 import sqlite3
 from sqlite3 import PARSE_DECLTYPES, PARSE_COLNAMES, IntegrityError
-from functools import wraps
+from functools import wraps, reduce
 import time
 from datetime import datetime
 import unicodedata
 import re
+import atexit
 
 from shapely.geometry import Point
-logging.getLogger('shapely').setLevel(logging.WARNING)
 from netCDF4 import Dataset
 import numpy as np
+
+from .definitions import (TBLLOCATIONDEF, TBLEVENTSDEF, TBLWINDSPEEDDEF,
+                         TBLHAZARDDEF, TBLTRACKSDEF, INSLOCATIONS,
+                         INSEVENTS, INSWINDSPEED, INSHAZARD, INSTRACK,
+                         SELECTLOCATIONS)
 
 from Utilities.config import ConfigParser
 from Utilities.maputils import find_index
 from Utilities.track import loadTracksFromFiles
 from Utilities.parallel import attemptParallel, disableOnWorkers
 from Utilities.process import pAlreadyProcessed, pGetProcessedFiles
-from functools import reduce
 
-sqlite3.register_adapter(np.int64, lambda val: int(val))
-sqlite3.register_adapter(np.int32, lambda val: int(val))
+sqlite3.register_adapter(np.int64, int)
+sqlite3.register_adapter(np.int32, int)
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
+logging.getLogger('shapely').setLevel(logging.WARNING)
 
 def fromrecords(records, names):
     """ Convert records to array, even if no data """
@@ -89,70 +94,6 @@ def timer(func):
     return wrap
 
 # pylint: disable=R0914,R0902
-
-# Table definition statements
-# Stations - we assume a geographic coordinate system:
-TBLLOCATIONDEF = ("CREATE TABLE IF NOT EXISTS tblLocations "
-                  "(locId integer PRIMARY KEY, locCode text, "
-                  "locName text, locType text, locLon real, "
-                  "locLat real, locElev real, locCountry text, "
-                  "locSource text, Comments text, "
-                  "dtCreated timestamp)")
-
-# Events:
-TBLEVENTSDEF = ("CREATE TABLE IF NOT EXISTS tblEvents "
-                "(eventNumber integer PRIMARY KEY, eventId text, "
-                "eventFile text, eventTrackFile text, "
-                "eventMaxWind real, eventMinPressure real, "
-                "dtTrackFile timestamp, dtWindfieldFile timestamp, "
-                "tcrmVersion text, Comments text, dtCreated timestamp)")
-
-#Station wind speed from events:
-TBLWINDSPEEDDEF = ("CREATE TABLE IF NOT EXISTS tblWindSpeed "
-                   "(locId integer, eventId text, wspd real, umax real, "
-                   "vmax real, pmin real, Comments text, "
-                   "dtCreated timestamp)")
-
-# Station hazard levels:
-TBLHAZARDDEF = ("CREATE TABLE IF NOT EXISTS tblHazard "
-                "(locId integer, returnPeriod real, wspd real, "
-                " wspdUpper real, wspdLower real, loc real, "
-                "scale real, shape real, tcrmVersion text, "
-                "dtHazardFile timestamp, Comments text, "
-                "dtCreated timestamp)")
-
-# Proximity of tracks to stations:
-TBLTRACKSDEF = ("CREATE TABLE IF NOT EXISTS tblTracks "
-                "(locId integer, eventId text, distClosest real, "
-                "prsClosest real, dtClosest timestamp, Comments text, "
-                "dtCreated timestamp)")
-
-# Insert statements:
-# Insert locations:
-INSLOCATIONS = ("INSERT OR REPLACE INTO tblLocations "
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?)")
-
-# Insert event record:
-INSEVENTS = "INSERT INTO tblEvents VALUES (?,?,?,?,?,?,?,?,?,?,?)"
-
-# Insert wind speed record:
-INSWINDSPEED = ("INSERT INTO tblWindSpeed "
-                "VALUES (?,?,?,?,?,?,?,?)")
-
-# Insert hazard record:
-INSHAZARD = "INSERT INTO tblHazard VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
-
-# Insert track record:
-INSTRACK = "INSERT INTO tblTracks VALUES (?,?,?,?,?,?,?)"
-
-# Select statements;
-# Select locations within domain:
-SELECTLOCATIONS = ("SELECT * FROM tblLocations WHERE "
-                   "locLon >= ? and locLon <= ? and "
-                   "locLat >= ? and locLat <= ?")
-
-# Select locId, locLon & locLat from the subset of locations:
-SELECTLOCLONLAT = "SELECT locId, locLon, locLat FROM tblLocations "
 
 def windfieldAttributes(ncobj):
     """
@@ -232,8 +173,6 @@ class _HazardDatabase(sqlite3.Connection):
                                     detect_types=PARSE_DECLTYPES|PARSE_COLNAMES)
 
         self.exists = True
-
-        import atexit
         atexit.register(self.close)
 
     @disableOnWorkers
@@ -250,7 +189,6 @@ class _HazardDatabase(sqlite3.Connection):
         self.createTable('tblTracks', TBLTRACKSDEF)
         self.exists = True
         self.commit()
-        return
 
     @disableOnWorkers
     def createTable(self, tblName, tblDef):
@@ -489,25 +427,6 @@ class _HazardDatabase(sqlite3.Connection):
                 self.insertEvents(eventparams)
                 self.insertWindSpeeds(wsparams)
 
-
-    def loadWindfieldFile(self, ncobj):
-        """
-        Load an individual dataset.
-
-        :param str filename: filename to load.
-
-        :returns: tuple containing longitude, latitude, wind speed,
-                  eastward and northward components and pressure grids.
-        """
-        lon = ncobj.variables['lon'][:]
-        lat = ncobj.variables['lat'][:]
-        vmax = ncobj.variables['vmax'][:]
-        ua = ncobj.variables['ua'][:]
-        va = ncobj.variables['va'][:]
-        pmin = ncobj.variables['slp'][:]
-
-        return (lon, lat, vmax, ua, va, pmin)
-
     def processEvent(self, filename, locations, eventNum):
         """
         Process an individual event file
@@ -522,9 +441,13 @@ class _HazardDatabase(sqlite3.Connection):
         log.debug("Event ID: {0}".format(eventId))
         try:
             ncobj = Dataset(pjoin(self.windfieldPath, filename))
-        except:
-            log.warn("Cannot open {0}".\
+        except IOError as excmsg:
+            log.warning("Cannot open {0}".\
                      format(pjoin(self.windfieldPath, filename)))
+            log.warning(excmsg)
+        except:
+            log.exception(("Failed trying to open "
+                           f"{pjoin(self.windfieldPath, filename)}"))
 
         # First perform the event update for tblEvents:
         fname = pjoin(self.windfieldPath, filename)
@@ -540,7 +463,7 @@ class _HazardDatabase(sqlite3.Connection):
                        "", datetime.now())
 
         # Perform update for tblWindSpeed:
-        lon, lat, vmax, ua, va, pmin = self.loadWindfieldFile(ncobj)
+        lon, lat, vmax, ua, va, pmin = loadWindfieldFile(ncobj)
         ncobj.close()
         wsparams = list()
 
@@ -662,8 +585,8 @@ class _HazardDatabase(sqlite3.Connection):
                 try:
                     result = comm.recv(source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG,
                                        status=status)
-                except:
-                    log.warn("Problems recieving results on node 0")
+                except Exception:
+                    log.warning("Problems recieving results on node 0")
 
                 d = status.source
                 if result:
@@ -719,6 +642,24 @@ class _HazardDatabase(sqlite3.Connection):
             self.commit()
             log.debug("Inserted {0} records into tblTracks".format(len(trackRecords)))
 
+
+def loadWindfieldFile(ncobj):
+    """
+    Load an individual dataset.
+
+    :param str filename: filename to load.
+
+    :returns: tuple containing longitude, latitude, wind speed,
+                eastward and northward components and pressure grids.
+    """
+    lon = ncobj.variables['lon'][:]
+    lat = ncobj.variables['lat'][:]
+    vmax = ncobj.variables['vmax'][:]
+    ua = ncobj.variables['ua'][:]
+    va = ncobj.variables['va'][:]
+    pmin = ncobj.variables['slp'][:]
+
+    return (lon, lat, vmax, ua, va, pmin)
 
 def processTrack(trackfile, locations):
     """
