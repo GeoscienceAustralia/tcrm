@@ -54,8 +54,6 @@ sns.set_style("whitegrid")
 # Load the configuration file from the TCHA18, then open the database
 # and get teh list of available locations.
 
-# In[2]:
-
 configFile = "/home/547/cxa547/tcrmconfig/tcrm2.1.ini"
 config = ConfigParser()
 config.read(configFile)
@@ -69,7 +67,6 @@ locNameList = list(locations['locName'])
 
 # The following step performs the calculations. First a helper
 # function to add nicely formatted grid lines on a logarithmic axis.
-# 
 # The second function (`plotConvergenceTest`) loads the data from the
 # database, then splits into two separate collections (called `d1` and
 # `d2`). For each of these, we then calculate empirical ARI values and
@@ -88,7 +85,7 @@ def addARIGrid(axes):
     axes.autoscale(True, axis='x', tight=True)
     axes.grid(True, which='major', linestyle='-')
     axes.grid(True, which='minor', linestyle='--', linewidth=0.5)
-    
+
 def addAEPGrid(axes):
     """
     Add a logarithmic graticuyle to the subplot axes
@@ -99,7 +96,7 @@ def addAEPGrid(axes):
     axes.autoscale(True, axis='y', tight=True)
     axes.grid(True, which='major', linestyle='-')
     axes.grid(True, which='minor', linestyle='--', linewidth=0.5)
-    
+
 def calculateARI(data, years):
     emprp = empReturnPeriod(np.sort(data))
     return np.sort(data)[-years:], emprp[-years:]
@@ -117,7 +114,7 @@ def plotConvergenceTest(locName):
     locLon = locations['locLon'][locations['locId']==locId][0]
     locLat = locations['locLat'][locations['locId']==locId][0]
 
-    records = database.locationRecords(db, str(locId))
+    records = database.queries.locationRecords(db, str(locId))
     recs = records['wspd'][records['wspd'] > 0]
     data = np.zeros(int(NumSimulations*365.25))
     data[-len(recs):] = recs
@@ -133,7 +130,6 @@ def plotConvergenceTest(locName):
     fdelta = delta/mn
 
     fig, ax1 = plt.subplots(1, 1, figsize=figsize)
-    
     ax1.fill_between(rr[0,:], dd[1,:], dd[0,:], alpha=0.5, label="95th percentile")
     ax1.plot(emprp[-10000:], data[-10000:], color='k', label="Mean ARI")
     ax1.set_xscale('log')
@@ -213,7 +209,7 @@ def plotConvergence(ax, locName):
     locLon = locations['locLon'][locations['locId']==locId][0]
     locLat = locations['locLat'][locations['locId']==locId][0]
 
-    records = database.locationRecords(db, str(locId))
+    records = database.queries.locationRecords(db, str(locId))
     recs = records['wspd'][records['wspd'] > 0]
     data = np.zeros(int(NumSimulations*365.25))
     data[-len(recs):] = recs
@@ -246,5 +242,5 @@ axlist[6].set_xlabel('Average recurrence interval (years)')
 axlist[7].set_xlabel('Average recurrence interval (years)')
 
 fig.tight_layout()
-plt.savefig(os.path.join(plotPath, "ARI_convergence.png"), 
+plt.savefig(os.path.join(plotPath, "ARI_convergence.png"),
                 bbox_inches='tight')

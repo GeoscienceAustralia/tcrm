@@ -231,6 +231,16 @@ class MapFigure(Figure):
 
         mapobj.add_feature(cartopy.feature.OCEAN, color=fillcolor)
 
+    def maskOceans(self, mapobj, fillcolor="#66ccff"):
+        """
+        Mask oceans with a blue background in the current `GeoAxes` instance.
+
+        :param mapobj: Current `GeoAxes` instance to colour fill the oceans
+        :param fillcolor: Optional colour to use (default #66CCFF)
+        """
+
+        mapobj.add_feature(cartopy.feature.OCEAN, color=fillcolor)
+
     def addMapScale(self, mapobj):
         """
         Add a map scale to the curent `Basemap` instance. This
