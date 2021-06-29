@@ -207,4 +207,13 @@ def run():
     MPI.Finalize()
 
 if __name__ == '__main__':
+
+    global MPI, comm
+    MPI = attemptParallel()
+    import atexit
+    atexit.register(MPI.Finalize)
+    comm = MPI.COMM_WORLD
+
     run()
+
+    MPI.Finalize()
