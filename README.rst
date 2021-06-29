@@ -65,8 +65,8 @@ TCRM requires:
 Status
 ======
 
-.. image:: https://travis-ci.org/GeoscienceAustralia/tcrm.svg?branch=develop
-    :target: https://travis-ci.org/GeoscienceAustralia/tcrm
+.. image:: https://github.com/GeoscienceAustralia/tcrm/actions/workflows/tcrm-tests.yml/badge.svg?branch=develop
+    :target: https://github.com/GeoscienceAustralia/tcrm/actions/workflows/tcrm-tests.yml
     :alt: Build status
 
 
@@ -79,8 +79,8 @@ Status
     :target: https://landscape.io/github/GeoscienceAustralia/tcrm/develop
     :alt: Code Health
     
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4070660.svg
-   :target: https://doi.org/10.5281/zenodo.4070660
+.. image:: https://zenodo.org/badge/10637300.svg
+   :target: https://zenodo.org/badge/latestdoi/10637300
 
 Screenshot
 ==========
