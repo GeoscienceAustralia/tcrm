@@ -142,7 +142,7 @@ def run():
     swind = np.zeros((len(lat), len(pc), len(pe), len(rm), len(vfm)))
     it = np.nditer(gwind, flags=['multi_index'])
     nn = gwind.size
-    print(nn)
+    #print(nn)
 
     lon = 120.
     thetaFm = 70
@@ -156,14 +156,69 @@ def run():
     MPI = attemptParallel()
     comm = MPI.COMM_WORLD
 
-    for x in balanced(it):
-        il, ic, ip, ir, iv = it.multi_index
-        gradV, surfV = calculateWindField(lon, lat[il], pe[ip], pc[ic],
+    status = MPI.Status()
+    worktag = 0
+    resulttag = 1
+    idx = [it.multi_index for x in it]
+    
+    if (comm.rank == 0) and (comm.size > 1):
+        w = 0
+        p = comm.size -1
+        for d in range(1, comm.size):
+            print(w)
+            if w < len(idx):
+                comm.send(idx[w], dest=d, tag=worktag)
+                w += 1
+            else:
+                comm.send(None, dest=d, tag=worktag)
+                p = w
+
+        terminated = 0
+
+        while terminated < p:
+            try:
+                result = comm.recv(source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, status=status)
+            except Exception:
+                pass
+
+            d = status.source
+            if result:
+                gV, sV, workidx = result
+                gwind[workidx] = gV
+                swind[workidx] = sV
+                #gwind[idx[w]], swind[idx[w]] = result
+
+            if w < len(idx):
+                comm.send(idx[w], dest=d, tag=worktag)
+                w += 1
+            else:
+                comm.send(None, dest=d, tag=worktag)
+                terminated += 1
+
+    elif (comm.rank != 0) and (comm.size > 1):
+        while True:
+            workidx = comm.recv(source=0, tag=worktag, status=status)
+            if workidx is None:
+                break
+            il, ic, ip, ir, iv = workidx
+            print(f"Processing {workidx}")
+            gradV, surfV = calculateWindField(lon, lat[il], pe[ip], pc[ic],
                                 rm[ir], vfm[iv], thetaFm, beta,
                                 profileType=profileType,
                                 windFieldType=blmodel)
-        gwind[it.multi_index] = np.max(gradV)
-        swind[it.multi_index] = np.max(surfV)
+            results = (np.max(np.abs(gradV)), np.max(surfV), workidx)
+            comm.send(results, dest=0, tag=resulttag)
+
+    elif (comm.rank == 0) and (comm.size == 1):
+        for x in idx:
+            il, ic, ip, ir, iv = x
+            print(lat[il], pc[ic], pe[ip], rm[ir], vfm[iv])
+            gradV, surfV = calculateWindField(lon, lat[il], pe[ip], pc[ic],
+                                              rm[ir], vfm[iv], thetaFm, beta,
+                                              profileType=profileType,
+                                              windFieldType=blmodel)
+            gwind[x] = np.max(np.abs(gradV))
+            swind[x] = np.max(surfV)
 
     comm.barrier()
 
@@ -207,13 +262,15 @@ def run():
     MPI.Finalize()
 
 if __name__ == '__main__':
-
+    print("Starting")
     global MPI, comm
+    print("Initialiszing MPI")
     MPI = attemptParallel()
-    import atexit
-    atexit.register(MPI.Finalize)
+    #import atexit
+    #atexit.register(MPI.Finalize)
     comm = MPI.COMM_WORLD
 
+    print("Executing run()")
     run()
 
-    MPI.Finalize()
+    #MPI.Finalize()
