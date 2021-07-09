@@ -7,9 +7,9 @@ calculations. It provides the radial profile models to define the
 primary vortex of the simulated TC, and bounday layer models that
 define the asymmetry induced by surface friction and forward motion of
 the TC over the earth's surface. The final output from the module is a
-netCDF file containing the maximum surface gust wind speed (a 10-minute
-mean wind speed, at 10 metres above ground level), along with the components
-(eastward and westward) that generated the wind gust and the minimum
+netCDF file containing the maximum surface gust wind speed (a 0.2-second
+duration gust wind speed, at 10 metres above ground level), along with the
+components (eastward and westward) that generated the wind gust and the minimum
 mean sea level pressure over the lifetime of the event. If multiple
 TCs are contained in a track file, then the output file contains the
 values from all events (for example, an annual maximum wind speed).
@@ -759,7 +759,7 @@ def filterTracks(tracks, gridLimit, margin):
         log.info(f"Filtering tracks in region: {repr(gridLimit)}")
         validTracks = [t for t in tracks if inRegion(t, gridLimit, margin)]
     else:
-        log.info(f"No grid limit set - returning all tracks")
+        log.info("No grid limit set - returning all tracks")
         return tracks
 
     return validTracks
