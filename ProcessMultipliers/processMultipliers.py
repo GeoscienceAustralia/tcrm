@@ -82,6 +82,7 @@ from botocore.exceptions import ClientError
 import tempfile
 import math
 import threading
+import queue
 from concurrent import futures
 threadLock_gust = threading.Lock()
 threadLock_bear = threading.Lock()
@@ -1035,25 +1036,35 @@ def processMultV2(wspd, uu, vv, lon, lat, working_dir, dirns,
                              * math.ceil(1.0 * rows / processing_segment_size))
         segment_count = 0
         segments = []
+        segment_queue = queue.Queue(total_segments);
         for y_offset in range(0, rows, processing_segment_size):
             height = rows - y_offset if y_offset + processing_segment_size > rows else processing_segment_size
             for x_offset in range(0, cols, processing_segment_size):
                 segment_count = segment_count + 1
                 width = cols - x_offset if x_offset + processing_segment_size > cols else processing_segment_size
-                segments.append([x_offset, y_offset, width, height, segment_count, total_segments])
+                # segments.append([x_offset, y_offset, width, height, segment_count, total_segments])
+                segment_queue.put([x_offset, y_offset, width, height, segment_count, total_segments])
 
         log.info("Lunching {0} segmented task in {1} worker threads".format(total_segments, max_working_threads))
-        for seg in segments:
-            future_requests.append(e.submit(processMultiplierSegment, seg, source_dir_bands, wind_prj, bear_prj, dst_band))
+        # for seg in segments:
+        #     future_requests.append(e.submit(processMultiplierSegment, seg, source_dir_bands, wind_prj, bear_prj, dst_band))
+        for _ in range(max_working_threads):
+            future_requests.append(e.submit(call_process_multiplier_segment, segment_queue, source_dir_bands, wind_prj, bear_prj, dst_band))
+
         futures.wait(future_requests, return_when='FIRST_EXCEPTION')
         for task in future_requests:
-            task.result() # Called to obtain exception information if any
+            task.result()  # Called to obtain exception information if any
 
     del dst_ds
     print("")
     log.info("Completed")
 
     return output_file
+
+
+def call_process_multiplier_segment(segment_queue, source_dir_band, wind_prj, bear_prj, dst_band):
+    while not segment_queue.empty():
+        processMultiplierSegment(queue.get(), source_dir_band, wind_prj, bear_prj, dst_band)
 
 
 def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_band):
@@ -1097,11 +1108,8 @@ def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_b
         local[idx] = wind_data[idx] * m4[idx]
     with threadLock_out:
         dst_band.WriteArray(local, x_offset, y_offset)
-        print('\rProgress: {0:.2f}'.format((segment_id * 100) / total_segments), "%", end="")
-    if segment_id % int(math.ceil(total_segments / 20)) == 0:
-        if log.getLogger(__name__).getEffectiveLevel() == log.DEBUG:
-            print("")
-        log.debug('Progress: {0} %'.format(int((segment_id * 100) / total_segments)))
+    if segment_id % int(math.ceil(total_segments / 100)) == 0:
+        log.info('Progress: {0:.2f} %'.format((segment_id * 100.0) / total_segments))
 
 class run():
 
