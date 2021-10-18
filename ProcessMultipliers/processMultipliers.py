@@ -1057,7 +1057,7 @@ def call_process_multiplier_segment(segment_queue, source_dir_band, wind_prj, be
     while not segment_queue.empty():
         processMultiplierSegment(segment_queue.get(), source_dir_band, wind_prj, bear_prj, dst_band)
 
-
+@timer
 def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_band):
     """
     Calculates local wind multiplier data by image segments
@@ -1084,12 +1084,14 @@ def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_b
         8: {'dir': 'n', 'min': 337.5, 'max': 360.}
     }
     [x_offset, y_offset, width, height, segment_id, total_segments] = segment
-    log.debug("Processing segment {0}/{1}: {2} {3} {4} {5}"
-              .format(segment_id, total_segments, x_offset, y_offset, width, height))
+    log.info("Processing segment {0}/{1}: {2} {3} {4} {5}"
+             .format(segment_id, total_segments, x_offset, y_offset, width, height))
     with threadLock_gust:
         wind_data = wind_prj.ReadAsArray(x_offset, y_offset, width, height)
+    log.info("threadLock_gust {0}".format(segment_id))
     with threadLock_bear:
         bear_data = bear_prj.ReadAsArray(x_offset, y_offset, width, height)
+    log.info("threadLock_bear {0}".format(segment_id))
     m4_all = loadAllBandArrayData(source_dir_band, segment_info=segment)
     local = np.zeros([height, width], dtype='float32')
     for i in list(indices.keys()):
@@ -1097,8 +1099,10 @@ def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_b
         idx = np.where((bear_data >= indices[i]['min']) &
                        (bear_data < indices[i]['max']))
         local[idx] = wind_data[idx] * m4[idx]
+    log.info("Loop {0}".format(segment_id))
     with threadLock_out:
         dst_band.WriteArray(local, x_offset, y_offset)
+    log.info("threadLock_out {0}".format(segment_id))
     if segment_id % int(math.ceil(total_segments / 100.0)) == 0:
         log.info('Progress: {0:.2f} %'.format((segment_id * 100.0) / total_segments))
 
