@@ -1102,6 +1102,7 @@ def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_b
     log.info("Loop {0}".format(segment_id))
     with threadLock_out:
         dst_band.WriteArray(local, x_offset, y_offset)
+        dst_band.FlushCache()
     log.info("threadLock_out {0}".format(segment_id))
     if segment_id % int(math.ceil(total_segments / 100.0)) == 0:
         log.info('Progress: {0:.2f} %'.format((segment_id * 100.0) / total_segments))
