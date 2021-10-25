@@ -954,7 +954,7 @@ def processMultV2(wspd, uu, vv, lon, lat, working_dir, dirns,
     log.debug('Create rasters from the netcdf gust file variables')
     wind_raster_file = pjoin(working_dir, 'region_wind.tif')
     wind_raster = createRaster(np.flipud(wspd), lon, lat, delta, delta,
-                               filename = wind_raster_file)
+                               filename=wind_raster_file)
     bear_raster = createRaster(np.flipud(bearing), lon, lat, delta, delta)
     uu_raster = createRaster(np.flipud(uu), lon, lat, delta, delta)
     vv_raster = createRaster(np.flipud(vv), lon, lat, delta, delta)
@@ -974,19 +974,15 @@ def processMultV2(wspd, uu, vv, lon, lat, working_dir, dirns,
 
     future_requests = []
     with futures.ThreadPoolExecutor(max_workers=max_working_threads) as e:
-        m4_max_file_obj=gdal.Open(m4_max_file, gdal.GA_ReadOnly)
-        thread_wind = e.submit(reprojectDataset, wind_raster, m4_max_file_obj, wind_prj_file,
-                               warp_memory_limit=warp_memory_limit)
-        thread_bear = e.submit(reprojectDataset, bear_raster, m4_max_file_obj, bear_prj_file,
-                               warp_memory_limit=warp_memory_limit,
-                               resampling_method=gdalconst.GRA_NearestNeighbour)
-        futures.wait([thread_bear])
-        thread_bear.result() # Called to obtain exception information if any
+        m4_max_file_obj = gdal.Open(m4_max_file, gdal.GA_ReadOnly)
+        reprojectDataset(wind_raster, m4_max_file_obj, wind_prj_file,
+                         warp_memory_limit=warp_memory_limit)
+        reprojectDataset(bear_raster, m4_max_file_obj, bear_prj_file,
+                         warp_memory_limit=warp_memory_limit,
+                         resampling_method=gdalconst.GRA_NearestNeighbour)
         future_requests.append(e.submit(reprojectDataset, uu_raster, m4_max_file_obj, uu_prj_file,
                                         warp_memory_limit=warp_memory_limit,
                                         resampling_method=gdalconst.GRA_NearestNeighbour))
-        futures.wait([thread_wind]) # Writing wind is slow as it has to write region_wind.tif as well
-        thread_wind.result() # Called to obtain exception information if any
         future_requests.append(e.submit(reprojectDataset, vv_raster, m4_max_file_obj, vv_prj_file,
                                         warp_memory_limit=warp_memory_limit,
                                         resampling_method=gdalconst.GRA_NearestNeighbour))
@@ -1007,11 +1003,12 @@ def processMultV2(wspd, uu, vv, lon, lat, working_dir, dirns,
         # multipliers
         drv = gdal.GetDriverByName("GTiff")
         dst_ds = drv.Create(output_file, cols, rows, 1,
-                            gdal.GDT_Float32, ['SPARSE_OK=TRUE'])
+                            gdal.GDT_Float32, ['BIGTIFF=YES', 'SPARSE_OK=TRUE'])
         dst_ds.SetGeoTransform(wind_geot)
         dst_ds.SetProjection(wind_proj)
         dst_band = dst_ds.GetRasterBand(1)
         dst_band.SetNoDataValue(-9999)
+        print('processMultV2', dst_ds.GetProjection())
 
         log.info("Reading bands")
         source_dir_bands = []
@@ -1047,8 +1044,9 @@ def processMultV2(wspd, uu, vv, lon, lat, working_dir, dirns,
         futures.wait(future_requests, return_when='FIRST_EXCEPTION')
         for task in future_requests:
             task.result()  # Called to obtain exception information if any
+        dst_ds.FlushCache()
+        del dst_ds
 
-    del dst_ds
     log.info("Completed")
     return output_file
 
@@ -1056,6 +1054,7 @@ def processMultV2(wspd, uu, vv, lon, lat, working_dir, dirns,
 def call_process_multiplier_segment(segment_queue, source_dir_band, wind_prj, bear_prj, dst_band):
     while not segment_queue.empty():
         processMultiplierSegment(segment_queue.get(), source_dir_band, wind_prj, bear_prj, dst_band)
+    dst_band.FlushCache()
 
 def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_band):
     """
@@ -1099,7 +1098,7 @@ def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_b
     with threadLock_out:
         dst_band.WriteArray(local, x_offset, y_offset)
         dst_band.FlushCache()
-    if segment_id % int(math.ceil(total_segments / 200.0)) == 0:
+    if segment_id % int(math.ceil(total_segments / 100.0)) == 0:
         log.info('Progress: {0:.2f} %'.format((segment_id * 100.0) / total_segments))
 
 class run():
