@@ -65,22 +65,22 @@ TCRM requires:
 Status
 ======
 
-.. image:: https://github.com/GeoscienceAustralia/tcrm/actions/workflows/tcrm-tests.yml/badge.svg?branch=master
+.. image:: https://github.com/GeoscienceAustralia/tcrm/actions/workflows/tcrm-tests.yml/badge.svg?branch=develop
     :target: https://github.com/GeoscienceAustralia/tcrm/actions/workflows/tcrm-tests.yml
     :alt: Build status
 
 
-.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=master
-  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=master
+.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=develop
+  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=develop
   :alt: Test coverage
 
     
-.. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/master/landscape.svg?style=flat
-    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/master
+.. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/develop/landscape.svg?style=flat
+    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/develop
     :alt: Code Health
     
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4070660.svg
-   :target: https://doi.org/10.5281/zenodo.4070660
+.. image:: https://zenodo.org/badge/10637300.svg
+   :target: https://zenodo.org/badge/latestdoi/10637300
 
 Screenshot
 ==========
