@@ -84,7 +84,7 @@ def interpolate(track, delta, interpolation_type=None):
         else:
             raise
     dt_ = 24.0 * np.diff(time_)
-    dt = np.empty(len(track.data), dtype=float)
+    dt = np.zeros(len(track.data), dtype=float)
     dt[1:] = dt_
 
     # Convert all times to a time after initial observation:
@@ -93,13 +93,13 @@ def interpolate(track, delta, interpolation_type=None):
     newtime = np.arange(timestep[0], timestep[-1] + .01, delta)
     newtime[-1] = timestep[-1]
     _newtime = (newtime / 24.) + time_[0]
-
     newdates = num2date(_newtime)
     newdates = np.array([n.replace(tzinfo=None) for n in newdates])
 
     if not hasattr(track, 'Speed'):
         idx = np.zeros(len(track.data))
         idx[0] = 1
+        # TODO: Possibly could change `np.mean(dt)` to `dt`?
         track.WindSpeed = maxWindSpeed(idx, np.mean(dt), track.Longitude,
                                        track.Latitude, track.CentralPressure, 
                                        track.EnvPressure)
@@ -114,7 +114,7 @@ def interpolate(track, delta, interpolation_type=None):
         nLon = interp1d(timestep, track.Longitude, kind='linear')(newtime)
         nLat = interp1d(timestep, track.Latitude, kind='linear')(newtime)
 
-        if len(validIdx) == 2:
+        if len(validIdx) >= 2:
             npCentre = interp1d(timestep,
                                 track.CentralPressure,
                                 kind='linear')(newtime)

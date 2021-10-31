@@ -417,6 +417,7 @@ class WindfieldGenerator(object):
         """
         if self.gridLimit is None:
             self.setGridLimit(track)
+            log.info(f"Wind field domain set to {repr(self.gridLimit)}")
 
         wt = WindfieldAroundTrack(track,
                                   profileType=self.profileType,
@@ -744,8 +745,23 @@ def inRegion(t, gridLimit, margin):
             (t.Latitude.min() <= yMax))
 
 def filterTracks(tracks, gridLimit, margin):
+    """
+    Filter tracks based on the `gridLimit` if it is specified. If no `gridLimit`
+    is specified, we assume it's a single event and will set the domain later.
+
+    :param tracks: a list of `Track` objects
+    :param gridLimit: tuple that describes the simulation domain
+    :param margin: How much buffer to apply around the track
+
+    :returns: a filtered list of tracks (if `gridLimit` is not None)
+    """
     if not (gridLimit is None):
+        log.info(f"Filtering tracks in region: {repr(gridLimit)}")
         validTracks = [t for t in tracks if inRegion(t, gridLimit, margin)]
+    else:
+        log.info(f"No grid limit set - returning all tracks")
+        return tracks
+
     return validTracks
 
 def loadTracksFromFiles(trackfiles, gridLimit, margin):

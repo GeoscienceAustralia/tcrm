@@ -75,11 +75,16 @@ with one of three boundary layer models to incorporate asymmetries
 associated with forward motion of the TC vortex.
 
 :mod:`hazard` uses the wind fields calculated in the :mod:`wind`
-module to fit a generalised extreme value (GEV) distribution at
-each grid point across the model domain to determine return
-period wind speeds. The fitting routine uses the method of
-L-moments [#]_ to determine the location, shape and scale
-parameters of the GEV.
+module to calculate average recurrence interval (ARI) wind speeds. There are a number
+of approaches that can be used:: 
+
+#. empirical recurrence intervals
+#. fitting a generalised pareto distribution (GPD)
+#. fitting a generalised extreme value distribution (GEV)
+
+The first option calculates ARI wind speeds up to the limit of the number of
+simulated years. The second and third options allow for calculating ARI wind
+speeds beyond the limit of the number of simulated years. 
 
 The :mod:`database` module builds a SQLite database that holds
 information about the simulation. The wind speeds associated with all

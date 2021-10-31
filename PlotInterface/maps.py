@@ -3,7 +3,7 @@
 =============================================
 
 .. module:: maps
-    :synopsis: Generate map images using `mpl_toolkits.basemap`
+    :synopsis: Generate map images using `cartopy`
 
 .. moduleauthor: Craig Arthur <craig.arthur@ga.gov.au>
 
@@ -21,7 +21,6 @@ import numpy.ma as ma
 from matplotlib.figure import Figure
 import cartopy
 
-from Utilities.smooth import smooth
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import seaborn as sns
 
@@ -177,7 +176,7 @@ class MapFigure(Figure):
         :param mapobj: Current `GeoAxes` instance to annotate.
 
         """
-
+        from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
         xmin, xmax, ymin, ymax = mapobj.get_extent()
 
         dx = abs(xmin - xmax)
@@ -195,7 +194,10 @@ class MapFigure(Figure):
 
         gl = mapobj.gridlines(xlocs=meridians, ylocs=parallels,
                               draw_labels=True)
-        gl.xlabels_top = False
+        gl.xformatter = LONGITUDE_FORMATTER
+        gl.yformatter = LATITUDE_FORMATTER
+        gl.top_labels = False
+        gl.right_labels = False
 
     def addCoastline(self, mapobj):
         """
@@ -205,7 +207,7 @@ class MapFigure(Figure):
         :param mapobj: Current `GeoAxes` instance to add coastlines to.
 
         """
-        mapobj.coastlines(resolution='50m')
+        mapobj.coastlines(resolution='10m')
 
     def fillContinents(self, mapobj, fillcolor="#FFDAB5"):
         """
@@ -218,6 +220,16 @@ class MapFigure(Figure):
         """
         mapobj.add_feature(cartopy.feature.LAND, color=fillcolor)
 
+    def maskOceans(self, mapobj, fillcolor="#66ccff"):
+        """
+        Mask oceans with a blue background in the current `GeoAxes` instance.
+
+        :param mapobj: Current `GeoAxes` instance to colour fill the oceans
+        :param fillcolor: Optional colour to use (default #66CCFF)
+        """
+
+        mapobj.add_feature(cartopy.feature.OCEAN, color=fillcolor)
+
     def addMapScale(self, mapobj):
         """
         Add a map scale to the curent `Basemap` instance. This
@@ -228,7 +240,7 @@ class MapFigure(Figure):
         :param mapobj: Current `Basemap` instance to add the scale bar to.
 
         """
-        return # TODO: migrate to cartopy
+        return # TODO: migrate to cartopy - see https://stackoverflow.com/questions/32333870/
 
         midlon = (mapobj.lonmax - mapobj.lonmin) / 2.
         midlat = (mapobj.latmax - mapobj.latmin) / 2.
@@ -344,7 +356,7 @@ class FilledContourMapFigure(MapFigure):
                        define the contour levels to use.
         :param str cbarlab: Label for the color bar.
         :param dict map_kwargs: A dict containing keyword arguments for
-                                setting up the :class:`basemap` instance.
+                                setting up the :class:`GeoAxes` instance.
 
         """
         super(FilledContourMapFigure, self).add(data, xgrid, ygrid,
@@ -392,16 +404,11 @@ class MaskedContourMapFigure(FilledContourMapFigure):
                                 map keyword arguments.
 
         """
-        from mpl_toolkits.basemap import maskoceans
+
         data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs = subfigure
         mapobj, mx, my = self.createMap(axes, xgrid, ygrid, map_kwargs)
-        dmask = data.mask
-        masked_data = maskoceans(xgrid, ygrid, data, inlands=False)
-        omask = ma.getmask(masked_data)
-        nmask = ma.mask_or(dmask, omask)
-        masked_data.mask = nmask
         cmap = selectColormap(lvls)
-        CS = mapobj.contourf(mx, my, masked_data, levels=lvls,
+        CS = mapobj.contourf(mx, my, data, levels=lvls,
                              extend='both', cmap=cmap)
         CB = self.colorbar(CS, ticks=lvls[::2], ax=axes, extend='both')
         CB.set_label(cbarlab)
@@ -409,7 +416,7 @@ class MaskedContourMapFigure(FilledContourMapFigure):
         self.labelAxes(axes)
         self.addGraticule(axes, mapobj)
         self.addCoastline(mapobj)
-        self.fillContinents(mapobj, fillcolor="#EEEEEE")
+        self.maskOceans(mapobj)
         self.addMapScale(mapobj)
 
 class ArrayMapFigure(MapFigure):
@@ -461,12 +468,10 @@ class MaskedArrayMapFigure(ArrayMapFigure):
                                 map keyword arguments.
 
         """
-        from mpl_toolkits.basemap import maskoceans
         data, xgrid, ygrid, title, \
             datarange, cbarlab, map_kwargs = subfigure
 
-        masked_data = maskoceans(xgrid, ygrid, data, inlands=False)
-        subfigure = (masked_data, xgrid, ygrid, title,
+        subfigure = (data, xgrid, ygrid, title,
                      datarange, cbarlab, map_kwargs)
         super(MaskedArrayMapFigure, self).subplot(axes, subfigure)
 
@@ -545,16 +550,13 @@ class MaskedArrayMapFigure(ArrayMapFigure):
 
 class HazardMap(FilledContourMapFigure):
     """
-    A map for presenting return level data. Ocean areas are masked, and
-    the data is smoothed using a Gaussian kernel.
+    A map for presenting return level data. 
 
     """
     def plot(self, data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs):
-        # Smooth the data to reduce 'lines-on-a-map' inferences:
-        dx = np.mean(np.diff(xgrid))
-        dmask = data.mask
-        data = smooth(data, int(1/dx))
-        data = ma.array(data, mask=dmask)
+        #dx = np.mean(np.diff(xgrid))
+        #dmask = data.mask
+        #data = ma.array(data, mask=dmask)
         self.add(data, xgrid, ygrid, title, lvls, cbarlab, map_kwargs)
         self.cmap = sns.light_palette("orange", as_cmap=True)
         super(HazardMap, self).plot()
