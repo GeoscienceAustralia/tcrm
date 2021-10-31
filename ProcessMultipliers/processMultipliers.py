@@ -1054,7 +1054,6 @@ def processMultV2(wspd, uu, vv, lon, lat, working_dir, dirns,
 def call_process_multiplier_segment(segment_queue, source_dir_band, wind_prj, bear_prj, dst_band):
     while not segment_queue.empty():
         processMultiplierSegment(segment_queue.get(), source_dir_band, wind_prj, bear_prj, dst_band)
-    dst_band.FlushCache()
 
 def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_band):
     """
@@ -1082,8 +1081,6 @@ def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_b
         8: {'dir': 'n', 'min': 337.5, 'max': 360.}
     }
     [x_offset, y_offset, width, height, segment_id, total_segments] = segment
-    # log.info("Processing segment {0}/{1}: {2} {3} {4} {5}"
-    #          .format(segment_id, total_segments, x_offset, y_offset, width, height))
     with threadLock_gust:
         wind_data = wind_prj.ReadAsArray(x_offset, y_offset, width, height)
     with threadLock_bear:
