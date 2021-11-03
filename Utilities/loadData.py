@@ -194,7 +194,7 @@ def getSpeedBearing(index, lon, lat, deltatime, ieast=1,
     speed = dist / deltatime
     # Delete speeds less than 0, greated than 200,
     # or where indicator == 1.
-    np.putmask(speed, (speed < 0), missingValue) 
+    np.putmask(speed, (speed < 0), missingValue)
     np.putmask(speed, (speed > 200), missingValue)
     np.putmask(speed, index, missingValue)
     np.putmask(speed, np.isnan(speed), missingValue)
@@ -360,7 +360,6 @@ def getInitialPositions(data):
     except ValueError:
         LOG.error("'num' field cannot be converted to an integer")
 
-        
     raise KeyError(('Insufficient input file columns have been specified'
                     'Check the input file has enough fields to determine'
                     'TC starting positions'))
