@@ -199,7 +199,7 @@ class getMultipliers():
         :param dict type_mapping: dict of shielding, terrain, topographic
         '''
         dir_check = os.path.isdir(working_dir)
-        if dir_check == False:
+        if dir_check is False:
             os.makedirs(working_dir)
             log.info('Creating directories for outputs')
         else:
