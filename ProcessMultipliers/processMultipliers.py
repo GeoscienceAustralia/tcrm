@@ -199,7 +199,7 @@ class getMultipliers():
         :param dict type_mapping: dict of shielding, terrain, topographic
         '''
         dir_check = os.path.isdir(working_dir)
-        if dir_check is False:
+        if dir_check == False:
             os.makedirs(working_dir)
             log.info('Creating directories for outputs')
         else:
@@ -1054,7 +1054,6 @@ def processMultV2(wspd, uu, vv, lon, lat, working_dir, dirns,
 def call_process_multiplier_segment(segment_queue, source_dir_band, wind_prj, bear_prj, dst_band):
     while not segment_queue.empty():
         processMultiplierSegment(segment_queue.get(), source_dir_band, wind_prj, bear_prj, dst_band)
-    dst_band.FlushCache()
 
 def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_band):
     """
