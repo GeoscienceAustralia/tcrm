@@ -60,7 +60,7 @@ def fitRmax(rmw, dp, lat):
     We fit a function of dp and latitude to ln(Rmw) values of the
     form:
 
-    ln(Rmw) = a + b*dp + c*dp^2 + d*lat^2 + eps
+    ln(Rmw) = a + b*dp + c*|lat| + eps
 
     where eps is a random normal variate with zero mean and std. dev.
     describing the residual variance. 
@@ -79,7 +79,7 @@ def fitRmax(rmw, dp, lat):
     assert len(dp) == len(lat)
     assert len(rmw) == len(dp)
     
-    X = np.column_stack((dp, dp*dp, lat*lat))
+    X = np.column_stack((dp, abs(lat)))
     X = sm.add_constant(X)
     y = np.array(np.log(rmw))
     model = sm.OLS(y, X)
