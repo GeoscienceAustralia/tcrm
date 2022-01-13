@@ -9,7 +9,8 @@
  $Id: NumpyTestCase.py 563 2007-10-24 02:52:40Z carthur $
 """
 
-from scipy import array, alltrue, iscomplexobj, allclose, equal
+from scipy import array
+from numpy import allclose, iscomplexobj, alltrue, equal
 import unittest
 
 class NumpyTestCase(unittest.TestCase):
