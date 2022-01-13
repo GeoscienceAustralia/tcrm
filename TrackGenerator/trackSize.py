@@ -80,7 +80,6 @@ def fitRmax(rmw, dp, lat):
     assert len(rmw) == len(dp)
     
     X = np.column_stack((dp, abs(lat)))
-    X = sm.add_constant(X)
     y = np.array(np.log(rmw))
     model = sm.OLS(y, X)
     results = model.fit()
