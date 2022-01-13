@@ -49,7 +49,7 @@ def loadTimeseriesData(datafile):
                              comments='#', delimiter=',', skip_header=1,
                              converters=INPUT_CNVT)
     except ValueError:
-        logging.warn("Timeseries data file is empty - returning empty array")
+        logging.warning("Timeseries data file is empty - returning empty array")
         return np.empty(0, dtype={
                         'names': INPUT_COLS,
                         'formats': INPUT_FMTS})

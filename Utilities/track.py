@@ -252,7 +252,7 @@ def ncReadTrackData(trackfile):
             tracks.append(track)
 
     else:
-        log.warn(TRACK_EMPTY_GROUP.format(trackfile))
+        log.warning(TRACK_EMPTY_GROUP.format(trackfile))
 
     ncobj.close()
     return tracks

@@ -92,7 +92,7 @@ def pGetProcessedFiles(datFileName=None):
             fh = open(datFileName)
 
         except IOError:
-            LOGGER.warn("Couldn't open dat file %s", datFileName)
+            LOGGER.warning("Couldn't open dat file %s", datFileName)
             return rc
         else:
             LOGGER.debug("Getting previously-processed files from %s",
@@ -141,8 +141,8 @@ def pWriteProcessedFile(filename):
             fh.close()
             rc = 1
     else:
-        LOGGER.warn(("Dat file name not provided. "
-                     "Can't record %s as processed."), filename)
+        LOGGER.warning(("Dat file name not provided. "
+                        "Can't record %s as processed."), filename)
 
     return rc
 
@@ -161,7 +161,7 @@ def pDeleteDatFile():
     if os.unlink(GLOBAL_DATFILE):
         rc = 1
     else:
-        LOGGER.warn("Cannot remove dat file %s", GLOBAL_DATFILE)
+        LOGGER.warning("Cannot remove dat file %s", GLOBAL_DATFILE)
     return rc
 
 def pAlreadyProcessed(directory, filename, attribute, value):
@@ -268,7 +268,7 @@ def pMoveFile(origin, destination):
     try:
         os.rename(origin, destination)
     except OSError:
-        LOGGER.warn("Error moving %s to %s", origin, destination)
+        LOGGER.warning("Error moving %s to %s", origin, destination)
         rc = 0
     else:
         LOGGER.debug("%s moved to %s", origin, destination)

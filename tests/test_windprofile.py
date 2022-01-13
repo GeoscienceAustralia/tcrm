@@ -1,7 +1,7 @@
 import os
 import sys
 import unittest
-from . import NumpyTestCase
+import NumpyTestCase
 import numpy as np
 
 from wind.windmodels import *

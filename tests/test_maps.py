@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from . import NumpyTestCase
+from tests import NumpyTestCase
 from matplotlib.colors import LinearSegmentedColormap
 from PlotInterface import maps
 

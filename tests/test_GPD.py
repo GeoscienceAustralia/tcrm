@@ -34,7 +34,7 @@ import os
 import sys
 import unittest
 import pickle
-from . import NumpyTestCase
+from tests import NumpyTestCase
 import numpy
 
 # Add parent folder to python path

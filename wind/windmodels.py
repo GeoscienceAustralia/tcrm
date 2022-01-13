@@ -1142,9 +1142,9 @@ def profileParams(name):
     """
     List of additional parameters required for a wind profile model.
     """
-    from inspect import getargspec
-    std = getargspec(WindProfileModel.__init__)[0]
-    new = getargspec(profile(name).__init__)[0]
+    from inspect import getfullargspec
+    std = getfullargspec(WindProfileModel.__init__)[0]
+    new = getfullargspec(profile(name).__init__)[0]
     params = [p for p in new if p not in std]
     return params
 
@@ -1161,9 +1161,9 @@ def fieldParams(name):
     """
     List of additional parameters required for a wind field model.
     """
-    from inspect import getargspec
-    std = getargspec(WindFieldModel.__init__)[0]
-    new = getargspec(field(name).__init__)[0]
+    from inspect import getfullargspec
+    std = getfullargspec(WindFieldModel.__init__)[0]
+    new = getfullargspec(field(name).__init__)[0]
     params = [p for p in new if p not in std]
     return params
 

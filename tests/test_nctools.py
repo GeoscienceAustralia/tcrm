@@ -12,7 +12,7 @@ import os
 import sys
 from os.path import join as pjoin
 import unittest
-from . import NumpyTestCase
+from tests import NumpyTestCase
 import numpy as np
 import netCDF4
 from datetime import datetime, timedelta
@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 try:
     from . import pathLocate
 except:
-    from unittests import pathLocate
+    from tests import pathLocate
 
 # Add parent folder to python path
 unittest_dir = pathLocate.getUnitTestDirectory()

@@ -32,3 +32,5 @@ dependencies:
   - mpi4py
   - boto3
   - botocore
+  - pytest
+  - pytest-cov
