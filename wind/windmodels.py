@@ -1102,7 +1102,7 @@ class KepertWindField(WindFieldModel):
 
         # Second asymmetric surface component
         ups = (Ap * np.exp(i * (thetaFm - lam) * np.sign(self.f))).real * albe
-        vps = (Ap * np.exp(i * (thetaFm - thetaFm) * np.sign(self.f))).imag * np.sign(self.f)
+        vps = (Ap * np.exp(i * (thetaFm - lam) * np.sign(self.f))).imag * np.sign(self.f)
 
         # Total surface wind in (moving coordinate system)
         us = u0s + ups + ums
