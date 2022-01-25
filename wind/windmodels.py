@@ -1090,8 +1090,8 @@ class KepertWindField(WindFieldModel):
         Am[ind] = AmIII[ind]
 
         # First asymmetric surface component
-        ums = (Am * np.exp(-i * (lam - thetaFm) * np.sign(self.f))).real * albe
-        vms = (Am * np.exp(-i * (lam - thetaFm) * np.sign(self.f))).imag * np.sign(self.f)
+        ums = (Am * np.exp(-i * (thetaFm - lam) * np.sign(self.f))).real * albe
+        vms = (Am * np.exp(-i * (thetaFm - lam) * np.sign(self.f))).imag * np.sign(self.f)
 
         Ap = -(eta * (1 - 2 * albe + (1 + i) * (1 - albe) * psi) * Vt) / \
               (albe * ((2 + 2 * i) * (1 + eta * psi) + 3 * eta + 3 * i * psi))
@@ -1101,8 +1101,8 @@ class KepertWindField(WindFieldModel):
         Ap[ind] = ApIII[ind]
 
         # Second asymmetric surface component
-        ups = (Ap * np.exp(i * (lam - thetaFm) * np.sign(self.f))).real * albe
-        vps = (Ap * np.exp(i * (lam - thetaFm) * np.sign(self.f))).imag * np.sign(self.f)
+        ups = (Ap * np.exp(i * (thetaFm - lam) * np.sign(self.f))).real * albe
+        vps = (Ap * np.exp(i * (thetaFm - thetaFm) * np.sign(self.f))).imag * np.sign(self.f)
 
         # Total surface wind in (moving coordinate system)
         us = u0s + ups + ums
