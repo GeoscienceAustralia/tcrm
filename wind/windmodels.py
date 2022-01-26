@@ -1037,12 +1037,12 @@ class KepertWindField(WindFieldModel):
         """
         :param R: Distance from the storm centre to the grid (km).
         :type  R: :class:`numpy.ndarray`
-        :param lam: Direction (geographic bearing, positive clockwise)
+        :param lam: Direction (0=east, radians, positive anti-clockwise)
                     from storm centre to the grid.
         :type  lam: :class:`numpy.ndarray`
         :param float vFm: Foward speed of the storm (m/s).
-        :param float thetaFm: Forward direction of the storm (geographic
-                              bearing, positive clockwise, radians).
+        :param float thetaFm: Forward direction of the storm (0=east, radians,
+                    positive anti-clockwise).
         :param float thetaMax: Bearing of the location of the maximum
                                wind speed, relative to the direction of
                                motion.
@@ -1090,8 +1090,8 @@ class KepertWindField(WindFieldModel):
         Am[ind] = AmIII[ind]
 
         # First asymmetric surface component
-        ums = (Am * np.exp(-i * (thetaFm - lam) * np.sign(self.f))).real * albe
-        vms = (Am * np.exp(-i * (thetaFm - lam) * np.sign(self.f))).imag * np.sign(self.f)
+        ums = (Am * np.exp(-i * (lam - thetaFm) * np.sign(self.f))).real * albe
+        vms = (Am * np.exp(-i * (lam - thetaFm) * np.sign(self.f))).imag * np.sign(self.f)
 
         Ap = -(eta * (1 - 2 * albe + (1 + i) * (1 - albe) * psi) * Vt) / \
               (albe * ((2 + 2 * i) * (1 + eta * psi) + 3 * eta + 3 * i * psi))
@@ -1101,13 +1101,13 @@ class KepertWindField(WindFieldModel):
         Ap[ind] = ApIII[ind]
 
         # Second asymmetric surface component
-        ups = (Ap * np.exp(i * (thetaFm - lam) * np.sign(self.f))).real * albe
-        vps = (Ap * np.exp(i * (thetaFm - lam) * np.sign(self.f))).imag * np.sign(self.f)
+        ups = (Ap * np.exp(i * (lam - thetaFm) * np.sign(self.f))).real * albe
+        vps = (Ap * np.exp(i * (lam - thetaFm) * np.sign(self.f))).imag * np.sign(self.f)
 
         # Total surface wind in (moving coordinate system)
         us = u0s + ups + ums
         vs = v0s + vps + vms + V
-        print("Here!")
+
         usf = us + Vt * np.cos(lam - thetaFm)
         vsf = vs - Vt * np.sin(lam - thetaFm)
         phi = np.arctan2(usf, vsf)
@@ -1117,9 +1117,6 @@ class KepertWindField(WindFieldModel):
         Vy = np.sqrt(usf ** 2. + vsf ** 2.) * np.cos(phi - lam)
 
         return Ux, Vy
-
-
-# Automatic discovery of models and required parameters
 
 
 def allSubclasses(cls):
