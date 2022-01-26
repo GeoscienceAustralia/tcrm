@@ -1122,7 +1122,7 @@ class KepertWindField(WindFieldModel):
 # Automatic discovery of models and required parameters
 
 
- def allSubclasses(cls):
+def allSubclasses(cls):
     """
     Recursively find all subclasses of a given class.
     """
