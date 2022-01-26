@@ -1107,7 +1107,7 @@ class KepertWindField(WindFieldModel):
         # Total surface wind in (moving coordinate system)
         us = u0s + ups + ums
         vs = v0s + vps + vms + V
-
+        print("Here!")
         usf = us + Vt * np.cos(lam - thetaFm)
         vsf = vs - Vt * np.sin(lam - thetaFm)
         phi = np.arctan2(usf, vsf)
