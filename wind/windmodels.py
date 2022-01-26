@@ -1119,7 +1119,10 @@ class KepertWindField(WindFieldModel):
         return Ux, Vy
 
 
-def allSubclasses(cls):
+# Automatic discovery of models and required parameters
+
+
+ def allSubclasses(cls):
     """
     Recursively find all subclasses of a given class.
     """
