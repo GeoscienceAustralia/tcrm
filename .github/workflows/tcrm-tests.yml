@@ -27,6 +27,8 @@ jobs:
         auto-activate-base: false
 
     - name: Test with pytest
+      env: 
+        PYTHONPATH: ~/tcrm;~/tcrm/Utilities
       shell: bash -l {0}
       run: |
         pytest -x --cov=. --cov-report xml
