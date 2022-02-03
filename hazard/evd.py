@@ -107,7 +107,9 @@ class GEVDistribution(ExtremeValueDistribution):
             # not all equal, and where there are 50 or more valid (>0) values.
             if data[ii].min() != data[ii].max():
                 if len(ii) >= self.minrecords:
-                    l1, l2, l3 = lmom.samlmu(data, 3) # find 3 l-moments
+                    # l1, l2, l3 = lmom.samlmu(data, 3) # find 3 l-moments
+                    # samlmu return t3 directly, no need to calculate again - WD
+                    l1, l2, t3 = lmom.samlmu(data, 3) # find 3 l-moments
                     # t3 = L-skewness (Hosking 1990)
                     t3 = l3 / l2
                     if (l2 <= 0.) or (np.abs(t3) >= 1.):
@@ -295,9 +297,9 @@ def gevfit(data, intervals, nodata=-9999., minrecords=50, yrspersim=1):
         # not all equal, and where there are 50 or more valid (>0) values.
         if data[ii].min() != data[ii].max():
             if len(ii) >= minrecords:
-                l1, l2, l3 = lmom.samlmu(data, 3) # find 3 l-moments
+                l1, l2, t3 = lmom.samlmu(data, 3) # find 3 l-moments
                 # t3 = L-skewness (Hosking 1990)
-                t3 = l3 / l2
+                # t3 = l3 / l2 # samlmu return t3 directly, no need to calculate again - WD
                 if (l2 <= 0.) or (np.abs(t3) >= 1.):
                     # Reject points where the second l-moment is negative
                     # or the ratio of the third to second is > 1, i.e. positive
