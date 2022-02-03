@@ -111,7 +111,7 @@ class GEVDistribution(ExtremeValueDistribution):
                     # samlmu return t3 directly, no need to calculate again - WD
                     l1, l2, t3 = lmom.samlmu(data, 3) # find 3 l-moments
                     # t3 = L-skewness (Hosking 1990)
-                    t3 = l3 / l2
+                    # t3 = l3 / l2
                     if (l2 <= 0.) or (np.abs(t3) >= 1.):
                         # Reject points where the second l-moment is negative
                         # or the ratio of the third to second is > 1, i.e. positive
