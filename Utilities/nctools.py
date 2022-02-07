@@ -193,14 +193,13 @@ def ncGetTimes(ncobj, name='time'):
         calendar = times.calendar
     else:
         calendar = 'standard'
-    try:
-        dates = num2pydate(times[:].data, units, calendar)
-    except TypeError:
-        logger.info(times[:].data)
-        logger.info(f"Dimension units: {units}")
-        logger.info(f"Dimension calendar: {calendar}")
-        raise
-    
+
+    print(times[:].data)
+    print(f"Dimension units: {units}")
+    print(f"Dimension calendar: {calendar}")
+    dates = num2pydate(times[:].data, units, calendar)
+
+
     return np.array(dates, dtype=datetime)
 
 def ncCreateDim(ncobj, name, values, dtype, atts=None):
