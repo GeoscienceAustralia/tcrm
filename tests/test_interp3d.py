@@ -12,7 +12,7 @@ import os
 import sys
 import unittest
 import pickle
-from . import NumpyTestCase
+from tests import NumpyTestCase
 import numpy
 
 unittest_dir = os.path.dirname(os.path.realpath( __file__ ))

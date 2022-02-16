@@ -6,7 +6,7 @@ import io
 #from Utilities
 import Utilities.config as config #.config import ConfigParser, cnfGetIniValue, parseBool, parseList, formatList
 from Utilities.config import reset as forgetAllSingletons
-from . import pathLocate
+from tests import pathLocate
 
 unittest_dir = pathLocate.getUnitTestDirectory()
 

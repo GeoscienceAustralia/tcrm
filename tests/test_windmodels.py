@@ -2,7 +2,7 @@ import os
 import sys
 import unittest
 import pickle
-from . import NumpyTestCase
+from tests import NumpyTestCase
 
 from wind.windmodels import *
 

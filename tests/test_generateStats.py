@@ -26,12 +26,12 @@ Description: Unit test for the windProfile class
 import os, sys
 import unittest
 import pickle
-from . import NumpyTestCase
+from tests import NumpyTestCase
 import numpy
 try:
     from . import pathLocate
 except:
-    from unittests import pathLocate
+    from tests import pathLocate
 
 # Add parent folder to python path
 unittest_dir = pathLocate.getUnitTestDirectory()

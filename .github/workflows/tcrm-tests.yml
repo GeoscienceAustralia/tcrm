@@ -26,7 +26,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
         auto-activate-base: false
 
-    - name: Test with nose
+    - name: Test with pytest
+      env: 
+        PYTHONPATH: ~/tcrm;~/tcrm/Utilities
       shell: bash -l {0}
       run: |
-        python tests/run.py
+        pytest -x --cov=. --cov-report xml
