@@ -40,7 +40,7 @@ class TestEvd(unittest.TestCase):
             yrspersim=10
         )
 
-        assert np.allclose(self.params, np.array([loc, scale, shp]), rtol=0.05)
+        assert np.allclose(self.params, np.array([loc, scale, shp]), rtol=0.02)
         assert np.allclose(w, self.w0, rtol=0.05)
 
 
