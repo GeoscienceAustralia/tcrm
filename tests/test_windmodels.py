@@ -120,9 +120,10 @@ class TestWindField(NumpyTestCase.NumpyTestCase):
         pkl_file.close()
 
     def test_Kepert(self):
+        print(self.R.mean(), self.R.shape)
+        print(self.lam.mean(), self.lam.shape)
         windField = KepertWindField(self.profile)
-        Ux, Vy = windField.field(self.R, self.lam, self.vFm, self.thetaFm,
-                                 self.thetaMax)
+        Ux, Vy = windField.field(self.R, self.lam, self.vFm, self.thetaFm, self.thetaMax)
         self.numpyAssertAlmostEqual(Ux, self.test_kepert_Ux)
         self.numpyAssertAlmostEqual(Vy, self.test_kepert_Vy)
 
