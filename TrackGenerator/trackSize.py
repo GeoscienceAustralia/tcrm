@@ -42,8 +42,9 @@ def rmax(dp, lat, eps, coeffs=[4.22, -0.0198, 0.0023]):
 
     """
     if len(coeffs) != 3:
-        LOG.warn("Insufficient coefficients for rmw calculation!")
-        LOG.warn("Using default values")
+        LOG.warning("Insufficient coefficients for rmw calculation!")
+        LOG.warning("Using default values")
+
         coeffs = [4.22, -0.0198, 0.0023]
 
     if isinstance(dp, (np.ndarray, list)) and \

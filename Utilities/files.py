@@ -5,6 +5,7 @@ import logging
 import datetime
 import numpy as np
 from time import ctime, localtime, strftime
+from pathlib import Path
 
 import hashlib
 
@@ -29,6 +30,7 @@ def flModulePath(level=1):
     """
     filename = os.path.realpath(sys._getframe(level).f_code.co_filename)
     path, fname = os.path.split(filename)
+    path = str(Path(path).resolve())
     path.replace(os.path.sep, '/')
     base, ext = os.path.splitext(fname)
     return path, base, ext

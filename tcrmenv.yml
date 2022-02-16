@@ -23,7 +23,7 @@ dependencies:
   - libgdal
   - gdal
   - configparser
-  - cartopy
+  - cartopy>=0.18.0
   - affine
   - tqdm
   - xarray
@@ -32,3 +32,5 @@ dependencies:
   - mpi4py
   - boto3
   - botocore
+  - pytest
+  - pytest-cov

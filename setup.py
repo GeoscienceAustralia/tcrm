@@ -7,8 +7,8 @@ from setuptools import setup, find_packages
 
 setup(
     name = "TCRM",
-    version = '3.1.4',
-    packages=find_packages(), 
+    version = '3.1.12',
+    packages=find_packages(),
     scripts=['tcrm.py', 'tcevent.py'],
     include_package_data=True,
     package_data = {
@@ -46,7 +46,9 @@ setup(
     'imageio',
     'mpi4py',
     'boto3',
-    'botocore'],
+    'botocore',
+    'pytest',
+    'pytest-cov'],
     
     # metadata:
     author = "Craig Arthur",

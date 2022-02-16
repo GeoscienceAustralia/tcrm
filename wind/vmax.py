@@ -52,6 +52,7 @@ $Id: vmax.py 810 2012-02-21 07:52:50Z nsummons $
 """
 
 from scipy import sqrt, exp, power
+import numpy as np
 import Utilities.metutils as metutils
 
 
@@ -98,20 +99,20 @@ def vmax(pCentre, pEnv, type="holland", beta=1.3, rho=1.15):
         # Primary Hurricane Vortex. Part I: Observations and
         # Evaluation of the Holland (1980) Model.
         # Mon. Wea. Rev., 132, 3033-3048
-        vMax = 0.6252*sqrt(dP)
+        vMax = 0.6252*np.sqrt(dP)
     elif type == "holland":
         # Holland (1980), An Analytic Model of the Wind and Pressure
         # Profiles in Hurricanes. Mon. Wea. Rev, 108, 1212-1218
         # Density of air is assumed to be 1.15 kg/m^3.
         # beta is assumed to be 1.3. Other values can be specified.
         # Gradient level wind (assumed maximum).
-        vMax = sqrt(beta*dP/(exp(1)*rho))
+        vMax = np.sqrt(beta*dP/(np.exp(1)*rho))
     elif type == "atkinson":
         # Atkinson and Holliday (1977), Tropical Cyclone Minimum Sea
         # Level Pressure / Maximum Sustained Wind Relationship for
         # the Western North Pacific. Mon. Wea. Rev., 105, 421-427
         # Maximum 10m, 1-minute wind speed. Uses pEnv as 1010 hPa
-        vMax = 3.04*power(1010 - metutils.convert(pCentre, "Pa", "hPa"), 0.644)
+        vMax = 3.04*np.power(1010 - metutils.convert(pCentre, "Pa", "hPa"), 0.644)
     else:
         raise NotImplementedError("Vmax type " + type + " not implemented")
     return vMax
@@ -130,7 +131,7 @@ def pDiff(vMax, pEnv, vMaxType="holland", beta=1.3, rho=1.15):
     if vMaxType == "willoughby":
         dP = (vMax/0.6252)**2
     elif vMaxType == "holland":
-        dP = rho*exp(1)*(vMax**2)/beta
+        dP = rho*np.exp(1)*(vMax**2)/beta
     elif vMaxType == "atkinson":
         dP = (vMax/3.04)**(1/0.644)
         dP = metutils.convert(dP, "hPa", "Pa")

@@ -380,7 +380,7 @@ class FilledContourMapFigure(MapFigure):
         cmap = selectColormap(lvls)
         CS = mapobj.contourf(mx, my, data, levels=lvls,
                              extend='both', cmap=cmap)
-        CB = self.colorbar(CS, ticks=lvls[::2], ax=axes, extend='both')
+        CB = self.colorbar(CS, ticks=lvls[::2], ax=axes)
         CB.set_label(cbarlab)
         axes.set_title(title)
         self.addGraticule(axes, mapobj)

@@ -687,8 +687,8 @@ def getPoci(penv, pcentre, lat, jdays, eps,
     """
 
     if len(coeffs) < 6:
-        LOG.warn("Insufficient coefficients for poci calculation")
-        LOG.warn("Using default values")
+        LOG.warning("Insufficient coefficients for poci calculation")
+        LOG.warning("Using default values")
         coeffs=[2324.1564738613392, -0.6539853183796136,
                 -1.3984456535888878, 0.00074072928008818927,
                 0.0044469231429346088, -1.4337623534206905]

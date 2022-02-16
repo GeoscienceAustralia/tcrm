@@ -29,11 +29,11 @@ TODO: Update to test all functions in :mod:`metutils`
 import os, sys
 import unittest
 from numpy import array, arange, pi
-from . import NumpyTestCase
+from tests import NumpyTestCase
 try:
     from . import pathLocate
 except:
-    from unittests import pathLocate
+    from tests import pathLocate
 
 # Add parent folder to python path
 unittest_dir = pathLocate.getUnitTestDirectory()

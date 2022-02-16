@@ -2,12 +2,12 @@ import os
 import sys
 import unittest
 import numpy as np
-from . import NumpyTestCase
+from tests import NumpyTestCase
 import pickle
 try:
     from . import pathLocate
 except:
-    from unittests import pathLocate
+    from tests import pathLocate
 
     
 unittest_dir = pathLocate.getUnitTestDirectory()

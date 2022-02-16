@@ -314,9 +314,9 @@ def shpGetField(shape_file, field_name, dtype=float):
 
         field_names = [fields[i][0] for i in range(len(fields))]
         if field_name not in field_names:
-            log.warn("No field '{0}' in the list of fieldnames" .
+            log.warning("No field '{0}' in the list of fieldnames" .
                     format(field_name))
-            log.warn("Unable to proceed with processing")
+            log.warning("Unable to proceed with processing")
             raise ValueError
 
     records = sf.records()
