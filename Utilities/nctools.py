@@ -194,12 +194,10 @@ def ncGetTimes(ncobj, name='time'):
     else:
         calendar = 'standard'
 
-    print(times[:].data)
+    print(times[:].data, times[:].data.dtype)
     print(f"Dimension units: {units} {type(units)}")
     print(f"Dimension calendar: {calendar} {type(calendar)}")
     dates = num2pydate(times[:].data, units, calendar)
-
-    assert False
 
     return np.array(dates, dtype=datetime)
 

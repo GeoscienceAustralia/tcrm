@@ -424,6 +424,35 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
 
     def test_ncGetTimeValues(self):
         """Test ncGetTimes returns correct time values"""
+
+        from cftime import num2pydate
+
+        units = "hours since 2000-01-01 00:00:00"
+        calendar = "standard"
+        try:
+            dates = num2pydate(1, units, calendar)
+            print('working!')
+        except Exception as e:
+            print(e)
+
+        try:
+            dates = num2pydate(1.0, units, calendar)
+            print('working!')
+        except Exception as e:
+            print(e)
+
+        try:
+            dates = num2pydate(np.array([1]), units, calendar)
+            print('working!')
+        except Exception as e:
+            print(e)
+
+        try:
+            dates = num2pydate(np.array([1.0]), units, calendar)
+            print('working!')
+        except Exception as e:
+            print(e)
+
         ncobj = netCDF4.Dataset(self.ncfile)
         times = nctools.ncGetTimes(ncobj)
         start = datetime.strptime(ncobj.variables['time'].units,
@@ -431,6 +460,7 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
         t = np.array([start + timedelta(hours=t) for t in range(self.nrecs)])
         self.numpyAssertEqual(t, times)
         ncobj.close()
+        assert False
 
     def tearDown(self):
         os.unlink(self.ncfile)
