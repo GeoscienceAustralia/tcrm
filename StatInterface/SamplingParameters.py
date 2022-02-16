@@ -16,7 +16,6 @@ import os
 import sys
 import logging
 
-import scipy
 import numpy as np
 from Utilities.config import cnfGetIniValue
 from Utilities.files import flLoadFile, flSaveFile
@@ -76,7 +75,7 @@ class SamplingParameters:
     def generateOneSample(self):
         """Generate a single random sample of cyclone parameters."""
 
-        unif = scipy.rand()
+        unif = np.random.rand()
         ind_kdf = self.xacy[:, 1].searchsorted(unif)
         return self.xacy[ind_kdf, 0]
 
@@ -96,7 +95,7 @@ class SamplingParameters:
         if ns <= 0:
             raise ValueError('invalid input on ns: number of sample cannot be zero or negative')
 
-        unif_s = scipy.rand(ns)
+        unif_s = np.random.rand(ns)
 
         ind_kdf = self.xacy[:, 1].searchsorted(unif_s)
         self.sample = self.xacy[ind_kdf, 0]

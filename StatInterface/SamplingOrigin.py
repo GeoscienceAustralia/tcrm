@@ -18,7 +18,6 @@ import logging
 from Utilities.files import flLoadFile, flSaveFile
 from Utilities.grid import grdRead, grdReadFromNetcdf
 import numpy as np
-import scipy
 import Utilities.stats as stats
 
 LOG = logging.getLogger()
@@ -119,8 +118,8 @@ class SamplingOrigin(object):
     def generateOneSample(self):
         """Generate a random cyclone origin."""
         # generate 2 uniform random variables
-        unifX = scipy.rand()
-        unifY = scipy.rand()
+        unifX = np.random.rand()
+        unifY = np.random.rand()
 
         xi = np.array(self.cdfX).searchsorted(unifX)
         yj = self.cdfY[xi, :].searchsorted(unifY)
@@ -178,8 +177,8 @@ class SamplingOrigin(object):
             raise ValueError
 
         # Generate 2 vectors of uniform random variables
-        unifX = scipy.rand(ns)
-        unifY = scipy.rand(ns)
+        unifX = np.random.rand(ns)
+        unifY = np.random.rand(ns)
 
         self.oLon = np.empty(ns, 'd')
         self.oLat = np.empty(ns, 'd')
