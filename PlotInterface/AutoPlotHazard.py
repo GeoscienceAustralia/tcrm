@@ -36,6 +36,8 @@ import Utilities.nctools as nctools
 from Utilities import pathLocator
 from Utilities import metutils
 
+from database.queries import locationRecords
+
 from PlotInterface.maps import saveHazardMap
 from PlotInterface.curves import saveHazardCurve
 
