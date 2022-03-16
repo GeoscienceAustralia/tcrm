@@ -32,7 +32,7 @@ import numpy.ma as ma
 
 from matplotlib import pyplot, cm
 from matplotlib.dates import date2num
-from mpl_toolkits.basemap import Basemap
+#from mpl_toolkits.basemap import Basemap
 from scipy.stats import scoreatpercentile as percentile
 from datetime import datetime
 
@@ -45,7 +45,7 @@ from Utilities.metutils import convert
 from Utilities.maputils import bearing2theta
 
 import Utilities.Intersections as Int
-import Utilities.colours as colours
+#ßimport Utilities.colours as colours
 
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -1599,6 +1599,26 @@ def process_args(argv):
     run(gConfigFile)
 
     log.info("Completed {0}".format(sys.argv[0]))
+
+
+def bom2tcrm(df, trackId):
+    """
+    Transforms a dataframe in BoM format into a tcrm track.
+
+    """
+    df['Datetime'] = pd.to_datetime(df.validtime)
+    df['Speed'] = df.translation_speed
+    df['CentralPressure'] = df.pcentre
+    df['Longitude'] = df.longitude
+    df['Latitude'] = df.latitude
+    df['EnvPressure'] = df.poci
+    df['rMax'] = df.rmax
+    df['trackId'] = df.disturbance.values
+
+    track = Track(df)
+    track.trackId = [trackId]
+    return track
+
 
 if __name__ == '__main__':
     process_args(sys.argv[1:])

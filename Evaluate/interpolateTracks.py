@@ -9,6 +9,8 @@ from scipy.interpolate import interp1d, splev, splrep
 from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile, maxWindSpeed
 from Utilities.track import Track, ncSaveTracks
+from .evaluate import bom2tcrm
+from pycxml.pycxml import loadfile
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -299,6 +301,9 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
     if trackFile.endswith("nc"):
         from Utilities.track import ncReadTrackData
         tracks = ncReadTrackData(trackFile)
+    elif trackFile.endswith("xml"):
+        dfs = loadfile(fp)
+        tracks = [bom2tcrm(df, i) for i, df in enumerate(dfs)]
     else:
         tracks = loadTrackFile(configFile, trackFile, source)
 
