@@ -32,7 +32,7 @@ import numpy.ma as ma
 
 from matplotlib import pyplot, cm
 from matplotlib.dates import date2num
-#from mpl_toolkits.basemap import Basemap
+from mpl_toolkits.basemap import Basemap
 from scipy.stats import scoreatpercentile as percentile
 from datetime import datetime
 
@@ -45,7 +45,7 @@ from Utilities.metutils import convert
 from Utilities.maputils import bearing2theta
 
 import Utilities.Intersections as Int
-#ßimport Utilities.colours as colours
+import Utilities.colours as colours
 
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
