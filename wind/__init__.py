@@ -201,7 +201,11 @@ class WindfieldAroundTrack(object):
         values = [getattr(self, p) for p in params if hasattr(self, p)]
         windfield = cls(profile, *values)
 
-        Ux, Vy = windfield.field(R * 1000, theta, vFm, thetaFm,  thetaMax)
+        # if the central pressure >= environmental pressure return 0 wind fields
+        if cP < eP:
+            Ux, Vy = windfield.field(R * 1000, theta, vFm, thetaFm,  thetaMax)
+        else:
+            Ux, Vy = np.zeros_like(R), np.zeros_like(R)
 
         return (Ux, Vy, P)
 
