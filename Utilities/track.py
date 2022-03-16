@@ -81,14 +81,21 @@ class Track(object):
         self.data = data
         self.trackId = None
         self.trackfile = None
-        if (len(data) > 0) and ('CentralPressure' in data.dtype.names):
+        if (len(data) > 0) and self.has_key('CentralPressure'):
             self.trackMinPressure = np.min(data['CentralPressure'])
         else:
             self.trackMinPressure = None
-        if (len(data) > 0) and ('WindSpeed' in data.dtype.names):
+        if (len(data) > 0) and self.has_key('WindSpeed'):
             self.trackMaxWind = np.max(data['WindSpeed'])
         else:
             self.trackMaxWind = None
+
+    def has_key(self, key):
+
+        try:
+            return (key in self.data.dtype.names)
+        except AttributeError:
+            return (key in self.data.columns)
 
     def __getattr__(self, key):
         """
