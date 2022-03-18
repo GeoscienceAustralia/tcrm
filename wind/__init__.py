@@ -784,12 +784,21 @@ def loadTracksFromFiles(trackfiles, gridLimit, margin):
     :param trackfiles: list of track filenames. The filenames must include the
                        path to the file.
     """
-    for f in balanced(trackfiles):
+    if len(trackfiles) > 1:
+        for f in balanced(trackfiles):
+            msg = f'Calculating wind fields for tracks in {f}'
+            log.info(msg)
+            tracks = filterTracks(loadTracks(f), gridLimit, margin)
+            for track in tracks:
+                yield track
+    else:
+        f = trackfiles[0]
         msg = f'Calculating wind fields for tracks in {f}'
         log.info(msg)
         tracks = filterTracks(loadTracks(f), gridLimit, margin)
-        for track in tracks:
+        for track in balanced(tracks):
             yield track
+
 
 
 def loadTracks(trackfile):
