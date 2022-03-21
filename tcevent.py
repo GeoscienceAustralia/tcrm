@@ -188,10 +188,10 @@ def main(configFile):
     outputTrackFile = pjoin(outputPath, "tracks.interp.nc")
 
     # This will save interpolated track data in TCRM format:
-    interpTrack = interpolateTracks.parseTracks(configFile, trackFile,
-                                                source, delta,
-                                                outputTrackFile,
-                                                interpolation_type='akima')
+    # interpTrack = interpolateTracks.parseTracks(configFile, trackFile,
+    #                                             source, delta,
+    #                                             outputTrackFile,
+    #                                             interpolation_type='akima')
 
     showProgressBar = config.get('Logging', 'ProgressBar')
 
@@ -218,6 +218,7 @@ def startup():
     function.
 
     """
+    print("starting up")
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config_file',
                         help='Path to configuration file')

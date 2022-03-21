@@ -171,6 +171,9 @@ class Timeseries(object):
             stnlat = stndata[:, 2].astype(float)
             for sid, lon, lat in zip(stnid, stnlon, stnlat):
                 self.stations.append(Station(sid, lon, lat))
+
+        self.station_lat = np.array([s.lat for s in self.stations])
+        self.station_lon = np.array([s.lon for s in self.stations])
         log.info(f"There are {len(self.stations)} stations that will collect timeseries data")
 
     def sample(self, lon, lat, spd, uu, vv, prs, gridx, gridy):
@@ -216,20 +219,33 @@ class Timeseries(object):
         :param gridy: :class:`numpy.ndarray` of grid latitudes.
 
         """
-        stns = 0
-        for stn in self.stations:
-            if stn.insideGrid(gridx, gridy):
-                stns += 1
-                result = self.sample(stn.lon, stn.lat, spd, uu, vv, prs,
-                                     gridx, gridy)
-                ss, ux, vy, bb, pp = result
-                stn.data.append((str(stn.id), dt, stn.lon, stn.lat, ss,
-                                 ux, vy, bb, pp))
+        # import xarray as xr
 
-            else:
-                stn.data.append((str(stn.id), dt, stn.lon, stn.lat, 0.0, 0.0,
-                                 0.0, 0.0, prs[0, 0]))
-        log.debug("Extracted data for {0} stations".format(stns))
+        # grid_lon = gridx[0, :]
+        # grid_lat = gridy[:, 0]
+
+        # mask = (self.station_lat <= grid_lat[0]) & (self.station_lat >= grid_lat[-1])
+        # mask &= (self.station_lon >= grid_lon[0]) & (self.station_lon <= grid_lon[-1])
+
+        out = np.zeros((len(self.stations), 5))
+        # for i, xx in enumerate(spd, uu, vv, prs):
+        #     yy = xr.DataArray(
+        #         xx,
+        #         dims=["lat", "lon"],
+        #         coords=dict(
+        #         lon=grid_lon,
+        #         lat=grid_lat,
+        #         ),
+        #     )
+
+        #     out[:, i][mask] = yy.interp(lat=grid_lat[mask], lon=grid_lon.mask)
+
+        # out[:, -1][mask] = np.mod((180. / np.pi) * np.arctan2(-out[:, 1][mask], -out[:, 2][mask]), 360.)
+
+        # for stn in self.stations:
+        #     stn.data.append((str(stn.id), dt, stn.lon, stn.lat, out[i, 0], out[i, 1], out[i, 2], out[i, -1], out[i, 3]))
+        print("huh")
+        log.debug("Extracted data for {0} stations".format(mask.sum()))
 
     def shutdown(self):
         """

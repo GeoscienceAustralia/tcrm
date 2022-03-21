@@ -6,6 +6,7 @@ import logging
 import netCDF4
 import affine
 import numpy as np
+import xarray as xr
 
 
 class WriteFoliationCallback(object):
@@ -70,7 +71,7 @@ class WriteFoliationCallback(object):
                             yoff=gridLimit['yMin']-margin) *
                         affine.Affine.scale(resolution))
 
-        self.ds = root = netCDF4.Dataset(filename, mode='w')
+        self.ds = root = netCDF4.Dataset(filename, mode='w') #, memory=True, persist=True)
         root.description = "Simulated Windfield Timeseries"
 
         # declare shapes
@@ -127,3 +128,60 @@ class WriteFoliationCallback(object):
 
         # save (flush) layer to file
         self.ds.sync()
+
+
+class WriteMemoryCallback(object):
+    """
+
+  
+    """
+
+    def __init__(self, filename, gridLimit, resolution, margin=0, wraps=None, **kwargs):
+        """
+        :param str filename: netCDF file for saving data to
+        :param dict gridLimit: simulation domain extent
+        :param float resolution: grid resolution in decimal degrees
+        :param float margin: spatial extent over which the wind field is
+                             calculated in decimal degrees
+        :param int maxchunk: chunking size (for use in netCDF variable
+                             creation)
+        :param func wraps: Optional callback function (e.g. for
+                           timeseries extraction)
+
+        """
+
+        logging.debug(
+            "Preparing to record windfield evolution to {}".format(filename))
+
+        self.callback = wraps
+        self.filename = filename
+
+    def setup(self, coords):
+        self.tUU = xr.DataArray(dims=["time", "lat", "lon"], coords=coords)
+        self.tVV = xr.DataArray(dims=["time", "lat", "lon"], coords=coords)
+        self.tP = xr.DataArray(dims=["time", "lat", "lon"], coords=coords)
+        self.tgust = xr.DataArray(dims=["time", "lat", "lon"], coords=coords)
+
+    def __call__(self, time, gust, Ux, Uy, P, imin, imax, jmin, jmax):
+        """Save wind field layer for latest time step"""
+        # if self.callback:
+        #     self.callback(time, gust, Ux, Uy, P, lon, lat)
+        self.tUU.sel(time=time).data[imin:imax, jmin:jmax] = Ux
+        self.tVV.sel(time=time).data[imin:imax, jmin:jmax] = Uy
+        self.tP.sel(time=time).data[imin:imax, jmin:jmax] = P
+        self.tgust.sel(time=time).data[imin:imax, jmin:jmax] = gust
+
+    def close(self):
+        ds = xr.Dataset(
+            dict(
+                gust_speed=self.tgust, 
+                velocity_east=self.tUU, 
+                velocity_north=self.tVV, 
+                pressure=self.tP, 
+                )
+            )
+
+        ds.to_netcdf(self.filename)
+
+
+        

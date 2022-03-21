@@ -268,6 +268,13 @@ class WindfieldAroundTrack(object):
                                  (self.track.Latitude <= yMax))[0]
 
         nsteps = len(self.track.TimeElapsed)
+        
+        timesInRegion = timesInRegion[:5]
+        
+        coords = coords=dict(lon=lonGrid, lat=latGrid, time=timesInRegion)        
+        
+        if timeStepCallback is not None:
+            timeStepCallback.setup(coords)
 
         for i in tqdm.tqdm(timesInRegion, disable=None):
             log.debug(("Calculating wind field at timestep "
@@ -291,21 +298,25 @@ class WindfieldAroundTrack(object):
                             gridMargin) / gridStep) + 1
 
             # Calculate the local wind speeds and pressure at time i
-            Ux, Vy, P = self.localWindField(i)
 
+            Ux, Vy, P = self.localWindField(i)
             # Calculate the local wind gust and bearing
             Ux *= self.gustFactor
             Vy *= self.gustFactor
 
             localGust = np.sqrt(Ux ** 2 + Vy ** 2)
             localBearing = ((np.arctan2(-Ux, -Vy)) * 180. / np.pi)
-
+            t2 = time.time()
             # Handover this time step to a callback if required
             if timeStepCallback is not None:
-                timeStepCallback(self.track.Datetime[i],
-                                 localGust, Ux, Vy, P,
-                                 lonGrid[imin:imax] / 100.,
-                                 latGrid[jmin:jmax] / 100.)
+                
+                timeStepCallback(i, localGust, Ux, Vy, P, imin, imax, jmin, jmax)
+                
+                # timeStepCallback(self.track.Datetime[i],
+                #     localGust, Ux, Vy, P,
+                #     lonGrid[imin:imax] / 100.,
+                #     latGrid[jmin:jmax] / 100.,
+                #     )
 
             # Retain when there is a new maximum gust
             mask = localGust > gust[jmin:jmax, imin:imax]
@@ -323,6 +334,9 @@ class WindfieldAroundTrack(object):
             pressure[jmin:jmax, imin:imax] = np.where(
                 P < pressure[jmin:jmax, imin:imax],
                 P, pressure[jmin:jmax, imin:imax])
+
+        if timeStepCallback is not None:
+            timeStepCallback.close()
 
         return gust, bearing, UU, VV, pressure, lonGrid / 100., latGrid / 100.
 
@@ -440,10 +454,11 @@ class WindfieldGenerator(object):
             output = pjoin(self.windfieldPath,
                            'evolution.{0:03d}-{1:05d}.nc'.format(
                                *track.trackId))
-            callback = writer.WriteFoliationCallback(output,
+            callback = writer.WriteMemoryCallback(output,
                                                      self.gridLimit,
                                                      self.resolution,
                                                      self.margin,
+                                                     maxchunk=2048,
                                                      wraps=callback)
 
         return track, wt.regionalExtremes(self.gridLimit, callback)
@@ -531,6 +546,7 @@ class WindfieldGenerator(object):
 
         if self.multipliers is not None:
             self.calcLocalWindfield(results)
+            
 
     def plotGustToFile(self, result, filename):
         """
@@ -704,8 +720,7 @@ class WindfieldGenerator(object):
         """
 
         tracks = loadTracksFromFiles(sorted(trackfiles), self.gridLimit, self.margin)
-        self.dumpGustsFromTracks(tracks, windfieldPath,
-                                 timeStepCallback=timeStepCallback)
+        self.dumpGustsFromTracks(tracks, windfieldPath, timeStepCallback=timeStepCallback)
 
     def calcLocalWindfield(self, results):
         """
@@ -847,6 +862,7 @@ def balanced(iterable):
     scattering.
     """
     P, p = MPI.COMM_WORLD.size, MPI.COMM_WORLD.rank
+    iterable = itertools.islice(iterable, 0, 2)
     return itertools.islice(iterable, p, None, P)
 
 
@@ -894,6 +910,7 @@ def run(configFile, callback=None):
     else:
         timestepCallback = None
 
+    print("Timestep callback:", timestepCallback)
     multipliers = None
     if config.has_option('Input', 'Multipliers'):
         multipliers = config.get('Input', 'Multipliers')
@@ -945,3 +962,9 @@ def run(configFile, callback=None):
     comm.barrier()
 
     log.info('Completed windfield generator')
+
+
+# total time to process one track: 218s
+## 215s regionalExtremes
+### 160s in localWindfield
+### 15s in polarGridAroundEye 
