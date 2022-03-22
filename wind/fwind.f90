@@ -1,4 +1,5 @@
 subroutine fkerpert(R, lam, V, Z, f, rMax, vFm, thetaFm, Vm, Ux, Uy, n)
+   !$ use omp_lib
 
    integer, intent(in) :: n
    doubleprecision, intent(in) :: f, rMax, vFm, Vm
@@ -15,6 +16,7 @@ subroutine fkerpert(R, lam, V, Z, f, rMax, vFm, thetaFm, Vm, Ux, Uy, n)
    Cd = 0.002
    j = cmplx(0.0, 1.0)
 
+   !$OMP PARALLEL DO shared(Ux, Uy)
    do i = 1, n
 
       if ((vFm > 0) .and. (Vm/vFm < 5.)) then
@@ -78,11 +80,13 @@ subroutine fkerpert(R, lam, V, Z, f, rMax, vFm, thetaFm, Vm, Ux, Uy, n)
       Uy(i) = sqrt(usf ** 2. + vsf ** 2.) * cos(phi - lam(i))
 
    end do
+   !$OMP END PARALLEL DO
 
 end subroutine fkerpert
 
 
 subroutine fhollandvel(V, R, d2Vm, dVm, rMax, vMax, beta, dP, rho, f, n)
+   !$ use omp_lib
    doubleprecision, intent(in) :: d2Vm, dVm, rMax, beta, dP, rho, f, vMax
    integer, intent(in) :: n
    doubleprecision, intent(in), dimension(n) :: R
@@ -94,6 +98,7 @@ subroutine fhollandvel(V, R, d2Vm, dVm, rMax, vMax, beta, dP, rho, f, n)
    bb = (d2Vm - 6 * aa * rMax) / 2.
    cc = dVm - 3 * aa * rMax ** 2 - 2 * bb * rMax
 
+   !$OMP PARALLEL DO shared(V)
    do i = 1, n
 
       delta = (rMax / R(i)) ** beta
@@ -109,11 +114,13 @@ subroutine fhollandvel(V, R, d2Vm, dVm, rMax, vMax, beta, dP, rho, f, n)
       V(i) = sign(V(i), f)
 
    end do
+   !$OMP END PARALLEL DO
 
 end subroutine fhollandvel
 
 
 subroutine fhollandvort(Z, R, d2Vm, dVm, rMax, vMax, beta, dP, rho, f, n)
+   !$ use omp_lib
    doubleprecision, intent(in) :: d2Vm, dVm, rMax, beta, dP, rho, f, vMax
    integer, intent(in) :: n
    doubleprecision, intent(in), dimension(n) :: R
@@ -125,6 +132,7 @@ subroutine fhollandvort(Z, R, d2Vm, dVm, rMax, vMax, beta, dP, rho, f, n)
    bb = (d2Vm - 6 * aa * rMax) / 2.
    cc = dVm - 3 * aa * rMax ** 2 - 2 * bb * rMax
 
+   !$OMP PARALLEL DO shared(Z)
    do i = 1, n
       delta = (rMax / R(i)) ** beta
       edelta = exp(-delta)
@@ -144,8 +152,6 @@ subroutine fhollandvort(Z, R, d2Vm, dVm, rMax, vMax, beta, dP, rho, f, n)
 
       Z(i) = sign(Z(i), f)
    end do
-
-
-
+   !$OMP END PARALLEL DO
 
 end subroutine fhollandvort
