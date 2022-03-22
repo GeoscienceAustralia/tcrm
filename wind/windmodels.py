@@ -39,9 +39,15 @@ import numpy as np
 from math import exp, sqrt
 import Utilities.metutils as metutils
 import logging
+import warnings
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
+
+try:
+    from . import fwind
+except ImportError:
+    warnings.warn("Compiled wind models not found - defaulting to slower python wind models")
 
 
 class WindSpeedModel(object):
@@ -371,20 +377,30 @@ class HollandWindProfile(WindProfileModel):
 
         d2Vm = self.secondDerivative()
         dVm = self.firstDerivative()
-        aa = ((d2Vm / 2. - (dVm - self.vMax / self.rMax) /
-               self.rMax) / self.rMax)
-        bb = (d2Vm - 6 * aa * self.rMax) / 2.
-        cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
-        delta = (self.rMax / R) ** self.beta
-        edelta = np.exp(-delta)
 
-        V = (np.sqrt((self.dP * self.beta / self.rho) *
-                     delta * edelta + (R * self.f / 2.) ** 2) -
-             R * np.abs(self.f) / 2.)
+        try:
+            from .fwind import fhollandvel
+            V = np.zeros_like(R)
+            fhollandvel(
+                V.ravel(), R.ravel(), d2Vm, dVm, self.rMax,
+                self.vMax, self.beta, self.dP, self.rho, self.f, V.size
+            )
 
-        icore = np.where(R <= self.rMax)
-        V[icore] = (R[icore] * (R[icore] * (R[icore] * aa + bb) + cc))
-        V = np.sign(self.f) * V
+        except ImportError:
+            aa = ((d2Vm / 2. - (dVm - self.vMax / self.rMax) /
+                   self.rMax) / self.rMax)
+            bb = (d2Vm - 6 * aa * self.rMax) / 2.
+            cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
+            delta = (self.rMax / R) ** self.beta
+            edelta = np.exp(-delta)
+
+            V = (np.sqrt((self.dP * self.beta / self.rho) *
+                         delta * edelta + (R * self.f / 2.) ** 2) -
+                 R * np.abs(self.f) / 2.)
+
+            icore = np.where(R <= self.rMax)
+            V[icore] = (R[icore] * (R[icore] * (R[icore] * aa + bb) + cc))
+            V = np.sign(self.f) * V
         return V
 
     def vorticity(self, R):
@@ -399,31 +415,42 @@ class HollandWindProfile(WindProfileModel):
         :rtype: :class:`numpy.ndarray`
 
         """
-
-        beta = self.beta
-        delta = (self.rMax / R) ** beta
-        edelta = np.exp(-delta)
-
-        Z = np.abs(self.f) + \
-            (beta**2 * self.dP * (delta**2) * edelta /
-             (2 * self.rho * R) - beta**2 * self.dP * delta * edelta /
-             (2 * self.rho * R) + R * self.f**2 / 4) / \
-            np.sqrt(beta * self.dP * delta * edelta /
-                    self.rho + (R * self.f / 2)**2) + \
-            (np.sqrt(beta * self.dP * delta * edelta /
-                     self.rho + (R * self.f / 2)**2)) / R
-
         # Calculate first and second derivatives at R = Rmax:
+
         d2Vm = self.secondDerivative()
         dVm = self.firstDerivative()
-        aa = ((d2Vm / 2 - (dVm - self.vMax /
-              self.rMax) / self.rMax) / self.rMax)
-        bb = (d2Vm - 6 * aa * self.rMax) / 2
-        cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
 
-        icore = np.where(R <= self.rMax)
-        Z[icore] = R[icore] * (R[icore] * 4 * aa + 3 * bb) + 2 * cc
-        Z = np.sign(self.f) * Z
+        try:
+            from .fwind import fhollandvort
+            Z = np.zeros_like(R)
+            fhollandvort(
+                Z.ravel(), R.ravel(), d2Vm, dVm, self.rMax, self.vMax,
+                self.beta, self.dP, self.rho, self.f, Z.size
+            )
+
+        except ImportError:
+            beta = self.beta
+            delta = (self.rMax / R) ** beta
+            edelta = np.exp(-delta)
+
+            Z = np.abs(self.f) + \
+                (beta**2 * self.dP * (delta**2) * edelta /
+                 (2 * self.rho * R) - beta**2 * self.dP * delta * edelta /
+                 (2 * self.rho * R) + R * self.f**2 / 4) / \
+                np.sqrt(beta * self.dP * delta * edelta /
+                        self.rho + (R * self.f / 2)**2) + \
+                (np.sqrt(beta * self.dP * delta * edelta /
+                         self.rho + (R * self.f / 2)**2)) / R
+
+            aa = ((d2Vm / 2 - (dVm - self.vMax /
+                  self.rMax) / self.rMax) / self.rMax)
+            bb = (d2Vm - 6 * aa * self.rMax) / 2
+            cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
+
+            icore = np.where(R <= self.rMax)
+            Z[icore] = R[icore] * (R[icore] * 4 * aa + 3 * bb) + 2 * cc
+            Z = np.sign(self.f) * Z
+
         return Z
 
 
@@ -1054,6 +1081,19 @@ class KepertWindField(WindFieldModel):
         K = 50.  # Diffusivity
         Cd = 0.002  # Constant drag coefficient
         Vm = np.abs(V).max()
+
+        try:
+            from .fwind import fkerpert
+            Ux, Vy = np.zeros_like(R), np.zeros_like(R)
+            n = Ux.size
+            fkerpert(
+                R.ravel(), lam.ravel(), V.ravel(), Z.ravel(), self.f, self.rMax, vFm, thetaFm,
+                Vm, Ux.ravel(), Vy.ravel(), n
+            )
+            return Ux, Vy
+        except ImportError:
+            pass
+
         if (vFm > 0) and (Vm/vFm < 5.):
             Umod = vFm * np.abs(1.25*(1. - (vFm/Vm)))
         else:
