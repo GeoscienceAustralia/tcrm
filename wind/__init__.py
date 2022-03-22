@@ -268,9 +268,7 @@ class WindfieldAroundTrack(object):
                                  (self.track.Latitude <= yMax))[0]
 
         nsteps = len(self.track.TimeElapsed)
-        
-        timesInRegion = timesInRegion[:5]
-        
+                
         coords = coords=dict(lon=lonGrid, lat=latGrid, time=timesInRegion)        
         
         if timeStepCallback is not None:
@@ -306,7 +304,6 @@ class WindfieldAroundTrack(object):
 
             localGust = np.sqrt(Ux ** 2 + Vy ** 2)
             localBearing = ((np.arctan2(-Ux, -Vy)) * 180. / np.pi)
-            t2 = time.time()
             # Handover this time step to a callback if required
             if timeStepCallback is not None:
                 
@@ -460,6 +457,11 @@ class WindfieldGenerator(object):
                                                      self.margin,
                                                      maxchunk=2048,
                                                      wraps=callback)
+            # callback = writer.WriteFoliationCallback(output,
+            #                                          self.gridLimit,
+            #                                          self.resolution,
+            #                                          self.margin,
+            #                                          wraps=callback)
 
         return track, wt.regionalExtremes(self.gridLimit, callback)
 
@@ -862,7 +864,7 @@ def balanced(iterable):
     scattering.
     """
     P, p = MPI.COMM_WORLD.size, MPI.COMM_WORLD.rank
-    iterable = itertools.islice(iterable, 0, 2)
+    iterable = itertools.islice(iterable, 0, 100)
     return itertools.islice(iterable, p, None, P)
 
 
