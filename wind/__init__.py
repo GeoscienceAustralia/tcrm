@@ -125,6 +125,7 @@ class WindfieldAroundTrack(object):
         :type  i: int
         :param i: the time.
         """
+
         if self.domain == 'full':
             R, theta = makeGrid(self.track.Longitude[i],
                                 self.track.Latitude[i],
@@ -298,10 +299,17 @@ class WindfieldAroundTrack(object):
             # Calculate the local wind speeds and pressure at time i
 
             Ux, Vy, P = self.localWindField(i)
+            from cProfile import runctx
+            runctx("_ = self.localWindField(i)", locals(), globals(), sort='cumtime')
+            print("####\n" * 10)
+            runctx("_ = self.localWindField(i)", locals(), globals(), sort='tottime')
+            print("####\n" * 10)
+            raise ZeroDivisionError
             # Calculate the local wind gust and bearing
             Ux *= self.gustFactor
             Vy *= self.gustFactor
 
+            
             localGust = np.sqrt(Ux ** 2 + Vy ** 2)
             localBearing = ((np.arctan2(-Ux, -Vy)) * 180. / np.pi)
             # Handover this time step to a callback if required
