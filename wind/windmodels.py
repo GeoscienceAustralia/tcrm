@@ -380,7 +380,7 @@ class HollandWindProfile(WindProfileModel):
 
         try:
             from .fwind import fhollandvel
-            V = np.zeros_like(R)
+            V = np.empty_like(R)
             fhollandvel(
                 V.ravel(), R.ravel(), d2Vm, dVm, self.rMax,
                 self.vMax, self.beta, self.dP, self.rho, self.f, V.size
@@ -422,7 +422,7 @@ class HollandWindProfile(WindProfileModel):
 
         try:
             from .fwind import fhollandvort
-            Z = np.zeros_like(R)
+            Z = np.empty_like(R)
             fhollandvort(
                 Z.ravel(), R.ravel(), d2Vm, dVm, self.rMax, self.vMax,
                 self.beta, self.dP, self.rho, self.f, Z.size
@@ -1080,11 +1080,11 @@ class KepertWindField(WindFieldModel):
         Z = self.vorticity(R)
         K = 50.  # Diffusivity
         Cd = 0.002  # Constant drag coefficient
-        Vm = np.abs(V).max()
+        Vm = self.profile.vMax
 
         try:
             from .fwind import fkerpert
-            Ux, Vy = np.zeros_like(R), np.zeros_like(R)
+            Ux, Vy = np.empty_like(R), np.empty_like(R)
             n = Ux.size
             fkerpert(
                 R.ravel(), lam.ravel(), V.ravel(), Z.ravel(), self.f, self.rMax, vFm, thetaFm,

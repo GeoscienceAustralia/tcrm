@@ -150,10 +150,10 @@ class PrsProfile:
         if beta == None:
             beta = self.beta
         t0 = time.time()
-        P = numpy.zeros(self.R.shape)
 
         try:
             from .fpressureProfile import fhollandpressure
+            P = numpy.empty(self.R.shape)
             fhollandpressure(
                 P.ravel(), self.R.ravel(), self.rMax, self.pCentre, self.dP, beta
             )
