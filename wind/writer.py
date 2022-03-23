@@ -182,6 +182,8 @@ class WriteMemoryCallback(object):
             )
 
         ds.to_netcdf(self.filename)
-
-
-        
+        del ds
+        del self.tgust
+        del self.tUU
+        del self.tVV
+        del self.tP
