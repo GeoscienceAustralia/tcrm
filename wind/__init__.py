@@ -297,14 +297,9 @@ class WindfieldAroundTrack(object):
                             gridMargin) / gridStep) + 1
 
             # Calculate the local wind speeds and pressure at time i
-
             Ux, Vy, P = self.localWindField(i)
-            from cProfile import runctx
-            runctx("_ = self.localWindField(i)", locals(), globals(), sort='cumtime')
-            print("####\n" * 10)
-            runctx("_ = self.localWindField(i)", locals(), globals(), sort='tottime')
-            print("####\n" * 10)
-            raise ZeroDivisionError
+
+
             # Calculate the local wind gust and bearing
             Ux *= self.gustFactor
             Vy *= self.gustFactor
@@ -920,7 +915,6 @@ def run(configFile, callback=None):
     else:
         timestepCallback = None
 
-    print("Timestep callback:", timestepCallback)
     multipliers = None
     if config.has_option('Input', 'Multipliers'):
         multipliers = config.get('Input', 'Multipliers')
