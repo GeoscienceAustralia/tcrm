@@ -17,6 +17,11 @@ import logging
 import numpy as np
 import math
 from . import metutils
+import warnings
+try:
+    from . import fmaputils
+except ImportError:
+    warnings.warn("Compiled maputils not found - defaulting to slower python wind models")
 
 
 # C weave code disabled for now.  The code speeds up the windfield interface module by ~6% but
@@ -508,9 +513,20 @@ def makeGrid(cLon, cLat, margin=2, resolution=0.01, minLon=None, maxLon=None,
     xGrid = np.array(np.arange(minLon_, maxLon_, gridSize), dtype=int)
     yGrid = np.array(np.arange(minLat_, maxLat_, gridSize), dtype=int)
 
-    R = gridLatLonDist(cLon, cLat, xGrid / 1000., yGrid / 1000.)
-    np.putmask(R, R==0, 1e-30)
-    theta = np.pi/2. - gridLatLonBear(cLon, cLat, xGrid / 1000., yGrid / 1000.)
+    try:
+        from .fmaputils import beardist
+        lonArray = xGrid / 1000.
+        latArray = yGrid / 1000.
+        R = np.zeros((len(latArray), len(lonArray)), order='F')
+        theta = np.zeros((len(latArray), len(lonArray)), order='F')
+
+        beardist(cLon, cLat, lonArray, latArray, theta, R)
+        R = np.ascontiguousarray(R)
+        theta = np.ascontiguousarray(theta)
+    except ImportError:
+        R = gridLatLonDist(cLon, cLat, xGrid / 1000., yGrid / 1000.)
+        theta = np.pi/2. - gridLatLonBear(cLon, cLat, xGrid / 1000., yGrid / 1000.)
+        np.putmask(R, R == 0, 1e-30)
 
     return R, theta
 
