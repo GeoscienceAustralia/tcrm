@@ -1076,8 +1076,6 @@ class KepertWindField(WindFieldModel):
 
         """
 
-        V = self.velocity(R)
-        Z = self.vorticity(R)
         K = 50.  # Diffusivity
         Cd = 0.002  # Constant drag coefficient
         Vm = self.profile.vMax
@@ -1087,13 +1085,15 @@ class KepertWindField(WindFieldModel):
             Ux, Vy = np.empty_like(R), np.empty_like(R)
             n = Ux.size
             fkerpert(
-                R.ravel(), lam.ravel(), V.ravel(), Z.ravel(), self.f, self.rMax, vFm, thetaFm,
+                R.ravel(), lam.ravel(), self.f, self.rMax, vFm, thetaFm,
                 Vm, Ux.ravel(), Vy.ravel(), n
             )
             return Ux, Vy
         except ImportError:
             pass
 
+        V = self.velocity(R)
+        Z = self.vorticity(R)
         if (vFm > 0) and (Vm/vFm < 5.):
             Umod = vFm * np.abs(1.25*(1. - (vFm/Vm)))
         else:
