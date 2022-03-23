@@ -151,7 +151,14 @@ class PrsProfile:
             beta = self.beta
         t0 = time.time()
         P = numpy.zeros(self.R.shape)
-        P = self.pCentre + self.dP*numpy.exp(-(self.rMax/self.R)**beta)
+
+        try:
+            from .fpressureProfile import fhollandpressure
+            fhollandpressure(
+                P.ravel(), self.R.ravel(), self.rMax, self.pCentre, self.dP, beta
+            )
+        except ImportError:
+            P = self.pCentre + self.dP*numpy.exp(-(self.rMax/self.R)**beta)
         self.logger.debug("Timing for holland wind profile calculation: %.3f"
                            % (time.time()-t0))
         return P
