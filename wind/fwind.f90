@@ -1,8 +1,8 @@
-subroutine fkerpert(R, lam, f, rMax, vFm, thetaFm, Vm, Ux, Uy, n)
+subroutine fkerpert(R, lam, f, rMax, Vm, thetaFm, vFm, d2Vm, dVm, dP, beta, rho, Ux, Uy, n)
    !$ use omp_lib
 
    integer, intent(in) :: n
-   doubleprecision, intent(in) :: f, rMax, vFm, Vm
+   doubleprecision, intent(in) :: f, rMax, Vm, thetaFm, vFm, d2Vm, dVm, dP, beta, rho
    doubleprecision, dimension(n), intent(in) :: R, lam
    doubleprecision, dimension(n), intent(inout) :: Ux, Uy
 
@@ -16,14 +16,21 @@ subroutine fkerpert(R, lam, f, rMax, vFm, thetaFm, Vm, Ux, Uy, n)
    b = 1.0
    K = 50.0
    Cd = 0.002
-   j = cmplx(0.0, 1.0)
+   j = cmplx(0.0, 1.0, 8)
+
+   aa = (d2Vm / 2 - (dVm - Vm / rMax) / rMax) / rMax
+   bb = (d2Vm - 6 * aa * rMax) / 2.
+   cc = dVm - 3 * aa * rMax ** 2 - 2 * bb * rMax
+
+
+   if ((vFm > 0) .and. (Vm/vFm < 5.)) then
+         Umod = vFm * abs(1.25*(1. - (vFm/Vm)))
+   else
+      Umod = vFm
+   end if
 
    !$OMP PARALLEL DO shared(Ux, Uy)
    do i = 1, n
-
-      aa = ((d2Vm / 2. - (dVm - vMax / rMax) / rMax) / rMax)
-      bb = (d2Vm - 6 * aa * rMax) / 2.
-      cc = dVm - 3 * aa * rMax ** 2 - 2 * bb * rMax
 
       delta = (rMax / R(i)) ** beta
       edelta = exp(-delta)
@@ -44,12 +51,6 @@ subroutine fkerpert(R, lam, f, rMax, vFm, thetaFm, Vm, Ux, Uy, n)
       end if
       V = sign(V, f)
       Z = sign(Z, f)
-
-      if ((vFm > 0) .and. (Vm/vFm < 5.)) then
-         Umod = vFm * abs(1.25*(1. - (vFm/Vm)))
-      else
-         Umod = vFm
-      end if
 
       if (R(i) > 2 * rMax) then
          Vt  = Umod * exp(-((R(i) / (2.*rMax)) - 1.) ** 2.)
@@ -76,12 +77,12 @@ subroutine fkerpert(R, lam, f, rMax, vFm, thetaFm, Vm, Ux, Uy, n)
       if (ind) then
          Am = -(psi * (1 + 2 * albe + (1 + j) * (1 + albe) * eta) * Vt)
          Am = Am / (albe * ((2 - 2 * j + 3 * (eta + psi) + (2 + 2 * j) * eta * psi)))
-         Ap = -(eta * (1 - 2 * albe + (1 - j) * (1 - albe)*psi) * Vt)
+         Ap = -(eta * (1 - 2 * albe + (1 - j) * (1 - albe) * psi) * Vt)
          Ap = Ap / (albe * (2 + 2 * j + 3 * (eta + psi) + (2 - 2 * j) * eta * psi))
       else
          Am = -(psi * (1 + 2 * albe + (1 + j) * (1 + albe) * eta) * Vt)
          Am = Am / (albe * ((2 + 2 * j) * (1 + eta * psi) + 3 * psi + 3 * j * eta))
-         Ap = -(eta * (1 - 2 * albe + (1 + j) * (1 - albe) * psi) * Vt)
+         Ap = -(eta * (1.0 - 2.0 * albe + (1.0 + j) * (1.0 - albe) * psi) * Vt)
          Ap = Ap / (albe * ((2 + 2 * j) * (1 + eta * psi) + 3 * eta + 3 * j * psi))
       end if
 
@@ -91,7 +92,7 @@ subroutine fkerpert(R, lam, f, rMax, vFm, thetaFm, Vm, Ux, Uy, n)
 
       ! Second asymmetric surface component
       ups = realpart(Ap * exp(j * (lam(i) - thetaFm) * sign(b, f))) * albe
-      vps = realpart(Ap * exp(j * (lam(i) - thetaFm) * sign(b, f))) * sign(b, f)
+      vps = imagpart(Ap * exp(j * (lam(i) - thetaFm) * sign(b, f))) * sign(b, f)
 
       ! Total surface wind in (moving coordinate system)
       us = u0s + ups + ums
@@ -181,43 +182,3 @@ subroutine fhollandvort(Z, R, d2Vm, dVm, rMax, vMax, beta, dP, rho, f, n)
    !$OMP END PARALLEL DO
 
 end subroutine fhollandvort
-
-
-subroutine fcomb(V, Z, R, d2Vm, dVm, rMax, vMax, beta, dP, rho, f, n)
-   !$ use omp_lib
-   doubleprecision, intent(in) :: d2Vm, dVm, rMax, beta, dP, rho, f, vMax
-   integer, intent(in) :: n
-   doubleprecision, intent(in), dimension(n) :: R
-   doubleprecision, intent(inout), dimension(n) :: V, Z
-   doubleprecision :: aa, bb, cc, delta, edelta
-   logical :: icore
-
-   aa = (d2Vm / 2 - (dVm - vMax / rMax) / rMax) / rMax
-   bb = (d2Vm - 6 * aa * rMax) / 2.
-   cc = dVm - 3 * aa * rMax ** 2 - 2 * bb * rMax
-
-   !$OMP PARALLEL DO shared(Z)
-   do i = 1, n
-      delta = (rMax / R(i)) ** beta
-      edelta = exp(-delta)
-      icore = (R(i) <= rMax)
-      if (icore) then
-         Z(i) = R(i) * (R(i) * 4 * aa + 3 * bb) + 2 * cc
-         V(i) = (R(i) * (R(i) * (R(i) * aa + bb) + cc))
-      else
-         V(i) = sqrt((dP * beta / rho) * delta * edelta + (R(i) * f / 2.) ** 2) - R(i) * abs(f) / 2.
-         Z(i) = abs(f) + &
-            (beta**2 * dP * (delta**2) * edelta / &
-             (2 * rho * R(i)) - beta**2 * dP * delta * edelta / &
-             (2 * rho * R(i)) + R(i) * f**2 / 4) / &
-            sqrt(beta * dP * delta * edelta / &
-                    rho + (R(i) * f / 2)**2) + &
-            (sqrt(beta * dP * delta * edelta / &
-                     rho + (R(i) * f / 2)**2)) / R(i)
-      end if
-
-      Z(i) = sign(Z(i), f)
-   end do
-   !$OMP END PARALLEL DO
-
-end subroutine fcomb

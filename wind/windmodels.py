@@ -1082,11 +1082,15 @@ class KepertWindField(WindFieldModel):
 
         try:
             from .fwind import fkerpert
+            V = self.velocity(R)
+            Z = self.vorticity(R)
+            d2Vm, dVm = self.profile.secondDerivative(), self.profile.firstDerivative()
             Ux, Vy = np.empty_like(R), np.empty_like(R)
             n = Ux.size
             fkerpert(
-                R.ravel(), lam.ravel(), self.f, self.rMax, vFm, thetaFm,
-                Vm, Ux.ravel(), Vy.ravel(), n
+                R.ravel(), lam.ravel(), self.f, self.rMax, Vm, thetaFm,
+                vFm, d2Vm, dVm, self.profile.dP, self.profile.beta, self.profile.rho,
+                Ux.ravel(), Vy.ravel(), n
             )
             return Ux, Vy
         except ImportError:
