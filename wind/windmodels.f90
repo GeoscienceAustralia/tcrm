@@ -1,6 +1,31 @@
 subroutine fkerpert(R, lam, f, rMax, Vm, thetaFm, vFm, d2Vm, dVm, dP, beta, rho, Ux, Uy, n)
    !$ use omp_lib
 
+!    Kepert, J., 2001: The Dynamics of Boundary Layer Jets within the
+!    Tropical Cyclone Core. Part I: Linear Theory.  J. Atmos. Sci., 58,
+!    2469-2484
+
+!    This calculates the Kepert wind field with a Holland pressure profile.
+
+!   :param R: Distance from the storm centre to the grid (m)
+!     :type  R: 1D double precision array
+!   :param lam: Direction (0=east, radians, positive anti-clockwise) from storm centre to the grid.
+!     :type  lam: 1D double precision array
+!   :param float rMax: Radius to maximum gradient winds (m).
+!   :param float Vm: Maximum gradient wind speed (m/s).
+!   :param float thetaFm: Bearing of storm (0=east, radians positive anti-clockwise)..
+!   :param float vFm: Foward speed of the storm (m/s).
+!   :param float d2Vm: Second derivitive of gradient windpseed w.r.t. radius at rMax.
+!   :param float dVm: Derivitive of gradient windpseed w.r.t. radius at rMax.
+!   :param float dP: Central pressure deficit in Pa
+!   :param float beta: Holland beta parameter.
+!   :param float rho: Density of air (kg/m^3).
+!   :param Ux: Output east windspeed (m/s)
+!     :type  Ux: 1D double precision array
+!   :param Uy: Output north windspeed (m/s)
+!     :type  Uy: 1D double precision array
+!   :param n: length of arrays
+
    integer, intent(in) :: n
    doubleprecision, intent(in) :: f, rMax, Vm, thetaFm, vFm, d2Vm, dVm, dP, beta, rho
    doubleprecision, dimension(n), intent(in) :: R, lam

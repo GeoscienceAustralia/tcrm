@@ -1,6 +1,15 @@
 subroutine beardist(cLon, cLat, lonArray, latArray, bearing, dist, nlon, nlat)
     !$ use omp_lib
 
+!    :param double cLon: longitude of storm centre (degrees)
+!    :param double clat: latitude of storm centre (degrees)
+!    :param lonArray: 1D double precision array of longitudes (degrees)
+!    :param latArray: 1D double precision array of latitudes (degrees)
+!    :param bearing: 2D double precision output array of bearings with shape (nlat, nlon) (radians)
+!    :param dist: 2D double precision output array of distances with shape (nlat, nlon) (km)
+!    :param int nlon: length of lonArray
+!    :param int nlat: length of latArray
+
     integer, intent(in) :: nlon, nlat
     doubleprecision, intent(in) :: lonArray(nlon), latArray(nlat)
     doubleprecision, intent(inout), dimension(nlat, nlon) :: bearing, dist
