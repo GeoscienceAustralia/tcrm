@@ -59,14 +59,14 @@ exts = [
               sources=[pjoin('wind', 'fwind.f90')],
               include_dirs=[pjoin(numpy.get_include(), 'numpy')],
               extra_compile_args=['-g']),
-Extension('Utilities.fmaputils',
-              sources=[pjoin('Utilities', 'maputils.f90')],
-              include_dirs=[pjoin(numpy.get_include(), 'numpy')],
-              extra_compile_args=['-g']),
-Extension('PressureInterface.fpressureProfile',
-              sources=[pjoin('PressureInterface', 'pressureProfile.f90')],
-              include_dirs=[pjoin(numpy.get_include(), 'numpy')],
-              extra_compile_args=['-g'])
+    Extension('Utilities.fmaputils',
+                  sources=[pjoin('Utilities', 'maputils.f90')],
+                  include_dirs=[pjoin(numpy.get_include(), 'numpy')],
+                  extra_compile_args=['-g']),
+    Extension('PressureInterface.fpressureProfile',
+                  sources=[pjoin('PressureInterface', 'pressureProfile.f90')],
+                  include_dirs=[pjoin(numpy.get_include(), 'numpy')],
+                  extra_compile_args=['-g'])
 ]
 
 basemapData = pjoin('mpl_toolkits', 'basemap', 'data')
