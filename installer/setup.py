@@ -9,7 +9,8 @@ To build C extensions in-place:
 import matplotlib
 import numpy
 import sys
-from setuptools import setup, Extension
+# from setuptools import Extension
+from numpy.distutils.core import setup, Extension
 from distutils.sysconfig import get_python_lib
 from os.path import join as pjoin
 from glob import glob
@@ -53,7 +54,19 @@ exts = [
     Extension('Utilities._akima',
               sources=[pjoin('Utilities', 'akima.c')],
               include_dirs=[pjoin(numpy.get_include(), 'numpy')],
-              extra_compile_args=[])
+              extra_compile_args=[]),
+    Extension('wind.fwind',
+              sources=[pjoin('wind', 'fwind.f90')],
+              include_dirs=[pjoin(numpy.get_include(), 'numpy')],
+              extra_compile_args=['-g']),
+Extension('Utilities.fmaputils',
+              sources=[pjoin('Utilities', 'maputils.f90')],
+              include_dirs=[pjoin(numpy.get_include(), 'numpy')],
+              extra_compile_args=['-g']),
+Extension('PressureInterface.fpressureProfile',
+              sources=[pjoin('PressureInterface', 'pressureProfile.f90')],
+              include_dirs=[pjoin(numpy.get_include(), 'numpy')],
+              extra_compile_args=['-g'])
 ]
 
 basemapData = pjoin('mpl_toolkits', 'basemap', 'data')
