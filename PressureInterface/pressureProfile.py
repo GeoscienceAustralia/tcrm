@@ -152,9 +152,9 @@ class PrsProfile:
         t0 = time.time()
 
         try:
-            from .fpressureProfile import fhollandpressure
+            from ._pressureProfile import fhollandpressure
             P = numpy.empty(self.R.shape)
-            fhollandpressure(
+            hollandpressure(
                 P.ravel(), self.R.ravel(), self.rMax, self.pCentre, self.dP, beta
             )
         except ImportError:

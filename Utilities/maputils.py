@@ -514,7 +514,7 @@ def makeGrid(cLon, cLat, margin=2, resolution=0.01, minLon=None, maxLon=None,
     yGrid = np.array(np.arange(minLat_, maxLat_, gridSize), dtype=int)
 
     try:
-        from .fmaputils import beardist
+        from ._maputils import beardist
         lonArray = xGrid / 1000.
         latArray = yGrid / 1000.
         R = np.zeros((len(latArray), len(lonArray)), order='F')

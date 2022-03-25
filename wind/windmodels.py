@@ -45,7 +45,7 @@ log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 try:
-    from . import fwind
+    from . import _windmodels
 except ImportError:
     warnings.warn("Compiled wind models not found - defaulting to slower python wind models")
 
@@ -379,7 +379,7 @@ class HollandWindProfile(WindProfileModel):
         dVm = self.firstDerivative()
 
         try:
-            from .fwind import fhollandvel
+            from ._windmodels import fhollandvel
             V = np.empty_like(R)
             fhollandvel(
                 V.ravel(), R.ravel(), d2Vm, dVm, self.rMax,
@@ -421,7 +421,7 @@ class HollandWindProfile(WindProfileModel):
         dVm = self.firstDerivative()
 
         try:
-            from .fwind import fhollandvort
+            from ._windmodels import fhollandvort
             Z = np.empty_like(R)
             fhollandvort(
                 Z.ravel(), R.ravel(), d2Vm, dVm, self.rMax, self.vMax,
@@ -1081,7 +1081,7 @@ class KepertWindField(WindFieldModel):
         Vm = self.profile.vMax
 
         try:
-            from .fwind import fkerpert
+            from ._windmodels import fkerpert
             V = self.velocity(R)
             Z = self.vorticity(R)
             d2Vm, dVm = self.profile.secondDerivative(), self.profile.firstDerivative()
