@@ -9,6 +9,8 @@ from scipy.interpolate import interp1d, splev, splrep
 from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile, maxWindSpeed
 from Utilities.track import Track, ncSaveTracks
+from pycxml.pycxml import loadfile
+import pandas as pd
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -299,6 +301,9 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
     if trackFile.endswith("nc"):
         from Utilities.track import ncReadTrackData
         tracks = ncReadTrackData(trackFile)
+    elif trackFile.endswith("xml"):
+        dfs = loadfile(trackFile)
+        tracks = [bom2tcrm(df, i) for i, df in enumerate(dfs)]
     else:
         tracks = loadTrackFile(configFile, trackFile, source)
 
@@ -317,3 +322,22 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
 
 
     return results
+
+
+def bom2tcrm(df, trackId):
+    """
+    Transforms a dataframe in BoM format into a tcrm track.
+
+    """
+    df['Datetime'] = pd.to_datetime(df.validtime)
+    df['Speed'] = df.translation_speed
+    df['CentralPressure'] = df.pcentre
+    df['Longitude'] = df.longitude
+    df['Latitude'] = df.latitude
+    df['EnvPressure'] = df.poci
+    df['rMax'] = df.rmax
+    df['trackId'] = df.disturbance.values
+
+    track = Track(df)
+    track.trackId = [trackId, trackId]
+    return track
