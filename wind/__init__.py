@@ -201,7 +201,10 @@ class WindfieldAroundTrack(object):
         values = [getattr(self, p) for p in params if hasattr(self, p)]
         windfield = cls(profile, *values)
 
-        Ux, Vy = windfield.field(R * 1000, theta, vFm, thetaFm,  thetaMax)
+        if cP < eP:
+            Ux, Vy = windfield.field(R * 1000, theta, vFm, thetaFm,  thetaMax)
+        else:
+            Ux, Vy = np.zeros_like(R), np.zeros_like(R)
 
         return (Ux, Vy, P)
 
@@ -780,11 +783,19 @@ def loadTracksFromFiles(trackfiles, gridLimit, margin):
     :param trackfiles: list of track filenames. The filenames must include the
                        path to the file.
     """
-    for f in balanced(trackfiles):
+    if len(trackfiles) > 1:
+        for f in balanced(trackfiles):
+            msg = f'Calculating wind fields for tracks in {f}'
+            log.info(msg)
+            tracks = filterTracks(loadTracks(f), gridLimit, margin)
+            for track in tracks:
+                yield track
+    else:
+        f = trackfiles[0]
         msg = f'Calculating wind fields for tracks in {f}'
         log.info(msg)
         tracks = filterTracks(loadTracks(f), gridLimit, margin)
-        for track in tracks:
+        for track in balanced(tracks):
             yield track
 
 
