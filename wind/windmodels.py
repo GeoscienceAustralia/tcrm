@@ -1079,22 +1079,21 @@ class KepertWindField(WindFieldModel):
         K = 50.  # Diffusivity
         Cd = 0.002  # Constant drag coefficient
         Vm = self.profile.vMax
+        if type(self.profile) in (PowellWindProfile, HollandWindProfile):
+            try:
+                from ._windmodels import fkerpert
 
-        try:
-            from ._windmodels import fkerpert
-            V = self.velocity(R)
-            Z = self.vorticity(R)
-            d2Vm, dVm = self.profile.secondDerivative(), self.profile.firstDerivative()
-            Ux, Vy = np.empty_like(R), np.empty_like(R)
-            n = Ux.size
-            fkerpert(
-                R.ravel(), lam.ravel(), self.f, self.rMax, Vm, thetaFm,
-                vFm, d2Vm, dVm, self.profile.dP, self.profile.beta, self.profile.rho,
-                Ux.ravel(), Vy.ravel(), n
-            )
-            return Ux, Vy
-        except ImportError:
-            pass
+                d2Vm, dVm = self.profile.secondDerivative(), self.profile.firstDerivative()
+                Ux, Vy = np.empty_like(R), np.empty_like(R)
+                n = Ux.size
+                fkerpert(
+                    R.ravel(), lam.ravel(), self.f, self.rMax, Vm, thetaFm,
+                    vFm, d2Vm, dVm, self.profile.dP, self.profile.beta, self.profile.rho,
+                    Ux.ravel(), Vy.ravel(), n
+                )
+                return Ux, Vy
+            except ImportError:
+                pass
 
         V = self.velocity(R)
         Z = self.vorticity(R)
