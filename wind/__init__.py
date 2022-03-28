@@ -323,6 +323,9 @@ class WindfieldAroundTrack(object):
                 P < pressure[jmin:jmax, imin:imax],
                 P, pressure[jmin:jmax, imin:imax])
 
+        if type(timeStepCallback) is WriteFoliationCallback:
+            timeStepCallback.ds.close()
+
         return gust, bearing, UU, VV, pressure, lonGrid / 100., latGrid / 100.
 
 
