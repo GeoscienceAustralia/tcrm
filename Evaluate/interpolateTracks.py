@@ -142,7 +142,9 @@ def interpolate(track, delta, interpolation_type=None):
         if interpolation_type == 'akima':
             # Use the Akima interpolation method:
             try:
-                import akima
+                from utilities import akima
+                nLon = akima.interpolate(timestep, track.Longitude, newtime)
+                nLat = akima.interpolate(timestep, track.Latitude, newtime)
             except ImportError:
                 LOG.exception(("Akima interpolation module unavailable "
                                " - default to scipy.interpolate"))
@@ -150,10 +152,6 @@ def interpolate(track, delta, interpolation_type=None):
                              der=0)
                 nLat = splev(newtime, splrep(timestep, track.Latitude, s=0),
                              der=0)
-
-            else:
-                nLon = akima.interpolate(timestep, track.Longitude, newtime)
-                nLat = akima.interpolate(timestep, track.Latitude, newtime)
 
         elif interpolation_type == 'linear':
             nLon = interp1d(timestep, track.Longitude, kind='linear')(newtime)
