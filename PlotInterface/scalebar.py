@@ -101,7 +101,6 @@ def _point_along_line(ax, start, distance, angle=0, tol=0.01):
     """
     # Direction vector of the line in axes coordinates.
     direction = np.array([np.cos(angle), np.sin(angle)])
-
     geodesic = cgeo.Geodesic()
 
     # Physical distance between points.
@@ -111,7 +110,7 @@ def _point_along_line(ax, start, distance, angle=0, tol=0.01):
 
         # Geodesic().inverse returns a NumPy MemoryView like [[distance,
         # start azimuth, end azimuth]].
-        return geodesic.inverse(a_phys, b_phys).base[0, 0]
+        return geodesic.inverse(a_phys, b_phys)[0, 0]
 
     end = _upper_bound(start, direction, distance, dist_func)
 
@@ -140,6 +139,7 @@ def _setlength(ax, location):
         if str(x)[0] in ['1', '2', '5']: return int(x)
         else: return scale_number(x - 10 ** ndim)
     length = scale_number(length)
+    return length
 
 
 def scale_bar(ax, location, length=None, metres_per_unit=1000, unit_name='km',
@@ -205,3 +205,4 @@ def scale_bar(ax, location, length=None, metres_per_unit=1000, unit_name='km',
     # 'rotation' keyword argument is in text_kwargs.
     ax.text(*text_location, f"{length} {unit_name}", rotation_mode='anchor',
             transform=ax.transAxes, **text_kwargs)
+    return ax

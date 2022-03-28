@@ -232,7 +232,7 @@ class MapFigure(Figure):
 
         mapobj.add_feature(cartopy.feature.OCEAN, color=fillcolor)
 
-    def addMapScale(self, ax):
+    def addMapScale(self, axes):
         """
         Add a map scale to the curent `cartopy.mpl.geoaxes.GeoAxes` instance.
         This automatically determines a 'nice' length forthe scale bar -
@@ -242,28 +242,10 @@ class MapFigure(Figure):
         :param ax: Current `cartopy.mpl.geoaxes.GeoAxes` instance to add the
         scale bar to.
 
+        see https://stackoverflow.com/questions/32333870/
         """
+        axes = scale_bar(axes, (0.05, 0.1))
 
-        scale_bar(ax, (0.05, 0.1))
-        return # TODO: migrate to cartopy - see https://stackoverflow.com/questions/32333870/
-
-        midlon = (mapobj.lonmax - mapobj.lonmin) / 2.
-        midlat = (mapobj.latmax - mapobj.latmin) / 2.
-
-        xmin = mapobj.llcrnrx
-        xmax = mapobj.urcrnrx
-        ymin = mapobj.llcrnry
-        ymax = mapobj.urcrnry
-
-        xloc = xmin + 0.15 * abs(xmax - xmin)
-        yloc = ymin + 0.1 * abs(ymax - ymin)
-
-        lonloc, latloc = mapobj(xloc, yloc, inverse=True)
-
-        # Set scale length to nearest 100-km for 20% of map width
-        scale_length = 100*int((0.2 * (xmax - xmin) / 1000.)/100)
-        mapobj.drawmapscale(lonloc, latloc, midlon, midlat, scale_length,
-                            barstyle='fancy', zorder=10)
 
     def createMap(self, axes, xgrid, ygrid, map_kwargs):
         """
