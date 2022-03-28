@@ -142,7 +142,7 @@ def interpolate(track, delta, interpolation_type=None):
         if interpolation_type == 'akima':
             # Use the Akima interpolation method:
             try:
-                from utilities import akima
+                from Utilities import akima
                 nLon = akima.interpolate(timestep, track.Longitude, newtime)
                 nLat = akima.interpolate(timestep, track.Latitude, newtime)
             except ImportError:
@@ -322,6 +322,7 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
         if outputFile:
             # Save data to file:
             ncSaveTracks(outputFile, results)
+    MPI.COMM_WORLD.barrier()
 
     return results
 
