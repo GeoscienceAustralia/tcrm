@@ -9,6 +9,7 @@ from scipy.interpolate import interp1d, splev, splrep
 from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile, maxWindSpeed
 from Utilities.track import Track, ncSaveTracks
+from Utilities.parallel import attemptParallel
 from pycxml.pycxml import loadfile
 import pandas as pd
 
@@ -309,17 +310,20 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
 
     results = []
 
-    for track in tracks:
-        if len(track.data) == 1:
-            results.append(track)
-        else:
-            newtrack = interpolate(track, delta, interpolation_type)
-            results.append(newtrack)
+    # interpolating is memory intensive - only use a single process
+    MPI = attemptParallel()
+    if MPI.COMM_WORLD.rank == 0:
 
-    if outputFile:
-        # Save data to file:
-        ncSaveTracks(outputFile, results)
+        for track in tracks:
+            if len(track.data) == 1:
+                results.append(track)
+            else:
+                newtrack = interpolate(track, delta, interpolation_type)
+                results.append(newtrack)
 
+        if outputFile:
+            # Save data to file:
+            ncSaveTracks(outputFile, results)
 
     return results
 
