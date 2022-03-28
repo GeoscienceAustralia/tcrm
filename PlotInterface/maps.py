@@ -24,6 +24,8 @@ import cartopy
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import seaborn as sns
 
+from .scalebar import scale_bar
+
 def levels(maxval, minval=0):
     """
     Calculate a nice number of levels between `minval` and `maxval`
@@ -230,16 +232,19 @@ class MapFigure(Figure):
 
         mapobj.add_feature(cartopy.feature.OCEAN, color=fillcolor)
 
-    def addMapScale(self, mapobj):
+    def addMapScale(self, ax):
         """
-        Add a map scale to the curent `Basemap` instance. This
-        automatically determines a 'nice' length forthe scale bar -
+        Add a map scale to the curent `cartopy.mpl.geoaxes.GeoAxes` instance.
+        This automatically determines a 'nice' length forthe scale bar -
         chosen to be approximately 20% of the map width at the centre
         of the map.
 
-        :param mapobj: Current `Basemap` instance to add the scale bar to.
+        :param ax: Current `cartopy.mpl.geoaxes.GeoAxes` instance to add the
+        scale bar to.
 
         """
+
+        scale_bar(ax, (0.05, 0.1))
         return # TODO: migrate to cartopy - see https://stackoverflow.com/questions/32333870/
 
         midlon = (mapobj.lonmax - mapobj.lonmin) / 2.
@@ -296,7 +301,7 @@ class MapFigure(Figure):
         self.addGraticule(axes, mapobj)
         self.addCoastline(mapobj)
         self.fillContinents(mapobj)
-        self.addMapScale(mapobj)
+        self.addMapScale(axes)
 
     def plot(self):
         """
