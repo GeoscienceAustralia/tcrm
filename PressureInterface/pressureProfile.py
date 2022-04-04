@@ -154,7 +154,7 @@ class PrsProfile:
         try:
             from ._pressureProfile import fhollandpressure
             P = numpy.empty(self.R.shape)
-            hollandpressure(
+            fhollandpressure(
                 P.ravel(), self.R.ravel(), self.rMax, self.pCentre, self.dP, beta
             )
         except ImportError:
