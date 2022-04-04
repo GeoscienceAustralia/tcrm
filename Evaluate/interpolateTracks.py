@@ -10,8 +10,8 @@ from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile, maxWindSpeed
 from Utilities.track import Track, ncSaveTracks
 from Utilities.parallel import attemptParallel
-from pycxml.pycxml import loadfile
 import pandas as pd
+
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -301,6 +301,7 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
         from Utilities.track import ncReadTrackData
         tracks = ncReadTrackData(trackFile)
     elif trackFile.endswith("xml"):
+        from pycxml.pycxml import loadfile
         dfs = loadfile(trackFile)
         tracks = [bom2tcrm(df, i) for i, df in enumerate(dfs)]
     else:
