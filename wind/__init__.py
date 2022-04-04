@@ -39,6 +39,7 @@ from collections import defaultdict
 import numpy as np
 import tqdm
 from . import windmodels
+from . import writer
 
 from PlotInterface.maps import saveWindfieldMap
 
@@ -323,6 +324,9 @@ class WindfieldAroundTrack(object):
                 P < pressure[jmin:jmax, imin:imax],
                 P, pressure[jmin:jmax, imin:imax])
 
+        if type(timeStepCallback) is writer.WriteFoliationCallback:
+            timeStepCallback.ds.close()
+
         return gust, bearing, UU, VV, pressure, lonGrid / 100., latGrid / 100.
 
 
@@ -435,7 +439,6 @@ class WindfieldGenerator(object):
                                   domain=self.domain)
 
         if self.config.getboolean('Timeseries', 'Windfields', fallback=False):
-            from . import writer
             output = pjoin(self.windfieldPath,
                            'evolution.{0:03d}-{1:05d}.nc'.format(
                                *track.trackId))
