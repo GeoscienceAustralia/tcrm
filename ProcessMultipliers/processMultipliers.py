@@ -975,11 +975,15 @@ def processMultV2(wspd, uu, vv, lon, lat, working_dir, dirns,
     future_requests = []
     with futures.ThreadPoolExecutor(max_workers=max_working_threads) as e:
         m4_max_file_obj = gdal.Open(m4_max_file, gdal.GA_ReadOnly)
+
+        gdal.SetConfigOption('GDAL_NUM_THREADS', str(max_working_threads))
         reprojectDataset(wind_raster, m4_max_file_obj, wind_prj_file,
                          warp_memory_limit=warp_memory_limit)
         reprojectDataset(bear_raster, m4_max_file_obj, bear_prj_file,
                          warp_memory_limit=warp_memory_limit,
                          resampling_method=gdalconst.GRA_NearestNeighbour)
+
+        gdal.SetConfigOption('GDAL_NUM_THREADS', '1')
         future_requests.append(e.submit(reprojectDataset, uu_raster, m4_max_file_obj, uu_prj_file,
                                         warp_memory_limit=warp_memory_limit,
                                         resampling_method=gdalconst.GRA_NearestNeighbour))
