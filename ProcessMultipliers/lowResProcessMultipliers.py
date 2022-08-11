@@ -7,9 +7,21 @@ import numpy as np
 from tqdm import tqdm
 from Utilities.config import ConfigParser
 from Utilities.files import flStartLog
+import argparse
+from os.path import join as pjoin, dirname, realpath, isdir, splitext
+import traceback
+import logging as log
 
 
 def downscale_multipliers(src_file, match_file, dst_file):
+    """
+    Downscales and clips GDAL compatable file and saves it as a GEOTIFF.
+
+    Params:
+        - src_file: filepath of the input file to be downscaled
+        - match_file: filepath of the file that the input is transformed to match
+        - dst_file: output filepath
+    """
     # load src
     src = gdal.Open(src_file, gdal.GA_ReadOnly)
 
@@ -92,16 +104,27 @@ class run():
         warnings.filterwarnings("ignore", category=RuntimeWarning)
 
         self.working_dir = config.get('Output', 'Working_dir')
-        self.gust_dir = config.get('Input', 'Gust_file')
+        self.gust_dir = config.get('Input', 'Gust_dir')
         self.mult_file = config.get('Input', 'Multipliers')
+
+        try:
+            self.main()
+        except ImportError as e:
+            log.critical("Missing module: {0}".format(e.strerror))
+        except Exception:  # pylint: disable=W0703
+            # Catch any exceptions that occur and log them (nicely):
+            tblines = traceback.format_exc().splitlines()
+            for line in tblines:
+                log.critical(line.lstrip())
     
     def main(self):
         low_res_mult_file = os.path.join(self.working_dir, "low_res_m4.tif")
-        gust_files = [os.path.join(self.gust_dir, fn) for fn in os.listdir(self.gust_dir)]
+        gust_files = [os.path.join(self.gust_dir, fn) for fn in os.listdir(self.gust_dir) if fn.startswith("gust")]
 
-        # if not os.path.exists(low_res_mult_file):
+        log.info("Downscaling multipliers")
         gdal.SetConfigOption('GDAL_NUM_THREADS', "16")
         downscale_multipliers(self.mult_file, gust_files[0], low_res_mult_file)
+        gdal.SetConfigOption('GDAL_NUM_THREADS', "1")
 
         # indices, band numbers, and directions for using wind multipliers
         indices = {
@@ -127,6 +150,7 @@ class run():
             band[band < 0] = 1
             bands.append(band)
 
+        log.info("Applying multipliers")
         # loop through the gust files and apply the wm
         for gust_file in tqdm(gust_files):
             gust = xr.load_dataset(gust_file)
