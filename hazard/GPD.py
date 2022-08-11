@@ -43,6 +43,28 @@ def gpdReturnLevel(intervals, mu, shape, scale, rate, npyr=365.25):
     rp = mu + (scale / shape) * (np.power(intervals * npyr * rate, shape) - 1.)
     return rp
 
+
+def gpdRecurrenceIntervals(return_levels, mu, shape, scale, rate, npyr=365.25):
+    """
+    Calculate recurrence intervals for specified return levels for a distribution with
+    the given threshold, scale and shape parameters.
+
+    :param intervals: :class:`numpy.ndarray` or float of return levels
+              to evaluate recurrence intervals for.
+    :param float mu: Threshold parameter (also called location).
+    :param float shape: Shape parameter.
+    :param float scale: Scale parameter.
+    :param float rate: Rate of exceedances (i.e. number of observations greater
+                       than `mu`, divided by total number of observations).
+    :param float npyr: Number of observations per year.
+
+    :returns: recurrence intervals for the specified return levels.
+
+    """
+    ri = np.power((return_levels - mu) * (shape / scale) + 1, 1 / shape) / (npyr * rate)
+    return ri
+
+
 def gpdfit(data, years, numsim, missingValue=-9999,
            minrecords=50, threshold=99.5):
     """
