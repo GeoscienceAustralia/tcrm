@@ -30,7 +30,7 @@ def downscale_multipliers(src_file, match_file, dst_file, epsg=4326):
         raise FileNotFoundError(f"match_file: file {match_file} not found.")
     
     if not os.path.path.isdir(os.path.split(dst_file)[0]):
-        FileNotFoundError(f"dst_file: directory {os.path.split(dst_file)[0]} not found.")
+        raise FileNotFoundError(f"dst_file: directory {os.path.split(dst_file)[0]} not found.")
 
     src = gdal.Open(src_file, gdal.GA_ReadOnly)
 
