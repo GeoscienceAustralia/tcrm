@@ -13,7 +13,7 @@ import traceback
 import logging as log
 
 
-def downscale_multipliers(src_file, match_file, dst_file):
+def downscale_multipliers(src_file, match_file, dst_file, epsg=4326):
     """
     Downscales and clips GDAL compatable file and saves it as a GEOTIFF.
 
@@ -23,6 +23,15 @@ def downscale_multipliers(src_file, match_file, dst_file):
         - dst_file: output filepath
     """
     # load src
+    if not os.path.isfile(src_file):
+        raise FileNotFoundError(f"src_file: file {src_file} not found.")
+
+    if not os.path.isfile(match_file):
+        raise FileNotFoundError(f"match_file: file {match_file} not found.")
+    
+    if not os.path.path.isdir(os.path.split(dst_file)[0]):
+        FileNotFoundError(f"dst_file: directory {os.path.split(dst_file)[0]} not found.")
+
     src = gdal.Open(src_file, gdal.GA_ReadOnly)
 
     # load match info
@@ -36,7 +45,6 @@ def downscale_multipliers(src_file, match_file, dst_file):
     dx = lon[1] - lon[0]
     dy = lat[1] - lat[0]
     originX, originY = lon[0], lat[0]
-    epsg = 4326
 
     wide = len(lon)
     high = len(lat)
