@@ -18,7 +18,7 @@ subroutine fhollandpressure(P, R, rMax, pc, dP, beta, n)
 
    !$OMP PARALLEL DO shared(P)
    do i = 1, n
-      P(i) = pCentre + dP * exp(-(rMax / R(i)) ** beta)
+      P(i) = pc + dP * exp(-(rMax / R(i)) ** beta)
    end do
    !$OMP END PARALLEL DO
 

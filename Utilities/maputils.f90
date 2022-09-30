@@ -14,9 +14,11 @@ subroutine beardist(cLon, cLat, lonArray, latArray, bearing, dist, nlon, nlat)
     doubleprecision, intent(in) :: lonArray(nlon), latArray(nlat)
     doubleprecision, intent(inout), dimension(nlat, nlon) :: bearing, dist
 
-    doubleprecision :: toRads, cLon_, cLat_, dlon, dlat, lon(nlon), lat(nlat), radius
+    doubleprecision :: toRads, cLon, cLat, dlon, lon(nlon), lat(nlat), radius
     doubleprecision :: dLon_sin(nlon), dLon_cos(nlon), lat_sin(nlat), lat_cos(nlat)
     doubleprecision :: dLat_sin(nlat), dhalfLon_sin(nlon), a, c, pi
+    doubleprecision :: cLon_, cLat_, cLat_cos, cLat_sin, alpha, beta
+
     pi = 4.d0*datan(1.d0)
     toRads = 0.017453292519943295
     radius = 6367.0

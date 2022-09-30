@@ -9,6 +9,9 @@ from scipy.interpolate import interp1d, splev, splrep
 from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile, maxWindSpeed
 from Utilities.track import Track, ncSaveTracks
+from Utilities.parallel import attemptParallel
+import pandas as pd
+
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -139,7 +142,9 @@ def interpolate(track, delta, interpolation_type=None):
         if interpolation_type == 'akima':
             # Use the Akima interpolation method:
             try:
-                import akima
+                from Utilities import akima
+                nLon = akima.interpolate(timestep, track.Longitude, newtime)
+                nLat = akima.interpolate(timestep, track.Latitude, newtime)
             except ImportError:
                 LOG.exception(("Akima interpolation module unavailable "
                                " - default to scipy.interpolate"))
@@ -147,10 +152,6 @@ def interpolate(track, delta, interpolation_type=None):
                              der=0)
                 nLat = splev(newtime, splrep(timestep, track.Latitude, s=0),
                              der=0)
-
-            else:
-                nLon = akima.interpolate(timestep, track.Longitude, newtime)
-                nLat = akima.interpolate(timestep, track.Latitude, newtime)
 
         elif interpolation_type == 'linear':
             nLon = interp1d(timestep, track.Longitude, kind='linear')(newtime)
@@ -299,21 +300,48 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
     if trackFile.endswith("nc"):
         from Utilities.track import ncReadTrackData
         tracks = ncReadTrackData(trackFile)
+    elif trackFile.endswith("xml"):
+        from pycxml.pycxml import loadfile
+        dfs = loadfile(trackFile)
+        tracks = [bom2tcrm(df, i) for i, df in enumerate(dfs)]
     else:
         tracks = loadTrackFile(configFile, trackFile, source)
 
     results = []
 
-    for track in tracks:
-        if len(track.data) == 1:
-            results.append(track)
-        else:
-            newtrack = interpolate(track, delta, interpolation_type)
-            results.append(newtrack)
+    # interpolating is memory intensive - only use a single process
+    MPI = attemptParallel()
+    if MPI.COMM_WORLD.rank == 0:
 
-    if outputFile:
-        # Save data to file:
-        ncSaveTracks(outputFile, results)
+        for track in tracks:
+            if len(track.data) == 1:
+                results.append(track)
+            else:
+                newtrack = interpolate(track, delta, interpolation_type)
+                results.append(newtrack)
 
+        if outputFile:
+            # Save data to file:
+            ncSaveTracks(outputFile, results)
+    MPI.COMM_WORLD.barrier()
 
     return results
+
+
+def bom2tcrm(df, trackId):
+    """
+    Transforms a dataframe in BoM format into a tcrm track.
+
+    """
+    df['Datetime'] = pd.to_datetime(df.validtime)
+    df['Speed'] = df.translation_speed
+    df['CentralPressure'] = df.pcentre
+    df['Longitude'] = df.longitude
+    df['Latitude'] = df.latitude
+    df['EnvPressure'] = df.poci
+    df['rMax'] = df.rmax
+    df['trackId'] = df.disturbance.values
+
+    track = Track(df)
+    track.trackId = [trackId, trackId]
+    return track
