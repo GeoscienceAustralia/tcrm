@@ -13,7 +13,7 @@ jobs:
   TCRM:
     name: Test TCRM
     runs-on: ubuntu-latest
-    strategy: 
+    strategy:
       matrix:
         python-version: [3.7, 3.8, 3.9]
     steps:
@@ -24,12 +24,13 @@ jobs:
         python-version: ${{ matrix.python-version }}
         mamba-version: "*"
         channels: conda-forge,defaults
+        channel-priority: true
         activate-environment: tcrm
         environment-file: tcrmenv.yml
         auto-activate-base: false
 
     - name: Test with pytest
-      env: 
+      env:
         PYTHONPATH: ~/tcrm;~/tcrm/Utilities
       shell: bash -l {0}
       run: |
