@@ -72,9 +72,9 @@ import boto3
 import numpy as np
 import numpy.ma as ma
 from botocore.exceptions import ClientError
-from netCDF4 import Dataset
 from osgeo import osr, gdal, gdalconst
 from osgeo.gdal_array import BandReadAsArray, CopyDatasetInfo, BandWriteArray
+from netCDF4 import Dataset
 
 from Utilities import pathLocator
 from Utilities.AsyncRun import AsyncRun
