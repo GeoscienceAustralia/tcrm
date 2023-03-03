@@ -28,7 +28,7 @@
 import os, sys
 import pickle
 import unittest
-from scipy import random
+from numpy import random
 from tests import NumpyTestCase
 try:
     from . import pathLocate
