@@ -11,13 +11,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python env
+    - name: Set up environment
       uses: conda-incubator/setup-miniconda@v2.0.0
       with: 
+        python-version: 3.7
+        mamba-version: "*"
+        channels: conda-forge,defaults
+        channel-priority: true
         activate-environment: tcrm
         environment-file: tcrmenv.yml
-        python-version: 3.7
         auto-activate-base: false
+        use-only-tar-bz2: true
         
     - name: Install dependencies
       run: |
