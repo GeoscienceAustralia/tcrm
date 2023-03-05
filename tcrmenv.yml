@@ -3,6 +3,8 @@ channels:
   - defaults
   - conda-forge
 dependencies:
+  - gdal
+  - libgdal
   - pip
   - numpy
   - scipy
@@ -20,8 +22,6 @@ dependencies:
   - simplejson
   - sqlite
   - statsmodels
-  - libgdal
-  - gdal
   - configparser
   - cartopy>=0.18.0
   - affine
