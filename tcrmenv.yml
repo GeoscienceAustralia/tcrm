@@ -2,8 +2,9 @@ name: tcrm
 channels:
   - defaults
   - conda-forge
-  - gdal-master
 dependencies:
+  - gdal
+  - libgdal
   - pip
   - numpy
   - scipy
@@ -21,8 +22,6 @@ dependencies:
   - simplejson
   - sqlite
   - statsmodels
-  - libgdal
-  - gdal
   - configparser
   - cartopy>=0.18.0
   - affine
