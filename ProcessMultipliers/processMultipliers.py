@@ -72,6 +72,7 @@ import boto3
 import numpy as np
 import numpy.ma as ma
 from botocore.exceptions import ClientError
+
 from osgeo import osr, gdal, gdalconst
 from osgeo.gdal_array import BandReadAsArray, CopyDatasetInfo, BandWriteArray
 from netCDF4 import Dataset
@@ -199,7 +200,7 @@ class getMultipliers():
         :param dict type_mapping: dict of shielding, terrain, topographic
         '''
         dir_check = os.path.isdir(working_dir)
-        if dir_check == False:
+        if dir_check is False:
             os.makedirs(working_dir)
             log.info('Creating directories for outputs')
         else:
@@ -977,6 +978,7 @@ def processMultV2(wspd, uu, vv, lon, lat, working_dir, dirns,
         m4_max_file_obj = gdal.Open(m4_max_file, gdal.GA_ReadOnly)
 
         gdal.SetConfigOption('GDAL_NUM_THREADS', str(max_working_threads))
+
         reprojectDataset(wind_raster, m4_max_file_obj, wind_prj_file,
                          warp_memory_limit=warp_memory_limit)
         reprojectDataset(bear_raster, m4_max_file_obj, bear_prj_file,
@@ -984,6 +986,7 @@ def processMultV2(wspd, uu, vv, lon, lat, working_dir, dirns,
                          resampling_method=gdalconst.GRA_NearestNeighbour)
 
         gdal.SetConfigOption('GDAL_NUM_THREADS', '1')
+
         future_requests.append(e.submit(reprojectDataset, uu_raster, m4_max_file_obj, uu_prj_file,
                                         warp_memory_limit=warp_memory_limit,
                                         resampling_method=gdalconst.GRA_NearestNeighbour))
@@ -1058,6 +1061,7 @@ def processMultV2(wspd, uu, vv, lon, lat, working_dir, dirns,
 def call_process_multiplier_segment(segment_queue, source_dir_band, wind_prj, bear_prj, dst_band):
     while not segment_queue.empty():
         processMultiplierSegment(segment_queue.get(), source_dir_band, wind_prj, bear_prj, dst_band)
+
 
 def processMultiplierSegment(segment, source_dir_band, wind_prj, bear_prj, dst_band):
     """
