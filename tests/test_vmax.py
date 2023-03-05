@@ -35,12 +35,12 @@
  $Id: TestVMax.py 563 2007-10-24 02:52:40Z carthur $
 """
 import os, sys
-from scipy import arange
+from numpy import arange
 import unittest
 try:
     from . import pathLocate
 except:
-    from unittests import pathLocate
+    from tests import pathLocate
 
 # Add parent folder to python path
 unittest_dir = pathLocate.getUnitTestDirectory()

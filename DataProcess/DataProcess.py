@@ -171,13 +171,17 @@ class DataProcess(object):
         if config.has_option('DataProcess', 'InputFile'):
             inputFile = config.get('DataProcess', 'InputFile')
             self.logger.info(f"Input file from DataProcess: {inputFile}")
+        else:
+            inputFile = None
 
         if config.has_option('DataProcess', 'Source'):
             source = config.get('DataProcess', 'Source')
             self.logger.info(f"Loading {source} dataset")
-            fn = config.get(source, 'Filename')
-            path = config.get(source, 'Path')
-            inputFile = pjoin(path, fn)
+            if inputFile is None:
+                # Use this as alternate source of input file (downloaded?)
+                fn = config.get(source, 'Filename')
+                path = config.get(source, 'Path')
+                inputFile = pjoin(path, fn)
             self.logger.info(f"Input file set to {inputFile}")
 
         # If input file has no path information, default to tcrm input folder

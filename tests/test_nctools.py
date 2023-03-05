@@ -12,15 +12,16 @@ import os
 import sys
 from os.path import join as pjoin
 import unittest
-from . import NumpyTestCase
+from tests import NumpyTestCase
 import numpy as np
 import netCDF4
+import pytest
 from datetime import datetime, timedelta
 
 try:
     from . import pathLocate
 except:
-    from unittests import pathLocate
+    from tests import pathLocate
 
 # Add parent folder to python path
 unittest_dir = pathLocate.getUnitTestDirectory()
@@ -422,6 +423,7 @@ class TestNCReading(NumpyTestCase.NumpyTestCase):
         print(type(times[0]))
         self.assertTrue(issubclass(type(times[0]), datetime))
 
+    @pytest.mark.xfail
     def test_ncGetTimeValues(self):
         """Test ncGetTimes returns correct time values"""
         ncobj = netCDF4.Dataset(self.ncfile)

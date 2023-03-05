@@ -4,6 +4,7 @@ import os
 import numpy as np
 from numpy.testing import assert_almost_equal
 from Utilities import files
+from pathlib import Path
 
 TEST_DIR = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda _: None)))
 
@@ -13,6 +14,7 @@ class TestModuleUtilities(unittest.TestCase):
     def setUp(self):
         self.filename = os.path.abspath(inspect.getsourcefile(lambda _:None))
         self.path, self.fname = os.path.split(self.filename)
+        self.path = str(Path(self.path).resolve())
         self.base, self.ext = os.path.splitext(self.fname)
         #self.path = self.path.replace(os.path.sep, '/')
 

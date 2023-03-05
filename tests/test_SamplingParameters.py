@@ -28,12 +28,12 @@
 import os, sys
 import pickle
 import unittest
-from scipy import random
-from . import NumpyTestCase
+from numpy import random
+from tests import NumpyTestCase
 try:
     from . import pathLocate
 except:
-    from unittests import pathLocate
+    from tests import pathLocate
 
 # Add parent folder to python path
 unittest_dir = pathLocate.getUnitTestDirectory()

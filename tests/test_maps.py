@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from . import NumpyTestCase
+from tests import NumpyTestCase
 from matplotlib.colors import LinearSegmentedColormap
 from PlotInterface import maps
 
@@ -55,8 +55,8 @@ class TestSelectColorMap(NumpyTestCase.NumpyTestCase):
         self.assertEqual(actual.N, expected.N)
         self.assertEqual(actual.name, expected.name)
         for k in list(actual._segmentdata.keys()):
-            self.numpyAssertAlmostEqual(actual._segmentdata[k],
-                                        expected._segmentdata[k])
+            self.numpyAssertAlmostEqual(np.array(actual._segmentdata[k]),
+                                        np.array(expected._segmentdata[k]))
 
     def setUp(self):
         import seaborn as sns

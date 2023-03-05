@@ -62,7 +62,7 @@ class StatInterface(object):
         gridLimitStr = cnfGetIniValue(self.configFile, 'StatInterface',
                                       'gridLimit', '')
 
-        if gridLimitStr is not '':
+        if gridLimitStr != '':
             try:
                 self.gridLimit = eval(gridLimitStr)
             except SyntaxError:

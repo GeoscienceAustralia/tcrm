@@ -26,12 +26,12 @@ Description: Unit test for the windProfile class
 import os, sys
 import unittest
 import pickle
-from . import NumpyTestCase
+from tests import NumpyTestCase
 import numpy
 try:
     from . import pathLocate
 except:
-    from unittests import pathLocate
+    from tests import pathLocate
 
 # Add parent folder to python path
 unittest_dir = pathLocate.getUnitTestDirectory()
@@ -75,13 +75,13 @@ class TestGenerateStats(NumpyTestCase.NumpyTestCase):
         self.numpyAssertAlmostEqual(coeffs_sig_sample, coeffs_sig_test)
 
         coeffs_alpha_sample = wP.coeffs.alpha[0:10]
-        coeffs_alpha_test = numpy.array([0.51818004, 0.55450803, 0.66634809, 0.61266186, 0.61266186,
-                                         0.63192755, 0.70984709, 0.64836016, 0.69168147, 0.70101634])
+        coeffs_alpha_test = numpy.array([0.51389973, 0.55107082, 0.65703153, 0.60663585, 0.60663585,
+                                         0.62594031, 0.70423342, 0.64339172, 0.6870522 , 0.69641318])
         self.numpyAssertAlmostEqual(coeffs_alpha_sample, coeffs_alpha_test)
 
         coeffs_phi_sample = wP.coeffs.phi[0:10]
-        coeffs_phi_test = numpy.array([0.85527156, 0.83217838, 0.74564081, 0.79034514, 0.79034514,
-                                       0.77502747, 0.70435581, 0.76133376, 0.7222027 , 0.71314521])
+        coeffs_phi_test = numpy.array([0.85785026, 0.83445848, 0.7538631 , 0.79497984, 0.79497984,
+                                       0.77987097, 0.70996851, 0.76553713, 0.72660806, 0.71764105])
         self.numpyAssertAlmostEqual(coeffs_phi_sample, coeffs_phi_test)
 
         coeffs_min_sample = wP.coeffs.min[0:20]

@@ -149,7 +149,7 @@ class SemilogCurve(CurveFigure):
 
         xdata, ydata, xlabel, ylabel, title = subfigure
 
-        axes.semilogx(xdata, ydata, '-', subsx=xdata)
+        axes.semilogx(xdata, ydata, '-', subs=xdata)
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
         axes.set_title(title)
@@ -328,7 +328,7 @@ class SemilogRangeCurve(SemilogCurve):
         """
         xdata, ymean, ymax, ymin, xlabel, ylabel, title = subfigure
 
-        axes.semilogx(xdata, ymean, lw=2, subsx=xdata)
+        axes.semilogx(xdata, ymean, lw=2, subs=xdata)
         if (ymin[0] > 0) and (ymax[0] > 0):
             self.addRange(axes, xdata, ymin, ymax)
 
@@ -390,7 +390,7 @@ class SemilogRangeScatterCurve(SemilogCurve):
         log.debug("xvalues = {0} length".format(len(emprp)))
         log.debug("xvalues = {0}".format(emprp))
 
-        axes.semilogx(xdata, ymean, lw=2, subsx=xdata, 
+        axes.semilogx(xdata, ymean, lw=2, subs=xdata, 
                       label = 'Fitted hazard curve ({0})'.format(fit))
         axes.scatter(emprp[emprp > 1], events[emprp > 1], s=100,
                 color='r', label = 'Empirical ARI')
@@ -478,8 +478,8 @@ class SemilogRangeCompareCurve(SemilogCurve):
         """
         xdata, y1, y2, y2max, y2min, xlabel, ylabel, title = subfigure
 
-        axes.semilogx(xdata, y1, color='r', lw=2, label="", subsx=xdata)
-        axes.semilogx(xdata, y2, color='k', lw=2, label="", subsx=xdata)
+        axes.semilogx(xdata, y1, color='r', lw=2, label="", subs=xdata)
+        axes.semilogx(xdata, y2, color='k', lw=2, label="", subs=xdata)
         self.addRange(axes, xdata, y2min, y2max)
         ylim = (0., np.max([100, np.ceil(y2.max()/10.)*10.]))
         axes.set_ylim(ylim)

@@ -16,6 +16,7 @@ import logging
 import sys
 
 import numpy as np
+import statsmodels.api as sm
 
 import Utilities.stats as stats
 
@@ -32,12 +33,9 @@ def acf(p, nlags=1):
     :type p: 1-d :class:`numpy.ndarray`
 
     """
-    ar = np.array([1]+[np.corrcoef(p[:-i], p[i:])[0,1] for i in range(1, nlags + 1)])
-    #ar = np.correlate(p, p, 'full')
-    #n = len(p)
-    ## Grab only the lag-one autocorrelation coeff.
-    #ar = ar[n-1:(n+nlags)]/ar.max()
-    return ar
+
+    acorr = sm.tsa.acf(p, nlags=nlags)
+    return acorr
 
 
 class parameters(object):
@@ -242,11 +240,6 @@ class GenerateStats:
             sig = np.std(p)
 
         # Calculate the autocorrelations:
-        alphas = np.correlate(p, p, 'full')
-        n = len(p)
-
-        # Grab only the lag-one autocorrelation coeff.
-        alpha = alphas[n]/alphas.max()
         alpha = acf(p)[-1]
         phi = np.sqrt(1 - alpha**2)
         mn = min(p)

@@ -39,9 +39,15 @@ import numpy as np
 from math import exp, sqrt
 import Utilities.metutils as metutils
 import logging
+import warnings
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
+
+try:
+    from . import _windmodels
+except ImportError:
+    warnings.warn("Compiled wind models not found - defaulting to slower python wind models")
 
 
 class WindSpeedModel(object):
@@ -371,20 +377,30 @@ class HollandWindProfile(WindProfileModel):
 
         d2Vm = self.secondDerivative()
         dVm = self.firstDerivative()
-        aa = ((d2Vm / 2. - (dVm - self.vMax / self.rMax) /
-               self.rMax) / self.rMax)
-        bb = (d2Vm - 6 * aa * self.rMax) / 2.
-        cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
-        delta = (self.rMax / R) ** self.beta
-        edelta = np.exp(-delta)
 
-        V = (np.sqrt((self.dP * self.beta / self.rho) *
-                     delta * edelta + (R * self.f / 2.) ** 2) -
-             R * np.abs(self.f) / 2.)
+        try:
+            from ._windmodels import fhollandvel
+            V = np.empty_like(R)
+            fhollandvel(
+                V.ravel(), R.ravel(), d2Vm, dVm, self.rMax,
+                self.vMax, self.beta, self.dP, self.rho, self.f, V.size
+            )
 
-        icore = np.where(R <= self.rMax)
-        V[icore] = (R[icore] * (R[icore] * (R[icore] * aa + bb) + cc))
-        V = np.sign(self.f) * V
+        except ImportError:
+            aa = ((d2Vm / 2. - (dVm - self.vMax / self.rMax) /
+                   self.rMax) / self.rMax)
+            bb = (d2Vm - 6 * aa * self.rMax) / 2.
+            cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
+            delta = (self.rMax / R) ** self.beta
+            edelta = np.exp(-delta)
+
+            V = (np.sqrt((self.dP * self.beta / self.rho) *
+                         delta * edelta + (R * self.f / 2.) ** 2) -
+                 R * np.abs(self.f) / 2.)
+
+            icore = np.where(R <= self.rMax)
+            V[icore] = (R[icore] * (R[icore] * (R[icore] * aa + bb) + cc))
+            V = np.sign(self.f) * V
         return V
 
     def vorticity(self, R):
@@ -399,31 +415,42 @@ class HollandWindProfile(WindProfileModel):
         :rtype: :class:`numpy.ndarray`
 
         """
-
-        beta = self.beta
-        delta = (self.rMax / R) ** beta
-        edelta = np.exp(-delta)
-
-        Z = np.abs(self.f) + \
-            (beta**2 * self.dP * (delta**2) * edelta /
-             (2 * self.rho * R) - beta**2 * self.dP * delta * edelta /
-             (2 * self.rho * R) + R * self.f**2 / 4) / \
-            np.sqrt(beta * self.dP * delta * edelta /
-                    self.rho + (R * self.f / 2)**2) + \
-            (np.sqrt(beta * self.dP * delta * edelta /
-                     self.rho + (R * self.f / 2)**2)) / R
-
         # Calculate first and second derivatives at R = Rmax:
+
         d2Vm = self.secondDerivative()
         dVm = self.firstDerivative()
-        aa = ((d2Vm / 2 - (dVm - self.vMax /
-              self.rMax) / self.rMax) / self.rMax)
-        bb = (d2Vm - 6 * aa * self.rMax) / 2
-        cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
 
-        icore = np.where(R <= self.rMax)
-        Z[icore] = R[icore] * (R[icore] * 4 * aa + 3 * bb) + 2 * cc
-        Z = np.sign(self.f) * Z
+        try:
+            from ._windmodels import fhollandvort
+            Z = np.empty_like(R)
+            fhollandvort(
+                Z.ravel(), R.ravel(), d2Vm, dVm, self.rMax, self.vMax,
+                self.beta, self.dP, self.rho, self.f, Z.size
+            )
+
+        except ImportError:
+            beta = self.beta
+            delta = (self.rMax / R) ** beta
+            edelta = np.exp(-delta)
+
+            Z = np.abs(self.f) + \
+                (beta**2 * self.dP * (delta**2) * edelta /
+                 (2 * self.rho * R) - beta**2 * self.dP * delta * edelta /
+                 (2 * self.rho * R) + R * self.f**2 / 4) / \
+                np.sqrt(beta * self.dP * delta * edelta /
+                        self.rho + (R * self.f / 2)**2) + \
+                (np.sqrt(beta * self.dP * delta * edelta /
+                         self.rho + (R * self.f / 2)**2)) / R
+
+            aa = ((d2Vm / 2 - (dVm - self.vMax /
+                  self.rMax) / self.rMax) / self.rMax)
+            bb = (d2Vm - 6 * aa * self.rMax) / 2
+            cc = dVm - 3 * aa * self.rMax ** 2 - 2 * bb * self.rMax
+
+            icore = np.where(R <= self.rMax)
+            Z[icore] = R[icore] * (R[icore] * 4 * aa + 3 * bb) + 2 * cc
+            Z = np.sign(self.f) * Z
+
         return Z
 
 
@@ -1037,23 +1064,39 @@ class KepertWindField(WindFieldModel):
         """
         :param R: Distance from the storm centre to the grid (km).
         :type  R: :class:`numpy.ndarray`
-        :param lam: Direction (geographic bearing, positive clockwise)
+        :param lam: Direction (0=east, radians, positive anti-clockwise)
                     from storm centre to the grid.
         :type  lam: :class:`numpy.ndarray`
         :param float vFm: Foward speed of the storm (m/s).
-        :param float thetaFm: Forward direction of the storm (geographic
-                              bearing, positive clockwise, radians).
+        :param float thetaFm: Forward direction of the storm (0=east, radians,
+                    positive anti-clockwise).
         :param float thetaMax: Bearing of the location of the maximum
                                wind speed, relative to the direction of
                                motion.
 
         """
 
-        V = self.velocity(R)
-        Z = self.vorticity(R)
         K = 50.  # Diffusivity
         Cd = 0.002  # Constant drag coefficient
-        Vm = np.abs(V).max()
+        Vm = self.profile.vMax
+        if type(self.profile) in (PowellWindProfile, HollandWindProfile):
+            try:
+                from ._windmodels import fkerpert
+
+                d2Vm, dVm = self.profile.secondDerivative(), self.profile.firstDerivative()
+                Ux, Vy = np.empty_like(R), np.empty_like(R)
+                n = Ux.size
+                fkerpert(
+                    R.ravel(), lam.ravel(), self.f, self.rMax, Vm, thetaFm,
+                    vFm, d2Vm, dVm, self.profile.dP, self.profile.beta, self.profile.rho,
+                    Ux.ravel(), Vy.ravel(), n
+                )
+                return Ux, Vy
+            except ImportError:
+                pass
+
+        V = self.velocity(R)
+        Z = self.vorticity(R)
         if (vFm > 0) and (Vm/vFm < 5.):
             Umod = vFm * np.abs(1.25*(1. - (vFm/Vm)))
         else:
@@ -1090,8 +1133,8 @@ class KepertWindField(WindFieldModel):
         Am[ind] = AmIII[ind]
 
         # First asymmetric surface component
-        ums = (Am * np.exp(-i * lam * np.sign(self.f))).real * albe
-        vms = (Am * np.exp(-i * lam * np.sign(self.f))).imag * np.sign(self.f)
+        ums = (Am * np.exp(-i * (lam - thetaFm) * np.sign(self.f))).real * albe
+        vms = (Am * np.exp(-i * (lam - thetaFm) * np.sign(self.f))).imag * np.sign(self.f)
 
         Ap = -(eta * (1 - 2 * albe + (1 + i) * (1 - albe) * psi) * Vt) / \
               (albe * ((2 + 2 * i) * (1 + eta * psi) + 3 * eta + 3 * i * psi))
@@ -1101,8 +1144,8 @@ class KepertWindField(WindFieldModel):
         Ap[ind] = ApIII[ind]
 
         # Second asymmetric surface component
-        ups = (Ap * np.exp(i * lam * np.sign(self.f))).real * albe
-        vps = (Ap * np.exp(i * lam * np.sign(self.f))).imag * np.sign(self.f)
+        ups = (Ap * np.exp(i * (lam - thetaFm) * np.sign(self.f))).real * albe
+        vps = (Ap * np.exp(i * (lam - thetaFm) * np.sign(self.f))).imag * np.sign(self.f)
 
         # Total surface wind in (moving coordinate system)
         us = u0s + ups + ums
@@ -1142,9 +1185,9 @@ def profileParams(name):
     """
     List of additional parameters required for a wind profile model.
     """
-    from inspect import getargspec
-    std = getargspec(WindProfileModel.__init__)[0]
-    new = getargspec(profile(name).__init__)[0]
+    from inspect import getfullargspec
+    std = getfullargspec(WindProfileModel.__init__)[0]
+    new = getfullargspec(profile(name).__init__)[0]
     params = [p for p in new if p not in std]
     return params
 
@@ -1161,9 +1204,9 @@ def fieldParams(name):
     """
     List of additional parameters required for a wind field model.
     """
-    from inspect import getargspec
-    std = getargspec(WindFieldModel.__init__)[0]
-    new = getargspec(field(name).__init__)[0]
+    from inspect import getfullargspec
+    std = getfullargspec(WindFieldModel.__init__)[0]
+    new = getfullargspec(field(name).__init__)[0]
     params = [p for p in new if p not in std]
     return params
 
