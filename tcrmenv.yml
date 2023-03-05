@@ -2,6 +2,7 @@ name: tcrm
 channels:
   - defaults
   - conda-forge
+  - gdal-master
 dependencies:
   - pip
   - numpy
