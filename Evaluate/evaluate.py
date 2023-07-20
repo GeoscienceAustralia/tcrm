@@ -32,7 +32,8 @@ import numpy.ma as ma
 
 from matplotlib import pyplot, cm
 from matplotlib.dates import date2num
-from mpl_toolkits.basemap import Basemap
+from cartopy import crs as ccrs
+from cartopy import feature as cfeature
 from scipy.stats import scoreatpercentile as percentile
 from datetime import datetime
 
@@ -76,7 +77,7 @@ PlotPath=%(cwd)s/output/plots/stats/
 [ProcessMultipliers]
 MaxWorkingThreads = 4
 ProcessMultiVersion = 2
-ProcessingSegmentSize = 256 
+ProcessingSegmentSize = 256
 WarpMemoryLimit = 500
 
 [Logging]
@@ -169,17 +170,6 @@ def plotDensity(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
     else:
         urcrnrlat = y.max()
 
-    meridians = np.arange(dl * np.floor(llcrnrlon / dl),
-                          dl * np.ceil(urcrnrlon / dl), dl)
-    parallels = np.arange(dl * np.floor(llcrnrlat / dl),
-                          dl * np.ceil(urcrnrlat / dl), dl)
-
-    m = Basemap(projection='cyl',
-                resolution=res,
-                llcrnrlon=llcrnrlon,
-                urcrnrlon=urcrnrlon,
-                llcrnrlat=llcrnrlat,
-                urcrnrlat=urcrnrlat)
 
     # Set the colour map:
     if hasattr(cm, cmap):
@@ -187,38 +177,41 @@ def plotDensity(x, y, data, llLon=None, llLat=None, urLon=None, urLat=None,
     else:
         cmap = colours.colourMap(cmap, 'stretched')
 
-    if maskocean:
-        try:
-            from mpl_toolkits.basemap import maskoceans
-        except ImportError:
-            log.debug("Maskoceans module unavailable, skipping this command")
-        else:
-            datam = maskoceans(xx, yy, data, inlands=False)
-            m.pcolormesh(xx, yy, datam, edgecolors='None',
-                         vmin=datarange[0], vmax=datarange[1],
-                         cmap=cmap)
-    else:
-        m.pcolormesh(xx, yy, data, edgecolors='None',
-                     vmin=datarange[0], vmax=datarange[1],
-                     cmap=cmap)
+    ax = pyplot.axes(projection=ccrs.PlateCarree())
+    pyplot.pcolormesh(xx, yy, data, edgecolors='None',
+                      vmin=datarange[0], vmax=datarange[1],
+                      cmap=cmap, transfom=ccrs.PlateCarree())
 
-    m.drawcoastlines(linewidth=0.5)
     if maskland:
-        m.fillcontinents(color='white')
+        ax.add_feature(cfeature.LAND, zorder=100, edgecolor='k')
 
-    m.drawparallels(parallels, labels=[1, 0, 0, 0],
-                    fontsize=7.5, linewidth=0.2)
-    m.drawmeridians(meridians, labels=[0, 0, 0, 1],
-                    fontsize=7.5, linewidth=0.2)
+    if maskocean:
+        ax.add_feature(cfeature.OCEAN, zorder=100, edgecolor='k')
+
+    ax.coastlines(linewidth=0.5)
+    gl = ax.gridlines(draw_labels=True, crs=ccrs.PlateCarree(), linewidth=0.2)
+    gl.top_labels = False
+    gl.right_labels = False
+
+    ax.set_extent([llcrnrlon, urcrnrlon,
+                   llcrnrlat, urcrnrlat])
+
+    cb = pyplot.colorbar(shrink=0.5, aspect=30,
+                         orientation='horizontal',
+                         extend='max', pad=0.1)
+
+    if cb.orientation == 'horizontal':
+        for t in cb.ax.get_xticklabels():
+            t.set_fontsize(8)
+
+    if clabel:
+        cb.set_label(clabel)
     if ylab:
         pyplot.ylabel(ylab, fontsize=7.5)
     if xlab:
         pyplot.xlabel(xlab, fontsize=7.5)
     if title:
         pyplot.title(title)
-
-    pyplot.grid(True)
-    pyplot.tick_params(direction='out', right='off', top='off')
 
     cb = pyplot.colorbar(shrink=0.5, aspect=30,
                          orientation='horizontal',
