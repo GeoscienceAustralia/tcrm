@@ -19,8 +19,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up environment
-      uses: conda-incubator/setup-miniconda@v2.2.0
+      uses: conda-incubator/setup-miniconda@v2
       with:
+        miniforge-variant: Mambaforge
         python-version: ${{ matrix.python-version }}
         channels: conda-forge,defaults
         channel-priority: true
