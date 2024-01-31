@@ -9,7 +9,6 @@ dependencies:
   - numpy
   - scipy
   - matplotlib
-  - shapely>=1.8.5
   - nose
   - netcdf4
   - cftime
