@@ -3,7 +3,7 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - gdal==3.5.2
+  - gdal
   - libgdal
   - pip
   - numpy
@@ -21,7 +21,7 @@ dependencies:
   - sqlite
   - statsmodels
   - configparser
-  - cartopy>=0.18.0
+  - cartopy
   - affine
   - tqdm
   - xarray
