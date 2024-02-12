@@ -9,7 +9,6 @@ dependencies:
   - numpy
   - scipy
   - matplotlib
-  - shapely
   - nose
   - netcdf4
   - cftime
@@ -22,7 +21,7 @@ dependencies:
   - sqlite
   - statsmodels
   - configparser
-  - cartopy>=0.18.0
+  - cartopy
   - affine
   - tqdm
   - xarray

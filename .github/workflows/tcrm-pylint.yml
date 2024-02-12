@@ -1,6 +1,6 @@
-name: Pylint tests for TCRM 
+name: Pylint tests for TCRM
 
-on: 
+on:
   push:
     branches:  [ master, develop ]
 
@@ -12,17 +12,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up environment
-      uses: conda-incubator/setup-miniconda@v2.0.0
-      with: 
-        python-version: 3.7
-        mamba-version: "*"
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        python-version: 3.9
+        miniforge-variant: Mambaforge
         channels: conda-forge,defaults
         channel-priority: true
         activate-environment: tcrm
         environment-file: tcrmenv.yml
         auto-activate-base: false
         use-only-tar-bz2: true
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -32,7 +32,7 @@ jobs:
         pylint --rcfile pylintrc --fail-under=7 `find -regextype egrep -regex '(.*.py)$'` |
         tee pylint.txt
     - name: Upload pylint.txt as artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: pylint report
         path: pylint.txt
