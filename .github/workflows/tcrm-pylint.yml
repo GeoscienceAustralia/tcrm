@@ -1,6 +1,6 @@
-name: Pylint tests for TCRM 
+name: Pylint tests for TCRM
 
-on: 
+on:
   push:
     branches:  [ master, develop ]
 
@@ -13,8 +13,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Set up environment
       uses: conda-incubator/setup-miniconda@v2
-      with: 
-        python-version: 3.7
+      with:
+        python-version: 3.9
         miniforge-variant: Mambaforge
         channels: conda-forge,defaults
         channel-priority: true
@@ -22,7 +22,7 @@ jobs:
         environment-file: tcrmenv.yml
         auto-activate-base: false
         use-only-tar-bz2: true
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
