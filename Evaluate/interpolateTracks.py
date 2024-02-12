@@ -73,7 +73,7 @@ def interpolate(track, delta, interpolation_type=None):
                                           track.Minute)]
     else:
         day_ = track.Datetime
-    
+
     timestep = timedelta(delta/24.)
     try:
         time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.0
@@ -104,7 +104,7 @@ def interpolate(track, delta, interpolation_type=None):
         idx[0] = 1
         # TODO: Possibly could change `np.mean(dt)` to `dt`?
         track.WindSpeed = maxWindSpeed(idx, np.mean(dt), track.Longitude,
-                                       track.Latitude, track.CentralPressure, 
+                                       track.Latitude, track.CentralPressure,
                                        track.EnvPressure)
     # Find the indices of valid pressure observations:
     validIdx = np.where(track.CentralPressure < sys.maxsize)[0]
@@ -182,7 +182,7 @@ def interpolate(track, delta, interpolation_type=None):
                                      kind='linear')(newtime[firsttime:lasttime])
 
                 _nwSpd = interp1d(timestep[validIdx],
-                                  track.Speed[validIdx],
+                                  track.WindSpeed[validIdx],
                                   kind='linear')(newtime[firsttime:lasttime])
 
                 npCentre[firsttime:lasttime] = _npCentre
