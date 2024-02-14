@@ -3,8 +3,8 @@
 ===============================================================
 
 .. module: shptools
-    :synopsis: A collection of useful functions to manipulate shapefiles. Uses the `shapefile
-               library <http://code.google.com/p/pyshp/>`_
+    :synopsis: A collection of useful functions to manipulate shapefiles.
+    Uses the `pyshp library <https://github.com/GeospatialPython/pyshp>`_
 
 
 
@@ -12,7 +12,7 @@
 
 import logging
 
-from . import shapefile
+import shapefile
 import numpy as np
 
 
@@ -21,32 +21,55 @@ log.addHandler(logging.NullHandler())
 
 
 # For all observation points/line segments:
-OBSFIELD_NAMES = ('Indicator', 'TCID', 'Year', 'Month',
-                  'Day', 'Hour', 'Minute', 'TimeElapsed', 'Longitude',
-                  'Latitude', 'Speed', 'Bearing', 'CentralPressure',
-                  'WindSpeed', 'rMax', 'EnvPressure')
-OBSFIELD_TYPES = ('N',)*16
+OBSFIELD_NAMES = (
+    "Indicator",
+    "TCID",
+    "Year",
+    "Month",
+    "Day",
+    "Hour",
+    "Minute",
+    "TimeElapsed",
+    "Longitude",
+    "Latitude",
+    "Speed",
+    "Bearing",
+    "CentralPressure",
+    "WindSpeed",
+    "rMax",
+    "EnvPressure",
+)
+OBSFIELD_TYPES = ("N",) * 16
 OBSFIELD_WIDTH = (1, 6, 4, 2, 2, 2, 2, 6, 7, 7, 6, 6, 7, 6, 6, 7)
-OBSFIELD_PREC =  (0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 1)
+OBSFIELD_PREC = (0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 1)
 
-OBSFIELDS = [[n, t, w, p] for n, t, w, p in zip(OBSFIELD_NAMES,
-                                                OBSFIELD_TYPES,
-                                                OBSFIELD_WIDTH,
-                                                OBSFIELD_PREC)]
+OBSFIELDS = [
+    [n, t, w, p]
+    for n, t, w, p in zip(OBSFIELD_NAMES, OBSFIELD_TYPES, OBSFIELD_WIDTH, OBSFIELD_PREC)
+]
 
 # For storing events as a single polyline:
-EVENTFIELD_NAMES = ('TCID', 'Year', 'Month', 'Day', 'Hour', 'Minute', 'Age',
-                    'MinPressure', 'MaxWindSpeed' )
-EVENTFIELD_TYPES = ('N',)*9
+EVENTFIELD_NAMES = (
+    "TCID",
+    "Year",
+    "Month",
+    "Day",
+    "Hour",
+    "Minute",
+    "Age",
+    "MinPressure",
+    "MaxWindSpeed",
+)
+EVENTFIELD_TYPES = ("N",) * 9
 EVENTFIELD_WIDTH = (6, 4, 2, 2, 2, 2, 6, 7, 7)
-EVENTFIELD_PREC =  (0, 0, 0, 0, 0, 0, 2, 2, 1)
+EVENTFIELD_PREC = (0, 0, 0, 0, 0, 0, 2, 2, 1)
 
-EVENTFIELDS = [[n, t, w, p] for n, t, w, p in zip(EVENTFIELD_NAMES,
-                                                  EVENTFIELD_TYPES,
-                                                  EVENTFIELD_WIDTH,
-                                                  EVENTFIELD_PREC)]
-
-
+EVENTFIELDS = [
+    [n, t, w, p]
+    for n, t, w, p in zip(
+        EVENTFIELD_NAMES, EVENTFIELD_TYPES, EVENTFIELD_WIDTH, EVENTFIELD_PREC
+    )
+]
 
 
 def parseData(data):
@@ -66,23 +89,23 @@ def parseData(data):
     fields = []
     records = []
     for k in list(data.keys()):
-        t = data[k]['Type']
-        l = data[k]['Length']
+        t = data[k]["Type"]
+        l = data[k]["Length"]
         if t == 0:
-            nt = 'C'
+            nt = "C"
             p = 0
         elif t == 1:
-            nt = 'N'
+            nt = "N"
             p = 0
         elif t == 2:
-            nt = 'N'
-            p = data[k]['Precision']
+            nt = "N"
+            p = data[k]["Precision"]
         else:
             nt = t
             p = 0
 
         fields.append([k, nt, l, p])
-        records.append([data[k]['Data']])
+        records.append([data[k]["Data"]])
 
     return fields, records
 
@@ -114,7 +137,7 @@ def shpCreateFile(outputFile, shapes, data, shpType):
     fields, records = parseData(data)
 
     log.info("Writing data to {0}.shp".format(outputFile))
-    w = shapefile.Writer(shpType)
+    w = shapefile.Writer(outputFile, shpType)
     # Set the fields:
     for f in fields:
         w.field(*f)
@@ -125,7 +148,7 @@ def shpCreateFile(outputFile, shapes, data, shpType):
             start = 0
             new_parts = []
             for p in s.parts[1:]:
-                new_parts.append(list(s.points[start:p - 1]))
+                new_parts.append(list(s.points[start : p - 1]))
                 start = p
             new_parts.append(list(s.points[p:-1]))
             w.poly(parts=new_parts)
@@ -134,11 +157,12 @@ def shpCreateFile(outputFile, shapes, data, shpType):
         w.record(*r)
 
     try:
-        w.save(outputFile)
+        w.close()
     except shapefile.ShapefileException:
-        log.exception("Unable to save data to {0}".format(outputFile) )
+        log.exception("Unable to save data to {0}".format(outputFile))
 
     return
+
 
 def shpSaveTrackFile(outputFile, tracks, fmt="point"):
     """
@@ -164,10 +188,13 @@ def shpSaveTrackFile(outputFile, tracks, fmt="point"):
     elif fmt == "segments":
         tracks2line(tracks, outputFile, dissolve=False)
     else:
-        log.critical(("Unknown output format - must be one of 'points', "
-                        "'lines' or 'segments'"))
+        log.critical(
+            (
+                "Unknown output format - must be one of 'points', "
+                "'lines' or 'segments'"
+            )
+        )
         return
-
 
 
 def shpWriteShapeFile(outputFile, shpType, fields, shapes, records):
@@ -191,7 +218,7 @@ def shpWriteShapeFile(outputFile, shpType, fields, shapes, records):
 
     """
     log.info("Writing data to {0}.shp".format(outputFile))
-    w = shapefile.Writer(shpType)
+    w = shapefile.Writer(outputFile, shpType)
 
     # Set the fields:
     for f in fields:
@@ -203,7 +230,7 @@ def shpWriteShapeFile(outputFile, shpType, fields, shapes, records):
             start = 0
             new_parts = []
             for p in shp.parts[1:]:
-                new_parts.append(list(shp.points[start:p-1]))
+                new_parts.append(list(shp.points[start : p - 1]))
                 start = p
             new_parts.append(list(shp.points[p:-1]))
             w.poly(parts=new_parts)
@@ -212,11 +239,12 @@ def shpWriteShapeFile(outputFile, shpType, fields, shapes, records):
         w.record(*rec)
 
     try:
-        w.save(outputFile)
+        w.close()
     except shapefile.ShapefileException:
-        log.exception("Unable to save data to {0}".format(outputFile) )
+        log.exception("Unable to save data to {0}".format(outputFile))
 
     return
+
 
 def shpGetVertices(shape_file, key_name=None):
     """
@@ -262,7 +290,7 @@ def shpGetVertices(shape_file, key_name=None):
         raise
 
     else:
-        fields = sf.fields[1:] # Drop first field (DeletionFlag)
+        fields = sf.fields[1:]  # Drop first field (DeletionFlag)
 
         field_names = [fields[i][0] for i in range(len(fields))]
         if key_name and (key_name in field_names):
@@ -278,6 +306,7 @@ def shpGetVertices(shape_file, key_name=None):
                 vertices[i] = shprec.shape.points
 
     return vertices
+
 
 def shpGetField(shape_file, field_name, dtype=float):
     """
@@ -310,12 +339,11 @@ def shpGetField(shape_file, field_name, dtype=float):
         raise
 
     else:
-        fields = sf.fields[1:] # Drop first field (DeletionFlag)
+        fields = sf.fields[1:]  # Drop first field (DeletionFlag)
 
         field_names = [fields[i][0] for i in range(len(fields))]
         if field_name not in field_names:
-            log.warning("No field '{0}' in the list of fieldnames" .
-                    format(field_name))
+            log.warning("No field '{0}' in the list of fieldnames".format(field_name))
             log.warning("Unable to proceed with processing")
             raise ValueError
 
@@ -327,15 +355,14 @@ def shpGetField(shape_file, field_name, dtype=float):
 
     if dtype != str:
         # For non-string data, return a numpy array:
-        output = np.array([records[rec][idx] for rec in range(nrecords)],
-                              dtype=dtype)
+        output = np.array([records[rec][idx] for rec in range(nrecords)], dtype=dtype)
 
     else:
         # Otherwise, return a list:
         output = [records[rec][idx] for rec in range(nrecords)]
 
-
     return output
+
 
 def shpReadShapeFile(shape_file):
     """
@@ -351,7 +378,7 @@ def shpReadShapeFile(shape_file):
     """
 
     try:
-        sf = shapefile.Reader(shape_file,"rb")
+        sf = shapefile.Reader(shape_file, "rb")
     except shapefile.ShapefileException:
         log.exception("Cannot read {0}".format(shape_file))
         raise
@@ -361,6 +388,7 @@ def shpReadShapeFile(shape_file):
         vertices = shpGetVertices(shape_file)
 
     return vertices, records
+
 
 def tracks2point(tracks, outputFile):
     """
@@ -372,7 +400,7 @@ def tracks2point(tracks, outputFile):
     :param str outputFile: Path to output file destination
 
     """
-    sf = shapefile.Writer(shapefile.POINT)
+    sf = shapefile.Writer(outputFile, shapefile.POINT)
     sf.fields = OBSFIELDS
 
     for track in tracks:
@@ -381,11 +409,12 @@ def tracks2point(tracks, outputFile):
             sf.record(*rec)
 
     try:
-        sf.save(outputFile)
+        sf.close()
     except shapefile.ShapefileException:
         raise
 
     return
+
 
 def tracks2line(tracks, outputFile, dissolve=False):
     """
@@ -405,7 +434,7 @@ def tracks2line(tracks, outputFile, dissolve=False):
     :param dissolve: Store track features or track segments.
     """
 
-    sf = shapefile.Writer(shapefile.POLYLINE)
+    sf = shapefile.Writer(outputFile, shapefile.POLYLINE)
     if dissolve:
         sf.fields = EVENTFIELDS
     else:
@@ -420,12 +449,10 @@ def tracks2line(tracks, outputFile, dissolve=False):
                     # into multiple parts:
                     idx = np.argmin(dlon)
                     parts = []
-                    lines = zip(track.Longitude[:idx],
-                                 track.Latitude[:idx])
+                    lines = zip(track.Longitude[:idx], track.Latitude[:idx])
 
                     parts.append(lines)
-                    lines = zip(track.Longitude[idx+1:],
-                                 track.Latitude[idx+1:])
+                    lines = zip(track.Longitude[idx + 1 :], track.Latitude[idx + 1 :])
 
                     parts.append(lines)
                     sf.line(parts)
@@ -435,7 +462,6 @@ def tracks2line(tracks, outputFile, dissolve=False):
             else:
                 lines = zip(track.Longitude, track.Latitude)
                 sf.line([lines])
-
 
             minPressure = track.trackMinPressure
             maxWind = track.trackMaxWind
@@ -447,39 +473,62 @@ def tracks2line(tracks, outputFile, dissolve=False):
             startDay = track.Day[0]
             startHour = track.Hour[0]
             startMin = track.Minute[0]
-            record = [track.CycloneNumber[0], startYear, startMonth, startDay,
-                      startHour, startMin, age, minPressure, maxWind]
+            record = [
+                track.CycloneNumber[0],
+                startYear,
+                startMonth,
+                startDay,
+                startHour,
+                startMin,
+                age,
+                minPressure,
+                maxWind,
+            ]
             sf.record(*record)
 
         else:
             if len(track.data) == 1:
-                line = [[[track.Longitude, track.Latitude],
-                        [track.Longitude, track.Latitude]]]
+                line = [
+                    [
+                        [track.Longitude, track.Latitude],
+                        [track.Longitude, track.Latitude],
+                    ]
+                ]
                 sf.line(line)
                 sf.record(*track.data[0])
             else:
                 for n in range(len(track.data) - 1):
                     dlon = track.Longitude[n + 1] - track.Longitude[n]
-                    if dlon < -180.:
+                    if dlon < -180.0:
                         # case where the track crosses 0E:
-                        segment = [[[track.Longitude[n], track.Latitude[n]],
-                                   [track.Longitude[n], track.Latitude[n]]]]
+                        segment = [
+                            [
+                                [track.Longitude[n], track.Latitude[n]],
+                                [track.Longitude[n], track.Latitude[n]],
+                            ]
+                        ]
                     else:
-                        segment = [[[track.Longitude[n],
-                                     track.Latitude[n]],
-                                    [track.Longitude[n + 1],
-                                     track.Latitude[n + 1]]]]
+                        segment = [
+                            [
+                                [track.Longitude[n], track.Latitude[n]],
+                                [track.Longitude[n + 1], track.Latitude[n + 1]],
+                            ]
+                        ]
                     sf.line(segment)
                     sf.record(*track.data[n])
 
                 # Last point in the track:
-                sf.line([[[track.Longitude[n + 1],
-                           track.Latitude[n + 1]],
-                              [track.Longitude[n + 1],
-                               track.Latitude[n + 1]]]])
-                sf.record(*track.data[n+1])
+                sf.line(
+                    [
+                        [
+                            [track.Longitude[n + 1], track.Latitude[n + 1]],
+                            [track.Longitude[n + 1], track.Latitude[n + 1]],
+                        ]
+                    ]
+                )
+                sf.record(*track.data[n + 1])
 
     try:
-        sf.save(outputFile)
+        sf.close()
     except shapefile.ShapefileException:
         raise
