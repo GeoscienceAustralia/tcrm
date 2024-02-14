@@ -10,7 +10,7 @@
 
 """
 
-import Utilities.shapefile as shapefile
+import shapefile
 
 import numpy as np
 import logging
@@ -18,42 +18,82 @@ import logging
 LOG = logging.getLogger(__name__)
 
 # For all observation points/line segments:
-OBSFIELD_NAMES = ('Indicator', 'TCID', 'Year', 'Month',
-                  'Day', 'Hour', 'Minute', 'TElapsed', 'Longitude',
-                  'Latitude', 'Speed', 'Bearing', 'Pcentre',
-                  'MaxWind', 'rMax', 'Penv', 'Category')
-OBSFIELD_TYPES = ('N',)*17
+OBSFIELD_NAMES = (
+    "Indicator",
+    "TCID",
+    "Year",
+    "Month",
+    "Day",
+    "Hour",
+    "Minute",
+    "TElapsed",
+    "Longitude",
+    "Latitude",
+    "Speed",
+    "Bearing",
+    "Pcentre",
+    "MaxWind",
+    "rMax",
+    "Penv",
+    "Category",
+)
+OBSFIELD_TYPES = ("N",) * 17
 OBSFIELD_WIDTH = (1, 6, 4, 2, 2, 2, 2, 6, 7, 7, 6, 6, 7, 6, 6, 7, 1)
-OBSFIELD_PREC =  (0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 1, 0)
+OBSFIELD_PREC = (0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 1, 1, 1, 1, 1, 1, 0)
 
-OBSFIELDS = [[n, t, w, p] for n, t, w, p in zip(OBSFIELD_NAMES,
-                                                OBSFIELD_TYPES,
-                                                OBSFIELD_WIDTH,
-                                                OBSFIELD_PREC)]
+OBSFIELDS = [
+    [n, t, w, p]
+    for n, t, w, p in zip(OBSFIELD_NAMES, OBSFIELD_TYPES,
+                          OBSFIELD_WIDTH, OBSFIELD_PREC)
+]
 
-TCRM_FIELD_NAMES = ('CycloneNumber', 'TimeElapsed', 'Longitude', 'Latitude',
-                    'Speed', 'Bearing', 'CentralPressure', 'EnvPressure',
-                    'rMax','Category')
-TCRM_FIELD_TYPES = ('N',) * 10
+TCRM_FIELD_NAMES = (
+    "CycloneNumber",
+    "TimeElapsed",
+    "Longitude",
+    "Latitude",
+    "Speed",
+    "Bearing",
+    "CentralPressure",
+    "EnvPressure",
+    "rMax",
+    "Category",
+)
+TCRM_FIELD_TYPES = ("N",) * 10
 TCRM_FIELD_WIDTH = (6, 7, 9, 9, 8, 8, 8, 8, 8, 1)
-TCRM_FIELD_PREC =  (0, 2, 4, 4, 4, 4, 3, 3, 4, 0)
+TCRM_FIELD_PREC = (0, 2, 4, 4, 4, 4, 3, 3, 4, 0)
 
-TCRM_FIELDS = [[n, t, w, p] for n, t, w, p in zip(TCRM_FIELD_NAMES,
-                                                  TCRM_FIELD_TYPES,
-                                                  TCRM_FIELD_WIDTH,
-                                                  TCRM_FIELD_PREC)]
+TCRM_FIELDS = [
+    [n, t, w, p]
+    for n, t, w, p in zip(
+        TCRM_FIELD_NAMES, TCRM_FIELD_TYPES, TCRM_FIELD_WIDTH, TCRM_FIELD_PREC
+    )
+]
 
 # For storing events as a single polyline:
-EVENTFIELD_NAMES = ('TCID', 'Year', 'Month', 'Day', 'Hour', 'Minute', 'Age',
-                    'MinCP', 'MaxWind' )
-EVENTFIELD_TYPES = ('N',)*9
+EVENTFIELD_NAMES = (
+    "TCID",
+    "Year",
+    "Month",
+    "Day",
+    "Hour",
+    "Minute",
+    "Age",
+    "MinCP",
+    "MaxWind",
+)
+EVENTFIELD_TYPES = ("N",) * 9
 EVENTFIELD_WIDTH = (6, 4, 2, 2, 2, 2, 6, 7, 7)
-EVENTFIELD_PREC =  (0, 0, 0, 0, 0, 0, 2, 2, 1)
+EVENTFIELD_PREC = (0, 0, 0, 0, 0, 0, 2, 2, 1)
 
-EVENTFIELDS = [[n, t, w, p] for n, t, w, p in zip(EVENTFIELD_NAMES,
-                                                  EVENTFIELD_TYPES,
-                                                  EVENTFIELD_WIDTH,
-                                                  EVENTFIELD_PREC)]
+EVENTFIELDS = [
+    [n, t, w, p]
+    for n, t, w, p in zip(
+        EVENTFIELD_NAMES, EVENTFIELD_TYPES,
+        EVENTFIELD_WIDTH, EVENTFIELD_PREC
+    )
+]
+
 
 def recdropfields(rec, names):
     """
@@ -70,8 +110,9 @@ def recdropfields(rec, names):
 
     names = set(names)
 
-    newdtype = np.dtype([(name, rec.dtype[name]) for name in rec.dtype.names
-                       if name not in names])
+    newdtype = np.dtype(
+        [(name, rec.dtype[name]) for name in rec.dtype.names if name not in names]  # noqa
+    )
 
     newrec = np.recarray(rec.shape, dtype=newdtype)
     for field in newdtype.names:
@@ -97,7 +138,7 @@ def add_category(tracks):
     Add a category field (for central pressure) to the tracks.
     """
     for track in tracks:
-        track.data = add_field(track.data, [('Category', int)])
+        track.data = add_field(track.data, [("Category", int)])
 
         for rec in track.data:
             if rec["CentralPressure"] < 930:
@@ -129,7 +170,7 @@ def tracks2point(tracks, outputFile, netcdf_format=False):
 
     """
     LOG.info("Writing point shape file: {0}".format(outputFile))
-    sf = shapefile.Writer(shapefile.POINT)
+    sf = shapefile.Writer(outputFile, shapefile.POINT)
     if netcdf_format:
         sf.fields = TCRM_FIELDS
     else:
@@ -138,18 +179,19 @@ def tracks2point(tracks, outputFile, netcdf_format=False):
     LOG.debug("Processing {0} tracks".format(len(tracks)))
 
     for track in tracks:
-        track.data = recdropfields(track.data, ['Datetime'])
+        track.data = recdropfields(track.data, ["Datetime"])
         for lon, lat, rec in zip(track.Longitude, track.Latitude, track.data):
             sf.point(lon, lat)
             sf.record(*rec)
 
     try:
-        sf.save(outputFile)
+        sf.close()
     except shapefile.ShapefileException:
         LOG.exception("Cannot save shape file: {0}".format(outputFile))
         raise
 
     return
+
 
 def tracks2line(tracks, outputFile, dissolve=False, netcdf_format=False):
     """
@@ -174,7 +216,7 @@ def tracks2line(tracks, outputFile, dissolve=False, netcdf_format=False):
              when attempting to save the file.
     """
     LOG.info("Writing line shape file: {0}".format(outputFile))
-    sf = shapefile.Writer(shapefile.POLYLINE)
+    sf = shapefile.Writer(outputFile, shapefile.POLYLINE)
     if netcdf_format:
         sf.fields = TCRM_FIELDS
     elif dissolve:
@@ -185,7 +227,7 @@ def tracks2line(tracks, outputFile, dissolve=False, netcdf_format=False):
     LOG.debug("Processing {0} tracks".format(len(tracks)))
 
     for track in tracks:
-        track.data = recdropfields(track.data, ['Datetime'])
+        track.data = recdropfields(track.data, ["Datetime"])
 
         if dissolve:
             if len(track.data) > 1:
@@ -195,12 +237,10 @@ def tracks2line(tracks, outputFile, dissolve=False, netcdf_format=False):
                     # into multiple parts:
                     idx = np.argmin(dlon)
                     parts = []
-                    lines = zip(track.Longitude[:idx],
-                                 track.Latitude[:idx])
+                    lines = zip(track.Longitude[:idx], track.Latitude[:idx])
 
                     parts.append(lines)
-                    lines = zip(track.Longitude[idx+1:],
-                                 track.Latitude[idx+1:])
+                    lines = zip(track.Longitude[idx + 1 :], track.Latitude[idx + 1 :])  # noqa
 
                     parts.append(lines)
                     sf.line(parts)
@@ -210,7 +250,6 @@ def tracks2line(tracks, outputFile, dissolve=False, netcdf_format=False):
             else:
                 lines = zip(track.Longitude, track.Latitude)
                 sf.line([lines])
-
 
             if netcdf_format:
                 sf.record(*track.data[0])
@@ -225,45 +264,69 @@ def tracks2line(tracks, outputFile, dissolve=False, netcdf_format=False):
                 startDay = track.Day[0]
                 startHour = track.Hour[0]
                 startMin = track.Minute[0]
-                record = [track.CycloneNumber[0], startYear, startMonth, startDay,
-                          startHour, startMin, age, minPressure, maxWind]
+                record = [
+                    track.CycloneNumber[0],
+                    startYear,
+                    startMonth,
+                    startDay,
+                    startHour,
+                    startMin,
+                    age,
+                    minPressure,
+                    maxWind,
+                ]
                 sf.record(*record)
 
         else:
             if len(track.data) == 1:
-                line = [[[track.Longitude, track.Latitude],
-                        [track.Longitude, track.Latitude]]]
+                line = [
+                    [
+                        [track.Longitude, track.Latitude],
+                        [track.Longitude, track.Latitude],
+                    ]
+                ]
                 sf.line(line)
                 sf.record(*track.data[0])
             else:
                 for n in range(len(track.data) - 1):
                     dlon = track.Longitude[n + 1] - track.Longitude[n]
-                    if dlon < -180.:
+                    if dlon < -180.0:
                         # case where the track crosses 0E:
-                        segment = [[[track.Longitude[n], track.Latitude[n]],
-                                    [track.Longitude[n], track.Latitude[n]]]]
+                        segment = [
+                            [
+                                [track.Longitude[n], track.Latitude[n]],
+                                [track.Longitude[n], track.Latitude[n]],
+                            ]
+                        ]
                     else:
-                        segment = [[[track.Longitude[n],
-                                     track.Latitude[n]],
-                                    [track.Longitude[n + 1],
-                                     track.Latitude[n + 1]]]]
+                        segment = [
+                            [
+                                [track.Longitude[n], track.Latitude[n]],
+                                [track.Longitude[n + 1], track.Latitude[n + 1]],  # noqa
+                            ]
+                        ]
                     sf.line(segment)
                     sf.record(*track.data[n])
 
                 # Last point in the track:
-                sf.line([[[track.Longitude[n + 1],
-                           track.Latitude[n + 1]],
-                              [track.Longitude[n + 1],
-                               track.Latitude[n + 1]]]])
-                sf.record(*track.data[n+1])
+                sf.line(
+                    [
+                        [
+                            [track.Longitude[n + 1], track.Latitude[n + 1]],
+                            [track.Longitude[n + 1], track.Latitude[n + 1]],
+                        ]
+                    ]
+                )
+                sf.record(*track.data[n + 1])
 
     try:
-        sf.save(outputFile)
+        sf.close()
     except shapefile.ShapefileException:
         LOG.exception("Cannot save shape file: {0}".format(outputFile))
         raise
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
 
     from Utilities.loadData import loadTrackFile
     from Utilities.config import ConfigParser
@@ -276,20 +339,24 @@ if __name__ == '__main__':
     # pylint: disable=C0103
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config_file', help='Input configuration file')
-    parser.add_argument('-f', '--file', help='Input TC track file')
-    parser.add_argument('-s', '--source',
-                        help='Input TC track file source format')
-    parser.add_argument('-v', '--verbose',
-                        help='Print log messages to STDOUT',
-                        action='store_true')
+    parser.add_argument("-c", "--config_file",
+                        help="Input configuration file")
+    parser.add_argument("-f", "--file",
+                        help="Input TC track file")
+    parser.add_argument("-s", "--source",
+                        help="Input TC track file source format")
+    parser.add_argument(
+        "-v", "--verbose",
+        help="Print log messages to STDOUT",
+        action="store_true"
+    )
     args = parser.parse_args()
 
     config_file = args.config_file
     config = ConfigParser()
     config.read(config_file)
 
-    logfile = config.get('Logging', 'LogFile')
+    logfile = config.get("Logging", "LogFile")
     logdir = dirname(realpath(logfile))
 
     # If log file directory does not exist, create it
@@ -297,11 +364,11 @@ if __name__ == '__main__':
         try:
             os.makedirs(logdir)
         except OSError:
-            logfile = pjoin(os.getcwd(), 'tracks2shp.log')
+            logfile = pjoin(os.getcwd(), "tracks2shp.log")
 
-    logLevel = config.get('Logging', 'LogLevel')
-    verbose = config.getboolean('Logging', 'Verbose')
-    datestamp = config.getboolean('Logging', 'Datestamp')
+    logLevel = config.get("Logging", "LogLevel")
+    verbose = config.getboolean("Logging", "Verbose")
+    datestamp = config.getboolean("Logging", "Datestamp")
 
     if args.verbose:
         verbose = True
@@ -311,22 +378,23 @@ if __name__ == '__main__':
     if args.file:
         track_file = args.file
     else:
-        track_file = config.get('DataProcess', 'InputFile')
+        track_file = config.get("DataProcess", "InputFile")
 
     if args.source:
         source = args.source
     else:
-        source = config.get('DataProcess', 'Source')
+        source = config.get("DataProcess", "Source")
 
     output_path = dirname(realpath(track_file))
     filename, ext = splitext(track_file)
-    pt_output_file = filename + '_pt.shp'
-    line_output_file = filename + '_line.shp'
-    dissolve_output_file = filename + '_dissolve.shp'
+    pt_output_file = filename + "_pt.shp"
+    line_output_file = filename + "_line.shp"
+    dissolve_output_file = filename + "_dissolve.shp"
 
     if track_file.endswith(".nc"):
 
         from Utilities.track import ncReadTrackData
+
         tracks = ncReadTrackData(track_file)
         netcdf_format = True
 
@@ -341,6 +409,8 @@ if __name__ == '__main__':
     add_category(tracks)
     tracks2point(tracks, pt_output_file, netcdf_format=netcdf_format)
     tracks2line(tracks, line_output_file, netcdf_format=netcdf_format)
-    tracks2line(tracks, dissolve_output_file, dissolve=True, netcdf_format=netcdf_format)
+    tracks2line(
+        tracks, dissolve_output_file,
+        dissolve=True, netcdf_format=netcdf_format
+    )
     LOG.info("Completed tracks2shp")
-
