@@ -21,7 +21,7 @@ dependencies:
   - sqlite
   - statsmodels
   - configparser
-  - cartopy
+  - cartopy>=0.18.0
   - affine
   - tqdm
   - xarray
