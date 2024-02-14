@@ -9,8 +9,6 @@ dependencies:
   - numpy
   - scipy
   - matplotlib
-  - basemap
-  - shapely
   - nose
   - netcdf4
   - cftime
