@@ -28,7 +28,7 @@ jobs:
         activate-environment: tcrm
         environment-file: tcrmenv.yml
         auto-activate-base: false
-        use-only-tar-bz2: tru
+        use-only-tar-bz2: true
 
 
     - name: Test with pytest
