@@ -1,9 +1,23 @@
 subroutine fkerpert(R, lam, f, rMax, Vm, thetaFm, vFm, d2Vm, dVm, dP, beta, rho, Ux, Uy, n)
    !$ use omp_lib
 
-!    Kepert, J., 2001: The Dynamics of Boundary Layer Jets within the
+!    Analytical linear model of the tropical cyclone boundary layer
+!    as in Kepert, J., 2001: The Dynamics of Boundary Layer Jets within the
 !    Tropical Cyclone Core. Part I: Linear Theory.  J. Atmos. Sci., 58,
 !    2469-2484
+    
+!    Written Jeff Kepert, Bureau of Meteorology, 1998-2000. 
+!    Copyright the Bureau of Meteorology.
+!    Please do not distribute without my knowledge.
+
+!    The model is, so far as I know, robust, except if the storm is
+!    close to inertially neutral (e.g. b too big). Note that it was written
+!    to understand the dynamics, not to make accurate predictions -  
+!    the constants (C, K, etc) have not been tuned to observations.
+!    Note also that because of a linearisation in the derivation, the
+!    model does not produce the correct limit in the limit r -> infinity.
+ 
+!    Modified by Craig Arthur, Geoscience Australia
 
 !    This calculates the Kepert wind field with a Holland pressure profile.
 
