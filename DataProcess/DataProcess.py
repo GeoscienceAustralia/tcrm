@@ -312,10 +312,6 @@ class DataProcess(object):
         if self.ncflag:
             self.data['index'] = indicator
 
-        # ieast : parameter used in latLon2Azi
-        # FIXME: should be a config setting describing the input data.
-        ieast = 1
-
         # Determine the index of initial cyclone observations, excluding
         # those cyclones that have only one observation. This is used
         # for calculating initial bearing and speed
@@ -325,7 +321,7 @@ class DataProcess(object):
 
         # Calculate the bearing and distance (km) of every two
         # consecutive records using ll2azi
-        bear_, dist_ = maputils.latLon2Azi(lat, lon, ieast, azimuth=0)
+        bear_, dist_ = maputils.latLon2Azi(lat, lon)
         assert bear_.size == indicator.size - 1
         assert dist_.size == indicator.size - 1
         bear = np.empty(indicator.size, 'f')

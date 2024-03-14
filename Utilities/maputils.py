@@ -18,6 +18,7 @@ import numpy as np
 import math
 from . import metutils
 import warnings
+import pyproj
 try:
     from . import fmaputils
 except ImportError:
@@ -31,6 +32,8 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
+
+geodesic = pyproj.Geod(ellps='WGS84')
 
 def xy2r(x, y):
     """
@@ -50,7 +53,30 @@ def xy2r(x, y):
     #   raise ArrayMismatch, "Input array sizes do not match"
     return np.sqrt(x**2 + y**2)
 
-def latLon2Azi(lat, lon, ieast=1, azimuth=0, wantdeg=True):
+
+def latLon2Azi(lat, lon, wantdeg=True):
+    """
+    Returns the forward bearing and distance (in km) between consecutive
+    members of the array pair (lat, lon)
+
+    :param lat: Latitudes of positions.
+    :param lon: Longitudes of positions.
+    :param float azimuth: Local coordinate system constructed with origin at
+                          latr,lonr, X axis ('North') in direction of azimuth,
+                          and Y axis such that X x Y = Z(down)
+                          when going from (lat,lon) to (x,y) (default 0).
+    :param boolean wantdeg: If ``True`` return bearings as degrees, not radians.
+
+    :returns: azimuth (+ve clockwise from north) and distance (in km).
+    """
+
+    fwdazimuth, _, distances = geodesic.inv(
+        lon[:-1], lat[:-1],
+        lon[1:], lat[1:]
+    )
+    return fwdazimuth, distances / 1000.
+
+def _latLon2Azi(lat, lon, wantdeg=True):
     """
     Returns the bearing and distance (in km) between consecutive
     members of the array pair (lat,lon).
@@ -97,6 +123,23 @@ def latLon2Azi(lat, lon, ieast=1, azimuth=0, wantdeg=True):
     return bearing, length
 
 def bear2LatLon(bearing, distance, oLon, oLat):
+    """
+    Calculate the longitude and latitude of a new point from an origin
+    point given a distance and bearing.
+
+    :param bearing: Direction to new position (degrees, +ve clockwise
+                    from north).
+    :param distance: Distance to new position (km).
+    :param oLon: Initial longitude.
+    :param oLat: Initial latitude.
+
+    :returns: new longitude and latitude (in degrees)
+    """
+    lon, lat, _ = geodesic.fwd(oLon, oLat, bearing, distance * 1000)
+    return lon, lat
+
+
+def _bear2LatLon(bearing, distance, oLon, oLat):
     """
     Calculate the longitude and latitude of a new point from an origin
     point given a distance and bearing.
@@ -173,6 +216,17 @@ def latLon2XY(xr, yr, lat, lon, ieast=1, azimuth=0):
     return xn, ye
 
 def distGC(lat, lon):
+    """
+    Distance based on great circle navigation between pairs of points
+
+    :param lat: _description_
+    :type lat: _type_
+    :param lon: _description_
+    :type lon: _type_
+    """
+    return geodesic.line_lengths(lon, lat, radians=False)
+
+def _distGC(lat, lon):
     """
     Distance based on the great circle navigation between pairs of points.
 

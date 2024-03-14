@@ -152,7 +152,7 @@ tcrm = {
 
 """
 
-def getSpeedBearing(index, lon, lat, deltatime, ieast=1,
+def getSpeedBearing(index, lon, lat, deltatime,
                     missingValue=sys.maxsize):
     """
     Calculate the speed and bearing of a TC.
@@ -182,7 +182,7 @@ def getSpeedBearing(index, lon, lat, deltatime, ieast=1,
 
     """
 
-    bear_, dist_ = maputils.latLon2Azi(lat, lon, ieast, azimuth=0)
+    bear_, dist_ = maputils.latLon2Azi(lat, lon)
     assert bear_.size == index.size - 1
     assert dist_.size == index.size - 1
     bearing = np.zeros(index.size, 'f')
@@ -649,7 +649,7 @@ def ltmPressure(jdays, time, lon, lat, ncfile, ncvar='slp'):
     ncobj = nctools.ncLoadFile(ncfile)
     if ncvar not in ncobj.variables:
         raise KeyError(f"{ncfile} does not contain a variable called '{ncvar}'")
-    
+
     slpunits = getattr(ncobj.variables[ncvar], 'units')
 
     data = nctools.ncGetData(ncobj, ncvar)
@@ -679,9 +679,9 @@ def getPoci(penv, pcentre, lat, jdays, eps,
     :param lat: Latitude of storm (degrees).
     :param jdays: Julian day (day of year).
     :param eps: random variate. Retained as a constant for a single storm.
-    :param list coeffs: Coefficients of the model. Defaults based on 
-                        Southern Hemisphere data 
-                        (IBTrACS v03r06, 1981-2014). 
+    :param list coeffs: Coefficients of the model. Defaults based on
+                        Southern Hemisphere data
+                        (IBTrACS v03r06, 1981-2014).
 
     :returns: Revised estimate for the pressure of outermost closed isobar.
     """
@@ -700,7 +700,7 @@ def getPoci(penv, pcentre, lat, jdays, eps,
         assert len(penv) == len(pcentre)
         assert len(penv) == len(lat)
         assert len(penv) == len(jdays)
-      
+
     poci_model = coeffs[0] + coeffs[1]*penv + coeffs[2]*pcentre \
       + coeffs[3]*pcentre*pcentre + coeffs[4]*lat*lat + \
         coeffs[5]*np.cos(np.pi*2*jdays/365) + eps
@@ -716,9 +716,9 @@ def getPoci(penv, pcentre, lat, jdays, eps,
         poci_model = np.nan
     elif pcentre == missingValue:
         poci_model = np.nan
-    
+
     return poci_model
-    
+
 
 def filterPressure(pressure, inputPressureUnits='hPa',
                    missingValue=sys.maxsize):
