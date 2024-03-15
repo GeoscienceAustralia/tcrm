@@ -28,11 +28,6 @@ except ImportError:
     )
 
 
-# C weave code disabled for now.  The code speeds up the windfield interface module by ~6% but
-# does not appear to work on some systems.
-# from scipy import weave
-# from scipy.weave import converters
-
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
@@ -156,18 +151,13 @@ def distGC(lat, lon):
     return geodesic.line_lengths(lon, lat, radians=False)
 
 
-def gridLatLonDist(cLon, cLat, lonArray, latArray, units=None):
+def gridLatLonDistBear(cLon, cLat, lonArray, latArray):
     """
-    Generate a grid containing the spherical earth distance
+    Generate a grid containing the spherical earth distance and bearing
     of the points defined by (lonarray, latarray) from the
     point defined by (clon, clat).
     (lonarray,latarray) and (clon,clat) are in degrees.
-    Returns distances in km by default, other units specified by the
-    'units' kwarg.
-
-    Based on m_lldist.m by Rich Pawlowicz (rich@ocgy.ubc.ca)
-    Modified by Craig Arthur 2006-11-13
-
+    Returns distances in km, bearing in radians
 
     :param float cLon: Longitude of the point to measure the distance from.
     :param float cLat: Latitude of the point to measure the distance from.
@@ -175,219 +165,28 @@ def gridLatLonDist(cLon, cLat, lonArray, latArray, units=None):
                      grid over which distances will be calculated.
     :param latArray: 1-d array of latitude values that will define the
                      grid over which distances will be calculated.
-    :param str units: Units of distance to be returned (default is kilometre)
 
-    :returns: 2-d array containing the distance of the points defined in
-             ``lonArray`` and ``latArray`` from the point
+    :returns: 2 2-d arrays containing the bearing and distance of the points
+              defined in ``lonArray`` and ``latArray`` from the point
              (``cLon``, ``cLat``).
 
     Example::
 
         >>> lonArray = np.arange(90.,100.,0.1)
         >>> latArray = np.arange(-20.,-10.,0.1)
-        >>> dist = gridLatLonDist( 105., -15., lonArray, latArray, 'km')
+        >>> bearing, distance = gridLatLonDistBear( 105., -15., lonArray, latArray)
 
     """
-
-    # #CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-    # cLat_cos = 0.0
-    # cLat_sin = 0.0
-    # lat = empty(len(latArray), 'd')
-    # lon = empty(len(lonArray), 'd')
-
-    # dLon_sin = empty(len(lonArray), 'd')
-    # dLat_sin = empty(len(latArray), 'd')
-    # lat_cos = empty(len(latArray), 'd')
-
-    # dist = empty([len(latArray), len(lonArray)], 'd')
-
-    # code = """
-    # #include <math.h>
-
-    # double radius = 6367.0;
-    # double toRads = 0.017453292519943295;
-
-    # double cLon_ = cLon;
-    # double cLat_ = cLat;
-
-    # cLon_ = cLon_*toRads;
-    # cLat_ = cLat_*toRads;
-
-    # cLat_cos = cos(cLat_);
-
-    # for (int i = 0; i < NlonArray[0]; ++i)
-    # {
-    # lon(i) = lonArray(i)*toRads;
-    # double dLon = (lon(i) - cLon_)/2.0;
-    # dLon_sin(i) = sin(dLon);
-    # }
-
-    # for (int i = 0; i < NlatArray[0]; ++i)
-    # {
-    # lat(i) = latArray(i)*toRads;
-    # lat_cos(i) = cos(lat(i));
-
-    # double dLat = (lat(i) - cLat_)/2.0;
-    # dLat_sin(i) = sin(dLat);
-    # }
-
-    # for (int j = 0; j < NlatArray[0]; ++j)
-    # {
-    # for (int i = 0; i < NlonArray[0]; ++i)
-    # {
-    # double a = pow(dLat_sin(j), 2) + \
-    # cLat_cos*lat_cos(j)*pow(dLon_sin(i), 2);
-    # double c = 2.0*atan2(sqrt(fabs(a)), sqrt(1 - a));
-
-    # dist(j, i) = radius*c;
-    # }
-    # }
-    # """
-    # err = weave.inline(code,
-    # ['cLon', 'cLat', 'lonArray', 'latArray', 'lat', 'lon',
-    # 'dLon_sin', 'dLat_sin', 'lat_cos', 'dist', 'cLat_cos'],
-    # type_converters=converters.blitz,
-    # compiler = 'gcc')
-    # #CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
-    radius = 6367.0
-
-    lat = np.radians(latArray)
-    lon = np.radians(lonArray)
-
-    cLon = math.radians(cLon)
-    cLat = math.radians(cLat)
-    lon_, lat_ = np.meshgrid(lon, lat)
-
-    dLon = lon_ - cLon
-    dLat = lat_ - cLat
-
-    a = np.square(np.sin(dLat / 2.0)) + np.cos(cLat) * np.cos(lat_) * np.square(
-        np.sin(dLon / 2.0)
-    )
-    c = 2.0 * np.arctan2(np.sqrt(np.absolute(a)), np.sqrt(1 - a))
-    dist = radius * c
-
-    dist = metutils.convert(dist, "km", units)
-
-    return dist
-
-
-def gridLatLonBear(cLon, cLat, lonArray, latArray):
-    """
-    Generate a grid containing the bearing of the points defined by
-    (lonArray,latArray) from the point defined by (cLon,cLat).
-    (lonArray,latArray) and (cLon,cLat) are in degrees.
-    Returns bearing in radians.
-
-    :param float cLon: Longitude of the point to measure the distance from.
-    :param float cLat: Latitude of the point to measure the distance from.
-    :param lonArray: 1-d array of longitude values that will define the
-                     grid over which distances will be calculated.
-    :param latArray: 1-d array of latitude values that will define the
-                     grid over which distances will be calculated.
-    :returns: 2-d array containing the bearing (direction) of the points
-              defined in ``lonArray`` and ``latArray`` from the point
-              (``cLon``, ``cLat``)
-
-    Example::
-
-        >>> from maputils import gridLatLonBear
-        >>> import numpy as np
-        >>> lonArray = np.arange(90.,100.,0.1)
-        >>> latArray = np.arange(-20.,-10.,0.1)
-        >>> gridLatLonBear( 105., -15., lonArray, latArray)
-        array([[-1.94475949, -1.94659552, -1.94845671, ..., -2.36416927,
-                -2.37344337, -2.38290081],
-               [-1.93835542, -1.94015859, -1.94198663, ..., -2.35390045,
-                -2.36317282, -2.37263233],
-               [-1.93192776, -1.93369762, -1.93549204, ..., -2.34343069,
-                -2.35269718, -2.36215458],
-                ...,
-               [-1.29066433, -1.28850464, -1.28632113, ..., -0.84374983,
-                -0.83405688, -0.82416555],
-               [-1.28446304, -1.28227062, -1.28005406, ..., -0.83332654,
-                -0.82361918, -0.813717  ],
-               [-1.27828819, -1.27606348, -1.27381433, ..., -0.82310335,
-                -0.81338586, -0.80347714]])
-
-    """
-
-    # #CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-    # lat = empty(len(latArray), 'd')
-    # lon = empty(len(lonArray), 'd')
-
-    # dLon_sin = empty(len(lonArray), 'd')
-    # dLon_cos = empty(len(lonArray), 'd')
-    # lat_sin = empty(len(latArray), 'd')
-    # lat_cos = empty(len(latArray), 'd')
-
-    # bearing = empty([len(latArray), len(lonArray)], 'd')
-
-    # code = """
-    # #include <math.h>
-
-    # double toRads = 0.017453292519943295;
-
-    # double cLon_ = cLon;
-    # double cLat_ = cLat;
-
-    # cLon_ = cLon_*toRads;
-    # cLat_ = cLat_*toRads;
-
-    # double cLat_cos = cos(cLat_);
-    # double cLat_sin = sin(cLat_);
-
-    # for (int i = 0; i < NlonArray[0]; ++i)
-    # {
-    # lon(i) = lonArray(i)*toRads;
-    # double dLon = lon(i) - cLon_;
-    # dLon_sin(i) = sin(dLon);
-    # dLon_cos(i) = cos(dLon);
-    # }
-
-    # for (int i = 0; i < NlatArray[0]; ++i)
-    # {
-    # lat(i) = latArray(i)*toRads;
-    # lat_sin(i) = sin(lat(i));
-    # lat_cos(i) = cos(lat(i));
-    # }
-
-    # for (int j = 0; j < NlatArray[0]; ++j)
-    # {
-    # for (int i = 0; i < NlonArray[0]; ++i)
-    # {
-    # double alpha = dLon_sin(i)*lat_cos(j);
-    # double beta = (cLat_cos*lat_sin(j)) - (cLat_sin*lat_cos(j)*dLon_cos(i));
-
-    # bearing(j, i) = atan2(alpha, beta);
-    # }
-    # }
-    # """
-    # err = weave.inline(code,
-    # ['cLon', 'cLat', 'lonArray', 'latArray', 'lat', 'lon',
-    # 'dLon_sin', 'dLon_cos', 'lat_sin', 'lat_cos', 'bearing'],
-    # type_converters=converters.blitz,
-    # compiler = 'gcc')
-    # #CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
-    lat = np.radians(latArray)
-    lon = np.radians(lonArray)
-
-    cLon = math.radians(cLon)
-    cLat = math.radians(cLat)
-    lon_, lat_ = np.meshgrid(lon, lat)
-
-    dLon = lon_ - cLon
-    # dLat= lat_ - cLat
-
-    alpha = np.sin(dLon) * np.cos(lat_)
-    beta = np.cos(cLat) * np.sin(lat_) - np.sin(cLat) * np.cos(lat_) * np.cos(dLon)
-
-    bearing = np.arctan2(alpha, beta)
-
-    return bearing
-
+    rows, cols = len(latArray), len(lonArray)
+    longrid, latgrid = np.meshgrid(lonArray, latArray)
+    lonflat = longrid.flatten()
+    latflat = latgrid.flatten()
+    bflat, _, dflat = geodesic.inv(np.tile(cLon, len(lonflat)),
+                               np.tile(cLat, len(lonflat)),
+                               lonflat, latflat)
+    bearings = bflat.reshape(rows, cols)
+    distances = dflat.reshape(rows, cols) / 1000.
+    return np.radians(bearings), distances
 
 def bearing2theta(bearing):
     """
@@ -496,8 +295,8 @@ def makeGrid(
         R = np.ascontiguousarray(R)
         theta = np.ascontiguousarray(theta)
     except ImportError:
-        R = gridLatLonDist(cLon, cLat, xGrid / 1000.0, yGrid / 1000.0)
-        theta = np.pi / 2.0 - gridLatLonBear(cLon, cLat, xGrid / 1000.0, yGrid / 1000.0)
+        bearing, R = gridLatLonDistBear(cLon, cLat, xGrid / 1000., yGrid / 1000.)
+        theta = np.pi / 2.0 - bearing
         np.putmask(R, R == 0, 1e-30)
 
     return R, theta
@@ -541,9 +340,9 @@ def makeGridDomain(
     xGrid = np.array(np.arange(minLon_, maxLon_, gridSize), dtype=int)
     yGrid = np.array(np.arange(minLat_, maxLat_, gridSize), dtype=int)
 
-    R = gridLatLonDist(cLon, cLat, xGrid / 1000.0, yGrid / 1000.0)
+    bearing, R = gridLatLonDistBear(cLon, cLat, xGrid / 1000., yGrid / 1000.)
+    theta = np.pi / 2.0 - bearing
     np.putmask(R, R == 0, 1e-30)
-    theta = np.pi / 2.0 - gridLatLonBear(cLon, cLat, xGrid / 1000.0, yGrid / 1000.0)
     return R, theta
 
 
@@ -640,8 +439,8 @@ def dist2GC(cLon1, cLat1, cLon2, cLat2, lonArray, latArray, units="km"):
     """
 
     # Calculate distance and bearing from first point to array of points:
-    dist_ = gridLatLonDist(cLon1, cLat1, lonArray, latArray, units="rad")
-    bear_ = gridLatLonBear(cLon1, cLat1, lonArray, latArray)
+    bear_, dist_ = gridLatLonDistBear(cLon1, cLat1, lonArray, latArray)
+    dist_ *= 0.0001570783 # Convert to radians
 
     # bearing of the cyclone:
     cyc_bear_ = latLon2Azi([cLon1, cLon2], [cLat1, cLat2])
