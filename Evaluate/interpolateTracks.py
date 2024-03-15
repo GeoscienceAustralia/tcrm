@@ -201,7 +201,7 @@ def interpolate(track, delta, interpolation_type=None):
         nrMax = interp1d(timestep, track.rMax, kind='linear')(newtime)
 
     if len(nLat) >= 2:
-        bear_, dist_ = latLon2Azi(nLat, nLon, 1, azimuth=0)
+        bear_, dist_ = latLon2Azi(nLat, nLon)
         nthetaFm = np.zeros(newtime.size, dtype=float)
         nthetaFm[:-1] = bear_
         nthetaFm[-1] = bear_[-1]

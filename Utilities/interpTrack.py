@@ -186,7 +186,7 @@ def interpolateTrack(configFile, trackFile, source, delta=0.1,
         npEnv = scint.interp1d(timestep, penv, kind='linear')(newtime)
         nrMax = scint.interp1d(timestep, rmax, kind='linear')(newtime)
 
-    bear_, dist_ = maputils.latLon2Azi(nLat, nLon, 1, azimuth=0)
+    bear_, dist_ = maputils.latLon2Azi(nLat, nLon)
     nthetaFm = numpy.zeros(newtime.size, 'f')
     nthetaFm[:-1] = bear_
     nthetaFm[-1] = bear_[-1]
