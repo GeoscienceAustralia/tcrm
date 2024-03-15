@@ -28,7 +28,6 @@ if 'py2exe' in sys.argv:
                      'netCDF4',
                      'matplotlib.backends',
                      'matplotlib.backends.backend_tkagg',
-                     'mpl_toolkits.basemap',
                      'scipy.sparse.csgraph._validation',
                      'scipy.io.matlab.streams',
                      'boto3',
@@ -69,21 +68,18 @@ exts = [
                   extra_compile_args=['-g'])
 ]
 
-basemapData = pjoin('mpl_toolkits', 'basemap', 'data')
-data = [(basemapData, glob(pjoin(get_python_lib(), basemapData, '*')))] + \
-       [('input', glob(pjoin('input', '*')))] + \
+data = [('input', glob(pjoin('input', '*')))] + \
        [('MSLP', glob(pjoin('MSLP', '*.nc')))] + \
        [('.', [pjoin('.', 'matplotlibrc')])]
 
 requires = [
     'matplotlib >= 1.1.1',
-    'basemap >= 1.0.2',
     'netCDF4 >= 1.0.1',
     'numpy >= 1.7.1',
     'scipy >= 0.12.0']
 
 setup(name='tcrm',
-      version='1.0',
+      version='3.1.14',
       options=opts,
       ext_modules=exts,
       data_files=data,
