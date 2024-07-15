@@ -29,7 +29,6 @@
 """
 
 import os, sys
-from scipy import array, arange, pi
 import numpy as np
 import numpy.ma as ma
 import unittest
@@ -138,7 +137,7 @@ class TestMapUtils(NumpyTestCase.NumpyTestCase):
             bearing = maputils.theta2bearing(th)
             result = maputils.bearing2theta(bearing)
             if th < 0.0:
-                self.assertAlmostEqual(th+2.*pi, result)
+                self.assertAlmostEqual(th+2.*np.pi, result)
             else:
                 self.assertAlmostEqual(th, result)
 

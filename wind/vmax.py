@@ -51,7 +51,6 @@ $Id: vmax.py 810 2012-02-21 07:52:50Z nsummons $
 
 """
 
-from scipy import sqrt, exp, power
 import numpy as np
 import Utilities.metutils as metutils
 
