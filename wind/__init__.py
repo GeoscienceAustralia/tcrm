@@ -867,7 +867,6 @@ def balanced(iterable):
     scattering.
     """
     P, p = MPI.COMM_WORLD.size, MPI.COMM_WORLD.rank
-    iterable = itertools.islice(iterable, 0, 100)
     return itertools.islice(iterable, p, None, P)
 
 
