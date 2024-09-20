@@ -34,6 +34,8 @@ from Utilities import pathLocator
 from Utilities.config import ConfigParser
 from Utilities.files import flStartLog
 from Utilities.version import version
+from Utilities.parallel import attemptParallel, disableOnWorkers
+
 from Utilities.progressbar import SimpleProgressBar as ProgressBar
 from Evaluate import interpolateTracks
 
@@ -58,6 +60,7 @@ def timer(f):
 
     return wrap
 
+@disableOnWorkers
 def doOutputDirectoryCreation(configFile):
     """
     Create all the necessary output folders.
@@ -89,6 +92,7 @@ def doOutputDirectoryCreation(configFile):
             except OSError:
                 raise
 
+@disableOnWorkers
 def doTimeseriesPlotting(configFile):
     """
     Run functions to plot time series output.
@@ -107,6 +111,7 @@ def doTimeseriesPlotting(configFile):
     from PlotInterface.plotTimeseries import plotTimeseries
     plotTimeseries(timeseriesPath, plotPath)
 
+@disableOnWorkers
 def doWindfieldPlotting(configFile):
     """
     Plot the wind field on a map.
@@ -188,10 +193,11 @@ def main(configFile):
     outputTrackFile = pjoin(outputPath, "tracks.interp.nc")
 
     # This will save interpolated track data in TCRM format:
-    # interpTrack = interpolateTracks.parseTracks(configFile, trackFile,
-    #                                             source, delta,
-    #                                             outputTrackFile,
-    #                                             interpolation_type='akima')
+    interpTrack = interpolateTracks.parseTracks(configFile, trackFile,
+                                                source, delta,
+                                                outputTrackFile,
+                                                interpolation_type='akima')
+    comm.barrier()
 
     showProgressBar = config.get('Logging', 'ProgressBar')
 
@@ -255,6 +261,12 @@ def startup():
 
     if args.debug:
         debug = True
+
+    global MPI, comm
+    MPI = attemptParallel()
+    import atexit
+    atexit.register(MPI.Finalize)
+    comm = MPI.COMM_WORLD
 
     flStartLog(logfile, logLevel, verbose, datestamp)
     # Switch off minor warning messages

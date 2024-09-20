@@ -8,6 +8,7 @@ from scipy.interpolate import interp1d, splev, splrep
 
 from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile, maxWindSpeed
+from Utilities.parallel import disableOnWorkers
 from Utilities.track import Track, ncSaveTracks
 from pycxml.pycxml import loadfile
 import pandas as pd
@@ -72,7 +73,7 @@ def interpolate(track, delta, interpolation_type=None):
                                           track.Minute)]
     else:
         day_ = track.Datetime
-    
+
     timestep = timedelta(delta/24.)
     try:
         time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.0
@@ -103,7 +104,7 @@ def interpolate(track, delta, interpolation_type=None):
         idx[0] = 1
         # TODO: Possibly could change `np.mean(dt)` to `dt`?
         track.WindSpeed = maxWindSpeed(idx, np.mean(dt), track.Longitude,
-                                       track.Latitude, track.CentralPressure, 
+                                       track.Latitude, track.CentralPressure,
                                        track.EnvPressure)
     # Find the indices of valid pressure observations:
     validIdx = np.where(track.CentralPressure < sys.maxsize)[0]
@@ -142,7 +143,7 @@ def interpolate(track, delta, interpolation_type=None):
             # Use the Akima interpolation method:
             try:
                 import akima
-            except ImportError:
+            except ModuleNotFoundError:
                 LOG.exception(("Akima interpolation module unavailable "
                                " - default to scipy.interpolate"))
                 nLon = splev(newtime, splrep(timestep, track.Longitude, s=0),
@@ -264,6 +265,7 @@ def saveTracks(tracks, outputFile):
         if len(data) > 0:
             np.savetxt(fp, data, fmt=OUTPUT_FMTS)
 
+@disableOnWorkers
 def parseTracks(configFile, trackFile, source, delta, outputFile=None,
                 interpolation_type=None):
     """
