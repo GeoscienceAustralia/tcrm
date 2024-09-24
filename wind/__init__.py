@@ -269,9 +269,9 @@ class WindfieldAroundTrack(object):
                                  (self.track.Latitude <= yMax))[0]
 
         nsteps = len(self.track.TimeElapsed)
-                
-        coords = coords=dict(lon=lonGrid, lat=latGrid, time=timesInRegion)        
-        
+
+        coords = coords = dict(lon=lonGrid, lat=latGrid, time=timesInRegion)
+
         if timeStepCallback is not None:
             timeStepCallback.setup(coords)
 
@@ -299,19 +299,18 @@ class WindfieldAroundTrack(object):
             # Calculate the local wind speeds and pressure at time i
             Ux, Vy, P = self.localWindField(i)
 
-
             # Calculate the local wind gust and bearing
             Ux *= self.gustFactor
             Vy *= self.gustFactor
 
-            
             localGust = np.sqrt(Ux ** 2 + Vy ** 2)
             localBearing = ((np.arctan2(-Ux, -Vy)) * 180. / np.pi)
             # Handover this time step to a callback if required
             if timeStepCallback is not None:
-                
-                timeStepCallback(i, localGust, Ux, Vy, P, imin, imax, jmin, jmax)
-                
+
+                timeStepCallback(i, localGust, Ux, Vy, P,
+                                 imin, imax, jmin, jmax)
+
                 # timeStepCallback(self.track.Datetime[i],
                 #     localGust, Ux, Vy, P,
                 #     lonGrid[imin:imax] / 100.,
@@ -455,11 +454,11 @@ class WindfieldGenerator(object):
                            'evolution.{0:03d}-{1:05d}.nc'.format(
                                *track.trackId))
             callback = writer.WriteMemoryCallback(output,
-                                                     self.gridLimit,
-                                                     self.resolution,
-                                                     self.margin,
-                                                     maxchunk=2048,
-                                                     wraps=callback)
+                                                  self.gridLimit,
+                                                  self.resolution,
+                                                  self.margin,
+                                                  maxchunk=2048,
+                                                  wraps=callback)
             # callback = writer.WriteFoliationCallback(output,
             #                                          self.gridLimit,
             #                                          self.resolution,
@@ -551,7 +550,6 @@ class WindfieldGenerator(object):
 
         if self.multipliers is not None:
             self.calcLocalWindfield(results)
-            
 
     def plotGustToFile(self, result, filename):
         """
@@ -724,8 +722,10 @@ class WindfieldGenerator(object):
 
         """
 
-        tracks = loadTracksFromFiles(sorted(trackfiles), self.gridLimit, self.margin)
-        self.dumpGustsFromTracks(tracks, windfieldPath, timeStepCallback=timeStepCallback)
+        tracks = loadTracksFromFiles(
+            sorted(trackfiles), self.gridLimit, self.margin)
+        self.dumpGustsFromTracks(
+            tracks, windfieldPath, timeStepCallback=timeStepCallback)
 
     def calcLocalWindfield(self, results):
         """
@@ -752,6 +752,7 @@ class WindfieldGenerator(object):
             pM.processMult(gust, Vx, Vy, lon, lat, self.windfieldPath,
                            self.multipliers)
 
+
 def inRegion(t, gridLimit, margin):
     """
     :param t: :class:`Track` object
@@ -767,6 +768,7 @@ def inRegion(t, gridLimit, margin):
             (t.Longitude.min() <= xMax) and
             (yMin <= t.Latitude.max()) and
             (t.Latitude.min() <= yMax))
+
 
 def filterTracks(tracks, gridLimit, margin):
     """
@@ -787,6 +789,7 @@ def filterTracks(tracks, gridLimit, margin):
         return tracks
 
     return validTracks
+
 
 def loadTracksFromFiles(trackfiles, gridLimit, margin):
     """
@@ -818,7 +821,6 @@ def loadTracksFromFiles(trackfiles, gridLimit, margin):
         tracks = filterTracks(loadTracks(f), gridLimit, margin)
         for track in balanced(tracks):
             yield track
-
 
 
 def loadTracks(trackfile):
@@ -968,6 +970,6 @@ def run(configFile, callback=None):
 
 
 # total time to process one track: 218s
-## 215s regionalExtremes
-### 160s in localWindfield
-### 15s in polarGridAroundEye 
+# 215s regionalExtremes
+# 160s in localWindfield
+# 15s in polarGridAroundEye
