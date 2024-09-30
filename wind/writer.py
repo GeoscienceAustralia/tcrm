@@ -102,11 +102,16 @@ class WriteFoliationCallback(object):
         self.Ux = root.createVariable('velocity_east', fill_value=0, **etc)
         self.Uy = root.createVariable('velocity_north', fill_value=0, **etc)
         self.P = root.createVariable('pressure', fill_value=np.NaN, **etc)
+        self.us = root.createVariable('us_inflow', fill_value=0, **etc)
+        self.vs = root.createVariable('vs_azimuthal', fill_value=0, **etc)
+        self.V = root.createVariable('gradient_wind', fill_value=0, **etc)
+        self.R = root.createVariable('R_TC', fill_value=np.NaN, **etc)
+        self.theta = root.createVariable('theta_TC', fill_value=np.NaN, **etc)
 
-    def __call__(self, time, gust, Ux, Uy, P, lon, lat):
+    def __call__(self, time, gust, Ux, Uy, P, lon, lat, us, vs, V, R, theta):
         """Save wind field layer for latest time step"""
         if self.callback:
-            self.callback(time, gust, Ux, Uy, P, lon, lat)
+            self.callback(time, gust, Ux, Uy, P, lon, lat, us, vs, V, R, theta)
 
         t = len(self.time)
 
@@ -124,6 +129,11 @@ class WriteFoliationCallback(object):
         self.Ux[t, i, j] = Ux
         self.Uy[t, i, j] = Uy
         self.P[t, i, j] = P
+        self.us[t, i, j] = us
+        self.vs[t, i, j] = vs
+        self.V[t, i, j] = V
+        self.R[t, i, j] = R
+        self.theta[t, i, j] = theta
 
         # save (flush) layer to file
         self.ds.sync()

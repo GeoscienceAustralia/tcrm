@@ -1054,32 +1054,9 @@ class McConochieWindField(WindFieldModel):
 class KepertWindField(WindFieldModel):
 
     """
-    Analytical linear model of the tropical cyclone boundary layer
-    as in Kepert, J., 2001: The Dynamics of Boundary Layer Jets within the
+    Kepert, J., 2001: The Dynamics of Boundary Layer Jets within the
     Tropical Cyclone Core. Part I: Linear Theory.  J. Atmos. Sci., 58,
     2469-2484
-
-    Written Jeff Kepert, Bureau of Meteorology, 1998-2000.
-    Copyright the Bureau of Meteorology.
-    Please do not distribute without my knowledge.
-
-    The model is, so far as I know, robust, except if the storm is
-    close to inertially neutral (e.g. b too big). Note that it was written
-    to understand the dynamics, not to make accurate predictions -
-    the constants (C, K, etc) have not been tuned to observations.
-    Note also that because of a linearisation in the derivation, the
-    model does not produce the correct limit in the limit r -> infinity.
-
-    Modified by Craig Arthur, Geoscience Australia
-    Modified to reduce the influence of storm motion for weak storms and
-    at large distances from the storm centre. In this modelling framework,
-    we may be calculating the wind field over 500km from the storm centre.
-    For fast moving storms, the BL model results in a vector addition of
-    the wind speed where the tangential flow around the vortex is small
-    (i.e. far from the centre). This is an edge case, and possibly
-    violates the assumption that Vt << V
-    - reduce the effect of storm motion for weaker storms
-    - reduce the effect of storm motion well away from the storm centre
 
     """
 
@@ -1120,14 +1097,12 @@ class KepertWindField(WindFieldModel):
 
         V = self.velocity(R)
         Z = self.vorticity(R)
-        # Reduce the magnitude of forward motion influence for weak storms:
         if (vFm > 0) and (Vm/vFm < 5.):
             Umod = vFm * np.abs(1.25*(1. - (vFm/Vm)))
         else:
             Umod = vFm
         Vt = Umod * np.ones(V.shape)
 
-        # Reduce effect away from the storm centre:
         core = np.where(R > 2. * self.rMax)
         Vt[core] = Umod * np.exp(-((R[core] / (2.*self.rMax)) - 1.) ** 2.)
 
@@ -1183,8 +1158,8 @@ class KepertWindField(WindFieldModel):
         # Surface winds, cartesian coordinates
         Ux = np.sqrt(usf ** 2. + vsf ** 2.) * np.sin(phi - lam)
         Vy = np.sqrt(usf ** 2. + vsf ** 2.) * np.cos(phi - lam)
-
-        return Ux, Vy
+        
+        return Ux, Vy, us, vs, V
 
 
 # Automatic discovery of models and required parameters

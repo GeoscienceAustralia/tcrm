@@ -203,11 +203,11 @@ class WindfieldAroundTrack(object):
         windfield = cls(profile, *values)
 
         if cP < eP:
-            Ux, Vy = windfield.field(R * 1000, theta, vFm, thetaFm,  thetaMax)
+            Ux, Vy, us, vs, V = windfield.field(R * 1000, theta, vFm, thetaFm,  thetaMax)
         else:
-            Ux, Vy = np.zeros_like(R), np.zeros_like(R)
-
-        return (Ux, Vy, P)
+            Ux, Vy, us, vs, V = np.zeros_like(R), np.zeros_like(R), np.zeros_like(R), np.zeros_like(R), np.zeros_like(R)
+        
+        return (Ux, Vy, us, vs, V, P, R, theta)
 
     def regionalExtremes(self, gridLimit, timeStepCallback=None):
         """
@@ -269,7 +269,8 @@ class WindfieldAroundTrack(object):
 
         nsteps = len(self.track.TimeElapsed)
 
-        for i in tqdm.tqdm(timesInRegion, disable=None):
+        #  timesInRegion[::144]   calculate and output every 12hr, 144*5minutes=12hr
+        for i in tqdm.tqdm(timesInRegion[::144], disable=None):
             log.debug(("Calculating wind field at timestep "
                        "{0} of {1}".format(i, nsteps)))
             # Map the local grid to the regional grid
@@ -290,12 +291,18 @@ class WindfieldAroundTrack(object):
                 imax = int((lonCDegree[i] - minLon +
                             gridMargin) / gridStep) + 1
 
-            # Calculate the local wind speeds and pressure at time i
-            Ux, Vy, P = self.localWindField(i)
+            # Calculate the local wind speeds in cartesian coordinate (Ux, Vy)
+            # polar coordinate (us, vs)
+            # gradient wind (V) and pressure (P) at time i
+            # R and theta are radius and direction in polar coordinate
+            Ux, Vy, us, vs, V, P, R, theta = self.localWindField(i)
 
             # Calculate the local wind gust and bearing
             Ux *= self.gustFactor
             Vy *= self.gustFactor
+            us *= self.gustFactor
+            vs *= self.gustFactor
+            V *= self.gustFactor
 
             localGust = np.sqrt(Ux ** 2 + Vy ** 2)
             localBearing = ((np.arctan2(-Ux, -Vy)) * 180. / np.pi)
@@ -305,7 +312,8 @@ class WindfieldAroundTrack(object):
                 timeStepCallback(self.track.Datetime[i],
                                  localGust, Ux, Vy, P,
                                  lonGrid[imin:imax] / 100.,
-                                 latGrid[jmin:jmax] / 100.)
+                                 latGrid[jmin:jmax] / 100., 
+                                 us, vs, V, R, theta)
 
             # Retain when there is a new maximum gust
             mask = localGust > gust[jmin:jmax, imin:imax]
