@@ -69,3 +69,22 @@ the Bureau of Meteorology. See the :ref:`scenariomodelling` section
 for more details.
 
 
+Ensemble simulation
+-------------------
+
+Some forecasting agencies provide ensemble track forecasts. We can run 
+`tcevent.py` in parallel to simulate the wind fields from such a forecast.
+
+An example is provided in `examples/ensemble.ini`
+
+Requirements::
+
+* `pycxml` is a prototype library that reads CycloneXML files, used for 
+distributing ensemble track forecasts (e.g. by the Australian Bureau of
+Meteorology).
+
+To run::
+
+    $ mpirun -np 16 python tcevent.py -c example/ensemble.ini
+
+
