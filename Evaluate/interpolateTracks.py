@@ -3,7 +3,7 @@ import logging
 import numpy as np
 
 from datetime import datetime, timedelta
-from matplotlib.dates import num2date, date2num
+from matplotlib.dates import num2date, date2num 
 from scipy.interpolate import interp1d, splev, splrep
 
 from Utilities.maputils import latLon2Azi
@@ -96,7 +96,7 @@ def interpolate(track, delta, interpolation_type=None):
     newtime = np.arange(timestep[0], timestep[-1] + .01, delta)
     newtime[-1] = timestep[-1]
     _newtime = (newtime / 24.) + time_[0] + date2num(np.datetime64('0000-12-31'))     #  Before Matplotlib 3.3, the epoch was 0000-12-31, later it changes to 1970-01-01 UTC 
-    newdates = num2date(_newtime)
+    newdates = num2date(_newtime) 
     newdates = np.array([n.replace(tzinfo=None) for n in newdates])
 
     if not hasattr(track, 'Speed'):
