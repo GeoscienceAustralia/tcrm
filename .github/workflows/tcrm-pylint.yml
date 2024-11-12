@@ -33,7 +33,7 @@ jobs:
         pylint --rcfile pylintrc --fail-under=7 `find -regextype egrep -regex '(.*.py)$'` |
         tee pylint.txt
     - name: Upload pylint.txt as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pylint report
         path: pylint.txt
