@@ -15,9 +15,11 @@ from os.path import join as pjoin
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
+import pandas as pd
 
 from PlotInterface.figures import LaggedRegressionFigure
-from scipy.stats import linregress, probplot, frechet_l
+# from scipy.stats import linregress, probplot, frechet_l    
+from scipy.stats import linregress, probplot, weibull_max    #  The distributions frechet_r and frechet_l were renamed to weibull_min and weibull_max after SciPy version 1.6.0.
 import numpy as np
 
 import seaborn as sns
@@ -96,8 +98,9 @@ class PlotData(object):
 
         i = np.where((xdata < sys.maxsize) & (ydata < sys.maxsize))[0]
         xx = transform(xdata[i])
-        yy = transform(ydata[i])
-        jp = sns.jointplot(xx, yy, kind='reg',
+        yy = transform(ydata[i]) 
+        df = pd.DataFrame({'xx': xx, 'yy': yy} )
+        jp = sns.jointplot(data=df, x=df.xx, y=df.yy, kind='reg',
                            joint_kws={'scatter_kws':
                                       {'color':'slategray',
                                        'alpha':0.5}},
@@ -120,7 +123,8 @@ class PlotData(object):
         """
 
         fig, ax = plt.subplots(1, 1)
-        sns.barplot(xdata, ydata, ax=ax)
+        df = pd.DataFrame({'xx': xdata, 'yy': ydata} )
+        sns.barplot(data=df, x=df.xx, y=df.yy, ax=ax)
         ax.set_xlabel(labels[0])
         ax.set_ylabel(labels[1])
         ax.axhline(np.mean(ydata))
@@ -180,7 +184,7 @@ class PlotData(object):
         pbins = np.arange(850., 1020., 5)
         pcarray = np.array(pcarray)
         pc = np.take(pcarray, np.where(pcarray<sys.maxsize))
-        ax = sns.distplot(pc, bins=pbins, fit=frechet_l,
+        ax = sns.distplot(pc, bins=pbins, fit=weibull_max,
                           kde_kws={'label':'KDE'},
                           fit_kws={'color':'r',
                                    'label':'Fitted distribution'})
@@ -260,7 +264,7 @@ class PlotPressure(PlotData):
         """
         Plot the distribution of minimum central pressure, and
         include a fitted distribution (presently uses the
-        `scipy.stats.frechet_l` distribution).
+        `scipy.stats.weibull_max` distribution).
 
         :param index: `numpy.ndarray` of 1/0 that indicates the start of
                       separate TC tracks.
@@ -281,7 +285,7 @@ class PlotPressure(PlotData):
         pbins = np.arange(850., 1020., 5)
         pcarray = np.array(pcarray)
         pc = np.take(pcarray, np.where(pcarray<sys.maxsize))
-        ax = sns.distplot(pc, bins=pbins, fit=frechet_l,
+        ax = sns.distplot(pc, bins=pbins, fit=weibull_max,
                           kde_kws={'label':'KDE'},
                           fit_kws={'color':'r',
                                    'label':'Fitted distribution'})
@@ -357,11 +361,15 @@ class PlotDays(PlotData):
         dateFormat = mdates.DateFormatter("%b")
         dates = mdates.num2date(julianDayObs[:, 0])
 
-        sns.barplot(julianDayObs[:, 0], julianDayObs[:, 1], ax=ax1)
+        df = pd.DataFrame({'xx': julianDayObs[:, 0], 'yy': julianDayObs[:, 1]} )
+        sns.barplot(data=df, x=df.xx, y=df.yy, ax=ax1)
+        # sns.barplot(julianDayObs[:, 0], julianDayObs[:, 1], ax=ax1)
         ax1.set_xlim((1, 365))
         ax1.set_ylabel('Observations')
 
-        sns.barplot(julianDayGenesis[:, 0], julianDayGenesis[:, 1], ax=ax2)
+        df = pd.DataFrame({'xx': julianDayGenesis[:, 0], 'yy': julianDayGenesis[:, 1]} )
+        sns.barplot(data=df, x=df.xx, y=df.yy, ax=ax2)
+        # sns.barplot(julianDayGenesis[:, 0], julianDayGenesis[:, 1], ax=ax2)
         ax2.set_xlim((1, 365))
         ax2.set_xlabel('Month')
         ax2.set_ylabel('Genesis events')
