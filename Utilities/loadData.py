@@ -706,6 +706,9 @@ def getPoci(penv, pcentre, lat, jdays, eps,
         coeffs[5]*np.cos(np.pi*2*jdays/365) + eps
 
     if isinstance(poci_model, (np.ndarray, list)):
+        if not isinstance(pcentre, (np.ndarray, list)):
+            pcentre = np.array([pcentre])
+
         nvidx = np.where(pcentre == missingValue)
         poci_model[nvidx] = np.nan
 
