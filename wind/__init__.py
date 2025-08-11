@@ -229,7 +229,7 @@ class WindfieldAroundTrack(object):
         if len(self.track.data) > 0:
             envPressure = convert(self.track.EnvPressure[0], 'hPa', 'Pa')
         else:
-            envPressure = np.NaN
+            envPressure = np.nan
 
         # Get the limits of the region
         xMin = gridLimit['xMin']

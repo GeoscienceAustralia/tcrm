@@ -101,7 +101,7 @@ class WriteFoliationCallback(object):
         self.speed = root.createVariable('gust_speed', fill_value=0, **etc)
         self.Ux = root.createVariable('velocity_east', fill_value=0, **etc)
         self.Uy = root.createVariable('velocity_north', fill_value=0, **etc)
-        self.P = root.createVariable('pressure', fill_value=np.NaN, **etc)
+        self.P = root.createVariable('pressure', fill_value=np.nan, **etc)
 
     def __call__(self, time, gust, Ux, Uy, P, lon, lat):
         """Save wind field layer for latest time step"""
