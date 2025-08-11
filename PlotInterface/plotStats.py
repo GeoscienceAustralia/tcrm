@@ -17,7 +17,7 @@ import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
 
 from PlotInterface.figures import LaggedRegressionFigure
-from scipy.stats import linregress, probplot, frechet_l
+from scipy.stats import linregress, probplot, weibull_max
 import numpy as np
 
 import seaborn as sns
@@ -180,7 +180,7 @@ class PlotData(object):
         pbins = np.arange(850., 1020., 5)
         pcarray = np.array(pcarray)
         pc = np.take(pcarray, np.where(pcarray<sys.maxsize))
-        ax = sns.distplot(pc, bins=pbins, fit=frechet_l,
+        ax = sns.distplot(pc, bins=pbins, fit=weibull_max,
                           kde_kws={'label':'KDE'},
                           fit_kws={'color':'r',
                                    'label':'Fitted distribution'})
@@ -260,7 +260,7 @@ class PlotPressure(PlotData):
         """
         Plot the distribution of minimum central pressure, and
         include a fitted distribution (presently uses the
-        `scipy.stats.frechet_l` distribution).
+        `scipy.stats.weibull_max` distribution).
 
         :param index: `numpy.ndarray` of 1/0 that indicates the start of
                       separate TC tracks.
@@ -281,7 +281,7 @@ class PlotPressure(PlotData):
         pbins = np.arange(850., 1020., 5)
         pcarray = np.array(pcarray)
         pc = np.take(pcarray, np.where(pcarray<sys.maxsize))
-        ax = sns.distplot(pc, bins=pbins, fit=frechet_l,
+        ax = sns.distplot(pc, bins=pbins, fit=weibull_max,
                           kde_kws={'label':'KDE'},
                           fit_kws={'color':'r',
                                    'label':'Fitted distribution'})
