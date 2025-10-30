@@ -10,8 +10,10 @@ from Utilities.maputils import latLon2Azi
 from Utilities.loadData import loadTrackFile, maxWindSpeed
 from Utilities.parallel import disableOnWorkers
 from Utilities.track import Track, ncSaveTracks
-from pycxml.pycxml import loadfile
+# from pycxml.pycxml import loadfile
 import pandas as pd
+
+
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -142,7 +144,7 @@ def interpolate(track, delta, interpolation_type=None):
         if interpolation_type == 'akima':
             # Use the Akima interpolation method:
             try:
-                import akima
+                from Utilities import akima
             except ModuleNotFoundError:
                 LOG.exception(("Akima interpolation module unavailable "
                                " - default to scipy.interpolate"))
@@ -319,8 +321,32 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
             results.append(newtrack)
 
     if outputFile:
-        # Save data to file:
-        ncSaveTracks(outputFile, results)
+        MAX_GROUPS = 32000
+        for i in range(128000, len(results), MAX_GROUPS):
+            part = results[i:i + MAX_GROUPS]
+            part_file = f"{outputFile}_part{i // MAX_GROUPS + 1:03d}.nc"
+            ncSaveTracks(part_file, part)
+
+    # results = results[128000:]
+    # if outputFile:
+    #     from mpi4py import MPI
+    #     import os
+
+    #     comm = MPI.COMM_WORLD
+    #     rank = comm.Get_rank()
+    #     size = comm.Get_size()
+    #     breakpoint()
+    #     # === Parallel output file name ===
+    #     # Example: output = "tracks_part0000.nc", "tracks_part0001.nc", ...
+    #     base, ext = os.path.splitext(outputFile)
+    #     outputFile_rank = f"{base}_part{rank:04d}{ext}"
+
+    #     # === Each rank writes its own file ===
+    #     ncSaveTracks(outputFile_rank, results)
+
+    #     # === Optional synchronization (not strictly needed) ===
+    #     comm.Barrier()
+
 
 
     return results
