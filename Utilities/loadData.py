@@ -787,9 +787,12 @@ def getMaxWind(track, missingValue=sys.maxsize):
     else:
         track.trackMaxWind = w[w != missingValue].max()
 
-
+# CalculateWindSpeed set to False as wind speed is output from Lin model,
+# although WindSpeed will not impact the final wind field 
+# as wind field only calculate from pressure and wind profile
+# Set to True for TC tracks from best track
 def loadTrackFile(configFile, trackFile, source, missingValue=0,
-                  calculateWindSpeed=True):
+                  calculateWindSpeed=False):
     """
     Load TC track data from the given input file, from a specified source.
     The configFile is a configuration file that contains a section called

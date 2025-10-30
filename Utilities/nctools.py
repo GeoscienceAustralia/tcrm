@@ -254,7 +254,7 @@ def ncCreateVar(ncobj, name, dimensions, dtype, data=None, atts=None, **kwargs):
 
 def ncSaveGrid(filename, dimensions, variables, nodata=-9999,
                 datatitle=None, gatts={}, writedata=True,
-                keepfileopen=False, zlib=True, complevel=4, lsd=None):
+                keepfileopen=False, zlib=True, complevel=1, lsd=None):
     """
     Save a gridded dataset to a netCDF file using NetCDF4.
 

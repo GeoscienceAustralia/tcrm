@@ -321,9 +321,9 @@ def ncSaveTracks(trackfile, tracks,
 
         dims = tdata.createDimension('time', None)
         times = tdata.createVariable('time', 'f8', ('time',),
-                                     zlib=True, complevel=8, shuffle=True)
+                                     zlib=True, complevel=1, shuffle=True)
         tvar = tdata.createVariable('track', tdtype, ('time',),
-                                    zlib=True, complevel=8, shuffle=True)
+                                    zlib=True, complevel=1, shuffle=True)
         t.data['Datetime'] = date2num(t.data['Datetime'], timeunits, calendar)
         times[:] = t.data['Datetime']
         times.units = 'hours since 1900-01-01 00:00'
