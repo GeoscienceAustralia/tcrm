@@ -322,7 +322,7 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
 
     if outputFile:
         MAX_GROUPS = 32000
-        for i in range(128000, len(results), MAX_GROUPS):
+        for i in range(192000, len(results), MAX_GROUPS):
             part = results[i:i + MAX_GROUPS]
             part_file = f"{outputFile}_part{i // MAX_GROUPS + 1:03d}.nc"
             ncSaveTracks(part_file, part)
