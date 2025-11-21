@@ -215,7 +215,8 @@ def ncReadTrackData(trackfile):
         calendar = ncobj.getncattr('calendar')
         dtt = num2date(dt[:], units, calendar)
         # Convert to true python datetimes
-        dtconversion = [datetime.strptime(d.strftime(), "%Y-%m-%d %H:%M:%S") for d in dtt]
+        # dtconversion = [datetime.strptime(d.strftime(), "%Y-%m-%d %H:%M:%S") for d in dtt]
+        dtconversion = list(dtt)
         newtd = np.zeros(len(dtt), dtype=track_dtype)
         for f in ncobj.variables.keys():
             if f != 'Datetime' and f in track_dtype.names:
@@ -247,7 +248,8 @@ def ncReadTrackData(trackfile):
             for f in track_data.dtype.names:
                 if f != 'Datetime' and f in track_dtype.names:
                     newtd[f] = track_data[f]
-            dtconversion = [datetime.strptime(d.strftime(), "%Y-%m-%d %H:%M:%S") for d in dt]
+            # dtconversion = [datetime.strptime(d.strftime(), "%Y-%m-%d %H:%M:%S") for d in dt]
+            dtconversion = list(dt)
             newtd['Datetime'] = dtconversion
 
             track = Track(newtd)
