@@ -825,7 +825,7 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
     upper = 100. - lower # 95th percentile default
 
     nrecords = Vr.shape[0] # number of years (since we have aggregated into 1/yr)
-    nsamples = nrecords / sample_size # number of iterations to perform
+    nsamples = int(nrecords / sample_size) # number of iterations to perform
     
     # RpUpper/RpLower = years x lat x lon
     RpUpper = nodata*np.ones((len(years), Vr.shape[1], Vr.shape[2]), dtype='f')
