@@ -491,11 +491,11 @@ class Evaluate(object):
 
     def calc2DHistogram(self, lon, lat):
         h, x, y = np.histogram2d(lon, lat, [self.lonRange, self.latRange],
-                                 normed=False)
+                                 density=False)
         return h, x, y
 
     def calcHistogram(self, values, bins):
-        h, n = np.histogram(values, bins, normed=False)
+        h, n = np.histogram(values, bins, density=False)
         return h, n
 
 

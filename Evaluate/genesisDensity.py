@@ -131,7 +131,7 @@ class GenesisDensity(object):
         histogram, x, y = np.histogram2d(lon, lat,
                                          [self.lon_range,
                                           self.lat_range],
-                                         normed=False)
+                                         density=False)
         return histogram
 
     def calculatePDF(self, tracks):
@@ -186,6 +186,8 @@ class GenesisDensity(object):
                 x.append(track.Longitude[0])
                 y.append(track.Latitude[0])
 
+        x = [float(v) for v in x]
+        y = [float(v) for v in y]
         xx = np.array(x)
         yy = np.array(y)
         ii = np.where((xx >= self.gridLimit['xMin']) &

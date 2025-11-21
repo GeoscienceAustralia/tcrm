@@ -170,7 +170,7 @@ class PressureDistribution(object):
                 minCP[i] = t.CentralPressure.min()
 
         bins = np.arange(850., 1020., 5.)
-        h, n = np.histogram(minCP, bins, normed=True)
+        h, n = np.histogram(minCP, bins, density=True)
         return h, minCP
 
     def calculateMeans(self, synMean, synMin, synMed, synMax, synMinCP):

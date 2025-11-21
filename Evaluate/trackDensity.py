@@ -105,7 +105,7 @@ class TrackDensity(object):
         histogram, x, y = np.histogram2d(lon, lat,
                                          [self.lon_range,
                                           self.lat_range],
-                                          normed=False)
+                                          density=False)
         return histogram
 
     def calculateMeans(self):
