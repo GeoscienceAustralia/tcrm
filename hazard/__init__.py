@@ -301,7 +301,7 @@ class HazardCalculator(object):
         if self.evd == 'GPD':
             log.info("Using the GPD distribution for the hazard curves")
             Vr = loadFilesFromPath(self.inputPath, tilelimits) 
-            Rp, loc, scale, shp = calculateGPD(Vr, self.years, self.numSim, self.nodata,
+            Rp, loc, scale, shp, RpUpper, RpLower = calculateGPD(Vr, self.years, self.numSim, self.nodata,
                                                self.minRecords, self.yrsPerSim)
         elif self.evd == 'GEV':
             log.info("Using the GEV distribution for the hazard curves")
@@ -319,11 +319,14 @@ class HazardCalculator(object):
             Rp, loc, scale, shp = calculateEMP(Vr, self.years, self.numSim, self.nodata,
                                                self.minRecords, self.yrsPerSim)
         if self.calcCI: # set in config
-            RpUpper, RpLower = calculateCI(Vr, self.years, self.nodata,
-                                           self.minRecords, self.yrsPerSim,
-                                           self.sample_size, self.prange)
+            if self.evd == 'GPD':
+                return (tilelimits, Rp, loc, scale, shp, RpUpper, RpLower)
+            else:
+                RpUpper, RpLower = calculateCI(Vr, self.years, self.numSim, self.nodata, 
+                                            self.minRecords, self.yrsPerSim,
+                                            self.sample_size, self.prange)
  
-            return (tilelimits, Rp, loc, scale, shp, RpUpper, RpLower)
+                return (tilelimits, Rp, loc, scale, shp, RpUpper, RpLower)
         else:
             return (tilelimits, Rp, loc, scale, shp)
 
@@ -710,6 +713,8 @@ def calculateGPD(Vr, years, numsim, nodata, minRecords, yrsPerSim):
 
     Vr.sort(axis=0) #axis 0 = year
     Rp = np.zeros((len(years),) + Vr.shape[1:], dtype='f') # Rp = years x lat x lon
+    RpLower = np.zeros((len(years),) + Vr.shape[1:], dtype='f') # RpLower = years x lat x lon
+    RpUpper = np.zeros((len(years),) + Vr.shape[1:], dtype='f') # RpUpper = years x lat x lon
     loc = np.zeros(Vr.shape[1:], dtype='f') # loc = lat x lon
     scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
     shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
@@ -718,7 +723,7 @@ def calculateGPD(Vr, years, numsim, nodata, minRecords, yrsPerSim):
         for j in range(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
                 log.debug("lat: {0}, lon: {1}".format(i, j))
-                w, l, sc, sh = GPD.gpdfit(Vr[:,i,j],
+                w, l, sc, sh, rate, mu, datafilled = GPD.gpdfit(Vr[:,i,j],
                                           years,
                                           numsim,
                                           nodata,
@@ -728,14 +733,33 @@ def calculateGPD(Vr, years, numsim, nodata, minRecords, yrsPerSim):
                 # l = location parameter of fit
                 # sc = scale parameter of fit
                 # sh = shape parameter of fit
+                
+                if sh != nodata:            
+                    wl, wu = GPD.gpd_return_level_CI(
+                                datafilled=datafilled,
+                                mu=mu,
+                                shape=sh,
+                                scale=sc,
+                                rate=rate,
+                                intervals=years,
+                                B=1000,        # number of bootstrap iterations
+                                ci=95         # 95% CI
+                            )
+                else:
+                    wl[:] = nodata
+                    wu[:] = nodata
+
 
                 # Put the returned values back into the lat/lon grid
                 Rp[:, i, j] = w
+                RpLower[:, i, j] = wl
+                RpUpper[:, i, j] = wu
                 loc[i, j] = l
                 scale[i, j] = sc
                 shp[i, j] = sh
 
-    return Rp, loc, scale, shp
+
+    return Rp, loc, scale, shp, RpUpper, RpLower
 
 def calculatePower(Vr, years, numsim, nodata, minRecords, yrsPerSim):
     """
@@ -793,7 +817,7 @@ def calculatePower(Vr, years, numsim, nodata, minRecords, yrsPerSim):
 
     return Rp, loc, scale, shp
 
-def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
+def calculateCI(Vr, years, numsim, nodata, minRecords, yrsPerSim=1,
                 sample_size=50, prange=90):
     """
     Fit a GEV to the wind speed records for a 2-D extent of
@@ -825,7 +849,8 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
     upper = 100. - lower # 95th percentile default
 
     nrecords = Vr.shape[0] # number of years (since we have aggregated into 1/yr)
-    nsamples = nrecords / sample_size # number of iterations to perform
+    nsamples = int(nrecords / sample_size) # number of iterations to perform
+    # numsim = numsim / nsamples
     
     # RpUpper/RpLower = years x lat x lon
     RpUpper = nodata*np.ones((len(years), Vr.shape[1], Vr.shape[2]), dtype='f')
@@ -845,11 +870,16 @@ def calculateCI(Vr, years, nodata, minRecords, yrsPerSim=1,
                     nend  = (n + 1)*sample_size - 1
                     vsub = Vr[nstart:nend, i, j] # select random 50(default) events
 
-                    vsub.sort()
-                    if vsub.max( ) > 0.:
+                    # vsub.sort()
+                    # if vsub.max( ) > 0.:
                         # Perform the fitting on a random subset of samples
-                        w[:, n], loc, scale, shp = evd.gevfit(vsub, years, nodata,
-                                                              minRecords/10, yrsPerSim)
+                        # w[:, n], loc, scale, shp = evd.gevfit(vsub, years, nodata,
+                        #                                       minRecords/10, yrsPerSim)
+
+
+                    if vsub.max( ) > 0.:
+                        w[:, n], loc, scale, shp = evd.empfit(vsub, years, numsim, nodata, 
+                                                                minRecords/10)
 
                 # Pull out the upper and lower percentiles from the random sample fits
                 for n in range(len(years)):

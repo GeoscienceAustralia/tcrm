@@ -396,7 +396,7 @@ class SemilogRangeScatterCurve(SemilogCurve):
                 color='r', label = 'Empirical ARI')
         axes.legend(loc = 2)
 
-        if (ymin[0] > 0) and (ymax[0] > 0):
+        if (ymin[0] >= 0) and (ymax[0] >= 0):
             self.addRange(axes, xdata, ymin, ymax)
 
         axes.set_xlabel(xlabel)

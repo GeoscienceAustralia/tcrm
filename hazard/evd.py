@@ -252,7 +252,7 @@ class POWERDistribution(ExtremeValueDistribution):
             w = func(self.intervals, *pars)
             loc, scale, shp = pars
             return w, loc, scale, shp
-        
+
 def gevfit(data, intervals, nodata=-9999., minrecords=50, yrspersim=1):
     """
     Calculate extreme value distribution parameters using the Lmoments module.
@@ -317,17 +317,26 @@ def gevfit(data, intervals, nodata=-9999., minrecords=50, yrspersim=1):
     # Calculate return period wind speeds
     for i, t in enumerate(intervals): 
         # if no valid fit was found, then there are no return period wind speeds
-        if shp <= 0.:
-            w[i] = nodata
-        # if a valid fit was found...
-        else:
-            # Calculate wind speed for each return period
-            w[i] = (np.transpose(loc + (scale / shp) *
-                    (1. - np.power(-1. * np.log(1. - (yrspersim / t)), shp))))
+        # if shp <= 0.:
+        #     w[i] = nodata
+        # # if a valid fit was found...
+        # else:
+        #     # Calculate wind speed for each return period
+        #     w[i] = (np.transpose(loc + (scale / shp) *
+        #             (1. - np.power(-1. * np.log(1. - (yrspersim / t)), shp))))
 
-            # Replace any non-finite numbers with the missing value:
-            if not np.isfinite(w[i]):
-                w[i] = nodata
+        #     # Replace any non-finite numbers with the missing value:
+        #     if not np.isfinite(w[i]):
+        #         w[i] = nodata
+
+
+        # Calculate wind speed for each return period
+        w[i] = (np.transpose(loc + (scale / shp) *
+                (1. - np.power(-1. * np.log(1. - (yrspersim / t)), shp))))
+
+        # Replace any non-finite numbers with the missing value:
+        if not np.isfinite(w[i]):
+            w[i] = nodata
 
     return w, loc, scale, shp
 
