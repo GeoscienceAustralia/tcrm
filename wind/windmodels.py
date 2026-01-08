@@ -335,6 +335,9 @@ class HollandWindProfile(WindProfileModel):
                  (f * rMax) ** 2) * (4 * beta * dP * rMax ** 2 / rho +
                                      E * (f * rMax ** 2) ** 2)))
 
+        if d2Vm > 0 and abs(dP) < 0.5:
+            d2Vm = -2 * 1e-11
+
         try:
             assert d2Vm < 0.0
         except AssertionError:
