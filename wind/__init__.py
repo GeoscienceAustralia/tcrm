@@ -51,7 +51,6 @@ from Utilities.parallel import attemptParallel
 
 import Utilities.nctools as nctools
 from Utilities.track import ncReadTrackData, Track
-from ProcessMultipliers import processMultipliers as pM
 
 
 class WindfieldAroundTrack(object):
@@ -715,6 +714,14 @@ class WindfieldGenerator(object):
 
         :param results: collection of :tuple: track and wind field data
         """
+
+        try:
+            from ProcessMultipliers import processMultipliers as pM
+        except ModuleNotFoundError as exc:
+            msg = ("ProcessMultipliers requires boto3. Install boto3 or "
+                   "disable multipliers by removing Input:Multipliers/RawMultipliers "
+                   "from the config.")
+            raise ModuleNotFoundError(msg) from exc
 
         # Load a multiplier file to determine the projection:
         # m4_max_file = pjoin(self.multipliers, 'm4_max.img')
