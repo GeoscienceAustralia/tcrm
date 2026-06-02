@@ -742,8 +742,6 @@ class WindfieldGenerator(object):
         :param results: collection of :tuple: track and wind field data
         """
 
-
-
         try:
             from ProcessMultipliers import processMultipliers as pM
         except ModuleNotFoundError as exc:
@@ -751,7 +749,7 @@ class WindfieldGenerator(object):
                    "disable multipliers by removing Input:Multipliers/RawMultipliers "
                    "from the config.")
             raise ModuleNotFoundError(msg) from exc
- 
+
 
         # Load a multiplier file to determine the projection:
         # m4_max_file = pjoin(self.multipliers, 'm4_max.img')
