@@ -283,7 +283,7 @@ def shpGetVertices(shape_file, key_name=None):
     """
 
     try:
-        sf = shapefile.Reader(shape_file, "rb")
+        sf = shapefile.Reader(shape_file)
 
     except shapefile.ShapefileException:
         log.exception("Cannot open {0} for reading".format(shape_file))
@@ -332,7 +332,7 @@ def shpGetField(shape_file, field_name, dtype=float):
     log.debug("Extracting {0} from records".format(field_name))
 
     try:
-        sf = shapefile.Reader(shape_file, "rb")
+        sf = shapefile.Reader(shape_file)
 
     except shapefile.ShapefileException:
         log.exception("Cannot read {0}for ".format(shape_file))
@@ -378,7 +378,7 @@ def shpReadShapeFile(shape_file):
     """
 
     try:
-        sf = shapefile.Reader(shape_file, "rb")
+        sf = shapefile.Reader(shape_file)
     except shapefile.ShapefileException:
         log.exception("Cannot read {0}".format(shape_file))
         raise

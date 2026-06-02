@@ -75,13 +75,13 @@ class TestGenerateStats(NumpyTestCase.NumpyTestCase):
         self.numpyAssertAlmostEqual(coeffs_sig_sample, coeffs_sig_test)
 
         coeffs_alpha_sample = wP.coeffs.alpha[0:10]
-        coeffs_alpha_test = numpy.array([0.51389973, 0.55107082, 0.65703153, 0.60663585, 0.60663585,
-                                         0.62594031, 0.70423342, 0.64339172, 0.6870522 , 0.69641318])
+        coeffs_alpha_test = numpy.array([0.8338471, 0.83574986, 0.87892804, 0.85010785, 0.85010785,
+                                         0.85786992, 0.8830241, 0.86208779, 0.87815064, 0.88345714])
         self.numpyAssertAlmostEqual(coeffs_alpha_sample, coeffs_alpha_test)
 
         coeffs_phi_sample = wP.coeffs.phi[0:10]
-        coeffs_phi_test = numpy.array([0.85785026, 0.83445848, 0.7538631 , 0.79497984, 0.79497984,
-                                       0.77987097, 0.70996851, 0.76553713, 0.72660806, 0.71764105])
+        coeffs_phi_test = numpy.array([0.55199548, 0.54911034, 0.4769544, 0.52660862, 0.52660862,
+                                       0.51386691, 0.46932765, 0.50675895, 0.47838421, 0.46851199])
         self.numpyAssertAlmostEqual(coeffs_phi_sample, coeffs_phi_test)
 
         coeffs_min_sample = wP.coeffs.min[0:20]
@@ -96,6 +96,27 @@ class TestGenerateStats(NumpyTestCase.NumpyTestCase):
         self.numpyAssertAlmostEqual(wP.coeffs.alpha, wP.coeffs.lalpha)
         self.numpyAssertAlmostEqual(wP.coeffs.phi, wP.coeffs.lphi)
         self.numpyAssertAlmostEqual(wP.coeffs.min, wP.coeffs.lmin)
+
+    def test_angular_stats_use_tcrm_circular_std(self):
+        """Angular parameters should use the legacy TCRM circular statistics."""
+        lonLat = numpy.array([[0.1, -0.1, 0.0],
+                              [0.2, -0.2, 0.0],
+                              [0.3, -0.3, 0.0]])
+        bearings = numpy.array([10.0, 20.0, 40.0])
+        gridLimit = {'xMin': 0.0, 'xMax': 1.0, 'yMin': -1.0, 'yMax': 0.0}
+        gridSpace = {'x': 1.0, 'y': 1.0}
+        gridInc = {'x': 1.0, 'y': 1.0}
+        wP = generateStats.GenerateStats(bearings, lonLat, gridLimit,
+                                         gridSpace, gridInc, minSample=1,
+                                         angular=True,
+                                         missingValue=self.missingValue)
+
+        expected_mu = generateStats.stats.circmean(numpy.radians(bearings))
+        expected_sig = generateStats.stats.circstd(numpy.radians(bearings))
+        self.numpyAssertAlmostEqual(wP.coeffs.mu[0:1],
+                                    numpy.array([expected_mu]))
+        self.numpyAssertAlmostEqual(wP.coeffs.sig[0:1],
+                                    numpy.array([expected_sig]))
 
 if __name__ == "__main__":
     unittest.main()

@@ -16,13 +16,12 @@ import logging
 import sys
 
 import numpy as np
-import statsmodels.api as sm
 
 import Utilities.stats as stats
 
 from Utilities.files import flLoadFile
 
-from scipy.stats import scoreatpercentile as percentile, circmean, circstd
+from scipy.stats import scoreatpercentile as percentile
 from PlotInterface.curves import RangeCurve, saveFigure
 
 def acf(p, nlags=1):
@@ -34,8 +33,11 @@ def acf(p, nlags=1):
 
     """
 
-    acorr = sm.tsa.acf(p, nlags=nlags)
-    return acorr
+    ar = np.correlate(p, p, 'full')
+    n = len(p)
+    # Grab only the lag-one autocorrelation coeff.
+    ar = ar[n - 1:(n + nlags)] / ar.max()
+    return ar
 
 
 class parameters(object):
@@ -233,8 +235,8 @@ class GenerateStats:
         p = self.extractParameter(cellNum, onLand)
 
         if self.angular:
-            mu = circmean(np.radians(p))
-            sig = circstd(np.radians(p))
+            mu = stats.circmean(np.radians(p))
+            sig = stats.circstd(np.radians(p))
         else:
             mu = np.mean(p)
             sig = np.std(p)
@@ -479,4 +481,3 @@ class GenerateStats:
                            nodata=self.missingValue,
                            datatitle=None, writedata=True,
                            keepfileopen=False)
-

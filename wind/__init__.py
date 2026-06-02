@@ -38,6 +38,7 @@ from collections import defaultdict
 
 import numpy as np
 import tqdm
+from netCDF4 import Dataset
 from . import windmodels
 from . import writer
 
@@ -51,7 +52,6 @@ from Utilities.parallel import attemptParallel
 
 import Utilities.nctools as nctools
 from Utilities.track import ncReadTrackData, Track
-from ProcessMultipliers import processMultipliers as pM
 
 
 class WindfieldAroundTrack(object):
@@ -388,6 +388,31 @@ class WindfieldGenerator(object):
         self.multipliers = multipliers
         self.windfieldPath = windfieldPath
 
+    @staticmethod
+    def gustFilename(windfieldPath, track):
+        """
+        Return the gust output filename for a track.
+        """
+        return pjoin(windfieldPath,
+                     'gust.{0:03d}-{1:05d}.nc'.format(*track.trackId))
+
+    @staticmethod
+    def gustFileComplete(filename):
+        """
+        Check whether an existing gust file is usable.
+        """
+        if not os.path.isfile(filename) or os.path.getsize(filename) == 0:
+            return False
+
+        try:
+            with Dataset(filename, mode='r') as ncobj:
+                expected = ('lat', 'lon', 'vmax', 'ua', 'va', 'slp')
+                return all(name in ncobj.variables for name in expected)
+        except Exception:
+            log.warning("Existing gust file is incomplete or unreadable: %s",
+                        filename)
+            return False
+
     def setGridLimit(self, track):
         """
         Set the outer bounds of the grid to encapsulate
@@ -503,23 +528,24 @@ class WindfieldGenerator(object):
                                  timestep to extract point values for
                                  specified locations.
         """
-        if timeStepCallback:
-            results = map(self.calculateExtremesFromTrack,
-                          trackiter,
-                          itertools.repeat(timeStepCallback))
-        else:
-            results = map(self.calculateExtremesFromTrack,
-                          trackiter)
+        for track in trackiter:
+            dumpfile = self.gustFilename(windfieldPath, track)
+            if self.gustFileComplete(dumpfile):
+                log.info("Skipping existing wind field for track {0:03d}-{1:05d}"
+                         .format(*track.trackId))
+                continue
 
-        for track, result in results:
+            if timeStepCallback:
+                track, result = self.calculateExtremesFromTrack(
+                    track, timeStepCallback)
+            else:
+                track, result = self.calculateExtremesFromTrack(track)
+
             log.debug("Saving data for track {0:03d}-{1:05d}"
                       .format(*track.trackId))
             # issue 25 flip the lat axes
             gust, bearing, Vx, Vy, P, lon, lat = result
 
-            dumpfile = pjoin(windfieldPath,
-                             'gust.{0:03d}-{1:05d}.nc'.
-                             format(*track.trackId))
             plotfile = pjoin(windfieldPath,
                              'gust.{0:03d}-{1:05d}.png'.
                              format(*track.trackId))
@@ -531,8 +557,8 @@ class WindfieldGenerator(object):
                                  np.flipud(P)),
                                 dumpfile)
 
-        if self.multipliers is not None:
-            self.calcLocalWindfield(results)
+            if self.multipliers is not None:
+                self.calcLocalWindfield([(track, result)])
 
     def plotGustToFile(self, result, filename):
         """
@@ -715,6 +741,17 @@ class WindfieldGenerator(object):
 
         :param results: collection of :tuple: track and wind field data
         """
+
+
+
+        try:
+            from ProcessMultipliers import processMultipliers as pM
+        except ModuleNotFoundError as exc:
+            msg = ("ProcessMultipliers requires boto3. Install boto3 or "
+                   "disable multipliers by removing Input:Multipliers/RawMultipliers "
+                   "from the config.")
+            raise ModuleNotFoundError(msg) from exc
+ 
 
         # Load a multiplier file to determine the projection:
         # m4_max_file = pjoin(self.multipliers, 'm4_max.img')

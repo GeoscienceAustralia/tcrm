@@ -198,7 +198,7 @@ class KDEParameters(object):
 
         kde = sm.nonparametric.KDEUnivariate(self.parameters)
         kde.fit(kernel=self.kdeType, bw=bw, fft=False, 
-                gridsize=len(grid), clip=(min(grid), max(grid)), cut=0)
+                gridsize=len(ndays), clip=(min(ndays), max(ndays)), cut=0)
         #try:
         #    kdeMethod = getattr(KPDF, "UPDF%s" % self.kdeType)
         #except AttributeError:
@@ -207,14 +207,20 @@ class KDEParameters(object):
         #                  self.kdeType)
         #    raise
             
-        veceval = np.vectorize(kde.evaluate)
-        pdf = np.nan_to_num(veceval(grid))
+        try:
+            pdf = np.squeeze(kde.evaluate(ndays))
+            if pdf.ndim == 0 or pdf.size != len(ndays):
+                pdf = np.array([float(np.squeeze(kde.evaluate(x))) for x in ndays])
+        except Exception:
+            pdf = np.array([float(np.squeeze(kde.evaluate(x))) for x in ndays])
+            
+        pdf = np.nan_to_num(pdf)
         
         # Actual PDF to return
         apdf = 3.0*pdf[365:730]
         cy = stats.cdf(days, apdf)
         if genesisKDE is None:
-            return np.transpose(np.array(np.concatenate([days, apdf, cy])))
+            return np.transpose(np.array([days, apdf, cy]))
         else:
             # Assume both kdeParameters and cdfParameters are defined as files:
             LOG.debug("Saving KDE and CDF data to files")
@@ -235,8 +241,14 @@ class KDEParameters(object):
 
         kde.fit(kernel=self.kdeType, fft=False, 
                 gridsize=len(grid), clip=(min(grid), max(grid)), cut=0)
-        veceval = np.vectorize(kde.evaluate)
-        pdf = veceval(grid)
+        
+        try:
+            pdf = np.squeeze(kde.evaluate(grid))
+            if pdf.ndim == 0 or pdf.size != len(grid):
+                pdf = np.array([float(np.squeeze(kde.evaluate(x))) for x in grid])
+        except Exception:
+            pdf = np.array([float(np.squeeze(kde.evaluate(x))) for x in grid])
+            
         return np.nan_to_num(pdf)
         
         #try:

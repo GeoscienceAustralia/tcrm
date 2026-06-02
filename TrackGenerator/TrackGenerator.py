@@ -196,6 +196,9 @@ class SamplePressure(object):
         scale = [365., 180., 360.]
         offset = [0., -90., 0.]
         mslp = interp3d(self.data, coords, scale, offset, prefilter=False)
+        mslp = np.squeeze(mslp)
+        if mslp.ndim == 0:
+            return float(mslp)
         return mslp
 
 class TrackGenerator(object):
@@ -418,7 +421,8 @@ class TrackGenerator(object):
 
         log.debug('Loading cell statistics for speed from netcdf file')
         self.vStats = init('all_speed')
-        self.vStats.load(pjoin(self.processPath, 'speed_rate_stats.nc'))
+        # self.vStats.load(pjoin(self.processPath, 'speed_rate_stats.nc'))
+        self.vStats.load(pjoin(self.processPath, 'speed_stats.nc'))
 
         log.debug('Loading cell statistics for pressure from netcdf file')
         self.pStats = init('all_pressure')
@@ -426,7 +430,8 @@ class TrackGenerator(object):
 
         log.debug('Loading cell statistics for bearing from netcdf file')
         self.bStats = init('all_bearing', angular=True)
-        self.bStats.load(pjoin(self.processPath, 'bearing_rate_stats.nc'))
+        # self.bStats.load(pjoin(self.processPath, 'bearing_rate_stats.nc'))
+        self.bStats.load(pjoin(self.processPath, 'bearing_stats.nc'))
 
         log.debug('Loading cell statistics for pressure_rate from netcdf file')
         self.dpStats = init('pressure_rate')
@@ -1141,7 +1146,8 @@ class TrackGenerator(object):
         if i == 1:
             self.theta += math.degrees(sigma[c] * self.bChi)
         else:
-            self.theta += math.degrees(mu[c] + sigma[c] * self.bChi)
+            # self.theta += math.degrees(mu[c] + sigma[c] * self.bChi)
+            self.theta = math.degrees(mu[c] + sigma[c] * self.bChi)
 
         self.theta = np.mod(self.theta, 360.)
 
@@ -1185,7 +1191,8 @@ class TrackGenerator(object):
         if i == 1:
             self.v += abs(sigma[c] * self.vChi)
         else:
-            self.v += (mu[c] + sigma[c] * self.vChi)
+            # self.v += (mu[c] + sigma[c] * self.vChi)
+            self.v = abs(mu[c] + sigma[c] * self.vChi)
 
     def _stepSizeChange(self, c, i, onLand):
         """

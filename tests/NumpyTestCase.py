@@ -9,8 +9,8 @@
  $Id: NumpyTestCase.py 563 2007-10-24 02:52:40Z carthur $
 """
 
-from scipy import array
-from numpy import allclose, iscomplexobj, alltrue, equal
+from numpy import array
+from numpy import allclose, iscomplexobj, all, equal
 import unittest
 
 class NumpyTestCase(unittest.TestCase):
@@ -22,7 +22,7 @@ class NumpyTestCase(unittest.TestCase):
         self.assertEqual(type(a1), type(a2))
         self.assertEqual(a1.shape, a2.shape)
         self.assertEqual(a1.dtype, a2.dtype)
-        self.assertTrue(alltrue(equal(a1.ravel(), a2.ravel())))
+        self.assertTrue(all(equal(a1.ravel(), a2.ravel())))
 
     def numpyAssertAlmostEqual(self, a1, a2, prec=1.0000000000000001e-005):
         """Test for approximately equality of array fields a1 and a2."""

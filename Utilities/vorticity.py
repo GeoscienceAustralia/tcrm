@@ -735,14 +735,14 @@ def curl_2d( x, y, Fx, Fy, missing=1e+20 \
         """
         import sphere
 
-        sph_obj = sphere.Sphere( x.astype(ma.Float32) \
-                               , y.astype(ma.Float32) )
+        sph_obj = sphere.Sphere( x.astype(np.float32) \
+                               , y.astype(np.float32) )
         if np.allclose(np.array(R_sphere), sphere.radius):
-            curl = sph_obj.vrt( Fx.astype(ma.Float32) \
-                              , Fy.astype(ma.Float32) )
+            curl = sph_obj.vrt( Fx.astype(np.float32) \
+                              , Fy.astype(np.float32) )
         else:
-            curl = sph_obj.vrt( Fx.astype(ma.Float32) \
-                              , Fy.astype(ma.Float32) ) \
+            curl = sph_obj.vrt( Fx.astype(np.float32) \
+                              , Fy.astype(np.float32) ) \
                  * sphere.radius / R_sphere
 
         return curl
