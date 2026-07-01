@@ -26,7 +26,7 @@ import numpy as np
 from Utilities.files import flStartLog
 from Utilities.config import ConfigParser
 from Utilities.dynarray import DynamicRecArray
-from Utilities import shapefile
+import shapefile
 from Utilities import pathLocator
 
 
