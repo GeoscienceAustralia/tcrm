@@ -27,6 +27,7 @@ import sys
 import numpy as np
 import logging
 import random
+import time
 
 from os.path import join as pjoin
 from scipy.stats import scoreatpercentile as percentile
@@ -40,6 +41,14 @@ from . import GPD
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
+
+
+def _progress_step(total, updates=10):
+    """
+    Return a loop interval that logs roughly ``updates`` messages.
+    """
+
+    return max(1, int(np.ceil(float(total) / float(updates)))) if total else 1
 
 def setDomain(inputPath):
     """
@@ -288,7 +297,9 @@ class HazardCalculator(object):
         #    log.exception("{0} distribution not implemented for hazard calculation".format(self.evd))
         #    raise
 
-        log.info("Using {0} distribution for the hazard curves".format(self.evd))
+        log.info("Starting hazard tile %s using %s distribution",
+                 tilelimits, self.evd)
+        start_time = time.time()
         #Vr = loadFilesFromPath(self.inputPath, tilelimits)
         #Rp, loc, scale, shp = evfunc(Vr, self.years, self.numSim, self.nodata,
         #self.minRecords)
@@ -318,6 +329,8 @@ class HazardCalculator(object):
             Vr = loadFilesFromPath(self.inputPath, tilelimits)
             Rp, loc, scale, shp = calculateEMP(Vr, self.years, self.numSim, self.nodata,
                                                self.minRecords, self.yrsPerSim)
+        log.info("Completed hazard tile %s in %.1f seconds",
+                 tilelimits, time.time() - start_time)
         if self.calcCI: # set in config
             RpUpper, RpLower = calculateCI(Vr, self.years, self.nodata,
                                            self.minRecords, self.yrsPerSim,
@@ -338,12 +351,17 @@ class HazardCalculator(object):
         work_tag = 0
         result_tag = 1
         if (comm.rank == 0) and (comm.size > 1):
+            log.info("Hazard master distributing %d tiles to %d workers",
+                     len(tiles), comm.size - 1)
             w = 0
             p = comm.size - 1
+            in_flight = {}
             for d in range(1, comm.size):
                 if w < len(tiles):
-                    comm.send(tiles[w], dest=d, tag=work_tag)
-                    log.debug("Processing tile %d of %d" % (w, len(tiles)))
+                    comm.send((w, tiles[w]), dest=d, tag=work_tag)
+                    in_flight[d] = (w, time.time())
+                    log.info("Assigned hazard tile %d/%d to rank %d: %s",
+                             w + 1, len(tiles), d, tiles[w])
                     w += 1
                 else:
                     comm.send(None, dest=d, tag=work_tag)
@@ -353,6 +371,8 @@ class HazardCalculator(object):
             while(terminated < p):
 
                 result = comm.recv(source=MPI.ANY_SOURCE, status=status, tag=MPI.ANY_TAG)
+                d = status.source
+                finished_tile, tile_start = in_flight.pop(d, (None, None))
 
                 if self.calcCI:
                     limits, Rp, loc, scale, shp, RPupper, RPlower = result
@@ -375,15 +395,25 @@ class HazardCalculator(object):
                     self.RPupper[:, ymin:ymax, xmin:xmax] = RPupper[:, :, :]
                     self.RPlower[:, ymin:ymax, xmin:xmax] = RPlower[:, :, :]
 
-                d = status.source
+                if finished_tile is None:
+                    log.info("Received completed hazard tile from rank %d: %s",
+                             d, limits)
+                else:
+                    elapsed = time.time() - tile_start
+                    log.info("Received hazard tile %d/%d from rank %d in %.1f seconds",
+                             finished_tile + 1, len(tiles), d, elapsed)
 
                 if w < len(tiles):
-                    comm.send(tiles[w], dest=d, tag=status.tag)
-                    log.debug("Processing tile %d of %d" % (w, len(tiles)))
+                    comm.send((w, tiles[w]), dest=d, tag=status.tag)
+                    in_flight[d] = (w, time.time())
+                    log.info("Assigned hazard tile %d/%d to rank %d: %s",
+                             w + 1, len(tiles), d, tiles[w])
                     w += 1
                 else:
                     comm.send(None, dest=d, tag=status.tag)
                     terminated += 1
+                    log.info("No more hazard tiles for rank %d; %d/%d workers complete",
+                             d, terminated, p)
 
                 log.debug("Number of terminated threads is %d"%terminated)
                 if progressCallback:
@@ -395,15 +425,23 @@ class HazardCalculator(object):
             while(True):
                 W = comm.recv(source=0, tag=work_tag, status=status)
                 if W is None:
-                    log.debug("No work to be done on this processor: {0}".format(comm.rank))
+                    log.info("Rank %d received no more hazard tiles", comm.rank)
                     break
-                results = self.calculateHazard(W)
+                tile_number, tilelimits = W
+                log.info("Rank %d starting hazard tile %d/%d: %s",
+                         comm.rank, tile_number + 1, len(tiles), tilelimits)
+                start_time = time.time()
+                results = self.calculateHazard(tilelimits)
+                log.info("Rank %d finished hazard tile %d/%d in %.1f seconds",
+                         comm.rank, tile_number + 1, len(tiles),
+                         time.time() - start_time)
                 comm.send(results, dest=0, tag=status.tag)
 
         elif comm.size == 1 and comm.rank == 0:
             # Assumed no Pypar - helps avoid the need to extend DummyPypar()
             for i, tile in enumerate(tiles):
-                log.debug("Processing tile %d of %d" % (i, len(tiles)))
+                log.info("Processing hazard tile %d/%d: %s",
+                         i + 1, len(tiles), tile)
                 result = self.calculateHazard(tile)
                 if self.calcCI:
                     limits, Rp, loc, scale, shp, RPupper, RPlower = result
@@ -609,7 +647,10 @@ def calculateGEV(Vr, years, nodata, minRecords, yrsPerSim):
     scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
     shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
 
+    row_step = _progress_step(Vr.shape[1])
     for i in range(Vr.shape[1]): # lat
+        if i == 0 or (i + 1) == Vr.shape[1] or (i + 1) % row_step == 0:
+            log.info("GEV fit progress: row %d/%d", i + 1, Vr.shape[1])
         for j in range(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
                 w, l, sc, sh = evd.gevfit(Vr[:,i,j], years, nodata,
@@ -660,7 +701,10 @@ def calculateEMP(Vr, years, numsim, nodata, minRecords, yrsPerSim):
     scale = np.zeros(Vr.shape[1:], dtype='f') # scale = lat x lon
     shp = np.zeros(Vr.shape[1:], dtype='f') # shp = lat x lon
 
+    row_step = _progress_step(Vr.shape[1])
     for i in range(Vr.shape[1]): # lat
+        if i == 0 or (i + 1) == Vr.shape[1] or (i + 1) % row_step == 0:
+            log.info("Empirical fit progress: row %d/%d", i + 1, Vr.shape[1])
         for j in range(Vr.shape[2]): # lon
             if Vr[:,i,j].max() > 0.0: # all years at one lat/lon
                 w, l, sc, sh = evd.empfit(Vr[:,i,j], years, numsim, nodata,
@@ -877,19 +921,29 @@ def aggregateWindFields(inputPath, numSimulations, tilelimits):
     xsize = tilelimits[1] - tilelimits[0]
     Vm = np.zeros((numSimulations, ysize, xsize), dtype='f')
 
-    for year in range(numSimulations):
-        filespec = pjoin(inputPath, "gust.*-%05d.nc"%year)
-        fileList = glob(filespec)
+    for idx in range(numSimulations):
+        candidateYears = (idx + 1, idx)
+        fileList = []
+        selectedYear = None
+        for year in candidateYears:
+            filespec = pjoin(inputPath, "gust.*-%05d.nc" % year)
+            fileList = glob(filespec)
+            if len(fileList) > 0:
+                selectedYear = year
+                break
+
         if len(fileList) == 0:
-            log.debug("No files for year: {0}".format(year))
-            Vm[year, :, :] = np.zeros((ysize, xsize), dtype='f')
+            log.debug("No files for simulation index: {0}".format(idx))
+            Vm[idx, :, :] = np.zeros((ysize, xsize), dtype='f')
             continue
 
+        log.debug("Using windfield year id {0} for simulation index {1}".format(
+            selectedYear, idx))
         Va = np.zeros((len(fileList), ysize, xsize), dtype='f')
         for n, f in enumerate(fileList):
             Va[n, :, :] = loadFile(f, tilelimits)
 
-        Vm[year, :, :] = np.max(Va, axis=0)
+        Vm[idx, :, :] = np.max(Va, axis=0)
 
     return Vm
 
@@ -908,15 +962,21 @@ def loadFilesFromPath(inputPath, tilelimits):
     fileList = os.listdir(inputPath)
     files = [pjoin(inputPath, f) for f in fileList]
     files = [f for f in files if os.path.isfile(f)]
-    log.debug("Loading data from %d files" % (len(files)))
 
     ysize = tilelimits[3] - tilelimits[2]
     xsize = tilelimits[1] - tilelimits[0]
+    log.info("Loading %d windfield files for tile %s (%d x %d)",
+             len(files), tilelimits, xsize, ysize)
     Vr = np.empty((len(files), ysize, xsize), dtype='f')
 
+    file_step = _progress_step(len(files))
     for n, f in enumerate(sorted(files)):
+        if n == 0 or (n + 1) == len(files) or (n + 1) % file_step == 0:
+            log.info("Windfield load progress for tile %s: file %d/%d",
+                     tilelimits, n + 1, len(files))
         Vr[n,:,:] = loadFile(f, tilelimits)
 
+    log.info("Loaded %d windfield files for tile %s", len(files), tilelimits)
     return Vr
 
 def loadFile(filename, limits):
@@ -1008,6 +1068,8 @@ def run(configFile, callback=None):
     log.info("Running hazard calculations")
     TG = TileGrid(gridLimit, wf_lon, wf_lat)
     tiles = getTiles(TG)
+    log.info("Hazard rank %d/%d prepared %d tiles for input path %s",
+             comm.rank, comm.size, len(tiles), inputPath)
 
     #def progress(i):
     #    callback(i, len(tiles))

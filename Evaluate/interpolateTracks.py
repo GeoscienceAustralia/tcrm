@@ -1,5 +1,6 @@
 import sys
 import logging
+import os
 import numpy as np
 
 from datetime import datetime, timedelta
@@ -7,8 +8,11 @@ from matplotlib.dates import num2date, date2num
 from scipy.interpolate import interp1d, splev, splrep
 
 from Utilities.maputils import latLon2Azi
-from Utilities.loadData import loadTrackFile, maxWindSpeed
-from Utilities.parallel import disableOnWorkers
+from Utilities.loadData import (loadTrackFile, maxWindSpeed,
+                                _hours_from_components,
+                                _components_from_hours,
+                                _datetime_from_components)
+from Utilities import parallel
 from Utilities.track import Track, ncSaveTracks
 # from pycxml.pycxml import loadfile
 import pandas as pd
@@ -39,6 +43,13 @@ OUTPUT_COLS = ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
                   'EnvPressure', 'rMax')
 
 OUTPUT_FMTS = '%i,%s,%7.3f,%8.3f,%8.3f,%6.2f,%6.2f,%7.2f,%7.2f,%6.2f'
+
+
+def _get_comm():
+    try:
+        return parallel.MPI.COMM_WORLD
+    except AttributeError:
+        return parallel.attemptParallel().COMM_WORLD
 
 class Track2(object):
     def __init__(self, data):
@@ -76,7 +87,11 @@ def interpolate(track, delta, interpolation_type=None):
     else:
         day_ = track.Datetime
 
-    timestep = timedelta(delta/24.)
+    component_hours = np.array([
+        _hours_from_components(*x)
+        for x in zip(track.Year, track.Month, track.Day,
+                     track.Hour, track.Minute)
+    ], dtype=float)
     try:
         time_ = np.array([d.toordinal() + (d.hour + d.minute/60.)/24.0
                       for d in day_], dtype=float)
@@ -186,7 +201,7 @@ def interpolate(track, delta, interpolation_type=None):
                                      kind='linear')(newtime[firsttime:lasttime])
 
                 _nwSpd = interp1d(timestep[validIdx],
-                                  track.Speed[validIdx],
+                                  track.WindSpeed[validIdx],
                                   kind='linear')(newtime[firsttime:lasttime])
 
                 npCentre[firsttime:lasttime] = _npCentre
@@ -218,11 +233,10 @@ def interpolate(track, delta, interpolation_type=None):
         nvFm = track.Speed[-1]
         nthetaFm = track.Bearing[-1]
 
-    nYear = [date.year for date in newdates]
-    nMonth = [date.month for date in newdates]
-    nDay = [date.day for date in newdates]
-    nHour = [date.hour for date in newdates]
-    nMin = [date.minute for date in newdates]
+    new_component_hours = component_hours[0] + newtime
+    new_components = [_components_from_hours(h) for h in new_component_hours]
+    nYear, nMonth, nDay, nHour, nMin = [list(v) for v in zip(*new_components)]
+    newdates = np.array([_datetime_from_components(*x) for x in new_components])
     np.putmask(npCentre, npCentre > 10e+6, sys.maxsize)
     np.putmask(npCentre, npCentre < 700, sys.maxsize)
 
@@ -267,40 +281,70 @@ def saveTracks(tracks, outputFile):
         if len(data) > 0:
             np.savetxt(fp, data, fmt=OUTPUT_FMTS)
 
-@disableOnWorkers
+def _interpolate_indexed_track(item, delta, interpolation_type):
+    index, track = item
+    if len(track.data) == 1:
+        return index, track
+    return index, interpolate(track, delta, interpolation_type)
+
+
+def _save_rank_tracks(outputFile, rank, results, max_groups=32000):
+    results.sort(key=lambda item: item[0])
+    tracks = [track for _, track in results]
+
+    if not outputFile:
+        return tracks
+
+    base, ext = os.path.splitext(outputFile)
+    ext = ext or ".nc"
+    for i in range(0, len(tracks), max_groups):
+        part = tracks[i:i + max_groups]
+        part_number = i // max_groups + 1
+        if part_number == 1:
+            part_file = "{0}_rank{1:04d}{2}".format(base, rank, ext)
+        else:
+            part_file = "{0}_rank{1:04d}_part{2:03d}{3}".format(
+                base, rank, part_number, ext)
+        ncSaveTracks(part_file, part, calendar='proleptic_gregorian')
+
+    return tracks
+
+
 def parseTracks(configFile, trackFile, source, delta, outputFile=None,
                 interpolation_type=None):
     """
     Load a track dataset, then interpolate to some time delta (given in
     hours). Events with only a single record are not altered.
 
-    :type  configFile: string
-    :param configFile: Configuration file containing settings that
-                       describe the data source.
-
-    :type  trackFile: string
-    :param trackFile: Path to the input data source.
-
-    :type  source: string
-    :param source: Name of the data source. `configFile` must have a
-                   corresponding section which contains options that
-                   describe the data format.
-
-    :type  delta: float
-    :param delta: Time difference to interpolate the dataset to. Must be
-                  positive.
-
-    :type  outputFile: string
-    :param outputFile: Path to the destination of output, if it is to
-                       be saved.
-
-    :type  results: `list` of :class:`Track` objects containing the
-                    interpolated track data
-
+    In MPI runs, rank 0 loads the tracks once and distributes individual
+    tracks to worker ranks. When an output file is requested, each rank writes
+    its local tracks to avoid funnelling all NetCDF output through rank 0.
     """
-    LOG.info("Interpolating tracks from {0}".format(trackFile))
+    comm = _get_comm()
+    rank = comm.rank
+    size = comm.size
+
+    if rank == 0:
+        LOG.info("Interpolating tracks from {0}".format(trackFile))
     if delta < 0.0:
         raise ValueError("Time step for interpolation must be positive")
+
+    if size > 1 and rank != 0:
+        local_results = []
+        while True:
+            item = comm.recv(source=0)
+            if item is None:
+                break
+            result = _interpolate_indexed_track(item, delta,
+                                               interpolation_type)
+            if outputFile:
+                local_results.append(result)
+                comm.send(True, dest=0)
+            else:
+                comm.send(result, dest=0)
+        _save_rank_tracks(outputFile, rank, local_results)
+        comm.barrier()
+        return []
 
     if trackFile.endswith("nc"):
         from Utilities.track import ncReadTrackData
@@ -311,43 +355,71 @@ def parseTracks(configFile, trackFile, source, delta, outputFile=None,
     else:
         tracks = loadTrackFile(configFile, trackFile, source)
 
+    indexed_tracks = list(enumerate(tracks))
     results = []
 
-    for track in tracks:
-        if len(track.data) == 1:
-            results.append(track)
+    if size > 1:
+        LOG.info("Interpolating %d tracks across %d MPI ranks",
+                 len(indexed_tracks), size)
+        next_index = 0
+        active_workers = 0
+        local_results = []
+
+        def next_worker_item():
+            nonlocal next_index
+            while next_index < len(indexed_tracks):
+                if next_index % size == 0:
+                    local_results.append(_interpolate_indexed_track(
+                        indexed_tracks[next_index], delta,
+                        interpolation_type))
+                    next_index += 1
+                    continue
+                item = indexed_tracks[next_index]
+                next_index += 1
+                return item
+            return None
+
+        for worker in range(1, size):
+            item = next_worker_item()
+            if item is None:
+                comm.send(None, dest=worker)
+                continue
+            comm.send(item, dest=worker)
+            active_workers += 1
+
+        while next_index < len(indexed_tracks) or active_workers > 0:
+            while (next_index < len(indexed_tracks) and
+                   next_index % size == 0):
+                local_results.append(_interpolate_indexed_track(
+                    indexed_tracks[next_index], delta, interpolation_type))
+                next_index += 1
+
+            if active_workers > 0:
+                status = parallel.MPI.Status()
+                worker_result = comm.recv(source=parallel.MPI.ANY_SOURCE,
+                                          status=status)
+                if not outputFile:
+                    results.append(worker_result)
+                worker = status.source
+                active_workers -= 1
+
+                item = next_worker_item()
+                if item is not None:
+                    comm.send(item, dest=worker)
+                    active_workers += 1
+                else:
+                    comm.send(None, dest=worker)
+        if outputFile:
+            results = _save_rank_tracks(outputFile, rank, local_results)
         else:
-            newtrack = interpolate(track, delta, interpolation_type)
-            results.append(newtrack)
-
-    if outputFile:
-        MAX_GROUPS = 32000
-        for i in range(192000, len(results), MAX_GROUPS):
-            part = results[i:i + MAX_GROUPS]
-            part_file = f"{outputFile}_part{i // MAX_GROUPS + 1:03d}.nc"
-            ncSaveTracks(part_file, part)
-
-    # results = results[128000:]
-    # if outputFile:
-    #     from mpi4py import MPI
-    #     import os
-
-    #     comm = MPI.COMM_WORLD
-    #     rank = comm.Get_rank()
-    #     size = comm.Get_size()
-    #     breakpoint()
-    #     # === Parallel output file name ===
-    #     # Example: output = "tracks_part0000.nc", "tracks_part0001.nc", ...
-    #     base, ext = os.path.splitext(outputFile)
-    #     outputFile_rank = f"{base}_part{rank:04d}{ext}"
-
-    #     # === Each rank writes its own file ===
-    #     ncSaveTracks(outputFile_rank, results)
-
-    #     # === Optional synchronization (not strictly needed) ===
-    #     comm.Barrier()
-
-
+            results.extend(local_results)
+            results.sort(key=lambda item: item[0])
+            results = [track for _, track in results]
+        comm.barrier()
+    else:
+        results = [_interpolate_indexed_track(item, delta, interpolation_type)
+                   for item in indexed_tracks]
+        results = _save_rank_tracks(outputFile, rank, results)
 
     return results
 

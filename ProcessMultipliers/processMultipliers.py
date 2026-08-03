@@ -68,10 +68,13 @@ from os.path import join as pjoin, dirname, realpath, isdir, splitext
 from shutil import copyfile
 
 import argparse
-import boto3
+
 import numpy as np
 import numpy.ma as ma
-from botocore.exceptions import ClientError
+try:
+    from botocore.exceptions import ClientError
+except ImportError:
+    ClientError = Exception
 from netCDF4 import Dataset
 from osgeo import osr, gdal, gdalconst
 from osgeo.gdal_array import BandReadAsArray, CopyDatasetInfo, BandWriteArray
@@ -187,6 +190,7 @@ class getMultipliers():
         path is not used.
         """
         if self._s3_client is None:
+            import boto3
             self._s3_client = boto3.client('s3')
         return self._s3_client
 

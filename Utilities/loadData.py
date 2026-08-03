@@ -42,6 +42,102 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
+
+def _is_leap_year(year):
+    """Return True if year is a leap year in the proleptic Gregorian calendar."""
+    return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+
+
+def _normalise_datetime_year(year):
+    """
+    Map synthetic years outside Python's datetime range to a supported year.
+
+    The 400-year cycle preserves Gregorian leap-year behaviour, so the month
+    and day remain valid for seasonal calculations.
+    """
+    if 1 <= year <= 9999:
+        return year
+    return 2000 + ((year - 2000) % 400)
+
+
+def _datetime_from_components(year, month, day, hour, minute):
+    return datetime(_normalise_datetime_year(year), month, day, hour, minute)
+
+
+def _days_before_year(year):
+    if year < 1:
+        raise ValueError("Error in input year information - check input file")
+    y = year - 1
+    return y * 365 + y // 4 - y // 100 + y // 400
+
+
+def _day_of_year(year, month, day):
+    month_lengths = [31, 29 if _is_leap_year(year) else 28, 31, 30, 31, 30,
+                     31, 31, 30, 31, 30, 31]
+    if month < 1 or month > 12:
+        raise ValueError("Error in input month information - check input file")
+    if day < 1 or day > month_lengths[month - 1]:
+        raise ValueError("Error in input day information - check input file")
+    return sum(month_lengths[:month - 1]) + day
+
+
+def _hours_from_components(year, month, day, hour, minute):
+    if hour < 0 or hour > 24:
+        raise ValueError("Error in input hour information - check input file")
+    if minute < 0 or minute > 60:
+        raise ValueError("Error in input minute information - check input file")
+    ordinal = _days_before_year(year) + _day_of_year(year, month, day)
+    return ordinal * 24. + hour + minute / 60.
+
+
+def _components_from_hours(hours):
+    total_minutes = int(round(hours * 60.))
+    ordinal, minute_of_day = divmod(total_minutes, 24 * 60)
+    hour, minute = divmod(minute_of_day, 60)
+
+    lo = 1
+    hi = 10000
+    while _days_before_year(hi + 1) < ordinal:
+        hi *= 2
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if _days_before_year(mid + 1) < ordinal:
+            lo = mid + 1
+        else:
+            hi = mid
+
+    year = lo
+    day_of_year = ordinal - _days_before_year(year)
+    month_lengths = [31, 29 if _is_leap_year(year) else 28, 31, 30, 31, 30,
+                     31, 31, 30, 31, 30, 31]
+    month = 1
+    for month_length in month_lengths:
+        if day_of_year <= month_length:
+            break
+        day_of_year -= month_length
+        month += 1
+
+    return year, month, day_of_year, hour, minute
+
+
+def _parse_extended_date(date_value, datefmt):
+    """
+    Parse date strings with years beyond datetime's 1..9999 range.
+
+    Python's strptime cannot parse five-digit years, but synthetic TCRM input
+    files can contain simulation years such as 10000.
+    """
+    if datefmt != '%Y-%m-%d %H:%M:%S':
+        raise ValueError("Unsupported extended date format")
+    datestr = str(date_value).strip()
+    date_part, time_part = datestr.split()
+    year, month, day = [int(v) for v in date_part.split('-')]
+    hour, minute, second = [int(v) for v in time_part.split(':')]
+    if second != 0:
+        raise ValueError("Second values are not supported in track dates")
+    _hours_from_components(year, month, day, hour, minute)
+    return year, month, day, hour, minute
+
 """
 
 TRACKFILE_COLS = ('Indicator', 'CycloneNumber', 'Year', 'Month',
@@ -396,17 +492,26 @@ def date2ymdh(dates, datefmt='%Y-%m-%d %H:%M:%S'):
     for i in range(len(dates)):
         try:
             d = datetime.strptime(str(dates[i]), datefmt)
-        except ValueError as e:
-            LOG.exception("Error in date information for record {0}".format(i))
-            LOG.exception(repr(e))
-            raise
-        else:
             year[i] = d.year
             month[i] = d.month
             day[i] = d.day
             hour[i] = d.hour
             minute[i] = d.minute
             datetimes[i] = d
+        except ValueError as e:
+            try:
+                y, m, dy, h, mn = _parse_extended_date(dates[i], datefmt)
+            except ValueError:
+                LOG.exception("Error in date information for record {0}".format(i))
+                LOG.exception(repr(e))
+                raise
+            else:
+                year[i] = y
+                month[i] = m
+                day[i] = dy
+                hour[i] = h
+                minute[i] = mn
+                datetimes[i] = _datetime_from_components(y, m, dy, h, mn)
 
     return year, month, day, hour, minute, datetimes
 
@@ -460,7 +565,8 @@ def parseDates(data, indicator, datefmt='%Y-%m-%d %H:%M:%S'):
                                "- setting minutes to 00 for all times")
                 minute = np.zeros((hour.size), 'i')
 
-        datetimes = np.array([datetime(y, m, d, h, mn) for y, m, d, h, mn
+        datetimes = np.array([_datetime_from_components(y, m, d, h, mn)
+                              for y, m, d, h, mn
                               in zip(year, month, day, hour, minute)])
 
     return year, month, day, hour, minute, datetimes
@@ -517,10 +623,10 @@ def getTimeDelta(year, month, day, hour, minute):
               observations in hours.
 
     """
-    dates = [datetime(*x) for x in zip(year, month, day, hour, minute)]
-    diffs = [d1 - d0 for d0, d1 in zip(dates[:-1], dates[1:])]
-    return np.array([0.0] + [round(d.days * 24. + d.seconds / 3600.)
-                             for d in diffs], 'f')
+    hours = [_hours_from_components(*x)
+             for x in zip(year, month, day, hour, minute)]
+    diffs = [h1 - h0 for h0, h1 in zip(hours[:-1], hours[1:])]
+    return np.array([0.0] + [round(d) for d in diffs], 'f')
 
 def getTimeElapsed(indicator, year, month, day, hour, minute):
     """
@@ -539,16 +645,16 @@ def getTimeElapsed(indicator, year, month, day, hour, minute):
     :returns: :class:`numpy.ndarray` of time since the initial observation
               for each TC (in hours).
     """
-    dates = [datetime(*x) for x in zip(year, month, day, hour, minute)]
+    hours = [_hours_from_components(*x)
+             for x in zip(year, month, day, hour, minute)]
 
     timeElapsed = []
-    for i, d in zip(indicator, dates):
+    for i, h in zip(indicator, hours):
         if i == 1:
-            start = d
+            start = h
             timeElapsed.append(0.0)
         else:
-            delta = d - start
-            timeElapsed.append(delta.total_seconds()/3600.)
+            timeElapsed.append(h - start)
 
     return np.array(timeElapsed)
 
@@ -572,8 +678,14 @@ def getTime(year, month, day, hour, minute):
     :return: :class:`numpy.ndarray` of days since 0001-01-01 00:00:00 UTC + 1
 
     """
-    dates = [datetime(*x) for x in zip(year, month, day, hour, minute)]
-    return np.array([d.toordinal() + d.hour / 24. for d in dates], 'f')
+    time = []
+    for y, m, d, h, mn in zip(year, month, day, hour, minute):
+        if h < 0 or h > 24:
+            raise ValueError("Error in input hour information - check input file")
+        if mn < 0 or mn > 60:
+            raise ValueError("Error in input minute information - check input file")
+        time.append(_days_before_year(y) + _day_of_year(y, m, d) + h / 24.)
+    return np.array(time, 'd')
 
 
 def julianDays(year, month, day, hour, minute):
@@ -608,15 +720,12 @@ def julianDays(year, month, day, hour, minute):
     # set all years prior to 1900 to 1904 - strftime() requires year >=1900;
     # and in the Gregorian calendar, 1900 is not a leap year (and there are
     # many years prior to 1900 that are!).
-    second = np.zeros((hour.size), 'i')
     jyear = np.copy(year)
     jyear[np.where(jyear < 1900)] = 1904
-    day = [datetime(jyear[i], month[i], day[i], hour[i], minute[i],
-                    second[i]) for i in range(year.size)]
+    jyear = np.array([_normalise_datetime_year(y) for y in jyear], 'i')
 
-    jdays = np.array([int(day[i].strftime("%j")) for
-                      i in range(year.size)])
-    return jdays
+    return np.array([_day_of_year(jyear[i], month[i], day[i])
+                     for i in range(year.size)])
 
 
 def ltmPressure(jdays, time, lon, lat, ncfile, ncvar='slp'):
@@ -883,9 +992,11 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
         novalue_index = np.where(windspeed == sys.maxsize)
         windspeed = metutils.convert(windspeed, inputSpeedUnits, "mps")
         windspeed[novalue_index] = missingValue
+        hasInputWindSpeed = True
     except (ValueError, KeyError):
-        LOG.debug("No max wind speed data - all values will be zero")
+        LOG.debug("No max wind speed data - will calculate from pressure")
         windspeed = np.zeros(indicator.size, 'f')
+        hasInputWindSpeed = False
     assert lat.size == indicator.size
     assert lon.size == indicator.size
     assert pressure.size == indicator.size
@@ -936,7 +1047,7 @@ def loadTrackFile(configFile, trackFile, source, missingValue=0,
     speed, bearing = getSpeedBearing(indicator, lon, lat, dt,
                                      missingValue=missingValue)
 
-    if calculateWindSpeed:
+    if calculateWindSpeed or not hasInputWindSpeed:
         windspeed = maxWindSpeed(indicator, dt, lon, lat, pressure, poci)
 
     TCID = np.cumsum(indicator)

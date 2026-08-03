@@ -49,7 +49,7 @@ from Utilities.maputils import bearing2theta, makeGrid
 from Utilities.parallel import attemptParallel
 
 import Utilities.nctools as nctools
-from Utilities.track import ncReadTrackData, Track
+from Utilities.track import Dataset, ncReadTrackData, Track
 from ProcessMultipliers import processMultipliers as pM
 
 
@@ -203,8 +203,9 @@ class WindfieldAroundTrack(object):
         values = [getattr(self, p) for p in params if hasattr(self, p)]
         windfield = cls(profile, *values)
 
-        # if the central pressure >= environmental pressure return 0 wind fields
-        if cP < eP:
+        # Skip remnant/weak stages where the pressure deficit is too small
+        # for a physically meaningful TC wind field.
+        if (eP - cP) >= 200.0:
             Ux, Vy = windfield.field(R * 1000, theta, vFm, thetaFm,  thetaMax)
         else:
             Ux, Vy = np.zeros_like(R), np.zeros_like(R)
@@ -529,17 +530,16 @@ class WindfieldGenerator(object):
                           trackiter)
 
         for track, result in results:
-            log.debug("Saving data for track {0:07d}-{1:07d}"
-                      .format(*track.trackId))
+            file_id = gustFileId(track)
+            log.debug("Saving data for track {0:03d}-{1:05d}"
+                      .format(*file_id))
             # issue 25 flip the lat axes
             gust, bearing, Vx, Vy, P, lon, lat = result
 
-            dumpfile = pjoin(windfieldPath,
-                             'gust.{0:07d}-{1:07d}.nc'.
-                             format(*track.trackId))
+            dumpfile = gustFilePath(windfieldPath, track)
             plotfile = pjoin(windfieldPath,
-                             'gust.{0:07d}-{1:07d}.png'.
-                             format(*track.trackId))
+                             'gust.{0:03d}-{1:05d}.png'.
+                             format(*file_id))
             self.saveGustToFile(track.trackfile,
                                 (np.flipud(lat), lon,
                                  np.flipud(gust),
@@ -723,7 +723,8 @@ class WindfieldGenerator(object):
         """
 
         tracks = loadTracksFromFiles(
-            sorted(trackfiles), self.gridLimit, self.margin)
+            sorted(trackfiles), self.gridLimit, self.margin, windfieldPath,
+            self.profileType, self.beta, self.beta1, self.beta2)
         self.dumpGustsFromTracks(
             tracks, windfieldPath, timeStepCallback=timeStepCallback)
 
@@ -791,7 +792,171 @@ def filterTracks(tracks, gridLimit, margin):
     return validTracks
 
 
-def loadTracksFromFiles(trackfiles, gridLimit, margin):
+def trackFileGustIdEntries(trackfile, gridLimit, margin):
+    """Read year and cyclone ids directly from a track NetCDF file."""
+    entries = []
+    ncobj = Dataset(trackfile, mode='r')
+    try:
+        groups = ncobj.groups
+        if not groups:
+            lon = ncobj.variables['Longitude'][:]
+            lat = ncobj.variables['Latitude'][:]
+            if gridLimit is None or inRegionArrays(lon, lat, gridLimit, margin):
+                entries.append((int(ncobj.variables['Year'][0]),
+                                int(ncobj.variables['CycloneNumber'][0])))
+            return entries
+
+        for data in groups['tracks'].groups.values():
+            track_data = data.variables['track'][:]
+            lon = track_data['Longitude']
+            lat = track_data['Latitude']
+            if gridLimit is None or inRegionArrays(lon, lat, gridLimit, margin):
+                entries.append((int(track_data['Year'][0]),
+                                int(track_data['CycloneNumber'][0])))
+    finally:
+        if ncobj is not None:
+            ncobj.close()
+
+    return entries
+
+
+def inRegionArrays(lon, lat, gridLimit, margin):
+    """Check if longitude and latitude arrays intersect the wind domain."""
+    xMin = gridLimit['xMin'] - margin
+    xMax = gridLimit['xMax'] + margin
+    yMin = gridLimit['yMin'] - margin
+    yMax = gridLimit['yMax'] + margin
+    return ((xMin <= lon.max()) and (lon.min() <= xMax) and
+            (yMin <= lat.max()) and (lat.min() <= yMax))
+
+
+def buildGustFileIdMap(trackfiles, gridLimit, margin):
+    """Map each track to its TC number within the track year."""
+    try:
+        comm = MPI.COMM_WORLD
+    except NameError:
+        comm = attemptParallel().COMM_WORLD
+    id_map = None
+
+    if comm.rank == 0:
+        year_tracks = defaultdict(set)
+        for trackfile in sorted(trackfiles):
+            for year_id, cyclone_id in trackFileGustIdEntries(
+                    trackfile, gridLimit, margin):
+                year_tracks[year_id].add(cyclone_id)
+
+        id_map = {}
+        for year_id, cyclone_ids in year_tracks.items():
+            for tc_number, cyclone_id in enumerate(sorted(cyclone_ids), 1):
+                id_map[(year_id, cyclone_id)] = (tc_number, year_id)
+
+        log.info("Assigned gust file ids for %d tracks across %d years",
+                 len(id_map), len(year_tracks))
+
+    if hasattr(comm, 'bcast'):
+        id_map = comm.bcast(id_map, root=0)
+
+    return id_map
+
+
+def assignGustFileIds(tracks, gustFileIdMap):
+    """Assign gust filename ids as TC number within year and year id."""
+    for track in tracks:
+        year_id = int(track.Year[0])
+        cyclone_id = int(track.CycloneNumber[0])
+        track.gustFileId = gustFileIdMap[(year_id, cyclone_id)]
+    return tracks
+
+
+def gustFileId(track):
+    """Return the id tuple used in gust output filenames."""
+    return getattr(track, 'gustFileId', track.trackId)
+
+
+def gustFilePath(windfieldPath, track):
+    """Return the gust NetCDF path for a track."""
+    return pjoin(windfieldPath,
+                 'gust.{0:03d}-{1:05d}.nc'.format(*gustFileId(track)))
+
+
+def kepertUmodOld(vfm, vm):
+    """Return Kepert Umod from the previous implementation."""
+    if (vfm > 0.0) and (vm / vfm < 5.0):
+        if vm == 0.0:
+            return np.inf
+        return vfm * np.abs(1.25 * (1.0 - vfm / vm))
+    return vfm
+
+
+def kepertUmodNew(vfm, vm):
+    """Return Kepert Umod from the current implementation."""
+    if vfm <= 0.0:
+        return 0.0
+    if vm < 2.0:
+        return 0.0
+    if vfm >= vm:
+        return 0.0
+    if vm / vfm < 5.0:
+        return vfm * np.abs(1.25 * (1.0 - vfm / vm))
+    return vfm
+
+
+def hasChangedKepertUmodTimesteps(track, profileType, beta, beta1, beta2):
+    """Return True if old and new Kepert Umod logic differ for a track."""
+    cls = windmodels.profile(profileType)
+    params = windmodels.profileParams(profileType)
+    values = {
+        'beta': beta,
+        'beta1': beta1,
+        'beta2': beta2,
+    }
+
+    for i in range(len(track.data)):
+        eP = convert(track.EnvPressure[i], 'hPa', 'Pa')
+        cP = convert(track.CentralPressure[i], 'hPa', 'Pa')
+        if (eP - cP) < 200.0:
+            continue
+
+        rMax = track.rMax[i] * 1000
+        args = [values[p] for p in params if p in values]
+        profile = cls(track.Latitude[i], track.Longitude[i], eP, cP,
+                      rMax, *args)
+        vm = profile.vMax
+        vfm = convert(track.Speed[i], 'kph', 'mps')
+        old_umod = kepertUmodOld(vfm, vm)
+        new_umod = kepertUmodNew(vfm, vm)
+
+        if not np.isclose(old_umod, new_umod, rtol=1.0e-12, atol=1.0e-12):
+            log.info("Regenerating windfield for track %s: old/new Kepert "
+                     "Umod differs at timestep %d (vFm=%.3f m/s, "
+                     "Vm=%.3f m/s, old=%.3f, new=%.3f)",
+                     gustFileId(track), i, vfm, vm, old_umod, new_umod)
+            return True
+
+    return False
+
+
+def skipCompletedTracks(tracks, windfieldPath, profileType, beta, beta1, beta2):
+    """Yield missing tracks and tracks affected by the Kepert Umod change."""
+    if windfieldPath is None:
+        for track in tracks:
+            yield track
+        return
+
+    for track in tracks:
+        outputFile = gustFilePath(windfieldPath, track)
+        if os.path.isfile(outputFile) and os.path.getsize(outputFile) > 0:
+            if hasChangedKepertUmodTimesteps(track, profileType, beta,
+                                             beta1, beta2):
+                yield track
+                continue
+            log.info("Skipping existing windfield file %s", outputFile)
+            continue
+        yield track
+
+
+def loadTracksFromFiles(trackfiles, gridLimit, margin, windfieldPath=None,
+                       profileType=None, beta=None, beta1=None, beta2=None):
     """
     Generator that yields :class:`Track` objects from a list of track
     filenames.
@@ -807,19 +972,28 @@ def loadTracksFromFiles(trackfiles, gridLimit, margin):
     :param trackfiles: list of track filenames. The filenames must include the
                        path to the file.
     """
+    gustFileIdMap = buildGustFileIdMap(trackfiles, gridLimit, margin)
+
     if len(trackfiles) > 1:
         for f in balanced(trackfiles):
             msg = f'Calculating wind fields for tracks in {f}'
             log.info(msg)
-            tracks = filterTracks(loadTracks(f), gridLimit, margin)
-            for track in tracks:
+            tracks = assignGustFileIds(
+                filterTracks(loadTracks(f), gridLimit, margin),
+                gustFileIdMap)
+            for track in skipCompletedTracks(tracks, windfieldPath,
+                                             profileType, beta, beta1, beta2):
                 yield track
     else:
         f = trackfiles[0]
         msg = f'Calculating wind fields for tracks in {f}'
         log.info(msg)
-        tracks = filterTracks(loadTracks(f), gridLimit, margin)
-        for track in balanced(tracks):
+        tracks = assignGustFileIds(
+            filterTracks(loadTracks(f), gridLimit, margin),
+            gustFileIdMap)
+        for track in balanced(skipCompletedTracks(tracks, windfieldPath,
+                                                   profileType, beta, beta1,
+                                                   beta2)):
             yield track
 
 

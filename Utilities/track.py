@@ -164,12 +164,13 @@ class Track(object):
 ISO_FORMAT = "%Y-%m-%d %H:%M:%S"
 TCRM_COLS = ('CycloneNumber', 'Datetime', 'TimeElapsed', 'Longitude',
              'Latitude', 'Speed', 'Bearing', 'CentralPressure',
-             'EnvPressure', 'rMax')
+             'EnvPressure', 'rMax', 'Year')
 
 TCRM_UNIT = ('', '', 'hr', 'degree', 'degree', 'kph', 'degrees',
-                  'hPa', 'hPa', 'km')
+                  'hPa', 'hPa', 'km', '')
 
-TCRM_FMTS = ('i', 'object', 'f', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8')
+TCRM_FMTS = ('i', 'object', 'f', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8', 'f8',
+             'i')
 
 TCRM_CNVT = {
     0: lambda s: int(float(s.strip() or 0)),
