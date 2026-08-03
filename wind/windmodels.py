@@ -1100,8 +1100,14 @@ class KepertWindField(WindFieldModel):
 
         V = self.velocity(R)
         Z = self.vorticity(R)
-        if (vFm > 0) and (Vm/vFm < 5.):
-            Umod = vFm * np.abs(1.25*(1. - (vFm/Vm)))
+        if vFm <= 0.0:
+            Umod = 0.0
+        elif Vm < 2.0:
+            Umod = 0.0
+        elif vFm >= Vm:
+            Umod = 0.0
+        elif Vm / vFm < 5.0:
+            Umod = vFm * np.abs(1.25 * (1.0 - vFm / Vm))
         else:
             Umod = vFm
         Vt = Umod * np.ones(V.shape)

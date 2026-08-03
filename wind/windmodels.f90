@@ -48,8 +48,14 @@ subroutine fkerpert(R, lam, f, rMax, Vm, thetaFm, vFm, d2Vm, dVm, dP, beta, rho,
    cc = dVm - 3 * aa * rMax ** 2 - 2 * bb * rMax
 
 
-   if ((vFm > 0) .and. (Vm/vFm < 5.)) then
-         Umod = vFm * abs(1.25*(1. - (vFm/Vm)))
+   if (vFm <= 0.) then
+      Umod = 0.
+   else if (Vm < 2.) then
+      Umod = 0.
+   else if (vFm >= Vm) then
+      Umod = 0.
+   else if ((Vm / vFm) < 5.) then
+      Umod = vFm * abs(1.25 * (1. - vFm / Vm))
    else
       Umod = vFm
    end if

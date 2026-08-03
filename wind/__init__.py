@@ -202,7 +202,9 @@ class WindfieldAroundTrack(object):
         values = [getattr(self, p) for p in params if hasattr(self, p)]
         windfield = cls(profile, *values)
 
-        if cP < eP:
+        # Skip remnant/weak stages where the pressure deficit is too small
+        # for a physically meaningful TC wind field.
+        if (eP - cP) >= 200.0:
             Ux, Vy = windfield.field(R * 1000, theta, vFm, thetaFm,  thetaMax)
         else:
             Ux, Vy = np.zeros_like(R), np.zeros_like(R)
@@ -531,9 +533,15 @@ class WindfieldGenerator(object):
         for track in trackiter:
             dumpfile = self.gustFilename(windfieldPath, track)
             if self.gustFileComplete(dumpfile):
-                log.info("Skipping existing wind field for track {0:03d}-{1:05d}"
-                         .format(*track.trackId))
-                continue
+                if hasSuspectWindTimesteps(
+                        track, self.profileType, beta=self.beta,
+                        beta1=self.beta1, beta2=self.beta2):
+                    log.info("Regenerating suspect wind field for track {0:03d}-{1:05d}"
+                             .format(*track.trackId))
+                else:
+                    log.info("Skipping existing wind field for track {0:03d}-{1:05d}"
+                             .format(*track.trackId))
+                    continue
 
             if timeStepCallback:
                 track, result = self.calculateExtremesFromTrack(
@@ -804,6 +812,47 @@ def filterTracks(tracks, gridLimit, margin):
         return tracks
 
     return validTracks
+
+def hasSuspectWindTimesteps(track, profileType, beta=1.3, beta1=1.5,
+                            beta2=1.4, minPressureDeficit=2.0,
+                            minWindSpeed=2.0):
+    """
+    Return True if an existing windfield should be regenerated.
+
+    This targets tracks affected by the Kepert forward-motion guard where
+    translation speed is greater than or equal to the profile maximum wind.
+    Pressure deficit is in hPa here because track pressure units are hPa.
+    """
+    pressure_deficit = track.EnvPressure - track.CentralPressure
+    vfm = convert(track.Speed, 'kph', 'mps')
+
+    cls = windmodels.profile(profileType)
+    params = windmodels.profileParams(profileType)
+    param_values = {
+        'beta': beta,
+        'beta1': beta1,
+        'beta2': beta2
+    }
+    values = [param_values[p] for p in params if p in param_values]
+
+    for i in range(len(track.Longitude)):
+        if pressure_deficit[i] < minPressureDeficit:
+            continue
+        if vfm[i] <= 0.0:
+            continue
+
+        eP = convert(track.EnvPressure[i], 'hPa', 'Pa')
+        cP = convert(track.CentralPressure[i], 'hPa', 'Pa')
+        rMax = track.rMax[i] * 1000.0
+        profile = cls(track.Latitude[i], track.Longitude[i], eP, cP,
+                      rMax, *values)
+        vm = profile.vMax
+
+        if np.isfinite(vm) and vm >= minWindSpeed and vfm[i] >= vm:
+            return True
+
+    return False
+
 
 def loadTracksFromFiles(trackfiles, gridLimit, margin):
     """

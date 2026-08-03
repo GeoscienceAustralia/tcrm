@@ -949,6 +949,7 @@ class TrackGenerator(object):
 
         # Initialise the landfall time over land (`tol`)
         tol = 0.0
+        negativeAlphaTime = 0.0
 
         # Generate the track
         for i in range(1, self.maxTimeSteps):
@@ -1007,12 +1008,19 @@ class TrackGenerator(object):
                 deltaP = self.offshorePoci - self.offshorePressure
                 alpha = 0.03515 + 0.000435 * deltaP +\
                         0.002865 * self.landfallSpeed + lfeps
+                if alpha < 0.0:
+                    negativeAlphaTime += float(self.dt)
+                    if negativeAlphaTime > 12.0:
+                        alpha = max(alpha, 0.001)
+                else:
+                    negativeAlphaTime = 0.0
                 pressure[i] = poci[i - 1] - deltaP * np.exp(-alpha * tol)
                 poci[i] = getPoci(penv, pressure[i], lat[i], jday[i], poci_eps)
                 log.debug('alpha value for landfall decay: {0}'.format(alpha))
                 log.debug(('Central pressure {0} hours after landfall:'
                            '{1:.2f}'.format(tol, pressure[i])))
             else:
+                negativeAlphaTime = 0.0
                 pstat = self.pStats.coeffs
                 pressure[i] = pressure[i - 1] + self.dp * self.dt
 
@@ -1766,6 +1774,18 @@ def run(configFile, callback=None):
     trackPath = pjoin(outputPath, 'tracks')
     processPath = pjoin(outputPath, 'process')
     trackFilename = 'tracks.%05i-%%04i.' + fmt
+    skipExistingTracks = False
+    skipSimulations = set()
+
+    if config.has_option('TrackGenerator', 'SkipExistingTracks'):
+        skipExistingTracks = config.getboolean('TrackGenerator',
+                                               'SkipExistingTracks')
+
+    if config.has_option('TrackGenerator', 'SkipSimulations'):
+        skipSimStr = config.get('TrackGenerator', 'SkipSimulations')
+        skipSimulations = set(
+            int(item.strip()) for item in skipSimStr.split(',')
+            if item.strip())
 
     if config.has_option('TrackGenerator', 'gridLimit'):
         gridLimit = config.geteval('TrackGenerator', 'gridLimit')
@@ -1880,6 +1900,16 @@ def run(configFile, callback=None):
         if callback is not None:
             callback(sim.index, N)
 
+        ncTrackFile = pjoin(trackPath, "tracks.{0:05d}.nc".format(sim.index))
+
+        if sim.index in skipSimulations:
+            log.info('Skipping simulation %05d by configuration', sim.index)
+            continue
+
+        if skipExistingTracks and os.path.isfile(ncTrackFile):
+            log.info('Skipping existing track file %s', ncTrackFile)
+            continue
+
         if sim.seed:
             global PRNG #TODO: explicitly-pass rather than mutate global state
             PRNG = random.Random(seed=sim.seed, stream=sim.index)
@@ -1887,7 +1917,6 @@ def run(configFile, callback=None):
 
         trackFile = pjoin(trackPath, sim.outfile)
         tracks = tg.generateTracks(sim.ntracks, sim.index)
-        ncTrackFile = pjoin(trackPath, "tracks.{0:05d}.nc".format(sim.index))
         ncSaveTracks(ncTrackFile, tracks, calendar='julian')
 
     log.info('Simulating tropical cyclone tracks:' +
