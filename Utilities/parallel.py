@@ -93,7 +93,10 @@ def attemptParallel():
         # load mpi4py for everyone
 
         from mpi4py import MPI
-    except (ImportError, ModuleNotFoundError):
+    except (ImportError, ModuleNotFoundError, RuntimeError):
+        # ImportError/ModuleNotFoundError: mpi4py not installed.
+        # RuntimeError: mpi4py is installed but the native MPI library
+        # (libmpi.so) cannot be loaded. In both cases fall back to serial.
 
         # no mpi4py, create a dummy version of COMM_WORLD and
         # additional methods and attributes

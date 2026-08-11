@@ -37,9 +37,13 @@ INPUT_TITLES = ("Station", "Time", "Longitude", "Latitude", "Wind speed",
                 "Sea level pressure")
 INPUT_UNIT = ('', '%Y-%m-%d %H:%M', 'degrees', 'degrees', 'm/s',
                 'm/s', 'm/s','degrees', 'Pa')
+def _astext(s):
+    # numpy < 2 passes bytes to genfromtxt converters; numpy >= 2 passes str.
+    return s.decode() if isinstance(s, bytes) else s
+
 INPUT_CNVT = {
-    1: lambda s: datetime.strptime(s.decode().strip(), INPUT_UNIT[1]),
-    8: lambda s: convert(float(s.decode().strip() or 0), INPUT_UNIT[8], 'hPa')
+    1: lambda s: datetime.strptime(_astext(s).strip(), INPUT_UNIT[1]),
+    8: lambda s: convert(float(_astext(s).strip() or 0), INPUT_UNIT[8], 'hPa')
     }
 
 def loadTimeseriesData(datafile):
